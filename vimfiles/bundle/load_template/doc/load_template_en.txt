@@ -1,0 +1,107 @@
+"=============================================================================
+"  Author:          DanteZhu - http://www.vimer.cn
+"  Email:           dantezhu@vip.qq.com
+"  FileName:        load_template_zh.txt
+"  Version:         1.0
+"  LastChange:      2010-02-01 09:25:06
+"  Description:     introduction of load_template.vim
+"					For any question,welcome to my blog http://www.vimer.cn,
+"					and welcome to email me:zny2008@gmail.com / dantezhu@vip.qq.com
+"  History:         
+"=============================================================================
+1.Introduction
+The plugin mainly provides the functionality that loading templates such as class,html,makefile and so on.The plugin also can load templates with script to take the replace of the filename or classname.(As default,the plugin has already included templates as main,singleton class,html,xml,makefile.)
+2.Use guide
+	1)Download load_template.vim,and put it into the plugin directory.
+
+	2)Assign the directory where to load templates in your vimrc file.
+	For example
+	let g:template_path = 'C:\template\'
+	Warning:Don't forget about the last '\'.
+
+	3)New/Open a test.cpp,execute
+	:LoadTemplate
+	It will show the template list like this:
+	Template filelist:
+	0		:		cpp/main.cpp
+	1		:		cpp/singleton.h
+	please select:
+
+	4)There are also options available that allow you to make your own templates(you can write vim script in it.) 
+	Just try it yourself.
+
+3.Command Introduction 
+	*List the template file by the current file's extension and filetype.
+	:LoadTemplate
+           
+	*Allocate the type of template file.(type is the style of the template such as cpp.html... )
+	:LoadTemplate type
+	
+4.Create your own template file
+	1)Template of const text
+		a)First,select your template type,such as html,then name it like test_t.html
+		b)Select the directory of template,the plugin can be saved in two place:
+			1.g:template_path/test_t.html
+			2.g:template_path/html/test_t.html
+			The last one can be better than first.
+		c)Code your template,then save
+
+		OK,Now you can try to test it in a *.html.
+	2)Template of const text and script.
+		For this type template,the plugin provides a const place to write script.(Do not worry about it,this script will be deleted after the template loaded)
+		The form is like this:
+		EXE_BEGIN_TEMPLATE
+
+		EXE_END_TEMPLATE
+		Between the two lines,you can write any script,such as the script in singleton.h:
+
+		EXE_BEGIN_TEMPLATE
+		let classname = input("Please input class name : ")
+		if classname =~ '^\s*$'
+			let classname = "CClass"
+		endif
+		execute '%s/CClass/'.classname.'/g'
+		if !filereadable(expand("%:t:r").'.cpp')
+			execute "new ".expand("%:t:r").'.cpp'
+			normal o
+			call setline('.',classname."* ".classname."::m_ins = NULL;")
+			normal o
+			call setline('.',"auto_ptr<".classname."> ".classname."::m_auto_ptr;")
+			normal o
+			call setline('.',classname."::".classname."()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"	m_auto_ptr = auto_ptr<".classname.">(this);")
+			normal o
+			call setline('.',"}")
+			normal o
+			call setline('.',classname."::~".classname."()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"}")
+			normal o
+			call setline('.',classname."* ".classname."::Ins()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"	if ( m_ins == NULL)")
+			normal o
+			call setline('.',"		m_ins = new ".classname."();")
+			normal o
+			call setline('.',"	return m_ins;")
+			normal o
+			call setline('.',"}")
+			normal o
+		endif
+		EXE_END_TEMPLATE
+
+		This template will remind you to input the class name ,and then create a single class.
+
+	3£©Especially Directions
+		For some template's script,it will affect the former data,so the plugin provides a methord:new a buffer to load the template, then copy it to the former buffer.
+		If you want to use the previous methord,you need a definition after EXE_BEGIN_TEMPLATE,that is :
+		EXE_BEGIN_TEMPLATE NEEDNEW
+		EXE_END_TEMPLATE
+5.For any question,welcome to my blog http://www.vimer.cn,and welcome to email me:zny2008@gmail.com / dantezhu@vip.qq.com

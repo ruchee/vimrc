@@ -1,0 +1,106 @@
+"=============================================================================
+"  Author:          DanteZhu - http://www.vimer.cn
+"  Email:           dantezhu@vip.qq.com
+"  FileName:        load_template_zh.txt
+"  Version:         1.0
+"  LastChange:      2010-02-03 22:12:18
+"  Description:     load_template.vim 介绍文档
+"  					欢迎来 http://www.vimer.cn来分享你的模板文件，或者直接给我
+"  					发送邮件zny2008@gmail.com/dantezhu@vip.qq.com
+"  History:         
+"=============================================================================
+1.简单介绍
+	该插件主要实现了自动载入各种模板的功能（如类模板，html模板，makefile模板等等），并且支持动态模版的功能，即能够通过脚本动态的实现文件名，类名的替换。（默认已经提供了简单main函数模板、单体类模板、html标准模板、xml标准模板）
+
+2.使用说明
+	1）下载load_template.vim插件，并放在plugin的目录下
+	2）在vimrc文件中指定你的模板目录，来指定插件读取模板的目录。
+	如在下载包中已经带了一个template的目录，里面按照文件扩展名、文件类型，分别建立了目录，你可以将这个template文件夹复制到C:\，那么就可以指定
+	let g:template_path = 'C:\template\'
+	注意，最后的'\'请务必不要忘记（在linux下也是一样要加 '/' ）
+	3）新建/打开一个test.cpp，执行
+	:LoadTemplate
+	试试看，是否有类似模板列表出来啦~
+	Template filelist:
+	0		:		cpp/main.cpp
+	1		:		cpp/singleton.h
+	please select:
+	4）你甚至可以自己制作模板文件~~只需要参考已经存在的模板文件就行啦~~支持vim脚本的哦
+
+3.命令说明
+	*根据当前文件的扩展名、文件类型来自动列出模板文件
+	:LoadTemplate
+
+	*手动指定需要载入的模板文件类型（其中type为需要载入的模板类型，如cpp,html...）
+	:LoadTemplate type
+
+4.模板文件的制作
+	如果，你有写好的模板文件希望与大家分享，欢迎联系我！~~（我的博客和联系方式在文件的最前和最后都可以看到~）
+	1）简单纯静态文字模板的制作
+		a）首先，你需要选择你要制作的模板文件类型，例如为html格式，任意起个名字为 test_t.html
+		b）为你的模板文件选择存放目录，插件支持存放在两种地方
+			1.g:template_path/test_t.html
+			2.g:template_path/html/test_t.html
+			相比来说，第二种比第一种更方便管理，但是第一种却更简单一些，一切看自己的喜欢啦
+		c）为你的模板文件写入你要的代码，然后保存。
+
+		OK，上面的步骤已经完成了一个模板文件的制作过程，可以尝试新建/打开一个*.html来测试一下啦
+	2）静态文字+脚本的模板的制作
+		对这种模板，插件里是有固定的格式来规定脚本要写在那个部分的（不用担心，这部分的代码在执行完毕后会被删除掉，不会被载入的）
+		格式是这样的：
+		EXE_BEGIN_TEMPLATE
+
+		EXE_END_TEMPLATE
+		在这两行的中间就可以写任意的vim脚本，例如singleton.h里面就写了很多这样的脚本：
+
+		EXE_BEGIN_TEMPLATE
+		let classname = input("Please input class name : ")
+		if classname =~ '^\s*$'
+			let classname = "CClass"
+		endif
+		execute '%s/CClass/'.classname.'/g'
+		if !filereadable(expand("%:t:r").'.cpp')
+			execute "new ".expand("%:t:r").'.cpp'
+			normal o
+			call setline('.',classname."* ".classname."::m_ins = NULL;")
+			normal o
+			call setline('.',"auto_ptr<".classname."> ".classname."::m_auto_ptr;")
+			normal o
+			call setline('.',classname."::".classname."()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"	m_auto_ptr = auto_ptr<".classname.">(this);")
+			normal o
+			call setline('.',"}")
+			normal o
+			call setline('.',classname."::~".classname."()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"}")
+			normal o
+			call setline('.',classname."* ".classname."::Ins()")
+			normal o
+			call setline('.',"{")
+			normal o
+			call setline('.',"	if ( m_ins == NULL)")
+			normal o
+			call setline('.',"		m_ins = new ".classname."();")
+			normal o
+			call setline('.',"	return m_ins;")
+			normal o
+			call setline('.',"}")
+			normal o
+		endif
+		EXE_END_TEMPLATE
+
+		这段脚本配合模板，会先提示你输入类名，然后生成一个标准的单体类（包括.h和.cpp文件），大家可以尝试一下~~
+
+	3）特殊说明
+		对于有些模板其中执行脚本，可能会影响到缓冲区中原有的数据，所以插件提供了一种方法：即在新建一个缓冲区中载入模板，然后在copy到原来的缓冲区中。
+		如果需要这样的定义，需要在 EXE_BEGIN_TEMPLATE 后面加上一个字段，即：
+		EXE_BEGIN_TEMPLATE NEEDNEW
+		EXE_END_TEMPLATE
+		这样即可.
+5.有任何问题，欢迎光临我的博客 http://www.vimer.cn，也欢迎给我发邮件：zny2008@gmail.com / dantezhu@vip.qq.com

@@ -1,0 +1,125 @@
+snippet /       单行注释
+	-- ${0}
+snippet //      多行注释
+	/*${0}*/
+# 创建命令
+snippet crt     创建表
+	CREATE TABLE ${0};
+snippet cri     创建索引
+	CREATE INDEX ${0};
+snippet crv     创建视图
+	CREATE VIEW ${0};
+snippet crp     创建存储过程
+	CREATE PROCEDURE ${0};
+snippet cru     创建用户
+	CREATE USER ${0};
+# 更新命令
+snippet alt     更新表
+	ALTER TABLE ${0};
+snippet ins     插入记录
+	INSERT INTO ${0};
+snippet upd     更新记录
+	UPDATE ${0};
+# 查询命令
+snippet sel     检索数据行
+	SELECT ${1} FROM ${0};
+snippet whe     过滤行
+	WHERE ${0}
+snippet grb     数据分组
+	GROUP BY ${0}
+snippet wir     包括NULL值组
+	WITH ROLLUP${0}
+snippet hav     过滤组
+	HAVING ${0}
+# 删除命令
+snippet del     删除表中的一行或多行记录
+	DELETE FROM ${0};
+snippet dro     永久删除数据库/用户/表/视图/索引等
+	DROP ${0};
+# 事务相关
+snippet stt     开始一个新的事务
+	START TRANSACTION;${0}
+snippet com     写入事务
+	COMMIT;${0}
+snippet sav     为回滚设立保留点
+	SAVEPOINT ${0};
+snippet rol     回滚事务
+	ROLLBACK ${0};
+# 数值数据类型
+snippet un      无符号
+	UNSIGNED${0}
+snippet bo      布尔值
+	BOOLEAN${0}
+snippet in      整数
+	INT${0}
+snippet ti      超小整数
+	TINYINT${0}
+snippet si      小整数
+	SMALLINT${0}
+snippet mi      中整数
+	MEDIUMINT${0}
+snippet bi      大整数
+	BIGINT${0}
+snippet fl      单精度浮点数
+	FLOAT${0}
+snippet do      双精度浮点数
+	DOUBLE${0}
+snippet de      精度可变浮点数
+	DECIMAL${0}
+# 串数据类型
+snippet ch      定长字符串
+	CHAR${0}
+snippet vc      变长字符串
+	VARCHAR${0}
+snippet te      变长文本串
+	TEXT${0}
+snippet tt      小变长文本串
+	TINYTEXT ${0}
+snippet mt      中变长文本串
+	MEDIUMTEXT ${0}
+snippet lt      大变长文本串
+	LONGTEXT${0}
+# 日期时间数据类型
+snippet ye      年份
+	YEAR${0}
+snippet da      日期
+	DATE${0}
+snippet tm      时间
+	TIME${0}
+snippet dt      日期时间组合
+	DATETIME${0}
+snippet ts      范围较小的DATETIME
+	TIMESTAMP${0}
+# 单个关键字
+snippet s       SET
+	SET ${0}
+snippet prk     主键
+	PRIMARY KEY ${0}
+snippet exi     存在
+	EXISTS${0}
+snippet val     记录的值
+	VALUES${0}
+snippet aui     自增
+	AUTO_INCREMENT${0}
+snippet dis     过滤重复数据
+	DISTINCT${0}
+snippet lim     限制行数
+	LIMIT ${0}
+snippet reg     正则匹配
+	REGEXP ${0}
+snippet bin     区分大小写
+	BINARY ${0}
+# 内建函数
+snippet t       去除左右两边的空格
+	TRIM(${0})
+snippet lt      去除左边的空格
+	LTRIM(${0})
+snippet rt      去除右边的空格
+	RTRIM(${0})
+snippet con     连接字符串
+	CONCAT(${0})
+# 选项设置
+snippet eng     数据引擎
+	ENGINE=${0:MyISAM}
+snippet dec     默认编码
+	DEFAULT CHARSET=${0:utf8}

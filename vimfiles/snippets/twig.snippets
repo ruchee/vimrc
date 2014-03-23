@@ -1,0 +1,75 @@
+snippet /       单行注释
+	{# ${0} #}
+snippet //      多行注释
+	{# ${0}#}
+snippet <       {% .. %}
+	{% ${0} %}
+snippet .       {{ .. }}
+	{{ ${0} }}
+# 代码复用
+snippet im      导入并起别名
+	{% import '${1}' as ${0} %}
+snippet fim     从指定文件导入
+	{% from '${1}' import ${2} as ${0} %}
+snippet in      包含模板
+	{% include '${0}' %}
+snippet ex      扩展模板
+	{% extends '${0}' %}
+snippet em      包含模板并扩展模板的内容
+	{% embed '${1}' %}${0}{% endembed %}
+snippet us      包含模板，近似于多重继承
+	{% use '${0}' %}
+snippet re      载入片段
+	{% render(${0}) %}
+snippet ma      宏
+	{% macro ${1} %}${0}{% endmacro %}
+snippet bb      单行代码块
+	{% block ${0} %}
+snippet bl      多行代码块
+	{% block ${1} %}${0}{% endblock %}
+snippet ss      单行变量设置
+	{% set ${0} %}
+snippet se      多行变量设置
+	{% set ${1} %}${0}{% endset %}
+# 其他控制结构
+snippet fl      刷新输出缓冲
+	{% flush %}${0}
+snippet do      执行表达式
+	{% do ${0} %}
+snippet au      将字符串安全地处理成合法的指定数据
+	{% autoescape${1} %}${0}{% endautoescape %}
+snippet sp      去除HTML片段中的空格
+	{% spaceless %}${0}{% endspaceless %}
+snippet ve      阻止模板引擎的编译
+	{% verbatim %}${0}{% endverbatim %}
+snippet fi      多行过滤器
+	{% filter ${1} %}${0}{% endfilter %}
+# 流程控制
+snippet if      if
+	{% if ${1} %}${0}{% endif %}
+snippet elif    elseif
+	{% elseif ${0} %}
+snippet el      else
+	{% else %}${0}
+snippet fo      for .. in
+	{% for ${1} in ${2} %}${0}{% endfor %}
+# 内建函数
+snippet pa      引用父片段
+	parent()${0}
+snippet ass     加载静态资源文件
+	asset('${0}')
+snippet att     获取变量值 [用于带连接符的属性名，如 my-name]
+	attribute(${0})
+snippet blo     重用代码块
+	block('${0}')
+snippet con     从字符串或对象的常量生成一个常量
+	constant('${0}')
+snippet cyc     循环一个数组
+	cycle(${0})
+# 全局变量
+snippet _s      当前模板的引用
+	_self${0}
+snippet _t      当前上下文的引用
+	_context${0}
+snippet _c      当前字符集设置的引用
+	_charset${0}

@@ -1,0 +1,48 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2957
+
+The plugin mainly provides the functionality that loading templates such as class,html,makefile and so on.The plugin also can load templates with script to take the replace of the filename or classname.(As default,the plugin has already included templates as main,singleton class,html,xml,makefile.)
+For any question,welcome to my blog http://www.vimer.cn,
+and welcome to email me:zny2008@gmail.com / dantezhu@vip.qq.com
+The plugin's homepage is :
+http://www.vimer.cn/2010/02/vimer-cn%e5%8e%9f%e5%88%9bvimgvim%e6%8f%92%e4%bb%b6load_template%e6%ad%a3%e5%bc%8f%e5%8f%91%e5%b8%83.html
+Use guide:
+	1)Download load_template.vim,and put it into the plugin directory.
+
+	2)Assign the directory where to load templates in your vimrc file.
+	For example
+	let g:template_path = 'C:\template\&#039
+	Warning:Don't forget about the last '\&#039.
+
+	3)New/Open a test.cpp,execute
+	:LoadTemplate
+	It will show the template list like this:
+	Template filelist:
+	0		:		cpp/main.cpp
+	1		:		cpp/singleton.h
+	please select:
+
+	4)There are also options available that allow you to make your own templates(you can write vim script in it.) 
+	Just try it yourself.
+
+=================================================
+该插件主要实现了自动载入各种模板的功能（如类模板，html模板，makefile模板等等），并且支持动态模版的功能，即能够通过脚本动态的实现文件名，类名的替换。（默认已经提供了简单main函数模板、单体类模板、html标准模板、xml标准模板）
+欢迎来 http://www.vimer.cn &nbsp; 来分享你的模板文件，或者直接给我
+发送邮件zny2008@gmail.com/dantezhu@vip.qq.com
+这个插件的主页是：
+http://www.vimer.cn/2010/02/vimer-cn%e5%8e%9f%e5%88%9bvimgvim%e6%8f%92%e4%bb%b6load_template%e6%ad%a3%e5%bc%8f%e5%8f%91%e5%b8%83.html
+
+使用说明
+	1）下载load_template.vim插件，并放在plugin的目录下
+	2）在vimrc文件中指定你的模板目录，来指定插件读取模板的目录。
+	如在下载包中已经带了一个template的目录，里面按照文件扩展名、文件类型，分别建立了目录，你可以将这个template文件夹复制到C:\\，那么就可以指定
+	let g:template_path = 'C:\template\&#039
+	注意，最后的'\&#039请务必不要忘记（在linux下也是一样要加 '/' ）
+	3）新建/打开一个test.cpp，执行
+	:LoadTemplate
+	试试看，是否有类似模板列表出来啦~
+	Template filelist:
+	0		:		cpp/main.cpp
+	1		:		cpp/singleton.h
+	please select:
+	4）你甚至可以自己制作模板文件~~只需要参考已经存在的模板文件就行啦~~支持vim脚本的哦
+

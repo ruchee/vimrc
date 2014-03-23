@@ -1,0 +1,27 @@
+snippet /       单行注释
+	{{! ${0} }}
+snippet //      多行注释
+	{{! ${0}}}
+# 流程控制
+snippet if      if
+	{{#if ${1}}}${0}{{/if}}
+snippet el      else
+	{{else}}${0}
+snippet ul      unless
+	{{#unless ${1}}}${0}{{/unless}}
+snippet with    with
+	{{#with ${1}}}${0}{{/with}}
+snippet list    list
+	{{#list ${1}}}${0}{{/list}}
+snippet each    each
+	{{#each ${1}}}${0}{{/each}}
+snippet log     log
+	{{log ${0}}}
+# 单个关键字
+snippet t       this
+	this${0}
+# 其他
+snippet <       {{{ .. }}}
+	{{{${0}}}}
+snippet .       {{ .. }}
+	{{${0}}}

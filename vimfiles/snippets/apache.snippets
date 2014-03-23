@@ -1,0 +1,91 @@
+snippet /       单行注释
+	# ${0}
+snippet -       分隔注释
+	# -------------------------------${0}
+# 核心指令
+snippet in      包含其他配置文件
+	Include "${0}"
+snippet lm      加载模块 [允许以相对路径加载指定路径的模块]
+	LoadModule ${1:m_name} ${0:m_path}
+snippet lf      加载模块 [以绝对路径加载任意位置的模块]
+	LoadFile "${0:m_path}"
+# 其他指令
+snippet adt     添加文件类型支持
+	AddType ${1:f_type} .${0}
+snippet dii     指定首页
+	DirectoryIndex ${0}
+snippet sea     指定管理员邮箱
+	ServerAdmin ${0}
+snippet sen     指定服务器名和端口号
+	ServerName ${0}
+snippet ser     服务器根路径
+	ServerRoot "${0}"
+snippet dor     指定根文档路径
+	DocumentRoot "${0}"
+snippet sal     CGI目录映射
+	ScriptAlias "${1}" "${0}"
+snippet al      普通目录映射
+	Alias "${1}" "${0}"
+snippet us      指定用户
+	User ${0}
+snippet gr      指定用户组
+	Group ${0}
+snippet li      指定监听端口号
+	Listen ${0}
+snippet erd     为指定错误代码绑定出错信息
+	ErrorDocument ${1} "${0}"
+snippet alo     是否启用.htaccess文件支持
+	AllowOverride ${0}
+# 控制容器
+snippet ifv     限制版本号
+	<IfVersion ${1}>
+	    ${0}
+	</IfVersion>
+snippet ifd     限制定义
+	<IfDefine ${1}>
+	    ${0}
+	</IfDefine>
+snippet ifm     限制模块
+	<IfModule ${1}>
+	    ${0}
+	</IfModule>
+snippet di      限制目录
+	<Directory "${1}">
+	    ${0}
+	</Directory>
+snippet dim     直接支持正则的目录限制
+	<DirectoryMatch "${1}">
+	    ${0}
+	</DirectoryMatch>
+snippet fi      限制文件
+	<Files "${1}">
+	    ${0}
+	</Files>
+snippet fim     直接支持正则的文件限制
+	<FilesMatch "${1}">
+	    ${0}
+	</FilesMatch>
+snippet lo      限制URL
+	<Location ${1}>
+	    ${0}
+	</Location>
+snippet lom     直接支持正则的URL限制
+	<LocationMatch ${1}>
+	    ${0}
+	</LocationMatch>
+snippet vh      虚拟主机
+	<VirtualHost *:80>
+	    ${0}
+	</VirtualHost>
+# 常用结构
+snippet vhost   虚拟主机
+	<VirtualHost *:80>
+	    ServerName ${1:ser_name}
+	    DocumentRoot "${2:root_path}"
+	    <Directory "${0:dir_path}">
+	        DirectoryIndex index.html index.php
+	        AllowOverride All
+	        Order allow,deny
+	        Allow from all
+	    </Directory>
+	</VirtualHost>

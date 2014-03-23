@@ -1,0 +1,442 @@
+snippet #       可执行标识
+	#!/usr/bin/env php
+	${0}
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/*${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+snippet php     单行标签
+	<?php ${0} ?>
+snippet php.    跨行标签
+	<?php
+	${0}
+	?>
+snippet doc     跨行文本
+	<<<${1:}
+	${0}
+	$1;
+# 命令空间、别名
+snippet na      声明命名空间
+	namespace ${1};${0}
+snippet u       引用命名空间
+	use ${1};${0}
+snippet uas     引用命名空间并定义别名
+	use ${1} as ${2};${0}
+# 代码重用
+snippet rq      require包含
+	require __DIR__.'/${1}';${0}
+snippet rq.     只包含一次
+	require_once __DIR__.'/${1}';${0}
+snippet in      include包含
+	include __DIR__.'/${1}';${0}
+snippet in.     只包含一次
+	include_once __DIR__.'/${1}';${0}
+snippet df      定义常量
+	define('${1}', ${2});${0}
+# 接口、类、方法
+snippet int     接口定义
+	interface ${1:int_name} {
+	    ${0}
+	}
+snippet tra     内含模块定义 [用于实现Mixin]
+	trait ${1:tra_name} {
+	    ${0}
+	}
+snippet cl      类定义
+	class ${1:cl_name} {
+	    ${0}
+	}
+snippet cle     带继承的类定义
+	class ${1:cl_name} extends ${2:pa_name} {
+	    ${0}
+	}
+snippet cli     实现接口的类定义
+	class ${1:cl_name} implements ${2:int_name} {
+	    ${0}
+	}
+snippet clei    先继承后实现接口的类定义
+	class ${1:cl_name} extends ${2:pa_name} implements ${3:int_name} {
+	    ${0}
+	}
+snippet clee    继承异常类
+	class ${1:cl_name} extends Exception {
+	    ${0}
+	}
+snippet f       函数定义
+	function ${1:f_name} (${2}) {
+	    ${0}
+	}
+snippet f.      用于接口的方法声明
+	function ${1:f_name} ();${0}
+snippet ff      匿名函数（不换行）
+	function (${1}) {${0}}
+snippet ffu     带use子句的匿名函数
+	function (${1}) use (${2}) {${0}}
+snippet abf     用于声明抽象方法
+	abstract function ${1:f_name} (${2});${0}
+snippet fc      构造方法
+	function __construct (${1}) {
+	    ${0}
+	}
+snippet pfc     public构造函数
+	public function __construct (${1}) {
+	    ${0}
+	}
+snippet pac     调用父类构造方法
+	parent::__construct(${1});${0}
+snippet fd      析构方法
+	function __destruct () {
+	    ${0}
+	}
+snippet fcl     克隆方法
+	function __clone () {
+	    ${0}
+	}
+snippet fts     将类当作字符串打印
+	function __toString (${1}) {
+	    ${0}
+	}
+snippet fal     自动加载
+	function __autoload (${1}) {
+	    ${0}
+	}
+snippet fge     __get()：访问未定义的属性时被调用
+	function __get (${1:property}) {
+	    ${0}
+	}
+snippet fse     __set()：给未定义的属性赋值时被调用
+	function __set (${1:property}, ${2:value}) {
+	    ${0}
+	}
+snippet fca     __call()：调用未定义的方法时被调用
+	function __call (${1:$methodname}, ${2:args}) {
+	    ${0}
+	}
+snippet fis     __isset()：对未定义的属性调用isset()时被调用
+	function __isset (${1:property}) {
+	    ${0}
+	}
+snippet fus     __unset()：对未定义的属性调用unset()时被调用
+	function __unset (${1:property}) {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	    ${0}
+	}
+snippet elif    elseif
+	elseif (${1}) {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for循环
+	for (${1}) {
+	    ${0}
+	}
+snippet fe      foreach迭代
+	foreach (${1}) {
+	    ${0}
+	}
+snippet wh      while循环
+	while (${1}) {
+	    ${0}
+	}
+snippet do      do .. while
+	do {
+	    ${0}
+	}
+	while (${1});
+snippet sw      switch
+	switch (${1}) {
+	    ${0}
+	}
+snippet cs      case
+	case ${1}:
+	    ${0}
+snippet def     default
+	default:
+	    ${0}
+snippet de      设定代码执行指令 [无大括号]
+	declare(${0});
+snippet de.     设定代码执行指令 [有大括号]
+	declare (${1}) {
+	    ${0}
+	}
+# 异常处理
+snippet thr     抛出异常
+	throw new ${1:Exception}(${0});
+snippet try     监控代码块
+	try {
+	    ${0}
+	}
+snippet cat     捕获异常
+	catch (${1:Exception} $${2:e}) {
+	    ${0}
+	}
+snippet fin     善后处理 [PHP 5.5新增]
+	finally {
+	    ${0}
+	}
+snippet E       Exception
+	Exception${0}
+snippet gmsg    获取消息字符串
+	getMessage()${0}
+snippet gcode   获取错误代码
+	getCode()${0}
+snippet gfile   获取产生异常的文件
+	getFile()${0}
+snippet gline   获取产生异常的行号
+	getLine()${0}
+snippet gpre    获取一个嵌套的异常对象
+	getPrevious()${0}
+snippet gtra    获取一个异常数据的多维数组
+	getTrace()${0}
+snippet gtraas  获取异常数据的字符串版本
+	getTraceAsString()${0}
+# 反射类
+snippet R       Reflection
+	Reflection${0}
+snippet Rcl     类信息和工具
+	ReflectionClass${0}
+snippet Rme     类方法信息和工具
+	ReflectionMethod${0}
+snippet Rpar    方法参数信息
+	ReflectionParameter${0}
+snippet Rpro    类属性信息
+	ReflectionProperty${0}
+snippet Rfun    函数信息和工具
+	ReflectionFunction${0}
+snippet Rext    PHP扩展信息
+	ReflectionExtension${0}
+snippet Rexc    错误类
+	ReflectionException${0}
+# 正则表达式
+snippet rgr     对数组元素进行正则筛选
+	preg_grep(${0})
+snippet rqu     将字符串转换成合法的正则字符串
+	preg_quote(${0})
+snippet rsp     对字符串进行正则分割
+	preg_split(${0})
+snippet rma     正则匹配
+	preg_match(${0})
+snippet rmaa    全局匹配
+	preg_match_all(${0})
+snippet rre     正则搜索和替换
+	preg_replace(${0})
+snippet rrec    正则搜索并使用回调函数进行处理
+	preg_replace_callback(${0})
+# 输入输出
+snippet e       输出
+	echo ${0};
+snippet p       输出
+	print ${0};
+snippet pf      格式化输出
+	printf("${1}"${0});
+snippet spr     格式化输出给一个字符串
+	sprintf("${1}"${0});
+snippet nuf     数值格式化
+	number_format(${0})
+# 调试
+snippet ee      输出信息，并终止执行
+	echo ${0};  exit();
+snippet e-      打印调试分隔符
+	echo '------ ${0} ------<br/>';
+snippet vd      打印变量信息
+	var_dump(${0});
+snippet vde     打印变量信息，并终止执行
+	var_dump(${0}); exit();
+snippet ve      打印变量信息（可用于直接赋值）
+	var_export(${0});
+snippet vee     打印变量信息（可用于直接赋值）并终止执行
+	var_export(${0}); exit();
+snippet p_r     打印变量信息（无数据类型）
+	print_r(${0});
+snippet p_re    打印变量信息（无数据类型），并终止执行
+	print_r(${0}); exit();
+snippet dzd     打印引用次数
+	debug_zval_dump(${0});
+snippet dzde    打印引用次数，并终止执行
+	debug_zval_dump(${0}); exit();
+snippet dpb     打印程序调用栈
+	debug_print_backtrace();${0}
+snippet dpbe    打印程序调用栈，并终止执行
+	debug_print_backtrace(); exit();${0}
+# 超全局变量
+snippet glo     全局变量
+	$GLOBALS['${0}']
+snippet env     环境变量
+	$_ENV['${0}']
+snippet ser     服务器环境变量
+	$_SERVER['${0}']
+snippet coo     COOKIE数据
+	$_COOKIE['${0}']
+snippet ses     SESSION数据
+	$_SESSION['${0}']
+snippet get     GET数据
+	$_GET['${0}']
+snippet pos     POST数据
+	$_POST['${0}']
+snippet req     GET、POST、COOKIE数据
+	$_REQUEST['${0}']
+snippet fil     与文件上传相关的变量数组
+	$_FILES['${0}']
+# 魔术常量
+snippet _l      当前行行号
+	__LINE__${0}
+snippet _f      当前文件的完整路径名
+	__FILE__${0}
+snippet _d      当前文件所在目录 [等价于 dirname(__FILE__)]
+	__DIR__${0}
+snippet _ff     当前所处函数名
+	__FUNCTION__${0}
+snippet _cl     当前所处类名
+	__CLASS__${0}
+snippet _tr     当前所处内含模块名
+	__TRAIT__${0}
+snippet _me     当前所处类的方法名
+	__METHOD__${0}
+snippet _na     当前所处命名空间
+	__NAMESPACE__${0}
+#### 常用函数 ####
+snippet ra      数组生成器
+	range(${1}, ${0})
+snippet ar      定义数组
+	array(${0})
+snippet bco     进制转换
+	base_convert(${1}, ${2}, ${0})
+snippet lva     生成一个0到1之间的随机数
+	lcg_value()${0}
+snippet mra     生成一个指定范围内的随机数
+	mt_rand(${0})
+snippet exp     字符串分割
+	explode('${1}', ${0})
+snippet imp     字符串组合
+	implode('${1}', ${0})
+snippet jen     编程成JSON
+	json_encode(${0})
+snippet jde     解码JSON
+	json_decode(${0})
+snippet uen     编码URL字符串
+	urlencode(${0})
+snippet ude     解码已编码的URL字符串
+	urldecode(${0})
+#### 出错处理 #####
+snippet elog    写出错日志
+	error_log(${0})
+#### PHP标准库 #####
+snippet s_areg  注册自动载入函数
+	spl_autoload_register('${0}');
+#### 模板标签 ####
+snippet pe      输出标签
+	<?php echo ${0}; ?>
+snippet pp      输出标签 [PHP 5.4起默认可用]
+	<?= ${0} ?>
+snippet pif     if标签
+	<?php if (${1}): ?>
+	${0}
+	<?php endif ?>
+snippet pelif   elseif标签
+	<?php elseif (${0}): ?>
+snippet pel     else标签
+	<?php else: ?>${0}
+snippet pfo     for标签
+	<?php for (${1}): ?>
+	${0}
+	<?php endfor ?>
+snippet pfe     foreach标签
+	<?php foreach (${1}): ?>
+	${0}
+	<?php endforeach ?>
+snippet psw     switch标签
+	<?php switch (${1}): ?>
+	${0}
+	<?php endswitch ?>
+snippet pcs     case标签
+	<?php case ${1}: ?>${0}
+snippet pvd     打印变量信息
+	<?php var_dump(${0}); ?>
+# 单个关键字
+snippet ab      抽象类
+	abstract ${0}
+snippet pu      公共
+	public ${0}
+snippet po      保护
+	protected ${0}
+snippet pr      私有
+	private ${0}
+snippet fi      阻止继承和重载
+	final ${0}
+snippet pa      引用父类属性和方法
+	parent::${0}
+snippet clo     对象克隆
+	clone ${0}
+snippet gl      全局变量
+	global ${0}
+snippet st      静态属性/延迟绑定
+	static ${0}
+snippet con     常量属性
+	const ${0}
+snippet go      跳转
+	goto ${0}
+snippet co      继续
+	continue;${0}
+snippet br      中断
+	break;${0}
+snippet re      返回
+	return ${0};
+snippet yi      yield [PHP 5.5新增]
+	yield ${0};
+snippet ex      结束
+	exit(${0});
+snippet ins     检查对象是否是指定类的实例
+	instanceof ${0}
+snippet v       var
+	var ${0};
+snippet n       new
+	new ${0};
+snippet s       self::
+	self::${0}
+snippet t       $this->
+	$this->${0}
+snippet r       / .. /
+	/${0}/
+snippet ?       三元运算符
+	$${1} ? $${2:$1} : ${0};
+snippet .       =>
+	=> ${0}
+################
+# Smarty模版引擎
+snippet sm_as   传递数据
+	$smarty->assign(${0});
+snippet sm_di   模版渲染
+	$smarty->display('${0}');
+# CodeIgniter框架
+snippet ci_ll   加载类库
+	$this->load->library('${0}');
+snippet ci_lm   加载模型
+	$this->load->model('${0}');
+snippet ci_lv   加载视图
+	$this->load->view('${1}'${0});
+snippet ci_lh   加载辅助函数
+	$this->load->helper('${0}');
+snippet ci_ld   加载数据库
+	$this->load->database();${0}
+snippet ci_ldf  加载数据库维护类
+	$this->load->dbforge();${0}
+snippet ci_ldu  加载数据库工具类
+	$this->load->dbutil();${0}
+snippet ci_cl   加载配置文件
+	$this->config->load('${0}');
+snippet ci_ci   获取配置项
+	$this->config->item('${0}');
+snippet ci_pu   获取表单数据 [put方式]
+	$this->input->put('${0}');
+snippet ci_po   获取表单数据 [post方式]
+	$this->input->post('${0}');
+################

@@ -1,0 +1,31 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=2899
+
+
+The "TxtBrowser" plugin is a plain text browser plugin for Vim and provides the
+following features to allow you to efficiently browse through plain text
+files(for example RFCs). Chinese intruction is available at(中文介绍请访问):
+
+http://guoyoooping.blog.163.com/blog/static/1357051832009112910162389/
+
+1. Title tag list: Show an overview of the structure of plain text and list all
+the titles in the taglist windows, you can jump to them just by clicking. Use
+":Tlist" command to open the taglist and use ":TlistUpdate" to update the
+taglist after modification. 
+
+2. Syntax highlight: highlight the key element in your plain text. This include
+the title, URLs, keywords you defined(default is TODO, ERROR, etc), Words in
+bracket, etc. Syntax hightlight would be auto loaded after install. Snapshot of
+feature 1 and 2 are available at:
+
+http://guoyoooping.blog.163.com/album/edit/#m=1&aid=193892890
+
+3. Browser Utilities(use ":help txt-howto" for details): 
+
+<Leader>s: Search text under cursor(or selected) through search engine(google).
+<Leader>f: Find text under cursor(or selected) through web dictionary(www.dict.cn).
+<Leader>g: Goto the URL under cursor(or selected).
+<Leader>h: Highlight the word under cursor(or selected), it's easy and
+	            simple, for more powerful highlight, You could refer to
+	            txtfmt(vimscript #2208)
+*: Search forward for the word under cursor(or text selected).
+#: Search backward for the word under cursor(or text selected).

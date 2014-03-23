@@ -1,0 +1,77 @@
+snippet /       单行注释
+	" ${0}
+snippet -       分隔注释
+	" -------------------------------${0}
+# 代码重用
+snippet so      加载Vim脚本
+	source ${0}
+# 单个关键字
+snippet s       设置选项
+	set ${0}
+snippet ab      设置别名 [作用于所有模式]
+	abbreviate ${0}
+snippet iab     设置别名 [作用于插入模式]
+	iabbrev ${0}
+snippet cab     设置别名 [作用于命令行模式]
+	cabbrev ${0}
+# 特殊按键
+snippet le      Leader键
+	leader${0}
+snippet lle     LocalLeader键
+	localleader${0}
+snippet sp      空格键
+	space${0}
+snippet bu      当前缓冲区
+	buffer${0}
+# 按键绑定
+snippet m       按键绑定
+	map ${0}
+snippet nm      按键绑定 [Normal模式]
+	nmap ${0}
+snippet vm      按键绑定 [Visual模式]
+	vmap ${0}
+snippet im      按键绑定 [Insert模式]
+	imap ${0}
+snippet m.      按键绑定 [非递归版]
+	noremap ${0}
+snippet nm.     按键绑定 [Normal模式] [非递归版]
+	nnoremap ${0}
+snippet vm.     按键绑定 [Visual模式] [非递归版]
+	vnoremap ${0}
+snippet im.     按键绑定 [Insert模式] [非递归版]
+	inoremap ${0}
+snippet um      取消绑定
+	unmap ${0}
+snippet num     取消绑定 [Normal模式]
+	nunmap ${0}
+snippet vum     取消绑定 [Visual模式]
+	vunmap ${0}
+snippet ium     取消绑定 [Insert模式]
+	iunmap ${0}
+# 窗口相关
+snippet sp      水平分割
+	split ${0}
+snippet vsp     垂直分割
+	vsplit ${0}
+# 模式相关
+snippet no      Normal模式
+	normal ${0}
+snippet in      Insert模式
+	insert${0}
+snippet vi      Visual模式
+	visual${0}
+# 自动事件
+snippet ac      autocmd
+	autocmd ${0}
+snippet gr      命令分组
+	augroup ${1:gr_name}
+	    ${0}
+	augroup END
+# 输入输出
+snippet e       输出
+	echo ${0}
+snippet em      输出并记录
+	echom ${0}
+# 其他
+snippet .       引用特殊按键
+	<${0}>

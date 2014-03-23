@@ -1,0 +1,204 @@
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/*${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+# 全局相关
+snippet u       使用特性
+	"use ${1}";${0}
+snippet us      严格模式
+	"use strict";${0}
+snippet rq      导入包
+	require('${1}');${0}
+snippet vrq     导入包到变量
+	var ${1} = require('${2}');${0}
+snippet im      导入模块 [ES6新增]
+	import ${1};${0}
+snippet imf     从 .. 导入模块 [ES6新增]
+	import ${1} from ${2};${0}
+snippet ex      导出变量
+	exports.${0}
+snippet mex     覆盖导出
+	module.exports${0}
+# 函数、流程控制
+snippet f       常规函数
+	function ${1:f_name} (${2}) {
+	    ${0}
+	}
+snippet ff      单行匿名函数
+	function (${1}) {${0}}
+snippet wi      指定缺省对象
+	with (${1}) {
+	    ${0}
+	}
+snippet if      if
+	if (${1}) {
+	    ${0}
+	}
+snippet elif    else if
+	else if (${1}) {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for
+	for (var ${1}) {
+	    ${0}
+	}
+snippet fi      for .. in
+	for (var ${1} in ${2}) {
+	    ${0}
+	}
+snippet fe      for each [ES6新增]
+	for each (${1})${0}
+snippet wh      while
+	while (${1}) {
+	    ${0}
+	}
+snippet do      do .. while
+	do {
+	    ${0}
+	}
+	while (${1});
+snippet sw      switch
+	switch (${1}) {
+	    ${0}
+	}
+snippet cs      case
+	case ${1}:
+	    ${0}
+snippet def     default
+	default:
+	    ${0}
+snippet l       创建块级作用域 [ES6新增]
+	let ${0};
+snippet l.      块级作用域多行模式
+	let (${1}) {
+	    ${0}
+	}
+# 异常处理
+snippet thr     抛出异常
+	throw ${0};
+snippet try     监控代码块
+	try {
+	    ${0}
+	}
+snippet cat     捕获异常
+	catch (${1}) {
+	    ${0}
+	}
+snippet fin     善后处理
+	finally {
+	    ${0}
+	}
+# 单个关键字
+snippet co      继续
+	continue;${0}
+snippet br      中断
+	break;${0}
+snippet re      返回
+	return ${0};
+snippet yi      转移执行 [ES6新增]
+	yield ${0};
+snippet con     常量 [ES6新增]
+	const ${0};
+snippet de      删除
+	delete ${0};
+snippet ev      执行代码
+	eval(${0})
+snippet ct      构造器
+	constructor${0}
+snippet pt      原型
+	prototype${0}
+snippet tp      类型
+	typeof ${0}
+snippet ins     实例
+	instanceof ${0}
+snippet udf     未定义
+	undefined${0}
+snippet arg     参数数组 [伪数组，其实是对象]
+	arguments${0}
+snippet win     Window对象
+	window${0}
+snippet doc     文档对象
+	document${0}
+snippet loc     位置对象
+	location${0}
+snippet nav     浏览器对象
+	navigator${0}
+snippet scr     屏幕对象
+	screen${0}
+snippet his     历史记录对象
+	history${0}
+snippet pie     可列举性
+	propertyIsEnumerable(${0})
+snippet len     获取字符串长度
+	length${0}
+# 常用函数
+snippet ts      转换为字符串
+	toString(${1})${0}
+snippet vo      获取字符串表示
+	valueOf()${0}
+snippet isf     判断是否在可以表示的数值范围以内
+	isFinite(${0})
+snippet isn     判断是否为非数值
+	isNaN(${0})
+snippet pi      转换为整数
+	parseInt(${0})
+snippet pf      转换为浮点数
+	parseFloat(${0})
+snippet ho      仅对象本身的属性
+	hasOwnProperty(${0})
+snippet ip      是否是另一个对象的原型
+	isPrototypeOf(${0})
+# 输出
+snippet p       文本打印
+	document.writeln(${0});
+snippet al      弹出框
+	alert(${0});
+snippet cl      终端输出
+	console.log(${0});
+# 其他
+snippet v       var
+	var ${0};
+snippet n       new
+	new ${0}
+snippet t       this
+	this${0}
+snippet r       / .. /
+	/${0}/
+snippet <       { .. }
+	{ ${0} }
+snippet ?       三元运算符
+	${1} ? ${2} : ${0};
+snippet .       模拟块级作用域 [匿名函数立即调用]
+	(function () {
+	    ${0}
+	})();
+################
+# DOM相关
+snippet gbyi    根据id取单个元素
+	getElementById('${0}')
+snippet gbyn    根据name取多个元素
+	getElementsByName('${0}')
+snippet gbyc    根据class取多个元素
+	getElementsByClassName('${0}')
+snippet gbyt    根据标签名取多个元素
+	getElementsByTagName('${0}')
+snippet ga      取属性值
+	getAttribute('${0}')
+snippet sa      设置属性
+	setAttribute('${0}', ${0})
+################
+snippet q       jQuery选择器
+	$(${0})
+snippet q.      jQuery选择器 [带引号]
+	$('${1}')${0}
+snippet a       AngularJS控制器
+	function ${1:f_name} ($scope) {
+	    ${0}
+	}
+###############

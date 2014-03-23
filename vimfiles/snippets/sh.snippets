@@ -1,0 +1,73 @@
+snippet #       可执行标识
+	#!/usr/bin/env bash
+	${0}
+snippet /       单行注释
+	# ${0}
+snippet -       分隔注释
+	# -------------------------------${0}
+snippet doc     heredoc
+	<<${1:HEREDOC}
+	${0}
+	$1
+# 复合结构
+snippet f       函数定义
+	function ${1:f_name} {
+	  ${0}
+	}
+# 流程控制
+snippet if      if
+	if [ ${1} ]
+	then
+	  ${0}
+	fi
+snippet elif    elif
+	elif [ ${1} ]
+	then
+	  ${0}
+snippet el      else
+	else
+	  ${0}
+snippet th      then
+	then
+	  ${0}
+snippet fo      for循环
+	for ${0}
+snippet fi      for .. in
+	for ${1} in ${0}
+snippet wh      while循环
+	while ${0}
+snippet unt     until循环
+	until ${0}
+snippet sel     select .. in
+	select ${1} in ${0}
+snippet do      do .. done
+	do
+	  ${0}
+	done
+snippet cs      case .. in
+	case ${1} in
+	  ${0}
+	esac
+snippet def     default
+	default ${0};
+# 单个关键字
+snippet lo      局部变量
+	local ${0}
+snippet br      中断
+	break${0}
+snippet co      继续
+	continue${0}
+snippet re      返回
+	return ${0}
+snippet ex      退出并返回状态码
+	exit ${0}
+snippet l       赋值
+	let ${0}
+snippet r       输入
+	read ${0}
+snippet e       输出
+	echo ${0}
+snippet pi      print
+	print ${0}
+snippet pf      printf
+	printf ${0}
