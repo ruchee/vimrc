@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-23 21:21
+" -----------------     Date: 2014-03-23 22:52
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -186,6 +186,7 @@ au FileType coffee,jade,sh set shiftwidth=2
 au FileType coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
+au BufRead,BufNewFile *.h   setlocal ft=c
 au BufRead,BufNewFile *.sql setlocal ft=mysql
 au BufRead,BufNewFile *.txt setlocal ft=txt
 
@@ -342,6 +343,7 @@ let g:snipMate_no_default_aliases         = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate                            = {}
 let g:snipMate.scope_aliases              = {}
+let g:snipMate.scope_aliases['c']         = 'cpp'
 let g:snipMate.scope_aliases['php']       = 'php,html'
 let g:snipMate.scope_aliases['smarty']    = 'smarty,html'
 let g:snipMate.scope_aliases['twig']      = 'twig,html'
@@ -481,7 +483,19 @@ nmap <leader>mt <ESC>:!ctags -R --languages=
 " 编译并运行
 func! Compile_Run_Code()
     exec "w"
-    if &filetype == "php"
+    if &filetype == "c"
+        if g:isWIN
+            exec "!gcc -Wall -std=c11 -o %:r %:t && %:r.exe"
+        else
+            exec "!gcc -Wall -std=c11 -o %:r %:t && ./%:r"
+        endif
+    elseif &filetype == "cpp"
+        if g:isWIN
+            exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
+        else
+            exec "!g++ -Wall -std=c++11 -o %:r %:t && ./%:r"
+        endif
+    elseif &filetype == "php"
         exec "!php %:t"
     elseif &filetype == "coffee"
         exec "!coffee %:t"
