@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-23 19:36
+" -----------------     Date: 2014-03-23 21:21
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -182,8 +182,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType sh set shiftwidth=2
-au FileType sh set tabstop=2
+au FileType coffee,jade,sh set shiftwidth=2
+au FileType coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.sql setlocal ft=mysql
@@ -348,6 +348,8 @@ let g:snipMate.scope_aliases['twig']      = 'twig,html'
 let g:snipMate.scope_aliases['html.twig'] = 'twig,html'
 let g:snipMate.scope_aliases['blade']     = 'blade,html'
 let g:snipMate.scope_aliases['volt']      = 'volt,html'
+let g:snipMate.scope_aliases['jst']       = 'jst,html'
+let g:snipMate.scope_aliases['less']      = 'less,css'
 let g:snipMate.scope_aliases['mustache']  = 'mustache,html'
 let g:snipMate.scope_aliases['xhtml']     = 'html'
 
@@ -481,6 +483,10 @@ func! Compile_Run_Code()
     exec "w"
     if &filetype == "php"
         exec "!php %:t"
+    elseif &filetype == "coffee"
+        exec "!coffee %:t"
+    elseif &filetype == "javascript"
+        exec "!node %:t"
     elseif &filetype == "sh"
         exec "!bash %:t"
     endif

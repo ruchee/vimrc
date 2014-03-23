@@ -1,0 +1,47 @@
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	//
+	  ${0}
+snippet doc     文档类型
+	doctype ${0:html}
+# 代码重用
+snippet in      包含模板
+	include ${0}
+snippet ex      扩展模板
+	extends ${0}
+snippet bl      代码块
+	block ${0}
+snippet mi      代码复用块 [相当于函数]
+	mixin ${0}
+# 流程控制
+snippet if      if
+	if ${0}
+snippet elif    else if
+	else if ${0}
+snippet el      else
+	else${0}
+snippet ul      unless
+	unless ${0}
+snippet fo      for .. in
+	for ${1} in ${0}
+snippet ea      each .. in
+	each ${1} in ${0}
+snippet wh      while
+	while ${0}
+snippet ut      until
+	until ${0}
+snippet cs      case
+	case ${0}
+snippet w       when
+	when ${0}
+snippet def     default
+	default${0}
+# HTML常用标签
+snippet js      引入JS代码
+	script${0}
+# 其他
+snippet {       #{ .. }
+	#{${0}
+snippet .       { .. }
+	{ ${0} }

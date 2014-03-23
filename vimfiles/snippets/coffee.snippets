@@ -1,0 +1,168 @@
+snippet /       单行注释
+	# ${0}
+snippet //      多行注释
+	###
+	${0}
+	###
+snippet -       分隔注释
+	# -------------------------------${0}
+snippet ///     多行正则 [可分多行，可加注释]
+	///${0}///
+snippet doc     """ .. """
+	"""${0}"""
+snippet us      严格模式
+	"use strict"${0}
+# 模块
+snippet rq      导入包
+	require '${1}'${0}
+snippet ex      导出函数
+	exports.${0}
+# 类
+snippet cl      类定义
+	class ${0:cl_name}
+snippet cle     类继承
+	class ${1:cl_name} extends ${0}
+snippet fc      构造函数 [无参数]
+	constructor: ->${0}
+snippet fc.     构造函数 [有参数]
+	constructor: (${1}) ->${0}
+snippet su      调用父类方法
+	super${0}
+snippet n       new
+	new ${0}
+# 函数
+snippet f       函数定义 [无参数]
+	${1:f_name} = ->
+	  ${0}
+snippet f.      函数定义 [带参数]
+	${1:f_name} = (${2}) ->
+	  ${0}
+snippet ff      匿名函数 [无参数]
+	->
+	  ${0}
+snippet ff.     匿名函数 [带参数]
+	(${1}) ->
+	  ${0}
+snippet pf      胖箭头函数 [无参数]
+	=>
+	  ${0}
+snippet pf.     胖箭头函数 [带参数]
+	(${1}) =>
+	  ${0}
+snippet do      do [无参数]
+	do ->${0}
+snippet do.     do [带参数]
+	do (${1}) ->${0}
+# 流程控制
+snippet if      if [同一行]
+	if ${0}
+snippet if.     if [换行]
+	if
+	  ${0}
+snippet th      then [同一行]
+	then ${0}
+snippet th.     then [换行]
+	then
+	  ${0}
+snippet elif    else if
+	else if ${0}
+snippet el      else [同一行]
+	else ${0}
+snippet el.     else [换行]
+	else
+	  ${0}
+snippet ul      除 .. 之外
+	unless ${0}
+snippet fo      for
+	for ${0}
+snippet fi      for .. in [针对array]
+	for ${1} in ${0}
+snippet foo     for .. of [针对object]
+	for ${1} of ${0}
+snippet fooo    for .. of [不包含继承来的属性]
+	for own ${1} of ${0}
+snippet wh      while循环
+	while ${0}
+snippet ut      until循环 [相当于 while not]
+	until ${0}
+snippet lo      loop [相当于 while true]
+	loop ${0}
+snippet sw      switch
+	switch ${0}
+snippet w       when
+	when ${0}
+# 异常处理
+snippet thr     抛出异常
+	throw ${0}
+snippet try     捕获异常
+	try
+	  ${0}
+snippet cat     处理异常
+	catch ${0}
+snippet fin     善后处理
+	finally
+	  ${0}
+# 常用函数
+snippet hop     是否是对象自身拥有的属性
+	hasOwnProperty('${0}')
+# 单个关键字
+snippet t       this
+	this${0}
+snippet o       own
+	own ${0}
+snippet tp      类型检查
+	typeof ${0}
+snippet co      继续
+	continue${0}
+snippet br      中断
+	break${0}
+snippet re      返回
+	return ${0}
+snippet de      删除
+	delete ${0}
+snippet ev      执行代码
+	eval ${0}
+snippet ct      构造器
+	constructor${0}
+snippet pt      原型
+	prototype${0}
+snippet ins     实例
+	instanceof ${0}
+snippet udf     未定义
+	undefined${0}
+snippet arg     全局参数数组
+	arguments${0}
+snippet len     获取字符串长度
+	length${0}
+snippet pi      print
+	print ${0}
+snippet al      alert
+	alert ${0}
+snippet p       输出
+	console.log ${0}
+snippet dw      文本打印
+	document.writeln(${0})
+snippet r       正则 / .. /
+	/${0}/
+snippet _f      当前脚本文件路径
+	__filename${0}
+snippet _d      当前脚本目录路径
+	__dirname${0}
+# 其他
+snippet {       #{ .. }
+	#{${0}
+snippet <       { .. }
+	{ ${0} }
+snippet >       =>
+	=>${0}
+snippet .       ->
+	->${0}
+################
+snippet q       jQuery选择器
+	$(${0})
+snippet q.      jQuery选择器 [带引号]
+	$('${1}')${0}
+snippet a       AngularJS控制器
+	${1:f_name} = ($scope) ->
+	  ${0}
+################

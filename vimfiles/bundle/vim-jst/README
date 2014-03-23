@@ -1,0 +1,4 @@
+A vim plugin for highlighting and indenting JST/EJS syntax. Based on the eruby syntax from vim-ruby.
+Probably not 100% correct (especially indentation), but it works for most cases I've tried.
+
+This plugin may require the vim-javascript plugin ( available here: https://github.com/pangloss/vim-javascript )

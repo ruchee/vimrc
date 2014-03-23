@@ -1,0 +1,26 @@
+snippet <       JS代码
+	<% ${0} %>
+snippet <=      转义后的HTML内容
+	<%= ${0} %>
+snippet <-      原始HTML内容
+	<%- ${0} %>
+# 代码复用
+snippet in      包含模板
+	<% include ${0} %>
+# 流程控制
+snippet if      if
+	<% if (${1}) { %>
+	    ${0}
+	<% } %>
+snippet elif    else if
+	<% else if (${1}) { %>
+	    ${0}
+	<% } %>
+snippet el      else
+	<% else (${1}) { %>
+	    ${0}
+	<% } %>
+snippet fo      for循环
+	<% for (${1}) { %>
+	    ${0}
+	<% } %>
