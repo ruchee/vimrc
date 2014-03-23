@@ -1,0 +1,108 @@
+snippet #       可执行标识
+	#!/usr/bin/env python
+	${0}
+snippet coding  指定编码
+	# -*- coding: utf-8 -*-${0}
+snippet /       单行注释
+	# ${0}
+snippet //      文档字符串、块注释
+	""" ${0} """
+snippet //.     文档字符串 [跨行]
+	"""
+	${0}
+	"""
+snippet -       分隔注释
+	# -------------------------------${0}
+# 代码重用
+snippet im      导入模块
+	import ${0}
+snippet imf     导入 .. 从 ..
+	import ${1} from ${0}
+snippet fim     从 .. 导入 ..
+	from ${1} import ${0}
+snippet rl      重新载入
+	reload(${0})
+# 字符串
+snippet r       不解释转义字符
+	r'${0}'
+snippet u       Unicode字符串
+	u'${0}'
+# 类、函数定义
+snippet cl      类定义 [不带括号]
+	class ${1:cl_name}:
+	    ${0}
+snippet cl.     类定义 [带括号]
+	class ${1:cl_name} (${2}):
+	    ${0}
+snippet d       函数定义 [不带self]
+	def ${1:f_name} (${2}):
+	    ${0}
+snippet ds      方法定义 [带self]
+	def ${1:f_name} (self${2}):
+	    ${0}
+snippet di      初始化方法
+	def __init__ (self${1}):
+	    ${0}
+snippet dd      析构方法
+	def __del__ (self${1}):
+	    ${0}
+# 流程控制
+snippet if      if
+	if ${1}:
+	    ${0}
+snippet elif    elif
+	elif ${1}:
+	    ${0}
+snippet el      else
+	else:
+	    ${0}
+snippet fo      for .. in
+	for ${1} in ${2}:
+	    ${0}
+snippet wh      while
+	while ${1}:
+	    ${0}
+# 异常处理
+snippet ra      抛出异常
+	raise ${0}
+snippet as      设置断言
+	assert ${0}
+snippet try     捕获异常
+	try:
+	    ${0}
+snippet exp     处理异常
+	except ${1}:
+	    ${0}
+snippet fin     善后处理
+	finally:
+	    ${0}
+# 单个关键字
+snippet la      匿名函数
+	lambda ${0}
+snippet su      引用父类
+	super(${0})
+snippet gl      引用全局变量
+	global${0}
+snippet re      返回
+	return ${0}
+snippet co      继续
+	continue${0}
+snippet br      中断
+	break${0}
+snippet yi      转移执行
+	yield${0}
+snippet pa      空语句
+	pass${0}
+# 输入输出
+snippet p       输出
+	print(${0})
+snippet ri      获取输入
+	raw_input(${0})
+# 其他
+snippet .       self
+	self${0}
+snippet _       __xxx__
+	__${1:init}__${0}
+snippet ifm     作为独立程序运行
+	if __name__ == '__main__':
+	    ${0}

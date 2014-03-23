@@ -107,6 +107,8 @@ snippet lim     限制行数
 	LIMIT ${0}
 snippet reg     正则匹配
 	REGEXP ${0}
+snippet uni     组合查询
+	UNION${0}
 snippet bin     区分大小写
 	BINARY ${0}
 # 内建函数
@@ -118,6 +120,12 @@ snippet rt      去除右边的空格
 	RTRIM(${0})
 snippet con     连接字符串
 	CONCAT(${0})
+snippet mat     指定搜索列
+	MATCH(${0})
+snippet aga     指定要使用的搜索表达式
+	AGAINST(${0})
+snippet wqe     开启扩展查询
+	WITH QUERY EXPANSION${0}
 # 选项设置
 snippet eng     数据引擎
 	ENGINE=${0:MyISAM}

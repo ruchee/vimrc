@@ -1,0 +1,99 @@
+Changelog for the vim-perl package
+
+1.??
+====================================
+[ENHANCEMENTS]
+perl5:
+New flags in 5.14 for the m//, s///, and tr/// operators are now
+highlighted (Karen Etheridge)
+
+Highlight braces following printf and say. Thanks, Matt Boyle.
+
+Fix overzealous matching of /^package/ inside Pod (Hinrik)
+
+Added */xs.vim.
+
+Added syntax/tt2.vim, syntax/tt2html.vim and tt2js.vim files for
+Template Toolkit, TT files for HTML and TT files for JavaScript.
+(Thanks to Atsushi Moriki and Peter Yates)
+
+The "if" show up as an error if you accidentally use "else if"
+instead of "elsif".  Also added "elseif" as an error.  Thanks,
+Benjamin R. Haskell.
+
+Add %+ match hash to syntax/perl.vim.
+
+"gf" lets you open modules when they are used outside "use" commands
+as in "Foo::Bar->new" (Manni Heumann, @mannih)
+
+Words like FIXME and TODO now include FIXME: and TODO: (@berekuk,
+Vyacheslav Matyukhin)
+
+POD formatting highlights have been enabled inside POD blocks.
+
+Anonymous subroutines are now foldable.
+
+Added mason.vim. (Hinrik)
+
+map, grep and sort blocks are now properly indented.  Thanks, Brian
+M. Carlson.
+
+Provide information to matchit plugin to jump between if/elsif/else.
+Credit to Alan Young.
+
+Added "fc" and "evalbytes" keywords.  Thanks, Rafael Kitover.
+
+[FIXES]
+Minor tweak to p6RxCharClass.  Thanks, Arne Skjærholt.
+
+Fixed a problem with folding subs caused by rules being out of
+order.  Thanks, Christian J. Robinson.
+(http://github.com/petdance/vim-perl/issues/closed#issue/28)
+
+Fixed bug where backslashes would be seen as closing a set of braces,
+thus screwing up indents.  Thanks, Tom Wyant.
+
+Fixed highlights on comments before opening brace of a sub. Thanks,
+Rafael Kitover.
+
+Braces within a heredoc no longer confuse the highlighting.
+
+Keyword detection for "accept" was looking for "acept".
+
+Added higlighting for "import" and "format".
+
+Stop setting "iskeyword" globally. (Hinrik)
+
+[TESTING]
+Added a test harness in t/ (try "make test"). Moved example code
+to t_source/ (Hinrik)
+
+Added a test for package declaration highlighting.  Thanks, Matt
+Boyle.
+
+Fixes to the test suite from Matt Boyle.
+
+
+1.00    Tue Aug  4 21:38:31 CDT 2009
+====================================
+[ENHANCEMENTS]
+perl5:
+
+Pulled in the rest of mauke's improvements. This fixes issues
+with q() ops and its various brackets (Hinrik)
+
+Add spell checking to the comments syntax group.
+
+Highlight method calls on __PACKAGE__ (Hinrik)
+
+Allow whitespace around autoquoted hash keys (Hinrik)
+
+Fix highlighting of //= from Perl 5.10 (Hinrik)
+
+added 'parent' keyword for perl5.
+
+[BUILDING]
+Add a tarball target to the Makefile.  Thanks to Mike Kelly for
+contributions.
+
+Add Nick Hibma's perl-regression.pl to ease testing.

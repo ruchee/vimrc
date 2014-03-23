@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-23 22:52
+" -----------------     Date: 2014-03-23 23:57
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -182,8 +182,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType coffee,jade,sh set shiftwidth=2
-au FileType coffee,jade,sh set tabstop=2
+au FileType lua,ruby,eruby,slim,coffee,jade,sh set shiftwidth=2
+au FileType lua,ruby,eruby,slim,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h   setlocal ft=c
@@ -339,21 +339,25 @@ else
     let g:snippets_dir = '~/.vim/snippets/'
 endif
 " 不使用插件自带的默认继承
-let g:snipMate_no_default_aliases         = 1
+let g:snipMate_no_default_aliases          = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
-let g:snipMate                            = {}
-let g:snipMate.scope_aliases              = {}
-let g:snipMate.scope_aliases['c']         = 'cpp'
-let g:snipMate.scope_aliases['php']       = 'php,html'
-let g:snipMate.scope_aliases['smarty']    = 'smarty,html'
-let g:snipMate.scope_aliases['twig']      = 'twig,html'
-let g:snipMate.scope_aliases['html.twig'] = 'twig,html'
-let g:snipMate.scope_aliases['blade']     = 'blade,html'
-let g:snipMate.scope_aliases['volt']      = 'volt,html'
-let g:snipMate.scope_aliases['jst']       = 'jst,html'
-let g:snipMate.scope_aliases['less']      = 'less,css'
-let g:snipMate.scope_aliases['mustache']  = 'mustache,html'
-let g:snipMate.scope_aliases['xhtml']     = 'html'
+let g:snipMate                             = {}
+let g:snipMate.scope_aliases               = {}
+let g:snipMate.scope_aliases['c']          = 'cpp'
+let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['smarty']     = 'smarty,html'
+let g:snipMate.scope_aliases['twig']       = 'twig,html'
+let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
+let g:snipMate.scope_aliases['blade']      = 'blade,html'
+let g:snipMate.scope_aliases['volt']       = 'volt,html'
+let g:snipMate.scope_aliases['htmldjango'] = 'django,html'
+let g:snipMate.scope_aliases['jinja']      = 'jinja,html'
+let g:snipMate.scope_aliases['eruby']      = 'eruby,html'
+let g:snipMate.scope_aliases['scss']       = 'scss,css'
+let g:snipMate.scope_aliases['jst']        = 'jst,html'
+let g:snipMate.scope_aliases['less']       = 'less,css'
+let g:snipMate.scope_aliases['mustache']   = 'mustache,html'
+let g:snipMate.scope_aliases['xhtml']      = 'html'
 
 
 " NERD_commenter      注释处理插件
@@ -375,7 +379,7 @@ let g:airline_theme = 'badwolf'                " 设置主题
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml']
+            \'passive_filetypes': ['html', 'css', 'xhtml', 'eruby', 'slim', 'scss', 'jade', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
 
 
@@ -495,8 +499,16 @@ func! Compile_Run_Code()
         else
             exec "!g++ -Wall -std=c++11 -o %:r %:t && ./%:r"
         endif
+    elseif &filetype == "lua"
+        exec "!lua %:t"
+    elseif &filetype == "perl"
+        exec "!perl %:t"
     elseif &filetype == "php"
         exec "!php %:t"
+    elseif &filetype == "python"
+        exec "!python %:t"
+    elseif &filetype == "ruby"
+        exec "!ruby %:t"
     elseif &filetype == "coffee"
         exec "!coffee %:t"
     elseif &filetype == "javascript"

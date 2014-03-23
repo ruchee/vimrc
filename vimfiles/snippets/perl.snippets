@@ -1,0 +1,57 @@
+snippet /       单行注释
+	# ${0}
+snippet //      多行注释
+	=pod${0}
+	=cut
+snippet -       分隔注释
+	# -------------------------------${0}
+# 编译选项
+snippet u       版本约束
+	use ${1};${0}
+snippet us      严格模式
+	use strict;${0}
+snippet uw      开启警告
+	use warnings;${0}
+snippet ud      报告详细警告信息
+	use diagnostics;${0}
+# 复合结构
+snippet s       子程序
+	sub ${1:s_name} {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	    ${0}
+	}
+snippet elif    elsif
+	elsif (${1}) {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for
+	for (${1}) {
+	    ${0}
+	}
+snippet fe      foreach
+	foreach ${1}(${2}) {
+	    ${0}
+	}
+snippet wh      while
+	while (${1}) {
+	    ${0}
+	}
+# 单个关键字
+snippet ch      chomp
+	chomp;${0}
+snippet df      defined
+	defined(${1});${0}
+snippet p       输出（不自动换行）
+	print ${0};
+snippet >       =>
+	=>${0}
+snippet .       ->
+	->${0}

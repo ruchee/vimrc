@@ -1,0 +1,35 @@
+snippet /       单行注释
+	{# ${0} #}
+snippet //      多行注释
+	{% comment %}
+	${0}
+	{% endcomment %}
+snippet .       载入变量
+	{{ ${0} }}
+# 继承相关
+snippet in      导入模板
+	{% include '${0}' %}
+snippet ex      加载父模板
+	{% extends '${0}' %}
+snippet bl      命名模块
+	{% block ${1} %}${0}{% endblock %}
+# 逻辑控制
+snippet if      if标签对
+	{% if ${1} %}${0}{% endif %}
+snippet elif    elif
+	{% elif ${0} %}
+snippet el      else
+	{% else %}${0}
+snippet for     for标签对
+	{% for ${1} in ${2} %}${0}{% endfor %}
+snippet ep      empty分句
+	{% empty %}${0}
+snippet ife     快速比较
+	{% ifequal ${1} %}${0}{% endifequal %}
+snippet ifne    反向比较
+	{% ifnotequal ${1} %}${0}{% endifequal %}
+# 单个关键字
+snippet rev     反向迭代
+	reversed${0}
+snippet fol     forloop
+	forloop${0}

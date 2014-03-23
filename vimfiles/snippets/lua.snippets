@@ -1,0 +1,102 @@
+snippet /       单行注释
+	-- ${0}
+snippet //      多行注释
+	--[[
+	${0}
+	--]]
+snippet -       分隔注释
+	-- -------------------------------${0}
+snippet rq      包含库文件
+	require('${1}')${0}
+# 函数
+snippet f       多行函数定义
+	function ${1:f_name} (${2})
+	  ${0}
+	end
+snippet f.      单行函数定义
+	function ${1:f_name} (${2}) return ${0} end
+snippet ff      匿名函数
+	function (${1})
+	  ${0}
+	end
+# 流程控制
+snippet if      if
+	if ${1} then
+	  ${0}
+	end
+snippet elif    elseif
+	elseif ${1} then
+	  ${0}
+snippet el      else
+	else
+	  ${0}
+snippet fo      for
+	for ${1} do
+	  ${0}
+	end
+snippet fi      for in
+	for ${1} in ${2} do
+	  ${0}
+	end
+snippet wh      while
+	while ${1} do
+	  ${0}
+	end
+snippet rep     repeat .. until
+	repeat
+	  ${0}
+	until
+snippet do     do .. end
+	do
+	  ${0}
+	end
+# 协同程序
+snippet cre     create
+	coroutine.create(${0})
+snippet sta     status
+	coroutine.status(${0})
+snippet res     resume
+	coroutine.resume(${0})
+snippet yie     yield
+	coroutine.yield(${0})
+# 常用函数
+snippet df      加载Lua源文件
+	dofile('${0}')
+snippet tp      检测数据类型
+	type(${0})
+snippet er      打印错误信息
+	error(${0})
+snippet ip      数组迭代器
+	ipairs(${0})
+snippet pa      Table迭代器
+	pairs(${0})
+snippet up      解开Table
+	unpack(${0})
+snippet tn      转换成数值
+	tonumber(${0})
+snippet ts      转换成字符串
+	tostring(${0})
+# 单个关键字
+snippet br      中断
+	break${0}
+snippet re      返回
+	return ${0}
+snippet lo      局部变量
+	local ${0}
+snippet go      跳转
+	goto ${0}
+snippet str     字符串
+	string.${0}
+snippet tab     表
+	table.${0}
+snippet p       输出
+	print(${0})
+snippet n       nil
+	nil${0}
+# 其他
+snippet _v      版本号
+	_VERSION${0}
+snippet <       多行字符串
+	[[${0}]]
+snippet .       :: ... ::
+	::${0}::

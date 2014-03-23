@@ -1,0 +1,8 @@
+{
+  "name" : "scss-syntax.vim",
+  "version" : "dev",
+  "author" : "Daniel Hofstetter <daniel.hofstetter@42dh.com>",
+  "repository" : {"type": "git", "url": "git://github.com/cakebaker/scss-syntax.vim.git"},
+  "dependencies" : {},
+  "description" : "Vim syntax file for scss (Sassy CSS)"
+}

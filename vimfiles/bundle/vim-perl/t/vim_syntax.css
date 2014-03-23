@@ -1,0 +1,48 @@
+/*
+ * A stylesheet designed to be used with the HTML output of the
+ * Perl module Text::VimColor.
+ *
+ * This file uses a different color or style for every vim syntax group,
+ * good for testing the correctness of vim syntax files.
+ *
+ * Based on http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines
+ *
+ */
+
+body { color: #2e3436; background: #eeeeec none }
+
+.synNormal         { color: #2e3436 }
+.synComment        { color: #204a87 }
+.synConstant       { color: #a40000 }
+.synSpecial        { color: #3465a4 }
+.synIdentifier     { color: #4e9a06 }
+.synStatement      { color: #c4a000 ; font-weight: bold }
+.synPreProc        { color: #5c3566 ; font-weight: bold }
+.synType           { color: #ce5c00 ; font-weight: bold }
+.synUnderlined     { color: #2e3436 ; text-decoration: underline }
+.synIgnore         { color: #d3d7cf }
+.synError          { color: #eeeeec ; background: #cc0000 none }
+.synTodo           { color: #2e3436 ; background: #c4a000 none }
+.synString         { color: #cc0000 }
+.synCharacter      { color: #ef2929 }
+.synNumber         { color: #75507b }
+.synBoolean        { color: #e9b96e ; font-weight: bold }
+.synFloat          { color: #ad7fa8 }
+.synFunction       { color: #8f5902 }
+.synConditional    { color: #ce5c00 ; font-style: italic }
+.synRepeat         { color: #ce5c00 }
+.synLabel          { color: #000000 ; font-weight: bold }
+.synOperator       { color: #f57900 ; font-weight: bold }
+.synKeyword        { color: #c17d11 }
+.synException      { color: #75507b ; font-style: italic }
+.synInclude        { color: #73d216 ; font-weight: bold }
+.synDefine         { color: #ad7fa8 ; font-weight: bold }
+.synMacro          { color: #ad7fa8 }
+.synPreCondit      { color: #729fcf }
+.synStorageClass   { color: #3465a4 ; font-weight: bold }
+.synTypedef        { color: #73d216 ; font-style: italic }
+.synTag            { color: #cc0000 ; font-style: italic }
+.synSpecialChar    { color: #fcaf3e ; font-weight: bold }
+.synDelimiter      { color: #204a87 ; font-weight: bold }
+.synSpecialComment { color: #729fcf ; font-weight: bold }
+.synDebug          { color: #edd400 ; font-style: italic }

@@ -1,0 +1,445 @@
+snippet #       可执行标识
+	#!/usr/bin/env ruby
+	${0}
+snippet coding  文件编码 [Ruby 2.0默认为UTF-8编码]
+	# encoding: utf-8
+	${0}
+snippet /       单行注释
+	# ${0}
+snippet -       分隔注释
+	# -------------------------------${0}
+snippet =b      嵌入式文档 [多行注释]
+	=begin
+	${0}
+	=end
+snippet doc     多行字符串
+	<<${1:HEREDOC}
+	${0}
+	$1
+# 包含指令
+snippet in      包含模块 [对整个类有效]
+	include ${0}
+snippet ext     包含模块 [只对调用该方法的单个对象有效]
+	extend ${0}
+snippet rq      包含文件 [只加载一次]
+	require '${1}'${0}
+snippet rqr     相对包含
+	require_relative '${1}'${0}
+snippet ld      包含文件 [可加载多次]
+	load '${1}.rb'${0}
+# 模块、类
+snippet mo      模块定义
+	module ${1:m_name}
+	  ${0}
+	end
+snippet cl      类定义
+	class ${1:cl_name}
+	  ${0}
+	end
+snippet cle     类继承
+	class ${1:cl_name} < ${2:pa_name}
+	  ${0}
+	end
+# 方法
+snippet d       方法定义 [不带参数]
+	def ${1:f_name}
+	  ${0}
+	end
+snippet d.      方法定义 [带参数]
+	def ${1:f_name} (${2})
+	  ${0}
+	end
+snippet ud      销毁方法
+	undef ${0}
+snippet di      构造方法 [不带参数]
+	def initialize
+	  ${0}
+	end
+snippet di.     构造方法 [带参数]
+	def initialize (${1})
+	  ${0}
+	end
+snippet dic     执行拷贝操作后自动调用 [不带参数]
+	def initialize_copy
+	  ${0}
+	end
+snippet dic.    执行拷贝操作后自动调用 [带参数]
+	def initialize_copy (${1})
+	  ${0}
+	end
+snippet dmm     幽灵方法 [针对方法]
+	def method_missing (${1})
+	  ${0}
+	end
+snippet dcm     幽灵方法 [针对常量]
+	def const_missing (${1})
+	  ${0}
+	end
+snippet aw      写方法
+	attr_writer :${0}
+snippet ar      读方法
+	attr_reader :${0}
+snippet aa      读写方法
+	attr_accessor :${0}
+snippet pucm    设定公共类方法
+	public_class_method :${0}
+snippet prcm    设定私有类方法
+	private_class_method :${0}
+snippet la      匿名函数
+	lambda ${0}
+snippet la?     是否是一个Lambda
+	lambda?${0}
+snippet l       匿名函数 [简写形式]
+	->${1} { ${0} }
+snippet ca      调用函数
+	call${0}
+# 流程控制
+snippet if      if
+	if ${1}
+	  ${0}
+	end
+snippet ul      uless [与if相反]
+	unless ${0}
+snippet elif    elsif
+	elsif ${1}
+	  ${0}
+snippet el      else
+	else
+	  ${0}
+snippet th      then
+	then ${0}
+snippet fo      for .. in
+	for ${1} in ${2}
+	  ${0}
+	end
+snippet fe      foreach [部分模块所特有，譬如IO]
+	foreach ${0}
+snippet wh      while
+	while ${1}
+	  ${0}
+	end
+snippet ut      until [与while相反]
+	until ${1}
+	  ${0}
+	end
+snippet cs      case
+	case ${1}
+	  ${0}
+	end
+snippet w       when
+	when ${0}
+snippet t       then
+	then ${0}
+snippet do      do [无参数]
+	do
+	  ${0}
+	end
+snippet do.     do [有参数]
+	do |${1}|
+	  ${0}
+	end
+# 异常处理
+snippet be      代码块
+	begin
+	  ${0}
+	end
+snippet ra      抛出异常
+	raise ${0}
+snippet res     捕获异常
+	rescue ${0}
+snippet ens     善后处理
+	ensure
+	  ${0}
+snippet thr     发出跳转执行流程的“信号”
+	throw${0}
+snippet cat     捕获跳转“信号”，执行跳转
+	catch${1} do
+	  ${0}
+	end
+snippet msg     异常信息
+	message${0}
+snippet E       Exception类
+	Exception${0}
+# 迭代器
+snippet lo      loop
+	loop ${0}
+snippet lod     loop do .. end
+	loop do
+	  ${0}
+	end
+snippet tm      times
+	times ${0}
+snippet up      upto
+	upto(${0})
+snippet dw      downto
+	downto(${0})
+snippet st      step [可指定步进值]
+	step(${0})
+snippet e       each
+	each ${0}
+snippet ewi     each_with_index
+	each_with_index${0}
+snippet wi      with_index
+	with_index${0}
+snippet eb      each_byte
+	each_byte${0}
+snippet ec      each_char
+	each_char${0}
+snippet eli     each_line
+	each_line${0}
+snippet ep      传递键值分离的哈希对
+	each_pair${0}
+snippet es      each_slice
+	each_slice${0}
+# 类型转换
+snippet ta      转成数组
+	to_a${0}
+snippet th      转换成Hash [Ruby 2.0新增]
+	to_h${0}
+snippet ti      转成整数
+	to_i${0}
+snippet tf      转成浮点数
+	to_f${0}
+snippet ts      转成字符串
+	to_s${0}
+snippet ins     约等同于to_s，输出信息比to_s更详细 [常用于调试]
+	inspect${0}
+snippet tp      转换成Proc对象
+	to_proc${0}
+snippet tsy     转换成符号
+	to_sym${0}
+snippet te      转换成枚举器
+	to_enum${0}
+snippet ef      to_enum的别名
+	enum_for${0}
+# 刷选
+snippet gr      grep
+	grep(/${0}/)
+snippet inj     求和
+	inject${0}
+snippet sel     选择符合条件的元素
+	select${0}
+snippet fia     select的别名
+	find_all${0}
+snippet rej     与select相反
+	reject${0}
+snippet col     处理数组各个元素后返回
+	collect${0}
+snippet m       collect的别名
+	map${0}
+snippet det     返回第一个满足条件的元素
+	detect${0}
+snippet fi      detect的别名
+	find${0}
+snippet par     判断条件为真和为假的元素都返回
+	partition${0}
+snippet z       同时取出多个集合的元素
+	zip${0}
+snippet dei     如果...就删除
+	delete_if${0}
+# 排序
+snippet so      sort
+	sort ${0}
+snippet sob     sort_by
+	sort_by ${0}
+snippet ma      max
+	max ${0}
+snippet mab     max_by
+	max_by ${0}
+snippet mi      min
+	min ${0}
+snippet mib     min_by
+	min_by ${0}
+# 反射
+snippet glv     全局变量
+	global_variables${0}
+snippet lov     局部变量
+	local_variables${0}
+snippet clv     类变量
+	class_variables${0}
+snippet recv    删除类变量
+	remove_class_variables${0}
+snippet rem     删除类方法
+	remove_method${0}
+snippet udm     解除类方法定义
+	undef_method ${0}
+snippet dfm     定义方法
+	define_method(${1}) ${0}
+snippet inm     实例方法
+	instance_methods${0}
+snippet inv     实例变量
+	instance_variables${0}
+snippet invd?   判断实例变量是否已定义
+	instance_variable_defined? ${0}
+snippet ino?    是否是类本身的实例 [可用==代替]
+	instance_of? ${0}
+snippet isa?    是否是类某个子类的实例 [可用===代替]
+	is_a? ${0}
+snippet ret?    是否有这个方法
+	respond_to? :${0}
+snippet fre     冻结一个对象
+	freeze${0}
+snippet fro?    对象是否已冻结
+	frozen?${0}
+snippet in?     给定值是否处于范围之内
+	include? ${0}
+snippet mb?     include?的别名
+	member? ${0}
+snippet me      对象的方法
+	methods${0}
+snippet bet?    是否位于...之间
+	between?${0}
+# 字符串相关
+snippet cap     首字母大写
+	capitalize${0}
+snippet upc     全部字母大写
+	upcase${0}
+snippet dwc     全部字母小写
+	downcase${0}
+snippet swc     字母大小写翻转
+	swapcase${0}
+snippet rev     字符串翻转
+	reverse${0}
+# 单个关键字
+snippet n       实例化对象
+	new${0}
+snippet pu      公有
+	public${0}
+snippet po      保护
+	protected${0}
+snippet pr      私有
+	private${0}
+snippet re      返回
+	return ${0}
+snippet br      跳出当前循环体 [可跟一个值，用作整个循环体的执行结果]
+	break${0}
+snippet ne      忽略本轮循环的剩余部分，继续下一轮循环 [相当于continue]
+	next${0}
+snippet rd      重新开始本轮循环
+	redo${0}
+snippet rt      重新开始执行当前代码块 [Ruby 1.9起不再支持迭代器，仅用于异常处理]
+	retry${0}
+snippet yi      向代码块传递转移执行流程
+	yield${0}
+snippet lz      惰性迭代器 [Ruby2.0新增]
+	lazy${0}
+snippet du      对象克隆
+	dup${0}
+snippet su      super
+	super${0}
+snippet suc     superclass
+	superclass${0}
+snippet df?     检查是否有定义
+	defined? ${0}
+snippet blg?    是否有传递代码块
+	block_given?${0}
+snippet al      别名
+	alias ${0}
+snippet alm     方法别名
+	alias_method${0}
+snippet ev      执行代码
+	eval(${0})
+snippet sh      弹出数组的第一个元素 [pop的反方向动作]
+	shift${0}
+snippet ush     向数组最前面插入元素 [push的反方向动作]
+	unshift${0}
+snippet fir     取数组最前面N个元素
+	first${0}
+snippet las     取数组最后面N个元素
+	last${0}
+snippet squ     去除连续的重复字符
+	squeeze${0}
+snippet len     返回字符数或长度
+	length${0}
+snippet sz      size [等同于length]
+	size${0}
+snippet ex      退出执行
+	exit${0}
+snippet fa      抛出异常
+	fail ${0}
+snippet bsz     返回字节数
+	bytesize${0}
+snippet en      返回字符串的编码方式
+	encoding${0}
+snippet oid     对象ID
+	object_id${0}
+snippet g       获取输入
+	gets${0}
+snippet p       输出 [自动换行]
+	puts ${0}
+snippet pi      输出 [不自动换行]
+	print ${0}
+snippet pc      输出字符
+	putc ${0}
+snippet pf      格式化输出
+	printf ${0}
+snippet spr     格式化 [本身不会输出，返回填充好的字符串]
+	sprintf ${0}
+# 特殊常量
+snippet _       __NAME__
+	__${0:LINE}__
+snippet _i      object_id
+	__id__${0}
+snippet _e      文件结束
+	__END__${0}
+snippet _l      当前代码行号
+	__LINE__${0}
+snippet _d      文件所在路径，不含文件名 [Ruby 2.0新增]
+	__dir__${0}
+snippet _f      当前文件名 [__dir__ + '/' + __FILE__ 就是完整的路径了]
+	__FILE__${0}
+snippet _en     当前文件编码
+	__ENCODING__${0}
+snippet _v      Ruby版本号
+	RUBY_VERSION${0}
+# 常用模块
+snippet Enb     迭代器
+	Enumerable${0}
+snippet Ent     提供内部迭代器和外部迭代器
+	Enumerator${0}
+snippet Com     比较
+	Comparable${0}
+snippet Obs     观察者
+	Observable${0}
+snippet Sin     单键
+	Singleton${0}
+# 常用类型
+snippet Int     整数
+	Integer${0}
+snippet Fix     小整数
+	Fixnum${0}
+snippet Big     大整数
+	Bignum${0}
+snippet Flo     浮点数
+	Float${0}
+snippet Str     字符串
+	String${0}
+snippet Arr     数组
+	Array${0}
+snippet Reg     正则表达式
+	Regexp${0}
+# 其他
+snippet s       self
+	self${0}
+snippet c       class
+	class${0}
+snippet x       %x[ .. ]
+	%${1}[ ${0} ]
+snippet y       %x{ .. }
+	%${1}{ ${0} }
+snippet r       / .. /
+	/${0}/
+snippet ry      =~
+	=~ ${0}
+snippet rn      !~
+	!~ ${0}
+snippet {       #{ .. }
+	#{${0}
+snippet |       | .. |
+	|${1}| ${0}
+snippet <       { .. }
+	{ ${0} }
+snippet >      ->
+	->${0}
+snippet .       =>
+	=> ${0}
