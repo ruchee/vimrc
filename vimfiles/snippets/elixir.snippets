@@ -1,0 +1,31 @@
+snippet #       可执行标识
+	#!/usr/bin/env elixir
+	${0}
+snippet /       单行注释
+	# ${0}
+snippet -       分隔注释
+	# -------------------------------${0}
+# 包含指令
+# 模块、类
+snippet dmo     定义模块
+	defmodule ${1:mo_name} do
+	  ${0}
+	end
+# 方法
+snippet d       方法定义 [不带参数]
+	def ${1:f_name} do
+	  ${0}
+	end
+# 流程控制
+snippet do      do
+	do
+	  ${0}
+	end
+# 异常处理
+# 输入输出
+snippet p       输出
+	IO.puts ${0}
+# 单个关键字
+# 其他
+snippet {       #{ .. }
+	#{${0}

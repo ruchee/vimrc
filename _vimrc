@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-23 23:57
+" -----------------     Date: 2014-03-24 10:47
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -182,8 +182,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType lua,ruby,eruby,slim,coffee,jade,sh set shiftwidth=2
-au FileType lua,ruby,eruby,slim,coffee,jade,sh set tabstop=2
+au FileType lua,ruby,eruby,slim,coffee,jade,elixir,sh set shiftwidth=2
+au FileType lua,ruby,eruby,slim,coffee,jade,elixir,sh set tabstop=2
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h   setlocal ft=c
@@ -513,6 +513,8 @@ func! Compile_Run_Code()
         exec "!coffee %:t"
     elseif &filetype == "javascript"
         exec "!node %:t"
+    elseif &filetype == "elixir"
+        exec "!elixir %:t"
     elseif &filetype == "sh"
         exec "!bash %:t"
     endif
