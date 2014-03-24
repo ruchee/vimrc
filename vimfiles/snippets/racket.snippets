@@ -1,0 +1,70 @@
+snippet /       单行注释
+	;; ${0}
+snippet //      多行注释
+	#|${0}|#
+snippet -       分隔注释
+	;; -------------------------------${0}
+snippet lang    指定语言
+	#lang ${0}
+# 代码重用
+snippet rq      导入包
+	require ${0}
+snippet ld      加载源文件
+	load ${0}
+# 变量、函数、宏
+snippet d       定义变量/函数
+	define ${0}
+snippet l       匿名函数
+	lambda (${1})${0}
+# 点对、列表
+snippet co      点对
+	cons ${0}
+snippet li      列表
+	list ${0}
+snippet ca      点对第一个元素
+	car ${0}
+snippet cd      点对剩余元素
+	cdr ${0}
+# 流程控制
+snippet if      if
+	if (${1})${0}
+# 逻辑
+snippet an      与
+	and ${0}
+snippet or      或
+	or ${0}
+snippet no      非
+	not ${0}
+# 判断
+snippet nu?     是否为空
+	null? ${0}
+snippet bo?     是否为布尔值
+	boolean?${0}
+snippet st=?    两字符串是否相等
+	string=? ${0}
+# 类型转换
+snippet nu>st   数值转字符串
+	number->string ${0}
+snippet st>nu   字符串转数值
+	string->number ${0}
+# 常用函数
+snippet stap    拼接字符串
+	string-append ${0}
+snippet stle    获取字符串的长度
+	string-length ${0}
+# 单个关键字
+snippet c       字符
+	#\${0}
+snippet t       #t
+	#t${0}
+snippet f       #f
+	#f${0}
+# 其他
+snippet .       '#
+	'#${0}
+snippet <       `
+	\`${0}
+snippet >       '
+	'${0}
+snippet *       **
+	*${1}*${0}

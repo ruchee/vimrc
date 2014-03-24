@@ -1,0 +1,229 @@
+snippet /       单行注释
+	;; ${0}
+snippet //      多行注释
+	#|${0}|#
+snippet -       分隔注释
+	;; -------------------------------${0}
+# 类、函数、宏、数据的定义
+snippet df      函数定义
+	defun ${1} (${2})${0}
+snippet dm      宏定义
+	defmacro ${1} (${2})${0}
+snippet dg      广义函数
+	defgeneric ${1} (${2})${0}
+snippet dc      类定义
+	defclass ${1} (${2})${0}
+snippet dv      定义全局变量
+	defvar ${0}
+snippet dp      定义全局变量
+	defparameter ${0}
+snippet dco     定义全局常量
+	defconstant ${0}
+snippet la      匿名函数
+	lambda (${1})${0}
+snippet maex    宏展开
+	macroexpand-1 ${0}
+# 控制结构
+snippet if      if
+	if (${1})${0}
+snippet lo      循环
+	loop ${0}
+snippet do      通用迭代
+	do ((${1})${2})${0}
+snippet dl      列表迭代
+	dolist (${1})${0}
+snippet dt      指定循环次数
+	dotimes ${0}
+snippet an      与
+	and ${0}
+snippet or      或
+	or ${0}
+snippet no      非
+	not ${0}
+# 判断函数
+snippet nu      是否为空
+	null ${0}
+snippet ip      是否为整数
+	integerp ${0}
+snippet op      是否是奇数
+	oddp ${0}
+snippet ep      是否是偶数
+	evenp ${0}
+snippet zp      是否为0
+	zerop ${0}
+snippet at      是否是原子
+	atom ${0}
+snippet lp      是否是列表
+	listp ${0}
+snippet cp      是否是cons对象
+	consp ${0}
+snippet bp      是否为全局变量或常量
+	boundp ${0}
+snippet tp      是否属于某类型
+	typep ${1} '${0}
+snippet eve     判断是不是每一个都满足某条件
+	every ${0}
+snippet som     判断是不是有一个满足某条件
+	some ${0}
+# 比较函数
+snippet c<      字符小于
+	char<${0}
+snippet c=      字符等于
+	char=${0}
+snippet c<=     字符小于等于
+	char<=${0}
+snippet c>      字符大于
+	char>${0}
+snippet c>=     字符大于等于
+	char>=${0}
+snippet c/      字符不等于
+	char/=${0}
+snippet eq      是否有相同的值
+	equal ${0}
+snippet seq     是否有相同的值 [不区分大小写]
+	string-equal ${0}
+# 列表操作
+snippet a       取序列第一个元素
+	car ${0}
+snippet d       取序列剩余元素
+	cdr ${0}
+snippet pu      压入元素
+	push ${0}
+snippet pun     只有当元素不存在时才压入
+	pushnew ${0}
+snippet po      弹出元素
+	pop ${0}
+snippet co      创建列表1
+	cons ${0}
+snippet li      创建列表2
+	list ${0}
+snippet ap      串接列表
+	append ${0}
+snippet cl      顶层复制
+	copy-list ${0}
+snippet ct      树形复制
+	copy-tree ${0}
+snippet ma      映射单个元素
+	mapcar #'${0}
+snippet ml      映射渐进cdr
+	maplist #'${0}
+snippet as      从关联列表取值
+	assoc ${0}
+snippet asi     模糊寻找键名1
+	assoc-if #'${0}
+snippet asin    模糊寻找键名2
+	assoc-if-not #'${0}
+snippet len     返回序列元素的个数
+	length ${0}
+# 数组/向量操作
+snippet mar     生成数组
+	make-array ${0}
+snippet ar      取数组元素引用 [零索引]
+	aref ${0}
+snippet ve      生成向量 [一维数组]
+	vector ${0}
+snippet vr      取向量元素引用 [零索引]
+	svref ${0}
+snippet ch      从字符串取字符 [零索引]
+	char ${0}
+snippet el      通用取元素操作符，对任意种类的序列都有效
+	elt ${0}
+# 集合操作
+snippet mem     返回对象第一次匹配直到列表结尾的内容
+	member ${0}
+snippet mei     模糊寻找1
+	member-if #'${0}
+snippet mein    模糊寻找2
+	member-if-not #'${0}
+snippet adj     在对象不存在于列表中时才执行附加
+	adjoin ${0}
+snippet int     交
+	intersection ${0}
+snippet uni     并
+	union ${0}
+snippet sdi     补
+	set-difference ${0}
+# CLOS
+snippet min     生成实例
+	make-instance ${0}
+snippet sva     访问槽
+	slot-value ${0}
+# 函数/表达式操作
+snippet pro     依序求值，返回最后一个表达式的值
+	progn ${0}
+snippet app     接受一个函数对象和任意个参数，最后一个参数必须是列表
+	apply #'${0}
+snippet fca     接受一个函数对象和任意个参数。参数不能为列表
+	funcall #'${0}
+# 单个关键字
+snippet q       返回列表（'是其语法糖）
+	quote ${0}
+snippet f       获取一个函数对象（#'是其语法糖）
+	function ${0}
+snippet re      返回
+	return ${0}
+snippet ref     从 .. 返回
+	return-from ${0}
+snippet le      设置局部变量
+	let ((${1})${2})${0}
+snippet se      赋值
+	setf ${0}
+snippet ge      取值
+	getf ${0}
+snippet ev      将字符串作为代码运行
+	eval ${0}
+snippet in      自增1
+	incf ${0}
+snippet col     收集
+	collecting${0}
+snippet gen     产生一个随机变量
+	gensym${0}
+# 输入输出
+snippet pc      输出字符
+	princ ${0}
+snippet pi      输出
+	print ${0}
+snippet fm      格式化输出
+	format ${1:t} "${2}"${0}
+snippet wl      输出一行
+	write-line ${0}
+snippet rd      获取输入
+	read${0}
+# 常用函数
+snippet so      自定义排序
+	sort ${0}
+snippet con     连接字串
+	concatenate ${0}
+snippet foo     force-output
+	force-output${0}
+snippet rel     read-line
+	read-line${0}
+snippet pai     parse-integer
+	parse-integer${0}
+snippet yonp    y-or-n-p
+	y-or-n-p${0}
+snippet wiof    with-open-file
+	with-open-file (${1})${0}
+snippet wisis   with-standard-io-syntax
+	with-standard-io-syntax${0}
+snippet rei     如果满足 .. 就剔除
+	remove-if${0}
+snippet rein    如果不满足 .. 就剔除
+	remove-if-not${0}
+snippet sbti    顶层替换
+	substitute ${0}
+snippet sbt     树形替换
+	subst ${0}
+snippet sbs     截取列表，第二个参数指定起始位置，可选的第三个参数指定结束位置，前包后不包
+	subseq ${0}
+snippet rev     翻转列表
+	reverse ${0}
+# 其他
+snippet .       #'
+	#'${0}
+snippet <       `
+	\`${0}
+snippet >       '
+	'${0}
+snippet *       **
+	*${1}*${0}
