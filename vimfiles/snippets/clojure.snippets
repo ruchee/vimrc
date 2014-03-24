@@ -1,0 +1,62 @@
+snippet /       单行注释
+	; ${0}
+snippet //      多行注释
+	(comment ${0})
+snippet -       分隔注释
+	; -------------------------------${0}
+# 包、命令空间、类
+snippet im      导入包
+	import${0}
+snippet rq      导入包文件
+	require '${0}
+snippet u       use
+	use '${0}
+# 结构定义
+snippet d       定义函数或变量
+	def ${0}
+snippet dn      定义函数 [不带参数]
+	defn ${0:f_name}
+snippet dn.     定义函数 [带参数]
+	defn ${1:f_name} [${2}]${0}
+snippet dre     定义记录 [相当于类]
+	defrecord ${0}
+snippet dp      定义项目
+	defproject ${0}
+snippet f       匿名函数
+	fn [${1}] ${0}
+# 流程控制
+# 单个关键字
+snippet a       原子
+	atom ${0}
+snippet l       变量声明
+	let ${0}
+snippet s       变量赋值
+	set ${0}
+snippet li      列表
+	list ${0}
+snippet v       向量
+	vector ${0}
+# 常用函数
+snippet cd      分段匹配 [相当于switch]
+	cond (${1}) ${2}
+	  (${3}) ${0}
+snippet cj      联合元素
+	conj ${0}
+snippet sw      swap!
+	swap! ${0}
+snippet fm      格式化输出
+	format "${1}" ${0}
+# 输入输出
+snippet p       输出 [不换行]
+	print ${0}
+snippet pn      输出 [换行]
+	println ${0}
+# 其他
+snippet .       ->
+	->${0}
+snippet <       `
+	\`${0}
+snippet >       '
+	'${0}
+snippet *       **
+	*${1}*${0}

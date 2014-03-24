@@ -1,0 +1,95 @@
+snippet /       单行注释
+	//  ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+snippet pa      包
+	package ${0}
+snippet im      导入包
+	import ${0}
+# 类、函数
+snippet cl      类定义
+	class ${1:cl_name} {
+	    ${0}
+	}
+snippet f       方法定义
+	${1:f_name} (${2}) {
+	    ${0}
+	}
+snippet main    主函数
+	public static void main (String[] args) {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	    ${0}
+	}
+snippet elif    else if
+	else if (${1}) {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet wh      while循环
+	while (${1}) {
+	    ${0}
+	}
+snippet fo      for循环
+	for (${1}) {
+	    ${0}
+	}
+snippet sw      switch
+	switch (${1}) {
+	    ${0}
+	}
+snippet cs      case
+	case ${1}:
+	    ${0}
+snippet def     default
+	default:
+	    ${0}
+# 异常处理
+snippet try     try
+	try {
+	    ${0}
+	}
+snippet thr     抛出异常
+	throw ${0}
+snippet cat     捕获异常
+	catch (${0}) {
+	    ${0}
+	}
+snippet fin     善后处理
+	finally {
+	    ${0}
+	}
+# 输入输出
+snippet p       常用输出
+	System.out.println(${0});
+# 单个关键字
+snippet pu      公共
+	public ${0}
+snippet po      保护
+	protected ${0}
+snippet pr      私有
+	private ${0}
+snippet st      静态变量
+	static ${0}
+snippet fi      final
+	final ${0}
+snippet ab      抽象
+	abstract ${0}
+snippet re      返回
+	return ${0}
+snippet co      继续
+	continue;${0}
+snippet br      中断
+	break;${0}
+snippet bo      布尔型
+	boolean ${0}
+snippet ?       三元运算符
+	${1} ? ${2} : ${0};

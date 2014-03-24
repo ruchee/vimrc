@@ -1,0 +1,119 @@
+snippet /       单行注释
+	//  ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+# 代码重用
+snippet pa      指定包名
+	package ${0}
+snippet im      导入包
+	import ${0}
+# 类、方法
+snippet ob      Object
+	object ${1:ob_name} {
+	  ${0}
+	}
+snippet obe     Object继承
+	object ${1:ob_name} extends ${2:ex_name} {
+	  ${0}
+	}
+snippet tr      Trait
+	trait ${1:tr_name} {
+	  ${0}
+	}
+snippet tre     Trait继承
+	trait ${1:tr_name} extends ${2:ex_name} {
+	  ${0}
+	}
+snippet cl      类定义
+	class ${1:cl_name} {
+	  ${0}
+	}
+snippet cle     类继承
+	class ${1:cl_name} extends ${2:ex_name} {
+	  ${0}
+	}
+snippet main    主函数
+	def main (args: Array[String]) {
+	  ${0}
+	}
+snippet df      函数定义
+	def ${1:f_name} {
+	  ${0}
+	}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	  ${0}
+	}
+snippet elif    else if
+	else if (${1}) {
+	  ${0}
+	}
+snippet el      else
+	else {
+	  ${0}
+	}
+snippet fo      for
+	for (${1}) {
+	  ${0}
+	}
+snippet wh      while
+	while (${1}) {
+	  ${0}
+	}
+snippet ma      match
+	match {
+	  ${0}
+	}
+snippet cs      case
+	case ${1} => ${0}
+# 异常处理
+snippet thr     抛出异常
+	throw ${0}
+snippet try     监控代码块
+	try {
+	  ${0}
+	}
+snippet cat     捕获异常
+	catch (${1}) {
+	    ${0}
+	}
+snippet fin     善后处理
+	finally {
+	    ${0}
+	}
+# 单个关键字
+snippet pu      共有
+	public ${0}
+snippet pr      私有
+	private ${0}
+snippet po      保护
+	protected ${0}
+snippet yi      转移执行
+	yield ${0}
+snippet v       var
+	var ${0}
+snippet n       new
+	new ${0}
+snippet t       type
+	type ${0}
+snippet d       def
+	def ${0}
+snippet t       trait
+	trait ${0}
+snippet c       class
+	class ${0}
+snippet e       extends
+	extends ${0}
+# 输入输出
+snippet p       输出 [换行]
+	println(${0})
+snippet pf      格式化输出
+	printf(${0})
+# 其他
+snippet <       { .. }
+	{ ${0} }
+snippet .       =>
+	=> ${0}
