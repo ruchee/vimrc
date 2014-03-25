@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-24 11:51
+" -----------------     Date: 2014-03-25 09:18
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -182,12 +182,15 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType lua,ruby,eruby,slim,coffee,jade,elixir,groovy,scala,clojure,racket,lisp,sh set shiftwidth=2
-au FileType lua,ruby,eruby,slim,coffee,jade,elixir,groovy,scala,clojure,racket,lisp,sh set tabstop=2
+au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set shiftwidth=2
+au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h   setlocal ft=c
+au BufRead,BufNewFile *.di  setlocal ft=d
+au BufRead,BufNewFile *.cl  setlocal ft=lisp
 au BufRead,BufNewFile *.sql setlocal ft=mysql
+au BufRead,BufNewFile *.tpl setlocal ft=smarty
 au BufRead,BufNewFile *.txt setlocal ft=txt
 
 
@@ -379,7 +382,7 @@ let g:airline_theme = 'badwolf'                " 设置主题
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml', 'eruby', 'slim', 'scss', 'jade', 'less', 'groovy', 'scala', 'clojure', 'racket']
+            \'passive_filetypes': ['html', 'css', 'xhtml', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'scss', 'jade', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
 
 
@@ -499,22 +502,24 @@ func! Compile_Run_Code()
         else
             exec "!g++ -Wall -std=c++11 -o %:r %:t && ./%:r"
         endif
-    elseif &filetype == "lua"
-        exec "!lua %:t"
-    elseif &filetype == "perl"
-        exec "!perl %:t"
-    elseif &filetype == "php"
-        exec "!php %:t"
-    elseif &filetype == "python"
-        exec "!python %:t"
-    elseif &filetype == "ruby"
-        exec "!ruby %:t"
-    elseif &filetype == "coffee"
-        exec "!coffee %:t"
-    elseif &filetype == "javascript"
-        exec "!node %:t"
-    elseif &filetype == "elixir"
-        exec "!elixir %:t"
+    elseif &filetype == "d"
+        if g:isWIN
+            exec "!dmd -wi %:t && %:r.exe"
+        else
+            exec "!dmd -wi %:t && ./%:r"
+        endif
+    elseif &filetype == "go"
+        if g:isWIN
+            exec "!go build %:t && %:r.exe"
+        else
+            exec "!go build %:t && ./%:r"
+        endif
+    elseif &filetype == "rust"
+        if g:isWIN
+            exec "!rustc %:t && %:r.exe"
+        else
+            exec "!rustc %:t && ./%:r"
+        endif
     elseif &filetype == "java"
         exec "!javac %:t && java %:r"
     elseif &filetype == "groovy"
@@ -527,6 +532,26 @@ func! Compile_Run_Code()
         exec "!racket -f %:t"
     elseif &filetype == "lisp"
         exec "!clisp -i %:t"
+    elseif &filetype == "lua"
+        exec "!lua %:t"
+    elseif &filetype == "perl"
+        exec "!perl %:t"
+    elseif &filetype == "php"
+        exec "!php %:t"
+    elseif &filetype == "python"
+        exec "!python %:t"
+    elseif &filetype == "ruby"
+        exec "!ruby %:t"
+    elseif &filetype == "elixir"
+        exec "!elixir %:t"
+    elseif &filetype == "dart"
+        exec "!dart %:t"
+    elseif &filetype == "julia"
+        exec "!julia %:t"
+    elseif &filetype == "coffee"
+        exec "!coffee %:t"
+    elseif &filetype == "javascript"
+        exec "!node %:t"
     elseif &filetype == "sh"
         exec "!bash %:t"
     endif
@@ -547,7 +572,7 @@ vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 
 let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
 let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
-let g:vimwiki_valid_html_tags = 'a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,script,style'
+let g:vimwiki_valid_html_tags = 'a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style'
 " 声明可以在wiki里面使用的HTML标签
 
 let blog = {}

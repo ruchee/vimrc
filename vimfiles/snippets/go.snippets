@@ -1,0 +1,131 @@
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+snippet pa      包
+	package ${0}
+snippet pm      main包
+	package main${0}
+snippet im      导入单个包
+	import "${1}"${0}
+snippet im.     导入多个包
+	import (
+	    "${1}"
+	    "${2}"${0}
+	)
+# 函数、复合结构
+snippet main    主函数
+	func main () {
+	    ${0}
+	}
+snippet f       函数
+	func ${1:f_name} (${2}) ${3} {
+	    ${0}
+	}
+snippet ff      匿名函数
+	func (${1}) ${2} {${0}}
+snippet str     结构体
+	type ${1:str_name} struct {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if ${1} {
+	    ${0}
+	}
+snippet elif    else if
+	else if ${1} {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for
+	for ${1} {
+	    ${0}
+	}
+snippet sw      switch
+	switch ${1} {
+	    ${0}
+	}
+snippet cs      case
+	case ${1}:
+	    ${0}
+snippet def     default
+	default:
+	    ${0}
+snippet fa      继续匹配
+	fallthrough${0}
+# 单个关键字
+snippet m       声明
+	make(${0})
+snippet re      返回
+	return ${0}
+snippet co      继续
+	continue${0}
+snippet br      中断
+	break ${0}
+snippet go      跳转
+	goto ${0}
+snippet ra      range
+	range ${0}
+snippet de      删除map中的元素
+	delete(${1}, ${0})
+snippet con     常量
+	const ${0}
+snippet con.    多个常量
+	const (
+	    ${0}
+	)
+snippet v       定义变量
+	var ${0}
+snippet v.      定义多个变量
+	var (
+	    ${0}
+	)
+# 数据类型
+snippet i8      int8
+	int8${0}
+snippet i16     int16
+	int16${0}
+snippet i32     int32
+	int32${0}
+snippet i64     int64
+	int64${0}
+snippet u8      uint8
+	uint8${0}
+snippet u16     uint16
+	uint16${0}
+snippet u32     uint32
+	uint32${0}
+snippet u64     uint64
+	uint64${0}
+snippet f32     float32
+	float32${0}
+snippet f64     float64
+	float64${0}
+snippet c64     complex64
+	complex64${0}
+snippet c128    complex128
+	complex128${0}
+snippet err     错误
+	error${0}
+# 输入输出
+snippet p       输出（不换行）
+	print(${0})
+snippet pl      输出（换行）
+	println(${0})
+snippet fp      Printf
+	fmt.Printf(${0})
+snippet fpl     Println
+	fmt.Println(${0})
+snippet fsp     Sprint
+	fmt.Sprint(${0})
+snippet ffp     Fprintf
+	fmt.Fprintf(${0})
+# 其他
+snippet .       :=
+	 := ${0}
