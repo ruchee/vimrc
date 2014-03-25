@@ -1,0 +1,35 @@
+snippet /       单行注释
+	// ${1}
+snippet //      多行注释
+	(* ${1}*)
+snippet -       分隔注释
+	// -------------------------------${1}
+snippet sys     System
+	System.${1}
+snippet op      open
+	open ${1}
+snippet le      数据定义（不换行）
+	let ${1} = ${2}
+snippet le.     数据定义（换行）
+	let ${1} =
+	    ${2}
+# 流程控制
+snippet ma      模式匹配（不换行）
+	match ${1} with ${2}
+snippet ma.     模式匹配（换行）
+	match ${1} with
+	    ${2}
+snippet if      if
+	if ${1} then ${2}
+snippet elif    elif
+	elif ${1} then ${2}
+snippet el      else
+	else ${1}
+snippet fo      for .. in
+	for ${1} in ${2}
+snippet p       printf
+	printf ${1}
+snippet pn      printfn
+	printfn ${1}
+snippet .       ->
+	->${1}

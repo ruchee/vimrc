@@ -2,10 +2,25 @@ snippet /       单行注释
 	-- ${0}
 snippet //      多行注释
 	/*${0}*/
+# 流程控制
 snippet be      BEGIN ... END
 	BEGIN
 	    ${0}
 	END;
+snippet if      IF ... THEN ... END IF
+	IF ${1} THEN
+	    ${0}
+	END IF;
+snippet elif    ELSEIF ... THEN
+	ELSEIF ${1} THEN
+	    ${0}
+snippet el      ELSE
+	ELSE
+	    ${0}
+snippet rep     REPEAT ... UNTIL ... END REPEAT
+	REPEAT
+	    ${0}
+	UNTIL ${1} END REPEAT;
 # 创建命令
 snippet crt     创建表
 	CREATE TABLE ${0};
@@ -15,6 +30,8 @@ snippet crv     创建视图
 	CREATE VIEW ${0};
 snippet crp     创建存储过程
 	CREATE PROCEDURE ${0};
+snippet crtr    创建触发器
+	CREATE TRIGGER ${0};
 snippet cru     创建用户
 	CREATE USER ${0};
 # 更新命令
@@ -46,6 +63,10 @@ snippet drt     删除表
 	DROP TABLE ${0};
 snippet drv     删除视图
 	DROP VIEW ${0};
+snippet drp     删除存储过程
+	DROP PROCEDURE ${0};
+snippet drtr    删除触发器
+	DROP TRIGGER ${0};
 # 事务相关
 snippet stt     开始一个新的事务
 	START TRANSACTION;${0}
@@ -142,7 +163,9 @@ snippet ign     忽略错误
 	IGNORE ${0}
 snippet lop     降低优先级
 	LOW_PRIORITY${0}
-snippet ine     如果不存在
+snippet ife     如果存在
+	IF EXISTS${0}
+snippet ifne    如果不存在
 	IF NOT EXISTS${0}
 snippet nul     允许空值
 	NULL${0}
@@ -152,6 +175,10 @@ snippet def     指定默认值
 	DEFAULT ${0}
 snippet cal     调用存储过程
 	CALL ${0}
+snippet dec     声明变量
+	DECLARE ${0};
+snippet cur     游标
+	CURSOR${0}
 # 选项设置
 snippet eng     数据引擎
 	ENGINE=${0:MyISAM}

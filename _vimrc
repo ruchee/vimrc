@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-25 09:18
+" -----------------     Date: 2014-03-25 19:03
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -528,6 +528,14 @@ func! Compile_Run_Code()
         exec "!scala %:t"
     elseif &filetype == "clojure"
         exec "!clojure -i %:t"
+    elseif &filetype == "cs"
+        if g:isWIN
+            exec "!csc %:t && %:r.exe"
+        endif
+    elseif &filetype == "fsharp"
+        if g:isWIN
+            exec "!fsc %:t && %:r.exe"
+        endif
     elseif &filetype == "racket"
         exec "!racket -f %:t"
     elseif &filetype == "lisp"

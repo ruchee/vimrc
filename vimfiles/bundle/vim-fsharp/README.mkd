@@ -1,0 +1,40 @@
+
+Vim Runtime Files for F# (FSharp)
+=======================================
+
+This runtime files are inspired by the original version of a fsharp syntax file
+named [fs.vim](http://www.vim.org/scripts/script.php?script_id=2162) from [Choy
+Rim](mailto:choy.rim@gmail.com) and a slightly [modified
+version](https://github.com/DrTom/fsharp-vim) from [Thomas
+Schank](mailto:ThomasSchank@gmail.com). The syntax file is now completely
+rewritten.
+
+This vim runtime files are especially helpful when editing F# files under
+Linux/Mac. Under Windows I would recommend to use VisualStudio with the great
+[VsVim Plugin](https://github.com/jaredpar/VsVim) by Jared Parsons.
+
+
+Installing
+----------
+
+### Using pathogen
+
+1. Install [pathogen](https://github.com/tpope/vim-pathogen)
+
+2. Move into your main vimfiles git repository
+
+3. Run `git submodule add git://github.com/kongo2002/fsharp-vim.git bundle/fsharp`
+
+### Traditional install
+
+Drop the contents into your `~/.vim` directory as usual
+
+
+Usage
+------
+
+Opening either `*.fs`, `*.fsi` or `*.fsx` files should trigger syntax
+highlighting and other depending runtime files as well.
+
+
+
