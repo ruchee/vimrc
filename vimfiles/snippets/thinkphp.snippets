@@ -1,0 +1,130 @@
+snippet tp/     单行注释
+	<{// ${0} }>
+snippet tp//    多行注释
+	<{/*${1}*/}>
+# 内置标签 [代码重用]
+snippet tpin    包含外部模版文件
+	<include file="${0}" />
+snippet tpla    指定模版布局文件
+	<layout name="${0}" />
+snippet tpbl    代码区块
+	<block name="${1}">${0}</block>
+snippet tpex    模版继承
+	<extend name="${0}" />
+snippet tpim    导入资源文件 [命名空间形式]
+	<import type="${1}" file="${2}"${0} />
+snippet tplo    导入资源文件 [文件形式]
+	<load href="${0}" />
+# 内置标签 [流程控制]
+snippet tpif    if
+	<if condition="${1}">${0}</if>
+snippet tpelif  elseif
+	<elseif condition="${1}" />${0}
+snippet tpel    else
+	<else />${0}
+snippet tpfo    for
+	<for start="${1}" end="${2}"${3}>${0}</for>
+snippet tpvo    volist
+	<volist name="${1}" id="${2}"${3}>${0}</volist>
+snippet tpfe    foreach
+	<foreach name="${1}" item="${2}"${3}>${0}</foreach>
+snippet tpsw    switch
+	<switch name="${1}">${0}</switch>
+snippet tpcs    case
+	<case value="${1}"${2}>${0}</case>
+snippet tpde    default
+	<default />${0}
+# 内置标签 [数据比较]
+snippet tpcom   通用比较标签
+	<compare name="${1}" value="${2}" type="${3}">${0}</compare>
+snippet tpeq    等于
+	<eq name="${1}" value="${2}">${0}</eq>
+snippet tpneq   不等于
+	<neq name="${1}" value="${2}">${0}</neq>
+snippet tpgt    大于
+	<gt name="${1}" value="${2}">${0}</gt>
+snippet tpegt   大于等于
+	<egt name="${1}" value="${2}">${0}</egt>
+snippet tplt    小于
+	<lt name="${1}" value="${2}">${0}</lt>
+snippet tpelt   小于等于
+	<elt name="${1}" value="${2}">${0}</elt>
+snippet tpheq   恒等于
+	<heq name="${1}" value="${2}">${0}</heq>
+snippet tpnheq  不恒等于
+	<nheq name="${1}" value="${2}">${0}</nheq>
+# 内置标签 [范围判断]
+snippet tpra    通用范围标签
+	<range name="${1}" value="${2}" type="${3}">${0}</range>
+snippet tpin.   是否在某范围内
+	<in name="${1}" value="${2}">${0}</in>
+snippet tpnin   是否不在某范围内
+	<notin name="${1}" value="${2}">${0}</notin>
+snippet tpbe    是否在某区间内
+	<between name="${1}" value="${2}">${0}</between>
+snippet tpnbe   是否不在某区间内
+	<notbetween name="${1}" value="${2}">${0}</notbetween>
+# 内置标签 [赋值判断]
+snippet tppre   判断已赋值
+	<present name="${1}">${0}</present>
+snippet tpnpre  判断未赋值
+	<notpresent name="${1}">${0}</notpresent>
+# 内置标签 [为空判断]
+snippet tpemp   判断为空
+	<empty name="${1}">${0}</empty>
+snippet tpnemp  判断不为空
+	<notempty name="${1}">${0}</notempty>
+# 内置标签 [定义判断]
+snippet tpdf    判断已定义
+	<defined name="${1}">${0}</defined>
+snippet tpndf   判断未定义
+	<notdefined name="${1}">${0}</notdefined>
+# 系统变量
+snippet tp      $Think系统变量
+	$Think.${0}
+snippet tpser   获取$_SERVER
+	$Think.server.${0}
+snippet tpget   获取$_GET
+	$Think.get.${0}
+snippet tppos   获取$_POST
+	$Think.post.${0}
+snippet tpreq   获取$_REQUEST
+	$Think.request.${0}
+snippet tpcoo   获取$COOKIE
+	$Think.cookie.${0}
+snippet tpses   获取$_SESSION
+	$Think.session.${0}
+snippet tpcfg   获取系统配置参数
+	$Think.config.${0}
+snippet tplan   获取系统语言变量
+	$Think.lang.${0}
+snippet tpcon   获取系统常量
+	$Think.const.${0}
+snippet tpenv   获取环境变量
+	$Think.env.${0}
+snippet tpver   获取框架版本号
+	$Think.version${0}
+snippet tpnow   获取当前时间
+	$Think.now${0}
+snippet tptpl   获取当前模版
+	$Think.template${0}
+snippet tplde   获取模版左界定符
+	$Think.ldelim${0}
+snippet tprde   获取模版右界定符
+	$Think.rdelim${0}
+# 辅助函数
+snippet tpdef   指定默认值
+	default='${0}'
+# 其他
+snippet tpp     使用PHP代码
+	<php>${0}</php>
+snippet tpl     不解析，原样输出
+	<literal>${0}</literal>
+snippet tpd     定义常量
+	<define name="${1}" value="${0}" />
+snippet tpa     变量赋值
+	<assign name="${1}" value="${0}" />
+snippet tp?     三元运算符
+	${1} ? ${2} : ${0}
+snippet tp_     __XXX__
+	__${0}__

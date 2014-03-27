@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-25 19:03
+" -----------------     Date: 2014-03-26 15:36
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -348,7 +348,7 @@ let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp'
 let g:snipMate.scope_aliases['php']        = 'php,html'
-let g:snipMate.scope_aliases['smarty']     = 'smarty,html'
+let g:snipMate.scope_aliases['smarty']     = 'smarty,thinkphp,html'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
