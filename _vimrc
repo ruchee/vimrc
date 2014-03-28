@@ -584,14 +584,22 @@ let g:vimwiki_valid_html_tags = 'a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,ce
 " 声明可以在wiki里面使用的HTML标签
 
 let blog = {}
-if g:isWIN
-    let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-    let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-    let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+if g:atCompany
+    if g:isWIN
+        let blog.path          = 'G:/Ruchee/mysite/wiki/'
+        let blog.path_html     = 'G:/Ruchee/mysite/html/'
+        let blog.template_path = 'G:/Ruchee/mysite/templates/'
+    endif
 else
-    let blog.path          = '~/mysite/wiki/'
-    let blog.path_html     = '~/mysite/html/'
-    let blog.template_path = '~/mysite/templates/'
+    if g:isWIN
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+    else
+        let blog.path          = '~/mysite/wiki/'
+        let blog.path_html     = '~/mysite/html/'
+        let blog.template_path = '~/mysite/templates/'
+    endif
 endif
 let blog.template_default = 'site'
 let blog.template_ext     = '.html'
