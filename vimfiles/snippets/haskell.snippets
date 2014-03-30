@@ -1,0 +1,63 @@
+snippet /       单行注释
+	-- ${0}
+snippet //      多行注释
+	{-${0}-}
+snippet -       分隔注释
+	-- -------------------------------${0}
+# 模块和包
+snippet im      导入包
+	import ${0}
+# 流程控制
+snippet if      单行if
+	if ${1} then ${2} else ${0}
+snippet if.     多行if
+	if ${1}
+	then ${2}
+	else ${0}
+snippet ow      其他情况
+	otherwise = ${0}
+snippet wh      为模式防卫定义变量
+	where ${0}
+snippet le      定义局部变量或局部函数 [不带in]
+	let ${0}
+snippet lei     定义局部变量或局部函数 [带in]
+	let ${1}in ${0}
+snippet cs      模式匹配
+	case ${1} of ${2} -> ${0}
+# 数据类型相关函数
+snippet nu      是否为空
+	null ${0}
+snippet od      是否是奇数
+	odd ${0}
+snippet ev      是否是偶数
+	even ${0}
+# 列表常用函数
+snippet rev     反转
+	reverse ${0}
+snippet ele     判断元素是否包含于列表
+	elem ${0}
+snippet max     取最大值
+	maximum ${0}
+snippet min     取最小值
+	minimum ${0}
+snippet cyc     返回一个以参数列表对应字符串循环作为元素组成的无限列表
+	cycle ${0}
+snippet rpt     返回一个以参数值循环作为元素组成的无限列表
+	repeat ${0}
+snippet rpl     生成一个由N个重复元素组成的列表
+	replicate ${0}
+# 元组常用函数
+snippet fs      返回首项
+	fst ${0}
+snippet sn      返回尾项
+	snd ${0}
+# 其他常用函数
+snippet com     比较两参数大小，返回结果为 GT、LT、EQ 三者之一
+	compare ${0}
+# 其他
+snippet <       <-
+	<- ${0}
+snippet >       ->
+	-> ${0}
+snippet .       ::
+	:: ${0}

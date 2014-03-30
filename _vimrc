@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-26 15:36
+" -----------------     Date: 2014-03-30 21:53
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -347,6 +347,7 @@ let g:snipMate_no_default_aliases          = 1
 let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp'
+let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,thinkphp,html'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
@@ -536,10 +537,22 @@ func! Compile_Run_Code()
         if g:isWIN
             exec "!fsc %:t && %:r.exe"
         endif
-    elseif &filetype == "racket"
+    elseif &filetype == "scheme" || &filetype == "racket"
         exec "!racket -f %:t"
     elseif &filetype == "lisp"
         exec "!clisp -i %:t"
+    elseif &filetype == "ocaml"
+        if g:isWIN
+            exec "!ocamlc -o %:r %:t && %:r.exe"
+        else
+            exec "!ocamlc -o %:r %:t && ./%:r"
+        endif
+    elseif &filetype == "haskell"
+        if g:isWIN
+            exec "!ghc -o %:r %:t && %:r.exe"
+        else
+            exec "!ghc -o %:r %:t && ./%:r"
+        endif
     elseif &filetype == "lua"
         exec "!lua %:t"
     elseif &filetype == "perl"
@@ -552,10 +565,10 @@ func! Compile_Run_Code()
         exec "!ruby %:t"
     elseif &filetype == "elixir"
         exec "!elixir %:t"
-    elseif &filetype == "dart"
-        exec "!dart %:t"
     elseif &filetype == "julia"
         exec "!julia %:t"
+    elseif &filetype == "dart"
+        exec "!dart %:t"
     elseif &filetype == "coffee"
         exec "!coffee %:t"
     elseif &filetype == "javascript"
