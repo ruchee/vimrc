@@ -1,0 +1,61 @@
+# 基础结构
+snippet b_c     控制器
+	class module extends _module {
+
+	    ${0}
+
+	}
+snippet b_m     模型
+	class `expand("%:r")` extends _model {
+
+	    ${0}
+
+	}
+snippet b_fi    init方法
+	public function init () {
+	    ${0}
+	}
+snippet b_fe    execute方法
+	public function execute () {
+	    ${0}
+	}
+# 模版引擎
+snippet b_tv    模版传值
+	$this->view->vars['${1}'] = ${0};
+snippet b_tl    指定布局文件
+	$this->view->layout = ${0};
+snippet b_th    指定模版文件
+	$this->view->html = ${0};
+snippet b_td    依控制器结构的默认模版路径
+	$this->templateDir.'/${0}.html'
+snippet b_tt    打印模版变量
+	$this->vars['${0}']
+# 常用方法
+snippet b_dbq   SQL查询
+	$this->db->query(${0})
+snippet b_dbqa  SQL查询 [返回全部]
+	$this->db->queryAll(${0})
+snippet b_dbqr  SQL查询 [返回一行]
+	$this->db->queryRow(${0})
+# 辅助方法
+snippet b_hte   HTML标签转字符实体
+	html::e(${0})
+snippet b_htm   打印出错信息
+	html::htmlMessages(${0})
+snippet b_log   记录日志
+	log::w(${0})
+# 其他常用
+snippet b_req   获取客户端输入
+	$this->request['${0}']
+snippet b_bau   网站基准地址
+	$this->baseUrl${0}
+snippet b_tbn   指定表名
+	$this->tableName = '${0}';
+snippet b_tbk   指定主键
+	$this->tableKey = '${0}';
+snippet b_aro   指定默认排序规则
+	$this->_ARRAY_order = array(
+	    0  => '${1}',
+	    1  => '${2}',
+	    -1 => '${0}'
+	);

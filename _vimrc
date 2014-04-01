@@ -1,19 +1,34 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-03-30 21:53
+" -----------------     Date: 2014-04-01 16:28
 " -----------------    https://github.com/ruchee/vimrc
 
 
-" 设置工作地点标志（根据指定路径的文件是否存在判断）
-if filereadable("D:/atCompany.txt")
+" 判断操作系统类型
+if(has("win32") || has("win64"))
+    let g:isWIN = 1
+else
+    let g:isWIN = 0
+endif
+
+" 判断是否处于GUI界面
+if has("gui_running")
+    let g:isGUI = 1
+else
+    let g:isGUI = 0
+endif
+
+" 判断工作地点（根据指定路径的文件是否存在判断）
+if filereadable("~/.atCompany") || filereadable("D:/atCompany.txt")
     let g:atCompany = 1
 else
     let g:atCompany = 0
 endif
 
-
-" 设置 path 和 tags 路径
+" 针对不同的使用环境进行具体配置
 if g:atCompany
+    au BufRead,BufNewFile *.html setlocal ft=php
+    set tags+=G:/Ruchee/code/work/app_customer/tags
 else
 endif
 
@@ -49,6 +64,7 @@ endif
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \ff                        --打开ctrlp.vim文件搜索窗口
+" \ud                        --打开/关闭编辑历史窗口
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -160,21 +176,6 @@ endif
 "
 " :se ff=unix                --更改文件格式，可选 unix、dos、mac
 " :se ft=cpp                 --更改文件语法着色模式
-
-
-" 判断操作系统类型
-if(has("win32") || has("win64"))
-    let g:isWIN = 1
-else
-    let g:isWIN = 0
-endif
-
-" 判断是否处于GUI界面
-if has("gui_running")
-    let g:isGUI = 1
-else
-    let g:isGUI = 0
-endif
 
 
 " 设置通用缩进策略
@@ -348,7 +349,7 @@ let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['php']        = 'php,html,company_guobi'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,thinkphp,html'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
@@ -438,6 +439,9 @@ nmap <leader>tl :Tlist<CR><c-l>
 
 " \ff                 打开文件搜索窗口，在状态栏显示 [ctrlp.vim插件]
 nmap <leader>ff :CtrlP<CR>
+
+" \ud                 打开编辑历史窗口，在左侧栏显示 [Undotree插件]
+nmap <leader>ud :UndotreeToggle<CR>
 
 " \16                 十六进制格式查看
 nmap <leader>16 <ESC>:%!xxd<ESC>
