@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-01 18:02
+" -----------------     Date: 2014-04-02 17:54
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -28,8 +28,10 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
+    set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
     set tags+=G:/Ruchee/code/work/app_customer/tags
 else
+    set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
 endif
 
 
@@ -311,6 +313,83 @@ au FileType clojure  set iskeyword-=>
 au FileType perl,php set iskeyword-=$
 au FileType ruby     set iskeyword+=!
 au FileType ruby     set iskeyword+=?
+
+
+" 针对部分语言添加字典补全
+au FileType c          call AddCDict()
+au FileType cpp        call AddCPPDict()
+au FileType java       call AddJavaDict()
+au FileType scala      call AddScalaDict()
+au FileType php        call AddPHPDict()
+au FileType ruby       call AddRubyDict()
+au FileType javascript call AddJavaScriptDict()
+
+function AddCDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/c.txt
+    else
+        set dict+=~/.vim/dict/c.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddCPPDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/c.txt
+        set dict+=$VIM/vimfiles/dict/cpp-stdlib.txt
+        set dict+=$VIM/vimfiles/dict/cpp-boost.txt
+    else
+        set dict+=~/.vim/dict/c.txt
+        set dict+=~/.vim/dict/cpp-stdlib.txt
+        set dict+=~/.vim/dict/cpp-boost.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddJavaDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/java.txt
+    else
+        set dict+=~/.vim/dict/java.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddScalaDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/scala.txt
+    else
+        set dict+=~/.vim/dict/scala.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddPHPDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/php.txt
+    else
+        set dict+=~/.vim/dict/php.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddRubyDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/ruby.txt
+    else
+        set dict+=~/.vim/dict/ruby.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddJavaScriptDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/javascript.txt
+    else
+        set dict+=~/.vim/dict/javascript.txt
+    endif
+    set complete+=k
+endfunction
 
 
 " 开启部分语法高亮的非默认特性
