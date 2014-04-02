@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-02 17:54
+" -----------------     Date: 2014-04-02 19:59
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -323,6 +323,7 @@ au FileType scala      call AddScalaDict()
 au FileType php        call AddPHPDict()
 au FileType ruby       call AddRubyDict()
 au FileType javascript call AddJavaScriptDict()
+au FileType css        call AddCSSDict()
 
 function AddCDict()
     if g:isWIN
@@ -387,6 +388,15 @@ function AddJavaScriptDict()
         set dict+=$VIM/vimfiles/dict/javascript.txt
     else
         set dict+=~/.vim/dict/javascript.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddCSSDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/css.txt
+    else
+        set dict+=~/.vim/dict/css.txt
     endif
     set complete+=k
 endfunction
