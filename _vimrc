@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-02 19:59
+" -----------------     Date: 2014-04-03 13:37
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -67,6 +67,7 @@ endif
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \ff                        --打开ctrlp.vim文件搜索窗口
 " \ud                        --打开/关闭编辑历史窗口
+" \fe                        --打开/关闭文件编码窗口
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -190,12 +191,13 @@ au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,cof
 au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
-au BufRead,BufNewFile *.h   setlocal ft=c
-au BufRead,BufNewFile *.di  setlocal ft=d
-au BufRead,BufNewFile *.cl  setlocal ft=lisp
-au BufRead,BufNewFile *.sql setlocal ft=mysql
-au BufRead,BufNewFile *.tpl setlocal ft=smarty
-au BufRead,BufNewFile *.txt setlocal ft=txt
+au BufRead,BufNewFile *.h    setlocal ft=c
+au BufRead,BufNewFile *.di   setlocal ft=d
+au BufRead,BufNewFile *.cl   setlocal ft=lisp
+au BufRead,BufNewFile *.phpt setlocal ft=php
+au BufRead,BufNewFile *.sql  setlocal ft=mysql
+au BufRead,BufNewFile *.tpl  setlocal ft=smarty
+au BufRead,BufNewFile *.txt  setlocal ft=txt
 
 
 " 设置着色模式和字体
@@ -321,6 +323,7 @@ au FileType cpp        call AddCPPDict()
 au FileType java       call AddJavaDict()
 au FileType scala      call AddScalaDict()
 au FileType php        call AddPHPDict()
+au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
 au FileType javascript call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
@@ -370,6 +373,15 @@ function AddPHPDict()
         set dict+=$VIM/vimfiles/dict/php.txt
     else
         set dict+=~/.vim/dict/php.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddPythonDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/python.txt
+    else
+        set dict+=~/.vim/dict/python.txt
     endif
     set complete+=k
 endfunction
@@ -448,10 +460,11 @@ let g:snipMate.scope_aliases['volt']       = 'volt,html'
 let g:snipMate.scope_aliases['htmldjango'] = 'django,html'
 let g:snipMate.scope_aliases['jinja']      = 'jinja,html'
 let g:snipMate.scope_aliases['eruby']      = 'eruby,html'
-let g:snipMate.scope_aliases['scss']       = 'scss,css'
+let g:snipMate.scope_aliases['typescript'] = 'typescript,javascript'
 let g:snipMate.scope_aliases['jst']        = 'jst,html'
-let g:snipMate.scope_aliases['less']       = 'less,css'
 let g:snipMate.scope_aliases['mustache']   = 'mustache,html'
+let g:snipMate.scope_aliases['scss']       = 'scss,css'
+let g:snipMate.scope_aliases['less']       = 'less,css'
 let g:snipMate.scope_aliases['xhtml']      = 'html'
 
 
@@ -474,7 +487,7 @@ let g:airline_theme = 'badwolf'                " 设置主题
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'scss', 'jade', 'less']
+            \'passive_filetypes': ['html', 'css', 'xhtml', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'jade', 'scss', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
 
 
@@ -532,6 +545,9 @@ nmap <leader>ff :CtrlP<CR>
 
 " \ud                 打开编辑历史窗口，在左侧栏显示 [Undotree插件]
 nmap <leader>ud :UndotreeToggle<CR>
+
+" \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
+nmap <leader>fe :FencView<CR>
 
 " \16                 十六进制格式查看
 nmap <leader>16 <ESC>:%!xxd<ESC>
@@ -665,6 +681,8 @@ func! Compile_Run_Code()
         exec "!dart %:t"
     elseif &filetype == "coffee"
         exec "!coffee %:t"
+    elseif &filetype == "typescript"
+        exec "!tsc %:t && node %:r.js"
     elseif &filetype == "javascript"
         exec "!node %:t"
     elseif &filetype == "sh"

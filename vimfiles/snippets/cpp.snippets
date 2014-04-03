@@ -26,6 +26,8 @@ snippet ifndf   防止头文件重复包含
 	${0}
 
 	#endif
+snippet line    改变文件行号和文件名
+	#line ${1} "${0}"
 # 命名空间、类
 snippet u       引用命名空间
 	using namespace ${1:std};${0}
@@ -138,6 +140,25 @@ snippet fin     善后处理
 	finally {
 	    ${0}
 	}
+# 预定义宏
+snippet _       __XXX__
+	__${0}__
+snippet _l      行号
+	__LINE__${0}
+snippet _f      文件名
+	__FILE__${0}
+snippet _d      日期
+	__DATE__${0}
+snippet _t      时间
+	__TIME__${0}
+snippet _ff     函数名
+	__FUNCTION__${0}
+snippet _std    标准C
+	__STDC__${0}
+snippet _gnu    GNUC
+	__GNUC__${0}
+snippet _cpp    C++
+	__cplusplus${0}
 # 输入输出
 snippet p       输出
 	printf("${1}"${0});

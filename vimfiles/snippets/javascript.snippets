@@ -155,12 +155,17 @@ snippet ho      仅对象本身的属性
 snippet ip      是否是另一个对象的原型
 	isPrototypeOf(${0})
 # 输出
-snippet p       文本打印
+snippet p       终端输出
+	console.log(${0});
+snippet dw      文本打印
 	document.writeln(${0});
 snippet al      弹出框
 	alert(${0});
-snippet cl      终端输出
-	console.log(${0});
+# 预定义变量
+snippet _f      当前脚本文件路径
+	__filename${0}
+snippet _d      当前脚本目录路径
+	__dirname${0}
 # 其他
 snippet v       var
 	var ${0};
