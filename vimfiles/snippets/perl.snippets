@@ -44,14 +44,18 @@ snippet wh      while
 	while (${1}) {
 	    ${0}
 	}
-# 单个关键字
+# 单个关键字/常用函数
 snippet ch      chomp
 	chomp;${0}
 snippet df      defined
 	defined(${1});${0}
-snippet p       输出（不自动换行）
+snippet sp      split
+	split${0};
+# 输入输出
+snippet p       输出 [不自动换行]
 	print ${0};
-snippet >       =>
+# 其他
+snippet r       / .. /
+	/${0}/
+snippet .       =>
 	=>${0}
-snippet .       ->
-	->${0}
