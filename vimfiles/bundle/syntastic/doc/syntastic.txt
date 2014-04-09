@@ -39,6 +39,7 @@ CONTENTS                                                  *syntastic-contents*
         6.2.Interaction with python-mode...........|syntastic-pymode|
         6.3.Interaction with the fish shell........|syntastic-fish|
         6.4.Using syntastic with the fizsh shell...|syntastic-fizsh|
+        6.5.Interaction with Eclim.................|syntastic-eclim|
     7.About........................................|syntastic-about|
     8.License......................................|syntastic-license|
 
@@ -186,7 +187,7 @@ If |'syntastic_aggregate_errors'| is set, syntastic runs all checkers that
 apply (still cf. |syntastic-filetype-checkers|), then aggregates errors found
 by all checkers in a single list, and notifies you. In this mode each error
 message is labeled with the name of the checker that generated it, but you can
-disable these labels by unsetting '|syntastic_id_checkers|'.
+disable generation of these labels by turning off '|syntastic_id_checkers|'.
 
 ------------------------------------------------------------------------------
 2.6 Filtering errors                              *syntastic-filtering-errors*
@@ -417,17 +418,16 @@ Default: {}
 
 Use this option to filter out some of the messages produced by checkers.  The
 option should be set to something like: >
-
     let g:syntastic_quiet_messages = { "level": "warnings",
                                      \ "type":  "style",
                                      \ "regex": '\m\[C03\d\d\]',
                                      \ "file":  ['\m^/usr/include/', '\m\c\.h$'] }
 <
-
 Each element turns off messages matching the patterns specified by the
 corresponding value. Values are lists, but if a list consist of a single
-element you can omit adding the brackets (e.g. you can write "style" instead of
-["style"]).
+element you can omit adding the brackets (e.g. you can write "style" instead
+of ["style"]). Elements with values [] or '' are ignored (this is useful for
+overriding filters, cf. |filter-overrides|).
 
     "level" - takes one of two values, "warnings" or "errors"
     "type"  - can be either "syntax" or "style"
@@ -436,9 +436,26 @@ element you can omit adding the brackets (e.g. you can write "style" instead of
     "file"  - is matched against the filename the error refers to, as a case
               sensitive |regular-expression|.
 
+If |'syntastic_id_checkers'| is set, filters are applied before error messages
+are labeled with the names of the checkers that created them.
+
 There are also checker-specific variants of this option, providing finer
 control. They are named |'syntastic_<filetype>_<checker>_quiet_messages'|.
 
+For a particular checker, if both a |'syntastic_quiet_messages'| filter and
+a checker-specific filter are present, they are both applied (to the list of
+errors produced by the said checker). In case of conflicting values for the
+same keys, the values of the checker-specific filters take precedence.
+
+                                                            *filter-overrides*
+Since filter elements with values [] or '' are ignored, you can disable global
+filters for particular checkers, by setting the values of the corresponding
+elements in |'syntastic_<filetype>_<checker>_quiet_messages'| to [] or ''. For
+example, the following setting will silence all warnings, except for the
+ones produced by 'pylint': >
+    let g:syntastic_quiet_messages = { "level": "warnings" }
+    let g:syntastic_python_pylint_quiet_messages = { "level" : [] }
+<
                                                       *'syntastic_stl_format'*
 Default: [Syntax: line:%F (%t)]
 Use this option to control what the syntastic statusline text contains. Several
@@ -647,6 +664,15 @@ interactive features of 'fizsh'. Using a more traditional shell such as 'zsh',
 'bash', 'ksh', or the original Bourne 'sh' might be a better choice: >
     set shell=zsh
 <
+------------------------------------------------------------------------------
+6.5. Interaction with Eclim                                  *syntastic-eclim*
+
+As far as syntastic is concerned there shouldn't be any compatibility problems
+with the 'Eclim' Vim plugin (see http://eclim.org/). However, at the time of
+this writing there are several reports that 'Eclim' triggers a bug in Vim that
+makes syntastic forget some of its configuration parameters. No solutions or
+workarounds are known for now.
+
 ==============================================================================
 7. About                                                     *syntastic-about*
 

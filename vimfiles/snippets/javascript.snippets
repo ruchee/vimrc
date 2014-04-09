@@ -17,10 +17,10 @@ snippet im      导入模块 [ES6新增]
 	import ${1};${0}
 snippet imf     从 .. 导入模块 [ES6新增]
 	import ${1} from ${2};${0}
-snippet ex      导出变量
-	exports.${0}
-snippet mex     覆盖导出
-	module.exports${0}
+snippet ex      按层次导出
+	exports.${1} = ${2};${0}
+snippet moex    顶层导出
+	module.exports = ${1};${0}
 # 函数、流程控制
 snippet f       常规函数
 	function ${1:f_name} (${2}) {

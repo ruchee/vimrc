@@ -1,22 +1,8 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-08 13:43
+" -----------------     Date: 2014-04-09 17:50
 " -----------------    https://github.com/ruchee/vimrc
 
-
-" 判断操作系统类型
-if(has("win32") || has("win64"))
-    let g:isWIN = 1
-else
-    let g:isWIN = 0
-endif
-
-" 判断是否处于GUI界面
-if has("gui_running")
-    let g:isGUI = 1
-else
-    let g:isGUI = 0
-endif
 
 " 判断工作地点（根据指定路径的文件是否存在判断）
 if filereadable("~/.atCompany") || filereadable("D:/atCompany.txt")
@@ -29,9 +15,6 @@ endif
 if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
     set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
-    " set tags+=G:/Ruchee/code/work/app_customer/tags
-    " set tags+=G:/Ruchee/code/test/dianping/tags
-    " set tags+=G:/Ruchee/code/test/aibang/tags
 else
     set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
 endif
@@ -182,6 +165,21 @@ endif
 "
 " :se ff=unix                --更改文件格式，可选 unix、dos、mac
 " :se ft=cpp                 --更改文件语法着色模式
+
+
+" 判断操作系统类型
+if(has("win32") || has("win64"))
+    let g:isWIN = 1
+else
+    let g:isWIN = 0
+endif
+
+" 判断是否处于GUI界面
+if has("gui_running")
+    let g:isGUI = 1
+else
+    let g:isGUI = 0
+endif
 
 
 " 设置通用缩进策略
@@ -682,7 +680,7 @@ func! Compile_Run_Code()
     elseif &filetype == "dart"
         exec "!dart %:t"
     elseif &filetype == "coffee"
-        exec "!coffee %:t"
+        exec "!coffee -c %:t && node %:r.js"
     elseif &filetype == "typescript"
         exec "!tsc %:t && node %:r.js"
     elseif &filetype == "javascript"
