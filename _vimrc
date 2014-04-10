@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-09 17:50
+" -----------------     Date: 2014-04-10 23:13
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -449,7 +449,7 @@ let g:snipMate_no_default_aliases          = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
-let g:snipMate.scope_aliases['c']          = 'cpp'
+let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html,company_guobi'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,thinkphp,html'

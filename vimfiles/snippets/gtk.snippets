@@ -1,0 +1,174 @@
+# 基本框架
+snippet g_in    包含头文件
+	#include <gtk/gtk.h>${1}
+snippet g_it    初始化
+	gtk_init(&argc, &argv);${1}
+snippet g_main  GTK+主函数
+	gtk_main();${1}
+snippet g_wis   显示控件
+	gtk_widget_show(${1:window});
+snippet g_wisa  显示所有控件
+	gtk_widget_show_all(${1:window});
+snippet g_wih   隐藏控件
+	gtk_widget_hide(${1});
+# 信号绑定
+snippet g_sic   信号绑定1
+	g_signal_connect(G_OBJECT(${1}), "${2:activate}",
+	    G_CALLBACK(${3:gtk_main_quit}), ${4:NULL});
+snippet g_sics  信号绑定2
+	g_signal_connect_swapped(G_OBJECT(${1:window}), "${2:destroy}",
+	    G_CALLBACK(${3:gtk_main_quit}), ${4:NULL});
+# 数据类型
+snippet g_wi    常规组件
+	GtkWidget *${1}
+snippet g_to    工具栏组件
+	GtkToolItem *${1}
+snippet g_po
+	gpointer ${1}
+snippet g_er    错误
+	GError *${1}
+snippet g_pi    图片资源
+	GdkPixbuf *${1}
+snippet g_ac    快捷键集
+	GtkAccelGroup *${1}
+# 公共选项
+snippet g_ctsbw 设置容器边框宽度
+	gtk_container_set_border_width(GTK_CONTAINER(${1}), ${2});
+snippet g_cta   将控件嵌入容器
+	gtk_container_add(GTK_CONTAINER(${1}), ${2});
+snippet g_wign  获取组件的名字
+	gtk_widget_get_name(${1});
+snippet g_wisn  设置组件的名字
+	gtk_widget_set_name(GTK_WIDGET(${1}), "${2}");
+snippet g_wissr 设置控件大小
+	gtk_widget_set_size_request(${1}, ${2}, ${3});
+snippet g_wiss  设置控件是否处于活动状态
+	gtk_widget_set_sensitive(${1}, ${2:FALSE});
+snippet g_wiaa  添加快捷键集
+	gtk_widget_add_accelerator(${1}, "${2}", ${3});
+snippet g_erf
+	g_error_free(${1});
+# 窗口
+snippet g_wdn   新建窗口
+	gtk_window_new(${1:GTK_WINDOW_TOPLEVEL});
+snippet g_wdsp  设置窗口默认位置
+	gtk_window_set_position(GTK_WINDOW(${1:window}), ${2:GTK_WIN_POS_CENTER});
+snippet g_wdst  设置窗口标题
+	gtk_window_set_title(GTK_WINDOW(${1:window}), "${2}");
+snippet g_wdsr  设置是否可以自适应
+	gtk_window_set_resizable(GTK_WINDOW(${1:window}), ${2});
+snippet g_wdsds 设置窗口默认尺寸
+	gtk_window_set_default_size(GTK_WINDOW(${1:window}), ${2:250}, ${3:200});
+snippet g_wdsi  设置窗口图标
+	gtk_window_set_icon(GTK_WINDOW(${1:window}), ${2});
+snippet g_wdaag 添加快捷键集
+	gtk_window_add_accel_group(GTK_WINDOW(${1:window}), ${2});
+# 框架
+snippet g_fmn   新建带左上角标题的框架
+	gtk_frame_new("${1}");
+snippet g_fmsst 设置框架的外观轮廓
+	gtk_frame_set_shadow_type(GTK_FRAME(${1}), ${2});
+snippet g_fmsla 设置子控件的位置
+	gtk_frame_set_label_align(GTK_FRAME(${1}), ${2}, ${3});
+snippet g_fmslw 美化框架标题栏
+	gtK_frame_set_label_widget(GTK_FRAME(${1}), ${2});
+# Fixed
+snippet g_fin   新建Fixed
+	gtk_fixed_new();${1}
+snippet g_fip   向Fixed添加控件
+	gtk_fixed_put(GTK_FIXED(${1}), ${2}, ${3}, ${4});
+# 对齐容器（只能容纳一个控件）
+snippet g_aln   新建队列
+	gtk_alignment_new(${1});
+# 格状容器
+snippet g_tbn   新建格状容器
+	gtk_table_new(${1}, ${2}, ${3});
+snippet g_tba   添加控件
+	gtk_table_attach(GTK_TABLE(${1}), ${2});
+snippet g_tbad  添加默认控件
+	gtk_table_attach_defaults(GTK_TABLE(${1}), ${2});
+snippet g_tbsrs 设定子控件行间隔
+	gtk_table_set_row_spacing(GTK_TABLE(${1}), ${2}, ${3});
+snippet g_tbscs 设定子控件列间隔
+	gtk_table_set_col_spacing(GTK_TABLE(${1}), ${2}, ${3});
+# 盒状容器
+snippet g_vbn   新建垂直盒状容器
+	gtk_vbox_new(${1}, ${2});
+snippet g_hbn   新建水平盒状容器
+	gtk_hbox_new(${1}, ${2});
+snippet g_bxss  设置控件之间的空隙宽度
+	gtk_box_set_spacing(GTK_BOX(${1}), ${2});
+snippet g_bxps  将控件嵌入按钮容器（从前往后）
+	gtk_box_pack_start(GTK_BOX(${1}), ${2}, ${3:FALSE}, ${4:FALSE}, ${5});
+snippet g_bxpe  将控件嵌入按钮容器（从后往前）
+	gtk_box_pack_end(GTK_BOX(${1}), ${2});
+# 按钮
+snippet g_btn   新建不显示内容的空白按钮
+	gtk_button_new();
+snippet g_btnwl 新建带文字的按钮
+	gtk_button_new_with_label("${1}");
+snippet g_btnwm 新建带快捷键的按钮
+	gtk_button_new_with_mnenonic("${1}");
+snippet g_btnfs 从系统自带资源项目创建按钮
+	gtk_button_new_from_stock(${1});
+# 标签
+snippet g_lbn   新建标签
+	gtk_label_new("${1}");
+snippet g_lbst  设定标签内容
+	gtk_label_set_text(${1}, ${2});
+snippet g_lbsj  设置标签文字的对齐方式
+	gtk_label_set_justify(GTK_LABEL(${1}), ${2});
+snippet g_lbslw 设置标签文字是否自动换行
+	gtk_label_set_line_wrap(GTK_LABEL(${1}), ${2});
+snippet g_lbsm  标签文字HTML格式化
+	gtk_label_set_markup(GTK_LABEL(${1}), "${2}");
+# 快捷键集
+snippet g_acgn  新建快捷键集
+	gtk_accel_group_new();${1}
+# 菜单
+snippet g_mubn  新建菜单栏
+	gtk_menu_bar_new();${1}
+snippet g_mun   新建菜单
+	gtk_menu_new();${1}
+snippet g_muinwl 新建菜单项
+	gtk_menu_item_new_with_label("${1}");
+snippet g_muinwm 新建带快捷键的菜单项
+	gtk_menu_item_new_with_mnemonic("${1}");
+snippet g_imminfs 从系统资源新建快捷项
+	gtk_image_menu_item_new_from_stock(GTK_STOCK_${1:NEW}, ${2:NULL});
+snippet g_semin 新建菜单项分隔条（横向实线）
+	gtk_separator_menu_item_new();${1}
+snippet g_temin 新建菜单项分隔条（横向虚线）
+	gtk_tearoff_menu_item_new();${1}
+snippet g_chminwl 新建可选择的菜单项
+	gtk_check_menu_item_new_with_label("${1}");
+snippet g_chmiga 检测菜单项是否激活
+	gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(${1}));
+snippet g_chmisa 设置菜单项为激活
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(${1}), ${2:TRUE});
+snippet g_muiss 将菜单绑定到根菜单项
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(${1}), ${2});
+snippet g_musa  将根菜单项绑定到菜单栏，或者将菜单项绑定到菜单
+	gtk_menu_shell_append(GTK_MENU_SHELL(${1}), ${2});
+# 工具栏
+snippet g_ton   新建工具栏
+	gtk_toolbar_new();${1}
+snippet g_toss  设置工具栏样式
+	gtk_toolbar_set_style(GTK_TOOLBAR(${1:toolbar}), GTK_TOOLBAR_${2:ICONS});
+snippet g_tosis 设置工具栏图标的尺寸
+	gtk_toolbar_set_icon_size(GTK_TOOLBAR(${1:toolbar}), GTK_ICON_SIZE_${2:LARGE}_TOOLBAR);
+snippet g_tobnfs 从系统资源新建工具按钮
+	gtk_tool_button_new_from_stock(GTK_STOCK_${1:NEW});
+snippet g_setin 新建竖线分隔线
+	gtk_separator_tool_item_new();${1}
+snippet g_toi   向工具栏添加工具
+	gtk_toolbar_insert(GTK_TOOLBAR(${1:toolbar}), ${2}, ${3:-1});
+# 状态栏
+snippet g_stn   新建状态栏
+	gtk_statusbar_new();${1}
+# 分割线
+snippet g_hsn   新建水平分割线
+	gtk_hseparator_new();${1}
+# 图像
+snippet g_pinff 从文件新建图像资源
+	gdk_pixbuf_new_from_file(${1});

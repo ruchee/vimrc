@@ -1,0 +1,73 @@
+A collection of C extension Vim syntax files for
+- xlib
+- glib (gobject, gio)
+- gdk-pixbuf
+- gtk2 (gdk2)
+- gtk3 (gdk3)
+- atk
+- at-spi2
+- cairo
+- clutter
+- dbus-glib
+- evince
+- fftw3
+- gimp
+- gnome-desktop
+- gstreamer
+- gtkglext
+- gtksourceview
+- gudev
+- gusb
+- json-glib
+- libglade
+- libgsf
+- libnotify
+- librsvg
+- libunique
+- libwnck
+- pango
+- poppler
+- vte
+
+The latest version is available
+- at vim.org: http://www.vim.org/scripts/script.php?script_id=1000
+- at my pages: http://physics.muni.cz/~yeti/vim/
+
+They are extensions of the standard C syntax highlighting to additional
+types, functions, macros, and constants, they are not meant to replace it.
+So you should include them in your ~/.vim/after/syntax/c.vim file (see
+:h runtimepath for more).  An example is provided as c.vim.example.
+
+The xlib.vim file comes from older Gtk+ syntax higlighting files by Hwanjin
+Choe (see http://www.vim.org/scripts/script.php?script_id=570).  File
+fftw3.vim was created manually.
+
+The others were generated with vim-syn-gen.py script by David Nečas (Yeti)
+(see http://physics.muni.cz/~yeti/vim/).
+
+They all allow special handling of deprecated symbols.  By default,
+deprecated symbols are not highlighted.  By setting (e.g.)
+
+  :let glib_enable_deprecated = 1
+
+in your vimrc you can enable highlighting of deprecated declarations in glib
+as normal symbols.  By setting
+
+  :let glib_deprecated_errors = 1
+
+you can enable highlighting deprecated glib symbols as Error.
+
+The exact library version from which each syntax file was generated is
+included in its metadata.
+
+Copying:  I hereby waive any potential rights on the syntax files.  I am not
+sure whether a list of library symbols can be copyrighted at all.  But this
+world is full of lawyers with the silliest ideas.  The ideal state (which
+would solve all copyright problems once for all) would be distribution of the
+syntax files directly with the respective libraries, but I do not hope for
+that.
+
+Contact:  yeti@physics.muni.cz
+
+Happy Vimming!
+
