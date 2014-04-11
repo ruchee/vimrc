@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-10 23:13
+" -----------------     Date: 2014-04-11 18:25
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,6 +15,7 @@ endif
 if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
     set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
+    set tags+=G:/Ruchee/code/work/SMSAlerts/app_customer/tags
 else
     set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
 endif
@@ -71,8 +72,8 @@ endif
 " ---------- 补全命令 ----------
 "
 " Ctrl + P                   --单词补全               [插入模式]
-" Tab键                      --语法结构补全   [插入模式][snipMate插件]
-" Ctrl+Y+,                   --HTML标签补全  [插入模式][emmet插件]
+" Tab键                      --语法结构补全           [插入模式][snipMate插件]
+" Ctrl+Y+,                   --HTML标签补全           [插入模式][emmet插件]
 
 " ---------- 格式化命令 ----------
 "
@@ -239,8 +240,8 @@ set writebackup              " 设置无备份文件
 set autoread                 " 当文件在外部被修改时自动更新该文件
 set nobackup                 " 不生成备份文件
 set noswapfile               " 不生成交换文件
-set list                     " 显示特殊字符，其中Tab使用高亮竖线代替，尾部空白使用高亮点号代替
-set listchars=tab:\|\ ,trail:.
+set list                     " 显示特殊字符，其中Tab使用高亮~代替，尾部空白使用高亮点号代替
+set listchars=tab:\~\ ,trail:.
 set expandtab                " 将Tab自动转化成空格 [需要输入真正的Tab键时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
 "set nowrap                  " 设置不自动换行
@@ -424,13 +425,13 @@ let g:miniBufExplMapWindowNavArrows = 1
 let g:miniBufExplMapCTabSwitchBufs  = 1
 let g:miniBufExplModSelTarget       = 1
 
-" :Tlist              调用TagList
+" Tlist               调用TagList
 let Tlist_Show_One_File        = 1             " 只显示当前文件的tags
 let Tlist_Exit_OnlyWindow      = 1             " 如果Taglist窗口是最后一个窗口则退出Vim
 let Tlist_Use_Right_Window     = 1             " 在右侧窗口中显示
 let Tlist_File_Fold_Auto_Close = 1             " 自动折叠
 
-" :LoadTemplate       根据文件后缀自动加载模板
+" LoadTemplate        根据文件后缀自动加载模板
 if g:isWIN
     let g:template_path = $VIM.'/vimfiles/template/'
 else
@@ -452,7 +453,7 @@ let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html,company_guobi'
-let g:snipMate.scope_aliases['smarty']     = 'smarty,thinkphp,html'
+let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
