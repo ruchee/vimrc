@@ -27,9 +27,13 @@ snippet g_tl    指定布局文件
 snippet g_th    指定模版文件
 	$this->view->html${0}
 snippet g_td    依控制器结构的默认模版路径
-	$this->templateDir.'/${0}.html'
+	$this->templateDir.'/${1}.html';${0}
 snippet g_tt    打印模版变量
 	$this->vars['${0}']
+snippet g_css   引入CSS文件
+	$this->addCssHead = ',${0}';
+snippet g_js    引入JS文件
+	$this->addJsHead = ',${0}';
 # 常用方法
 snippet g_dbq   SQL查询
 	$this->db->query(${0})
