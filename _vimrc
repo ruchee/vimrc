@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-11 18:25
+" -----------------     Date: 2014-04-14 21:00
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -147,6 +147,11 @@ endif
 " vf字符                     --选中本行内容，直到遇到第一个指定字符 [包括该字符]
 "
 " XT 和 XF 是 Xt/Xf 的反方向操作
+"
+" cs'"                        --将外围的单引号变成双引号     [surround.vim插件]
+" cs"<p>                      --将外围的双引号变成HTML标签对 [surround.vim插件]
+" cst"                        --将外围的界定符变成双引号     [surround.vim插件]
+" ds"                         --删除外围的双引号定界符       [surround.vim插件]
 "
 " ---------- 便捷操作 ----------
 "
@@ -549,6 +554,9 @@ nmap <leader>ud :UndotreeToggle<CR>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
+
+" \go                 进入无打扰编辑模式 [goyo.vim插件] [后面加自定义宽度，如120]
+nmap <leader>go :Goyo
 
 " \16                 十六进制格式查看
 nmap <leader>16 <ESC>:%!xxd<ESC>
