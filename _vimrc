@@ -663,7 +663,7 @@ func! Compile_Run_Code()
         exec "!clisp -i %:t"
     elseif &filetype == "ocaml"
         if g:isWIN
-            exec "!ocamlc -o %:r %:t && %:r.exe"
+            exec "!ocamlc -o %:r.exe %:t && %:r.exe"
         else
             exec "!ocamlc -o %:r %:t && ./%:r"
         endif
