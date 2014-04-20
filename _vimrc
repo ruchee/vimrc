@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-14 21:00
+" -----------------     Date: 2014-04-20 22:51
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -652,10 +652,14 @@ func! Compile_Run_Code()
     elseif &filetype == "cs"
         if g:isWIN
             exec "!csc %:t && %:r.exe"
+        else
+            exec "!mono-csc %:t && ./%:r.exe"
         endif
     elseif &filetype == "fsharp"
         if g:isWIN
             exec "!fsc %:t && %:r.exe"
+        else
+            exec "!fsharpc %:t && ./%:r.exe"
         endif
     elseif &filetype == "scheme" || &filetype == "racket"
         exec "!racket -f %:t"
