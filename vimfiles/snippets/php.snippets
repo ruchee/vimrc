@@ -6,7 +6,7 @@ snippet /       单行注释
 snippet //      多行注释
 	/*${0}*/
 snippet -       分隔注释
-	// -------------------------------${0}
+	//----------------------------------------------------------------------${0}
 snippet php     单行标签
 	<?php ${0} ?>
 snippet php.    跨行标签
@@ -337,25 +337,17 @@ snippet pe      输出标签
 snippet pp      输出标签 [PHP 5.4起默认可用]
 	<?= ${0} ?>
 snippet pif     if标签
-	<?php if (${1}): ?>
-	${0}
-	<?php endif ?>
+	<?php if (${1}): ?>${0}<?php endif ?>
 snippet pelif   elseif标签
-	<?php elseif (${0}): ?>
+	<?php elseif (${1}): ?>${0}
 snippet pel     else标签
 	<?php else: ?>${0}
 snippet pfo     for标签
-	<?php for (${1}): ?>
-	${0}
-	<?php endfor ?>
+	<?php for (${1}): ?>${0}<?php endfor ?>
 snippet pfe     foreach标签
-	<?php foreach (${1}): ?>
-	${0}
-	<?php endforeach ?>
+	<?php foreach (${1}): ?>${0}<?php endforeach ?>
 snippet psw     switch标签
-	<?php switch (${1}): ?>
-	${0}
-	<?php endswitch ?>
+	<?php switch (${1}): ?>${0}<?php endswitch ?>
 snippet pcs     case标签
 	<?php case ${1}: ?>${0}
 snippet pvd     打印变量信息

@@ -131,14 +131,14 @@
       }
 
       .flexbox {
-        order: flex;
-        flex: row;
-        flex-basis: wrap;
-        flex-direction: inline-flex;
-        flex-flow: row-reverse;
-        flex-grow: column-reverse;
+        flex-direction: flex;
+        flex-wrap: inline-flex;
+        flex-flow: row;
+        order: row-reverse;
+        flex: column-reverse;
+        flex-grow: wrap;
         flex-shrink: wrap-reverse;
-        flex-wrap: auto;
+        flex-basis: auto;
       }
 
       .fonts {
@@ -234,6 +234,14 @@
 
       .layout::slot(b) {
         display: same;
+      }
+
+      .line-grid {
+        line-grid: create;
+        line-snap: half-border;
+        line-slack: rounddown(1em);
+        box-snap: roundup(1em);
+        display: 10gd;
       }
 
       .linebox {
@@ -342,6 +350,22 @@
         ruby-merge: ruby-text-container;
         ruby-align: inter-character;
         ruby-position: ruby-base-container;
+      }
+
+      @scope .scoping {
+        div {
+          display: auto;
+        }
+      }
+
+      .scoping:scope-context div,
+      .scoping:host,
+      .scping:host(.foo),
+      .scoping:host-context,
+      .scoping::shadow,
+      .scoping::content,
+      .scoping /deep/ span {
+        display: auto;
       }
 
       .selectors3:target,
