@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-20 22:51
+" -----------------     Date: 2014-04-24 16:14
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,8 +16,9 @@ if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
     set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
     set tags+=G:/Ruchee/code/work/SMSAlerts/app_customer/tags
+    set tags+=G:/Ruchee/code/self/dev_site/vendor/laravel/tags
 else
-    set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
+    set tags+=~/code/php/dev_site/vendor/laravel/tags
 endif
 
 

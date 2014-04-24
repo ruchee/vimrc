@@ -40,7 +40,7 @@ snippet int     接口定义
 	interface ${1:int_name} {
 	    ${0}
 	}
-snippet tra     内含模块定义 [用于实现Mixin]
+snippet tra     内含模块定义 [用于实现Mixin，相当于类，但不能实例化，借鉴自Ruby] [PHP 5.4新增]
 	trait ${1:tra_name} {
 	    ${0}
 	}
@@ -216,19 +216,19 @@ snippet Rext    PHP扩展信息
 snippet Rexc    错误类
 	ReflectionException${0}
 # 正则表达式
-snippet rgr     对数组元素进行正则筛选
+snippet /g      对数组元素进行正则筛选
 	preg_grep(${0})
-snippet rqu     将字符串转换成合法的正则字符串
+snippet /q      将字符串转换成合法的正则字符串
 	preg_quote(${0})
-snippet rsp     对字符串进行正则分割
+snippet /s      对字符串进行正则分割
 	preg_split(${0})
-snippet rma     正则匹配
+snippet /m      正则匹配
 	preg_match(${0})
-snippet rmaa    全局匹配
+snippet /ma     全局匹配
 	preg_match_all(${0})
-snippet rre     正则搜索和替换
+snippet /r      正则搜索和替换
 	preg_replace(${0})
-snippet rrec    正则搜索并使用回调函数进行处理
+snippet /rc     正则搜索并使用回调函数进行处理
 	preg_replace_callback(${0})
 # 输入输出
 snippet e       输出
@@ -290,13 +290,13 @@ snippet _l      当前行行号
 	__LINE__${0}
 snippet _f      当前文件的完整路径名
 	__FILE__${0}
-snippet _d      当前文件所在目录 [等价于 dirname(__FILE__)]
+snippet _d      当前文件所在目录的完整路径 [等价于 dirname(__FILE__)]
 	__DIR__${0}
 snippet _ff     当前所处函数名
 	__FUNCTION__${0}
 snippet _cl     当前所处类名
 	__CLASS__${0}
-snippet _tr     当前所处内含模块名
+snippet _tra    当前所处内含模块名
 	__TRAIT__${0}
 snippet _me     当前所处类的方法名
 	__METHOD__${0}
@@ -329,7 +329,7 @@ snippet ude     解码已编码的URL字符串
 snippet elog    写出错日志
 	error_log(${0})
 #### PHP标准库 #####
-snippet s_areg  注册自动载入函数
+snippet spl_aur 注册自动载入函数
 	spl_autoload_register('${0}');
 #### 模板标签 ####
 snippet pe      输出标签
@@ -350,8 +350,10 @@ snippet psw     switch标签
 	<?php switch (${1}): ?>${0}<?php endswitch ?>
 snippet pcs     case标签
 	<?php case ${1}: ?>${0}
-snippet pvd     打印变量信息
+snippet pvd     打印变量详情
 	<?php var_dump(${0}); ?>
+snippet pvde    打印变量详情并终止执行
+	<?php var_dump(${0}); exit(); ?>
 # 单个关键字
 snippet ab      抽象类
 	abstract ${0}
@@ -432,4 +434,41 @@ snippet ci_pu   获取表单数据 [put方式]
 	$this->input->put('${0}');
 snippet ci_po   获取表单数据 [post方式]
 	$this->input->post('${0}');
+# Laravel框架
+snippet la_ro   通用路由
+	Route::${1:get}('${2}', function (${3}) {
+	    ${0}
+	});
+snippet la_rg   GET路由
+	Route::get('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_rpo  POST路由
+	Route::post('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_rp   PUT路由
+	Route::put('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_rf   过滤器
+	Route::filter('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_rd   DELETE路由
+	Route::delete('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_ra   ANY路由
+	Route::any('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_red  路由跳转
+	Redirect::to('${0}')
+snippet la_res  自定义响应
+	Response::make(${1}, ${0})
+snippet la_json JSON响应
+	Response::json(${0})
+snippet la_down DOWNLOAD响应
+	Response::download(${0})
 ################
