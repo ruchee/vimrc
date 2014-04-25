@@ -435,6 +435,12 @@ snippet ci_pu   获取表单数据 [put方式]
 snippet ci_po   获取表单数据 [post方式]
 	$this->input->post('${0}');
 # Laravel框架
+snippet la_c    控制器
+	class `expand("%:r")` extends \BaseController {
+	
+	    ${0}
+	
+	}
 snippet la_ro   通用路由
 	Route::${1:get}('${2}', function (${3}) {
 	    ${0}
@@ -451,16 +457,16 @@ snippet la_rp   PUT路由
 	Route::put('${1}', function (${2}) {
 	    ${0}
 	});
-snippet la_rf   过滤器
-	Route::filter('${1}', function (${2}) {
-	    ${0}
-	});
 snippet la_rd   DELETE路由
 	Route::delete('${1}', function (${2}) {
 	    ${0}
 	});
 snippet la_ra   ANY路由
 	Route::any('${1}', function (${2}) {
+	    ${0}
+	});
+snippet la_rf   过滤器
+	Route::filter('${1}', function (${2}) {
 	    ${0}
 	});
 snippet la_red  路由跳转
