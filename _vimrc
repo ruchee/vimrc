@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-04-26 22:49
+" -----------------     Date: 2014-04-29 14:13
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,10 +15,9 @@ endif
 if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
     set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
-    set tags+=G:/Ruchee/code/work/SMSAlerts/app_customer/tags
-    set tags+=G:/Ruchee/code/self/dev_site/vendor/laravel/tags
+    set tags+=G:/Ruchee/code/work/app_customer/tags
+    set tags+=G:/Ruchee/code/self/projects/code_bright/vendor/laravel/tags
 else
-    set tags+=D:/Ruchee/Files/code/projects/weixin/system/tags
 endif
 
 

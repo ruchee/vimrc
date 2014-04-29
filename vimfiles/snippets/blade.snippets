@@ -18,6 +18,10 @@ snippet se      填充区块
 	@section('${1}')
 	    ${0}
 	@stop
+snippet se.     默认内容
+	@section('${1}')
+	    ${0}
+	@show
 # 流程控制
 snippet if      if
 	@if (${1})
@@ -61,11 +65,13 @@ snippet pa      引用父片段
 	@parent${0}
 snippet st      终止控制结构
 	@stop${0}
+snippet sh      显示
+	@show${1}
 snippet lan     语言
 	@lang('${0}')
 snippet cho     选择
 	@choice('${0}')
-snippet .       {{ ... }}
+snippet .       输出变量
 	{{ ${0} }}
-snippet <       {{{ ... }}}
+snippet <       转义HTML标签后输出变量
 	{{{ ${0} }}}
