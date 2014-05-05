@@ -477,4 +477,11 @@ snippet la_json JSON响应
 	Response::json(${0})
 snippet la_down DOWNLOAD响应
 	Response::download(${0})
+# Chrome Logger 浏览器调试插件
+snippet cl_l    打印普通信息
+	ChromePhp::log(${0});
+snippet cl_w    打印警告信息
+	ChromePhp::warn(${0});
+snippet cl_e    打印错误信息
+	ChromePhp::error(${0});
 ################

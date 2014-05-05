@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-02 20:08
+" -----------------     Date: 2014-05-05 11:26
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -18,6 +18,7 @@ if g:atCompany
     set tags+=G:/Ruchee/code/work/app_customer/tags
     set tags+=G:/Ruchee/code/self/projects/code_bright/vendor/laravel/tags
 else
+    set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
 endif
 
 
