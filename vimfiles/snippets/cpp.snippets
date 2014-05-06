@@ -74,8 +74,16 @@ snippet uni     共用体
 	    ${0}
 	};
 snippet enu     枚举定义
-	enum ${1:enu_name} {${0}};
-snippet tp      类型定义
+	enum ${1:enu_name} {
+	    ${0}
+	};
+snippet ss      紧凑型结构体
+	struct ${1:str_name} {${2} };${0}
+snippet uu      紧凑型共用体
+	union ${1:uni_name} {${2} };${0}
+snippet ee      紧凑型枚举
+	enum ${1:enu_name} {${2} };${0}
+snippet tpd     类型定义
 	typedef ${0}
 snippet tps     定义结构体类型
 	typedef struct ${1} {
@@ -139,6 +147,15 @@ snippet fin     善后处理
 	finally {
 	    ${0}
 	}
+# 类型转换
+snippet stc     转换数据类型，不改变常量属性，相当于 (xxx)val
+	static_cast<${1}>(${0})
+snippet coc     修改常量指针为非常量指针，相当于 (xxx*)val
+	const_cast<${1}*>(${0})
+snippet dyc
+	dynamic_cast<${1}>(${0})
+snippet rec
+	reinterpret_cast<${1}>(${0})
 # 预定义宏
 snippet _       __XXX__
 	__${0}__
@@ -178,9 +195,9 @@ snippet fr      友元
 	friend ${0}
 snippet vi      虚函数
 	virtual ${0}
-snippet tpt     模板1
+snippet tet     模板1
 	template <typename ${0}>
-snippet tpc     模板2
+snippet tec     模板2
 	template <class ${0}>
 snippet de      删除
 	delete ${0}
@@ -226,6 +243,8 @@ snippet ext     声明外部变量
 	extern ${0}
 snippet sz      计算占用的内存大小
 	sizeof(${0})
+snippet tpi     获取数据类型
+	typeid(${0})
 snippet ?       三元运算符
 	${1} ? ${2} : ${0};
 snippet i       输入流
@@ -236,5 +255,5 @@ snippet e       错误流
 	error ${0}
 snippet l       行结束符
 	endl;${0}
-snippet .       ->
-	->${0}
+snippet .       <>
+	<${0}>

@@ -1,7 +1,7 @@
 "============================================================================
-"File:        lisp.vim
+"File:        plutil.vim
 "Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Karl Yngve Lervåg <karl.yngve@lervag.net>
+"Maintainer:  LCD 47 <lcd047 at gmail dot com>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,38 +10,31 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_lisp_clisp_checker")
+if exists("g:loaded_syntastic_xml_plutil_checker")
     finish
 endif
-let g:loaded_syntastic_lisp_clisp_checker = 1
+let g:loaded_syntastic_xml_plutil_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_lisp_clisp_GetLocList() dict
+function! SyntaxCheckers_xml_plutil_GetLocList() dict
     let makeprg = self.makeprgBuild({
-        \ 'args_after': '-q',
-        \ 'fname_before': '-c' })
+        \ 'args_before': '-lint -s',
+        \ 'fname_before': '--' })
 
-    let errorformat  =
-        \ '%-G;%.%#,' .
-        \ '%W%>WARNING:%.%# line %l : %m,' .
-        \ '%Z  %#%m,' .
-        \ '%W%>WARNING:%.%# lines %l%\%.%\%.%\d%\+ : %m,' .
-        \ '%Z  %#%m,' .
-        \ '%E%>The following functions were %m,' .
-        \ '%Z %m,' .
-        \ '%-G%.%#'
+    let errorformat =
+        \ '%E%f: %m at line %l'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'defaults': {'bufnr': bufnr('')} })
+        \ 'returns': [0, 1] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'lisp',
-    \ 'name': 'clisp'})
+    \ 'filetype': 'xml',
+    \ 'name': 'plutil'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

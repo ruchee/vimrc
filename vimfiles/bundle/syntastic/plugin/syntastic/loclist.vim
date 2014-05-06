@@ -37,6 +37,10 @@ function! g:SyntasticLoclist.extend(other) " {{{2
     return g:SyntasticLoclist.New(list)
 endfunction " }}}2
 
+function! g:SyntasticLoclist.sort() " {{{2
+    call syntastic#util#sortLoclist(self._rawLoclist)
+endfunction " }}}2
+
 function! g:SyntasticLoclist.isEmpty() " {{{2
     return empty(self._rawLoclist)
 endfunction " }}}2
@@ -222,7 +226,7 @@ endfunction " }}}2
 
 " Non-method functions {{{1
 
-function! g:SyntasticLoclistHide() " {{{2
+function! SyntasticLoclistHide() " {{{2
     call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: hide')
     silent! lclose
 endfunction " }}}2

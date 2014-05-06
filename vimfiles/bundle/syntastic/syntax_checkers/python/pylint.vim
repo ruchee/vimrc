@@ -23,6 +23,7 @@ endfunction
 
 function! SyntaxCheckers_python_pylint_GetLocList() dict
     let makeprg = self.makeprgBuild({
+        \ 'exe_before': (syntastic#util#isRunningWindows() ? '' : 'TERM=dumb'),
         \ 'args_after': (s:pylint_new ? '-f text --msg-template="{path}:{line}:{column}:{C}: [{symbol}] {msg}" -r n' : '-f parseable -r n -i y') })
 
     let errorformat =
@@ -32,10 +33,9 @@ function! SyntaxCheckers_python_pylint_GetLocList() dict
         \ '%-Z%p^%.%#,' .
         \ '%-G%.%#'
 
-    let loclist=SyntasticMake({
+    let loclist = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'postprocess': ['sort'],
         \ 'returns': range(32) })
 
     for e in loclist
@@ -54,6 +54,8 @@ function! SyntaxCheckers_python_pylint_GetLocList() dict
         let e['col'] += 1
         let e['vcol'] = 0
     endfor
+
+    call self.setWantSort(1)
 
     return loclist
 endfunction

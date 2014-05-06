@@ -13,6 +13,7 @@ function! g:SyntasticChecker.New(args) " {{{2
     let newObj._filetype = a:args['filetype']
     let newObj._name = a:args['name']
     let newObj._exec = get(a:args, 'exec', newObj._name)
+    let newObj._sort = 0
 
     if has_key(a:args, 'redirect')
         let [filetype, name] = split(a:args['redirect'], '/')
@@ -73,6 +74,14 @@ endfunction " }}}2
 
 function! g:SyntasticChecker.getLocList() " {{{2
     return g:SyntasticLoclist.New(self.getLocListRaw())
+endfunction " }}}2
+
+function! g:SyntasticChecker.getWantSort() " {{{2
+    return self._sort
+endfunction " }}}2
+
+function! g:SyntasticChecker.setWantSort(val) " {{{2
+    let self._sort = a:val
 endfunction " }}}2
 
 function! g:SyntasticChecker.makeprgBuild(opts) " {{{2

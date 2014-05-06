@@ -1,5 +1,5 @@
 "============================================================================
-"File:        prettycss.vim
+"File:        scan.vim
 "Description: Syntax checking plugin for syntastic.vim
 "Maintainer:  LCD 47 <lcd047 at gmail dot com>
 "License:     This program is free software. It comes without any warranty,
@@ -9,45 +9,24 @@
 "             See http://sam.zoy.org/wtfpl/COPYING for more details.
 "
 "============================================================================
-"
-" For details about PrettyCSS see:
-"
-"   - http://fidian.github.io/PrettyCSS/
-"   - https://github.com/fidian/PrettyCSS
 
-if exists("g:loaded_syntastic_css_prettycss_checker")
+if exists('g:loaded_syntastic_haskell_scan_checker')
     finish
 endif
-let g:loaded_syntastic_css_prettycss_checker = 1
+let g:loaded_syntastic_haskell_scan_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_css_prettycss_GetHighlightRegex(item)
-    let term = matchstr(a:item["text"], '\m (\zs[^)]\+\ze)$')
-    if term != ''
-        let term = '\V' . escape(term, '\')
-    endif
-    return term
-endfunction
-
-function! SyntaxCheckers_css_prettycss_GetLocList() dict
+function! SyntaxCheckers_haskell_scan_GetLocList() dict
     let makeprg = self.makeprgBuild({})
 
-    " Print CSS Lint's error/warning messages from compact format. Ignores blank lines.
-    let errorformat =
-        \ '%EError:  %m\, line %l\, char %c),' .
-        \ '%WWarning:  %m\, line %l\, char %c),' .
-        \ '%-G%.%#'
+    let errorformat = '%f:%l:%v: %m'
 
     let loclist = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'defaults': {'bufnr': bufnr("")} })
-
-    for e in loclist
-        let e["text"] .= ')'
-    endfor
+        \ 'subtype': 'Style' })
 
     call self.setWantSort(1)
 
@@ -55,8 +34,8 @@ function! SyntaxCheckers_css_prettycss_GetLocList() dict
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'css',
-    \ 'name': 'prettycss'})
+    \ 'filetype': 'haskell',
+    \ 'name': 'scan'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

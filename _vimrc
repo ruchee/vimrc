@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-05 11:26
+" -----------------     Date: 2014-05-06 18:16
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -497,6 +497,11 @@ let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
             \'passive_filetypes': ['html', 'css', 'xhtml', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'jade', 'scss', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
+" 自定义编译器和编译参数
+let g:syntastic_c_compiler = 'gcc'
+let g:syntastic_cpp_compiler = 'g++'
+let g:syntastic_c_compiler_options = '-std=c11'
+let g:syntastic_cpp_compiler_options = '-std=c++11'
 
 
 " ======= 自定义快捷键 ======= "

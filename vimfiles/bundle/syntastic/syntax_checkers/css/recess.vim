@@ -1,7 +1,8 @@
 "============================================================================
-"File:        ghdl.vim
-"Description: Syntax checking plugin for syntastic.vim
-"Maintainer:  Jan Wagner <jaydyou at janidom dot de>
+"File:        recess.vim
+"Description: Syntax checking plugin for syntastic.vim using `recess`
+"             (http://twitter.github.io/recess/).
+"Maintainer:  Tim Carry <tim at pixelastic dot com>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,29 +11,16 @@
 "
 "============================================================================
 
-if exists("g:loaded_syntastic_vhdl_ghdl_checker")
+if exists("g:loaded_syntastic_css_recess_checker")
     finish
 endif
-let g:loaded_syntastic_vhdl_ghdl_checker = 1
+let g:loaded_syntastic_css_recess_checker = 1
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-function! SyntaxCheckers_vhdl_ghdl_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args_before': '-s' })
-
-    let errorformat =  '%f:%l:%c: %m'
-
-    return SyntasticMake({
-        \ 'makeprg': makeprg,
-        \ 'errorformat': errorformat })
-endfunction
+runtime! syntax_checkers/less/*.vim
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'vhdl',
-    \ 'name': 'ghdl'})
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
+    \ 'filetype': 'css',
+    \ 'name': 'recess',
+    \ 'redirect': 'less/recess'})
 
 " vim: set et sts=4 sw=4:
