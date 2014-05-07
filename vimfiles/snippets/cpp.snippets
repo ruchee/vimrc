@@ -224,7 +224,7 @@ snippet br      中断
 snippet go      跳转
 	goto ${0}
 snippet ex      退出并返回状态码
-	exit(${0});
+	exit(${1});${0}
 snippet un      无符号
 	unsigned ${0}
 snippet st      静态
@@ -245,15 +245,20 @@ snippet sz      计算占用的内存大小
 	sizeof(${0})
 snippet tpi     获取数据类型
 	typeid(${0})
+# 其他
 snippet ?       三元运算符
 	${1} ? ${2} : ${0};
 snippet i       输入流
-	cin ${0}
+	cin >> ${0}
 snippet o       输出流
-	cout ${0}
+	cout << ${0}
 snippet e       错误流
 	error ${0}
 snippet l       行结束符
 	endl;${0}
+snippet <       <<
+	<< ${0}
+snippet >       >>
+	>> ${0}
 snippet .       <>
-	<${0}>
+	<${1}>${0}

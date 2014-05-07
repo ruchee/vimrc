@@ -6,18 +6,49 @@ snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
 # 代码复用
 snippet im      导入库文件
-	import 'dart:${1}';${0}
-# 函数
-snippet main    主函数
-	main () {
+	import '${1}';${0}
+snippet ims     指定导入
+	import '${1}' show ${2};${0}
+# 类、函数
+snippet cl      类定义
+	class ${1:cl_name} {
 	  ${0}
 	}
-snippet f       定义函数
-	${1:f_name} (${2}) {
+snippet fc      构造函数
+	${1:cl_name} (${2}) {
+	  ${0}
+	}
+snippet main    主函数
+	${1:void} main () {
+	  ${0}
+	}
+snippet f       函数定义
+	${1:void} ${2:f_name} (${3}) {
 	  ${0}
 	}
 snippet ff      匿名函数
 	(${1}) {${0}}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	  ${0}
+	}
+snippet elif    else if
+	else if (${1}) {
+	  ${0}
+	}
+snippet el      else
+	else {
+	  ${0}
+	}
+# 异常处理
+snippet thr     抛出异常
+	throw ${0};
+# 单个关键字
+snippet st      静态属性
+	static ${0}
+snippet re      返回
+	return ${0};
 # 输入输出
 snippet p       输出
 	print(${0});
@@ -27,4 +58,4 @@ snippet v       声明变量
 snippet n       新建对象
 	new ${0}
 snippet .       =>
-	=>${0}
+	=> ${0}
