@@ -7,6 +7,10 @@ snippet #       引用配置变量
 # 配置、变量、继承、重用相关
 snippet in      包含模板文件
 	<{include '${0}'}>
+snippet ex      模版继承
+	<{extends file='${0}'}>
+snippet bl      定义区块
+	<{block name=${1}}>${0}<{/block}>
 snippet cl      加载配置文件
 	<{config_load '${0}'}>
 snippet as      定义变量/数组
