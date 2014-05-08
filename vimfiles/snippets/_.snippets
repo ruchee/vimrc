@@ -1,6 +1,8 @@
 # 全局补全，所有文件类型可用
 snippet sn        snippet自用
 	snippet ${0}
+snippet sn-       分隔条
+	----------------------------------------------------------------------${0}
 snippet cprt      版权信息
 	`&enc[:2] == "utf" ? "©" : "(c)"` Copyright ${1:`strftime("%Y")`} `g:snips_author`. All Rights Reserved.${0}
 snippet date      插入当前日期

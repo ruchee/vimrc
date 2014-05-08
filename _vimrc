@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-07 14:58
+" -----------------     Date: 2014-05-08 11:55
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,8 +16,7 @@ endif
 if g:atCompany
     au BufRead,BufNewFile *.html setlocal ft=php
     set path+=G:/Ruchee/MinGW/i686-pc-mingw32/include
-    set tags+=G:/Ruchee/code/work/app_customer/tags
-    set tags+=G:/Ruchee/code/self/projects/code_bright/vendor/laravel/tags
+    set tags+=G:/Ruchee/code/work/dianping/old_dianping/tags
 else
     set path+=D:/Ruchee/MinGW/i686-pc-mingw32/include
 endif
