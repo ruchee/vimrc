@@ -16,6 +16,14 @@ snippet doc     多行字符串
 	<<${1:HEREDOC}
 	${0}
 	$1
+snippet beg     程序执行之前执行
+	BEGIN {
+	  ${0}
+	}
+snippet end     程序执行之后执行
+	END {
+	  ${0}
+	}
 # 包含指令
 snippet in      包含模块 [对整个类有效]
 	include ${0}
