@@ -6,8 +6,19 @@ snippet .
 	{
 	    ${0}
 	}
+# 全局相关
 snippet im      导入外部样式文件
-	@import url("${0}")
+	@import "${1}.css"${2};${0}
+snippet ch      在外部样式文件中指定字符编码
+	@charset "${1:utf-8}";${0}
+snippet me      指定媒体类型和查询条件
+	@media ${1} {${0}}
+snippet ff      设置嵌入HTML文档的字体
+	@font-face {${0}}
+snippet pa      设置页面容器的版式、方向、边空等
+	@page ${1} {${0}}
+snippet kf      指定动画名称和动画效果
+	@keyframes ${1} {${0}}
 # 背景属性
 snippet ba      所有背景属性
 	background: ${1};${0}
@@ -266,8 +277,10 @@ snippet andi    动画是否在下一周期逆向播放
 snippet anps    动画是否在运行或暂停
 	animation-play-state: ${1};${0}
 # 浏览器特有属性
-snippet wbk     Webkit系列浏览器
+snippet -m      Internet Explorer
+	-ms-${0}
+snippet -w      Chrome、Safari、Opera（版本号大于15的版本）
 	-webkit-${0}
-snippet moz     Mozilla浏览器
+snippet -m      Firefox
 	-moz-${0}
 ###############################
