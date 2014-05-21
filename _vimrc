@@ -722,7 +722,7 @@ vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 
 let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
 let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
-let g:vimwiki_valid_html_tags = 'a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style'
+let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style'
 " 声明可以在wiki里面使用的HTML标签
 
 let blog = {}
