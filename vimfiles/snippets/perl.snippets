@@ -32,8 +32,12 @@ snippet el      else
 	else {
 	    ${0}
 	}
-snippet fo      for
-	for (${1}) {
+snippet ul      unless
+	unless (${1}) {
+	    ${0}
+	}
+snippet fo      for [如果不写成C语言那样的样式，则for与foreach等价]
+	for ${1}(${2}) {
 	    ${0}
 	}
 snippet fe      foreach
@@ -44,13 +48,23 @@ snippet wh      while
 	while (${1}) {
 	    ${0}
 	}
+snippet ut      until
+	until (${1}) {
+	    ${0}
+	}
 # 单个关键字/常用函数
+snippet m       map
+	map ${0}
 snippet ch      chomp
 	chomp;${0}
 snippet df      defined
 	defined(${1});${0}
 snippet sp      split
 	split${0};
+snippet ne      next
+	next${0}
+snippet la      last
+	last${0}
 # 输入输出
 snippet p       输出 [不自动换行]
 	print ${0};
@@ -59,5 +73,11 @@ snippet d       终止程序的执行
 # 其他
 snippet r       / .. /
 	/${0}/
+snippet ry      =~
+	=~ ${0}
+snippet rn      !~
+	!~ ${0}
+snippet <       { .. }
+	{ ${0} }
 snippet .       =>
-	=>${0}
+	=> ${0}
