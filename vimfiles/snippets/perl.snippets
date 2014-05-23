@@ -65,9 +65,20 @@ snippet ne      next
 	next${0}
 snippet la      last
 	last${0}
+# 魔术常量
+snippet _l      当前行行号
+	__LINE__${0}
+snippet _f      当前文件的文件名
+	__FILE__${0}
+snippet _s      当前所在子程序名
+	__SUB__${0}
+snippet _p      当前所在包名
+	__PACKAGE__${0}
 # 输入输出
 snippet p       输出 [不自动换行]
 	print ${0};
+snippet pf      格式化输出
+	printf("${1}"${0});
 snippet d       终止程序的执行
 	die(${0});
 # 其他
@@ -79,5 +90,7 @@ snippet rn      !~
 	!~ ${0}
 snippet <       { .. }
 	{ ${0} }
-snippet .       =>
+snippet >       =>
 	=> ${0}
+snippet .       < .. >
+	<${1}>${0}
