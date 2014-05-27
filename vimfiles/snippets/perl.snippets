@@ -56,15 +56,19 @@ snippet ut      until
 snippet m       map
 	map ${0}
 snippet ch      chomp
-	chomp;${0}
+	chomp${0}
 snippet df      defined
 	defined(${1});${0}
 snippet sp      split
-	split${0};
+	split${0}
 snippet ne      next
 	next${0}
 snippet la      last
 	last${0}
+snippet sys     执行系统命令
+	system(${0});
+snippet ev      将字符串作为Perl代码执行
+	eval ${0};
 # 魔术常量
 snippet _l      当前行行号
 	__LINE__${0}
@@ -81,6 +85,9 @@ snippet pf      格式化输出
 	printf("${1}"${0});
 snippet d       终止程序的执行
 	die(${0});
+# 简写用法
+snippet qx      执行系统命令
+	qx${1:!}${0}$1
 # 其他
 snippet r       / .. /
 	/${0}/

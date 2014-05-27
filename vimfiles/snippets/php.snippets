@@ -325,6 +325,17 @@ snippet uen     编码URL字符串
 	urlencode(${0})
 snippet ude     解码已编码的URL字符串
 	urldecode(${0})
+#### 判断类型 #####
+snippet isn     是否为空
+	is_null(${0})
+snippet isa     是否是数组
+	is_array(${0})
+snippet iso     是否是对象
+	is_object(${0})
+snippet isr     是否是资源
+	is_resource(${0})
+snippet isc     是否是合法的可调用结构
+	is_callable(${0})
 #### 出错处理 #####
 snippet elog    写出错日志
 	error_log(${0})
