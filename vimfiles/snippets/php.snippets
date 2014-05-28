@@ -441,10 +441,22 @@ snippet ci_cl   加载配置文件
 	$this->config->load('${0}');
 snippet ci_ci   获取配置项
 	$this->config->item('${0}');
-snippet ci_pu   获取表单数据 [put方式]
-	$this->input->put('${0}');
-snippet ci_po   获取表单数据 [post方式]
-	$this->input->post('${0}');
+snippet ci_get  获取表单数据 [GET方式]
+	$this->input->get('${0}')
+snippet ci_pos  获取表单数据 [POST方式]
+	$this->input->post('${0}')
+snippet ci_gepo 获取表单数据 [POST优先，GET其次]
+	$this->input->get_post('${0}')
+snippet ci_cok  获取COOKIE数据
+	$this->input->cookie('${0}')
+snippet ci_ser  获取SERVER数据
+	$this->input->server('${0}')
+snippet ci_seco 设置COOKIE
+	$this->input->set_cookie(${0});
+snippet ci_ip   取用户IP地址
+	$this->input->ip_address();${0}
+snippet ci_ua   取用户浏览器USER_AGENT信息
+	$this->input->user_agent();${0}
 # Laravel框架
 snippet la_c    控制器
 	class `expand("%:r")` extends \BaseController {
