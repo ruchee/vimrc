@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-28 08:46
+" -----------------     Date: 2014-05-29 07:24
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -697,6 +697,10 @@ func! Compile_Run_Code()
         exec "!julia %:t"
     elseif &filetype == "dart"
         exec "!dart %:t"
+    elseif &filetype == "haxe"
+        exec "!haxe -main %:r --interp"
+    elseif &filetype == "r"
+        exec "!Rscript %:t"
     elseif &filetype == "coffee"
         exec "!coffee -c %:t && node %:r.js"
     elseif &filetype == "typescript"
