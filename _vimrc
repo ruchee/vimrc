@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-29 07:24
+" -----------------     Date: 2014-05-29 14:39
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,8 +14,7 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=G:/Ruchee/code/work/Local_Crawler/trunk/Src/tags
-    set tags+=G:/Ruchee/code/self/projects/ci_primer/system/tags
+    set tags+=G:/Ruchee/code/work/app_finance/tags
 else
 endif
 
