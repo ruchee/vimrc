@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-05-30 17:42
+" -----------------     Date: 2014-06-02 19:44
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,13 +16,12 @@ endif
 if g:atCompany
     " set tags+=G:/Ruchee/code/work/app_passport/tags
     " set tags+=G:/Ruchee/code/work/app_site/tags
-    set tags+=G:/Ruchee/code/work/app_finance/tags
+    " set tags+=G:/Ruchee/code/work/app_finance/tags
     " set tags+=G:/Ruchee/code/work/app_customer/tags
-    " set tags+=G:/Ruchee/code/self/projects/ci_blog/system/tags
-    " set tags+=G:/Ruchee/code/self/projects/ci_blog/application/tags
     " set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
     " set tags+=G:/Ruchee/code/self/projects/laravel/app/tags
 else
+    " set tags+=D:/Ruchee/Files/code/projects/laravel/vendor/laravel/tags
 endif
 
 
