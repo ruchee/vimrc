@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-06-02 19:44
+" -----------------     Date: 2014-06-03 17:28
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,11 +15,10 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=G:/Ruchee/code/work/app_passport/tags
-    " set tags+=G:/Ruchee/code/work/app_site/tags
+    set tags+=G:/Ruchee/code/work/app_site/tags
     " set tags+=G:/Ruchee/code/work/app_finance/tags
     " set tags+=G:/Ruchee/code/work/app_customer/tags
     " set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
-    " set tags+=G:/Ruchee/code/self/projects/laravel/app/tags
 else
     " set tags+=D:/Ruchee/Files/code/projects/laravel/vendor/laravel/tags
 endif
