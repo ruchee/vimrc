@@ -1,0 +1,261 @@
+*vimerl.txt*	The Erlang plugin for Vim
+
+
+
+                   _    ___                     __
+                  | |  / (_)___ ___  ___  _____/ /
+                  | | / / / __ `__ \/ _ \/ ___/ /
+                  | |/ / / / / / / /  __/ /  / /
+                  |___/_/_/ /_/ /_/\___/_/  /_/
+
+                  http://github.com/jimenezrick/vimerl
+
+
+
+==============================================================================
+Contents                                                              *vimerl*
+
+1.  Intro			|vimerl-intro|
+2.  Usage			|vimerl-usage|
+2.1 Code indenting		|vimerl-indenting|
+2.2 Code folding		|vimerl-folding|
+2.3 Code omni completion	|vimerl-omni-completion|
+2.4 Syntax checking		|vimerl-syntax-checking|
+2.5 Code skeletons		|vimerl-skeletons|
+3.  Commands			|vimerl-commands|
+4.  Options			|vimerl-options|
+5.  License			|vimerl-license|
+
+==============================================================================
+1. Intro                                                        *vimerl-intro*
+
+Vimerl is a plugin for programming in Erlang. It provides several nice
+features to make your life easier when writing code.
+
+The plugin offers the following features:
+	- Syntax highlighting
+	- Code indenting
+	- Code folding
+	- Code omni completion
+	- Syntax checking with |quickfix| support
+	- Code skeletons for the OTP behaviours
+	- Uses configuration from Rebar
+	- Pathogen compatible (http://github.com/tpope/vim-pathogen)
+
+==============================================================================
+2. Usage                                                        *vimerl-usage*
+
+In this section it is explained how to use the features of this plugin.
+
+------------------------------------------------------------------------------
+2.1 Code indenting                                          *vimerl-indenting*
+
+All the code you write is automatically indented. To reindent a block of code
+use the |=| or |v_=| command.
+
+The code indenting feature is implemented as an Erlang escript that helps
+Vim parsing code and calculating the indentation level of each line. This
+escript communicates with Vim through a pair of named pipes located in the
+"indent/" directory where Vimerl is installed or in "/tmp" if "indent/" is
+not writeable.
+
+It is recommended to enable the Vim option |'expandtab'|, with it the code
+will be indented more nicely lining up columns when possible.
+
+If Vim freezes while editing an Erlang code file, it's probably caused by a
+bug in the escript which crashed and Vim is waiting for it to respond. So, if
+that happens to you, kill Vim and reopen the file. It also would be nice to
+report the bug to me :-)
+
+Note: indenting a large block of lines with the |=| or |v_=| command will take
+      some time to finish.
+
+------------------------------------------------------------------------------
+2.2 Code folding                                              *vimerl-folding*
+
+In order to enable/disable code folding see the |'foldenable'| Vim option and
+also enable the |'erlang_folding'| option.
+
+------------------------------------------------------------------------------
+2.3 Code omni completion                              *vimerl-omni-completion*
+
+The omni completion may be used after writing the name of a module followed by
+a colon (e.g. "lists:") pressing afterwards CTRL-X CTRL-O. The omni completion
+can be used with functions from the OTP or from your local modules.
+
+Using omni completion not after a module name, will make it show local
+functions from the current module.
+
+Vimerl will use to suggest function names, EDoc and "mod:module_info/1" from
+the target module. Thus searching for the .beam and .erl files will be
+necessary. For that, the default Erlang code path will be used, including the
+current directory, plus "ebin/" and "src/".
+
+If your project uses Rebar, Vimerl will search the value of "deps_dir" in
+"rebar.config", with "deps/" as default, to also let you use omni completion
+on dependency modules.
+
+A cache file is created in the "autoload/" directory where Vimerl is installed
+or in "/tmp" if "autoload/" is not writeable. This cache file stores all the
+modules information.
+
+If the cached information about a module becomes outdated, you can use the
+|:ErlangPurgeCache| command to remove that information from the cache.
+
+Note: the user is responsible for having compiled his project so that Vimerl
+      finds the .beam files.
+
+Note: it is recommended to start Vim on the project's root directory, which
+      should have the standard directory structure for an OTP application.
+
+------------------------------------------------------------------------------
+2.4 Syntax checking with quickfix support             *vimerl-syntax-checking*
+
+When syntax checking is enabled, whenever the file is written, it is checked
+for syntax errors using the Erlang compiler. The error message of the current
+line is shown at the bottom. |signs| are used to indicate lines with errors
+and warnings.
+
+Vimerl will search for your modules source code in the current directory and
+"src/". It also will use "include/" directory for the headers.
+
+If your project uses Rebar, Vimerl will search the value of "erl_opts" in
+"rebar.config" to know how to compile your modules.
+
+You can also use the |quickfix| commands to navigate through the errors list.
+
+Note: look in the commands section how to enable/disable the syntax checking.
+
+------------------------------------------------------------------------------
+2.5 Code skeletons                                          *vimerl-skeletons*
+
+It is possible to load a code skeleton for one of the OTP behaviours.
+
+Note: look in the commands section how to load a skeleton.
+
+==============================================================================
+3. Commands                                                  *vimerl-commands*
+
+                                                     *:ErlangEnableShowErrors*
+Enables syntax checking: >
+	:ErlangEnableShowErrors
+<
+                                                    *:ErlangDisableShowErrors*
+Disables syntax checking and hides current errors: >
+	:ErlangDisableShowErrors
+<
+                                                          *:ErlangApplication*
+Loads an OTP application skeleton: >
+	:ErlangApplication
+<
+                                                           *:ErlangSupervisor*
+Loads an OTP supervisor skeleton: >
+	:ErlangSupervisor
+<
+                                                            *:ErlangGenServer*
+Loads an OTP gen_server skeleton: >
+	:ErlangGenServer
+<
+                                                               *:ErlangGenFsm*
+Loads an OTP gen_fsm skeleton: >
+	:ErlangGenFsm
+<
+                                                             *:ErlangGenEvent*
+Loads an OTP gen_event skeleton: >
+	:ErlangGenEvent
+<
+                                                           *:ErlangCommonTest*
+Loads an OTP common_test skeleton: >
+	:ErlangCommonTest
+
+Note: all the previous commands are applied to the current buffer.
+
+                                                           *:ErlangPurgeCache*
+Removes one or more specified modules from the cache: >
+	:ErlangPurgeCache module1
+	:ErlangPurgeCache module1 module2
+
+==============================================================================
+4. Options                                                    *vimerl-options*
+
+The following options offer the possibility to customize the plugin behaviour.
+
+------------------------------------------------------------------------------
+                                                            *'erlang_folding'*
+
+This option controls whether automatic code folding is enabled or disabled
+(default: 0, values: 0 or 1): >
+	:let erlang_folding = 0
+
+------------------------------------------------------------------------------
+                                                      *'erlang_highlight_bif'*
+
+This option controls whether BIF functions are highlighted as keywords
+including functions from the erlang module (default: 1, values: 0 or 1): >
+	:let erlang_highlight_bif = 1
+
+------------------------------------------------------------------------------
+                                                       *'erlang_skel_replace'*
+
+This option controls whether loading a code skeleton implies replacing the
+content of the current buffer (default: 1, values: 0 or 1): >
+	:let erlang_skel_replace = 1
+
+------------------------------------------------------------------------------
+                                                        *'erlang_skel_header'*
+
+This option defines the information used to fill the skeleton header. If this
+variable is not defined, then the header is not included (default: undefined,
+values: dictionary): >
+	:let erlang_skel_header = {"author": "Foo Bar",
+				   "owner" : "Fubar",
+				   "year"  : "2000"}
+
+Note: the "year" key may be omitted, in that case the current year is used.
+
+------------------------------------------------------------------------------
+                                                         *'erlang_skel_dir'*
+
+This option allows to define a custom directory to use for loading code
+skeletons (default: "~/.vim/plugin/erlang_skels", values: string): >
+	:let erlang_skel_dir = "~/.vim/plugin/erlang_skels"
+
+------------------------------------------------------------------------------
+                                                         *'erlang_keywordprg'*
+
+This option defines the command used to show man pages with the |K| command
+(default: "erl -man", values: string): >
+	:let erlang_keywordprg = "erl -man"
+
+------------------------------------------------------------------------------
+                                                        *'erlang_show_errors'*
+
+This option controls if the syntax checking is enabled or disabled
+(default: 1, values: 0 or 1): >
+	:let erlang_show_errors = 1
+
+------------------------------------------------------------------------------
+                                                   *'erlang_completion_cache'*
+
+This option controls if the omni completion uses a cache to speed up the
+process (default: 1, values: 0 or 1): >
+	:let erlang_completion_cache = 1
+
+Note: it could be useful to disable this cache in order to get always fresh
+      info whenever a module is recompiled.
+
+------------------------------------------------------------------------------
+                                            *'erlang_force_use_vimerl_indent'*
+
+Vim 7.4 comes with an Erlang indent script, thus Vimerl tries to use it when
+available. This option forces to use the Vimerl indent script always
+(default: 0, values: 0 or 1): >
+	:let erlang_force_use_vimerl_indent = 0
+
+==============================================================================
+5. License                                                    *vimerl-license*
+
+Vimerl is released under Vim |license|. Several people have contributed to
+this plugin (see LICENSE file).
+
+ vim: tw=78 ts=8 ft=help
