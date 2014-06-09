@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-06-06 11:37
+" -----------------     Date: 2014-06-09 16:43
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,15 +14,11 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=G:/Ruchee/code/work/app_passport/tags
+    " set tags+=G:/Ruchee/code/work/app_passport/tags
     " set tags+=G:/Ruchee/code/work/app_site/tags
     " set tags+=G:/Ruchee/code/work/app_finance/tags
     " set tags+=G:/Ruchee/code/work/app_customer/tags
-    " set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
-    " set tags+=G:/Ruchee/code/self/projects/simple_blog/vendor/laravel/tags
-    " set tags+=G:/Ruchee/code/self/projects/simple_blog/app/tags
-    " set tags+=G:/Ruchee/code/self/projects/php_src/tags
-    " set tags+=G:/Ruchee/code/self/projects/ruby_src/tags
+    set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
 else
     " set tags+=D:/Ruchee/Files/code/projects/laravel/vendor/laravel/tags
 endif
@@ -327,6 +323,7 @@ execute pathogen#infect()
 au FileType clojure  set iskeyword-=.
 au FileType clojure  set iskeyword-=>
 au FileType perl,php set iskeyword-=$
+au FileType perl,php set iskeyword-=-
 au FileType ruby     set iskeyword+=!
 au FileType ruby     set iskeyword+=?
 
