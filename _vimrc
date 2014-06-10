@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-06-09 16:43
+" -----------------     Date: 2014-06-10 13:46
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -333,6 +333,7 @@ au FileType c          call AddCDict()
 au FileType cpp        call AddCPPDict()
 au FileType java       call AddJavaDict()
 au FileType scala      call AddScalaDict()
+au FileType lua        call AddLuaDict()
 au FileType php        call AddPHPDict()
 au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
@@ -375,6 +376,15 @@ function AddScalaDict()
         set dict+=$VIM/vimfiles/dict/scala.txt
     else
         set dict+=~/.vim/dict/scala.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddLuaDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/lua.txt
+    else
+        set dict+=~/.vim/dict/lua.txt
     endif
     set complete+=k
 endfunction

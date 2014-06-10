@@ -27,7 +27,7 @@ snippet head    头部
 snippet title   标题
 	<title>${0}</title>
 snippet meta    页面信息
-	<meta content="text/html; charset=utf-8"${0} />
+	<meta content="text/html; charset=utf-8"${0}>
 # 主体信息
 snippet body    主体
 	<body${1}>
@@ -40,7 +40,7 @@ snippet script  内部脚本
 	    ${0}
 	</script>
 snippet link    外部样式表
-	<link rel="stylesheet" type="text/css" href="${1}"${0} />
+	<link rel="stylesheet" type="text/css" href="${1}"${0}>
 snippet style   内部样式表
 	<style type="text/css">
 	    ${0}
@@ -48,7 +48,7 @@ snippet style   内部样式表
 snippet import  链接外部样式表
 	@import url("${0}")
 snippet icon    指定网站小图标
-	<link rel="shortcut icon" href="${1}"${0} />
+	<link rel="shortcut icon" href="${1}"${0}>
 # 重量级标签
 snippet span    组合行内元素
 	<span${1}>${0}</span>
@@ -107,7 +107,7 @@ snippet form    表单
 	    ${0}
 	</form>
 snippet input   输入框
-	<input type="${1}"${0} />
+	<input type="${1}"${0}>
 snippet submit  提交按钮
 	<input type="submit"${1}>${0}</button>
 snippet label   标签
@@ -115,14 +115,14 @@ snippet label   标签
 snippet button  按钮
 	<button type="button"${1}>${0}</button>
 snippet img     图片
-	<img src="${1}"${0} />
+	<img src="${1}"${0}>
 # 常用标签
 snippet a       链接
 	<a href="${1}"${2}>${0}</a>
 snippet b       换行标签
-	<br/>${0}
+	<br>${0}
 snippet hr      水平线
-	<hr/>${0}
+	<hr>${0}
 snippet h1
 	<h1>${0}</h1>
 snippet h2
