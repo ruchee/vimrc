@@ -84,7 +84,7 @@ see |syntastic-checker-options| for details. You can also change the arguments
 passed to a specific checker as well.
 
 Use |:SyntasticCheck| to manually check right now. Use |:SyntasticToggleMode|
-to switch between active (checking on writting the buffer) and passive (manual)
+to switch between active (checking on writing the buffer) and passive (manual)
 checking.
 
 ==============================================================================
@@ -94,7 +94,7 @@ Syntax checking can be done automatically or on demand (see
 |'syntastic_mode_map'| and |:SyntasticToggleMode| for configuring this).
 
 When syntax checking is done, the features below can be used to notify the
-user of errors. See |syntastic-options| for how to configure and
+user of errors. See |syntastic-global-options| for how to configure and
 activate/deactivate these features.
 
     * A statusline flag
@@ -170,6 +170,8 @@ and the SpellCap group is used for warnings. If you wish to customize the
 colors for highlighting you can use the following groups:
     SyntasticError - Links to 'SpellBad' by default
     SyntasticWarning - Links to 'SpellCap' by default
+    SyntasticStyleError - Links to SyntasticError by default
+    SyntasticStyleWarning - Links to SyntasticWarning by default
 
 Example: >
     highlight SyntasticError guibg=#2f0000

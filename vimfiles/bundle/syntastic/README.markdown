@@ -35,9 +35,9 @@ the user is notified and is happy because they didn't have to compile their
 code or execute their script to find them.
 
 At the time of this writing, syntax checking plugins exist for ActionScript,
-Ada, AppleScript, AsciiDoc, ASM, BEMHTML, Bourne shell, C, C++, C#, Chef,
-CoffeeScript, Coco, Coq, CSS, Cucumber, CUDA, D, Dart, DocBook, Dust, Elixir,
-Erlang, eRuby, Fortran, Gentoo metadata, GLSL, Go, Haml, Haskell, Haxe,
+Ada, AppleScript, AsciiDoc, ASM, BEMHTML, Bro, Bourne shell, C, C++, C#, Cabal,
+Chef, CoffeeScript, Coco, Coq, CSS, Cucumber, CUDA, D, Dart, DocBook, Dust,
+Elixir, Erlang, eRuby, Fortran, Gentoo metadata, GLSL, Go, Haml, Haskell, Haxe,
 Handlebars, HSS, HTML, Java, JavaScript, JSON, JSX, LESS, Lex, Limbo, LISP,
 LLVM intermediate language, Lua, MATLAB, NASM, Objective-C, Objective-C++,
 OCaml, Perl, Perl POD, PHP, gettext Portable Object, OS X and iOS property
@@ -76,9 +76,8 @@ First I'll show you how to install Tim Pope's [pathogen][1] so that it's easy to
 install syntastic.  Do this in your terminal so that you get the `pathogen.vim`
 file and the directories it needs:
 ```sh
-mkdir -p ~/.vim/autoload ~/.vim/bundle; \
-curl -LSso ~/.vim/autoload/pathogen.vim \
-    https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+mkdir -p ~/.vim/autoload ~/.vim/bundle && \
+curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 ```
 Next you *need* to add this to your `~/.vimrc`:
 ```vim
@@ -92,7 +91,7 @@ execute pathogen#infect()
 You now have pathogen installed and can put syntastic into `~/.vim/bundle` like
 this:
 ```sh
-cd ~/.vim/bundle
+cd ~/.vim/bundle && \
 git clone https://github.com/scrooloose/syntastic.git
 ```
 Quit vim and start it back up to reload it, then type:

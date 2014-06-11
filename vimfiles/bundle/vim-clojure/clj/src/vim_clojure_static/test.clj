@@ -9,21 +9,34 @@
   (:import (java.io File)
            (java.util List)))
 
+(defmacro with-tempfile
+  {:requires [File]}
+  [tmp-sym & body]
+  `(let [~tmp-sym (File/createTempFile "vim-clojure-static" ".tmp")]
+     (try
+       ~@body
+       (finally
+         (.delete ~tmp-sym)))))
+
 (defn vim-exec
   "Spit buf into file, then execute vim-expr after Vim loads the file. The
    value of vim-expr is evaluated as EDN and returned."
-  [file buf vim-expr]
-  (let [tmp (File/createTempFile "vim-clojure-static.test." ".out")]
-    (try
+  [file buf vim-expr & opts]
+  (let [{:keys [pre]} (apply hash-map opts)]
+    (with-tempfile tmp
       (io/make-parents file)
       (spit file buf)
       (spit tmp (str "let @x = " vim-expr))
-      (shell/sh "vim" "-N" "-u" "vim/test-runtime.vim"
-                "-c" (str "source " tmp " | call writefile([@x], " (pr-str (str tmp)) ") | quitall!")
-                file)
-      (edn/read-string (slurp tmp))
-      (finally
-        (.delete tmp)))))
+      (let [{:keys [exit err]}
+            (shell/sh "vim" "-N" "-u" "vim/test-runtime.vim"
+                      "-c" (or pre "execute")
+                      "-c" (str "source " tmp)
+                      "-c" (str "call writefile([@x], " (pr-str (str tmp)) ")")
+                      "-c" "quitall!"
+                      file)]
+        (when-not (zero? exit)
+          (throw (RuntimeException. ^String err))))
+      (edn/read-string (slurp tmp)))))
 
 (defn syn-id-names
   "Map lines of clojure text to vim synID names at each column as keywords:
@@ -62,7 +75,7 @@
    At runtime the syn-id-names of the strings (which are placed in the format
    spec) are passed to their associated predicates. The format spec should
    contain a single `%s`."
-  {:require [#'test/deftest]}
+  {:requires [#'test/deftest syn-id-names subfmt]}
   [name & body]
   (assert (every? (fn [[fmt tests]] (and (string? fmt)
                                          (coll? tests)
@@ -74,10 +87,11 @@
                                        [(concat strings ss)
                                         (conj contexts {:fmt fmt :ss ss :λs λs})]))
                                    [[] []] body)
+        test-file (str "tmp/" name ".clj")
         syntable (gensym "syntable")]
     `(test/deftest ~name
-       ;; Shellout to vim should happen at runtime
-       (let [~syntable (syn-id-names (str "tmp/" ~(str name) ".clj") ~@strings)]
+       (spit ~test-file "")
+       (let [~syntable (syn-id-names ~test-file ~@strings)]
          ~@(map (fn [{:keys [fmt ss λs]}]
                   `(test/testing ~fmt
                      ~@(map (fn [s λ] `(test/is (~λ (subfmt ~fmt (get ~syntable ~s)))))
@@ -95,10 +109,46 @@
        [coll#]
        (every? (partial = ~kw) coll#))
      (defn ~(symbol (str \! sym))
-       ~(str "Returns true if any alements of coll do not equal " kw)
+       ~(str "Returns true if any elements of coll do not equal " kw)
        {:arglists '~'[coll]}
        [coll#]
        (boolean (some (partial not= ~kw) coll#)))))
+
+(defmacro with-transform-test
+  "Copy contents of `in` to a tempfile, execute body with tempfile bound to
+   tmp-sym, then finally compare the transformed contents of the tempfile with
+   the contents of `out`.
+
+   `in` and `out` are urls that will be passed to clojure.java.io/resource."
+  {:requires [#'test/testing #'with-tempfile]}
+  [string {:keys [in out]} [tmp-sym] & body]
+  `(test/testing ~string
+     (with-tempfile ~tmp-sym
+       (try
+         (spit ~tmp-sym (slurp (~io/resource ~in)))
+         ~@body
+         (catch Throwable e#
+           (spit ~tmp-sym e#))
+         (finally
+           (test/is (= (slurp ~tmp-sym)
+                       (slurp (~io/resource ~out)))))))))
+
+(defmacro test-indent
+  {:requires [#'with-transform-test]}
+  [string & opts]
+  (let [{:keys [in out pre keys]} (apply hash-map opts)
+        test-file (str "tmp/test-indent-" (string/replace string #"[^\w-]" "-") ".clj")
+        vim-expr (if keys
+                   (format "TypeKeys(%s)" (string/replace (pr-str keys) "\\\\" "\\"))
+                   "IndentFile()")]
+    `(with-transform-test ~string
+       {:in ~in :out ~out}
+       [tmp#]
+       ;; FIXME: Too much file IO
+       (~io/make-parents ~test-file)
+       (spit ~test-file "")
+       (~vim-exec ~test-file (slurp tmp#) ~vim-expr ~@(when pre [:pre pre]))
+       (spit tmp# (slurp ~test-file)))))
 
 (defn benchmark [n file buf & exprs]
   (vim-exec file buf (format "Benchmark(%d, %s)"

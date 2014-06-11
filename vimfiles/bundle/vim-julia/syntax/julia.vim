@@ -23,7 +23,7 @@ syntax cluster juliaStringItems		contains=juliaChar,juliaString,juliabString,jul
 syntax cluster juliaPrintfItems		contains=juliaPrintfParBlock,juliaPrintfString
 syntax cluster juliaOperatorItems	contains=juliaArithOperator,juliaBitOperator,juliaRedirOperator,juliaBoolOperator,juliaCompOperator,juliaAssignOperator,juliaRangeOperator,juliaTypeOperator,juliaFuncOperator,juliaCTransOperator,juliaVarargOperator,juliaTernaryRegion
 syntax cluster juliaQuotedItems		contains=juliaQuotedEnd,juliaQuotedBlockKeyword,juliaQuotedQuestion
-syntax cluster juliaCommentItems	contains=juliaCommentL,juliaCommentM,juliaCommentT
+syntax cluster juliaCommentItems	contains=juliaCommentL,juliaCommentM
 syntax cluster juliaErrorItems		contains=juliaErrorPar,juliaErrorEnd,juliaErrorElse
 
 syntax match   juliaErrorPar		display "[])}]"
@@ -65,15 +65,15 @@ syntax match   juliaComprehensionFor    display contained "\<for\>"
 syntax match   juliaBuiltinTypeBasic	display "\<\%(Tuple\|NTuple\|Symbol\|\%(Intrinsic\)\?Function\|Union\|Type\%(Name\|Constructor\|Var\)\?\|Any\|ANY\|Vararg\|Top\|None\|Nothing\|Ptr\|Void\|Exception\|Module\|Box\|Expr\|LambdaStaticData\|\%(Data\|Union\)Type\|\%(LineNumber\|Label\|Goto\|Quote\|Top\|Symbol\|Getfield\)Node\|WeakRef\|Associative\|Method\(Table\)\?\)\>"
 syntax match   juliaBuiltinTypeNum	display "\<\%(Uint\%(\|8\|16\|32\|64\|128\)\|Int\%(eger\|8\|16\|32\|64\|128\)\?\|Float\%(ingPoint\|16\|32\|64\)\|Complex\%(32\|64\|128\)\?\|Bool\|Char\|Number\|Signed\|Unsigned\|Real\|Rational\|BigInt\|BigFloat\|MathConst\)\>"
 syntax match   juliaBuiltinTypeC	display "\<\%(FileOffset\|C\%(u\?\%(char\|short\|int\|long\(long\)\?\)\|float\|double\|\%(ptrdiff\|s\?size\|wchar\|off\)_t\)\)\>"
-syntax match   juliaBuiltinTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|Memory\|IO\|\%(Stack\)\?Overflow\|EOF\|UndefRef\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\|UV\)Error\|\%(Interrupt\|Error\|ProcessExited\)Exception\|DimensionMismatch\)\>"
-syntax match   juliaBuiltinTypeIter	display "\<\%(Each\%(Line\|Search\)\|Enumerate\|Zip\|Filter\|Reverse\)\>"
+syntax match   juliaBuiltinTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|Memory\|IO\|\%(Stack\)\?Overflow\|EOF\|Undef\%(Ref\|Var\)\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\|UV\)Error\|\%(Interrupt\|Error\|ProcessExited\)Exception\|DimensionMismatch\)\>"
+syntax match   juliaBuiltinTypeIter	display "\<\%(Each\%(Line\|Search\)\|Enumerate\|Zip\|Filter\)\>"
 syntax match   juliaBuiltinTypeString	display "\<\%(DirectIndex\|ASCII\|UTF\%(8\|16\|32\)\|Byte\|Sub\|Generic\|Rep\|Rev\|Rope\|Transformed\)\?String\>"
-syntax match   juliaBuiltinTypeArray	display "\<\%(\%(Stored\|D\|Shared\)\?Array\|Abstract\%(Array\|Vec\%(tor\|OrMat\)\|\%(Sparse\)\?Matrix\)\|Strided\%(Array\|Vector\|Matrix\|VecOrMat\)\|VecOrMat\|Sparse\%(MatrixCSC\|Accumulator\)\|Vector\|Matrix\|Sub\%(Array\|DArray\|OrDArray\)\|\%(Bit\|Dense\)\%(Array\|Vector\|Matrix\)\|Bidiagonal\|\%(Sym\|LU\|LDLT\)\?Tridiagonal\|Woodbury\|BunchKaufman\|Cholesky\%(Pivoted\)\?\|Eigen\|LU\|QR\%(Pivoted\)\?\|\%(Generalized\)\?Schur\|\%(Generalized\)\?SVD\|Hessenberg\|Triangular\|Diagonal\|Hermitian\|Symmetric\)\>"
+syntax match   juliaBuiltinTypeArray	display "\<\%(D\?Array\|\%(Abstract\%(Sparse\)\?\|Dense\|Strided\)\?\%(Array\|Matrix\|Vec\%(tor\|OrMat\)\)\|Sparse\%(MatrixCSC\|Accumulator\)\|Sub\%(Array\|\%(Or\)\?DArray\)\|\%(Bit\|Shared\)\%(Array\|Vector\|Matrix\)\|\%\(D\|Bid\|\%(Sym\)\?Trid\)iagonal\|Woodbury\|Triangular\|Hermitian\|Symmetric\|UniformScaling\)\>"
 syntax match   juliaBuiltinTypeDict	display "\<\%(WeakKey\|ObjectId\)\?Dict\>"
 syntax match   juliaBuiltinTypeSet	display "\<\%(Int\)\?Set\>"
-syntax match   juliaBuiltinTypeIO	display "\<\%(IO\%(Stream\|Buffer\)\?\|CFILE\|Base64Pipe\|RawFD\|StatStruct\|DevNull\|FileMonitor\|PollingFileWatcher\|Timer\)\>"
+syntax match   juliaBuiltinTypeIO	display "\<\%(IO\%(Stream\|Buffer\)\?\|CFILE\|Base64Pipe\|RawFD\|StatStruct\|DevNull\|FileMonitor\|PollingFileWatcher\|Timer\|UdpSocket\)\>"
 syntax match   juliaBuiltinTypeProcess	display "\<\%(ProcessGroup\|PipeBuffer\|Cmd\)\>"
-syntax match   juliaBuiltinTypeRange	display "\<\%(Dims\|Range\%(s\|1\|Index\)\?\|Colon\)\>"
+syntax match   juliaBuiltinTypeRange	display "\<\%(Dims\|Range\%(Index\)\?\|\(Uniform\|Ordinal\|Step\|Unit\)Range\|Colon\)\>"
 syntax match   juliaBuiltinTypeRegex	display "\<Regex\%(Match\)\?\>"
 syntax match   juliaBuiltinTypeFact	display "\<Factorization\>"
 syntax match   juliaBuiltinTypeSort	display "\<\%(Insertion\|Quick\|Merge\)Sort\>"
@@ -96,33 +96,34 @@ syntax match   juliaMacro		display "@[_[:alpha:]][_[:alnum:]!]*\%(\.[_[:alpha:]]
 syntax match   juliaNumbers		display transparent "\<\d\|\.\d\|\<im\>" contains=juliaNumber,juliaFloat,juliaComplexUnit
 
 "decimal number
-syntax match   juliaNumber		display contained "\d\%(_\?\d\)*\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaNumber		display contained "\d\%(_\?\d\)*\%(\>\|im\>\|\ze\D\)" contains=juliaComplexUnit
 "hex number
-syntax match   juliaNumber		display contained "0x\x\%(_\?\x\)*\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaNumber		display contained "0x\x\%(_\?\x\)*\%(\>\|im\>\|\ze\X\)" contains=juliaComplexUnit
 "bin number
-syntax match   juliaNumber		display contained "0b[01]\%(_\?[01]\)*\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaNumber		display contained "0b[01]\%(_\?[01]\)*\%(\>\|im\>\|\ze[^01]\)" contains=juliaComplexUnit
 "oct number
-syntax match   juliaNumber		display contained "0o\o\%(_\?\o\)*\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaNumber		display contained "0o\o\%(_\?\o\)*\%(\>\|im\>\|\ze\O\)" contains=juliaComplexUnit
 "floating point number, starting with a dot, optional exponent
-syntax match   juliaFloat		display contained "\.\d\%(_\?\d\)*\%([eEf][-+]\?\d\+\)\?\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaFloat		display contained "\.\d\%(_\?\d\)*\%([eEf][-+]\?\d\+\)\?\%(\>\|im\>\|\ze\D\)" contains=juliaComplexUnit
 "floating point number, with dot, optional exponent
-syntax match   juliaFloat		display contained "\d\%(_\?\d\)*\.\%(\d\%(_\?\d\)*\)\?\%([eEf][-+]\?\d\+\)\?\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaFloat		display contained "\d\%(_\?\d\)*\.\%(\d\%(_\?\d\)*\)\?\%([eEf][-+]\?\d\+\)\?\%(\>\|im\>\|\ze\D\)" contains=juliaComplexUnit
 "floating point number, without dot, with exponent
-syntax match   juliaFloat		display contained "\d\%(_\?\d\)*[eEf][-+]\?\d\+\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaFloat		display contained "\d\%(_\?\d\)*[eEf][-+]\?\d\+\%(\>\|im\>\|\ze\D\)" contains=juliaComplexUnit
 
 "hex floating point number, starting with a dot
-syntax match   juliaFloat		display contained "0x\.\%\(\x\%(_\?\x\)*\)\?[pP][-+]\?\d\+\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaFloat		display contained "0x\.\%\(\x\%(_\?\x\)*\)\?[pP][-+]\?\d\+\%(\>\|im\>\|\ze\X\)" contains=juliaComplexUnit
 "hex floating point number, starting with a digit
-syntax match   juliaFloat		display contained "0x\x\%(_\?\x\)*\%\(\.\%\(\x\%(_\?\x\)*\)\?\)\?[pP][-+]\?\d\+\%(\>\|im\>\|\ze[_[:alpha:]]\)" contains=juliaComplexUnit
+syntax match   juliaFloat		display contained "0x\x\%(_\?\x\)*\%\(\.\%\(\x\%(_\?\x\)*\)\?\)\?[pP][-+]\?\d\+\%(\>\|im\>\|\ze\X\)" contains=juliaComplexUnit
 
 syntax match   juliaComplexUnit		display	contained "\<im\>"
 
-syntax match   juliaArithOperator	"\%(//\|\.\?\%(+\|-\|//\|%\|\*\|/\|\\\|\^\)\)"
+syntax match   juliaArithOperator	"\%(//\|\.\?\%(+\|-\|//\|%\|\*\|/\|\\\|\^\|[÷⋅⊛⊖⊗⊘⊙⊚⊛⫽]\)\)"
+syntax match   juliaSetOperator		"[∪∩∈∉∋∌⊆⊈]"
 syntax match   juliaCompOperator	"\.\?[<>]"
 syntax match   juliaBitOperator		"\%(<<\|>>>\|>>\|&\||\|\~\|\$\)"
 syntax match   juliaRedirOperator	"\%(|>\|<|\)"
-syntax match   juliaBoolOperator	"\%(&&\|||\|!\)"
-syntax match   juliaCompOperator	"\.\?\%([<>]=\|!=\|==\)"
+syntax match   juliaBoolOperator	"\%(&&\|||\|!\|[∧∨]\)"
+syntax match   juliaCompOperator	"\.\?\%([<>]=\|!=\|==\|[≤≥≠≡≢]\)"
 syntax match   juliaAssignOperator	"\%([$|\&*/\\%+-]\|<<\|>>>\|>>\)\?="
 syntax match   juliaRangeOperator	":"
 syntax match   juliaTypeOperator	"\%(<:\|::\)"
@@ -184,8 +185,7 @@ syntax match   juliaQuotedQuestion      display ":\s*\%(?\|(\s*?\s*)\)"he=s+1 co
 syntax match   juliaInQuote             display contained ":\zs\s*[^])}[:space:],;]\+"
 
 syntax region  juliaCommentL		matchgroup=juliaCommentDelim start="#\ze\%([^=]\|$\)" end="$" keepend contains=juliaTodo,@spell
-syntax region  juliaCommentM		matchgroup=juliaCommentDelim start="#=\ze\%([^#]\|$\)" end="=#" contains=juliaTodo,juliaCommentM,juliaCommentT,@spell
-syntax match   juliaCommentT		display "#=#"
+syntax region  juliaCommentM		matchgroup=juliaCommentDelim start="#=\ze\%([^#]\|$\)" end="=#" contains=juliaTodo,juliaCommentM,@spell
 syntax keyword juliaTodo		contained TODO FIXME XXX
 
 
@@ -269,6 +269,7 @@ else
   hi def link juliaOperator		juliaNone
 endif
 hi def link juliaArithOperator		juliaOperator
+hi def link juliaSetOperator		juliaOperator
 hi def link juliaBitOperator		juliaOperator
 hi def link juliaRedirOperator		juliaOperator
 hi def link juliaBoolOperator		juliaOperator
@@ -287,7 +288,6 @@ hi def link juliaQuotedQuestion 	juliaOperator
 
 hi def link juliaCommentL		Comment
 hi def link juliaCommentM		Comment
-hi def link juliaCommentT		Comment
 hi def link juliaCommentDelim		Comment
 hi def link juliaTodo			Todo
 
