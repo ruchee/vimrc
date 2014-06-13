@@ -21,6 +21,10 @@ snippet el      else
 	    ${0}
 	<% } %>
 snippet fo      for循环
-	<% for (${1}) { %>
+	<% for (var ${1}) { %>
+	    ${0}
+	<% } %>
+snippet fi      for .. in
+	<% for (var ${1} in ${2}) { %>
 	    ${0}
 	<% } %>
