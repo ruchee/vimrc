@@ -14,11 +14,11 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=G:/Ruchee/code/work/app_passport/tags
     " set tags+=G:/Ruchee/code/work/app_site/tags
+    " set tags+=G:/Ruchee/code/work/app_passport/tags
     " set tags+=G:/Ruchee/code/work/app_finance/tags
     " set tags+=G:/Ruchee/code/work/app_customer/tags
-    set tags+=G:/Ruchee/code/work/Mobile_Web_PHP/trunk/Src/tags
+    " set tags+=G:/Ruchee/code/work/Mobile_Web_PHP/trunk/Src/tags
 else
 endif
 

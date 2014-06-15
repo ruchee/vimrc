@@ -1,0 +1,11 @@
+let decimalInteger = 17
+let binaryInteger = 0b10001             // 17 in binary notation
+let octalInteger = 0o21                 // 17 in octal notation
+let hexadecimalInteger = 0x11           // 17 in hexadecimal notation
+let decimalInteger = 123_456_789
+let separatedBinaryInteger = 0b10_001
+let separatedOctalInteger = 0o21_17
+let separatedHexadecimalInteger = 0x1a_f1
+let pi = 3.141592
+let exponential = 1.21875e1
+let exponential2 = 1.21875e+1
