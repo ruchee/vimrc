@@ -6,7 +6,7 @@ snippet <-      原始HTML内容
 	<%- ${0} %>
 # 代码复用
 snippet in      包含模板
-	<% include ${0} %>
+	<%- include ${1} %>${0}
 # 流程控制
 snippet if      if
 	<% if (${1}) { %>
