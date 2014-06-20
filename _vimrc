@@ -18,8 +18,8 @@ if g:atCompany
     " set tags+=G:/Ruchee/code/work/app_passport/tags
     " set tags+=G:/Ruchee/code/work/app_finance/tags
     " set tags+=G:/Ruchee/code/work/app_customer/tags
-    " set tags+=G:/Ruchee/code/work/Mobile_Web_PHP/trunk/Src/tags
-    set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
+    set tags+=G:/Ruchee/code/work/Mobile_Web_PHP/trunk/Src/tags
+    " set tags+=G:/Ruchee/code/self/projects/laravel/vendor/laravel/tags
 else
 endif
 
