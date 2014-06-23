@@ -1,1 +1,1 @@
-au BufRead,BufNewFile *.dart set filetype=dart
+autocmd BufRead,BufNewFile *.dart set filetype=dart
