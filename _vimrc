@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-06-22 20:50
+" -----------------     Date: 2014-06-24 00:56
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,9 +15,13 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
 else
-    set tags+=D:/Ruchee/Files/code/apps/wordpress/tags
-    " set tags+=D:/Ruchee/Files/code/apps/dedecms/tags
-    " set tags+=D:/Ruchee/Files/code/apps/ecshop/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/activerecord-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/actionpack-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/actionview-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/activesupport-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/activemodel-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/actionmailer-4.1.1/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/railties-4.1.1/tags
 endif
 
 
@@ -331,6 +335,7 @@ au FileType cpp        call AddCPPDict()
 au FileType java       call AddJavaDict()
 au FileType scala      call AddScalaDict()
 au FileType lua        call AddLuaDict()
+au FileType perl       call AddPerlDict()
 au FileType php        call AddPHPDict()
 au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
@@ -382,6 +387,15 @@ function AddLuaDict()
         set dict+=$VIM/vimfiles/dict/lua.txt
     else
         set dict+=~/.vim/dict/lua.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddPerlDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/perl.txt
+    else
+        set dict+=~/.vim/dict/perl.txt
     endif
     set complete+=k
 endfunction
