@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-01 18:27
+" -----------------     Date: 2014-07-04 08:59
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -49,6 +49,9 @@ endif
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \ff                        --打开ctrlp.vim文件搜索窗口
+" \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
+" \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
+" \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
 " \ud                        --打开/关闭编辑历史窗口
 " \fe                        --打开/关闭文件编码窗口
 " \ig                        --显示/关闭对齐线
@@ -444,11 +447,9 @@ endfunction
 let python_highlight_all = 1                   " 打开全部Python高亮
 
 
-" MiniBufExplorer     多文件切换
-let g:miniBufExplMapWindowNavVim    = 1
-let g:miniBufExplMapWindowNavArrows = 1
-let g:miniBufExplMapCTabSwitchBufs  = 1
-let g:miniBufExplModSelTarget       = 1
+" BufExplorer         文件缓冲浏览器
+let g:bufExplorerSortBy = 'name'               " 按文件名排序
+
 
 " Tlist               调用TagList
 let Tlist_Show_One_File        = 1             " 只显示当前文件的tags
