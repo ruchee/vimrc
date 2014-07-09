@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-09 16:49
+" -----------------     Date: 2014-07-09 23:47
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -570,7 +570,7 @@ nmap <leader>bn :Tab /
 nmap <leader>nt :NERDTree<CR>
 
 " \tl                 打开Taglist/TxtBrowser窗口，在右侧栏显示
-nmap <leader>tl :Tlist<CR><c-l>
+nmap <leader>tl :Tlist<CR><c-w><c-l>
 
 " \ff                 打开文件搜索窗口，在状态栏显示 [ctrlp.vim插件]
 nmap <leader>ff :CtrlP<CR>
