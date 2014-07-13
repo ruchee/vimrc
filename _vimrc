@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-13 22:08
+" -----------------     Date: 2014-07-14 00:19
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,7 +15,12 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
 else
-    set tags+=D:/Ruchee/Files/code/projects/Yii/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/base/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/db/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/utils/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/validators/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/web/tags
+    set tags+=D:/Ruchee/Files/code/projects/Yii/zii/tags
 endif
 
 
