@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-09 23:47
+" -----------------     Date: 2014-07-13 22:08
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,6 +15,7 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
 else
+    set tags+=D:/Ruchee/Files/code/projects/Yii/tags
 endif
 
 
@@ -525,17 +526,21 @@ let g:syntastic_cpp_compiler_options = '-std=c++11'
 
 " ======= 自定义快捷键 ======= "
 
-" Ctrl + H            光标移当前行行首
+" Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal模式]
 imap <c-h> <ESC>I
+map <c-h> <c-w><c-h>
 
-" Ctrl + J            光标移下一行行首
+" Ctrl + J            光标移下一行行首[插入模式]、切换下窗口[Normal模式]
 imap <c-j> <ESC><Down>I
+map <c-j> <c-w><c-j>
 
-" Ctrl + K            光标移上一行行尾
+" Ctrl + K            光标移上一行行尾[插入模式]、切换上窗口[Normal模式]
 imap <c-k> <ESC><Up>A
+map <c-k> <c-w><c-k>
 
-" Ctrl + L            光标移当前行行尾
+" Ctrl + L            光标移当前行行尾[插入模式]、切换右窗口[Normal模式]
 imap <c-l> <ESC>A
+map <c-l> <c-w><c-l>
 
 " Alt  + H            光标左移一格
 imap <m-h> <Left>
