@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-14 00:19
+" -----------------     Date: 2014-07-14 11:59
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,6 +14,7 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
+    set tags+=D:/Ruchee/Files/code/phpcms/tags
 else
     set tags+=D:/Ruchee/Files/code/projects/Yii/base/tags
     set tags+=D:/Ruchee/Files/code/projects/Yii/db/tags
@@ -215,8 +216,13 @@ au BufRead,BufNewFile *.txt  setlocal ft=txt
 " 设置着色模式和字体
 if g:isWIN
     if g:isGUI
-        colorscheme molokai
-        set guifont=Monaco:h11
+        if g:atCompany
+            colorscheme molokai
+            set guifont=Monaco:h13
+        else
+            colorscheme molokai
+            set guifont=Monaco:h11
+        endif
     endif
 else
     if g:isGUI
@@ -761,9 +767,9 @@ let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,
 let blog = {}
 if g:atCompany
     if g:isWIN
-        let blog.path          = 'G:/Ruchee/mysite/wiki/'
-        let blog.path_html     = 'G:/Ruchee/mysite/html/'
-        let blog.template_path = 'G:/Ruchee/mysite/templates/'
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
     endif
 else
     if g:isWIN
