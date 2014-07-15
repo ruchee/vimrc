@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-14 11:59
+" -----------------     Date: 2014-07-15 17:50
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,14 +14,18 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/phpcms/tags
+    set tags+=D:/Ruchee/Files/code/libs/Smarty/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/base/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/db/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/utils/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/validators/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/web/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/zii/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/collections/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/caching/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/logging/tags
+    set tags+=D:/Ruchee/Files/code/libs/Yii/i18n/tags
 else
-    set tags+=D:/Ruchee/Files/code/projects/Yii/base/tags
-    set tags+=D:/Ruchee/Files/code/projects/Yii/db/tags
-    set tags+=D:/Ruchee/Files/code/projects/Yii/utils/tags
-    set tags+=D:/Ruchee/Files/code/projects/Yii/validators/tags
-    set tags+=D:/Ruchee/Files/code/projects/Yii/web/tags
-    set tags+=D:/Ruchee/Files/code/projects/Yii/zii/tags
 endif
 
 
@@ -490,7 +494,7 @@ let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['php']        = 'php,html,yii'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
