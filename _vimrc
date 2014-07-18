@@ -1,12 +1,12 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-17 09:25
+" -----------------     Date: 2014-07-18 14:56
 " -----------------    https://github.com/ruchee/vimrc
 
 
 
 " 判断工作地点（根据指定路径的文件是否存在判断）
-if filereadable("~/.atCompany") || filereadable("D:/atCompany.txt")
+if filereadable("~/.atCompany") || filereadable("C:/atCompany.txt")
     let g:atCompany = 1
 else
     let g:atCompany = 0
@@ -14,6 +14,9 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
+    set tags+=F:/Ruchee/Files/code/hd.m.9133.com/tags
+    set tags+=F:/Ruchee/Files/code/passport.9133.com/tags
+    set tags+=F:/Ruchee/Files/code/api.sdk.9133.com/tags
 else
 endif
 
@@ -483,7 +486,7 @@ let g:snipMate                             = {}
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['php']        = 'php,html,company_5399'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
@@ -760,9 +763,9 @@ let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,
 let blog = {}
 if g:atCompany
     if g:isWIN
-        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+        let blog.path          = 'F:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'F:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'F:/Ruchee/Files/mysite/templates/'
     endif
 else
     if g:isWIN
