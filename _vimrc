@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-18 14:56
+" -----------------     Date: 2014-07-25 09:24
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,8 +15,6 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     set tags+=F:/Ruchee/Files/code/hd.m.9133.com/tags
-    set tags+=F:/Ruchee/Files/code/passport.9133.com/tags
-    set tags+=F:/Ruchee/Files/code/api.sdk.9133.com/tags
 else
 endif
 
@@ -71,6 +69,11 @@ endif
 "
 " \16                        --以十六进制格式查看
 " \r16                       --返回普通格式
+"
+" \php                       --一键切换到PHP语法高亮
+" \js                        --一键切换到JavaScript语法高亮
+" \css                       --一键切换到CSS语法高亮
+" \html                      --一键切换到HTML语法高亮
 
 " ---------- 补全命令 ----------
 "
@@ -638,6 +641,22 @@ nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 
 " \mt                 在当前目录下递归生成tags文件
 nmap <leader>mt <ESC>:!ctags -R --languages=
+
+" \php                一键切换到PHP语法高亮
+imap <leader>php <ESC>:se ft=php<CR>li
+nmap <leader>php <ESC>:se ft=php<CR>
+
+" \js                 一键切换到JavaScript语法高亮
+imap <leader>js <ESC>:se ft=javascript<CR>li
+nmap <leader>js <ESC>:se ft=javascript<CR>
+
+" \css                一键切换到CSS语法高亮
+imap <leader>css <ESC>:se ft=css<CR>li
+nmap <leader>css <ESC>:se ft=css<CR>
+
+" \html               一键切换到HTML语法高亮
+imap <leader>html <ESC>:se ft=html<CR>li
+nmap <leader>html <ESC>:se ft=html<CR>
 
 
 " ======= 编译 && 运行 && 模板 ======= "
