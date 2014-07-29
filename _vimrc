@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-25 09:24
+" -----------------     Date: 2014-07-29 09:12
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -294,9 +294,9 @@ if g:isGUI
     set guioptions-=m        " 隐藏菜单栏
     set guioptions-=T        " 隐藏工具栏
     set guioptions-=L        " 隐藏左侧滚动条
-    "set guioptions-=r       " 隐藏右侧滚动条
+    set guioptions-=r        " 隐藏右侧滚动条
     set guioptions-=b        " 隐藏底部滚动条
-    "set showtabline=0       " 隐藏Tab栏
+    set showtabline=0        " 隐藏Tab栏
     set cursorline           " 突出显示当前行
 endif
 
