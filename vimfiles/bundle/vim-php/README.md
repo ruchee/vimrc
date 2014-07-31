@@ -23,5 +23,6 @@ The project comes with a Dockerfile which can be used to rebuild the syntax file
 
 ```bash
 docker build -t stanangeloff/php.vim .
-docker run -i -t stanangeloff/php.vim scripts/update-vim-syntax.php | sed 's/\x0D$//' > syntax/php.vim
+docker run --rm -i -v "$PWD":/var/php -t stanangeloff/php.vim > /tmp/php.vim && cat /tmp/php.vim | sed 's/\x0D$//' > syntax/php.vim
+docker rmi stanangeloff/php.vim
 ```

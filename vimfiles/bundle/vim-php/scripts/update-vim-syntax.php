@@ -156,7 +156,7 @@ foreach ($extensions as $extension) {
 
 # Read the existing syntax file with block markers in it.
 #
-$template = file_get_contents(__DIR__ . '/../syntax/php.vim');
+$template = file_get_contents('/var/php/syntax/php.vim');
 
 # Clean up any previously defined blocks.
 $template = preg_replace(
