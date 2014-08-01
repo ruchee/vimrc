@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-07-29 09:12
+" -----------------     Date: 2014-08-01 09:47
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -482,10 +482,10 @@ if g:isWIN
 else
     let g:snippets_dir = '~/.vim/snippets/'
 endif
-" 不使用插件自带的默认继承
-let g:snipMate_no_default_aliases          = 1
-" 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate                             = {}
+" 不使用插件自带的默认继承
+let g:snipMate.no_default_aliases          = 1
+" 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'

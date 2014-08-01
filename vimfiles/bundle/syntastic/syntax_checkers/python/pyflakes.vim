@@ -26,22 +26,21 @@ function! SyntaxCheckers_python_pyflakes_GetHighlightRegex(i)
         \ || stridx(a:i['text'], 'shadowed by loop variable') >= 0
 
         " fun with Python's %r: try "..." first, then '...'
-        let terms =  split(a:i['text'], '"', 1)
-        if len(terms) > 2
-            return terms[1]
+        let term = matchstr(a:i['text'], '\m^.\{-}"\zs.\{-1,}\ze"')
+        if term != ''
+            return '\V\<' . escape(term, '\') . '\>'
         endif
 
-        let terms =  split(a:i['text'], "'", 1)
-        if len(terms) > 2
-            return terms[1]
+        let term = matchstr(a:i['text'], '\m^.\{-}''\zs.\{-1,}\ze''')
+        if term != ''
+            return '\V\<' . escape(term, '\') . '\>'
         endif
     endif
     return ''
 endfunction
 
 function! SyntaxCheckers_python_pyflakes_GetLocList() dict
-    let makeprg = self.makeprgBuild({
-        \ 'exe_before': (syntastic#util#isRunningWindows() ? '' : 'TERM=dumb') })
+    let makeprg = self.makeprgBuild({})
 
     let errorformat =
         \ '%E%f:%l: could not compile,'.
@@ -50,9 +49,12 @@ function! SyntaxCheckers_python_pyflakes_GetLocList() dict
         \ '%E%f:%l: %m,'.
         \ '%-G%.%#'
 
+    let env = syntastic#util#isRunningWindows() ? {} : { 'TERM': 'dumb' }
+
     let loclist = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
+        \ 'env': env,
         \ 'defaults': {'text': "Syntax error"} })
 
     for e in loclist

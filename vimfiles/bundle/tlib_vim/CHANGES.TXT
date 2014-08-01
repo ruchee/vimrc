@@ -472,3 +472,63 @@ version: "1.07"
   - tlib#file#Join(): strip_slashes defaults to 1
   MD5 checksum: 6c8fa96fd3747be05df848ee93dd789b
 
+version: "1.08"
+  - list#input: Improved support for file indicators (closes #17)
+  - tlib#char#Get(): Optionally, also return mod
+  - tlib#input#ListW: Use #DisplayFormat(world.list)
+  - Renamed cnfx filter to glob & minor filter-related enhancements
+  - list#input: Make help available as command; help cannot be called via ?
+  - list#input: Improved help message
+  - list#input: Support Home & End keys
+  - list#input: Added glob filter
+  - tlib#agent#ShowInfo: Show full filename
+  - tlib#cmd#BrowseOutputWithCallback: Support calling callback with multiple results
+  - tlib#cmd#ParseScriptname: Properly parse results from :scriptnames
+  - tlib#tab#Set()
+  - Prepare for proper handling of scratch_split == -1
+  - tlib#vim#CopyFunction()
+  - tlib#cache#Value(): If generator is empty, use the optional argument as start value
+  - tlib#persistent#Get() refers to tlib#cache#Get()
+  MD5 checksum: 459ec620168d1ae9b18c69eb3f991832
+
+  - tlib#cache#Filename(): Use sha256() for VIM >= 7.4
+  - tlib#cache#Value(): Undo previous hack
+  - tlib#list#Uniq(): option to remove empty values
+  - tlib#cache#MTime(); tlib#persistent#Save() calls tlib#cache#Save()
+  - tlib#input#ListW: Temporarily set noshowmode
+  - tlib#list#Uniq(): Fix handling of empty items
+  - lis picker: Remove <C-Space> from help
+  - tlib#list#Uniq(): Implementation based on syntastic#util#unique(list) by scrooloose
+  MD5 checksum: b5fb4107d63930c2c8b1f0f6b3a7ff07
+version: "1.09"
+
+  - tlib#cache#Filename(): Use sha256() for VIM >= 7.4
+  - tlib#cache#Value(): Undo previous hack
+  - tlib#list#Uniq(): option to remove empty values
+  - tlib#cache#MTime(); tlib#persistent#Save() calls tlib#cache#Save()
+  - tlib#input#ListW: Temporarily set noshowmode
+  - tlib#list#Uniq(): Fix handling of empty items
+  - lis picker: Remove <C-Space> from help
+  - tlib#list#Uniq(): Implementation based on syntastic#util#unique(list) by scrooloose
+  MD5 checksum: b5fb4107d63930c2c8b1f0f6b3a7ff07
+version: "1.09"
+
+  - tlib#string#Chomp: Optional argument: max number of chars that should be removed
+  MD5 checksum: 8c1b94e25045580874e2f892d509291b
+version: "1.10"
+
+  - tlib#vcs#FindVCS(filename): Wrong parameters to fnamemodifiy if filename is a directory
+  - Some system-related functions (e.g. facilitate use of cygwin tools)
+  - tlib#arg#StringAsKeyArgsEqual(), tlib#arg#StringAsKeyArgs(): Support "key=val" type argument lists
+  - tlib#vcs#Executable()
+  - scripts/create_crc_table.rb
+  - tlib#var#Get(): For namespaces other than global, replace "#" with "_"
+  MD5 checksum: 4a33f2f23e1fc6600b32e7f8323e001e
+version: "1.11"
+
+  - tlib#list#ToDictionary()
+  - tlib#dir#CanonicName(): Use tlib#file#Canonic()
+  - tlib#file#Canonic()
+  MD5 checksum: 7995ab58f31eb6673d20deab8761838e
+version: "1.12"
+
