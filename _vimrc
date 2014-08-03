@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-01 09:47
+" -----------------     Date: 2014-08-03 14:09
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,6 +16,7 @@ endif
 if g:atCompany
     set tags+=F:/Ruchee/Files/code/hd.m.9133.com/tags
 else
+    set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
 
 
@@ -668,13 +669,13 @@ func! Compile_Run_Code()
         if g:isWIN
             exec "!gcc -Wall -std=c11 -o %:r %:t && %:r.exe"
         else
-            exec "!gcc -Wall -std=c11 -o %:r %:t && ./%:r"
+            exec "!clang -Wall -std=c11 -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "cpp"
         if g:isWIN
             exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
         else
-            exec "!g++ -Wall -std=c++11 -o %:r %:t && ./%:r"
+            exec "!clang++ -Wall -std=c++11 -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "d"
         if g:isWIN

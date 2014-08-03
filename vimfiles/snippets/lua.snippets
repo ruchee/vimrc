@@ -76,6 +76,8 @@ snippet tn      转换成数值
 	tonumber(${0})
 snippet ts      转换成字符串
 	tostring(${0})
+snippet sm      设置元表
+	setmetatable(${1}, {__index = ${0}})
 # 单个关键字
 snippet br      中断
 	break${0}
@@ -89,11 +91,15 @@ snippet str     字符串
 	string.${0}
 snippet tab     表
 	table.${0}
+snippet s       自身
+	self${0}
 snippet p       输出
 	print(${0})
 snippet n       nil
 	nil${0}
 # 其他
+snippet _i      元表索引
+	__index${0}
 snippet _v      版本号
 	_VERSION${0}
 snippet <       多行字符串

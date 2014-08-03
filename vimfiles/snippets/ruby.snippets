@@ -107,7 +107,9 @@ snippet if      if
 	  ${0}
 	end
 snippet ul      uless [与if相反]
-	unless ${0}
+	unless ${1}
+	  ${0}
+	end
 snippet elif    elsif
 	elsif ${1}
 	  ${0}
@@ -169,9 +171,7 @@ snippet msg     异常信息
 snippet E       Exception类
 	Exception${0}
 # 迭代器
-snippet lo      loop
-	loop ${0}
-snippet lod     loop do .. end
+snippet lo      loop do .. end
 	loop do
 	  ${0}
 	end
