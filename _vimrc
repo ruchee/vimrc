@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-03 14:09
+" -----------------     Date: 2014-08-06 09:12
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,6 +15,7 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     set tags+=F:/Ruchee/Files/code/hd.m.9133.com/tags
+    set tags+=F:/Ruchee/Files/code/passport.9133.com/tags
 else
     set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
