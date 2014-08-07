@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-06 09:12
+" -----------------     Date: 2014-08-07 14:25
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,8 +14,7 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=F:/Ruchee/Files/code/hd.m.9133.com/tags
-    set tags+=F:/Ruchee/Files/code/passport.9133.com/tags
+    set tags+=D:/Ruchee/Files/code/cps.9133.com/tags
 else
     set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
@@ -219,7 +218,7 @@ if g:isWIN
     if g:isGUI
         if g:atCompany
             colorscheme molokai
-            set guifont=Monaco:h13
+            set guifont=Monaco:h12
         else
             colorscheme molokai
             set guifont=Monaco:h11
@@ -536,6 +535,10 @@ let g:syntastic_c_compiler_options = '-std=c11'
 let g:syntastic_cpp_compiler_options = '-std=c++11'
 
 
+" javascript-libraries-syntax                    指定需要高亮的JS库
+let g:used_javascript_libs = 'jquery,angularjs'
+
+
 " ======= 自定义快捷键 ======= "
 
 " Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal模式]
@@ -784,9 +787,9 @@ let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,
 let blog = {}
 if g:atCompany
     if g:isWIN
-        let blog.path          = 'F:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'F:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'F:/Ruchee/Files/mysite/templates/'
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
     endif
 else
     if g:isWIN
