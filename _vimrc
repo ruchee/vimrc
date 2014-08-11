@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-08 09:25
+" -----------------     Date: 2014-08-11 20:28
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,7 +14,10 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/hd.m.9133.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.m.9133.com/tags
+    " set tags+=D:/Ruchee/Files/code/cps.9133.com/tags
+    " set tags+=D:/Ruchee/Files/code/passport.9133.com/tags
+    set tags+=D:/Ruchee/Files/code/hd.cms.9133.com/tags
 else
     set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
@@ -253,7 +256,6 @@ set foldmethod=syntax        " 选择代码折叠类型
 set foldlevel=100            " 禁止自动折叠
 set laststatus=2             " 开启状态栏信息
 set cmdheight=2              " 命令行的高度，默认为1，这里设为2
-set writebackup              " 设置无备份文件
 set autoread                 " 当文件在外部被修改时自动更新该文件
 set nobackup                 " 不生成备份文件
 set noswapfile               " 不生成交换文件
@@ -275,7 +277,7 @@ set fenc=utf-8
 set encoding=utf-8
 set fileencodings=utf-8,gbk,cp936,latin-1
 set fileformat=unix
-set fileformats=unix,dos,mac
+set fileformats=unix,mac,dos
 if g:isWIN
     source $VIMRUNTIME/delmenu.vim
     source $VIMRUNTIME/menu.vim

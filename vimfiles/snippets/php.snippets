@@ -35,6 +35,10 @@ snippet in.     只包含一次
 	include_once __DIR__.'/${1}';${0}
 snippet df      定义常量
 	define('${1}', ${2});${0}
+snippet df?     判断常量是否有定义
+	defined('${1}')${0}
+snippet dfo     判断常量是否有定义，无定义则退出并输出错误信息
+	defined('${1}') or exit('${0}');
 # 接口、类、方法
 snippet int     接口定义
 	interface ${1:int_name} {
@@ -302,6 +306,11 @@ snippet _me     当前所处类的方法名
 	__METHOD__${0}
 snippet _na     当前所处命名空间
 	__NAMESPACE__${0}
+#### 常用预定义常量 ####
+snippet ds      平台无关目录分隔符
+	DIRECTORY_SEPARATOR${0}
+snippet ps      平台无关路径分隔符
+	PATH_SEPARATOR${0}
 #### 常用函数 ####
 snippet ra      数组生成器
 	range(${1}, ${0})
@@ -500,6 +509,31 @@ snippet la_json JSON响应
 	Response::json(${0})
 snippet la_down DOWNLOAD响应
 	Response::download(${0})
+# PHPCMS内容管理系统
+snippet pc_b    pc_base
+	pc_base::${0}
+snippet pc_t    加载模版
+	include template('${1:module_name}', '${2:tpl_name}', '${3:default}');${0}
+snippet pc_at   加载管理后台模版
+	include $this->admin_tpl('${0:tpl_name}');
+snippet pc_lc   加载配置文件
+	pc_base::load_config('${1}'${0});
+snippet pc_lm   加载数据模型
+	pc_base::load_model('${1}'${0});
+snippet pc_lsc  加载系统类方法
+	pc_base::load_sys_class('${1}'${0});
+snippet pc_lsf  加载系统函数库
+	pc_base::load_sys_func('${1}'${0});
+snippet pc_lac  加载应用类方法
+	pc_base::load_app_class('${1}'${0});
+snippet pc_laf  加载应用函数库
+	pc_base::load_app_func('${1}'${0});
+snippet pc_lpc  加载插件类库
+	pc_base::load_plugin_class('${1}'${0});
+snippet pc_lpf  加载插件函数库
+	pc_base::load_plugin_func('${1}'${0});
+snippet pc_lpm  加载插件数据模型
+	pc_base::load_plugin_model('${1}'${0});
 # Chrome Logger 浏览器调试插件
 snippet cl_l    打印普通信息
 	ChromePhp::log(${0});
