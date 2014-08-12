@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-11 20:28
+" -----------------     Date: 2014-08-12 09:13
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -214,6 +214,7 @@ au BufRead,BufNewFile *.phpt setlocal ft=php
 au BufRead,BufNewFile *.sql  setlocal ft=mysql
 au BufRead,BufNewFile *.tpl  setlocal ft=smarty
 au BufRead,BufNewFile *.txt  setlocal ft=txt
+au BufRead,BufNewFile hosts  setlocal ft=conf
 
 
 " 设置着色模式和字体
