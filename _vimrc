@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-13 15:43
+" -----------------     Date: 2014-08-14 20:41
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,7 +17,9 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/hd.m.9133.com/tags
     " set tags+=D:/Ruchee/Files/code/cps.9133.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.9133.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.cms.9133.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.cms.9133.com/tags
+    " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/www.5399.com/tags
 else
     set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
