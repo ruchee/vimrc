@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-14 20:41
+" -----------------     Date: 2014-08-15 18:07
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,12 +14,15 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
+    " set tags+=D:/Ruchee/Files/code/hd.cms.9133.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.9133.com/tags
     " set tags+=D:/Ruchee/Files/code/cps.9133.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.9133.com/tags
-    " set tags+=D:/Ruchee/Files/code/hd.cms.9133.com/tags
-    " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/www.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/www.9133.com/tags
+
+    " set tags+=D:/Ruchee/Files/code/self/laravel/vendor/tags
+    " set tags+=D:/Ruchee/Files/code/self/symfony/vendor/tags
+    " set tags+=D:/Ruchee/Files/code/self/drupal/tags
 else
     set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
@@ -174,6 +177,17 @@ endif
 " m字符       and '字符      --标记位置 and 跳转到标记位置
 " q字符 xxx q and @字符      --录制宏   and 执行宏
 "
+" ---------- 代码折叠 ----------
+"
+" zc                         --折叠
+" zC                         --对所在范围内所有嵌套的折叠点进行折叠
+" zo                         --展开折叠
+" zO                         --对所在范围内所有嵌套的折叠点展开
+" [z                         --到当前打开的折叠的开始处
+" ]z                         --到当前打开的折叠的末尾处
+" zj                         --向下移动到后一个折叠的开始处
+" zk                         --向上移动到前一个折叠的结束处
+"
 " ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
 "
 " 链接：[[链接地址|链接描述]]
@@ -256,7 +270,7 @@ set nowrapscan               " 搜索到文件两端时不重新搜索
 set nocompatible             " 关闭兼容模式
 set hidden                   " 允许在有未保存的修改时切换缓冲区
 set autochdir                " 设定文件浏览器目录为当前目录
-set foldmethod=syntax        " 选择代码折叠类型
+set foldmethod=indent        " 选择代码折叠类型
 set foldlevel=100            " 禁止自动折叠
 set laststatus=2             " 开启状态栏信息
 set cmdheight=2              " 命令行的高度，默认为1，这里设为2
