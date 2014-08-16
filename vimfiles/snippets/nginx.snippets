@@ -1,0 +1,32 @@
+snippet /       单行注释
+	# ${0}
+snippet in      包含其他配置文件
+	include ${1};${0}
+# 常用结构
+snippet ev      工作模式
+	events {
+	    ${0}
+	}
+snippet ht      HTTP服务器
+	http {
+	    ${0}
+	}
+snippet hts     HTTPS服务器
+	https {
+	    ${0}
+	}
+snippet se      虚拟服务器
+	server {
+	    ${0}
+	}
+# 常用指令
+snippet wp      进程数
+	worker_processes ${1:4};${0}
+snippet wc      连接数
+	worker_connections ${1:1024};${0}
+snippet kt      超时时间
+	keepalive_timeout ${1:80};${0}
+snippet dt      默认类型
+	default_type ${1:application/octet-stream};${0}
+snippet li      
+# 流程控制
