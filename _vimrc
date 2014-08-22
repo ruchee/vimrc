@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-20 09:39
+" -----------------     Date: 2014-08-22 15:10
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,15 +15,15 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
 
-    " set tags+=D:/Ruchee/Files/code/self/laravel/vendor/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 else
-    set tags+=~/code/apps/laravel/vendor/laravel/tags
 endif
 
 
@@ -223,14 +223,15 @@ au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,cof
 au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
-au BufRead,BufNewFile *.h    setlocal ft=c
-au BufRead,BufNewFile *.di   setlocal ft=d
-au BufRead,BufNewFile *.cl   setlocal ft=lisp
-au BufRead,BufNewFile *.phpt setlocal ft=php
-au BufRead,BufNewFile *.sql  setlocal ft=mysql
-au BufRead,BufNewFile *.tpl  setlocal ft=smarty
-au BufRead,BufNewFile *.txt  setlocal ft=txt
-au BufRead,BufNewFile hosts  setlocal ft=conf
+au BufRead,BufNewFile *.h        setlocal ft=c
+au BufRead,BufNewFile *.di       setlocal ft=d
+au BufRead,BufNewFile *.cl       setlocal ft=lisp
+au BufRead,BufNewFile *.phpt     setlocal ft=php
+au BufRead,BufNewFile *.sql      setlocal ft=mysql
+au BufRead,BufNewFile *.tpl      setlocal ft=smarty
+au BufRead,BufNewFile *.txt      setlocal ft=txt
+au BufRead,BufNewFile hosts      setlocal ft=conf
+au BufRead,BufNewFile http*.conf setlocal ft=apache
 
 
 " 设置着色模式和字体
@@ -781,6 +782,8 @@ func! Compile_Run_Code()
         exec "!Rscript %:t"
     elseif &filetype == "coffee"
         exec "!coffee -c %:t && node %:r.js"
+    elseif &filetype == "ls"
+        exec "!lsc -c %:t && node %:r.js"
     elseif &filetype == "typescript"
         exec "!tsc %:t && node %:r.js"
     elseif &filetype == "javascript"

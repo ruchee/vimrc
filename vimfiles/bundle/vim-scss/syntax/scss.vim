@@ -33,13 +33,13 @@ if v:version < 704
   syn match cssBoxProp contained "\<rotation\(-point\)\=\>"
 endif
 
-syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssComment,cssInclude,scssComment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,@scssControl,scssWarn containedin=cssMediaBlock
+syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssComment,cssInclude,scssAtRootStatement,scssComment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,@scssControl,scssWarn containedin=cssMediaBlock
 
 syn match scssSelector "^\zs\([^:@]\|:[^ ]\)\+{\@=" contained contains=@scssSelectors
 syn match scssSelector "^\s*\zs\([^:@{]\|:[^ ]\)\+\_$" contained contains=@scssSelectors
 syn cluster scssSelectors contains=cssTagName,cssPseudoClass,cssAttributeSelector,scssSelectorChar,scssAmpersand,scssInterpolation
 
-syn match scssProperty "\([[:alnum:]-]\)\+\s*\(: \)\@=" contained contains=css.*Prop,cssVendor containedin=cssMediaBlock nextgroup=scssAttribute,scssAttributeWithNestedDefinition
+syn match scssProperty "\([[:alnum:]-]\)\+\s*\(:\)\@=" contained contains=css.*Prop,cssVendor containedin=cssMediaBlock nextgroup=scssAttribute,scssAttributeWithNestedDefinition
 syn match scssAttribute ":[^;]*;" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssFunction,scssInterpolation,scssVariable
 
 syn match scssAttributeWithNestedDefinition ": [^#]*{\@=" nextgroup=scssNestedDefinition contained contains=cssValue.*,scssVariable
@@ -115,8 +115,9 @@ syn match scssParameterList ".*" contained containedin=cssFunction,scssFunction 
 
 syn match scssVariable "$[[:alnum:]_-]\+" containedin=cssFunction,scssFunction,cssMediaType nextgroup=scssVariableAssignment skipwhite
 syn match scssVariableAssignment ":" contained nextgroup=scssVariableValue skipwhite
-syn match scssVariableValue "[^;)]\+[;)]\@=" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssDefault,scssFunction,scssInterpolation,scssNull,scssVariable,scssMap
-syn keyword scssNull null contained;
+syn match scssVariableValue "[^;)]\+[;)]\@=" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssDefault,scssFunction,scssInterpolation,scssNull,scssVariable,scssMap,scssGlobal,scssAmpersand
+syn match scssGlobal "!global" contained
+syn keyword scssNull null contained
 
 syn match scssMixin "^@mixin" nextgroup=scssMixinName skipwhite
 syn match scssMixinName "[[:alnum:]_-]\+" contained nextgroup=scssDefinition,scssMixinParams
@@ -146,7 +147,7 @@ syn match scssOutput "[^;]\+" contained contains=cssValue.*,cssString.*,scssFunc
 syn match scssDefault "!default" contained
 
 syn match scssIf "@\=if" nextgroup=scssCondition
-syn match scssCondition "[^{]\+" contained contains=cssValue.*,cssString.*,scssFunction,scssNull,scssVariable
+syn match scssCondition "[^{]\+" contained contains=cssValue.*,cssString.*,scssFunction,scssNull,scssVariable,scssAmpersand
 syn match scssElse "@else" nextgroup=scssIf
 syn match scssElse "@else\(\s*\({\|$\)\)\@="
 syn match scssWhile "@while" nextgroup=scssCondition
@@ -160,11 +161,15 @@ syn region scssMap matchgroup=cssBraces start=" \zs(\ze.\+:" end=")" contains=sc
 syn match scssMapKey "[^: ]\+\ze[:]" contained contains=css.*Attr,cssString.*,scssVariable
 syn match scssMapValue "[^, ]\+\ze[,)]" contained contains=cssColor,css.*Prop,cssString.*,scssVariable
 
+syn region scssAtRootStatement start="@at-root" end="\ze{" contains=@scssSelectors,scssAtRoot
+syn match scssAtRoot "@at-root" contained
+
 syn match scssComment "//.*$" contains=@Spell containedin=cssMediaBlock
 syn keyword scssTodo TODO FIXME NOTE OPTIMIZE XXX contained containedin=cssComment,scssComment
 
 hi def link scssNestedProperty cssProp
 hi def link scssVariable  Identifier
+hi def link scssGlobal    Special
 hi def link scssNull      Constant
 hi def link scssMixin     PreProc
 hi def link scssMixinName Function
@@ -190,6 +195,7 @@ hi def link scssEachKeyword Repeat
 hi def link scssInterpolationDelimiter Delimiter
 hi def link scssImport    Include
 hi def link scssTodo      Todo
+hi def link scssAtRoot    Keyword
 
 let b:current_syntax = "scss"
 if main_syntax == 'scss'

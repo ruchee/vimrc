@@ -54,9 +54,7 @@ a {
 }
 
 .funky {
-  font: 2px/3px {
-    family: fantasy;
-    size: 30em;
+  font: 20px/24px fantasy {
     weight: bold;
   }
 }
@@ -87,6 +85,15 @@ a {
 $width: 5em; // another comment
 
 #main {
+  width: $width;
+}
+
+#main {
+  $width: 5em !global;
+  width: $width;
+}
+
+#sidebar {
   width: $width;
 }
 
@@ -199,6 +206,24 @@ p {
   $font-size: 12px;
   $line-height: 30px;
   font: #{$font-size}/#{$line-height};
+}
+
+// & in SassScript
+
+.foo.bar .baz.bang, .bip.qux {
+  $selector: &;
+}
+
+@mixin does-parent-exist {
+  @if & {
+    &:hover {
+      color: red;
+    }
+  } @else {
+    a {
+      color: red;
+    }
+  }
 }
 
 // Variable Defaults: !default
@@ -447,6 +472,18 @@ a.important {
     $y: 1px * $y;
   }
   position: relative; left: $x; top: $y;
+}
+
+// @error
+
+@mixin adjust-location($x, $y) {
+  @if unitless($x) {
+    @error "$x may not be unitless, was #{$x}.":
+  }
+  @if unitless($y) {
+    @error "$y may not be unitless, was #{$y}.";
+  }
+  position: relative; left: $x, top: $y;
 }
 
 // @if
@@ -773,6 +810,11 @@ $a: $b + $c; // issue #4: variables should be displayed with the same color
 
 .button { // issue #37, only "border" is highlighted in Vim 7.3
   border-radius: 5px;
+}
+
+.ding { // issue #40, properties without space after them are not highlighted
+  font-size:12px;
+  color:red;
 }
 
 div {
