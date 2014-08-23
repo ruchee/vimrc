@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-22 23:03
+" -----------------     Date: 2014-08-23 11:58
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,12 +17,12 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 else
     set tags+=~/.rvm/rubies/tags
     set tags+=~/.rvm/gems/tags
