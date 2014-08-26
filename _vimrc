@@ -15,23 +15,27 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
+    " set tags+=D:/Ruchee/Files/code/self/codeigniter/tags
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/symfony/tags
     " set tags+=D:/Ruchee/Files/code/self/wordpress/tags
     " set tags+=D:/Ruchee/Files/code/self/drupal/tags
+
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 else
+    " set tags+=~/code/apps/codeigniter/tags
     " set tags+=~/code/apps/laravel/tags
     " set tags+=~/code/apps/symfony/tags
     " set tags+=~/code/apps/wordpress/tags
     " set tags+=~/code/apps/drupal/tags
+
     " set tags+=~/.rvm/rubies/tags
     " set tags+=~/.rvm/gems/tags
 endif
