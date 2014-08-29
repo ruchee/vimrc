@@ -23,6 +23,7 @@ if g:atCompany
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/symfony/tags
+    " set tags+=D:/Ruchee/Files/code/self/zendframework/tags
     " set tags+=D:/Ruchee/Files/code/self/drupal/tags
 
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
@@ -30,6 +31,7 @@ if g:atCompany
 else
     " set tags+=~/code/apps/laravel/tags
     " set tags+=~/code/apps/symfony/tags
+    " set tags+=~/code/apps/zendframework/tags
     " set tags+=~/code/apps/drupal/tags
 
     " set tags+=~/.rvm/rubies/tags
