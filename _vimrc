@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-25 20:41
+" -----------------     Date: 2014-08-31 22:27
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,26 +16,22 @@ endif
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
+    " set path+=D:/Ruchee/MinGW/include
+    " set tags+=D:/Ruchee/Erlang/tags
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
-    " set tags+=D:/Ruchee/Files/code/self/symfony/tags
-    " set tags+=D:/Ruchee/Files/code/self/zendframework/tags
-    " set tags+=D:/Ruchee/Files/code/self/drupal/tags
-
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 else
-    " set tags+=~/code/apps/laravel/tags
-    " set tags+=~/code/apps/symfony/tags
-    " set tags+=~/code/apps/zendframework/tags
-    " set tags+=~/code/apps/drupal/tags
-
-    " set tags+=~/.rvm/rubies/tags
-    " set tags+=~/.rvm/gems/tags
+    " set path+=D:/Ruchee/MinGW/include
+    " set tags+=D:/Ruchee/Erlang/tags
+    " set tags+=D:/Ruchee/Files/code/laravel/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 endif
 
 
