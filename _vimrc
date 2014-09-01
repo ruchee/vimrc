@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-08-31 22:27
+" -----------------     Date: 2014-09-01 18:45
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -21,17 +21,13 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
-    " set path+=D:/Ruchee/MinGW/include
+    " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
     " set tags+=D:/Ruchee/Erlang/tags
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 else
     " set path+=D:/Ruchee/MinGW/include
     " set tags+=D:/Ruchee/Erlang/tags
     " set tags+=D:/Ruchee/Files/code/laravel/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/tags
 endif
 
 
