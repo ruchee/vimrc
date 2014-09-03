@@ -16,6 +16,27 @@ Configuration
 
   A list of extension names (lowercase) for which built-in functions, constants, classes and interfaces is enabled / disabled.
 
+### Overriding Highlighting
+
+Syntax highlighting can be configured to distinguish groups by overriding the defaults. For example, all code in PHP comments is highlighted as `phpComment`, however there are pieces you can tweak, e.g., how `@tags` appear.
+There are [many groups you can choose from](https://github.com/StanAngeloff/php.vim/blob/48fc7311fa07c2b83888e7a31fae03118bae720b/syntax/php.vim#L754). Here is how you can override PHP `@tags` and `$parameters` in comments to appear in a different group:
+
+```vim
+" Put at the very end of your .vimrc file.
+
+function! PhpSyntaxOverride()
+  hi! def link phpDocTags  phpDefine
+  hi! def link phpDocParam phpType
+endfunction
+
+augroup phpSyntaxOverride
+  autocmd!
+  autocmd FileType php call PhpSyntaxOverride()
+augroup END
+```
+
+<center>![Overriding Highlighting](http://i.imgur.com/eAlB1eb.png)</center>
+
 Updating
 --------
 

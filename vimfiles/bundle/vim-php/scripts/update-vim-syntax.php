@@ -50,7 +50,10 @@ foreach ($configuration['extensions'] as $extensionName => $isEnabled) {
             'name' => $reflect->getName(),
             'classes' => array(),
             'functions' => array_keys($reflect->getFunctions()),
-            'constants' => array_keys($reflect->getConstants()),
+            'constants' => array_diff(
+                array_keys($reflect->getConstants()),
+                array('TRUE', 'FALSE', 'NULL')
+            ),
         );
 
         foreach ($reflect->getClasses() as $extensionClass) {

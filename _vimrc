@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-09-01 18:45
+" -----------------     Date: 2014-09-03 16:09
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -19,14 +19,12 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
     " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
-    " set tags+=D:/Ruchee/Erlang/tags
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
 else
     " set path+=D:/Ruchee/MinGW/include
-    " set tags+=D:/Ruchee/Erlang/tags
     " set tags+=D:/Ruchee/Files/code/laravel/tags
 endif
 
@@ -243,7 +241,7 @@ if g:isWIN
     if g:isGUI
         if g:atCompany
             colorscheme molokai
-            set guifont=Monaco:h12
+            set guifont=Monaco:h14
         else
             colorscheme molokai
             set guifont=Monaco:h11
