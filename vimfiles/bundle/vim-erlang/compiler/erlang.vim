@@ -49,6 +49,9 @@ function s:ShowErrors()
 	endif
 	silent make!
 	for error in getqflist()
+		if error.lnum == 0
+			continue
+		endif
 		let item         = {}
 		let item["lnum"] = error.lnum
 		let item["text"] = error.text

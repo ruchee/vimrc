@@ -1,0 +1,5 @@
+Vim syntax plugin for Java with slight modification to support Java 7-8:
+- binary literals
+- underscores in numbers
+- strings in switch statements
+- closures.

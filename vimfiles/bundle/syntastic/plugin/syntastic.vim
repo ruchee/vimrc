@@ -19,7 +19,7 @@ if has('reltime')
     lockvar! g:syntastic_start
 endif
 
-let g:syntastic_version = '3.4.0-117'
+let g:syntastic_version = '3.5.0-3'
 lockvar g:syntastic_version
 
 " Sanity checks {{{1
@@ -56,12 +56,14 @@ let g:syntastic_defaults = {
         \ 'bash_hack':                1,
         \ 'check_on_open':            0,
         \ 'check_on_wq':              1,
+        \ 'cursor_columns':           1,
         \ 'debug':                    0,
         \ 'echo_current_error':       1,
         \ 'enable_balloons':          1,
         \ 'enable_highlighting':      1,
         \ 'enable_signs':             1,
         \ 'error_symbol':             '>>',
+        \ 'exit_checks':              !(s:running_windows && &shell =~? '\m\<cmd\.exe$'),
         \ 'filetype_map':             {},
         \ 'full_redraws':             !(has('gui_running') || has('gui_macvim')),
         \ 'id_checkers':              1,
@@ -496,7 +498,7 @@ function! SyntasticMake(options) " {{{2
 
     call syntastic#log#debug(g:SyntasticDebugLoclist, 'raw loclist:', errors)
 
-    if has_key(a:options, 'returns') && index(a:options['returns'], v:shell_error) == -1
+    if syntastic#util#var('exit_checks') && has_key(a:options, 'returns') && index(a:options['returns'], v:shell_error) == -1
         throw 'Syntastic: checker error'
     endif
 

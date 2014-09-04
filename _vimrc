@@ -16,10 +16,10 @@ endif
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
     " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
@@ -241,7 +241,7 @@ if g:isWIN
     if g:isGUI
         if g:atCompany
             colorscheme molokai
-            set guifont=Monaco:h14
+            set guifont=Monaco:h12
         else
             colorscheme molokai
             set guifont=Monaco:h11

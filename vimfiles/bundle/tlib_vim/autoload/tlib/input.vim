@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1317
+" @Revision:    1320
 
 
 " :filedoc:
@@ -182,6 +182,11 @@ TLet g:tlib#input#handlers_EditList = [
             \      'Cancel editing by pressing <c-w>c'
             \ ]},
             \ ]
+
+
+" A dictionary KEY => {'agent': AGENT, 'key_name': KEY_NAME} to 
+" customize keyboard shortcuts in the list view.
+TLet g:tlib#input#user_shortcuts = {}
 
 
 " If true, define a popup menu for |tlib#input#List()| and related 

@@ -303,9 +303,22 @@ messages grouped by checker output, set this variable to 0. >
 <
                                               *'syntastic_echo_current_error'*
 Default: 1
-If enabled, syntastic will echo the error associated with the current line to
-the command window. If multiple errors are found, the first will be used. >
+If enabled, syntastic will echo current error to the command window. If
+multiple errors are found on the same line, |syntastic_cursor_columns| is used
+to decide which one is shown. >
     let g:syntastic_echo_current_error = 1
+<
+                                                  *'syntastic_cursor_columns'*
+Default: 1
+This option controls which errors are echoed to the command window if
+|syntastic_echo_current_error| is set and multiple errors are found on the same
+line. When the option is enabled, the first error corresponding to the current
+column is show. Otherwise, the first error on the current line is echoed,
+regardless of the cursor position on the current line.
+
+When dealing with very large lists of errors, disabling this option can speed
+up navigation significantly: >
+    let g:syntastic_cursor_column = 0
 <
                                                     *'syntastic_enable_signs'*
 Default: 1
@@ -513,6 +526,13 @@ Changing it can in principle make screen redraws smoother, but it can also
 cause screen to flicker, or cause ghost characters. Leaving it to the default
 should be safe.
 
+                                                     *'syntastic_exit_checks'*
+Default: 0 when running under "cmd.exe" on Windows, 1 otherwise
+Syntastic attempts to catch abnormal termination conditions from checkers by
+looking at their exit codes. The "cmd.exe" shell on Windows make these checks
+meaningless, by returning 1 to Vim when the checkers exit with non-zero codes.
+The above variable can be used to disable exit code checks in syntastic.
+
                                                            *'syntastic_debug'*
 Default: 0
 Set this to the sum of one or more of the following flags to enable
@@ -609,11 +629,9 @@ have local versions 'b:syntastic_<filetype>_<checker-name>_<option-name>',
 which take precedence over the global ones in the corresponding buffers.
 
 If one of these variables has a non-empty default and you want it to be empty,
-you can set it to a space, e.g.: >
-    let g:syntastic_javascript_jslint_args = " "
+you can set it to an empty string, e.g.: >
+    let g:syntastic_javascript_jslint_args = ""
 <
-(setting it to an empty string doesn't work, for implementation reasons).
-
                                         *'syntastic_<filetype>_<checker>_exe'*
 The 'exe' is normally the same as the 'exec' attribute described above, in
 which case it may be omitted. However, you can use it to add environment

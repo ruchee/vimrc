@@ -1,22 +1,29 @@
-**vim-swift**
-=================
+# Swift.vim
 
-Description
------------------
+Syntax and indent files for [Swift](https://developer.apple.com/swift/)
 
-This project adds [Swift] support to vim. It covers syntax,
-indenting, and more.
+## Examples
 
-[Swift]: https://developer.apple.com/swift/
-
+![](https://raw.githubusercontent.com/Keithbsmiley/swift.vim/master/screenshots/screen.png)
+![](https://raw.githubusercontent.com/Keithbsmiley/swift.vim/master/screenshots/screen2.png)
 
 ## Installation
-### Manually
-1. Put all files under $VIM.
 
-### NeoBundle (Recommended)
-1. Add the following configuration to your `.vimrc`.
+### With [Vundle](https://github.com/gmarik/vundle)
 
-        NeoBundle 'toyamarinyon/vim-swift'
+```
+Plugin 'Keithbsmiley/swift.vim'
+```
 
-2. Install with `:NeoBundleInstall`.
+### With [Pathogen](https://github.com/tpope/vim-pathogen)
+
+```
+cd ~/.vim/bundle
+git clone https://github.com/Keithbsmiley/swift.vim.git
+```
+
+### Development
+
+I plan to continuing improving this plugin as I find more issues with
+it. If you find anything strange with highlighting or indention *please*
+[submit an issue](https://github.com/Keithbsmiley/swift.vim/issues/new).

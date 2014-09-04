@@ -11,7 +11,7 @@ main([File]) ->
             report,
             {i, Dir ++ "/include"}],
     RebarFile = rebar_file(Dir),
-    RebarOpts = rebar_opts(RebarFile),
+    RebarOpts = rebar_opts(Dir ++ "/" ++ RebarFile),
     code:add_patha(filename:absname("ebin")),
     compile:file(File, Defs ++ RebarOpts);
 main(_) ->

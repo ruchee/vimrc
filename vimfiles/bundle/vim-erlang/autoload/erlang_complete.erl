@@ -113,10 +113,11 @@ simplify_return({typevar, [{name, Name}], _}) ->
     Name;
 simplify_return({type, _, [Type]}) ->
     simplify_return(Type);
-simplify_return({abstype, _, [Type]}) ->
+simplify_return({abstype, _, [Type | AbsTypes]}) ->
     {erlangName, Attrs, _} = Type,
     Name = proplists:get_value(name, Attrs),
-    Name ++ "()";
+    Elems = lists:map(fun(T) -> simplify_return(T) end, AbsTypes),
+    Name ++ "(" ++ string:join(Elems, ", ") ++ ")";
 simplify_return({record, _, [Type]}) ->
     simplify_return(Type) ++ "()";
 simplify_return({nonempty_list, _, [Type]}) ->
