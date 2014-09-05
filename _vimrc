@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-09-03 16:09
+" -----------------     Date: 2014-09-05 09:52
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -21,10 +21,8 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
 
-    " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
 else
-    " set path+=D:/Ruchee/MinGW/include
     " set tags+=D:/Ruchee/Files/code/laravel/tags
 endif
 
@@ -749,7 +747,7 @@ func! Compile_Run_Code()
     elseif &filetype == "scheme" || &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
-        exec "!clisp -i %:t"
+        exec "!sbcl --load %:t"
     elseif &filetype == "ocaml"
         if g:isWIN
             exec "!ocamlc -o %:r.exe %:t && %:r.exe"
