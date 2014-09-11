@@ -336,12 +336,21 @@ SETTINGS                                        *vaxe-settings*
                         in the hxml).
 
 *g:vaxe_completion_completion_bufwrite_events*
-                        vaxe uses the compiler to make completions.  This can
+                        Vaxe uses the compiler to make completions.  This can
                         happen frequently, and causes the buffer to be written.
                         This can in turn interfere with other scripts that
                         handle bufwrite events, triggering them excessively.
                         The default is "1" which prevents events that happen
                         as the result of completion activity.
+
+*g:vaxe_completeopt_menuone*
+                        It's nice if Vaxe can use "simple" completions for
+                        haxe, since these can be used for contextual info
+                        messages.  The default here is to add "menuone"
+                        to the list of completeopts.  However, this option
+                        is global, so it may cause a conflict.  If this
+                        causes a problem then set this variable to 0.
+
 
 *g:vaxe_cache_server*                               *cache server settings*
                         Vaxe will enable the usage of a haxe compilation cache
@@ -358,8 +367,8 @@ SETTINGS                                        *vaxe-settings*
 
 *g:vaxe_completion_require_autowrite*
                         This setting requires autowrite to be enabled for
-                        completions. It defaults to 1.  If *autowrite* or
-                        *autowriteall* is not set, then Vaxe will display an
+                        completions. It defaults to 1.  If |autowrite| or
+                        |autowriteall| is not set, then Vaxe will display an
                         error message instead of any completion results.  If
                         set to 0, the completion will be tried normally, and
                         the user will be expected to save each time before

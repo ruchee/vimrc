@@ -64,6 +64,8 @@ let g:vaxe_completion_write_compiler_output
             \= C('g:vaxe_completion_write_compiler_output', 0)
 let g:vaxe_completion_prevent_bufwrite_events
             \= C('g:vaxe_completion_prevent_bufwrite_events',1)
+let g:vaxe_completeopt_menuone
+            \= C('g:vaxe_completeopt_menuone', 1)
 
 " cache server options
 let g:vaxe_cache_server_port      = C('g:vaxe_cache_server_port', 6878)

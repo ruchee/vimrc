@@ -33,9 +33,11 @@ if (!run_once)
 endif
 
 function! VaxeAirlineProject()
-   return exists("g:vaxe_hxml") ? '★ ' : '☆ ' 
+   return exists("g:vaxe_hxml") ? '★ ' : '☆ '
 endfunction
 
 " we need to show single entry completions for haxe, because I use those for
 " info messages on occasion
-setlocal completeopt+=menuone
+if (g:vaxe_completeopt_menuone)
+    setlocal completeopt+=menuone
+endif

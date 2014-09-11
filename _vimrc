@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-09-05 09:52
+" -----------------     Date: 2014-09-11 15:29
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,11 +15,11 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
 else
@@ -227,6 +227,7 @@ au BufRead,BufNewFile *.h        setlocal ft=c
 au BufRead,BufNewFile *.di       setlocal ft=d
 au BufRead,BufNewFile *.cl       setlocal ft=lisp
 au BufRead,BufNewFile *.phpt     setlocal ft=php
+au BufRead,BufNewFile *.inc      setlocal ft=php
 au BufRead,BufNewFile *.sql      setlocal ft=mysql
 au BufRead,BufNewFile *.tpl      setlocal ft=smarty
 au BufRead,BufNewFile *.txt      setlocal ft=txt

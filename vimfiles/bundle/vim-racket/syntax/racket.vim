@@ -56,6 +56,12 @@ syn keyword racketSyntax define* define*-values define*-syntax define*-syntaxes 
 syn keyword racketSyntax package? package-exported-identifiers package-original-identifiers
 syn keyword racketSyntax block #%stratified-body
 
+" 9 Pattern Matching
+syn keyword racketSyntax match match* match/values define/match
+syn keyword racketSyntax match-lambda match-lambda* match-lambda**
+syn keyword racketSyntax match-let match-let* match-let-values match-let*-values
+syn keyword racketSyntax match-letrec match-define match-define-values
+
 " 12.5 Writing
 syn keyword racketSyntax write display displayln print
 syn keyword racketSyntax fprintf printf eprintf format
@@ -404,6 +410,7 @@ syn region racketStruc matchgroup=Delimiter start="#\["rs=s+2 matchgroup=Delimit
 
 " Simple literals
 syn region racketString start=/\%(\\\)\@<!"/ skip=/\\[\\"]/ end=/"/
+syn region racketString start=/#<<\z(.*\)$/ end=/^\z1$/
 
 syn cluster racketNormal  add=racketError,racketConstant,racketStruc,racketString
 syn cluster racketQuotedOrNormal  add=racketString
@@ -455,7 +462,7 @@ syn keyword racketBoolean  #t #f #true #false #T #F
 
 syn match racketError   "\<#\\\k*\>"
 
-syn match racketChar    "\<#\\.\>"
+syn match racketChar    "\<#\\.\w\@!"
 syn match racketChar    "\<#\\space\>"
 syn match racketChar    "\<#\\newline\>"
 syn match racketChar    "\<#\\return\>"
@@ -482,9 +489,9 @@ syn match racketExtSyntax "#:\k\+"
 syn cluster racketNormal  add=racketExtFunc,racketExtSyntax
 
 " syntax quoting, unquoting and quasiquotation
-syn region racketQuoted matchgroup=Delimiter start="['`]" end=![ \t()\[\]";]!me=e-1 contains=ALLBUT,@racketQuotedStuff,@racketQuotedOrNormal
-syn region racketQuoted matchgroup=Delimiter start="['`](" matchgroup=Delimiter end=")" contains=ALLBUT,@racketQuotedStuff,@racketQuotedOrNormal
-syn region racketQuoted matchgroup=Delimiter start="['`]#(" matchgroup=Delimiter end=")" contains=ALLBUT,@racketQuotedStuff,@racketQuotedOrNormal
+syn region racketQuoted matchgroup=Delimiter start="['`]" end=![ \t()\[\]";]!me=e-1 contains=@racketQuotedStuff,@racketQuotedOrNormal
+syn region racketQuoted matchgroup=Delimiter start="['`](" matchgroup=Delimiter end=")" contains=@racketQuotedStuff,@racketQuotedOrNormal
+syn region racketQuoted matchgroup=Delimiter start="['`]\?#(" matchgroup=Delimiter end=")" contains=@racketQuotedStuff,@racketQuotedOrNormal
 
 syn region racketUnquote matchgroup=Delimiter start="\<#,"rs=s+2 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
 syn region racketUnquote matchgroup=Delimiter start="\<#,@"rs=s+3 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
@@ -509,8 +516,8 @@ syn region racketQuoted matchgroup=Delimiter start="#['`]"rs=s+2 end=![ \t()\[\]
 syn region racketQuoted matchgroup=Delimiter start="#['`]("rs=s+3 matchgroup=Delimiter end=")"re=e-1 contains=@racketQuotedStuff,@racketQuotedOrNormal
 
 " Comments
-syn match racketComment /;.*$/
-syn region racketMultilineComment start=/#|/ end=/|#/ contains=racketMultilineComment
+syn match racketComment /;.*$/ contains=@Spell
+syn region racketMultilineComment start=/#|/ end=/|#/ contains=racketMultilineComment,@Spell
 
 syn cluster racketNormal  add=racketQuoted,racketComment,racketMultilineComment
 syn cluster racketQuotedOrNormal  add=racketComment,racketMultilineComment

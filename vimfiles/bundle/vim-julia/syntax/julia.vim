@@ -19,7 +19,7 @@ syntax cluster juliaTypesItems		contains=juliaBuiltinTypeBasic,juliaBuiltinTypeN
 syntax cluster juliaConstItems		contains=juliaConstNum,juliaConstBool,juliaConstEnv,juliaConstIO,juliaConstMMap,juliaConstC,juliaConstGeneric
 syntax cluster juliaMacroItems		contains=juliaMacro,juliaDollarVar,juliaPrintfMacro
 syntax cluster juliaNumberItems		contains=juliaNumbers
-syntax cluster juliaStringItems		contains=juliaChar,juliaString,juliabString,juliavString,juliarString,juliaipString,juliaMIMEString,juliatriString,juliaShellString,juliaRegEx
+syntax cluster juliaStringItems		contains=juliaChar,juliaString,juliabString,juliavString,juliaipString,juliaMIMEString,juliaTriString,juliaShellString,juliaRegEx
 syntax cluster juliaPrintfItems		contains=juliaPrintfParBlock,juliaPrintfString
 syntax cluster juliaOperatorItems	contains=juliaArithOperator,juliaBitOperator,juliaRedirOperator,juliaBoolOperator,juliaCompOperator,juliaAssignOperator,juliaRangeOperator,juliaTypeOperator,juliaFuncOperator,juliaCTransOperator,juliaVarargOperator,juliaTernaryRegion
 syntax cluster juliaQuotedItems		contains=juliaQuotedEnd,juliaQuotedBlockKeyword,juliaQuotedQuestion
@@ -54,7 +54,7 @@ syntax region  juliaTypeBlock		matchgroup=juliaBlKeyword start="\<type\>" end="\
 syntax region  juliaImmutableBlock	matchgroup=juliaBlKeyword start="\<immutable\>" end="\<end\>" contains=@juliaExpressions fold
 syntax region  juliaLetBlock		matchgroup=juliaBlKeyword start="\<let\>" end="\<end\>" contains=@juliaExpressions fold
 syntax region  juliaDoBlock		matchgroup=juliaBlKeyword start="\<do\>" end="\<end\>" contains=@juliaExpressions fold
-syntax region  juliaModuleBlock		matchgroup=juliaBlKeyword start="\<\%(bare\)\?module\>" end="\<end\>" contains=@juliaExpressions fold
+syntax region  juliaModuleBlock		matchgroup=juliaBlKeyword start="\%(\.\s*\)\@<!\<\%(bare\)\?module\>" end="\<end\>" contains=@juliaExpressions fold
 syntax region  juliaExceptionBlock	matchgroup=juliaException start="\<try\>" end="\<end\>" contains=@juliaExpressions,juliaCatchBlock,juliaFinallyBlock fold
 syntax region  juliaCatchBlock		matchgroup=juliaException transparent contained start="\<catch\>" end="\<end\>"me=s-1 contains=@juliaExpressions,juliaFinallyBlock
 syntax region  juliaFinallyBlock	matchgroup=juliaException transparent contained start="\<finally\>" end="\<end\>"me=s-1 contains=@juliaExpressions
@@ -65,15 +65,15 @@ syntax match   juliaComprehensionFor    display contained "\<for\>"
 syntax match   juliaBuiltinTypeBasic	display "\<\%(Tuple\|NTuple\|Symbol\|\%(Intrinsic\)\?Function\|Union\|Type\%(Name\|Constructor\|Var\)\?\|Any\|ANY\|Vararg\|Top\|None\|Nothing\|Ptr\|Void\|Exception\|Module\|Box\|Expr\|LambdaStaticData\|\%(Data\|Union\)Type\|\%(LineNumber\|Label\|Goto\|Quote\|Top\|Symbol\|Getfield\)Node\|WeakRef\|Associative\|Method\(Table\)\?\)\>"
 syntax match   juliaBuiltinTypeNum	display "\<\%(Uint\%(\|8\|16\|32\|64\|128\)\|Int\%(eger\|8\|16\|32\|64\|128\)\?\|Float\%(ingPoint\|16\|32\|64\)\|Complex\%(32\|64\|128\)\?\|Bool\|Char\|Number\|Signed\|Unsigned\|Real\|Rational\|BigInt\|BigFloat\|MathConst\)\>"
 syntax match   juliaBuiltinTypeC	display "\<\%(FileOffset\|C\%(u\?\%(char\|short\|int\|long\(long\)\?\)\|float\|double\|\%(ptrdiff\|s\?size\|wchar\|off\)_t\)\)\>"
-syntax match   juliaBuiltinTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|Memory\|IO\|\%(Stack\)\?Overflow\|EOF\|Undef\%(Ref\|Var\)\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\|UV\)Error\|\%(Interrupt\|Error\|ProcessExited\)Exception\|DimensionMismatch\)\>"
-syntax match   juliaBuiltinTypeIter	display "\<\%(Each\%(Line\|Search\)\|Enumerate\|Zip\|Filter\)\>"
-syntax match   juliaBuiltinTypeString	display "\<\%(DirectIndex\|ASCII\|UTF\%(8\|16\|32\)\|Byte\|Sub\|Generic\|Rep\|Rev\|Rope\|Transformed\)\?String\>"
-syntax match   juliaBuiltinTypeArray	display "\<\%(D\?Array\|\%(Abstract\%(Sparse\)\?\|Dense\|Strided\)\?\%(Array\|Matrix\|Vec\%(tor\|OrMat\)\)\|Sparse\%(MatrixCSC\|Accumulator\)\|Sub\%(Array\|\%(Or\)\?DArray\)\|\%(Bit\|Shared\)\%(Array\|Vector\|Matrix\)\|\%\(D\|Bid\|\%(Sym\)\?Trid\)iagonal\|Woodbury\|Triangular\|Hermitian\|Symmetric\|UniformScaling\)\>"
+syntax match   juliaBuiltinTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|Memory\|\%(Stack\)\?Overflow\|EOF\|Undef\%(Ref\|Var\)\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\)Error\|\%(Interrupt\|Error\|ProcessExited\)Exception\|DimensionMismatch\)\>"
+syntax match   juliaBuiltinTypeIter	display "\<\%(EachLine\|Enumerate\|Zip\|Filter\)\>"
+syntax match   juliaBuiltinTypeString	display "\<\%(DirectIndex\|ASCII\|UTF\%(8\|16\|32\)\|Byte\|Sub\|Rep\|Rev\|Rope\|W\)\?String\>"
+syntax match   juliaBuiltinTypeArray	display "\<\%(D\?Array\|\%(Abstract\|Dense\|Strided\)\?\%(Array\|Matrix\|Vec\%(tor\|OrMat\)\)\|SparseMatrixCSC\|Sub\%(Array\|\%(Or\)\?DArray\)\|\%(AbstractSparse\|Bit\|Shared\)\%(Array\|Vector\|Matrix\)\|\%\(D\|Bid\|\%(Sym\)\?Trid\)iagonal\|Woodbury\|Triangular\|Hermitian\|Symmetric\|UniformScaling\)\>"
 syntax match   juliaBuiltinTypeDict	display "\<\%(WeakKey\|ObjectId\)\?Dict\>"
 syntax match   juliaBuiltinTypeSet	display "\<\%(Int\)\?Set\>"
 syntax match   juliaBuiltinTypeIO	display "\<\%(IO\%(Stream\|Buffer\)\?\|CFILE\|Base64Pipe\|RawFD\|StatStruct\|DevNull\|FileMonitor\|PollingFileWatcher\|Timer\|UdpSocket\)\>"
 syntax match   juliaBuiltinTypeProcess	display "\<\%(ProcessGroup\|PipeBuffer\|Cmd\)\>"
-syntax match   juliaBuiltinTypeRange	display "\<\%(Dims\|Range\%(Index\)\?\|\(Uniform\|Ordinal\|Step\|Unit\)Range\|Colon\)\>"
+syntax match   juliaBuiltinTypeRange	display "\<\%(Dims\|Range\%(Index\)\?\|\(Ordinal\|Step\|Unit\|Float\)Range\|Colon\)\>"
 syntax match   juliaBuiltinTypeRegex	display "\<Regex\%(Match\)\?\>"
 syntax match   juliaBuiltinTypeFact	display "\<Factorization\>"
 syntax match   juliaBuiltinTypeSort	display "\<\%(Insertion\|Quick\|Merge\)Sort\>"
@@ -117,8 +117,8 @@ syntax match   juliaFloat		display contained "0x\x\%(_\?\x\)*\%\(\.\%\(\x\%(_\?\
 
 syntax match   juliaComplexUnit		display	contained "\<im\>"
 
-syntax match   juliaArithOperator	"\%(//\|\.\?\%(+\|-\|//\|%\|\*\|/\|\\\|\^\|[÷⋅⊛⊖⊗⊘⊙⊚⊛⫽]\)\)"
-syntax match   juliaSetOperator		"[∪∩∈∉∋∌⊆⊈]"
+syntax match   juliaArithOperator	"\%(//\|√\|∛\|\.\?\%(//\|\\\|[-+*%/^÷⋅×⊛⊖⊗⊘⊙⊚⊛⫽]\)\)"
+syntax match   juliaSetOperator		"[∪∩∈∉∋∌⊆⊈⊊]"
 syntax match   juliaCompOperator	"\.\?[<>]"
 syntax match   juliaBitOperator		"\%(<<\|>>>\|>>\|&\||\|\~\|\$\)"
 syntax match   juliaRedirOperator	"\%(|>\|<|\)"
@@ -129,7 +129,6 @@ syntax match   juliaRangeOperator	":"
 syntax match   juliaTypeOperator	"\%(<:\|::\)"
 syntax match   juliaFuncOperator	"->"
 syntax match   juliaVarargOperator	"\.\{3\}"
-syntax match   juliaCTransOperator	"\.\?'"
 syntax region  juliaTernaryRegion	matchgroup=juliaTernaryOperator start="?" skip="::" end=":" contains=@juliaExpressions,juliaErrorSemicol
 
 " TODO: this is very greedy. Improve?
@@ -141,10 +140,11 @@ syntax match   juliaChar		display "'\\x\x\{2\}'" contains=juliaHexEscapeChar
 syntax match   juliaChar		display "'\\u\x\{1,4\}'" contains=juliaUniCharSmall
 syntax match   juliaChar		display "'\\U\x\{1,8\}'" contains=juliaUniCharLarge
 
+syntax match   juliaCTransOperator	"[])}[:alnum:]_]\@<=\.\?'"
+
 syntax region  juliaString		matchgroup=juliaStringDelim start=+"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaStringVars,@juliaSpecialChars
 syntax region  juliabString		matchgroup=juliaStringDelim start=+\<b"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars
 syntax region  juliavString		matchgroup=juliaStringDelim start=+\<v"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars
-syntax region  juliarString		matchgroup=juliaStringDelim start=+\<r"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars
 syntax region  juliaipString		matchgroup=juliaStringDelim start=+\<ip"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars
 syntax region  juliaMIMEString		matchgroup=juliaStringDelim start=+\<MIME"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars
 
@@ -164,7 +164,7 @@ syntax region  juliaStringVarsCurBra	contained matchgroup=juliaStringVarDelim st
 syntax match   juliaStringVarsPla	contained "$[_[:alpha:]][_[:alnum:]]*"
 
 " TODO improve RegEx
-syntax region  juliaRegEx		matchgroup=juliaStringDelim start=+r"+ skip=+\%(\\\\\)*\\"+ end=+"[imsx]*+
+syntax region  juliaRegEx		matchgroup=juliaStringDelim start=+\<r"+ skip=+\%(\\\\\)*\\"+ end=+"[imsx]*+
 
 syntax cluster juliaSpecialChars	contains=juliaSpecialChar,juliaOctalEscapeChar,juliaHexEscapeChar,juliaUniCharSmall,juliaUniCharLarge
 syntax match   juliaSpecialChar		contained "\\."
@@ -180,7 +180,7 @@ syntax match   juliaPrintfFmt		display contained "%%"
 syntax match   juliaPrintfFmt		display contained "\\%\%(\d\+\$\)\=[-+' #0]*\%(\d*\|\*\|\*\d\+\$\)\%(\.\%(\d*\|\*\|\*\d\+\$\)\)\=\%([hlLjqzt]\|ll\|hh\)\=[aAbdiuoxXDOUfFeEgGcCsSpn]"hs=s+1
 syntax match   juliaPrintfFmt		display contained "\\%%"hs=s+1
 
-syntax match   juliaQuotedBlockKeyword	display ":\s*\%(if\|elseif\|else\|while\|for\|begin\|function\|macro\|quote\|type\|immutable\|try\|catch\|let\|\(%bare\)\?module\|do\)\>"he=s+1 contains=juliaInQuote
+syntax match   juliaQuotedBlockKeyword	display ":\s*\%(if\|elseif\|else\|while\|for\|begin\|function\|macro\|quote\|type\|immutable\|try\|catch\|let\|\%(bare\)\?module\|do\)\>"he=s+1 contains=juliaInQuote
 syntax match   juliaQuotedQuestion      display ":\s*\%(?\|(\s*?\s*)\)"he=s+1 contains=juliaInQuote
 syntax match   juliaInQuote             display contained ":\zs\s*[^])}[:space:],;]\+"
 

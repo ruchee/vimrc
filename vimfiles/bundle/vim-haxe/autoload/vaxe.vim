@@ -256,7 +256,7 @@ function! vaxe#DefaultHxml(...)
             if g:vaxe_prefer_first_in_directory
                 let base_build = base_builds[0]
             else
-                let base_build = vaxe#util#InputList(base_builds, "Select build file")
+                let base_build = vaxe#util#InputList("Select build file", base_builds)
             endif
             if base_build !~ '^\([a-zA-Z]:\)\=[/\\]'
                 let base_build = getcwd() . '/' . base_build
