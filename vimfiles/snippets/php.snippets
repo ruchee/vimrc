@@ -20,9 +20,9 @@ snippet doc     跨行文本
 # 命令空间、别名
 snippet na      声明命名空间
 	namespace ${1};${0}
-snippet u       引用命名空间
+snippet u       引用命名空间或Traits
 	use ${1};${0}
-snippet uas     引用命名空间并定义别名
+snippet us      引用命名空间并定义别名
 	use ${1} as ${2};${0}
 # 代码重用
 snippet rq      require包含
@@ -311,6 +311,8 @@ snippet ds      平台无关目录分隔符
 	DIRECTORY_SEPARATOR${0}
 snippet ps      平台无关路径分隔符
 	PATH_SEPARATOR${0}
+snippet pv      PHP解释器版本号
+	PHP_VERSION${0}
 #### 常用函数 ####
 snippet ra      数组生成器
 	range(${1}, ${0})
