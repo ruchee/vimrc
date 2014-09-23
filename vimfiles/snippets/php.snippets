@@ -355,9 +355,11 @@ snippet spl_aur 注册自动载入函数
 	spl_autoload_register('${0}');
 #### 模板标签 ####
 snippet pe      输出标签
-	<?php echo ${0}; ?>
+	<?php echo ${0} ?>
 snippet pp      输出标签 [PHP 5.4起默认可用]
 	<?= ${0} ?>
+snippet pin     include标签
+	<?php include('${1}') ?>${0}
 snippet pif     if标签
 	<?php if (${1}): ?>${0}<?php endif ?>
 snippet pelif   elseif标签
@@ -373,9 +375,13 @@ snippet psw     switch标签
 snippet pcs     case标签
 	<?php case ${1}: ?>${0}
 snippet pvd     打印变量详情
-	<?php var_dump(${0}); ?>
+	<?php var_dump(${0}) ?>
 snippet pvde    打印变量详情并终止执行
-	<?php var_dump(${0}); exit(); ?>
+	<?php var_dump(${0}); exit() ?>
+snippet ppr     打印变量信息
+	<?php print_r(${0}) ?>
+snippet ppre    打印变量信息并终止执行
+	<?php print_r(${0}); exit() ?>
 # 单个关键字
 snippet ab      抽象类
 	abstract ${0}
