@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-09-23 14:50
+" -----------------     Date: 2014-09-25 16:06
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -87,6 +87,7 @@ endif
 " ---------- 补全命令 ----------
 "
 " Ctrl + P                   --单词补全               [插入模式]
+" Alt + P                    --omnicompletion补全     [插入模式]
 " Tab键                      --语法结构补全           [插入模式][snipMate插件]
 " Ctrl+Y+,                   --HTML标签补全           [插入模式][emmet插件]
 
@@ -589,6 +590,9 @@ imap <m-k> <Up>
 
 " Alt  + L            光标右移一格
 imap <m-l> <Right>
+
+" Alt + P             omnicompletion补全
+imap <m-p> <c-x><c-o>
 
 " \c                  复制至公共剪贴板
 vmap <leader>c "+y

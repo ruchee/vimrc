@@ -86,17 +86,17 @@ snippet ee      紧凑型枚举
 snippet tpd     类型定义
 	typedef ${0}
 snippet tps     定义结构体类型
-	typedef struct ${1} {
-	    ${2}
-	} ${0:str_name};
+	typedef struct ${1:} {
+	    ${0}
+	} $1;
 snippet tpu     定义共用体类型
-	typedef union ${1} {
-	    ${2}
-	} ${0:uni_name};
+	typedef union ${1:} {
+	    ${0}
+	} $1;
 snippet tpe     定义枚举类型
-	typedef enum ${1} {
-	    ${2}
-	} ${0:enu_name};
+	typedef enum ${1:} {
+	    ${0}
+	} $1;
 # 流程控制
 snippet if      if
 	if (${1}) {
