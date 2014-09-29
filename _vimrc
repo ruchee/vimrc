@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-09-25 16:06
+" -----------------     Date: 2014-09-29 16:41
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,7 +15,7 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
@@ -718,11 +718,7 @@ func! Compile_Run_Code()
             exec "!dmd -wi %:t && ./%:r"
         endif
     elseif &filetype == "go"
-        if g:isWIN
-            exec "!go build %:t && %:r.exe"
-        else
-            exec "!go build %:t && ./%:r"
-        endif
+        exec "!go run %:t"
     elseif &filetype == "rust"
         if g:isWIN
             exec "!rustc %:t && %:r.exe"
