@@ -1,6 +1,6 @@
 # vim-blade #
 
-Vim syntax highlighting for Blade templates (Laravel 4).
+Vim syntax highlighting for Blade templates (Laravel 4+).
 
 Installation
 ------------
@@ -11,30 +11,12 @@ Using pathogen
     cd ~/.vim/bundle
     git clone git://github.com/xsbeats/vim-blade.git
 
-Without vim-blade | With vim-blade
-------------------|---------------
-![before](screenshots/without.png) | ![after](screenshots/with.png)
+Using vundle
+[Vundle.vim](https://github.com/gmarik/Vundle.vim).
 
-Development
------------
-
-### Testing
-
-First install the [synchk](http://www.drchip.org/astronaut/vim/#SYNCHK) plugin
-by Dr Chip, which requires his
-[cecutil](http://www.drchip.org/astronaut/vim/#CECUTIL) plugin. They are
-available [packaged together for Pathogen](https://github.com/tremby/synchk).
-
-To run all tests, run the `test.sh` script.
-
-To test just the currently open and focused test file, run `:SynChk`. If there
-is no obvious message run `:messages`.
-
-When expected output changes (new test, incorrect test output, change in desired
-behaviour), ensure visually that the highlighting is correct and then, with the
-test input file open and focused, run `:MakeSynChk`. This will create or
-overwrite the expected output file.
+    Plugin 'xsbeats/vim-blade'
 
 Todo
 ----
-- Add blade specific indentation (if, endif, etc)
+
+Indentation (currently nonexistent)

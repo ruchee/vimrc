@@ -19,12 +19,20 @@ if has('reltime')
     lockvar! g:syntastic_start
 endif
 
-let g:syntastic_version = '3.5.0-25'
+let g:syntastic_version = '3.5.0-55'
 lockvar g:syntastic_version
 
 " Sanity checks {{{1
 
-for s:feature in ['autocmd', 'eval', 'modify_fname', 'quickfix', 'reltime', 'user_commands']
+for s:feature in [
+            \ 'autocmd',
+            \ 'eval',
+            \ 'file_in_path',
+            \ 'modify_fname',
+            \ 'quickfix',
+            \ 'reltime',
+            \ 'user_commands'
+        \ ]
     if !has(s:feature)
         call syntastic#log#error("need Vim compiled with feature " . s:feature)
         finish
@@ -128,6 +136,8 @@ let     g:SyntasticDebugAutocommands  = 8
 lockvar g:SyntasticDebugAutocommands
 let     g:SyntasticDebugVariables     = 16
 lockvar g:SyntasticDebugVariables
+let     g:SyntasticDebugCheckers      = 32
+lockvar g:SyntasticDebugCheckers
 
 " }}}1
 
@@ -389,7 +399,7 @@ endfunction " }}}2
 function! s:ToggleMode() " {{{2
     call s:modemap.toggleMode()
     call s:ClearCache()
-    call s:UpdateErrors(1)
+    call s:notifiers.refresh(g:SyntasticLoclist.New([]))
     call s:modemap.echoMode()
 endfunction " }}}2
 
@@ -483,7 +493,15 @@ function! SyntasticMake(options) " {{{2
         execute 'lcd ' . fnameescape(old_cwd)
     endif
 
-    silent! lolder
+    try
+        silent lolder
+    catch /\m^Vim\%((\a\+)\)\=:E380/
+        " E380: At bottom of quickfix stack
+        call setloclist(0, [], 'r')
+    catch /\m^Vim\%((\a\+)\)\=:E776/
+        " E776: No location list
+        " do nothing
+    endtry
 
     " restore options {{{3
     let &errorformat = old_errorformat

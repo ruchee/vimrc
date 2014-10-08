@@ -36,15 +36,16 @@ code or execute their script to find them.
 
 At the time of this writing, syntax checking plugins exist for ActionScript,
 Ada, AppleScript, Arduino, AsciiDoc, ASM, BEMHTML, Bro, Bourne shell, C,
-C++, C#, Cabal, Chef, CoffeeScript, Coco, Coq, CSS, Cucumber, CUDA, D, Dart,
-DocBook, Dust, Elixir, Erlang, eRuby, Fortran, Gentoo metadata, GLSL, Go,
-Haml, Haskell, Haxe, Handlebars, HSS, HTML, Java, JavaScript, JSON, JSX, LESS,
-Lex, Limbo, LISP, LLVM intermediate language, Lua, MATLAB, NASM, Objective-C,
-Objective-C++, OCaml, Perl, Perl POD, PHP, gettext Portable Object, OS X
-and iOS property lists, Puppet, Python, Racket, R, reStructuredText, Ruby,
-SASS/SCSS, Scala, Slim, Tcl, TeX, Texinfo, Twig, TypeScript, Vala, Verilog,
-VHDL, VimL, xHtml, XML, XSLT, YACC, YAML, z80, Zope page templates, and zsh.
-See the [wiki][3] for details about the corresponding supported checkers.
+C++, C#, Cabal, Chef, CoffeeScript, Coco, Coq, CSS, Cucumber, CUDA, D,
+Dart, DocBook, Dust, Elixir, Erlang, eRuby, Fortran, Gentoo metadata, GLSL,
+Go, Haml, Haskell, Haxe, Handlebars, HSS, HTML, Java, JavaScript, JSON,
+JSX, LESS, Lex, Limbo, LISP, LLVM intermediate language, Lua, Markdown,
+MATLAB, NASM, Objective-C, Objective-C++, OCaml, Perl, Perl POD, PHP, gettext
+Portable Object, OS X and iOS property lists, Puppet, Python, Racket, R,
+reStructuredText, RPM spec, Ruby, SASS/SCSS, Scala, Slim, Tcl, TeX, Texinfo,
+Twig, TypeScript, Vala, Verilog, VHDL, VimL, xHtml, XML, XSLT, YACC, YAML,
+z80, Zope page templates, and zsh.  See the [wiki][3] for details about the
+corresponding supported checkers.
 
 Below is a screenshot showing the methods that Syntastic uses to display syntax
 errors.  Note that, in practise, you will only have a subset of these methods
@@ -163,7 +164,8 @@ automatically by syntastic.
 
 <a name="faqloclist"></a>
 
-__Q. I run a checker and the location list is not updated...__
+__Q. I run a checker and the location list is not updated...__  
+__Q. I run`:lopen` or `:lwindow` and the error window is empty...__
 
 A. By default the location list is changed only when you run the `:Errors`
 command, in order to minimise conflicts with other plugins.  If you want the
@@ -262,8 +264,8 @@ See `:help syntastic_quiet_messages` for details.
 
 <a name="faqaggregate"></a>
 
-__Q. How can I display together the errors found by all checkers enabled for
-the current file?__
+__Q. I have enabled multiple checkers for the current filetype.  How can I
+display all of the errors from all of the checkers together?__
 
 A. Set `g:syntastic_aggregate_errors` to 1 in your vimrc:
 ```vim

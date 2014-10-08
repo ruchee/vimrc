@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-06 09:56
+" -----------------     Date: 2014-10-08 14:17
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,7 +15,7 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
@@ -540,7 +540,7 @@ let g:airline_theme = 'badwolf'                " 设置主题
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'jade', 'scss', 'less']
+            \'passive_filetypes': ['html', 'css', 'xhtml', 'go', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'jade', 'scss', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
 " 自定义编译器和编译参数
 let g:syntastic_c_compiler = 'gcc'

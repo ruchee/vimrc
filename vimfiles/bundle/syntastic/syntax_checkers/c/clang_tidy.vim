@@ -21,10 +21,6 @@ endif
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_c_clang_tidy_IsAvailable() dict
-  return executable(self.getExec())
-endfunction
-
 function! SyntaxCheckers_c_clang_tidy_GetLocList() dict
     let makeprg = self.makeprgBuild({
         \ 'post_args':
@@ -40,7 +36,7 @@ function! SyntaxCheckers_c_clang_tidy_GetLocList() dict
         \ '%E%f:%l:%c: fatal error: %m,' .
         \ '%E%f:%l:%c: error: %m,' .
         \ '%W%f:%l:%c: warning: %m,' .
-        \ '%-G%\m%\(LLVM ERROR:%\|No compilation database found%\)%\@!%.%#,' .
+        \ '%-G%\m%\%%(LLVM ERROR:%\|No compilation database found%\)%\@!%.%#,' .
         \ '%E%m'
 
     let loclist = SyntasticMake({
