@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-08 14:17
+" -----------------     Date: 2014-10-09 15:44
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,10 +15,10 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
@@ -735,7 +735,7 @@ func! Compile_Run_Code()
     elseif &filetype == "scheme" || &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
-        exec "!sbcl --load %:t"
+        exec "!clisp -i %:t"
     elseif &filetype == "ocaml"
         if g:isWIN
             exec "!ocamlc -o %:r.exe %:t && %:r.exe"
