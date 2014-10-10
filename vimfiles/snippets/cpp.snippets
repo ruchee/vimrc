@@ -29,7 +29,9 @@ snippet ifndf   防止头文件重复包含
 snippet line    改变文件行号和文件名
 	#line ${1} "${0}"
 # 命名空间、类
-snippet u       引用命名空间
+snippet u       引用
+	using ${1};${0}
+snippet us      引用命名空间
 	using namespace ${1:std};${0}
 snippet na      命名空间
 	namespace ${1:na_name} {
@@ -227,10 +229,14 @@ snippet ex      退出并返回状态码
 	exit(${1});${0}
 snippet un      无符号
 	unsigned ${0}
+snippet au      自动类型声明 [C++11特性]
+	auto ${0}
 snippet st      静态
 	static ${0}
 snippet con     常量声明
 	const ${0}
+snippet cons    常量表达式 [C++11特性]
+	constexpr ${0}
 snippet reg     寄存器变量
 	register ${0}
 snippet vol     声明值有可能不受编译器控制
@@ -258,5 +264,5 @@ snippet l       行结束符
 	endl;${0}
 snippet <       { ... }
 	{ ${0} }
-snippet .       ->
-	->${0}
+snippet .       <>
+	<${1}>${0}

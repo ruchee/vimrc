@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-09 15:44
+" -----------------     Date: 2014-10-10 10:15
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -18,10 +18,13 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
+    " set path+=D:/Ruchee/MinGW/include
+    " set path+=D:/Ruchee/MinGW/include/c++/4.9.1
+    " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
 else
     " set tags+=D:/Ruchee/Files/code/laravel/tags
 endif
@@ -546,7 +549,7 @@ let g:syntastic_mode_map      = {'mode': 'active',
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
 let g:syntastic_c_compiler_options = '-std=c11'
-let g:syntastic_cpp_compiler_options = '-std=c++11'
+let g:syntastic_cpp_compiler_options = '-std=c++14'
 
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
@@ -694,9 +697,9 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == "cpp"
         if g:isWIN
-            exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
+            exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
         else
-            exec "!clang++ -Wall -std=c++11 -o %:r %:t && ./%:r"
+            exec "!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "d"
         if g:isWIN
