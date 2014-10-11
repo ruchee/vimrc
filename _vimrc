@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-10 10:15
+" -----------------     Date: 2014-10-11 09:06
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,12 +14,12 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set path+=D:/Ruchee/MinGW/include
@@ -549,7 +549,11 @@ let g:syntastic_mode_map      = {'mode': 'active',
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
 let g:syntastic_c_compiler_options = '-std=c11'
-let g:syntastic_cpp_compiler_options = '-std=c++14'
+if g:atCompany
+    let g:syntastic_cpp_compiler_options = '-std=c++14'
+else
+    let g:syntastic_cpp_compiler_options = '-std=c++11'
+endif
 
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
@@ -697,7 +701,11 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == "cpp"
         if g:isWIN
-            exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
+            if g:atCompany
+                exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
+            else
+                exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
+            endif
         else
             exec "!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r"
         endif

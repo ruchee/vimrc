@@ -66,6 +66,8 @@ snippet cf      类方法定义
 	${1:void} ${2:f_name} (${3}) ${4} {
 	    ${0}
 	}
+snippet la      匿名函数
+	[${1}](${2})${3} { ${0} }
 # 复合类型
 snippet str     结构体定义
 	struct ${1:str_name} {
@@ -229,8 +231,12 @@ snippet ex      退出并返回状态码
 	exit(${1});${0}
 snippet un      无符号
 	unsigned ${0}
-snippet au      自动类型声明 [C++11特性]
+snippet a       自动类型声明 [C++11特性]
 	auto ${0}
+snippet n       分配内存
+	new ${0}
+snippet d       释放内存
+	delete ${0}
 snippet st      静态
 	static ${0}
 snippet con     常量声明
