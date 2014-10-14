@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-11 09:06
+" -----------------     Date: 2014-10-14 10:45
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,17 +14,14 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.cms.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/sdk.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/pay.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/passport.m.5399.com/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
-    " set path+=D:/Ruchee/MinGW/include
-    " set path+=D:/Ruchee/MinGW/include/c++/4.9.1
-    " set path+=D:/Ruchee/MinGW/x86_64-w64-mingw32/include
 else
     " set tags+=D:/Ruchee/Files/code/laravel/tags
 endif
@@ -548,11 +545,11 @@ let g:syntastic_mode_map      = {'mode': 'active',
 " 自定义编译器和编译参数
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
-let g:syntastic_c_compiler_options = '-std=c11'
+let g:syntastic_c_compiler_options = '-std=c11 -Wall'
 if g:atCompany
-    let g:syntastic_cpp_compiler_options = '-std=c++14'
+    let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
 else
-    let g:syntastic_cpp_compiler_options = '-std=c++11'
+    let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
 endif
 
 
@@ -711,9 +708,9 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == "d"
         if g:isWIN
-            exec "!dmd -wi %:t && %:r.exe"
+            exec "!dmd -wi %:t && del %:r.obj && %:r.exe"
         else
-            exec "!dmd -wi %:t && ./%:r"
+            exec "!dmd -wi %:t && rm %:r.obj && ./%:r"
         endif
     elseif &filetype == "go"
         exec "!go run %:t"
