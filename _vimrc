@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-15 14:15
+" -----------------     Date: 2014-10-15 22:44
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -52,6 +52,8 @@ endif
 " \rm                        --一键去除字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
 "
+" \ww                        --打开Vimwiki主页
+" \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \ff                        --打开ctrlp.vim文件搜索窗口
@@ -183,6 +185,12 @@ endif
 " ]z                         --到当前打开的折叠的末尾处
 " zj                         --向下移动到后一个折叠的开始处
 " zk                         --向上移动到前一个折叠的结束处
+"
+" ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
+"
+" 链接：[[链接地址|链接描述]]
+" 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
+" 代码：{{{class="brush: cpp" 代码}}}
 "
 " ---------- 其他常用内建命令 ------------------------------
 "
@@ -660,6 +668,11 @@ imap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><
 nmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 vmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 
+" \wa                 一键编译所有Vimwiki源文件
+imap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+nmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 
@@ -796,3 +809,35 @@ vmap <leader>R <ESC>:call Compile_Run_Code()<CR>
 imap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 nmap <leader>T :LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
+
+
+" ======= Vimwiki ======= "
+
+let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
+let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
+let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style'
+" 声明可以在wiki里面使用的HTML标签
+
+let blog = {}
+if g:atCompany
+    if g:isWIN
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+    endif
+else
+    if g:isWIN
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+    else
+        let blog.path          = '~/mysite/wiki/'
+        let blog.path_html     = '~/mysite/html/'
+        let blog.template_path = '~/mysite/templates/'
+    endif
+endif
+let blog.template_default = 'site'
+let blog.template_ext     = '.html'
+let blog.auto_export      = 1
+
+let g:vimwiki_list = [blog]
