@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-15 22:44
+" -----------------     Date: 2014-10-16 12:24
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,14 +14,14 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/5399/trunk/shop.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/5399/trunk/passport.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/5399/trunk/cmsv9.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/5399/trunk/shop.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/5399/trunk/passport.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
+    set tags+=D:/Ruchee/Files/code/m5399/hd.m.5399.com/tags
 
-    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
+    " set tags+=D:/Ruchee/Files/code/self/yii/tags
 else
-    " set tags+=D:/Ruchee/Files/code/laravel/tags
+    " set tags+=D:/Ruchee/Files/code/yii/tags
 endif
 
 
@@ -60,8 +60,9 @@ endif
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
-" \ud                        --打开/关闭编辑历史窗口
-" \fe                        --打开/关闭文件编码窗口
+" \ud                        --打开/关闭编辑历史窗口  [Normal模式可用]
+" \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
+" \ce                        --打开配色预览窗口       [Normal模式可用]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -526,7 +527,6 @@ let g:snipMate.scope_aliases['scss']       = 'scss,css'
 let g:snipMate.scope_aliases['less']       = 'less,css'
 let g:snipMate.scope_aliases['xhtml']      = 'html'
 
-
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
@@ -557,7 +557,6 @@ if g:atCompany
 else
     let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
 endif
-
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,angularjs'
@@ -627,6 +626,9 @@ nmap <leader>ud :UndotreeToggle<CR>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
+
+" \ce                 打开配色预览窗口 [ColorSchemeExplorer插件]
+nmap <leader>ce :ColorSchemeExplorer<CR>
 
 " \16                 十六进制格式查看
 nmap <leader>16 <ESC>:%!xxd<ESC>

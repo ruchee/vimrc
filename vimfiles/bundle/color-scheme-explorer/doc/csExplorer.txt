@@ -1,0 +1,64 @@
+*csexplorer.txt*         Color Scheme Explorer        Last Change: 09 Jun 2005
+
+Color Scheme Explorer                     *color-scheme-explorer* *csexplorer*
+                                Version 7.0.1
+
+Plugin for easily exploring (or browsing) available color schemes
+
+|csexplorer-usage|          Usage
+|add-local-help|            How to add this help file to vim's help
+|csexplorer-changelog|      Change Log
+|csexplorer-todo|           Todo
+|csexplorer-credits|        Credits
+
+This plugin is only available if 'compatible' is not set.
+
+{Vi does not have any of this}
+
+==============================================================================
+USAGE                                                       *csexplorer-usage*
+
+To start exploring, use: >
+ :ColorSchemeExplorer
+
+Command to use once exploring:
+
+ <cr> or       Opens the currently select color scheme.
+ <leftmouse>
+ q             Quit exploring.
+ ?             Displays help information.
+
+Typically one would put csexplorer.vim into the .vim/plugin directory
+(vimfiles\plugin for Windows) where it becomes automatically available
+for use. It sets up it's default command :ColorSchemeExplorer.
+
+Once invoked, Color Scheme Explorer display a list of all available color
+schemes. You are then able to move the cursor to the line containing the color
+scheme of choice. Once you have selected the color scheme you would like to
+see, your color scheme will change to reflect that scheme. If you would like
+to see another scheme, simply select a different one.
+
+You can avoid loading this plugin by setting the "loaded_bufexplorer"
+variable: >
+  :let loaded_csExplorer = 1
+
+===============================================================================
+CHANGE LOG                                               *csexplorer-changelog*
+
+7.0.1  - Initial release.
+
+===============================================================================
+TODO                                                          *csexplorer-todo*
+
+None at this time.
+
+===============================================================================
+CREDITS                                                    *csexplorer-credits*
+
+Author: Jeff Lanzarotta <delux256-vim at yahoo dot com>
+
+Credit must go out to Bram Moolenaar and all the Vim developers for
+making the world's best editor (IMHO).
+
+===============================================================================
+vim:tw=78:noet:ts=8:ft=help:norl:
