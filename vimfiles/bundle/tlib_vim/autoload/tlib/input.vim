@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1320
+" @Revision:    1330
 
 
 " :filedoc:
@@ -386,10 +386,13 @@ function! tlib#input#ListW(world, ...) "{{{3
 
                 " TLogVAR world.filter
                 " TLogVAR world.sticky
-                if world.state =~ '\<pick\>'
+                if world.state =~ '\<picked\>'
+                    " TLogVAR world.rv
+                    throw 'picked'
+                elseif world.state =~ '\<pick\>'
                     let world.rv = world.CurrentItem()
                     " TLogVAR world.rv
-                    throw 'pick'
+                    throw 'picked'
                 elseif world.state =~ 'display'
                     if world.state =~ '^display'
                         " let time03 = str2float(reltimestr(reltime()))  " DBG
@@ -684,6 +687,11 @@ function! tlib#input#ListW(world, ...) "{{{3
                     " let world.state = 'continue'
                 endif
 
+            catch /^picked$/
+                call world.ClearAllMarks()
+                call world.MarkCurrent(world.prefidx)
+                let world.state = 'exit'
+
             catch /^pick$/
                 call world.ClearAllMarks()
                 call world.MarkCurrent(world.prefidx)
@@ -691,7 +699,7 @@ function! tlib#input#ListW(world, ...) "{{{3
                 " TLogDBG 'Pick item #'. world.prefidx
 
             finally
-                " TLogDBG 'finally 1'
+                " TLogDBG 'finally 1', world.state
                 if world.state =~ '\<suspend\>'
                     " if !world.allow_suspend
                     "     echom "Cannot be suspended"
@@ -700,10 +708,10 @@ function! tlib#input#ListW(world, ...) "{{{3
                 elseif !empty(world.list) && !empty(world.base)
                     " TLogVAR world.list
                     if empty(world.state)
-                        " TLogVAR world.state
                         let world.rv = world.CurrentItem()
+                        " TLogVAR world.state, world.rv
                     endif
-                    " TLog "postprocess"
+                    " TLogVAR "postprocess"
                     for handler in world.post_handlers
                         let state = get(handler, 'postprocess', '')
                         " TLogVAR handler

@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-16 12:24
+" -----------------     Date: 2014-10-17 15:24
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,8 +17,10 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/5399/trunk/shop.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/passport.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/m5399/hd.m.5399.com/tags
+    " set tags+=D:/Ruchee/Files/code/m5399/hd.m.5399.com/tags
 
+    " set tags+=D:/Ruchee/MinGW/x86_64-w64-mingw32/tags
+    " set tags+=D:/Ruchee/MinGW/include/c++/tags
     " set tags+=D:/Ruchee/Files/code/self/yii/tags
 else
     " set tags+=D:/Ruchee/Files/code/yii/tags
