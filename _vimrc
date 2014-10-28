@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-28 10:29
+" -----------------     Date: 2014-10-28 22:39
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -746,7 +746,7 @@ func! Compile_Run_Code()
             exec "!fsharpc %:t && ./%:r"
         endif
     elseif &filetype == "scheme"
-        exec "!mit-scheme -i %:t"
+        exec "!mit-scheme --load %:t"
     elseif &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
