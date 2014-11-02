@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-10-29 09:48
+" -----------------     Date: 2014-11-02 22:15
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -716,7 +716,7 @@ func! Compile_Run_Code()
         if g:isWIN
             exec "!dmd -wi %:t && del %:r.obj && %:r.exe"
         else
-            exec "!dmd -wi %:t && rm %:r.obj && ./%:r"
+            exec "!gdc -Wall -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "go"
         exec "!go run %:t"
