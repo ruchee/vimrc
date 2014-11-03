@@ -13,7 +13,7 @@ let s:pat = '^' . current_compiler
 
 " Path to LiveScript compiler
 if !exists('livescript_compiler')
-  let livescript_compiler = 'livescript'
+  let livescript_compiler = 'lsc'
 endif
 
 if !exists('livescript_make_options')
