@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-05 09:41
+" -----------------     Date: 2014-11-05 10:58
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -18,11 +18,10 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/5399/trunk/shop.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/passport.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/m5399/hd.m.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/manage.5399.com/new/tags
 
-    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
     set tags+=~/.rvm/gems/ruby-2.1.3/tags
 endif
@@ -194,7 +193,7 @@ endif
 "
 " 链接：[[链接地址|链接描述]]
 " 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
-" 代码：{{{class="brush: cpp" 代码}}}
+" 代码：{{{ 代码 }}}
 "
 " ---------- 其他常用内建命令 ------------------------------
 "
