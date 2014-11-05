@@ -16,9 +16,9 @@
 
 1. 访问 `http://www.vim.org/download.php#pc` 下载最新的 gVim [如无法访问该网站，可上 `http://vim.wendal.net/download.php#pc` 下载]
 2. 安装 gVim 到任意目录，这儿为方便讲解，我假定你安装到了 `D:\Apps\Vim`
-3. 将 `D:\Apps\Vim\vim74` 加入 path 环境变量 [不知何为环境变量者，请 Google]
-4. 删除 Vim 安装目录下的 vimfiles 目录以及 _vimrc 文件 [如果是你自己修改过的配置，请注意备份]
-5. 使用 Git 将本项目拷贝到 Vim 安装目录下，取代已删文件的位置 [命令为 `git clone https://github.com/ruchee/vimrc.git`]（也可以点击本页面的 Download ZIP 按钮下载）
+3. 将 `D:\Apps\Vim\vim74` 加入 path 环境变量 [不知何为环境变量者，请求助于搜索引擎]
+4. 删除 Vim 安装目录下的 vimfiles 目录以及 _vimrc 文件 [如果你自己修改过配置，请注意备份]
+5. 使用 Git 下载本项目，然后将本项目的子目录拷贝到 Vim 安装目录下，取代已删文件的位置 [命令为 `git clone https://github.com/ruchee/vimrc.git`]（也可以点击本页面的 Download ZIP 按钮下载）
 6. 访问 `http://ctags.sourceforge.net` 下载最新的 ctags，将 ctags.exe 复制到 `D:\Apps\Vim\vim74` 目录 [如无法访问该网站，可上 `https://code.google.com/p/unix-cmd-win32/downloads/list` 下载]
 7. 推荐安装 Monaco 字体，因为本配置默认使用该字体，可上 `https://github.com/ruchee/backup/blob/master/download/MONACO.TTF?raw=true` 下载，下载后丢到 `C:\WINDOWS\Fonts` 目录即可
 8. 使用任意文本编辑器打开 _vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
@@ -26,11 +26,11 @@
 
 ---
 
-#### Linux [具体指Ubuntu及其各衍生版，譬如Mint、Xubuntu等]
+#### Linux [具体指 Debian、Ubuntu 及其各衍生版，譬如 LinuxMint、Kubuntu、Xubuntu 等]
 
-1. `sudo apt-get install vim-gnome exuberant-ctags` [其他非 Debian 系的 Linux 请使用其自己的包管理器进行安装]
+1. `sudo apt-get install vim-gtk exuberant-ctags` [其他非 Debian 系的 Linux 请使用其自己的包管理器进行安装]
 2. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件，如果没有则不需要执行删除动作 [使用命令 `rm -rf ~/.vim ~/.vimrc`，请注意备份]
-3. 使用 Git 将本项目的子目录拷贝到个人主目录下，取代已删文件的位置，然后将 vimfiles、_vimrc 改名为 .vim、.vimrc [命令为 `git clone https://github.com/ruchee/vimrc.git`、`mv vimfiles .vim`、`mv _vimrc .vimrc`]（也可以点击本页面的 Download ZIP 按钮下载）
+3. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，取代已删文件的位置，然后将 vimfiles、_vimrc 改名为 .vim、.vimrc [命令为 `git clone https://github.com/ruchee/vimrc.git`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]（也可以点击本页面的 Download ZIP 按钮下载）
 4. 可上 `https://github.com/ruchee/backup/blob/master/download/MONACO.TTF?raw=true` 下载 Monaco 字体，下载后使用命令 `mv MONACO.TTF ~/.fonts` 将其丢到 `~/.fonts` 目录即可
 5. 使用任意文本编辑器打开 .vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
 6. 如此这般就配置好了，尽情享受编码的乐趣吧，使用说明全部集中在 .vimrc 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
@@ -39,7 +39,10 @@
 
 #### Cygwin
 
-1. Cygwin 的使用和 Linux 大同小异，你只需确保安装时选择了 vim、git 等包即可，这儿就不再赘述了
+1. 启动 Cygwin 安装器，选中 vim、git 为 `Install` 状态，然后开始安装，直至安装完成
+2. 打开 Cygwin 终端，用 Git 下载本项目
+3. 余下各步骤与上述 Linux 下的步骤几乎一样，这儿就不再赘述了
+4. 字体安装这一步，Cygwin 源用的是 Windows 中的字体，所以将字体文件放到 `C:\WINDOWS\Fonts` 下即可
 
 ----
 
