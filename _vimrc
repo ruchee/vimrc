@@ -1,11 +1,12 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-04 16:14
+" -----------------     Date: 2014-11-05 09:41
 " -----------------    https://github.com/ruchee/vimrc
 
 
 
-" 判断工作地点（根据指定路径的文件是否存在判断）
+" 判断工作地点，根据指定路径的文件是否存在判断
+" （仅为我个人所用，如无工作场所切换需求，可将本文件所有 atCompany 相关的判断语句全部去掉）
 if filereadable("~/.atCompany") || filereadable("C:/atCompany.txt")
     let g:atCompany = 1
 else
@@ -18,10 +19,10 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/5399/trunk/passport.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/m5399/hd.m.5399.com/tags
-    set tags+=D:/Ruchee/Files/code/5399/trunk/manage.5399.com/new/tags
+    " set tags+=D:/Ruchee/Files/code/5399/trunk/manage.5399.com/new/tags
 
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
     set tags+=~/.rvm/gems/ruby-2.1.3/tags
 endif
