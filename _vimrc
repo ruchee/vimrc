@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-05 10:58
+" -----------------     Date: 2014-11-06 23:12
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -23,7 +23,8 @@ if g:atCompany
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
-    set tags+=~/.rvm/gems/ruby-2.1.3/tags
+    set tags+=~/.rvm/rubies/ruby-2.1.4/tags
+    set tags+=~/.rvm/gems/ruby-2.1.4/tags
 endif
 
 
