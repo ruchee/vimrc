@@ -158,7 +158,7 @@ You should copy this section and create new buffer, paste and write as
   To jump next point that need to edit, type |<C-Y>n| in insert mode.
 >
   * <div id="foo" class="">foo</div>
-    <div id="bar" class="bar"></li>
+    <div id="bar" class="bar"></div>
 <
   If cursor is at '*', |<C-Y>n| move a cursor into attribute value of div
   specified id as 'foo'. And type again |<C-Y>n| move a cursor into inner of
@@ -169,7 +169,7 @@ You should copy this section and create new buffer, paste and write as
   To jump previous point that need to edit, type |<C-Y>N| in insert mode.
 >
   <div id="foo" class="">foo</div>
-  <div id="bar" class="bar"></li> *
+  <div id="bar" class="bar"></div> *
 <
   If cursor is at '*', |<C-Y>N| move a cursor into div specified id as 'bar'.
   And type again |<C-Y>N| move a cursor into attribute value of 'foo'.
@@ -334,7 +334,10 @@ CUSTOMIZE                                                      *emmet-customize*
 >
   let g:user_emmet_leader_key = '<c-y>'
 <
-  Or if you prefer to map for each actions, then you set each variables.
+  Note that a trailing ',' must be entered, so the resultant keymap is
+  '<c-y>,'.
+  
+  If you prefer to map for each actions, then you set each variables.
 
     'user_emmet_expandabbr_key'
     'user_emmet_expandword_key'
@@ -351,24 +354,24 @@ CUSTOMIZE                                                      *emmet-customize*
 
   Or if you want to use <plug> mappings
 
-    EmmetExpandAbbr
-    EmmetExpandWord
-    EmmetBalanceTagInward
-    EmmetBalanceTagOutward
-    EmmetMoveNext
-    EmmetMovePrev
-    EmmetImageSize
-    EmmetToggleComment
-    EmmetSplitJoinTag
-    EmmetRemoveTag
-    EmmetAnchorizeURL
-    EmmetAnchorizeSummary
-    EmmetMergeLines
-    EmmetCodePretty
+    emmet-expand-abbr
+    emmet-expand-word
+    emmet-balance-tag-inward
+    emmet-balance-tag-outward
+    emmet-move-next
+    emmet-move-prev
+    emmet-image-size
+    emmet-toggle-comment
+    emmet-split-join-tag
+    emmet-remove-tag
+    emmet-anchorize-url
+    emmet-anchorize-summary
+    emmet-merge-lines
+    emmet-code-pretty
 
   So you can make the mapping affected only for a filetype you want.
 >
-  autocmd FileType css imap <tab> <plug>(EmmetExpandAbbr)
+  autocmd FileType css imap <tab> <plug>(emmet-expand-abbr)
 <
 2. Indent Size                                               *emmet-indent-size*
 
@@ -417,8 +420,8 @@ CUSTOMIZE                                                      *emmet-customize*
   \  },
   \  'javascript' : {
   \    'snippets' : {
-  \      'jq' : "$(function() {\n\t${cursor}${child}\n});",
-  \      'jq:each' : "$.each(arr, function(index, item)\n\t${child}\n});",
+  \      'jq' : "\\$(function() {\n\t${cursor}${child}\n});",
+  \      'jq:each' : "\\$.each(arr, function(index, item)\n\t${child}\n});",
   \      'fn' : "(function() {\n\t${cursor}\n})();",
   \      'tm' : "setTimeout(function() {\n\t${cursor}\n}, 100);",
   \    },
@@ -447,6 +450,23 @@ CUSTOMIZE                                                      *emmet-customize*
     let g:user_emmet_mode='n'    "only enable normal mode functions, or
     let g:user_emmet_mode='inv'  "enable all functions, which is equal to
     let g:user_emmet_mode='a'    "enable all function in all mode.
+
+6. Adding custom snippets
+
+If you have installed the |webapi|(https://github.com/mattn/webapi-vim) for
+ |emmet| you can also add your own snippets using a custom "snippets.json" file.
+
+Once you have installed the |webapi| add this line to your 'vimrc':
+>
+  let g:user_emmet_settings = webapi#json#decode(
+  \  join(readfile(expand('~/.snippets_custom.json')), "\n"))
+<
+You can change the path to your snippets_custom.json according to your
+preferences.
+
+See http://docs.emmet.io/customization/snippets/
+
+You can find instructions about creating your customized snippets.json file.
 
 ==============================================================================
 LINKS                                                              *emmet-links*

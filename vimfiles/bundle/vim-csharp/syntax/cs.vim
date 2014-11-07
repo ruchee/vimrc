@@ -2,7 +2,6 @@
 " Language:             Microsoft C#
 " Maintainer:           Kian Ryan (kian@orangetentacle.co.uk)
 " Former Maintainer:    Anduin Withers (awithers@anduin.com)
-" Last Change:          2012 Sep 22
 " Filenames:            *.cs
 "
 " REFERENCES:
@@ -66,11 +65,11 @@ syn keyword csNewDecleration            new nextgroup=csClass skipwhite
 syn match csClass contained       /\<[A-Z][a-z]\w\+/ nextgroup=csGeneric
 syn match csIface contained       /\<I[A-Z][a-z]\w\+/ nextgroup=csGeneric
 syn region csGeneric start="<" end=">" contains=csIface,csClass
-syn region csEnclosed start="(" end=")" contains=csConstant,csType,csString, csCharacter, csNumber,csIface,csClass
+syn region csEnclosed start="(" end=")" contains=csConstant,csType,csString, csVerbatimString, csCharacter, csNumber,csIface,csClass
 "syn region csInherits start=":" end="{" contains=csIface,csClass
 
 " Attributes
-syn region csAttributeLine start="^\s*\[" end="\]\s*$" contains=csString, csCharacter, csNumber, csType
+syn region csAttributeLine start="^\s*\[" end="\]\s*$" contains=csString, csVerbatimString, csCharacter, csNumber, csType
 
 
 " Comments

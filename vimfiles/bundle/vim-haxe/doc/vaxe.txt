@@ -101,6 +101,21 @@ Lime Project                                    *vaxe-lime-mode*
                         located in the same directory, but will have an hxml
                         extension.
 
+Flow Project                                    *vaxe-flow-mode*
+                        This mode is used when |vaxe#flow#ProjectFlow| is
+                        called, or if an flow file is detected on startup.  it
+                        will set a g:vaxe_flow variable that will override any
+                        b:vaxe_flow variables set by the default method.  it
+                        also sets a |makeprg| that simply executes the flow
+                        command in the working directory, and redirects errors
+                        to standard out.  Flow mode assumes that you will keep
+                        the same working directory throughout your vim session.
+                        when this mode is active, an hxml file is generated
+                        that contains information used for completions.  it
+                        will be named the same as the selectd flow file, and be
+                        located in the same directory, but will have an hxml
+                        extension.
+
 ==============================================================================
 
 COMPILATION CACHE SERVER SUPPORT                *vaxe-cache-server*
@@ -121,8 +136,8 @@ The server will be killed upon exiting vim.  You can also kill it with
 HAXE COMMANDS                                    *vaxe-commands*
 
 |DefaultHXML|           Call the |vaxe#DefaultHxml| function.  Accepts an
-                        optional single argument that will specify the hxml or
-                        lime project file to use.
+                        optional single argument that will specify the hxml,
+                        lime or flow project file to use.
 
 |ProjectHXML|           Call the |vaxe#ProjectHxml| function. Accepts an
                         optional single argument that will specify the hxml to
@@ -160,6 +175,22 @@ with LimeTarget, one will be chosen from an input list.
 
 ==============================================================================
 
+FLOW COMMANDS                                 *vaxe-flow-commands*
+There's a number of flow-specific commands that closely match the command
+line counterparts.  FlowTarget,Clean all accept an optional target
+argument.  The argument can be tab-completed.  If a target is not specified
+with FlowTarget, one will be chosen from an input list.
+
+|ProjectFlow|            Call the |vaxe#ProjectFlow| function.  Accepts an
+                         optional single argument that will specify the flow to
+                         use
+
+|FlowTarget|             Call the |vaxe#flow#Target| function.
+
+|FlowClean|              Call the |vaxe#flow#Clean| function.
+
+==============================================================================
+
 VAXE COMPLETION SERVER COMMANDS         *vaxe-completion-server-commands*
 These are commands for starting and stopping the completion server.  If you
 wish to set defaults for the completion server, check |cache server settings|.
@@ -191,7 +222,7 @@ FUNCTIONS                                        *vaxe-functions*
                         parents of the working directory. This function is
                         called automatically whenever any hx file is opened.
                         Accepts a single optional argument that will specify
-                        the hxml (or lime project) to use.
+                        the hxml (or lime/flow project) to use.
 
 *vaxe#HaxeComplete*     The |omnifunc| provided for vaxe.
 
@@ -250,6 +281,15 @@ FUNCTIONS                                        *vaxe-functions*
                         for the current target, or the target specified by the
                         (optional) argument.
 
+*vaxe#flow#Target*    Calling this function will select a new flow target to
+                        use for builds and completions.
+
+*vaxe#flow#Targets*   Calling this function will return a list of all flow
+                        targets supported by vaxe.
+
+*vaxe#flow#Clean*     Calling this function will clean the boilerplate code
+                        for the current target, or the target specified by the
+                        (optional) argument.
 
 ==============================================================================
 
@@ -280,6 +320,9 @@ SETTINGS                                        *vaxe-settings*
 *g:vaxe_prefer_lime*    The name of the lime file/glob to search for and use
                         automatically.  The default is "*.lime".
 
+*g:vaxe_prefer_flow*    The name of the flow file/glob to search for and use
+                        automatically.  The default is "*.flow".
+
 *g:vaxe_prefer_openfl*  The name of the openfl file/glob to search for and use
                         automatically.  The default is "project.xml".
                         NOTE: this is a legacy file type that lime can still
@@ -296,12 +339,16 @@ SETTINGS                                        *vaxe-settings*
                         allows you to set a default target for lime to use when
                         compiling.
 
+*g:vaxe_flow_target*    If you commonly work with a single target, this option
+                        allows you to set a default target for flow to use when
+                        compiling.
+
 *g:vaxe_default_parent_search_patterns*
                         This is a list of |glob| patterns that vaxe uses to
-                        determine which hxml (or lime) file to use on startup.
+                        determine which hxml (or lime/flow) file to use on startup.
                         The default is:
                         >
-                        [g:vaxe_prefer_lime, g:vaxe_prefer_hxml, '*.hxml']
+                        [g:vaxe_prefer_lime, g:vaxe_prefer_flow, g:vaxe_prefer_hxml, '*.hxml']
                         <
 
                         Note that vaxe will search recursively through

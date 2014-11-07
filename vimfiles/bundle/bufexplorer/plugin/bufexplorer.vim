@@ -36,7 +36,7 @@
 " Name Of File: bufexplorer.vim
 "  Description: Buffer Explorer Vim Plugin
 "   Maintainer: Jeff Lanzarotta (delux256-vim at yahoo dot com)
-" Last Changed: Thursday, 26 June 2014
+" Last Changed: Monday, 03 November 2014
 "      Version: See g:bufexplorer_version for version number.
 "        Usage: This file should reside in the plugin directory and be
 "               automatically sourced.
@@ -50,9 +50,9 @@
 "               Or you can override the defaults and define your own mapping
 "               in your vimrc file, for example:
 "
-"                   noremap <silent> <F11> :BufExplorer<CR>
-"                   noremap <silent> <m-F11> :BufExplorerHorizontalSplit<CR>
-"                   noremap <silent> <c-F11> :BufExplorerVerticalSplit<CR>
+"                   nnoremap <silent> <F11> :BufExplorer<CR>
+"                   nnoremap <silent> <m-F11> :BufExplorerHorizontalSplit<CR>
+"                   nnoremap <silent> <c-F11> :BufExplorerVerticalSplit<CR>
 "
 "               Or you can use
 "
@@ -72,7 +72,7 @@ endif
 "2}}}
 
 " Version number
-let g:bufexplorer_version = "7.4.2"
+let g:bufexplorer_version = "7.4.6"
 
 " Check for Vim version {{{2
 if v:version < 700
@@ -904,7 +904,7 @@ function! s:Close()
     let listed = filter(copy(s:MRUList), "buflisted(v:val)")
 
     " If we needed to split the main window, close the split one.
-    if s:splitMode != ""
+    if s:splitMode != "" && bufwinnr(s:originBuffer) != -1
         execute "wincmd c"
     endif
 
@@ -1191,7 +1191,7 @@ call s:Set("g:bufExplorerShowDirectories", 1)           " (Dir's are added by co
 call s:Set("g:bufExplorerShowRelativePath", 0)          " Show listings with relative or absolute paths?
 call s:Set("g:bufExplorerShowTabBuffer", 0)             " Show only buffer(s) for this tab?
 call s:Set("g:bufExplorerShowUnlisted", 0)              " Show unlisted buffers?
-call s:Set("g:bufExplorerShowNoName", 0)                " Show "No Name" buffers?
+call s:Set("g:bufExplorerShowNoName", 0)                " Show 'No Name' buffers?
 call s:Set("g:bufExplorerSortBy", "mru")                " Sorting methods are in s:sort_by:
 call s:Set("g:bufExplorerSplitBelow", &splitbelow)      " Should horizontal splits be below or above current window?
 call s:Set("g:bufExplorerSplitOutPathName", 1)          " Split out path and file name?
@@ -1202,15 +1202,15 @@ call s:Set("g:bufExplorerSplitHorzSize", 0)             " Height for a horizonta
 
 " Default key mapping {{{1
 if !hasmapto('BufExplorer') && g:bufExplorerDisableDefaultKeyMapping == 0
-    noremap <script> <silent> <unique> <Leader>be :BufExplorer<CR>
+    nnoremap <script> <silent> <unique> <Leader>be :BufExplorer<CR>
 endif
 
 if !hasmapto('BufExplorerHorizontalSplit') && g:bufExplorerDisableDefaultKeyMapping == 0
-    noremap <script> <silent> <unique> <Leader>bs :BufExplorerHorizontalSplit<CR>
+    nnoremap <script> <silent> <unique> <Leader>bs :BufExplorerHorizontalSplit<CR>
 endif
 
 if !hasmapto('BufExplorerVerticalSplit') && g:bufExplorerDisableDefaultKeyMapping == 0
-    noremap <script> <silent> <unique> <Leader>bv :BufExplorerVerticalSplit<CR>
+    nnoremap <script> <silent> <unique> <Leader>bv :BufExplorerVerticalSplit<CR>
 endif
 
 " vim:ft=vim foldmethod=marker sw=4

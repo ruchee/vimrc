@@ -78,7 +78,7 @@ function! s:godefJump(out, mode)
 		lgetexpr a:out
 
 		" needed for restoring back user setting this is because there are two
-		" modes of switchbuf whic we need based on the split mode
+		" modes of switchbuf which we need based on the split mode
 		let old_switchbuf = &switchbuf
 
 		if a:mode == "tab"
@@ -87,22 +87,17 @@ function! s:godefJump(out, mode)
 			if bufloaded(fileName) == 0
 				tab split 
 			endif
-
 		else
-			let &switchbuf = "useopen"
-
-			if bufloaded(fileName) == 0
-				if a:mode  == "split"
-					split
-				elseif a:mode == "vsplit"
-					vsplit
-				endif
+			if a:mode  == "split"
+				split
+			elseif a:mode == "vsplit"
+				vsplit
 			endif
-
 		endif
 
 		" jump to file now
 		ll 1
+		normal zz
 
 		let &switchbuf = old_switchbuf
 	end

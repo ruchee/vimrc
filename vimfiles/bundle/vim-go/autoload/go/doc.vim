@@ -18,13 +18,15 @@
 "
 "       Flag to indicate whether to enable the commands listed above.
 
-if exists("g:loaded_godoc")
-    finish
-endif
-let g:loaded_godoc = 1
-
 let s:buf_nr = -1
 
+if !exists("g:go_doc_command")
+    let g:go_doc_command = "godoc"
+endif
+
+if !exists("g:go_doc_options")
+    let g:go_doc_options = ""
+endif
 
 " returns the package and exported name. exported name might be empty.
 " ie: fmt and Println
@@ -92,7 +94,7 @@ function! go#doc#Open(mode, ...)
     let pkg = pkgs[0]
     let exported_name = pkgs[1]
 
-    let command = 'godoc ' . pkg
+    let command = g:go_doc_command . ' ' . g:go_doc_options . ' ' . pkg
 
     silent! let content = system(command)
     if v:shell_error || !len(content)
@@ -103,12 +105,18 @@ function! go#doc#Open(mode, ...)
     call s:GodocView(a:mode, content)
 
     " jump to the specified name
-    if search('^\%(const\|var\|type\|\s\+\) ' . pkg . '\s\+=\s')
+
+    if search('^func ' . exported_name . '(')
         silent! normal zt
         return -1
     endif
 
-    if search('^func ' . exported_name . '(')
+    if search('^type ' . exported_name)
+        silent! normal zt
+        return -1
+    endif
+
+    if search('^\%(const\|var\|type\|\s\+\) ' . pkg . '\s\+=\s')
         silent! normal zt
         return -1
     endif

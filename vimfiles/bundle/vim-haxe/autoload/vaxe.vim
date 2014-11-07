@@ -14,6 +14,8 @@ endfunction
 function! vaxe#CurrentTarget()
    if exists("g:vaxe_lime_target")
       return "g:vaxe_lime_target"
+   elseif exists("g:vaxe_flow_target")
+      return "g:vaxe_flow_target"
    else
       return ''
    endif
@@ -222,6 +224,8 @@ endfunction
 function! vaxe#AutomaticHxml()
     if exists ("g:vaxe_lime")
         call vaxe#lime#ProjectLime(g:vaxe_lime)
+    elseif exists ("g:vaxe_flow")
+        call vaxe#flow#ProjectFlow(g:vaxe_flow)
     elseif exists('g:vaxe_hxml')
         call vaxe#ProjectHxml(g:vaxe_hxml)
     else
@@ -238,7 +242,7 @@ function! vaxe#DefaultHxml(...)
         unlet b:vaxe_hxml
     endif
 
-    "First check if an hxml/lime was passed explicitly
+    "First check if an hxml/lime/flow was passed explicitly
     if a:0 > 0 && a:1 != ''
         if match(a:1,'\.hxml$')
             let b:vaxe_hxml = a:1
@@ -246,8 +250,10 @@ function! vaxe#DefaultHxml(...)
             let g:vaxe_lime = a:1
         elseif match(a:1,'\.lime$' )
             let g:vaxe_lime = a:1
+        elseif match(a:1,'\.flow$' )
+            let g:vaxe_flow = a:1
         endif
-    else " check if there's a lime in the parent roots...
+    else " check if there's a lime/flow in the parent roots...
         let base_build = vaxe#util#ParentSearch(
                     \ g:vaxe_default_parent_search_patterns
                     \ , fnamemodify(expand("%"),":p:h"))
@@ -268,6 +274,9 @@ function! vaxe#DefaultHxml(...)
             elseif base_build =~ '\.xml'
                 let b:vaxe_lime = base_build
                 call vaxe#lime#BuildLimeHxml(b:vaxe_lime)
+            elseif base_build =~ '\.flow'
+                let b:vaxe_flow = base_build
+                call vaxe#flow#BuildFlowHxml(b:vaxe_flow)
             else
                 let b:vaxe_hxml = base_build
             endif
@@ -331,6 +340,9 @@ function! vaxe#SetCompiler()
         endif
         let build_command = "cd " . escaped_wd . " && "
                     \."lime ".build_verb." ". g:vaxe_lime_target . " 2>&1"
+    elseif exists("g:vaxe_flow") || exists("b:vaxe_flow")
+        let build_command = "cd " . escaped_wd . " && "
+                    \."haxelib run flow build " . g:vaxe_flow_target . " 2>&1"
     else
         let vaxe_hxml = vaxe#CurrentBuild()
         let escaped_hxml = fnameescape(vaxe_hxml)

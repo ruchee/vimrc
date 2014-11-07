@@ -33,9 +33,9 @@ Improved PHP omni-completion. Based on the default phpcomplete.vim.
  1. Install and configure the [Vundle](https://github.com/gmarik/vundle) plugin manager, [follow the instructions here](https://github.com/gmarik/vundle#quick-start)
  2. Add the following line to your `.vimrc`:
 
-         Bundle 'shawncplus/phpcomplete.vim'
+         Plugin 'shawncplus/phpcomplete.vim'
  3. Source your `.vimrc` with `:so %` or otherwise reload your vim
- 4. Run the `:BundleInstall` commmand
+ 4. Run the `:PluginInstall` commmand
 
 ## ctags
 In order to support some php features introduced in PHP 5.3 you will have to use
@@ -92,17 +92,19 @@ Defines the mappings for the enhanced jump-to-definition.
 
  - **jump\_to\_def**: Jumps to the definition in the current buffer
  - **jump\_to\_def\_split**: Jumps to the definition in a new split buffer
+ - **jump\_to\_def\_vsplit**: Jumps to the definition in a new vertical split buffer
 
 You change any of them like this in your `vimrc`:
 
     let g:phpcomplete_mappings = {
       \ 'jump_to_def': ',g',
       \ }
-The keys you don't specify will be mapped the defaults. The defaults are:
+The keys you don't specify will be mapped to the defaults:
 
     let g:phpcomplete_mappings = {
        \ 'jump_to_def': '<C-]>',
        \ 'jump_to_def_split': '<C-W><C-]>',
+       \ 'jump_to_def_vsplit': '<C-W><C-\>',
        \}
 
 **let g:phpcomplete\_add\_function\_extensions = [...]**<br>

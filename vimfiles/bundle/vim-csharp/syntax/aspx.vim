@@ -32,6 +32,9 @@ syn cluster htmlPreProc add=aspnetServerScript,aspnetSpecialTag,aspDataBindRegio
 " Handles <%# %> tags within a string
 syn match aspnetDataBindInString /".*<%#.*%>.*"/
 
+" Handles <%-- --%> tags within a comment
+syn region aspnetComment keepend containedin=aspnetSpecialTag start=/<%--/ end=/--%>/
+
 " ASP.NET Tags
 " EXAMPLE:
 " <%@ Page Langauge="C#" %>
@@ -93,6 +96,7 @@ hi def link aspnetServerControl         PreProc
 hi def link aspnetServerControlName     PreProc
 hi def link aspnetServerControlPunct    Delimiter
 hi def link aspnetServerControlArg      Type
+hi def link aspnetComment               Comment
 
 let b:current_syntax = "aspnet"
 

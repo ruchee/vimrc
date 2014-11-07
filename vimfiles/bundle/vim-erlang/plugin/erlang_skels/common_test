@@ -1,6 +1,6 @@
 -module($MODULENAME).
 
-%% API
+%% Common Test callbacks
 -export([all/0,
          suite/0,
          groups/0,

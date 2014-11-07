@@ -1,0 +1,77 @@
+# Additional CSharp Snippets for Testing
+
+# xunit tests
+snippet xfact
+	[Fact]
+	public void ${1}()
+	{
+		${0}
+	}
+# xunit attributes
+snippet xtrait
+	[Trait("${0}", "true")]
+# xunit assertions
+snippet xequal
+	Assert.Equal(${1}, ${0});
+snippet xequal!
+	Assert.NotEqual(${1}, ${0});
+snippet xsame
+	Assert.Same(${1}, ${0});
+snippet xsame!
+	Assert.NotSame(${1}, ${0});
+snippet xcontains
+	Assert.Contains(${1}, ${0});
+snippet xcontains!
+	Assert.DoesNotContain(${1}, ${0});
+snippet xthrow
+	Assert.Throws<${1}>(() => ${0});
+snippet xthrow!
+	Assert.DoesNotThrow(() => ${0});
+snippet xrange
+	Assert.InRange(${1}, ${2}, ${0});
+snippet xrange!
+	Assert.NotInRange(${1}, ${2}, ${0});
+snippet xfrom
+	Assert.IsAssignableFrom<${1}>(${0});
+snippet xtype
+	Assert.IsType<${1}>(${0});
+snippet xtype!
+	Assert.IsNotType<${1}>(${0});
+snippet xempty
+	Assert.Empty(${0});
+snippet xempty!
+	Assert.NotEmpty(${0});
+snippet xnull
+	Assert.Null(${0});
+snippet xnull!
+	Assert.NotNull(${0});
+snippet xtrue
+	Assert.True(${0});
+snippet xfalse
+	Assert.False(${0});
+snippet xtrue!
+	Assert.False(${0});
+
+# common Moq setups
+snippet moq New Mock Object
+	var ${1:mock} = new Mock<${0}>;
+snippet moq New Mock Object With Setup
+	var ${1:mock} = new Mock<${2}>;
+	$1.Setup(${3:x} => $3.${0});
+snippet moq New Mock Object With Setup and Return
+	var ${1:mock} = new Mock<${2}>;
+	$1.Setup(${3:x} => $3.${4})
+		  .Returns(${0});
+snippet moq New Mock Object With Setup and Callback
+	var ${1:mock} = new Mock<${2}>;
+	$1.Setup(${3:x} => $3.${4})
+		  .Callback((${5}) => ${0});
+snippet moq New Mock Object With Setup, Callback, and Return
+	var ${1:mock} = new Mock<${2}>;
+	$1.Setup(${3:x} => $3.${4})
+		  .Callback((${5}) => ${6})
+		  .Returns(${0});
+
+#Moq It.ItAny
+snippet it It.IsAny
+	It.IsAny<${0}>()

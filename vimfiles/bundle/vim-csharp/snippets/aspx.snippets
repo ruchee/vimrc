@@ -1,0 +1,364 @@
+# .aspx,.ascx,.master files
+
+# Includes html.snippets
+
+# Webforms *****************************
+
+# Arbitrary Blocks and Head
+
+snippet master
+	<%@ Master Language="${1:C#}" Inherits="${0:System.Web.Mvc.ViewMasterPage}" %>
+snippet vp
+	<%@ Page Title="${1:Page Title}" Language="${2:C#}" Inherits="${0:System.Web.Mvc.ViewPage}" %>
+snippet vp_
+	<%@ Page Title="${1:Page Title}" Language="${2:C#}" MasterPageFile="${3:~/Views/Shared/Site.Master}" Inherits="${0:System.Web.Mvc.ViewPage}" %>
+snippet vpm
+	<%@ Page Title="${1:Page Title}" Language="${2:C#}" Inherits="System.Web.Mvc.ViewPage<${0}>" %>
+snippet vpm_
+	<%@ Page Title="${1:Page Title}" Language="${2:C#}" MasterPageFile="${3:~/Views/Shared/Site.Master}" Inherits="System.Web.Mvc.ViewPage<${0}>" %>
+snippet vc
+	<%@ Control Language="${1:C#}" Inherits="${0:System.Web.Mvc.ViewUserControl}" %>
+snippet vcm
+	<%@ Control Language="${1:C#}" Inherits="System.Web.Mvc.ViewUserControl<${0}>" %>
+snippet import
+	<%@ Import Namespace="${0}" %>
+
+# Common expansions
+snippet %
+	<% ${0} %>
+snippet =
+	<%= ${0} %>
+snippet :
+	<%: ${0} %>
+snippet #
+	<%# ${0} %>
+# Bug in snipmate? expansion of } causes E219
+snippet end
+	<% } %>
+
+# If Conditions
+snippet if
+	if (${1}) {
+		${0}
+	}
+snippet %if
+	<% if (${1}) { %>
+		${0}
+	<% } %>
+snippet ife
+	<% if (${1}) { %>
+		${2}
+	<% } else { %>
+		${0}
+	<% } %>
+snippet eif
+	<% else if (${1}) { %>
+		${0}
+	<% } %>
+snippet el {
+	<% else { %>
+		${0}
+	<% } %>
+# tenery
+snippet ?
+	${1} ? ${2} : ${0}
+snippet %?
+	<%= ${1} ? ${2} : ${0} %>
+# using
+snippet using
+	using (${1}) {
+		${0}
+	}
+snippet %using
+	<% using(${1}) { %>
+		${0}
+	<% } %>
+#loops
+snippet for
+	for (${1:int} ${2:i} = ${3:0}; $2 < ${4:10}; ${5:$2++}) {
+		${0}
+	}
+snippet %for
+	<% for (${1:int} ${2:i} = ${3:0}; $2 < ${4:10}; ${5:$2++}) { %>
+		${0}
+	<% } %>
+# foreach
+snippet fore
+	@foreach (${1:var} ${2} in ${3}) {
+		${0}
+	}
+snippet %fore
+	<% foreach (${1:var} ${2} in ${3}) { %>
+		${0}
+	<% } %>
+# comment
+snippet --
+	<%-- 
+		${0}
+	  -- %>
+	
+# Content Place Holders and Partials
+snippet %par
+	<% Html.RenderPartial("${1}"); %>
+snippet %par_
+	<% Html.RenderPartial("${1}", ${0}); %>
+
+snippet cph
+	<asp:ContentPlaceHolder runat="server" ID="${1}">
+		${0}
+	</asp:ContentPlaceHolder>
+snippet @c
+	<asp:Content runat="server" ID="${1}" ContentPlaceHolderID="${2}">
+		${0}
+	</asp:Content>
+# Urls
+snippet %url
+	@Url.Action("${1:action}", "${0:controller}")
+snippet %url_
+	@Url.Action("${1:action}", "${2:controller}", new {${0}})
+snippet %a
+	<%: Html.ActionLink("${1:link_text}", "${2:action}", "${3:controller}") %>
+snippet %a_
+	<%: Html.ActionLink("${1:link_text}", "${2:action}", "${3:controller}", new {${0}}) %>
+snippet %a__
+	<%: Html.ActionLink("${1:link_text}", "${2:action}", "${3:controller}", new {${4}}, new {${0}}) %>
+snippet %a_.
+	<%: Html.ActionLink("${1:link_text}", "${2:action}", "${3:controller}", new {${4}}, new {@class=${0}}) %>
+
+# Form elements
+snippet %ubf
+	<% using(Html.BeginForm()) { %>
+		${0}
+	<% } %>
+snippet %ubf_
+	<% using(Html.BeginForm(${1:action}, ${2:controller})) { %>
+		${0}
+	<% } %>
+snippet %ubf_m
+	<% using(Html.BeginForm(${1:action}, ${2:controller}, ${3:FormMethod.Post})) { %>
+		${0}
+	<% } %>
+snippet %bf
+	<% Html.BeginForm(); %>
+snippet %bf_
+	<% Html.BeginForm(${1:action}, ${0:controller}); %>
+snippet %bf_m
+	<% Html.BeginForm(${1:action}, ${0:controller}, ${3:FormMethod.Post}); %>
+snippet %ef
+	<% Html.EndForm(); %>
+
+# Editor
+snippet %e
+	<%: Html.Editor("${0}") %>
+snippet %em
+	<%: Html.Editor("${1}", ${0}) %>
+snippet %ef
+	<%: Html.EditorFor(${1:x} => $1.${0}) %>
+snippet %ef_
+	<%: Html.EditorFor(${1:x} => $1.${2}, ${0}) %>
+snippet %efm
+	<%: Html.EditorForModel() %>
+snippet %efm_
+	<%: Html.EditorForModel(${0}) %>
+
+# Display
+snippet %d
+	<%: Html.Display("${0}") %>
+snippet %dm
+	<%: Html.Display("${1}", ${0}) %>
+snippet %df
+	<%: Html.DisplayFor(${1:x} => $1.${0}) %>
+snippet %df_
+	<%: Html.DisplayFor(${1:x} => $1.${2}, ${0}) %>
+snippet %dfm
+	<%: Html.DisplayForModel() %>
+snippet %dfm_
+	<%: Html.DisplayForModel(${0}) %>
+
+# Label
+snippet %lf
+	<%: Html.LabelFor(${1:x} => $1.${2}) %>
+snippet %lf_
+	<%: Html.LabelFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %lf.
+	<%: Html.LabelFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+
+# Hidden
+snippet %h
+	<%: Html.Hidden("${0}") %>
+snippet %hm
+	<%: Html.Hidden("${1}", ${0}) %>
+snippet %hf
+	<%: Html.HiddenFor(${1:x} => $1.${0}) %>
+
+# Text Box
+snippet %tb
+	<%: Html.TextBox("${0}") %>
+snippet %tbm
+	<%: Html.TextBox("${1}", ${0}) %>
+snippet %tbm_
+	<%: Html.TextBox("${1}", ${2}, new {${0}}) %>
+snippet %tbm.
+	<%: Html.TextBox("${1}", ${2}, new {@class=${0}}) %>
+snippet %tbf
+	<%: Html.TextBoxFor(${1:x} => $1.${0}) %>
+snippet %tbf_
+	<%: Html.TextBoxFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %tbf.
+	<%: Html.TextBoxFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+
+# Text Area
+snippet %ta
+	<%: Html.TextArea("${0}") %>
+snippet %ta_
+	<%: Html.TextArea("${1}", new {${0}}) %>
+snippet %ta.
+	<%: Html.TextArea("${1}", new {@class=${0}}) %>
+snippet %tam
+	<%: Html.TextArea("${1}", ${0}) %>
+snippet %tam_
+	<%: Html.TextArea("${1}", ${2}, new {${0}}) %>
+snippet %tam.
+	<%: Html.TextArea("${1}", ${2}, new {@class=${0}}) %>
+snippet %taf
+	<%: Html.TextAreaFor(${1:x} => $1.${0}) %>
+snippet %taf_
+	<%: Html.TextAreaFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %taf.
+	<%: Html.TextAreaFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+
+#Password
+snippet %p
+	<%: Html.Password("${0}") %>
+snippet %pm
+	<%: Html.Password("${1}", ${0}) %>
+snippet %pm_
+	<%: Html.Password("${1}", ${2}, new {${0}}) %>
+snippet %pm.
+	<%: Html.Password("${1}", ${2}, new {@class=${0}}) %>
+snippet %pf
+	<%: Html.PasswordFor(${1:x} => $1.${0}) %>
+snippet %pf_
+	<%: Html.PasswordFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %pf.
+	<%: Html.PasswordFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+
+# Check Box
+snippet %cb
+	<%: Html.CheckBox("${0}") %>
+snippet %cbm
+	<%: Html.CheckBox("${1}", ${0}) %>
+snippet %cbm_
+	<%: Html.CheckBox("${1}", ${2}, new {${0}}) %>
+snippet %cbm.
+	<%: Html.CheckBox("${1}", ${2}, new {@class=${0}}) %>
+snippet %cbf
+	<%: Html.CheckBoxFor(${1:x} => $1.${0}) %>
+snippet %cbf_
+	<%: Html.CheckBoxFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %cbf.
+	<%: Html.CheckBoxFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+
+# Radio
+snippet %rb
+	<%: Html.RadioButton("${1}", ${0}) %>
+snippet %rbm
+	<%: Html.RadioButton("${1}", ${2}, ${0:false}) %>
+snippet %rbm_
+	<%: Html.RadioButton("${1}", ${2}, ${3:false}, new {${0}}) %>
+snippet %rbm.
+	<%: Html.RadioButton("${1}", ${2}, ${3:false}, new {@class=${0}}) %>
+snippet %rbf
+	<%: Html.RadioButtonFor(${1:x} => $1.${2}, ${0:value}) %>
+snippet %rbf_
+	<%: Html.RadioButtonFor(${1:x} => $1.${2}, ${3:value}, new {${0}}) %>
+snippet %rbf.
+	<%: Html.RadioButtonFor(${1:x} => $1.${2}, ${3:value}, new {@class=${0}}) %>
+
+# Drop Down List
+snippet %ddl
+	<%: Html.DropDownList("${0:name}") %>
+snippet %ddlo
+	<%: Html.DropDownList("${1:name}", "${0:option_label}") %>
+snippet %ddlm
+	<%: Html.DropDownList("${1:name}", ${0:list}) %>
+snippet %ddlm_
+	<%: Html.DropDownList("${1:name}", ${0:list}, new {${0}}) %>
+snippet %ddlm.
+	<%: Html.DropDownList("${1:name}", ${0:list}, new {@class=${0}}) %>
+snippet %ddlmo
+	<%: Html.DropDownList("${1:name}", ${2:list}, "${0:option_label}") %>
+snippet %ddlmo_
+	<%: Html.DropDownList("${1:name}", ${2:list}, "${3:option_label}", new {${0}}) %>
+snippet %ddlmo.
+	<%: Html.DropDownList("${1:name}", ${2:list}, "${0:option_label}", new {@class=${0}}) %>
+snippet %ddlf
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${0:list}) %>
+snippet %ddlf_
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${3:list}, new {${0}}) %>
+snippet %ddlf.
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${3:list}, new {@class=${0}}) %>
+snippet %ddlfo
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${3:list}, "${0:option_label}") %>
+snippet %ddlfo_
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${3:list}, "${4:option_label}", new {${0}}) %>
+snippet %ddlfo.
+	<%: Html.DropDownListFor(${1:x} => $1.${2}, ${3:list}, "${4:option_label}", new {@class=${0}}) %>
+
+# EnumDropDownListFor
+snippet %eddlf
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${0}) %>
+snippet %eddlf_
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %eddlf.
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+snippet %eddlfo
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${2}, "${3}") %>
+snippet %eddlfo_
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${2}, "${3}", new{${0}}) %>
+snippet %eddlfo.
+	<%: Html.EnumDropDownListFor(${1:x} => $1.${2}, "${3}", new{@class=${0}}) %>
+
+# List Box
+snippet %lb
+	<%: Html.ListBox("${0:name}") %>
+snippet %lbm
+	<%: Html.ListBox("${1:name}", ${0:list}) %>
+snippet %lbm_
+	<%: Html.ListBox("${1:name}", ${2:list}, new {${0}}) %>
+snippet %lbm.
+	<%: Html.ListBox("${1:name}", ${2:list}, new {@class=${0}}) %>
+snippet %lbf
+	<%: Html.ListBoxFor(${1:x} => $1.${2}, ${0:list}) %>
+snippet %lbf_
+	<%: Html.ListBoxFor(${1:x} => $1.${2}, ${0:list}, new {${0}}) %>
+snippet %lbf.
+	<%: Html.ListBoxFor(${1:x} => $1.${2}, ${0:list}, new {@class=${0}}) %>
+
+# Validations
+snippet %vm
+	<%: Html.ValidationMessage(${0}) %>
+snippet %vm_
+	<%: Html.ValidationMessage(${1}, new {${0}}) %>
+snippet %vm.
+	<%: Html.ValidationMessage(${1}, new {@class=${0}}) %>
+snippet %vmf
+	<%: Html.ValidationMessageFor(${1:x} => $1.${0}) %>
+snippet %vmf_
+	<%: Html.ValidationMessageFor(${1:x} => $1.${2}, new {${0}}) %>
+snippet %vmf.
+	<%: Html.ValidationMessageFor(${1:x} => $1.${2}, new {@class=${0}}) %>
+snippet %vs
+	<%: Html.ValidationSummary() %>
+snippet %vsm
+	<%: Html.ValidationSummary(${0:exclude_prop_errors/message}) %>
+snippet %vsm_
+	<%: Html.ValidationSummary(${1:exclude_prop_errors/message}, new {${0}}) %>
+snippet %vsm.
+	<%: Html.ValidationSummary(${1:exclude_prop_errors/message}, new {@class=${0}}) %>
+
+# Enum Methods
+snippet %gsl
+	EnumHelper.GetSelectList(${0:type})
+snippet %gslm
+	EnumHelper.GetSelectList(${1:type}, ${0:value})

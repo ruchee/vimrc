@@ -68,13 +68,13 @@ cyan and bold (on gVim).
 ### CSS Preprocessors: [Sass][2], [LESS][3], and [Stylus][4]
 
 `vim-css3-syntax` supports Sass's SCSS syntax only. If you want to use this
-plugin with LESS, install [VIM-LESS][5]. Sass's indent synatx and Stylus are not
+plugin with LESS, install [VIM-LESS][5]. Sass's indent syntax and Stylus are not
 supported.
 
 
 ### Media Queries
 
-I drop Media Queries Level 3 support in v0.12.0. There is no easy way to supprt
+I drop Media Queries Level 3 support in v0.12.0. There is no easy way to support
 Media Queries properly with `after` syntax plugin like this one, sorry. If you
 want to highlight Media Queries correctly, you must update Vim to 7.4+ or
 install [JulesWang/css.vim][6].

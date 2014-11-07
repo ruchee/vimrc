@@ -21,6 +21,16 @@ command -nargs=? -complete=customlist,vaxe#lime#Targets LimeClean
 command -nargs=? -complete=customlist,vaxe#lime#Targets LimeUpdate
             \ call vaxe#lime#Update(<q-args>)
 
+" Flow commands
+command -nargs=? -complete=file ProjectFlow
+            \ call vaxe#flow#ProjectFlow(<q-args>)
+
+command -nargs=? -complete=customlist,vaxe#flow#Targets FlowTarget
+            \ call vaxe#flow#Target(<q-args>)
+
+command -nargs=? -complete=customlist,vaxe#flow#Targets FlowClean
+            \ call vaxe#flow#Clean(<q-args>)
+
 " Completion Server Commands
 command VaxeStopCompletionServer call vaxe#KillCacheServer()
 command VaxeStartCompletionServer call vaxe#StartCacheServer()
@@ -76,14 +86,19 @@ let g:vaxe_lime_test_on_build     = C('g:vaxe_lime_test_on_build', 1)
 let g:vaxe_lime_target            = C('g:vaxe_lime_target',"")
 let g:vaxe_lime_completion_target = C('g:vaxe_lime_completion_target', 'flash')
 
+" flow options
+let g:vaxe_flow_target            = C('g:vaxe_flow_target', "")
+let g:vaxe_flow_completion_target = C('g:vaxe_flow_completion_target', 'web')
+
 " default build options
 let g:vaxe_prefer_hxml               = C('g:vaxe_prefer_hxml', "build.hxml")
 let g:vaxe_prefer_lime               = C('g:vaxe_prefer_lime', "*.lime")
+let g:vaxe_prefer_flow               = C('g:vaxe_prefer_flow', "*.flow")
 let g:vaxe_prefer_openfl             = C('g:vaxe_prefer_openfl', "project.xml")
 let g:vaxe_prefer_first_in_directory = C('g:vaxe_prefer_first_in_directory', 1)
 let g:vaxe_default_parent_search_patterns
             \= C('g:vaxe_default_parent_search_patterns'
-            \, [g:vaxe_prefer_lime, g:vaxe_prefer_openfl, g:vaxe_prefer_hxml, "*.hxml"])
+            \, [g:vaxe_prefer_lime, g:vaxe_prefer_flow, g:vaxe_prefer_openfl, g:vaxe_prefer_hxml, "*.hxml"])
 
 " Supported 3rd party plugin options
 let g:vaxe_enable_airline_defaults = C('g:vaxe_enable_airline_defaults', 1)

@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-06 23:12
+" -----------------     Date: 2014-11-07 09:50
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -194,7 +194,7 @@ endif
 "
 " 链接：[[链接地址|链接描述]]
 " 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
-" 代码：{{{ 代码 }}}
+" 代码：{{{语言名 代码 }}}，如 {{{C++ 代码 }}}
 "
 " ---------- 其他常用内建命令 ------------------------------
 "
@@ -814,8 +814,8 @@ vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 
 let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
 let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
+" 声明可以在 wiki 里面使用的 HTML 标签
 let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
-" 声明可以在wiki里面使用的HTML标签
 
 let blog = {}
 if g:atCompany
@@ -838,5 +838,7 @@ endif
 let blog.template_default = 'site'
 let blog.template_ext     = '.html'
 let blog.auto_export      = 1
+" 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
+let blog.nested_syntaxes  = {'Asm': 'asm', 'C': 'c', 'C++': 'cpp', 'D': 'd', 'Go': 'go', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'R': 'r', 'Coffee': 'coffee', 'LiveScript': 'ls', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh'}
 
 let g:vimwiki_list = [blog]

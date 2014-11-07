@@ -3,6 +3,10 @@
 " Maintainer:	Kian Ryan (kian@orangetentacle.co.uk)
 " Last Change:	2012 Sep 22
 
+if !has("win32")
+  finish
+endif
+
 if exists("current_compiler")
   finish
 endif

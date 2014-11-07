@@ -4,9 +4,11 @@
 " Author: Ming Bai <mbbill@gmail.com>
 " License: BSD
 
-" TODO status line.
-" TODO Diff between 2 specific revisions.
-" TODO support horizontal split.
+" Avoid installing twice.
+if exists('g:loaded_undotree')
+    finish
+endif
+let g:loaded_undotree = 0
 
 " At least version 7.3 with 005 patch is needed for undo branches.
 " Refer to https://github.com/mbbill/undotree/issues/4 for details.
@@ -19,6 +21,7 @@ if (v:version == 703 && !has("patch005"))
     command! -n=0 -bar UndotreeToggle :echoerr "undotree.vim needs vim7.3 with patch005 applied."
     finish
 endif
+let g:loaded_undotree = 1   " Signal plugin availability with a value of 1.
 
 "=================================================
 "Options:
@@ -136,8 +139,8 @@ endif
 "will be called after undotree window initialized.
 "
 "function g:undotree_CustomMap()
-"    map <c-n> J
-"    map <c-p> K
+"    map <buffer> <c-n> J
+"    map <buffer> <c-p> K
 "endfunction
 
 "=================================================
@@ -162,6 +165,8 @@ let s:keymap += [['TimestampToggle','T','Toggle relative timestamp']]
 let s:keymap += [['DiffToggle','D','Toggle diff panel']]
 let s:keymap += [['GoNext','K','Revert to next state']]
 let s:keymap += [['GoPrevious','J','Revert to previous state']]
+let s:keymap += [['GoNextSaved','<','Revert to next saved state']]
+let s:keymap += [['GoPreviousSaved','>','Revert to previous saved state']]
 let s:keymap += [['Redo','<c-r>','Redo']]
 let s:keymap += [['Undo','u','Undo']]
 let s:keymap += [['Enter','<2-LeftMouse>','Revert to current']]
@@ -215,9 +220,14 @@ function! s:gettime(time)
     endif
 endfunction
 
-" Exec without autocommands
 function! s:exec(cmd)
     call s:log("s:exec() ".a:cmd)
+    silent exe a:cmd
+endfunction
+
+" Don't trigger any events(like BufEnter which could cause redundant refresh)
+function! s:exec_silent(cmd)
+    call s:log("s:exec_silent() ".a:cmd)
     let ei_bak= &eventignore
     set eventignore=all
     silent exe a:cmd
@@ -245,7 +255,7 @@ endif
 function! s:log(msg)
     if s:debug
         exec 'redir >> ' . s:debugfile
-        silent echon strftime('%H:%M:%S') . ': ' . a:msg . "\n"
+        silent echon strftime('%H:%M:%S') . ': ' . string(a:msg) . "\n"
         redir END
     endif
 endfunction
@@ -270,7 +280,7 @@ function! s:panel.SetFocus()
     endif
     call s:log("SetFocus() winnr:".winnr." bufname:".self.bufname)
     " wincmd would cause cursor outside window.
-    call s:exec("norm! ".winnr."\<c-w>\<c-w>")
+    call s:exec_silent("norm! ".winnr."\<c-w>\<c-w>")
 endfunction
 
 function! s:panel.IsVisible()
@@ -343,8 +353,8 @@ function! s:undotree.BindKey()
     for i in s:keymap
         silent exec 'nnoremap <silent> <script> <buffer> '.i[1].' :call <sid>undotreeAction("'.i[0].'")<cr>'
     endfor
-    if exists('*g:undotree_CustomMap')
-        call g:undotree_CustomMap()
+    if exists('*g:Undotree_CustomMap')
+        call g:Undotree_CustomMap()
     endif
 endfunction
 
@@ -427,6 +437,14 @@ endfunction
 
 function! s:undotree.ActionGoNext()
     call self.ActionInTarget('later')
+endfunction
+
+function! s:undotree.ActionGoPreviousSaved()
+    call self.ActionInTarget('earlier 1f')
+endfunction
+
+function! s:undotree.ActionGoNextSaved()
+    call self.ActionInTarget('later 1f')
 endfunction
 
 function! s:undotree.ActionDiffToggle()
@@ -531,7 +549,7 @@ function! s:undotree.Show()
         let cmd = "botright vertical" .
                     \self.width . ' new ' . self.bufname
     endif
-    call s:exec("silent ".cmd)
+    call s:exec("silent keepalt ".cmd)
     call self.SetFocus()
     setlocal winfixwidth
     setlocal noswapfile
@@ -550,12 +568,19 @@ function! s:undotree.Show()
     call self.BindKey()
     call self.BindAu()
 
-    if self.opendiff
-        call t:diffpanel.Show()
-    endif
+    let ei_bak= &eventignore
+    set eventignore=all
+
     call self.SetTargetFocus()
     let self.targetBufnr = -1 "force update
     call self.Update()
+
+    let &eventignore = ei_bak
+
+    if self.opendiff
+        call t:diffpanel.Show()
+        call self.UpdateDiff()
+    endif
 endfunction
 
 " called outside undotree window
@@ -1027,7 +1052,7 @@ function! s:diffpanel.Update(seq,targetBufnr,targetid)
             if targetWinnr == -1
                 return
             endif
-            call s:exec(targetWinnr." wincmd w")
+            call s:exec_silent(targetWinnr." wincmd w")
 
             " remember and restore cursor and window position.
             let savedview = winsaveview()
@@ -1174,7 +1199,7 @@ function! s:diffpanel.Show()
     else
         let cmd = 'botright '.g:undotree_DiffpanelHeight.'new '.self.bufname
     endif
-    call s:exec(cmd)
+    call s:exec_silent(cmd)
 
     setlocal winfixwidth
     setlocal winfixheight
@@ -1220,7 +1245,7 @@ function! s:diffpanel.CleanUpHighlight()
     " clear w:undotree_diffmatches in all windows.
     let winnum = winnr('$')
     for i in range(1,winnum)
-        call s:exec("norm! ".i."\<c-w>\<c-w>")
+        call s:exec_silent("norm! ".i."\<c-w>\<c-w>")
         if exists("w:undotree_diffmatches")
             for j in w:undotree_diffmatches
                 call matchdelete(j)
@@ -1230,7 +1255,7 @@ function! s:diffpanel.CleanUpHighlight()
     endfor
 
     "restore position
-    call s:exec("norm! ".curwinnr."\<c-w>\<c-w>")
+    call s:exec_silent("norm! ".curwinnr."\<c-w>\<c-w>")
     call winrestview(savedview)
 endfunction
 
@@ -1316,18 +1341,29 @@ endfunction
 function! UndotreeShow()
     if ! UndotreeIsVisible()
         call UndotreeToggle()
+    else
+        call t:undotree.SetFocus()
+    endif
+endfunction
+
+function! UndotreeFocus()
+    if UndotreeIsVisible()
+        call t:undotree.SetFocus()
     endif
 endfunction
 
 
 "let s:auEvents = "InsertEnter,InsertLeave,WinEnter,WinLeave,CursorMoved"
 let s:auEvents = "BufEnter,InsertLeave,CursorMoved,BufWritePost"
-exec "au ".s:auEvents." * call UndotreeUpdate()"
+augroup Undotree
+    exec "au! ".s:auEvents." * call UndotreeUpdate()"
+augroup END
 
 "=================================================
 " User commands.
 command! -n=0 -bar UndotreeToggle   :call UndotreeToggle()
 command! -n=0 -bar UndotreeHide     :call UndotreeHide()
 command! -n=0 -bar UndotreeShow     :call UndotreeShow()
+command! -n=0 -bar UndotreeFocus    :call UndotreeFocus()
 
 " vim: set et fdm=marker sts=4 sw=4:

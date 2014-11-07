@@ -43,10 +43,10 @@ endfunction " }}}2
 function! g:SyntasticLoclist.sort() " {{{2
     if !self._sorted
         for e in self._rawLoclist
-            call s:_setScreenColumn(e)
+            call s:_set_screen_column(e)
         endfor
 
-        call sort(self._rawLoclist, self._columns ? 's:_compareErrorItemsByColumns' : 's:_compareErrorItemsByLines')
+        call sort(self._rawLoclist, self._columns ? 's:_compare_error_items_by_columns' : 's:_compare_error_items_by_lines')
 
         let self._sorted = 1
     endif
@@ -173,6 +173,29 @@ function! g:SyntasticLoclist.decorate(tag) " {{{2
     endfor
 endfunction " }}}2
 
+function! g:SyntasticLoclist.balloons() " {{{2
+    if !exists("self._cachedBalloons")
+        let sep = has("balloon_multiline") ? "\n" : ' | '
+
+        let self._cachedBalloons = {}
+        for e in self._rawLoclist
+            let buf = e['bufnr']
+
+            if !has_key(self._cachedBalloons, buf)
+                let self._cachedBalloons[buf] = {}
+            endif
+
+            if has_key(self._cachedBalloons[buf], e['lnum'])
+                let self._cachedBalloons[buf][e['lnum']] .= sep . e['text']
+            else
+                let self._cachedBalloons[buf][e['lnum']] = e['text']
+            endif
+        endfor
+    endif
+
+    return get(self._cachedBalloons, bufnr(''), {})
+endfunction " }}}2
+
 function! g:SyntasticLoclist.errors() " {{{2
     if !exists("self._cachedErrors")
         let self._cachedErrors = self.filter({'type': "E"})
@@ -220,9 +243,9 @@ function! g:SyntasticLoclist.messages(buf) " {{{2
                     for l in keys(self._cachedMessages[b])
                         if len(self._cachedMessages[b][l]) > 1
                             for e in self._cachedMessages[b][l]
-                                call s:_setScreenColumn(e)
+                                call s:_set_screen_column(e)
                             endfor
-                            call sort(self._cachedMessages[b][l], 's:_compareErrorItemsByColumns')
+                            call sort(self._cachedMessages[b][l], 's:_compare_error_items_by_columns')
                         endif
                     endfor
                 endfor
@@ -230,7 +253,7 @@ function! g:SyntasticLoclist.messages(buf) " {{{2
 
             for b in keys(self._cachedMessages)
                 for l in keys(self._cachedMessages[b])
-                    call s:_removeShadowedItems(self._cachedMessages[b][l])
+                    call s:_remove_shadowed_items(self._cachedMessages[b][l])
                 endfor
             endfor
         endif
@@ -258,14 +281,14 @@ function! g:SyntasticLoclist.setloclist() " {{{2
         let w:syntastic_loclist_set = 0
     endif
     let replace = g:syntastic_reuse_loc_lists && w:syntastic_loclist_set
-    call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: setloclist ' . (replace ? '(replace)' : '(new)'))
+    call syntastic#log#debug(g:_SYNTASTIC_DEBUG_NOTIFICATIONS, 'loclist: setloclist ' . (replace ? '(replace)' : '(new)'))
     call setloclist(0, self.getRaw(), replace ? 'r' : ' ')
     let w:syntastic_loclist_set = 1
 endfunction " }}}2
 
 "display the cached errors for this buf in the location list
 function! g:SyntasticLoclist.show() " {{{2
-    call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: show')
+    call syntastic#log#debug(g:_SYNTASTIC_DEBUG_NOTIFICATIONS, 'loclist: show')
     call self.setloclist()
 
     if !self.isEmpty()
@@ -297,22 +320,22 @@ endfunction " }}}2
 
 " }}}1
 
-" Non-method functions {{{1
+" Public functions {{{1
 
 function! SyntasticLoclistHide() " {{{2
-    call syntastic#log#debug(g:SyntasticDebugNotifications, 'loclist: hide')
+    call syntastic#log#debug(g:_SYNTASTIC_DEBUG_NOTIFICATIONS, 'loclist: hide')
     silent! lclose
 endfunction " }}}2
 
 " }}}1
 
-" Private functions {{{1
+" Utilities {{{1
 
 function! s:_translate(key, val) " {{{2
     return 'get(v:val, ' . string(a:key) . ', "") ==? ' . string(a:val)
 endfunction " }}}2
 
-function! s:_setScreenColumn(item) " {{{2
+function! s:_set_screen_column(item) " {{{2
     if !has_key(a:item, 'scol')
         let col = get(a:item, 'col', 0)
         if col != 0 && get(a:item, 'vcol', 0) == 0
@@ -329,7 +352,7 @@ function! s:_setScreenColumn(item) " {{{2
     endif
 endfunction " }}}2
 
-function! s:_removeShadowedItems(errors) " {{{2
+function! s:_remove_shadowed_items(errors) " {{{2
     " keep only the first message at a given column
     let i = 0
     while i < len(a:errors) - 1
@@ -361,7 +384,7 @@ function! s:_removeShadowedItems(errors) " {{{2
     endwhile
 endfunction " }}}2
 
-function! s:_compareErrorItemsByColumns(a, b) " {{{2
+function! s:_compare_error_items_by_columns(a, b) " {{{2
     if a:a['bufnr'] != a:b['bufnr']
         " group by file
         return a:a['bufnr'] - a:b['bufnr']
@@ -379,7 +402,7 @@ function! s:_compareErrorItemsByColumns(a, b) " {{{2
     endif
 endfunction " }}}2
 
-function! s:_compareErrorItemsByLines(a, b) " {{{2
+function! s:_compare_error_items_by_lines(a, b) " {{{2
     if a:a['bufnr'] != a:b['bufnr']
         " group by file
         return a:a['bufnr'] - a:b['bufnr']

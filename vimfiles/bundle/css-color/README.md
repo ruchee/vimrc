@@ -1,25 +1,8 @@
-vim-css-color plugin
-====================
+<img src="http://ap.github.io/vim-css-color/screenshot.png" alt=""/>
 
-[css\_color.vim](http://www.vim.org/scripts/script.php?script_id=2150) plugin by Niklas Hofer is great, but lacks two important features:
+A very fast fork of [Niklas Hofer’s `css_color.vim`](http://www.vim.org/scripts/script.php?script_id=2150), with extra features:
 
-* Highlighting multiple colors on the same line (not sure if anyone uses it though)
-* rgb and rgba color notation for all those fancy CSS3 niceties
+* multiple color highlights per line
+* `rgb()`, `rgba()`, [`hsl()`](http://www.w3.org/TR/css3-color/#hsl-color) support
 
-So here is my patch.
-
-![Screen shot](https://github.com/skammer/vim-css-color/raw/master/Screen%20shot%202010-07-04%20at%200.19.46.png)
-
-Configuration
--------------
-
-`g:cssColorVimDoNotMessMyUpdatetime` is used when updatetime value set by plugin (100ms) is interfering with your configuration.
-
-`let g:cssColorVimDoNotMessMyUpdatetime = 1`
-
-Post Scriptum
--------------
-
-Major kudos to [rainbow-mode.el](http://julien.danjou.info/rainbow-mode.html), from which I borrowed some code, and to [ConvertBase.vim](http://www.vim.org/scripts/script.php?script_id=54) plugin I used for base conversion.
-
-I highly recommend using [pathogen.vim](http://www.vim.org/scripts/script.php?script_id=2332) plugin for all your plugin installations. It's so good, it should be illegal. God bless Tim Pope.
+Inspired by [Max Vasiliev’s fork](https://github.com/skammer/vim-css-color).

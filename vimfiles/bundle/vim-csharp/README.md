@@ -9,6 +9,14 @@ This Vim bundle extends Vim's built in support for CSharp files.
 <img src="https://raw.github.com/OrangeT/vim-csharp/master/screenshot2.png" width="459" height="343" />
 </a>
 
+Compliments [Omnisharp](https://github.com/nosami/Omnisharp) rather well.
+
+New Features
+============
+
+* Snippets for Razor files, Webforms based MVC views, Xunit and Moq.
+* Added basic syntax highlighting for razor files.
+
 Installation
 ============
 
@@ -39,10 +47,38 @@ Existing CSharp highlighting plus:
 * Context highlighting of Interface/Class names.
 * Highlighting of Generic Types.
 
+Razor highlighting:
+
+* Uses html formatting for ... html.
+* Recognises @{} and @ blocks and formats using c-sharp highlighting.
+
 Interface/Class Names
 =====================
 
 Interface/Class names are aliased to the Type group, for inclusion with your existing colour schemes.  Alternatively, add specific highlighting for csIface and csClass to your colour scheme.
+
+Snippets
+========
+
+Snippets are designed to work with [vim-snipmate](https://github.com/garbas/vim-snipmate).  Snippet support is relatively new, and is currently being trialled by fire.  If you find a problem, feel free to raise an issue.
+
+### Razor/ASPX Snippets
+
+Razor snippets are designed to be deterministic and as productive as possible.  Your best bet is to familiarise yourself with the snippet files (snippets/cshtml.snippets, snippets/aspx.snippets).  Snippets take the form:
+
+* Language declaration character (@ for Razor, % for Webforms)
+* Initals of required control (tbf = TextBoxFor)
+* Additional options (m = model, _ = html attr. collection, . = html attr. collection with class )
+
+This means that for a "text box for" with a class attribute in razor, type @tbf. followed by your expansion key (default tab).
+
+### Xunit, Moq Snippets
+
+Additional snippets are provided to reduce time spent writing unit tests.
+
+Xunit assertions are prefixed by x, followed by the test type, followed by a ! to negate.  So a does not contain assertion is created by typing xcontains! followed by the expansion key (default tab).
+
+There are only two moq snippets, "moq" which then requests which scenario to complete to (there are many), and "it" which expands to It.IsAny<>.
 
 Compiler/MsBuild Support
 ========================
@@ -65,7 +101,7 @@ To use your own build file, call the following command:
 Custom Framework Version
 ========================
 
-Framework version can be overriden with the following:
+Framework version can be overridden with the following:
 ```
 :MsVersion [4, 3.5, 2, 1]
 ```
@@ -73,7 +109,7 @@ Framework version can be overriden with the following:
 Passing Parameters to :make
 ===========================
 
-You can pass parameters to :make which will in turn pass them to MsBuild.  This is useful for passing a variety of options, incluing a custom target for testing:
+You can pass parameters to :make which will in turn pass them to MsBuild.  This is useful for passing a variety of options, including a custom target for testing:
 
 ```
 :MsProjFile build.proj
@@ -85,4 +121,3 @@ Todo
 
 * Highlighting of types in attributes.
 * Adding and removing classes/files from projects and solutions (hook into NERDTree?)
-* Add syntax/region support for razor files.

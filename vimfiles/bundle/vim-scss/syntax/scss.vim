@@ -33,7 +33,7 @@ if v:version < 704
   syn match cssBoxProp contained "\<rotation\(-point\)\=\>"
 endif
 
-syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssComment,cssInclude,scssAtRootStatement,scssComment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,@scssControl,scssWarn containedin=cssMediaBlock
+syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssComment,cssInclude,scssAtRootStatement,scssComment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,@scssControl,scssWarn,scssError containedin=cssMediaBlock
 
 syn match scssSelector "^\zs\([^:@]\|:[^ ]\)\+{\@=" contained contains=@scssSelectors
 syn match scssSelector "^\s*\zs\([^:@{]\|:[^ ]\)\+\_$" contained contains=@scssSelectors
@@ -143,6 +143,7 @@ syn match scssAmpersand "&" nextgroup=cssPseudoClass,scssSelectorName containedi
 
 syn match scssDebug "@debug" nextgroup=scssOutput
 syn match scssWarn "@warn" nextgroup=scssOutput
+syn match scssError "@error" nextgroup=scssOutput
 syn match scssOutput "[^;]\+" contained contains=cssValue.*,cssString.*,scssFunction,scssVariable
 syn match scssDefault "!default" contained
 
@@ -186,6 +187,7 @@ hi def link scssSelectorName Identifier
 hi def link scssAmpersand Character
 hi def link scssDebug     Debug
 hi def link scssWarn      Debug
+hi def link scssError     Debug
 hi def link scssDefault   Special
 hi def link scssIf        Conditional
 hi def link scssElse      Conditional

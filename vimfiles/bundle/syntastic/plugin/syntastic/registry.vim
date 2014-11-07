@@ -5,7 +5,7 @@ let g:loaded_syntastic_registry = 1
 
 " Initialisation {{{1
 
-let s:defaultCheckers = {
+let s:_DEFAULT_CHECKERS = {
         \ 'actionscript':['mxmlc'],
         \ 'ada':         ['gcc'],
         \ 'applescript': ['osacompile'],
@@ -66,6 +66,7 @@ let s:defaultCheckers = {
         \ 'python':      ['python', 'flake8', 'pylint'],
         \ 'r':           [],
         \ 'racket':      ['racket'],
+        \ 'rnc':         ['rnv'],
         \ 'rst':         ['rst2pseudoxml'],
         \ 'ruby':        ['mri'],
         \ 'sass':        ['sass'],
@@ -93,9 +94,9 @@ let s:defaultCheckers = {
         \ 'zpt':         ['zptlint'],
         \ 'zsh':         ['zsh', 'shellcheck']
     \ }
-lockvar! s:defaultCheckers
+lockvar! s:_DEFAULT_CHECKERS
 
-let s:defaultFiletypeMap = {
+let s:_DEFAULT_FILETYPE_MAP = {
         \ 'gentoo-metadata': 'xml',
         \ 'groff': 'nroff',
         \ 'lhaskell': 'haskell',
@@ -105,7 +106,7 @@ let s:defaultFiletypeMap = {
         \ 'sgml': 'docbk',
         \ 'sgmllnx': 'docbk',
     \ }
-lockvar! s:defaultFiletypeMap
+lockvar! s:_DEFAULT_FILETYPE_MAP
 
 let g:SyntasticRegistry = {}
 
@@ -137,7 +138,7 @@ endfunction " }}}2
 " not checked for availability (that is, the corresponding IsAvailable() are
 " not run).
 function! g:SyntasticRegistry.getCheckers(ftalias, hints_list) " {{{2
-    let ft = s:_normaliseFiletype(a:ftalias)
+    let ft = s:_normalise_filetype(a:ftalias)
     call self._loadCheckersFor(ft)
 
     let checkers_map = self._checkerMap[ft]
@@ -151,7 +152,7 @@ function! g:SyntasticRegistry.getCheckers(ftalias, hints_list) " {{{2
         \ !empty(a:hints_list) ? syntastic#util#unique(a:hints_list) :
         \ exists('b:syntastic_checkers') ? b:syntastic_checkers :
         \ exists('g:syntastic_' . ft . '_checkers') ? g:syntastic_{ft}_checkers :
-        \ get(s:defaultCheckers, ft, 0)
+        \ get(s:_DEFAULT_CHECKERS, ft, 0)
 
     return type(names) == type([]) ?
         \ self._filterCheckersByName(checkers_map, names) : [checkers_map[keys(checkers_map)[0]]]
@@ -164,9 +165,9 @@ function! g:SyntasticRegistry.getCheckersAvailable(ftalias, hints_list) " {{{2
 endfunction " }}}2
 
 function! g:SyntasticRegistry.getKnownFiletypes() " {{{2
-    let types = keys(s:defaultCheckers)
+    let types = keys(s:_DEFAULT_CHECKERS)
 
-    call extend(types, keys(s:defaultFiletypeMap))
+    call extend(types, keys(s:_DEFAULT_FILETYPE_MAP))
 
     if exists('g:syntastic_filetype_map')
         call extend(types, keys(g:syntastic_filetype_map))
@@ -180,13 +181,13 @@ function! g:SyntasticRegistry.getKnownFiletypes() " {{{2
 endfunction " }}}2
 
 function! g:SyntasticRegistry.getNamesOfAvailableCheckers(ftalias) " {{{2
-    let ft = s:_normaliseFiletype(a:ftalias)
+    let ft = s:_normalise_filetype(a:ftalias)
     call self._loadCheckersFor(ft)
     return keys(filter( copy(self._checkerMap[ft]), 'v:val.isAvailable()' ))
 endfunction " }}}2
 
 function! g:SyntasticRegistry.echoInfoFor(ftalias_list) " {{{2
-    let ft_list = syntastic#util#unique(map( copy(a:ftalias_list), 's:_normaliseFiletype(v:val)' ))
+    let ft_list = syntastic#util#unique(map( copy(a:ftalias_list), 's:_normalise_filetype(v:val)' ))
     if len(ft_list) != 1
         let available = []
         let active = []
@@ -256,12 +257,12 @@ endfunction " }}}2
 
 " }}}1
 
-" Private functions {{{1
+" Utilities {{{1
 
 "resolve filetype aliases, and replace - with _ otherwise we cant name
 "syntax checker functions legally for filetypes like "gentoo-metadata"
-function! s:_normaliseFiletype(ftalias) " {{{2
-    let ft = get(s:defaultFiletypeMap, a:ftalias, a:ftalias)
+function! s:_normalise_filetype(ftalias) " {{{2
+    let ft = get(s:_DEFAULT_FILETYPE_MAP, a:ftalias, a:ftalias)
     let ft = get(g:syntastic_filetype_map, ft, ft)
     let ft = substitute(ft, '\m-', '_', 'g')
     return ft

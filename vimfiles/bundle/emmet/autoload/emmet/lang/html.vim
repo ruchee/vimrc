@@ -1,10 +1,10 @@
 let s:mx = '\([+>]\|[<^]\+\)\{-}\s*'
 \     .'\((*\)\{-}\s*'
-\       .'\([@#.]\{-}[a-zA-Z_\!][a-zA-Z0-9:_\!\-$]*\|{\%([^$}]\+\|\$#\|\${\w\+}\|\$\+\)*}*[ \t\r\n}]*\)'
+\       .'\([@#.]\{-}[a-zA-Z_\!][a-zA-Z0-9:_\!\-$]*\|{\%([^$}]\+\|\$#\|\${\w\+}\|\$\+\)*}*[ \t\r\n}]*\|\[[^\]]\+\]\)'
 \       .'\('
 \         .'\%('
 \           .'\%(#{[{}a-zA-Z0-9_\-\$]\+\|#[a-zA-Z0-9_\-\$]\+\)'
-\           .'\|\%(\[[^\]]\+\]\)'
+\           .'\|\%(\[\%("[^"]*"\|[^"\]]*\)\+\]\)'
 \           .'\|\%(\.{[{}a-zA-Z0-9_\-\$]\+\|\.[a-zA-Z0-9_\-\$]\+\)'
 \         .'\)*'
 \       .'\)'
@@ -34,7 +34,11 @@ function! emmet#lang#html#findTokens(str)
     endif
     let pos = stridx(str, token, pos) + len(token)
   endwhile
-  return a:str[last_pos :-1]
+  let str = a:str[last_pos :-1]
+  if str =~ '^\w\+="[^"]*$'
+    return ''
+  endif
+  return str
 endfunction
 
 function! emmet#lang#html#parseIntoTree(abbr, type)
@@ -90,6 +94,10 @@ function! emmet#lang#html#parseIntoTree(abbr, type)
       let attributes = tag_name . attributes
       let tag_name = 'div'
     endif
+    if tag_name =~ '^\[.*\]$'
+      let attributes = tag_name . attributes
+      let tag_name = 'div'
+    endif
     let basedirect = basevalue[1] == '-' ? -1 : 1
     let basevalue = 0 + abs(basevalue[1:])
     if multiplier <= 0 | let multiplier = 1 | endif
@@ -113,11 +121,14 @@ function! emmet#lang#html#parseIntoTree(abbr, type)
     if !empty(snippets)
       let snippet_name = tag_name
       if has_key(snippets, snippet_name)
-        let snippet = snippets[snippet_name]
+        let snippet = snippet_name
+        while has_key(snippets, snippet)
+          let snippet = snippets[snippet]
+        endwhile
         if use_pipe_for_cursor
           let snippet = substitute(snippet, '|', '${cursor}', 'g')
         endif
-        let lines = split(snippet, "\n")
+        let lines = split(snippet, "\n", 1)
         call map(lines, 'substitute(v:val, "\\(    \\|\\t\\)", escape(indent, "\\\\"), "g")')
         let current.snippet = join(lines, "\n")
         let current.name = ''
@@ -179,7 +190,10 @@ function! emmet#lang#html#parseIntoTree(abbr, type)
     if len(attributes)
       let attr = attributes
       while len(attr)
-        let item = matchstr(attr, '\(\%(\%(#[{}a-zA-Z0-9_\-\$]\+\)\|\%(\[[^\]]\+\]\)\|\%(\.[{}a-zA-Z0-9_\-\$]\+\)*\)\)')
+        let item = matchstr(attr, '\(\%(\%(#[{}a-zA-Z0-9_\-\$]\+\)\|\%(\[\%("[^"]*"\|[^"\]]*\)\+\]\)\|\%(\.[{}a-zA-Z0-9_\-\$]\+\)*\)\)')
+        if g:emmet_debug > 1
+          echomsg "attr=" . item
+        endif
         if len(item) == 0
           break
         endif
@@ -191,27 +205,43 @@ function! emmet#lang#html#parseIntoTree(abbr, type)
         endif
         if item[0] == '['
           let atts = item[1:-2]
-          while len(atts)
-            let amat = matchstr(atts, '\([0-9a-zA-Z-:]\+\%(="[^"]*"\|=''[^'']*''\|[^ ''"\]]*\)\{0,1}\)')
-            if len(amat) == 0
-              break
+          if matchstr(atts, '^\s*\zs[0-9a-zA-Z-:]\+\(="[^"]*"\|=''[^'']*''\|=[^ ''"]\+\)') == ''
+            let ks = []
+			if has_key(default_attributes, current.name)
+              let dfa = default_attributes[current.name]
+              let ks = type(dfa) == 3 ? keys(dfa[0]) : keys(dfa)
             endif
-            let key = split(amat, '=')[0]
-            let Val = amat[len(key)+1:]
-            if key =~ '\.$' && Val == ''
-              let key = key[:-2]
+            if len(ks) == 0 && has_key(default_attributes, current.name . ':src')
+              let ks = keys(default_attributes[current.name . ':src'])
+            endif
+            if len(ks) > 0
+              let current.attr[ks[0]] = atts
+            else
+              let current.attr[atts] = ""
+            endif
+          else
+            while len(atts)
+              let amat = matchstr(atts, '^\s*\zs\([0-9a-zA-Z-:]\+\%(="[^"]*"\|=''[^'']*''\|=[^ ''"]\+\|[^ ''"\]]*\)\{0,1}\)')
+              if len(amat) == 0
+                break
+              endif
+              let key = split(amat, '=')[0]
+              let Val = amat[len(key)+1:]
+              if key =~ '\.$' && Val == ''
+                let key = key[:-2]
+                unlet Val
+                let Val = function('emmet#types#true')
+              elseif Val =~ '^["'']'
+                let Val = Val[1:-2]
+              endif
+              let current.attr[key] = Val
+              if index(current.attrs_order, key) == -1
+                let current.attrs_order += [key]
+              endif
+              let atts = atts[stridx(atts, amat) + len(amat):]
               unlet Val
-              let Val = function('emmet#types#true')
-            elseif Val =~ '^["'']'
-              let Val = Val[1:-2]
-            endif
-            let current.attr[key] = Val
-            if index(current.attrs_order, key) == -1
-              let current.attrs_order += [key]
-            endif
-            let atts = atts[stridx(atts, amat) + len(amat):]
-            unlet Val
-          endwhile
+            endwhile
+          endif
         endif
         let attr = substitute(strpart(attr, len(item)), '^\s*', '', '')
       endwhile
@@ -320,6 +350,16 @@ function! emmet#lang#html#parseIntoTree(abbr, type)
   return root
 endfunction
 
+function! s:dollar_add(base,no)
+  if a:base > 0
+    return a:base + a:no - 1
+  elseif a:base < 0
+    return a:base - a:no + 1
+  else
+    return a:no
+  endif
+endfunction
+
 function! emmet#lang#html#toString(settings, current, type, inline, filters, itemno, indent)
   let settings = a:settings
   let current = a:current
@@ -330,6 +370,7 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
   let indent = a:indent
   let dollar_expr = emmet#getResource(type, 'dollar_expr', 1)
   let q = emmet#getResource(type, 'quote_char', '"')
+  let ct = emmet#getResource(type, 'comment_type', 'both')
 
   if emmet#useFilter(filters, 'haml')
     return emmet#lang#haml#toString(settings, current, type, inline, filters, itemno, indent)
@@ -349,10 +390,11 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
     let text = current.value[1:-2]
     if dollar_expr
       " TODO: regexp engine specified
+      let nr = itemno + 1
       if exists('&regexpengine')
-        let text = substitute(text, '\%#=1\%(\\\)\@\<!\(\$\+\)\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d", itemno+1).submatch(2)', 'g')
+        let text = substitute(text, '\%#=1\%(\\\)\@\<!\(\$\+\)\(@-\?[0-9]\+\)\{0,1}\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d",s:dollar_add(submatch(2)[1:],nr)).submatch(3)', 'g')
       else
-        let text = substitute(text, '\%(\\\)\@\<!\(\$\+\)\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d", itemno+1).submatch(2)', 'g')
+        let text = substitute(text, '\%(\\\)\@\<!\(\$\+\)\(@-\?[0-9]\+\)\{0,1}\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d",s:dollar_add(submatch(2)[1:],nr).submatch(3)', 'g')
       endif
       let text = substitute(text, '\${nr}', "\n", 'g')
       let text = substitute(text, '\\\$', '$', 'g')
@@ -360,7 +402,8 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
     return text
   endif
   if len(current_name) > 0
-  let str .= '<' . current_name
+    let str .= '<' . current_name
+  endif
   for attr in emmet#util#unique(current.attrs_order + keys(current.attr))
     if !has_key(current.attr, attr)
       continue
@@ -420,8 +463,9 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
         if attr == 'class' | let comment .= '.' . Val | endif
       endif
     endif
+    unlet Val
   endfor
-  if len(comment) > 0
+  if len(comment) > 0 && ct == 'both'
     let str = "<!-- " . comment . " -->\n" . str
   endif
   if stridx(','.settings.html.empty_elements.',', ','.current_name.',') != -1
@@ -431,10 +475,11 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
     let text = current.value[1:-2]
     if dollar_expr
       " TODO: regexp engine specified
+      let nr = itemno + 1
       if exists('&regexpengine')
-        let text = substitute(text, '\%#=1\%(\\\)\@\<!\(\$\+\)\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d", itemno+1).submatch(2)', 'g')
+        let text = substitute(text, '\%#=1\%(\\\)\@\<!\(\$\+\)\(@-\?[0-9]\+\)\{0,1}\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d",s:dollar_add(submatch(2)[1:],nr)).submatch(3)', 'g')
       else
-        let text = substitute(text, '\%(\\\)\@\<!\(\$\+\)\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d", itemno+1).submatch(2)', 'g')
+        let text = substitute(text, '\%(\\\)\@\<!\(\$\+\)\(@-\?[0-9]\+\)\{0,1}\([^{#]\|$\)', '\=printf("%0".len(submatch(1))."d",s:dollar_add(submatch(2)[1:],nr)).submatch(3)', 'g')
       endif
       let text = substitute(text, '\${nr}', "\n", 'g')
       let text = substitute(text, '\\\$', '$', 'g')
@@ -473,7 +518,11 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
     let str .= "</" . current_name . ">"
   endif
   if len(comment) > 0
-    let str .= "\n<!-- /" . comment . " -->"
+    if ct == "lastonly"
+      let str .= "<!-- " . comment . " -->"
+    else
+      let str .= "\n<!-- /" . comment . " -->"
+    endif
   endif
   if len(current_name) > 0 && current.multiplier > 0 || stridx(','.settings.html.block_elements.',', ','.current_name.',') != -1
     let str .= "\n"
@@ -639,7 +688,8 @@ function! emmet#lang#html#balanceTag(flag) range
   let settings = emmet#getSettings()
 
   if a:flag > 0
-    let mx = '<\([a-zA-Z][a-zA-Z0-9:_\-]*\)[^>]*>'
+    let mx = '<\([a-zA-Z][a-zA-Z0-9:_\-]*\)[^>]*'
+    let last = curpos[1:2]
     while 1
       let pos1 = searchpos(mx, 'bW')
       let content = matchstr(getline(pos1[0])[pos1[1]-1:], mx)
@@ -647,16 +697,20 @@ function! emmet#lang#html#balanceTag(flag) range
       if stridx(','.settings.html.empty_elements.',', ','.tag_name.',') != -1
         let pos2 = searchpos('>', 'nW')
       else
-        let pos2 = searchpairpos('<' . tag_name . '[^>]*>', '', '</'. tag_name . '>\zs', 'nW')
+        let pos2 = searchpairpos('<' . tag_name . '[^>]*>', '', '</'. tag_name . '\zs>', 'nW')
       endif
       let block = [pos1, pos2]
       if pos1[0] == 0 && pos1[1] == 0
         break
       endif
-      if emmet#util#pointInRegion(curpos[1:2], block) && emmet#util#regionIsValid(block)
+      if emmet#util#pointInRegion(last, block) && emmet#util#regionIsValid(block)
         call emmet#util#selectRegion(block)
         return
       endif
+      if pos1 == last
+        break
+      endif
+      let last = pos1
     endwhile
   else
     let mx = '<\([a-zA-Z][a-zA-Z0-9:_\-]*\)[^>]*>'
@@ -676,7 +730,7 @@ function! emmet#lang#html#balanceTag(flag) range
       if stridx(','.settings.html.empty_elements.',', ','.tag_name.',') != -1
         let pos2 = searchpos('>', 'nW')
       else
-        let pos2 = searchpairpos('<' . tag_name . '[^>]*>', '', '</'. tag_name . '>\zs', 'nW')
+        let pos2 = searchpairpos('<' . tag_name . '[^>]*>', '', '</'. tag_name . '\zs>', 'nW')
       endif
       let block = [pos1, pos2]
       if pos1[0] == 0 && pos1[1] == 0
@@ -757,10 +811,10 @@ endfunction
 function! emmet#lang#html#removeTag()
   let curpos = emmet#util#getcurpos()
   while 1
-    let mx = '<\(/\{0,1}[a-zA-Z][a-zA-Z0-9:_\-]*\)[^>]*>'
+    let mx = '<\(/\{0,1}[a-zA-Z][a-zA-Z0-9:_\-]*\)[^>]*'
     let pos1 = searchpos(mx, 'bcnW')
     let content = matchstr(getline(pos1[0])[pos1[1]-1:], mx)
-    let tag_name = substitute(content, '^<\(/\{0,1}[a-zA-Z0-9:_\-]*\).*$', '\1', '')
+    let tag_name = matchstr(content, '^<\zs/\{0,1}[a-zA-Z0-9:_\-]*')
     let block = [pos1, [pos1[0], pos1[1] + len(content) - 1]]
     if content[-2:] == '/>' && emmet#util#cursorInRegion(block)
       call emmet#util#setContent(block, '')
@@ -776,7 +830,7 @@ function! emmet#lang#html#removeTag()
       endif
       let block = [pos1, pos2]
       let content = emmet#util#getContent(block)
-      if emmet#util#pointInRegion(curpos[1:2], block) && content[1:] !~ '<' . tag_name . '[^a-zA-Z0-9]*[^>]*>'
+      if emmet#util#pointInRegion(curpos[1:2], block) && content[1:] !~ '^<' . tag_name . '[^a-zA-Z0-9]'
         call emmet#util#setContent(block, '')
         call setpos('.', [0, block[0][0], block[0][1], 0])
         return
