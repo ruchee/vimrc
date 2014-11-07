@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-07 09:50
+" -----------------     Date: 2014-11-07 11:08
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -222,8 +222,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set shiftwidth=2
-au FileType groovy,scala,clojure,racket,lisp,lua,ruby,eruby,slim,elixir,dart,coffee,jade,sh set tabstop=2
+au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,coffee,jade,sh set shiftwidth=2
+au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        setlocal ft=c
