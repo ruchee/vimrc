@@ -23,8 +23,8 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/passport.5399.com/tags
     " set tags+=D:/Ruchee/Files/code/shop.5399.com/tags
 
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
     set tags+=~/.rvm/rubies/ruby-2.1.4/tags
     set tags+=~/.rvm/gems/ruby-2.1.4/tags
