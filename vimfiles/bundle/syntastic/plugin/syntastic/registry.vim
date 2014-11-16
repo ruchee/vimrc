@@ -92,7 +92,7 @@ let s:_DEFAULT_CHECKERS = {
         \ 'yaml':        ['jsyaml'],
         \ 'z80':         ['z80syntaxchecker'],
         \ 'zpt':         ['zptlint'],
-        \ 'zsh':         ['zsh', 'shellcheck']
+        \ 'zsh':         ['zsh', 'shellcheck'],
     \ }
 lockvar! s:_DEFAULT_CHECKERS
 
@@ -107,6 +107,25 @@ let s:_DEFAULT_FILETYPE_MAP = {
         \ 'sgmllnx': 'docbk',
     \ }
 lockvar! s:_DEFAULT_FILETYPE_MAP
+
+let s:_ECLIM_TYPES = [
+        \ 'c',
+        \ 'cpp',
+        \ 'html',
+        \ 'java',
+        \ 'php',
+        \ 'python',
+        \ 'ruby',
+    \ ]
+lockvar! s:_ECLIM_TYPES
+
+let s:_YCM_TYPES = [
+        \ 'c',
+        \ 'cpp',
+        \ 'objc',
+        \ 'objcpp',
+    \ ]
+lockvar! s:_YCM_TYPES
 
 let g:SyntasticRegistry = {}
 
@@ -211,6 +230,30 @@ function! g:SyntasticRegistry.echoInfoFor(ftalias_list) " {{{2
     let plural = cnt != 1 ? 's' : ''
     let cklist = cnt ? join(active) : '-'
     echomsg 'Currently enabled checker' . plural . ': ' . cklist
+
+    " Eclim feels entitled to mess with syntastic's variables {{{3
+    if exists(':EclimValidate') && get(g:, 'EclimFileTypeValidate', 1)
+        let disabled = filter(copy(ft_list), 's:_disabled_by_eclim(v:val)')
+        let cnt = len(disabled)
+        if cnt
+            let plural = cnt != 1 ? 's' : ''
+            let cklist = join(disabled, ', ')
+            echomsg 'Checkers for filetype' . plural . ' ' . cklist . ' possibly disabled by Eclim'
+        endif
+    endif
+    " }}}3
+
+    " So does YouCompleteMe {{{3
+    if exists('g:loaded_youcompleteme') && get(g:, 'ycm_show_diagnostics_ui', get(g:, 'ycm_register_as_syntastic_checker', 1))
+        let disabled = filter(copy(ft_list), 's:_disabled_by_ycm(v:val)')
+        let cnt = len(disabled)
+        if cnt
+            let plural = cnt != 1 ? 's' : ''
+            let cklist = join(disabled, ', ')
+            echomsg 'Checkers for filetype' . plural . ' ' . cklist . ' possibly disabled by YouCompleteMe'
+        endif
+    endif
+    " }}}3
 endfunction " }}}2
 
 " }}}1
@@ -266,6 +309,20 @@ function! s:_normalise_filetype(ftalias) " {{{2
     let ft = get(g:syntastic_filetype_map, ft, ft)
     let ft = substitute(ft, '\m-', '_', 'g')
     return ft
+endfunction " }}}2
+
+function! s:_disabled_by_eclim(filetype) " {{{2
+    if index(s:_ECLIM_TYPES, a:filetype) >= 0
+        let lang = toupper(a:filetype[0]) . a:filetype[1:]
+        let ft = a:filetype !=# 'cpp' ? lang : 'C'
+        return get(g:, 'Eclim' . lang . 'Validate', 1) && !get(g:, 'Eclim' . ft . 'SyntasticEnabled', 0)
+    endif
+
+    return 0
+endfunction " }}}2
+
+function! s:_disabled_by_ycm(filetype) " {{{2
+    return index(s:_YCM_TYPES, a:filetype) >= 0
 endfunction " }}}2
 
 " }}}1
