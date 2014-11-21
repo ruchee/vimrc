@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-17 13:42
+" -----------------     Date: 2014-11-21 19:14
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,14 +15,6 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/5399/trunk/new.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/5399/trunk/manage.5399.com/new/tags
-    " set tags+=D:/Ruchee/Files/code/5399/trunk/huodong.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/cmsv9.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/n.pay.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/passport.5399.com/tags
-    " set tags+=D:/Ruchee/Files/code/shop.5399.com/tags
-
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
@@ -842,6 +834,6 @@ let blog.template_default = 'site'
 let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'C': 'c', 'C++': 'cpp', 'D': 'd', 'Go': 'go', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'R': 'r', 'Coffee': 'coffee', 'LiveScript': 'ls', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Dlang': 'd', 'Go': 'go', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Rlang': 'r', 'Coffee': 'coffee', 'LiveScript': 'ls', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
 
 let g:vimwiki_list = [blog]
