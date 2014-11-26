@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-22 11:55
+" -----------------     Date: 2014-11-26 16:00
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,6 +15,7 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
+    set tags+=D:/Ruchee/Files/code/5399/trunk/manage.5399.com/new/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.1.0/tags
 else
@@ -748,7 +749,11 @@ func! Compile_Run_Code()
     elseif &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
-        exec "!clisp -i %:t"
+        if g:isWIN
+            exec "!ccl -l %:t"
+        else
+            exec "!clisp -i %:t"
+        endif
     elseif &filetype == "ocaml"
         if g:isWIN
             exec "!ocamlc -o %:r.exe %:t && %:r.exe"
