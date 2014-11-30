@@ -35,7 +35,7 @@ function! s:godocWord(args)
     if !executable('godoc')
         echohl WarningMsg
         echo "godoc command not found."
-        echo "  install with: go get code.google.com/p/go.tools/cmd/godoc"
+        echo "  install with: go get golang.org/x/tools/cmd/godoc"
         echohl None
         return []
     endif
@@ -51,7 +51,7 @@ function! s:godocWord(args)
         let words = a:args
     endif
 
-    if !len(words) 
+    if !len(words)
         return []
     endif
 
@@ -129,7 +129,7 @@ function! s:GodocView(position, content)
     " reuse existing buffer window if it exists otherwise create a new one
     if !bufexists(s:buf_nr)
         execute a:position
-        file `="[Godoc]"`
+        sil file `="[Godoc]"`
         let s:buf_nr = bufnr('%')
     elseif bufwinnr(s:buf_nr) == -1
         execute a:position
@@ -149,9 +149,9 @@ function! s:GodocView(position, content)
     setlocal iskeyword-=-
 
     setlocal modifiable
-    %delete _ 
+    %delete _
     call append(0, split(a:content, "\n"))
-    $delete _ 
+    sil $delete _
     setlocal nomodifiable
 endfunction
 

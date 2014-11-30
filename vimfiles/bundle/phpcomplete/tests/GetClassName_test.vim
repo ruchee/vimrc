@@ -705,4 +705,57 @@ fun! TestCase_resolves_self_this_static_in_return_docblock()
     silent! bw! %
 endf
 
+fun! TestCase_resolves_self_this_static_in_return_docblock_in_array_situation()
+    let g:php_builtin_classes = {}
+    let g:php_builtin_classnames = {}
+    let path = expand('%:p:h')."/"."fixtures/GetClassName/self_return_type_array.php"
+    below 1new
+    exe ":silent! edit ".path
+    exe 'let b:phpbegin = [0, 0]'
+
+    exe ':38'
+    let classname = phpcomplete#GetClassName(38, '$self->', '', {})
+    call VUAssertEquals('Baz3', classname)
+
+    exe ':42'
+    let classname = phpcomplete#GetClassName(42, '$that->', '', {})
+    call VUAssertEquals('Baz3', classname)
+
+    exe ':46'
+    let classname = phpcomplete#GetClassName(46, '$static->', '', {})
+    call VUAssertEquals('Baz3', classname)
+
+    silent! bw! %
+endf
+
+fun! TestCase_resolves_classnames_with_multiple_methods_recursively()
+    let g:php_builtin_classes = {}
+    let g:php_builtin_classnames = {}
+    let path = expand('%:p:h')."/"."fixtures/GetClassName/multi_hoops.php"
+    below 1new
+    exe ":silent! edit ".path
+    exe 'let b:phpbegin = [0, 0]'
+
+    exe ':16'
+    let classname = phpcomplete#GetClassName(16, '$result->', '', {})
+    call VUAssertEquals('Model', classname)
+
+    silent! bw! %
+endf
+
+fun! TestCase_resolves_classnames_with_multiple_methods_recursively_even_with_extra_whitespace()
+    let g:php_builtin_classes = {}
+    let g:php_builtin_classnames = {}
+    let path = expand('%:p:h')."/"."fixtures/GetClassName/multi_hoops_extra_whitespace.php"
+    below 1new
+    exe ":silent! edit ".path
+    exe 'let b:phpbegin = [0, 0]'
+
+    exe ':18'
+    let classname = phpcomplete#GetClassName(18, '$result->', '', {})
+    call VUAssertEquals('Model', classname)
+
+    silent! bw! %
+endf
+
 " vim: foldmethod=marker:expandtab:ts=4:sts=4
