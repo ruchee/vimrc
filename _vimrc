@@ -1,8 +1,7 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-11-30 19:40
+" -----------------     Date: 2014-12-02 17:51
 " -----------------    https://github.com/ruchee/vimrc
-
 
 
 " 判断工作地点，根据指定路径的文件是否存在判断
@@ -16,6 +15,7 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
 else
+    set tags+=D:/Ruchee/Go/src/pkg/tags
     " set tags+=D:/Ruchee/Files/code/fms/laravel/tags
 endif
 
@@ -73,6 +73,8 @@ endif
 " \16                        --以十六进制格式查看
 " \r16                       --返回普通格式
 "
+" \gg                        --查看当前光标处元素的类型 [仅针对Go语言]
+" \go                        --一键切换到Go语法高亮
 " \php                       --一键切换到PHP语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
@@ -472,7 +474,12 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let python_highlight_all = 1                   " 打开全部Python高亮
+let python_highlight_all     = 1               " 打开全部Python高亮
+let g:go_auto_type_info      = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
+let g:go_highlight_operators = 1               " 开启Go语言操作符高亮
+let g:go_highlight_functions = 1               " 开启Go语言函数名高亮
+let g:go_highlight_methods   = 1               " 开启Go语言方法名高亮
+let g:go_highlight_structs   = 1               " 开启Go语言结构体名高亮
 
 
 " BufExplorer         文件缓冲浏览器
@@ -506,7 +513,7 @@ let g:snipMate.no_default_aliases          = 1
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html,company_5399'
+let g:snipMate.scope_aliases['php']        = 'php,html'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
@@ -671,6 +678,14 @@ nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 
 " \mt                 在当前目录下递归生成tags文件
 nmap <leader>mt <ESC>:!ctags -R --languages=
+
+" \gg                 查看当前光标处元素的类型 [仅针对Go语言，由vim-go插件提供]
+imap <leader>gg <ESC>:GoInfo<CR>li
+nmap <leader>gg <ESC>:GoInfo<CR>
+
+" \go                 一键切换到Go语法高亮
+imap <leader>go <ESC>:se ft=go<CR>li
+nmap <leader>go <ESC>:se ft=go<CR>
 
 " \php                一键切换到PHP语法高亮
 imap <leader>php <ESC>:se ft=php<CR>li

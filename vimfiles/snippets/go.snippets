@@ -6,7 +6,7 @@ snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
 snippet pa      包
 	package ${0}
-snippet pm      main包
+snippet pam     main包
 	package main${0}
 snippet im      导入单个包
 	import "${1}"${0}
@@ -47,6 +47,10 @@ snippet fo      for
 	for ${1} {
 	    ${0}
 	}
+snippet fr      for range
+	for ${1} := range ${2} {
+	    ${0}
+	}
 snippet sw      switch
 	switch ${1} {
 	    ${0}
@@ -60,8 +64,6 @@ snippet def     default
 snippet fa      继续匹配
 	fallthrough${0}
 # 单个关键字
-snippet m       声明
-	make(${0})
 snippet re      返回
 	return ${0}
 snippet co      继续
@@ -72,8 +74,8 @@ snippet go      跳转
 	goto ${0}
 snippet ra      range
 	range ${0}
-snippet de      删除map中的元素
-	delete(${1}, ${0})
+snippet tp      type
+	type ${0}
 snippet con     常量
 	const ${0}
 snippet con.    多个常量
@@ -86,6 +88,8 @@ snippet v.      定义多个变量
 	var (
 	    ${0}
 	)
+snippet i       初始置0，自增1
+	iota${0}
 # 数据类型
 snippet i8      int8
 	int8${0}
@@ -111,8 +115,19 @@ snippet c64     complex64
 	complex64${0}
 snippet c128    complex128
 	complex128${0}
+snippet s       string
+	string${0}
 snippet err     错误
 	error${0}
+# 常用函数
+snippet l       取数组元素个数、字符串长度
+	len(${0})
+snippet c       取数组切片分配的空间大小
+	cap(${0})
+snippet m       创建
+	make(${0})
+snippet d       删除
+	delete(${0})
 # 输入输出
 snippet p       输出（不换行）
 	print(${0})
@@ -129,3 +144,5 @@ snippet ffp     Fprintf
 # 其他
 snippet .       :=
 	:= ${0}
+snippet <       <-
+	<- ${0}
