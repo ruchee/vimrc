@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-08 20:18
+" -----------------     Date: 2014-12-09 20:30
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,15 +14,9 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/php/kernel/tags
-    " set tags+=D:/Ruchee/Files/code/php/background/tags
-    " set tags+=D:/Ruchee/Files/code/php/dmyx/tags
-    " set tags+=D:/Ruchee/Files/code/php/fish/tags
-    " set tags+=D:/Ruchee/Files/code/php/nsdz/tags
-    " set tags+=D:/Ruchee/Files/code/php/papi/tags
-    " set tags+=D:/Ruchee/Files/code/php/plat/tags
-    " set tags+=D:/Ruchee/Files/code/php/www/tags
-    set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
+    " set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
+    " set tags+=D:/Ruchee/Files/code/self/sf2/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/tags
 else
     " set tags+=D:/Ruchee/Go/src/pkg/tags
     " set tags+=D:/Ruchee/Files/code/fms/laravel/tags
@@ -239,6 +233,7 @@ au BufRead,BufNewFile *.tpl      setlocal ft=smarty
 au BufRead,BufNewFile *.txt      setlocal ft=txt
 au BufRead,BufNewFile hosts      setlocal ft=conf
 au BufRead,BufNewFile http*.conf setlocal ft=apache
+au BufRead,BufNewFile *.conf     setlocal ft=nginx
 
 
 " 设置着色模式和字体
@@ -286,11 +281,7 @@ set nobackup                 " 不生成备份文件
 set noswapfile               " 不生成交换文件
 set list                     " 显示特殊字符，其中Tab使用高亮~代替，尾部空白使用高亮点号代替
 set listchars=tab:\~\ ,trail:.
-if g:atCompany
-                             " 在公司按默认的Tab缩进" [我当前所在公司如此约定，你可以视自身情况决定是否要去掉这个if语句]
-else
-    set expandtab            " 将Tab自动转化成空格 [需要输入真正的Tab键时，使用 Ctrl+V + Tab]
-endif
+set expandtab                " 将Tab自动转化成空格 [需要输入真正的Tab键时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
 "set nowrap                  " 设置不自动换行
 
