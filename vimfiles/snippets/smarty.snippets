@@ -1,26 +1,26 @@
 snippet /       单行注释
-	<{* ${0} *}>
+	{* ${0} *}
 snippet //      多行注释
-	<{*${1}*}>
+	{*${1}*}
 snippet #       引用配置变量
-	<{#${1}#}>
+	{#${1}#}
 # 配置、变量、继承、重用相关
 snippet in      包含模板文件
-	<{include '${0}'}>
+	{include '${0}'}
 snippet ex      模版继承
-	<{extends file='${0}'}>
+	{extends file='${0}'}
 snippet bl      定义区块
-	<{block name=${1}}>${0}<{/block}>
+	{block name=${1}}${0}{/block}
 snippet cl      加载配置文件
-	<{config_load '${0}'}>
+	{config_load '${0}'}
 snippet as      定义变量/数组
-	<{assign '${1}'${0}}>
+	{assign '${1}'${0}}
 snippet cap     标记范围或捕获标记范围的内容到变量/数组
-	<{capture ${1}}>${0}<{/capture}>
+	{capture ${1}}${0}{/capture}
 snippet lit     忽略对标签的解析
-	<{literal}>${0}<{/literal}>
+	{literal}${0}{/literal}
 snippet php     不解析PHP代码
-	<{php}>${0}<{/php}>
+	{php}${0}{/php}
 # 保留变量
 snippet sm      $smarty保留变量
 	$smarty.${0}
@@ -65,17 +65,17 @@ snippet smrd    显示Smarty右定界符
 	$smarty.rdelim${0}
 # 流程控制
 snippet if      if
-	<{if ${1}}>${0}<{/if}>
+	{if ${1}}${0}{/if}
 snippet elif    elseif
-	<{elseif ${1}}>${0}
+	{elseif ${1}}${0}
 snippet el      else
-	<{else}>${0}
+	{else}${0}
 snippet fe      foreach
-	<{foreach from=$${1} key=${2} item=${3}}>${0}<{/foreach}>
+	{foreach from=$${1} key=${2} item=${3}}${0}{/foreach}
 snippet feel    foreachelse
-	<{foreachelse}>${0}
+	{foreachelse}${0}
 snippet se      section
-	<{section}>${0}<{/section}>
+	{section}${0}{/section}
 # 辅助函数
 snippet def     默认值
 	default:'${0}'
@@ -87,9 +87,9 @@ snippet mto     生成邮件链接
 	mailto '${0}'
 # 调用PHP调试函数
 snippet pvd     var_dump
-	<{var_dump($${0})}>
+	{var_dump($${0})}
 snippet ppr     print_r
-	<{print_r($${0})}>
+	{print_r($${0})}
 # 其他
-snippet .       <{ .. }>
-	<{${0}}>
+snippet .       { .. }
+	{${0}}

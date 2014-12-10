@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-09 20:30
+" -----------------     Date: 2014-12-10 18:48
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,8 +15,10 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
-    " set tags+=D:/Ruchee/Files/code/self/sf2/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/tags
+    set tags+=D:/Ruchee/Files/code/self/sf2/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/nsdz/m/tags
 else
     " set tags+=D:/Ruchee/Go/src/pkg/tags
     " set tags+=D:/Ruchee/Files/code/fms/laravel/tags
@@ -517,7 +519,7 @@ let g:snipMate.no_default_aliases          = 1
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['php']        = 'php,html,company_cx'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
