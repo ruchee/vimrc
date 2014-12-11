@@ -842,6 +842,8 @@ file
 file(string.filename[,bool.use_include_path])
 file_exists
 file_exists(string.filename)
+file_get_contents
+file_put_contents
 fileatime
 fileatime(string.filename)
 filectime
