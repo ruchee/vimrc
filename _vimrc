@@ -16,8 +16,8 @@ endif
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
     set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
-    set tags+=D:/Ruchee/Files/code/wuyun/dmyx/tags
+    set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/dmyx/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/nsdz/m/tags
 
     " set tags+=D:/Ruchee/Files/code/self/sf2/tags
