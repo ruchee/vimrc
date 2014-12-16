@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-14 21:56
+" -----------------     Date: 2014-12-16 18:53
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,14 +15,15 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
-    set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
-    set tags+=D:/Ruchee/Files/code/wuyun/www/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/www/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/dmyx/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/nsdz/m/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/bg/view/js/tags
 
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
 else
     " set tags+=~/code/fms/ci/tags
     " set tags+=~/code/fms/laravel/tags
@@ -243,6 +244,7 @@ au BufRead,BufNewFile *.txt      setlocal ft=txt
 au BufRead,BufNewFile hosts      setlocal ft=conf
 au BufRead,BufNewFile http*.conf setlocal ft=apache
 au BufRead,BufNewFile *.conf     setlocal ft=nginx
+au BufRead,BufNewFile *.ini      setlocal ft=dosini
 
 
 " 设置着色模式和字体
