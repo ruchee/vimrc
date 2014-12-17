@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-16 18:53
+" -----------------     Date: 2014-12-17 10:41
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -23,13 +23,12 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/view/js/tags
 
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
-    set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
 else
-    " set tags+=~/code/fms/ci/tags
     " set tags+=~/code/fms/laravel/tags
     " set tags+=~/code/fms/sf/tags
-    " set tags+=~/.rvm/rubies/tags
-    " set tags+=~/.rvm/gems/tags
+    set tags+=~/.rvm/rubies/tags
+    set tags+=~/.rvm/gems/tags
 endif
 
 
