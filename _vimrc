@@ -14,22 +14,14 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/baofeng/baofeng.7433.com/game_client/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/www/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/dmyx/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/nsdz/m/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/bg/view/js/tags
 
-    set tags+=D:/Ruchee/Files/code/phpcms/tags
+    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
 else
     " set tags+=~/code/fms/laravel/tags
     " set tags+=~/code/fms/sf/tags
-    set tags+=~/.rvm/rubies/tags
-    set tags+=~/.rvm/gems/tags
 endif
 
 
@@ -42,10 +34,10 @@ endif
 
 " ---------- Meta系按键 ----------
 "
-" Alt  + H                   --光标左移一格           [插入模式]
-" Alt  + J                   --光标下移一格           [插入模式]
-" Alt  + K                   --光标上移一格           [插入模式]
-" Alt  + L                   --光标右移一格           [插入模式]
+" Alt  + H                   --光标左移一格           [插入模式] [Linux下可能失效]
+" Alt  + J                   --光标下移一格           [插入模式] [Linux下可能失效]
+" Alt  + K                   --光标上移一格           [插入模式] [Linux下可能失效]
+" Alt  + L                   --光标右移一格           [插入模式] [Linux下可能失效]
 
 " ---------- Leader系按键 ----------
 "
@@ -60,8 +52,6 @@ endif
 " \rm                        --一键去除字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
 "
-" \ww                        --打开Vimwiki主页
-" \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \ff                        --打开ctrlp.vim文件搜索窗口
@@ -70,13 +60,11 @@ endif
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
 " \ud                        --打开/关闭编辑历史窗口  [Normal模式可用]
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
-" \ce                        --打开配色预览窗口       [Normal模式可用]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
 " \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
 " \ev                        --编辑当前所使用的Vim配置文件
-" \mt                        --在当前目录下递归生成tags文件
 "
 " \cc                        --添加注释               [NERD_commenter]
 " \cu                        --取消注释               [NERD_commenter]
@@ -86,8 +74,6 @@ endif
 " \16                        --以十六进制格式查看
 " \r16                       --返回普通格式
 "
-" \gg                        --查看当前光标处元素的类型 [仅针对Go语言]
-" \go                        --一键切换到Go语法高亮
 " \php                       --一键切换到PHP语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
@@ -97,8 +83,8 @@ endif
 "
 " Ctrl + P                   --单词补全               [插入模式]
 " Alt + P                    --omnicompletion补全     [插入模式]
-" Tab键                      --语法结构补全           [插入模式][snipMate插件]
-" Ctrl+Y+,                   --HTML标签补全           [插入模式][emmet插件]
+" Tab键                      --语法结构补全           [插入模式] [snipMate插件]
+" Ctrl+Y+,                   --HTML标签补全           [插入模式] [emmet插件]
 
 " ---------- 格式化命令 ----------
 "
@@ -197,12 +183,6 @@ endif
 " zj                         --向下移动到后一个折叠的开始处
 " zk                         --向上移动到前一个折叠的结束处
 "
-" ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
-"
-" 链接：[[链接地址|链接描述]]
-" 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
-" 代码：{{{语言名 代码 }}}，如 {{{C++ 代码 }}}
-"
 " ---------- 其他常用内建命令 ------------------------------
 "
 " :se ff=unix                --更改文件格式，可选 unix、dos、mac
@@ -249,23 +229,11 @@ au BufRead,BufNewFile *.ini      setlocal ft=dosini
 
 " 设置着色模式和字体
 if g:isWIN
-    if g:isGUI
-        if g:atCompany
-            colorscheme molokai
-            set guifont=Monaco:h12
-        else
-            colorscheme molokai
-            set guifont=Monaco:h11
-        endif
-    endif
+    colorscheme molokai
+    set guifont=Monaco:h12
 else
-    if g:isGUI
-        colorscheme molokai
-        set guifont=Monaco\ 11
-    else
-        colorscheme tango2
-        set guifont=Monaco\ 11
-    endif
+    colorscheme molokai
+    set guifont=Monaco\ 11
 endif
 
 
@@ -373,12 +341,12 @@ au FileType ruby     set iskeyword+=?
 au FileType c          call AddCDict()
 au FileType cpp        call AddCPPDict()
 au FileType java       call AddJavaDict()
-au FileType scala      call AddScalaDict()
 au FileType lua        call AddLuaDict()
 au FileType perl       call AddPerlDict()
 au FileType php        call AddPHPDict()
 au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
+au FileType scala      call AddScalaDict()
 au FileType javascript call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
 
@@ -409,15 +377,6 @@ function AddJavaDict()
         set dict+=$VIM/vimfiles/dict/java.txt
     else
         set dict+=~/.vim/dict/java.txt
-    endif
-    set complete+=k
-endfunction
-
-function AddScalaDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/scala.txt
-    else
-        set dict+=~/.vim/dict/scala.txt
     endif
     set complete+=k
 endfunction
@@ -463,6 +422,15 @@ function AddRubyDict()
         set dict+=$VIM/vimfiles/dict/ruby.txt
     else
         set dict+=~/.vim/dict/ruby.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddScalaDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/scala.txt
+    else
+        set dict+=~/.vim/dict/scala.txt
     endif
     set complete+=k
 endfunction
@@ -528,8 +496,8 @@ let g:snipMate.no_default_aliases          = 1
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html,company_cx'
-let g:snipMate.scope_aliases['smarty']     = 'smarty,html,thinkphp'
+let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['smarty']     = 'smarty,html'
 let g:snipMate.scope_aliases['twig']       = 'twig,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
@@ -640,9 +608,6 @@ nmap <leader>ud :UndotreeToggle<CR>
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
 
-" \ce                 打开配色预览窗口 [ColorSchemeExplorer插件]
-nmap <leader>ce :ColorSchemeExplorer<CR>
-
 " \16                 十六进制格式查看
 nmap <leader>16 <ESC>:%!xxd<ESC>
 
@@ -683,24 +648,8 @@ imap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><
 nmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 vmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 
-" \wa                 一键编译所有Vimwiki源文件
-imap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
-nmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
-vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
-
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <ESC>:e $MYVIMRC<CR>
-
-" \mt                 在当前目录下递归生成tags文件
-nmap <leader>mt <ESC>:!ctags -R --languages=
-
-" \gg                 查看当前光标处元素的类型 [仅针对Go语言，由vim-go插件提供]
-imap <leader>gg <ESC>:GoInfo<CR>li
-nmap <leader>gg <ESC>:GoInfo<CR>
-
-" \go                 一键切换到Go语法高亮
-imap <leader>go <ESC>:se ft=go<CR>li
-nmap <leader>go <ESC>:se ft=go<CR>
 
 " \php                一键切换到PHP语法高亮
 imap <leader>php <ESC>:se ft=php<CR>li
@@ -834,38 +783,3 @@ vmap <leader>R <ESC>:call Compile_Run_Code()<CR>
 imap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 nmap <leader>T :LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
 vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
-
-
-" ======= Vimwiki ======= "
-
-let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
-let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
-" 声明可以在 wiki 里面使用的 HTML 标签
-let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
-
-let blog = {}
-if g:atCompany
-    if g:isWIN
-        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
-    endif
-else
-    if g:isWIN
-        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
-    else
-        let blog.path          = '~/mysite/wiki/'
-        let blog.path_html     = '~/mysite/html/'
-        let blog.template_path = '~/mysite/templates/'
-    endif
-endif
-let blog.template_default = 'site'
-let blog.template_ext     = '.html'
-let blog.auto_export      = 1
-
-" 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Dlang': 'd', 'Go': 'go', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Rlang': 'r', 'Coffee': 'coffee', 'LiveScript': 'ls', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
-
-let g:vimwiki_list = [blog]
