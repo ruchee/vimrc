@@ -1,0 +1,169 @@
+Given mkd;
+a **b** c
+
+Execute (bold):
+  AssertNotEqual SyntaxOf('a'), 'htmlBold'
+  AssertEqual SyntaxOf('b'), 'htmlBold'
+  AssertNotEqual SyntaxOf('c'), 'htmlBold'
+
+Given mkd;
+a *b* c
+
+Execute (italic):
+  AssertNotEqual SyntaxOf('a'), 'htmlItalic'
+  AssertEqual SyntaxOf('b'), 'htmlItalic'
+  AssertNotEqual SyntaxOf('c'), 'htmlItalic'
+
+# Links
+
+Given mkd;
+[a](b)
+
+Execute (link with title):
+  AssertEqual SyntaxOf('a'), 'mkdLink'
+  AssertEqual SyntaxOf('b'), 'mkdURL'
+
+Given mkd;
+(a)
+
+(b)
+
+Execute (parenthesis not in link):
+  AssertNotEqual SyntaxOf('a'), 'mkdURL'
+  AssertNotEqual SyntaxOf('b'), 'mkdURL'
+
+Given mkd;
+[a](b) c [d](e)
+
+Execute (multiple links on a line):
+  AssertEqual SyntaxOf('c'), ''
+
+# Autolinks
+
+Given mkd;
+a <http://b> c
+
+Execute (autolink):
+  AssertNotEqual SyntaxOf('a'), 'mkdInlineURL'
+  AssertEqual SyntaxOf('<'), 'mkdDelimiter'
+  AssertEqual SyntaxOf('b'), 'mkdInlineURL'
+  AssertEqual SyntaxOf('>'), 'mkdDelimiter'
+  AssertNotEqual SyntaxOf('c'), 'mkdInlineURL'
+
+Given mkd;
+<HtTp://a>
+
+Execute (autolink with scheme case is insensitive):
+  AssertEqual SyntaxOf('a'), 'mkdInlineURL'
+
+Given mkd;
+<notascheme://a>
+
+Execute (autolink without known scheme is not a link):
+  AssertNotEqual SyntaxOf('n'), 'mkdInlineURL'
+
+Given mkd;
+<a>
+
+Execute (autolink without scheme is not a link):
+  AssertNotEqual SyntaxOf('a'), 'mkdInlineURL'
+
+Given mkd;
+< http://a >
+<http://b c>
+<http://d
+e>
+
+Execute (autolink with space is not a link):
+  AssertNotEqual SyntaxOf('a'), 'mkdInlineURL'
+  AssertNotEqual SyntaxOf('b'), 'mkdInlineURL'
+  AssertNotEqual SyntaxOf('c'), 'mkdInlineURL'
+  AssertNotEqual SyntaxOf('d'), 'mkdInlineURL'
+  AssertNotEqual SyntaxOf('e'), 'mkdInlineURL'
+
+Given mkd;
+\<http://a>
+
+Execute (autolinks can be backslash escaped):
+  AssertNotEqual SyntaxOf('<'), 'mkdDelimiter'
+
+# Math
+
+Given mkd;
+a $x$ b
+c $$y$$ d
+\$e\$
+\$\$f\$\$
+
+Execute (math):
+  AssertNotEqual SyntaxOf('x'), 'mkdMath'
+  AssertNotEqual SyntaxOf('y'), 'mkdMath'
+  let g:vim_markdown_math=1
+  syn off | syn on
+  AssertNotEqual SyntaxOf('a'), 'mkdMath'
+  AssertNotEqual SyntaxOf('b'), 'mkdMath'
+  AssertNotEqual SyntaxOf('c'), 'mkdMath'
+  AssertNotEqual SyntaxOf('d'), 'mkdMath'
+  AssertNotEqual SyntaxOf('e'), 'mkdMath'
+  AssertNotEqual SyntaxOf('f'), 'mkdMath'
+  AssertEqual SyntaxOf('x'), 'mkdMath'
+  AssertEqual SyntaxOf('y'), 'mkdMath'
+  let g:vim_markdown_math=0
+  syn off | syn on
+  AssertNotEqual SyntaxOf('x'), 'mkdMath'
+  AssertNotEqual SyntaxOf('y'), 'mkdMath'
+
+Given mkd;
+a
+
+$
+b
+$
+
+c
+
+Execute (multiline math):
+  let g:vim_markdown_math=1
+  syn off | syn on
+  AssertNotEqual SyntaxOf('a'), 'mkdMath'
+  AssertEqual SyntaxOf('b'), 'mkdMath'
+  AssertNotEqual SyntaxOf('c'), 'mkdMath'
+
+# YAML frontmatter
+
+Given mkd;
+---
+a: b
+---
+
+Execute (YAML frontmatter is controlled by the option):
+  AssertNotEqual SyntaxOf('a'), 'yamlBlockMappingKey'
+  let g:vim_markdown_frontmatter=1
+  syn off | syn on
+  AssertEqual SyntaxOf('a'), 'yamlBlockMappingKey'
+  let g:vim_markdown_frontmatter=0
+  syn off | syn on
+  AssertNotEqual SyntaxOf('a'), 'yamlBlockMappingKey'
+
+Given mkd;
+
+---
+a: b
+---
+
+Execute (YAML frontmatter only works if it's the first thing in the file):
+  let g:vim_markdown_frontmatter=1
+  syn off | syn on
+  AssertNotEqual SyntaxOf('a'), 'yamlBlockMappingKey'
+
+Given mkd;
+---
+a: b
+---
+
+---
+
+Execute (rules are not mistaken by YAML frontmatter delimiters):
+  let g:vim_markdown_frontmatter=1
+  syn off | syn on
+  AssertEqual SyntaxAt(5, 1), 'mkdRule'

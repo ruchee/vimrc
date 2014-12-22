@@ -163,8 +163,9 @@ Example: >
 You can use the |:Errors| command to display the errors for the current buffer
 in the |location-list|.
 
-Note that when you use |:Errors|, the current location list is overwritten
-with Syntastic's own location list.
+Note that when you use |:Errors| the current location list is overwritten with
+Syntastic's own location list. The location list is also overwritten when
+|syntastic_auto_jump| is non-zero and the cursor has to jump to an issue.
 
 By default syntastic doesn't fill the |location-list| with the errors found by
 the checkers, in order to reduce clashes with other plugins. Consequently, if
@@ -382,12 +383,17 @@ when saving or opening a file.
 When set to 0 the cursor won't jump automatically. >
     let g:syntastic_auto_jump = 0
 <
-When set to 1 the cursor will always jump to the first issue detected. >
+When set to 1 the cursor will always jump to the first issue detected,
+regardless of type. >
     let g:syntastic_auto_jump = 1
 <
 When set to 2 the cursor will jump to the first issue detected, but only if
 this issue is an error. >
     let g:syntastic_auto_jump = 2
+<
+When set to 3 the cursor will jump to the first error detected, if any. If
+all issues detected are warnings, the cursor won't jump. >
+    let g:syntastic_auto_jump = 3
 <
                                                    *'syntastic_auto_loc_list'*
 Default: 2
@@ -458,8 +464,18 @@ the "passive_filetypes" array ("active_filetypes" is ignored).
 If any of "mode", "active_filetypes", or "passive_filetypes" are left
 unspecified, they default to values above.
 
+If local variable |'b:syntastic_mode'| is defined its value takes precedence
+over all calculations involving |'syntastic_mode_map'| for the corresponding
+buffer.
+
 At runtime, the |:SyntasticToggleMode| command can be used to switch between
 active and passive modes.
+
+                                                          *'b:syntastic_mode'*
+Default: unset
+Only the local form |'b:syntastic_mode'| is used. When set to either "active"
+or "passive", it takes precedence over |'syntastic_mode_map'| when deciding
+whether the corresponding buffer should be checked automatically.
 
                                                   *'syntastic_quiet_messages'*
 Default: {}

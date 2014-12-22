@@ -1,0 +1,143 @@
+*fencview.txt*              View a file in different encodings
+
+
+                           Vim fencview
+
+
+Authors:                   Ming Bai <mbbill@gmail.com>
+                           Wu Yongwei <wuyongwei@gmail.com>
+Plugin Homepage:   <https://github.com/mbbill/fencview>
+
+===============================================================================
+CONTENTS                                                    *FencviewContents*
+
+  1.  Introduction ................. |FencviewIntroduction|
+  2.  Installation ................. |FencviewInstallation|
+  3.  Usage ........................ |FencviewUsage|
+  4.  Commands ..................... |FencviewCommands|
+  5.  Customisation ................ |FencviewCustomisation|
+  6.  Tips ......................... |FencviewTips|
+
+===============================================================================
+1. INTRODUCTION                                         *FencviewIntroduction*
+                                                                    *Fencview*
+
+Have you ever met that after opening a text file with some kind of encoding 
+you got a bunch of unreadable mess? 
+
+If so, you need **fencview.vim**.
+
+Normally, vim detects file encoding based on *fileencodings* option.
+
+For example, if we set this option like this:  
+`set fileencodings=ucs-bom,GB2312,big5`  
+
+Firstly vim try to read file bom. If there is no bom, vim will try to decode 
+the file with GB2312. Unfortunately, the GB2312 and big5 have a lot of 
+overlapped code-points which could lead to a big5-encoded file be decoded with
+GB2312 by mistake. Then you got mess. 
+
+The **fencview.vim** uses another approach, let me show you how.
+As we know, take Chinese for example, the occurrence frequency of every 
+character in a normal article is different. For example, '的' is a high 
+frequency character which is encoded to 0xb5c4 in GB2312. However, in Big5 
+0xb5c4 is the code point for '腔' which is much less frequently used. So we 
+can "guess" the encoding of a file by count up the frequently used characters.  
+It is not 100% accurate but works in most cases. 
+
+The user manual is embeded in **fencview.vim**, refer to it if you'd like to
+custmize this script.
+
+If you encounter a file that **fencview.vim** can not handle, you're more than
+welcome to send it to me in order to improve the algrithm, but take care of the
+sensitive data before you do that.
+
+===============================================================================
+2. INSTALLATION                                         *FencviewInstallation*
+
+Simply put **[fencview.vim](https://github.com/mbbill/fencview/blob/master/plugin/fencview.vim)**
+into *plugin* directory and that's all.  
+
+For windows users, you need to put **iconv.dll** ([download link](https://sites.google.com/site/mbbill/iconv.dll))
+into one of your directory in %path%.
+
+===============================================================================
+3. USAGE                                                       *FencviewUsage*
+
+You don't have to do anything: it just works.
+
+===============================================================================
+4. COMMANDS                                                 *FencviewCommands*
+
+  :FencAutoDetect                                           *:FencAutoDetect*
+      Auto detect the file encoding.
+         Built-in detected encodings:
+            Unicode:
+               UTF-8
+            Chinese Simplified:
+               CP936 (GBK, EUC-CN)
+            Chinese Traditional:
+               CP950 (Big5)
+               EUC-TW
+            Japanese:
+               CP932 (SJIS)
+               EUC-JP
+            Korean:
+               CP949 (EUC-KR)
+
+  :FencView                                                 *:FencView*
+      Open the encoding list window,
+      <up> and <down> to select an encoding,
+      enter to reload the file
+
+===============================================================================
+5. CUSTOMISATION                                       *FencviewCustomisation*
+
+Set these value in vimrc to config this
+plugin. Example:
+let g:fencview_autodetect = 1
+
+"$FENCVIEW_TELLENC"
+  Now FencView allows the use of an external
+  program to determine the file encoding. It
+  may give you better performance, or better
+  accuracy, in some cases. Set the environment
+  variable FENCVIEW_TELLENC (or the vimrc
+  variable $FENCVIEW_TELLENC) to use this
+  feature. It is currently tested against
+  tellenc.
+  (default: 'tellenc')
+  It means if tellenc is executable, it will
+  be used by default. If you still want to use
+  the detection mechanism of this script, set
+  the value to "fencview".
+
+"g:fencview_autodetect"
+  Auto detect file encoding when you open a
+  file.
+  (default: 0)
+
+"g:fencview_auto_patterns"
+  Set this variable in your vimrc to decide
+  the pattern of file names to enable
+  autodetection.
+  (default: '*.txt,*.htm{l\=}')
+
+"g:fencview_checklines"
+  It checks first and last several lines of
+  current file, so don't set the value too
+  large. Set to 0 if you want to check every
+  line." (default: 10)
+
+===============================================================================
+6. Tips                                                           *FencviewTips*
+
+a. "+iconv" feature is needed. If you are using Microsoft Windows, make sure 
+   you have iconv.dll in $PATH.  (http://mbbill.googlepages.com/iconv.dll)
+   Use command ":echo has('iconv')" to check it.  
+
+b. Make sure there is no modeline at the end of current file.
+
+c. Set encoding to utf-8 for better performance.
+
+d. No effect to Vim encrypted files.

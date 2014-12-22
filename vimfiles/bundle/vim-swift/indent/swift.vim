@@ -1,7 +1,7 @@
 " File: swift.vim
 " Author: Keith Smiley
 " Description: The indent file for Swift
-" Last Modified: June 13, 2014
+" Last Modified: December 05, 2014
 
 if exists("b:did_indent")
   finish
@@ -11,65 +11,162 @@ let b:did_indent = 1
 let s:cpo_save = &cpo
 set cpo&vim
 
-setlocal indentexpr=SwiftIndent()
+setlocal indentkeys-=0{
+setlocal indentkeys-=0}
+setlocal indentkeys-=:
+setlocal indentkeys-=e
 setlocal indentkeys+=0[,0]
+setlocal indentexpr=SwiftIndent(v:lnum)
 
 function! s:NumberOfMatches(char, string)
   let regex = "[^" . a:char . "]"
   return strlen(substitute(a:string, regex, "", "g"))
 endfunction
 
-function! SwiftIndent()
-  let line = getline(v:lnum)
-  let previousNum = prevnonblank(v:lnum - 1)
+function! s:SyntaxGroup()
+  return synIDattr(synID(line("."), col("."), 0), "name")
+endfunction
+
+function! s:IsComment()
+  return s:SyntaxGroup() ==# 'swiftComment'
+endfunction
+
+function! SwiftIndent(lnum)
+  let line = getline(a:lnum)
+  let previousNum = prevnonblank(a:lnum - 1)
   let previous = getline(previousNum)
+  let cindent = cindent(a:lnum)
+  let previousIndent = indent(previousNum)
 
-  if previous =~ "{" && previous !~ "}" && line !~ "}" && line !~ ":$"
-    return indent(previousNum) + &tabstop
-  endif
-
-  if previous =~ "[" && previous !~ "]" && line !~ "]" && line !~ ":$"
-    return indent(previousNum) + &tabstop
-  endif
-
-  if line =~ "^\\s*],\\?$"
-    return indent(previousNum) - &tabstop
-  endif
-
-  " Indent multi line declarations see #19
-  " Allow statements to also be in parens
   let numOpenParens = s:NumberOfMatches("(", previous)
   let numCloseParens = s:NumberOfMatches(")", previous)
-  if numOpenParens != 0 && (numOpenParens > numCloseParens)
-    let previousParen = match(previous, "(")
-    " Indent second line 1 space past above paren
-    return previousParen + 1
-    " Indent it one tabstop in
-    " return indent(previousNum) + &tabstop
+  let numOpenBrackets = s:NumberOfMatches("{", previous)
+  let numCloseBrackets = s:NumberOfMatches("}", previous)
+
+  let currentOpenBrackets = s:NumberOfMatches("{", line)
+  let currentCloseBrackets = s:NumberOfMatches("}", line)
+
+  let numOpenSquare = s:NumberOfMatches("[", previous)
+  let numCloseSquare = s:NumberOfMatches("]", previous)
+
+  let currentCloseSquare = s:NumberOfMatches("]", line)
+  if numOpenSquare > numCloseSquare
+    return previousIndent + shiftwidth()
   endif
 
-  if previous =~ ":$" && line !~ ":$"
-    return indent(previousNum) + &tabstop
+  if currentCloseSquare > 0
+    let openingSquare = searchpair('\[', '', '\]', 'bWn')
+
+    return indent(openingSquare)
+  endif
+
+  if s:IsComment()
+    return previousIndent
   endif
 
   if line =~ ":$"
-    if indent(v:lnum) > indent(previousNum)
-      return indent(v:lnum) - &tabstop
+    let switch = search('switch', 'bWn')
+    return indent(switch)
+  elseif previous =~ ":$"
+    return previousIndent + shiftwidth()
+  endif
+
+  if numOpenParens == numCloseParens
+    if numOpenBrackets > numCloseBrackets
+      if currentCloseBrackets > currentOpenBrackets
+        normal! mi
+        let openingBracket = searchpair("{", "", "}", "bWn")
+        normal! `i
+        return indent(openingBracket)
+      endif
+
+      return previousIndent + shiftwidth()
+    elseif previous =~ "}.*{"
+      return previousIndent + shiftwidth()
+    elseif line =~ "}.*{"
+      let openingBracket = searchpair("{", "", "}", "bWn")
+      return indent(openingBracket)
+    elseif currentCloseBrackets > currentOpenBrackets
+      let openingBracket = searchpair("{", "", "}", "bWn")
+      let bracketLine = getline(openingBracket)
+
+      let numOpenParensBracketLine = s:NumberOfMatches("(", bracketLine)
+      let numCloseParensBracketLine = s:NumberOfMatches(")", bracketLine)
+      if numCloseParensBracketLine > numOpenParensBracketLine
+        normal! mi
+        execute "normal! " . openingBracket . "G"
+        let openingParen = searchpair("(", "", ")", "bWn")
+        normal! `i
+        return indent(openingParen)
+      endif
+      return indent(openingBracket)
     else
-      return indent(v:lnum)
+      return previousIndent
     endif
   endif
 
-  " Correctly indent bracketed things when using =
-  if line =~ "}"
-    let newIndent = &tabstop
-    if previous =~ "{"
-      let newIndent = 0
+  if numCloseParens > 0
+    if currentOpenBrackets > 0 || currentCloseBrackets > 0
+      if currentOpenBrackets > 0
+        if numOpenBrackets > numCloseBrackets
+          return previousIndent + shiftwidth()
+        endif
+
+        if line =~ "}.*{"
+          let openingBracket = searchpair("{", "", "}", "bWn")
+          return indent(openingBracket)
+        endif
+
+        if numCloseParens > numOpenParens
+          normal! mik
+          let openingParen = searchpair("(", "", ")", "bWn")
+          normal! `i
+          return indent(openingParen)
+        endif
+
+        return previousIndent
+      endif
+
+      if currentCloseBrackets > 0
+        let openingBracket = searchpair("{", "", "}", "bWn")
+        return indent(openingBracket)
+      endif
+
+      return cindent
     endif
-    return indent(previousNum) - newIndent
+
+    if numCloseParens < numOpenParens
+      if numOpenBrackets > numCloseBrackets
+        return previousIndent + shiftwidth()
+      endif
+
+      let previousParen = match(previous, "(")
+      return previousParen + 1
+    endif
+
+    if numOpenBrackets > numCloseBrackets
+      normal! mi
+      execute "normal! " . previousNum . "G"
+      let openingParen = searchpair("(", "", ")", "bWn")
+      normal! `i
+
+      return indent(openingParen) + shiftwidth()
+    endif
+
+    normal! mi
+    execute "normal! " . previousNum . "G"
+    let openingParen = searchpair("(", "", ")", "bWn")
+    normal! `i
+
+    return indent(openingParen)
   endif
 
-  return indent(previousNum)
+  if numOpenParens > 0
+    let previousParen = match(previous, "(")
+    return previousParen + 1
+  endif
+
+  return cindent
 endfunction
 
 let &cpo = s:cpo_save

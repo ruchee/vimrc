@@ -40,18 +40,18 @@ else
 endif
 
 syntax match mustacheError '}}}\?'
-syntax match mustacheInsideError '{{[{#<>=!\/]\?'
+syntax match mustacheInsideError '{{[{$#<>=!\/]\?'
 syntax region mustacheInside start=/{{/ end=/}}}\?/ keepend containedin=TOP,@htmlMustacheContainer
 syntax match mustacheOperators '=\|\.\|/' contained containedin=mustacheInside,@htmlMustacheContainer
-syntax region mustacheSection start='{{[#^/]'lc=2 end=/}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
+syntax region mustacheSection start='{{[$#^/]'lc=2 end=/}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
 syntax region mustachePartial start=/{{[<>]/lc=2 end=/}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
 syntax region mustacheMarkerSet start=/{{=/lc=2 end=/=}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
 syntax match mustacheHandlebars '{{\|}}' contained containedin=mustacheInside,@htmlMustacheContainer
 syntax match mustacheUnescape '{{{\|}}}' contained containedin=mustacheInside,@htmlMustacheContainer
 syntax match mustacheConditionals '\([/#]\(if\|unless\)\|else\)' contained containedin=mustacheInside
 syntax match mustacheHelpers '[/#]\(with\|each\)' contained containedin=mustacheSection
-syntax region mustacheComment start=/{{!/rs=s+2 end=/}}/re=e-2 contains=Todo contained containedin=mustacheInside,@htmlMustacheContainer
-syntax region mustacheBlockComment start=/{{!--/rs=s+2 end=/--}}/re=e-2 contains=Todo
+syntax region mustacheComment      start=/{{!/rs=s+2   skip=/{{.\{-}}}/ end=/}}/re=e-2   contains=Todo contained containedin=mustacheInside,@htmlMustacheContainer
+syntax region mustacheBlockComment start=/{{!--/rs=s+2 skip=/{{.\{-}}}/ end=/--}}/re=e-2 contains=Todo contained extend containedin=mustacheInside,@htmlMustacheContainer
 syntax region mustacheQString start=/'/ skip=/\\'/ end=/'/ contained containedin=mustacheInside
 syntax region mustacheDQString start=/"/ skip=/\\"/ end=/"/ contained containedin=mustacheInside
 

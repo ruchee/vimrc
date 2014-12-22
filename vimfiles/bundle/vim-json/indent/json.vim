@@ -1,9 +1,9 @@
 " Vim indent file
 " Language:		JSON
-" Maintainer:		Rogerz Zhang <rogerz.zhang at gmail.com>
-" URL:			http://github.com/rogerz/vim-json
-" Version:              1.0.0
-" Last Change:          August 31, 2009
+" Mantainer:		Eli Parra <eli@elzr.com> https://github.com/elzr/vim-json
+" Last Change:          2014-05-13: merged Fix for square bracket matching by Jakar 
+"   https://github.com/jakar/vim-json/commit/20b650e22aa750c4ab6a66aa646bdd95d7cd548a#diff-e81fc111b2052e306d126bd9989f7b7c
+" Original Author:	Rogerz Zhang <rogerz.zhang at gmail.com> http://github.com/rogerz/vim-json
 " Acknowledgement:      Based off of vim-javascript maintained by Darrick Wiebe 
 "                       http://www.vim.org/scripts/script.php?script_id=2765
 
@@ -166,3 +166,4 @@ let &cpo = s:cpo_save
 unlet s:cpo_save
 
 " vim:set sw=2 sts=2 ts=8 noet:
+

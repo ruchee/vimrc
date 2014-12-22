@@ -1,62 +1,92 @@
 # Markdown Vim Mode
 
+[![Build Status](https://travis-ci.org/plasticboy/vim-markdown.svg)](https://travis-ci.org/plasticboy/vim-markdown)
+
 Syntax highlighting, matching rules and mappings for [the original Markdown](http://daringfireball.net/projects/markdown/) and extensions.
 
 ## Installation
 
 If you use [Vundle](https://github.com/gmarik/vundle), add the following line to your `~/.vimrc`:
 
-    Plugin 'godlygeek/tabular'
-    Plugin 'plasticboy/vim-markdown'
+```vim
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
+```
 
-The `tabular` plugin come *before* `vim-markdown`.
+The `tabular` plugin must come *before* `vim-markdown`.
 
 Then run inside Vim:
 
-    :so ~/.vimrc
-    :PluginInstall
+```vim
+:so ~/.vimrc
+:PluginInstall
+```
 
 If you use [Pathogen](https://github.com/tpope/vim-pathogen), do this:
 
-    $ cd ~/.vim/bundle
-    $ git clone https://github.com/plasticboy/vim-markdown.git
+```sh
+cd ~/.vim/bundle
+git clone https://github.com/plasticboy/vim-markdown.git
+```
 
 To install without Pathogen using the Debian [vim-addon-manager](http://packages.qa.debian.org/v/vim-addon-manager.html), do this:
 
-    $ git clone https://github.com/plasticboy/vim-markdown.git
-    $ cd vim-markdown
-    $ sudo make install
-    $ vim-addon-manager install mkd
+```sh
+git clone https://github.com/plasticboy/vim-markdown.git
+cd vim-markdown
+sudo make install
+vim-addon-manager install mkd
+```
 
 If you are not using any package manager, download the [tarball](https://github.com/plasticboy/vim-markdown/archive/master.tar.gz) and do this:
 
-    $ cd ~/.vim
-    $ tar --strip=1 -zxf vim-markdown-master.tar.gz
+```sh
+cd ~/.vim
+tar --strip=1 -zxf vim-markdown-master.tar.gz
+```
 
 ## Options
 
-**Disable Folding**
+### Disable Folding
 
-Add the following line to your `.vimrc` to disable folding.
+Add the following line to your `.vimrc` to disable folding configuration.
 
 ```vim
 let g:vim_markdown_folding_disabled=1
 ```
 
-**Set Initial Foldlevel**
-
-Add the following line to your `.vimrc` to set the initial foldlevel. This option defaults to 0 (i.e. all folds are closed) and is ignored if folding is disabled.
+This option only controls vim_markdown's folding configuration. To enable/disable folding use Vim's folding configuration.
 
 ```vim
-let g:vim_markdown_initial_foldlevel=1
+set [no]foldenable
 ```
 
-**Disable Default Key Mappings**
+### Disable Default Key Mappings
 
 Add the following line to your `.vimrc` to disable default key mappings. You can map them by yourself with `<Plug>` mappings.
 
 ```vim
 let g:vim_markdown_no_default_key_mappings=1
+```
+
+### Syntax extensions
+
+The following options control which syntax extensions will be turned on. They are off by default.
+
+#### LaTeX math
+
+Used as `$x^2$`, `$$x^2$$`, escapable as `\$x\$` and `\$\$x\$\$`.
+
+```vim
+let g:vim_markdown_math=1
+```
+
+#### YAML frontmatter
+
+Highlight YAML frontmatter as used by Jekyll:
+
+```vim
+let g:vim_markdown_frontmatter=1
 ```
 
 ## Mappings

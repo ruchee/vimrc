@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-19 14:07
+" -----------------     Date: 2014-12-22 15:51
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -41,24 +41,20 @@ endif
 
 " ---------- Leader系按键 ----------
 "
-" \c[小写]                   --复制至公共剪贴板       [仅选择模式]
-" \a[小写]                   --复制所有至公共剪贴板   [Normal模式可用]
-" \v[小写]                   --从公共剪贴板粘贴       [全模式可用]
+" \c                         --复制至公共剪贴板       [仅选择模式]
+" \a                         --复制所有至公共剪贴板   [Normal模式可用]
+" \v                         --从公共剪贴板粘贴       [全模式可用]
 "
-" \T[大写]                   --一键加载语法模板       [全模式可用]
-" \R[大写]                   --源码一键编译运行       [全模式可用]
-"
+" \rr                        --一键编译&&运行         [全模式可用]
 " \rb                        --一键去除所有尾部空白   [全模式可用]
 " \rm                        --一键去除字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
 "
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
-" \ff                        --打开ctrlp.vim文件搜索窗口
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
-" \ud                        --打开/关闭编辑历史窗口  [Normal模式可用]
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
@@ -71,9 +67,6 @@ endif
 " \cm                        --添加块注释             [NERD_commenter]
 " \cs                        --添加SexStyle块注释     [NERD_commenter]
 "
-" \16                        --以十六进制格式查看
-" \r16                       --返回普通格式
-"
 " \php                       --一键切换到PHP语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
@@ -81,10 +74,10 @@ endif
 
 " ---------- 补全命令 ----------
 "
-" Ctrl + P                   --单词补全               [插入模式]
-" Alt + P                    --omnicompletion补全     [插入模式]
+" Ctrl + P                   --缓冲区补全             [插入模式]
+" Ctrl + Z                   --omni补全               [插入模式] [只支持定义了omnifunc的语言]
 " Tab键                      --语法结构补全           [插入模式] [snipMate插件]
-" Ctrl+Y+,                   --HTML标签补全           [插入模式] [emmet插件]
+" Ctrl + Y + ,               --HTML标签补全           [插入模式] [emmet插件]
 
 " ---------- 格式化命令 ----------
 "
@@ -457,12 +450,13 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let python_highlight_all     = 1               " 打开全部Python高亮
 let g:go_auto_type_info      = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
 let g:go_highlight_operators = 1               " 开启Go语言操作符高亮
 let g:go_highlight_functions = 1               " 开启Go语言函数名高亮
 let g:go_highlight_methods   = 1               " 开启Go语言方法名高亮
 let g:go_highlight_structs   = 1               " 开启Go语言结构体名高亮
+
+let python_highlight_all     = 1               " 打开全部Python高亮
 
 
 " BufExplorer         文件缓冲浏览器
@@ -475,12 +469,6 @@ let Tlist_Exit_OnlyWindow      = 1             " 如果Taglist窗口是最后一
 let Tlist_Use_Right_Window     = 1             " 在右侧窗口中显示
 let Tlist_File_Fold_Auto_Close = 1             " 自动折叠
 
-" LoadTemplate        根据文件后缀自动加载模板
-if g:isWIN
-    let g:template_path = $VIM.'/vimfiles/template/'
-else
-    let g:template_path = '~/.vim/template/'
-endif
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
@@ -494,7 +482,7 @@ let g:snipMate                             = {}
 let g:snipMate.no_default_aliases          = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate.scope_aliases               = {}
-let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
+let g:snipMate.scope_aliases['c']          = 'cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
 let g:snipMate.scope_aliases['smarty']     = 'smarty,html'
@@ -514,11 +502,6 @@ let g:snipMate.scope_aliases['xhtml']      = 'html'
 
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
-
-" AuthorInfoDetect    自动添加作者、时间等信息，本质是NERD_commenter && authorinfo的结合
-let g:vimrc_author   = 'Ruchee'                " 昵称
-let g:vimrc_email    = 'my@ruchee.com'         " 邮箱
-let g:vimrc_homepage = 'http://www.ruchee.com' " 个人主页
 
 " Indent_guides       显示对齐线
 let g:indent_guides_enable_on_vim_startup = 0  " 默认关闭
@@ -573,8 +556,8 @@ imap <m-k> <Up>
 " Alt  + L            光标右移一格
 imap <m-l> <Right>
 
-" Alt + P             omnicompletion补全
-imap <m-p> <c-x><c-o>
+" Ctrl + Z            omni补全
+imap <c-z> <c-x><c-o>
 
 " \c                  复制至公共剪贴板
 vmap <leader>c "+y
@@ -599,20 +582,8 @@ nmap <leader>nt :NERDTree<CR>
 " \tl                 打开Taglist/TxtBrowser窗口，在右侧栏显示
 nmap <leader>tl :Tlist<CR><c-w><c-l>
 
-" \ff                 打开文件搜索窗口，在状态栏显示 [ctrlp.vim插件]
-nmap <leader>ff :CtrlP<CR>
-
-" \ud                 打开编辑历史窗口，在左侧栏显示 [Undotree插件]
-nmap <leader>ud :UndotreeToggle<CR>
-
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
-
-" \16                 十六进制格式查看
-nmap <leader>16 <ESC>:%!xxd<ESC>
-
-" \r16                返回普通格式
-nmap <leader>r16 <ESC>:%!xxd -r<ESC>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
@@ -774,12 +745,7 @@ func! Compile_Run_Code()
     endif
 endfunc
 
-" \R         一键保存、编译、运行
-imap <leader>R <ESC>:call Compile_Run_Code()<CR>
-nmap <leader>R :call Compile_Run_Code()<CR>
-vmap <leader>R <ESC>:call Compile_Run_Code()<CR>
-
-" \T         一键加载语法模板
-imap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
-nmap <leader>T :LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
-vmap <leader>T <ESC>:LoadTemplate<CR><ESC>:AuthorInfoDetect<CR><ESC>Gi
+" \rr        一键保存、编译、运行
+imap <leader>rr <ESC>:call Compile_Run_Code()<CR>
+nmap <leader>rr :call Compile_Run_Code()<CR>
+vmap <leader>rr <ESC>:call Compile_Run_Code()<CR>

@@ -145,15 +145,16 @@ HAXE COMMANDS                                    *vaxe-commands*
 
                         use.
 
-|HaxeCtags|             Call the |vaxe#Ctags| function
+|VaxeCtags|             Call the |vaxe#Ctags| function
 
-|ToggleVaxeLogging|     Turns vaxe logging on/off (logs to :message)
+|VaxeToggleLogging|     Turns vaxe logging on/off (logs to :message)
 
-|KillHaxeCompletionServer|
-                        Kills the Haxe completion server
 
-|StartHaxeCompletionServer|
+|VaxeStartCompletionServer|
                         Starts the Haxe completion server
+
+|VaxeStopCompletionServer|
+                        Stops the Haxe completion server
 
 ==============================================================================
 

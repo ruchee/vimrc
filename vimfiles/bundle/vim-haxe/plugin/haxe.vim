@@ -6,7 +6,7 @@ let g:loaded_vaxe_plugin = 1
 
 command -nargs=? -complete=file DefaultHxml call vaxe#DefaultHxml(<q-args>)
 command -nargs=? -complete=file ProjectHxml call vaxe#ProjectHxml(<q-args>)
-command ToggleVaxeLogging let g:vaxe_logging = !g:vaxe_logging
+command VaxeToggleLogging let g:vaxe_logging = !g:vaxe_logging
 
 " Lime commands
 command -nargs=? -complete=file ProjectLime
@@ -35,7 +35,7 @@ command -nargs=? -complete=customlist,vaxe#flow#Targets FlowClean
 command VaxeStopCompletionServer call vaxe#KillCacheServer()
 command VaxeStartCompletionServer call vaxe#StartCacheServer()
 
-command -buffer HaxeCtags call vaxe#Ctags()
+command -buffer VaxeCtags call vaxe#Ctags()
 
 autocmd FileType haxe setlocal commentstring=//%s
 

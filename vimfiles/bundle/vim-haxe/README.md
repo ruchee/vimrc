@@ -238,7 +238,7 @@ the bundle.
 
 ## YouCompleteMe
 [YouCompleteMe][github 8] (YCM) is a bundle that
-provides completeions for c-style languages.  However, it has the ability to
+provides completions for c-style languages.  However, it has the ability to
 provide support for other languages as well, such as the completion methods
 provided through vaxe.  Vaxe will let YCM use its completion methods
 automatically, all that is required is that YCM (and its libraries) be compiled

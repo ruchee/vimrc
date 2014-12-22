@@ -586,7 +586,6 @@ endfunction
 
 function! rails#buffer(...)
   return extend(extend({'#': bufnr(a:0 ? a:1 : '%')},s:buffer_prototype,'keep'),s:readable_prototype,'keep')
-  endif
 endfunction
 
 function! s:buffer_app() dict abort
@@ -899,12 +898,12 @@ endfunction
 function! s:app_prepare_rails_command(cmd) dict abort
   if self.has_path('.zeus.sock') && a:cmd =~# '^\%(console\|dbconsole\|destroy\|generate\|server\|runner\)\>'
     return 'zeus '.a:cmd
+  elseif self.has_path('bin/rails')
+    let cmd = 'bin/rails '.a:cmd
   elseif self.has_path('script/rails')
     let cmd = 'script/rails '.a:cmd
   elseif self.has_path('script/' . matchstr(a:cmd, '\w\+'))
     let cmd = 'script/'.a:cmd
-  elseif self.has_path('bin/rails')
-    let cmd = 'bin/rails '.a:cmd
   elseif self.has('bundler')
     return 'bundle exec rails ' . a:cmd
   else
@@ -1173,13 +1172,16 @@ call s:add_methods('app', ['rake_tasks'])
 let g:rails#rake_errorformat = '%D(in\ %f),'
       \.'%\\s%#from\ %f:%l:%m,'
       \.'%\\s%#from\ %f:%l:,'
-      \.'%\\s#{RAILS_ROOT}/%f:%l:\ %#%m,'
       \.'%\\s%##\ %f:%l:%m,'
       \.'%\\s%##\ %f:%l,'
       \.'%\\s%#[%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:\ %#%m,'
       \.'%\\s%#%f:%l:,'
-      \.'%m\ [%f:%l]:'
+      \.'%m\ [%f:%l]:,'
+      \.'%+Erake\ aborted!,'
+      \.'%+EDon''t\ know\ how\ to\ build\ task\ %.%#,'
+      \.'%+Einvalid\ option:%.%#,'
+      \.'%+Irake\ %\\S%\\+%\\s%\\+#\ %.%#'
 
 function! s:make(bang, args, ...)
   if exists(':Make') == 2
@@ -1201,8 +1203,13 @@ function! s:Rake(bang,lnum,arg)
   try
     call s:push_chdir(1)
     let b:current_compiler = 'rake'
+    if !empty(findfile('compiler/rake.vim', escape(&rtp, ' ')))
+      compiler rake
+    else
+      let &l:errorformat = g:rails#rake_errorformat
+      let b:current_compiler = 'rake'
+    endif
     let &l:makeprg = rails#app().rake_command()
-    let &l:errorformat = g:rails#rake_errorformat
     let arg = a:arg
     if &filetype =~# '^ruby\>' && arg == ''
       let mnum = s:lastmethodline(lnum)
@@ -2393,6 +2400,9 @@ function! s:app_commands() dict abort
   let commands.mailer = [
         \ {'pattern': 'app/mailers/*.rb', 'template': "class %S < ActionMailer::Base\nend", 'affinity': 'controller'},
         \ {'pattern': 'app/models/*.rb', 'template': "class %S < ActionMailer::Base\nend", 'affinity': 'controller', 'complete': 0}]
+  let commands.job = [{
+        \ 'pattern': 'app/jobs/*_job.rb',
+        \ 'template': "class %SJob < ActiveJob::Base\nend"}]
   let commands.model = [{
         \ 'pattern': 'app/models/*.rb',
         \ 'template': "class %S\nend",

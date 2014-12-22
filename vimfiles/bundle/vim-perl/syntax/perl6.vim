@@ -235,7 +235,7 @@ let s:routines = [
  \ "acos acosh atanh sech cosech cotanh sech acosech acotanh asech ok",
  \ "plan_ok dies_ok lives_ok skip todo pass flunk force_todo use_ok isa_ok",
  \ "diag is_deeply isnt like skip_rest unlike cmp_ok eval_dies_ok nok_error",
- \ "eval_lives_ok approx is_approx throws_ok version_lt plan eval succ pred",
+ \ "eval_lives_ok approx is_approx throws_ok version_lt plan EVAL succ pred",
  \ "times nonce once signature new connect operator undef undefine sleep",
  \ "from to infix postfix prefix circumfix postcircumfix minmax lazy count",
  \ "unwrap getc pi e context void quasi body each contains rewinddir subst",
@@ -2244,8 +2244,6 @@ endif
 " Let's just sync whole file, the other methods aren't reliable (or I don't
 " know how to use them reliably)
 syn sync fromstart
-
-setlocal foldmethod=syntax
 
 let b:current_syntax = "perl6"
 

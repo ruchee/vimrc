@@ -15,16 +15,9 @@ syntax match swiftShebang "\v#!.*$"
 syntax keyword swiftTodos contained TODO XXX FIXME NOTE
 syntax keyword swiftMarker contained MARK
 
-" Comment patterns
-syntax match swiftComment "\v\/\/.*$"
-      \ contains=swiftTodos,swiftMarker,@Spell oneline
-syntax region swiftComment start="\v^\s*\/\*" end="\v\*\/"
-      \ contains=swiftTodos,swiftMarker,swiftComment,@Spell fold
-
-
 " Literals
 " Strings
-syntax region swiftString start=/"/ skip=/\\"/ end=/"/ oneline contains=swiftInterpolatedWrapper
+syntax region swiftString start=/"/ skip=/\\"/ end=/"/ contains=swiftInterpolatedWrapper
 syntax region swiftInterpolatedWrapper start="\v\\\(\s*" end="\v\s*\)" contained containedin=swiftString contains=swiftInterpolatedString
 syntax match swiftInterpolatedString "\v\w+(\(\))?" contained containedin=swiftInterpolatedWrapper
 
@@ -48,16 +41,19 @@ syntax match swiftOperator "\v\s+!"
 syntax match swiftOperator "\v\%"
 syntax match swiftOperator "\v\^"
 syntax match swiftOperator "\v\&"
-syntax match swiftOperator "\v[^/"]\*[^/"]"
+syntax match swiftOperator "\v\*"
 syntax match swiftOperator "\v-"
 syntax match swiftOperator "\v\+"
 syntax match swiftOperator "\v\="
 syntax match swiftOperator "\v\|"
-syntax match swiftOperator "\v[^/"]\/[^/"]"
+syntax match swiftOperator "\v\/"
 syntax match swiftOperator "\v\."
 syntax match swiftOperator "\v\<"
 syntax match swiftOperator "\v\>"
 syntax match swiftOperator "\v\?\?"
+
+" Methods/Functions
+syntax match swiftMethod "\(\.\)\@<=\w\+\((\)\@="
 
 
 " Keywords {{{
@@ -122,15 +118,18 @@ syntax keyword swiftKeywords
 syntax keyword swiftAttributes
       \ @assignment
       \ @autoclosure
+      \ @availability
       \ @exported
       \ @IBAction
       \ @IBDesignable
       \ @IBInspectable
       \ @IBOutlet
       \ @noreturn
+      \ @NSApplicationMain
       \ @NSCopying
       \ @NSManaged
       \ @objc
+      \ @UIApplicationMain
 
 syntax keyword swiftStructure
       \ struct
@@ -153,6 +152,13 @@ syntax keyword swiftPreprocessor
       \ #endif
 
 
+" Comment patterns
+syntax match swiftComment "\v\/\/.*$"
+      \ contains=swiftTodos,swiftMarker,@Spell oneline
+syntax region swiftComment start="/\*" end="\*/"
+      \ contains=swiftTodos,swiftMarker,swiftComment,@Spell fold
+
+
 " Set highlights
 highlight default link swiftTodos Todo
 highlight default link swiftShebang Comment
@@ -171,6 +177,7 @@ highlight default link swiftStructure Structure
 highlight default link swiftType Type
 highlight default link swiftImports Include
 highlight default link swiftPreprocessor PreProc
+highlight default link swiftMethod Function
 
 
 let b:current_syntax = "swift"

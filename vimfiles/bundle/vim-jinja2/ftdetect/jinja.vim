@@ -10,4 +10,4 @@ while n < 50 && n <= line("$")
     let n = n + 1
   endwhile
 endfun
-autocmd BufNewFile,BufRead *.jinja2,*.j2,*.jinja,*.html,*.htm,*.nunjucks  call s:SelectHTML()
+autocmd BufNewFile,BufRead *.jinja2,*.j2,*.jinja,*.html,*.htm,*.nunjucks,*.nunjs  call s:SelectHTML()

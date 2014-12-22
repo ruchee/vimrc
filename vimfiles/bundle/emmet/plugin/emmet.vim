@@ -1,7 +1,7 @@
 "=============================================================================
 " File: emmet.vim
 " Author: Yasuhiro Matsumoto <mattn.jp@gmail.com>
-" Last Change: 28-Nov-2013.
+" Last Change: 17-Dec-2014.
 " Version: 0.85
 " WebPage: http://github.com/mattn/emmet-vim
 " Description: vim plugins for HTML and CSS hi-speed coding.
@@ -66,13 +66,13 @@
 " GetLatestVimScripts: 2981 1 :AutoInstall: emmet.vim
 " script type: plugin
 
-if &cp || v:version < 702 || (exists('g:loaded_emmet_vim') && g:loaded_emmet_vim)
+if &compatible || v:version < 702 || (exists('g:loaded_emmet_vim') && g:loaded_emmet_vim)
   finish
 endif
 let g:loaded_emmet_vim = 1
 
-let s:save_cpo = &cpo
-set cpo&vim
+let s:save_cpo = &cpoptions
+set cpoptions&vim
 
 if !exists('g:emmet_html5')
   let g:emmet_html5 = 1
@@ -120,8 +120,8 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'n', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': ':call emmet#moveNextPrev(1)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#imageSize()<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': ':call emmet#imageSize()<cr>'},
-  \ {'mode': 'i', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toogle-comment', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#toggleComment()<cr>'},
-  \ {'mode': 'n', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toogle-comment', 'func': ':call emmet#toggleComment()<cr>'},
+  \ {'mode': 'i', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toggle-comment', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#toggleComment()<cr>'},
+  \ {'mode': 'n', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toggle-comment', 'func': ':call emmet#toggleComment()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_splitjointag_key', 'key': 'j', 'plug': 'emmet-split-join-tag', 'func': '<esc>:call emmet#splitJoinTag()<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_splitjointag_key', 'key': 'j', 'plug': 'emmet-split-join-tag', 'func': ':call emmet#splitJoinTag()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_removetag_key', 'key': 'k', 'plug': 'emmet-remove-tag', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#removeTag()<cr>'},
@@ -135,18 +135,16 @@ function! s:install_plugin(mode, buffer)
   \]
 
   for item in items
-    if a:mode != 'a' && stridx(a:mode, item.mode) == -1
+    if a:mode !=# 'a' && stridx(a:mode, item.mode) == -1
       continue
     endif
-    if !hasmapto('<plug>(' . item.plug . ')', item.mode)
-      exe item.mode . 'noremap '. buffer .' <plug>(' . item.plug . ') ' . item.func
-    endif
+    exe item.mode . 'noremap '. buffer .' <plug>(' . item.plug . ') ' . item.func
     if exists('g:' . item.var)
       let key = eval('g:' . item.var)
     else
       let key = g:user_emmet_leader_key . item.key
     endif
-    if len(maparg(key, item.mode)) == 0
+    if !hasmapto('<plug>(' . item.plug . ')', item.mode) && !len(maparg(key, item.mode))
       exe item.mode . 'map ' . buffer . ' <unique> ' . key . ' <plug>(' . item.plug . ')'
     endif
   endfor
@@ -162,7 +160,7 @@ if get(g:, 'user_emmet_install_command', 1)
   command! -nargs=1 Emmet call emmet#expandAbbr(4, <q-args>)
 endif
 
-let &cpo = s:save_cpo
+let &cpoptions = s:save_cpo
 unlet s:save_cpo
 
 " vim:set et:

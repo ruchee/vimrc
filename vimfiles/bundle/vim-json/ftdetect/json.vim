@@ -1,1 +1,2 @@
-au BufRead,BufNewFile *.json set ft=json
+autocmd BufNewFile,BufRead *.json set filetype=json
+autocmd BufNewFile,BufRead *.jsonp set filetype=json

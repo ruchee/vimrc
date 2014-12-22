@@ -1,0 +1,478 @@
+·¢ÐÅÈË: BlueOcean (Blue), ÐÅÇø: Unix                                             
+±ê  Ìâ: ºÃÊé¹²ÉÍ£­¡¶Unix Internels¡·£¨ËÄ£©                                       
+·¢ÐÅÕ¾: BBS Ë®Ä¾Çå»ªÕ¾ (Tue Apr 28 01:07:10 1998)                                
+                                                                                 
+                                                                                 
+Chapter 11 Advanced File Systems                                                 
+                                                                                 
+Ê×ÏÈÌáµ½interleaveµÄÎÊÌâ.²»¶®interleaveµÄÈË¿ÉÒÔ¿´ÕâÀï. ÕâÀïÌáµ½Ò»¸ö¹Ø¼ü          
+ÐÔµÄbench mark. Unix filesytemµÄÐ§ÂÊÔÚì¶Ð´Èë×ÊÁÏµÄËÙ¶È. ÒòÎªUnixÏµÍ³µÄ           
+cache×÷µÄÒÑ¾­ºÜºÃÁË, ËùÒÔread()´ó²¿·Ý¶¼·¢ÉúÔÚcacheÉÏ, µ«ÊÇwrite()Ôò±ØÐë          
+°Ñ×ÊÁÏÐ´µ½Ó²µúÈ¥,±ä³ÉÁËbottleneck. ÈçºÎ¸ÄÉÆwrite()µÄËÙ¶È¾Í¿ÉÒÔÌáÉý               
+ÕûÌåÐ§ÂÊ.                                                                        
+                                                                                 
+½ÔÏÂÀ´ÌÖÂÛkernelÒªÈçºÎ°Ñ×ÊÁÏÐ´µ½diskÉÏ,ÔÚcrashÊ±ÓÐ×îÐ¡µÄ ËðÊ§,                   
+fsck²ÅÄÜ¹»×öµ½×î´óµÄ¸´Ô­.                                                        
+                                                                                 
+File System Clustering (Sun-FFS)                                                 
+                                                                                 
+Ò»°ãµÄµµ°¸´æÈ¡¶¼ÊÇsequentialµÄ,ËäÈ»»áÍ¸¹ýºÃ¼¸¸öread/write system call            
+´ï³É. Èç¹ûkernelÒ²¿ÉÒÔÏñC stdioÒ»ÑùÊÕ¼¯ÕâÐ©data block,È»ááÔÙÒ»ÆðÐ´µ½             
+diskÈ¥¿ÉÒÔÔö¼ÓÐ§ÂÊ,Õâ¾ÍÊÇfile system clustering. SunOSÊ×ÏÈÌá³öÕâÖÖ°ì·¨,          
+ááÀ´SVR4ºÍ4.4BSDÒ²¶¼²ÉÓÃÁË. file system clusteringÌáÉýÁË²»ÉÙFFSµÄÐ§ÂÊ,           
+Ê¹µÃFFSÈÔÈ»×ãÒÔÓëÐÂÌá³öµÄµµ°¸ÏµÍ³Æ¥µÐ.                                           
+±ê  Ìâ: ºÃÊé¹²ÉÍ£­¡¶Unix Internels¡·£¨ËÄ£©                                       
+·¢ÐÅÕ¾: BBS Ë®Ä¾Çå»ªÕ¾ (Tue Apr 28 01:07:10 1998)                                
+                                                                                 
+                                                                                 
+Chapter 11 Advanced File Systems                                                 
+                                                                                 
+Ê×ÏÈÌáµ½interleaveµÄÎÊÌâ.²»¶®interleaveµÄÈË¿ÉÒÔ¿´ÕâÀï. ÕâÀïÌáµ½Ò»¸ö¹Ø¼ü          
+ÐÔµÄbench mark. Unix filesytemµÄÐ§ÂÊÔÚì¶Ð´Èë×ÊÁÏµÄËÙ¶È. ÒòÎªUnixÏµÍ³µÄ           
+cache×÷µÄÒÑ¾­ºÜºÃÁË, ËùÒÔread()´ó²¿·Ý¶¼·¢ÉúÔÚcacheÉÏ, µ«ÊÇwrite()Ôò±ØÐë          
+°Ñ×ÊÁÏÐ´µ½Ó²µúÈ¥,±ä³ÉÁËbottleneck. ÈçºÎ¸ÄÉÆwrite()µÄËÙ¶È¾Í¿ÉÒÔÌáÉý               
+ÕûÌåÐ§ÂÊ.                                                                        
+                                                                                 
+½ÔÏÂÀ´ÌÖÂÛkernelÒªÈçºÎ°Ñ×ÊÁÏÐ´µ½diskÉÏ,ÔÚcrashÊ±ÓÐ×îÐ¡µÄ ËðÊ§,                   
+fsck²ÅÄÜ¹»×öµ½×î´óµÄ¸´Ô­.                                                        
+                                                                                 
+File System Clustering (Sun-FFS)                                                 
+                                                                                 
+Ò»°ãµÄµµ°¸´æÈ¡¶¼ÊÇsequentialµÄ,ËäÈ»»áÍ¸¹ýºÃ¼¸¸öread/write system call            
+´ï³É. Èç¹ûkernelÒ²¿ÉÒÔÏñC stdioÒ»ÑùÊÕ¼¯ÕâÐ©data block,È»ááÔÙÒ»ÆðÐ´µ½             
+diskÈ¥¿ÉÒÔÔö¼ÓÐ§ÂÊ,Õâ¾ÍÊÇfile system clustering. SunOSÊ×ÏÈÌá³öÕâÖÖ°ì·¨,          
+ááÀ´SVR4ºÍ4.4BSDÒ²¶¼²ÉÓÃÁË. file system clusteringÌáÉýÁË²»ÉÙFFSµÄÐ§ÂÊ,           
+Ê¹µÃFFSÈÔÈ»×ãÒÔÓëÐÂÌá³öµÄµµ°¸ÏµÍ³Æ¥µÐ.                                           
+                                                                                 
+                                                                                 
+The Journaling Approach                                                          
+                                                                                 
+ÕâÀïlogging = journaling, ÒâË¼ÊÇ¼ÇÂ¼. journaling file system or                  
+logging file system (jfs or lfs)»ù±¾ÉÏ¾ÍÊÇ°Ñ¶Ôfile systemµÄÐÞ¸Ä                  
+(°üÀ¨¶Ôµµ°¸ÊôÐÔ,µµ°¸ÄÚÈÝ,µµ°¸´óÐ¡µÄÐÞ¸Ä)¶¼ÒÔappend onlyµÄ·½Ê½¸½                  
+¼Ó(¼ÇÂ¼)µ½µ¥Ò»µÄµµ°¸(´Åµú¿Õ¼ä)È¥.×îÖ÷ÒªµÄÄ¿µÄÊÇcrashÖ®áá,Ö»ÓÐ×î                  
+ááappendµÄ²¿·ÝÓÐ¿ÉÄÜ³öÎÊÌâ, fsckµÄËÙ¶È¼«¿ì(Ö»Òª·ÅÆú×îááÄÇ¶Îlog                   
+¾Í¿ÉÒÔÁË). ²»¹ýÕâÑùËµºÃÏñÌ«¼òµ¥ÁË,Êµ¼ÊÉÏlfs»¹Òª¸´ÔÓÐ©,ÓÐÐ©race                   
+ conditionÒª´¦Àí.                                                                
+                                                                                 
+Ò»¸öµµ°¸ÓÉÁ½¸ö×ÊÁÏ×é³É, Ò»¸öÊÇdata, ÁíÒ»¸ö½Ðmeta-data,Ö¸µÄÊÇµµ°¸                 
+µÄpermission,access time, modify time,...µÈµÈ.                                   
+                                                                                 
+ÎÒÃÇ¿ÉÒÔÏÂÃæµÄÌØÐÔÀ´Çø·Ölfs:                                                     
+                                                                                 
+log Ê²÷á¶«Î÷? data, metadata¶¼log, »òÕßÊÇÖ»¼ÇÂ¼meta-data. meta-data              
+logging¸ü¿É½øÒ»²½¾ö¶¨ÊÇËùÓÐ¶Ôµµ°¸ÊôÐÔµÄ¸Ä±ä¶¼¼ÇÂ¼ÆðÀ´, »òÕßÖ»¼ÇÂ¼Ó°              
+Ïìµµ°¸ÏµÍ³½á¹¹µÄ¸Ä±ä¾ÍºÃÁË. (time-stamps, ownership, permissionsµÈÒª             
+ÊÇµ±»úÊ±Ã»¸Äµ½»ù±¾ÉÏ²»»áÓ°Ïìµµ°¸ÏµÍ³µÄÍêÕû)                                      
+                                                                                 
+Êµ×÷µÄ·½Ê½ÊÇÊ¹ÓÃ´¿LFS(log-structured file system),ÁíÒ»ÕßÊÇÓÃlfs                  
+µÄ¸ÅÄî¸¨ÖúFFS,¸ÄÉÆcrashµÄ´¦Àí(log-enhanced file system). ´¿LFSÐè                 
+Òªfull data logging, ¸¨ÖúÐÔlfsÍ¨³£¾ÍÊÇmata-data logging¶øÒÑ.                     
+                                                                                 
+crash recovery·½·¨Ò²ÓÐÁ½ÖÖ, Ò»ÖÖÊÇredo-only log,ÁíÍâÒ»ÖÖÊÇundo-redo.             
+redo-only logÔÚ crasháá°Ñ²ÐâÅµÄlog¼ÌÐø×öÍê. undo-redo logÔò¿ÉÒÔÑ¡Ôñ              
+redo»òundo.²»Í¬µã²îÔÚcrash ááµÄ´¦Àí. redo-only½ÏÊ¡disk space,                    
+µ«ÊÇcrash recoveryÓÐ½Ï¶àsynchronization µÄÎÊÌâ»á³öÏÖ. undo-redo                  
+µÄ·½Ê½ÓÐ½Ï¶àµÄµÄÓÅµã,ÓÐsynchronization ÎÊÌâµÄµØ·½¿ÉÒÔ°Ñµµ°¸»¹Ô­.                 
+¼ÈÈ»Òªundo,¾Í»á¼ÇÂ¼µµ°¸Ô­À´µÄ×ÊÁÏ, µ±È»½ÏÀË·Ñ¿Õ¼ä.                               
+                                                                                 
+±¾ÕÂÌÖÂÛµÄÁ½¸ölfs, 4.4BSD LFSºÍ Episode File System (by                          
+Transarc,ÓÉAFSÑÜÉú³öÀ´). EpisodeÊÇOSF DCE±ê×¼²ÉÓÃµÄlocal                         
+file system, ÊÇDFSµÄ»ù´¡. 4.4BSD LFSÊÇ¸ù¾ÝSprite×÷ÒµÏµÍ³                         
+µÄÑÐ¾¿¶øÀ´µÄ. LFSÊ¹ÓÃredo-only log. EpisodeÊ¹ÓÃredo-undo log.                    
+                                                                                 
+¶ÔLFS»¹ÊÇ¸ã²»Çå³þÊ²÷áÊÇappend only log? Ã»¹ØÏµ, ¿´ÁË4.4BSD LFSáá¾ÍÁË½âÁË.        
+Figure 11-2Ò»Ä¿ÁËÈ». LFS»ù±¾ÉÏ°ÑDISKµ±³ÉÊÇÒ»Ìõ´Å´ø,Ã¿¸öblock´óÐ¡Îª0.5 MB.        
+Ò»¸öblockÔÚdiskÉÏÊÇÒ»¶ÎÁ¬ÐøµÄ¿Õ¼ä, ²»¹ýÏàÁÚµÄ(logically..) blockÔòÃ»ÓÐÔÚ         
+diskÉÏÏàÁÚ, ¶øÊÇÓÃlistµÄ·½Ê½ÏàÁÚ. ÓÃ³ÌÊ½±íÊ¾ÈçÏÂ:                                
+                                                                                 
+    struct log_segment {    /* blockÔÚLFSµÄÊõÓïÀïÃæ½Ðlog segment */              
+                                                                                 
+        int next;    /* ÏÂÒ»¸ölog_segment ËùÔÚµÄÎ»Ö· */                          
+                                                                                 
+        char data[0.5MB-sizeof(int)];                                            
+                                                                                 
+    };                                                                           
+                                                                                 
+    ¶øFFSÔòÊÇÔÚdiskÉÏÒÔ½¥½øµÄ·½Ê½¶¯Ì¬ÅäÖÃÐÂµÄlog segmentÒÔ¼ÇÂ¼log.               
+    segment¼äÒÔlinked listµÄ·½Ê½´®ÔÚÒ»Æð.                                        
+                                                                                 
+Kernel¼ÇÂ¼µÄlog¾ÍÊÇÕâÑù×Ó¼ÇÂ¼µ½diskÉÏµÄ. ÔÚÕâ¸ösegment chain                     
+µÄtail²ÅÊÇÕû¸öµµ°¸ÏµÍ³µÄ×îÐÂ×ÊÁÏ.²»¹ý¾ÉµÄ×ÊÁÏÒ²Ã»ÓÐ±»¸Çµô¾ÍÊÇÁË.                 
+                                                                                 
+LFS»¹ÓÐÒ»¸ö»úÖÆ, ÀàËÆgarbagge collection, ¸üÏñdefragementation.                  
+ËüÊ¹ÓÃÒ»¸öcleaner processÀ´ÇåÀí¾ÉµÄlog. Õâ¸öprocess»á¹Ì¶¨µÄ°Ñ¾É                  
+µÄlog¶À³öÀ´(ÒÔsegmentÎªµ¥Î»).È»ááËû»á½«Õâ¸ösegmentµÄÄÚÈÝÓëÊµ¼Ê                   
+µÄ×ÊÁÏ±È¶Ô,ÒªÊÇÕâ¸ösegmentÄÚµÄ×ÊÁÏ¶¼ÊÇÃ»ÓÐÓÃµÄ×ÊÁÏ(ÒÑ±»ÐÂµÄ×ÊÁÏ                  
+ËùÈ¡´úÁË)ÄÇ÷ácleaner process¾Í¿ÉÒÔ°Ñ´Ësegment freeµô. Èç¹ûsegment                
+»¹ÓÐÒ»µã¶«Î÷, Ôõ÷á°ì? ¼òµ¥! ÖØÐ´Ò»´Î,appendµ½×îÐÂµÄlogÈ¥¾ÍºÃÁË                   
+Âï(¸Ð¾õºÃÏñnuµÄspeed disk :).                                                    
+                                                                                 
+LFSÈÔÈ»Î¬³ÖdirectoryºÍinodeµÄ¼Ü¹¹, Ö»²»¹ýÒÔÇ°µÄinodeÊÇ¹Ì¶¨                       
+ÔÚdisk blocksµÄ×îÇ°¶Ë,¶øÏÖÔÚinodeÔòÊÇ·ÖÉ¢¸÷µØ,´æÔÚ¸÷log                          
+segmentÀïÃæ. ÕâÑù×ÓÔõ÷á¶ÁÕâ¸öfile systemÄØ? LFS»¹ÓÐÒ»¸ö                          
+inode map, ¼ÇÂ¼ËùÓÐinodeµÄÎ»ÖÃ. inode map±»µ±³ÉÊÇÒ»°ãµÄ                          
+dataÒ»°ã,Ò²ÊÇ¶¨ÆÚ»áÐ´µ½logÀïÃæÈ¥. kernel¾ÍÊÇ¿¿´Ëinode map                        
+×÷Îª¶ÁÈ¡Õâ¸öµµ°¸ÏµÍ³µÄ¿ª¶Ë.                                                      
+                                                                                 
+´ó¼Ò×î¸ÐÐËÈ¤µÄ, Ó¦¸Ã»¹ÊÇÐ§ÂÊÎÊÌâÁË. Ê×ÏÈLFSÐèÒªÏûºÄ¸üÎª´óÁ¿                      
+µÄ¼ÇÒäÌå²ÅÄÜÂú×ãËûµÄÔË×÷ËùÐè, ÓÐÊ±ºòÊÇ¸öÈ±µã. ÓëFFS±È½ÏµÄ½á                      
+¹ûÔÚ´ó²¿·ÝµÄ×´¿öÏÂ¶¼Ê¤¹ýFFS, ³ýÁËÔÚ¸ß¶È¶à¹¤µÄÊ±ºòÉÔÎ¢ÊäÁËÒ»                      
+µã. Sun-FFS (ÓÐfile system clusteringºÍÒ»Ð©Ð¡µØ·½µÄ¸Ä½ø)ºÍ                       
+LFS±È¾Í²»ÏàÉÏÏÂÁË. BSD LFSÔÚ´¦Àímeta-data·½Ãæ½ÏSun-FFSÇ¿(create,                 
+remove, mkdir,rmdir....). µ«ÔÚread/writeµÈio¼¯ÖÐµÄ²âÊÔÖÐ Sun                     
+FFSÔò½Ï¿ì, ÌØ±ðÊÇLFS cleanerÆô¶¯µÄÇé¿öÏÂ¸üÊÇÈç´Ë. ÏÔÈ»                           
+clustering·¢»ÓÁË²»ÉÙ¹¦Ð§.                                                        
+                                                                                 
+Õâ±ßÄãÒª½÷¼ÇÔÚÐÄµÄÊÇLFSÔÚmetadata´¦Àí»áÓ®¹ýFFS, ÊÇÒòÎªÐ´Èë                       
+¶¯×÷½ÏÓÐÐ§ÂÊµÄÔ­Òò(sequential write), Ç°ÃæÒÑ¾­Ìáµ½file system                    
+µÄÆ¿¾±ÔÚwrite...                                                                 
+                                                                                 
+Sun FFSºÍBSD LFSÔÚÄ£ÄâÊµ¼Ê×´¿öµÄbench markÉÏµÄÆ½¾ù·ÖÊýÊÇ                         
+²î²»¶àµÄ. LFS±ÈFFSÕ¼ÓÅÊÆµÄµØ·½´ó¸ÅÊÇ¿ìËÙµÄ¸´Ô­ÄÜÁ¦°É!                            
+                                                                                 
+±¾½ÚÒýÓÃÁË¼¸·Ý²âÊÔ±¨¸æºÍbench mark, ÓÐÐËÈ¤µÄ¿ÉÒÔ¿´²Î¿¼ÊéÄ¿,                      
+¿´ÈË¼ÒÈçºÎÆÀÁ¿Ò»¸öµµ°¸ÏµÍ³µÄÐ§ÄÜ.                                                
+                                                                                 
+±¾½ÚÌáµ½ÁíÒ»¸öÓÐÈ¤µÄ²úÆ·, Write-Anywhere File Layout (WAFL)                      
+system, ÊÇÒ»¼ÒÃûÎª Network Appliance Corporation µÄ FAServer                     
+ÏµÁÐµÄNFS²úÆ·. WAFLÕûºÏÁËlog-structured file system, NVRAM                       
+(non-volatile ram, ÏñPC cmosµÄßËßË),ºÍRAID-4´ÅµúÕóÁÐ, Ìá¹©ÁË                     
+¸ßËÙµÄNFS response time. WAFL ÓÐÒ»¸öÌØÉ«ÊÇÐí¶àÏµÍ³¹ÜÀïÕßÓÐÐË                     
+È¤µÄ, ¾ÍÊÇsnapshot. snapshot¾ÍÊÇ±¸·ÝµÄÒâË¼Âï! Ò²¾ÍÊÇÏµÍ³Ä³Ò»Ê±¼ä                 
+µÄ×´Ì¬. snapshotÔÚlog-structured file systemÏÂÓ¦¸Ã²»ÄÑÖÆ×÷,                      
+ÒòÎªËùÓÐµÄ×ÊÁÏ¶¼ÓÃappendÄ£Ê½Âï..°Ñcleaner processµÄ¹¦ÄÜ×÷¸ö                      
+ÐÞ¸Ä¾ÍÊÇÁË. snapshot ÓÅì¶´«Í³µÄ±¸·ÝµÄÔ­ÒòÓ¦¸ÃºÜÃ÷ÏÔ, ´«Í³µÄ                      
+±¸·Ý¹ý³Ì±ØÐë»¨ÉÏÒ»¶ÎÊ±¼ä,ÏµÍ³ÔÚÕâ¶ÎÊ±¼äÄÚÈôÓÐÐÞ¸ÄµÄ»°, Õâ¶Î                      
+Ê±¼äÄÚµÄÐÞ¸ÄÔò²»ÖªµÀÓÐÃ»ÓÐ±¸·Ýµ½.¶øsnapshotÔò¿ÉÒÔÏñÕÕÏàÒ»°ã                      
+µÃµ½ÏµÍ³Ë²¼äµÄ±¸·Ý.Ê¹ÓÃÕßÒ²¿ÉÒÔÀûÓÃsnapshotÈ¡µÃ¾ÉµÄµµ°¸ÄÚÈÝ                      
+»ò´ïµ½undeleteµÄ¹¦ÄÜ.                                                            
+                                                                                 
+ÓÉLFSºÍSun-FFSµÄ±È½Ï¿ÉÒÔÁË½âmeta-data logging(log-enhanced                       
+file system)´æÔÚµÄÔ­ÒòÁË, È¡³¤²¹¶ÌÂï. ±¾ÕÂÒ²ÌÖÂÛÁËmeta-data                      
+loggingµÄÏµÍ³. meta-data loggingÔÚÉÌÆ·»¯µÄÏµÍ³ÉÏ½ÏÊÜ»¶Ó­,                        
+³ÉÎªÊÐ³¡Ö÷Á÷, ÒòÎªËû¿ÉÒÔ¼Ü¹¹ÔÚFFSÉÏ,¸Ä±ä²»»áÌ«´ó, »¹¿ÉÒÔºÍ                       
+¶ÔFFSµÄ¸Ä½ø(Èçclustering)»¥ÏàÅäºÏ,ÏàµÃÒæÕÃ.                                      
+                                                                                 
+±¾ÕÂÌÖÂÛµÄÁíÒ»¸ölfsÊÇTransarcµÄEpisode File System. Episode                      
+²ÉÓÃredo-undo metadata logging, ²¢ÇÒËûµÄfile system¿ÉÒÔºáÔ½                      
+ºÃ¼¸¸öÓ²µú. EpisodeÒ²Ìá¹©ÁËÀàËÆsnapshotµÄ¹¦ÄÜ, ³ÆÎªcloning.                      
+cloningÊ¹ÓÃcopy-on-writeµÄ¼¼Êõ,Ö»¸´ÖÆanode (EpisodeµÄinode).                     
+EpisodeÔÚsecurity·½ÃæÒ²Ìá¹©ÁËPOSIXÊ½µÄaccess-control list (ACL),                 
+Ìá¹©½Ï´«Í³Unix¸üÎª¾«Ï¸µÄµµ°¸ÊôÐÔ¿ØÖÆ.                                            
+                                                                                 
+ÒªÊÇÄã¿ÉÒÔÀ¹½ØÊ¹ÓÃÕß¶ÔÄ³Ð©Ä¿Â¼µÄ´æÈ¡,È»ááÍµÌì»»ÈÕÒ»ÏÂ, ÄÇÒ»¶¨¿ÉÒÔ                
+ÈÃÏµÍ³¸üÓÐÈ¤. ±ÈÈçËµMailÀ´µÄÊ±ºòÍ¨ÖªÊ¹ÓÃÕß(²»ÓÃÒ»Ö±polling), Ê¹ÓÃÕß              
+¶ÁÄ³¸öµµÊ±¾Í°ÑÄ¿Ç°Ê±¼äÓ¡³öÀ´, Ê¹ÓÃÕßopen /tcp/<service>/<hostname>Ê±,            
+¾Í²úÉú¶Ô<sevice:hostname>µÄÁ¬Ïß,ÈÃÃ»ÓÐÍøÂ·Öª¾õµÄshell,awk³ÌÊ½Ò²¿ÉÒÔ              
+ÇáËÉ´¦ÀíÍøÂ·ÉÏµÄ×ÊÁÏ.                                                            
+                                                                                 
+±¾ÕÂÌÖÂÛÁËÁ½¸öÕâÑùµÄÏµÍ³,µÚÒ»¸öÊÇwatchdogs,ÕâÊÇÑ§ÉúµÄÑÐ¾¿×÷Æ·,                   
+ÕûºÏÐÔ²»×ã. 4.4 BSD Portal file system²Å¿ÉÒÔËãÍêÕû½â¾ö·½°¸.                      
+                                                                                 
+Ò»¸öÐÂµÄFile SystemÐ´ÆðÀ´ºÜ¸´ÔÓ, ¶øÒ»°ãÈË¿ÉÄÜÖ»ÏëÔÚfile system                   
+ÉÏ¼ÓµãÐ¡¹¦ÄÜ,±ÈÈçËµon-line compressionµÈµÈ. 4.4BSDºÍSunSoft½Ô                    
+Ìá³öÁËStackable file systemµÄÄ£×é»¯»úÖÆ,ÒÔ´ïµ½Õâ¸öÄ¿µÄ.                          
+SunSoftµÄ°æ±¾ÔÚ±¾ÊéÐ´×÷µÄÊ±ºò»¹ÔÚ²Ý¸å½×¶Î¶øÒÑ.BSDµÄÔòÊÇÒÑ¾­·Å                    
+Èë4.4BSDÔ­Ê¼ÂëÄÚÁË.                                                              
+                                                                                 
+                                                                                 
+Chapter 12 Kernel Memory Allocation                                              
+                                                                                 
+±¾ÕÂÒÔáá¿ªÊ¼ÌÖÂÛµ½¼ÇÒäÌå¹ÜÀíµÄÎÊÌâÁË. Chapter 12ÌÖÂÛkernel                       
+ÈçºÎ¹ÜÀí×Ô¼ºËùÓÃµÄ×ÊÁÏ½á¹¹ËùÊ¹ÓÃµÄ¼ÇÒäÌå,Èç inodeµÄÅäÖÃµÈÎÊ                      
+Ìâ. Chapter 13,13,15ÔòÊÇÌÖÂÛkernelµÄvirtual memory¹ÜÀí. ±»                       
+kernelÓÃÀ´·Å×Ô¼ºµÄ×ÊÁÏ½á¹¹µÄ¼ÇÒäÌå¾Í²»ÄÜ¸øpaging systemÓÃ,                       
+ËùÒÔÁ½ÕßÖ®¼äÈçºÎÆ½ºâÊÇºÜÖØÒªµÄ.                                                  
+                                                                                 
+±¾ÕÂÌáÁËºÃ¼¸¸ömemory allocator. ÆäÖÐÌáµ½C LibraryµÄmallocËù                      
+Ê¹ÓÃµÄ·½·¨ÖµµÃÌá³öÀ´ºÍ´ó¼Ò·ÖÏí. mallocÅäÖÃ¼ÇÒäÌåÊÇËùÎ½µÄpower                    
+of two free lists.°Ñ¼ÇÒäÌå·Ö³É²»Í¬µÄ2µÄ´Î·½µÄ´óÐ¡                                
+(32,64,128...1024bytes)À´¹ÜÀí. ²»¹ýallocator±£ÁôÕâÐ©block                        
+µÄ×îÇ°Ãæ¼¸¸öbyteµ±×÷header, µ±Õâ¿é¼ÇÒäÌå²»ÓÃÊ±(free),                            
+ÔòheaderÖ¸ÏòÏÂÒ»¸öfree block, ±Ë´Ë¼äÊÇÒ»¸ölist. ¶øÊ¹ÓÃÖÐ                         
+Ê±headerÔòÖ¸ÏòËûËùÊôµÄlist. (±ÈÈçËµ´óÐ¡ÊÇ32µÄlist), ÕâÑù                         
+×Ófree()²Å»áÖªµÀÔõ÷á¹é»¹¼ÇÒäÌå.Èç¹ûÄãÓÐK&RÕâ±¾ÊéµÄ»°, ¿É                         
+ÒÔ·­·­¿´ÊéÉÏµÄ¡õÀýÊÇ²»ÊÇÕâÑù×Ó×÷µÄ.                                              
+                                                                                 
+power-of-twoµÄÅäÖÃ·½Ê½ÓÐ¸öÖÂÃüµÄÈ±µã, ¾ÍÊÇ¿ÉÊ¹ÓÃµÄ¿Õ¼äÖ»ÓÐ                       
+sizeof(block)-sizeof(header),Ò²¾ÍÊÇÂÔÐ¡ì¶(32,64,128,.                            
+Èç¹ûÓ¦ÓÃ³ÌÊ½ÒªÒ»¸ö±ÈÈçËµ64bytesµÄ¼ÇÒäÌå, ÄÇ÷á64-block¾Í×°²»ÏÂ,                   
+Òª·ÖÅäÒ»¸ö128-block²ÅÐÐ, Ôì³ÉÀË·Ñ.»ØÏëÒ»ÏÂ,ÄãÐ´³ÌÊ½ÊÇ²»ÊÇºÜÏ²»¶                  
+malloc(128), malloc(512), malloc(1024)ÄØ? ÊÇ²»ÊÇ¸Ð¾õÉÏ                           
+Ó¦¸Ã¶Ôperformance±È½ÏºÃÄØ? ¿´ÍêÕâ¶ÎÃèÊö, ÄÇÄã¿ÉÄÜ¾Í²»»á                          
+Õâ÷áÏëÁË. ÎÒÏë,ÕâÒ²ÊÇÐí¶àÈËÆÀÂÛ²»Í¬µÄc compiler¼ÇÒäÌå¹Ü                          
+ÀíÓÅÁÓµÄÒ»¸öµØ·½°É!Èç¹ûÄã³£×Ô¼º×¥Ò»Ð©source codeÀ´°²×°,                          
+¾Í¿ÉÒÔÁË½âÎªÊ²÷áºÜ¶à×÷Õß¶¼ÆúÏµÍ³µÄlibrary²»ÓÃ,                                   
+×Ô¼ºÌá¹©mallocÁË°É.                                                              
+                                                                                 
+ÊéÉÏÌáµ½power of twoµÄ¸Ä½ø·¨, ³ÆÎªMcKusic-Karels Allocator.                      
+»ñµÃ4.4BSDºÍDigital UNIX²ÉÓÃ. McKusic-Karels ÅäÖÃ·¨°ÑÒ»¶ÎÁ¬                      
+ÐøµÄ¼ÇÒäÌå¶¼ÇÐ³É¹Ì¶¨µÄ´óÐ¡, ±ÈÈçËµ32bytes, ÄÇ÷áÊ¹ÓÃÖÐµÄheader                    
+¾Í²»ÓÃÖ¸»ØËûËùÊôµÄlistÁË, ÒòÎªÓÉËûµÄÎ»ÖÃkernel¾Í¿ÉÒÔÖªµÀËûÊô                     
+ì¶ÄÄÒ»¹úµÄ.                                                                      
+                                                                                 
+½ÔÏÂÀ´Ìáµ½Buddy System, ÕâÊÇºÍpower of two²»Ì«Ò»ÑùµÄÅäÖÃ·¨,                      
+ÓÅµãÊÇfree()Ö®ááµÄÁÙ½Ó¿Õ¼ä¿ÉÒÔ¾ÛºÏÆðÀ´³ÉÎª½Ï´óµÄ¿ÉÓÃ¿Õ¼ä.                        
+(power-of-twoÕâ·½Ãæ×÷µÄ²¢²»ºÃ). Õâ¸öÓÅµã³ÆÎªcoalescing.²¢                        
+ÇÒBuddy System¿ÉÒÔ¼òÒ×µÄºÍpaging system½»»»¼ÇÒäÌå¿Õ¼ä,                           
+Ê¹µÄkernelÕ¼ÓÃµÄ¼ÇÒäÌå¿Õ¼ä¿ÉÒÔ¶¯Ì¬µÄµ÷Õû. ²»¹ýËûµÄperformance                    
+²»Ì«ºÃ, ÒòÎªÃ¿´Îrelease momory,allocator¾ÍºÜÌ°ÐÄµÄ°ÑËùÓÐ                         
+ÁÙ½ÓµÄ¼ÇÒäÌå¿Õ¼ä²¢ÆðÀ´, ÀË·ÑÐí¶àÊ±¼ä.                                            
+                                                                                 
+SVR4Ê¹ÓÃÁËÐÞ¸Ä¹ýµÄBuddyÑÝËã·¨ - Lazy Buddy ×÷ÎªÅäÖÃkernel                        
+objectsµÄ·½·¨.                                                                   
+                                                                                 
+BuddyÏµÍ³ºÍpower of twoÒ»Ñù, ¶¼ÊÇÒÔ2^n×÷ÎªÅäÖÃ¼ÇÒäÌåµÄµ¥Î».                      
+                                                                                 
+Mach, OSF/1Ê¹ÓÃÁËÁíÒ»ÖÖ·½·¨, Zone Allocator. Õâ¸öÅäÖÃ·¨²»                        
+ÔÙÒÔ2^n×÷ÎªÅäÖÃµ¥Î», ¶øÊÇÒÔÎï¼þÎªµ¼ÏòÀ´ÅäÖÃ.Ò²¾ÍÊÇËµallocator                    
+´ÓpagingÏµÍ³ÒªÀ´Ò»¿é¼ÇÒäÌå,°ÑËû°´ÕÕobjectµÄ´óÐ¡ÇÐ³Én·Ý,                          
+±ÈÈçËµ, port×ÊÁÏ½á¹¹Îª104 bytes, ÄÇ÷ámach»á°ÑÒªÀ´µÄ¼ÇÒäÌå                        
+(±ÈÈçËµ1KB),·Ö³É1024/104¿éÀ´Ê¹ÓÃ. ÕâºÜÃ÷ÏÔÌá¸ßÁË¼ÇÒäÌå                           
+µÄÀûÓÃÂÊ. ¸øÒ»¸öobjectÓÃµÄ¼ÇÒäÌå³ÆÎªÒ»¸özone, ±ÈÈçËµzone                         
+of ports, zone of inodesµÈµÈ. ²»Í¬µÄobjectÊ¹ÓÃ²»Í¬µÄzone,                        
+¼´Ê¹ËûÃÇµÄ´óÐ¡Ò»Ñù.                                                              
+                                                                                 
+Zone AllocatorÊ¹ÓÃ±³¾°µÄgarbage collection³ÌÊ½À´»ØÊÕ¼ÇÒäÌå.                      
+                                                                                 
+±¾ÕÂ×îÁîÈËÅÄ°¸½Ð¾øµÄÊÇSolaris 2.4µÄSlab Allocator.                               
+                                                                                 
+Slab allocatorºÍzone allocator ·½Ïò²î²»¶à, ÒÔobject size                         
+µ±³ÉÅäÖÃµ¥Î»,µ«ÊÇËû¸ü½øÒ»²½·ÖÎö¼ÇÒäÌåµÄÊ¹ÓÃÇéÐÎ. ±ÈÈçËµ                          
+inodeºÃÁË.Ê×ÏÈÎÒÃÇÒªÒ»¿é¼ÇÒäÌå - malloc(sizeof(inode)),                          
+È»ááinitialize inode,½ÓÖøÊÇÕý³£µÄÊ¹ÓÃ, Ê¹ÓÃÍê±Ïáá±ãÓÃfree()                      
+¹é»¹¼ÇÒäÌå. Slab allocator×¢Òâµ½free()Ö®ááµÄ¼ÇÒäÌåµÄ×ÊÁÏ                         
+ºÍ¸Õ¸ÕinitializeÊ±²î²»¶à, ±ÈÈçËµinodeµÄreference count                           
+Ò»¶¨ÊÇ½µÎªÁãµÈµÈ. KernelÓÐÐí¶à×ÊÁÏ½á¹¹¶¼ÊÇ»¹Ô­µ½ºÍinitializeÊ±                   
+Ò»ÑùµÄÊ±ºò²Å»áfreeµô.ÔÙËµÒ»¸öÀý×Ó, Ò»¸ömutex lock initalizeÊ±                    
+ÊÇunlockµÄ×´Ì¬, freeÊ±Ò²ÊÇunlockµÄ.                                              
+                                                                                 
+Slab allocatorÀûÓÃÕâÏîÌØÐÔ, ÊÂÏÈ°ÑËùÓÐµÄ(ÓÃMachµÄÓïÑÔÊÇzone)³õÊ¼»¯,              
+ÄÇ÷á¾Í¿ÉÒÔÊ¡ÏÂ²»ÉÙinitializeµÄÊ±¼ä.                                              
+                                                                                 
+ÁíÒ»¸öslab allocator×¢Òâµ½µÄÎÊÌâÊÇcpu cacheµÄÊ¹ÓÃÂÊ.Ò»°ãµÄcacheÑÝËã·¨ÊÇ          
+                                                                                 
+           cache location = address % cache_size                                 
+                                                                                 
+Ò»°ãµÄpower of twoÅäÖÃ·¨ÅäÖÃµÄ¼ÇÒäÌå¶¼»á¾­¹ýalign, ²¢ÇÒ´ó¶àÊý³ÌÊ½                
+µÄÏ°¹ß»á°Ñ×î³£ÓÃµÄ×ÊÁÏÀ¸Î»·ÅÔÚÒ»¸ö½á¹¹µÄ×îÇ°Ãæ. ÕâÁ½¸öÐ§Ó¦ºÏÔÚÒ»Æð,              
+Ôì³ÉÕâÐ©À¸Î»»¥ÏàµÄÇåµô±Ë´ËµÄcache. 512kbµÄcache¿ÉÄÜÖ»ÓÐ²¿·ÖÓÐ×÷ÓÃ.               
+¸üÉõÕß, Èç¹ûÖ÷¼ÇÒäÌåÊ¹ÓÃinterleaveµÄ·½Ê½, ±ÈÈçËµSPARC center 2000                
+Ê¹ÓÃÁ½¸öbus, ½ÏµÍµÄ256byteÊ¹ÓÃµÚÒ»¸öbus,½Ï¸ßµÄ256byteÊ¹ÓÃµ                       
+Slab allocatorºÍzone allocator ·½Ïò²î²»¶à, ÒÔobject size                         
+µ±³ÉÅäÖÃµ¥Î»,µ«ÊÇËû¸ü½øÒ»²½·ÖÎö¼ÇÒäÌåµÄÊ¹ÓÃÇéÐÎ. ±ÈÈçËµ                          
+inodeºÃÁË.Ê×ÏÈÎÒÃÇÒªÒ»¿é¼ÇÒäÌå - malloc(sizeof(inode)),                          
+Slab°ÑËûÒªÓÃµÄ×ÊÁÏ°ÚÔÚÕâ¸öblock×îááÃæ, ¼ÙÉèÕ¼y bytes. ¼ÙÉèËù                     
+ÒªÅäÖÃµÄÊÇinode, ´óÐ¡¸úÇ°ÃæMachµÄÀý×ÓÒ»Ñù½ÔÊÇ104. ÄÇ÷áÕâ¿é¼Ç                     
+ÒäÌå¿ÉÒÔÌá¹©(1024-y)/104¸öinode. ²¢ÇÒÓÐÒ»Ð©âÅÊý, Ò²¾ÍÊÇÊ£ÏÂ                      
+Ò»Ð©¶àâÅµÄ¼ÇÒäÌå.SlabÉÆÓÃÕâÐ©¼ÇÒäÌå, ½«Ö®¶þµÈ·Ö, Ò»·Ý°ÚÔÚÕâ                      
+¿é¼ÇÒäÌåµÄ×îÇ°Ãæ,Ò»¿é°ÚÔÚ×îááÃæ. ×îÇ°ÃæÄÇ¿é³ÆÎªcoloring area.                    
+SlabÉè·¨ÔÚÃ¿´ÎÅäÖÃµÄpageÉÏÊ¹ÓÃ²»Í¬´óÐ¡µÄcoloring area, ÒÔÓÐÐ§µÄ                  
+·ÖÉ¢×ÊÁÏmapµ½cacheÖÐµÄÎ»ÖÃ,Ôö¼Ócache rate.                                       
+                                                                                 
+Allocator FootprintÖ¸µÄÊÇAllocatorÔÚÅäÖÃ¼ÇÒäÌåµÄÊ±ºò½«×Ô¼º,                      
+ÒÔ¼°Ëù²Î¿¼µ½µÄ×ÊÁÏÐ´µ½cpu cache/ TLB (translation lookaside                      
+buffer), ÔÚcache/TLBÉÏÃæ²úÉúµÄ"½ÅÓ¡". AllocatorÔÚcache/TLBÄÚ                     
+ËùÁôÏÂµÄ×ÊÁÏ»ù±¾ÉÏÊÇÃ»ÓÐÓÃµÄ, ²¢ÇÒ·Á°­ÕæÕýÓÐÓÃµÄ×ÊÁÏÁôÔÚcache                    
+ÉÏ. buddyÑÝËã·¨ÐèÒª²Î¿¼Ðí¶à×ÊÁÏ²ÅÄÜÅäÖÃ¼ÇÒäÌå, »á²úÉú´óÁ¿µÄ                      
+"footprint", µ¼ÖÂcache missÔö¼Ó. McKusick-KarelsºÍzone allocator                 
+µÄ×ã¼£½ÔºÜÐ¡, Ô­ÒòÊÇÅäÖÃ¼ÇÒäÌåµÄÊ±ºòÖ±½Ó´Ófree listÉÏ°ÑµÚÒ»¸ö                    
+element×¥³öÀ´¶øÒÑ. ËùÒÔÒ»¸öºÃµÄÅäÖÃ·¨Ó¦¸ÃÊ¹ÓÃ¼òµ¥µÄÑÝËãÀ´ÅäÖÃ                    
+Îï¼þ. SlabÒ²ÊÇÊ¹ÓÃÏàÍ¬µÄÔ­Ôò, ²»ÂÛÊÇÅäÖÃ»òÕßÊÇÊÍ·Å,¶¼ÊÇ¼òµ¥µÄ                    
+Ò»Á½ÐÐÔËËã¶øÒÑ,ËùÒÔfoot printÒ²ºÜÐ¡.                                             
+                                                                                 
+                                                                                 
+Chapter 13 Virtual Memory                                                        
+                                                                                 
+±¾ÕÂ¶Ôvirtual memory×÷¸öÍ¨ÂÛ, Èçpaging, segmentation, swaping,                   
+virtual memoryµÈµÈ×÷¸ö½éÉÜ, ¸ú×÷ÒµÏµÍ³µÄÊé½²µÄ²î²»¶à. È»áá¸ö°¸                   
+ÌÖÂÛÁË¼¸¸öÈÈÃÅµÄCPUµÄMMU. MIPS R3000±È½ÏÌØ±ð, CPUÃ»ÓÐ×Ô¶¯´¦Àí                    
+TLB, ¶øÊÇÌá¹©ÁËÒ»¶ÑTLBÔÝ´æÆ÷ÈÃkernel×Ô¼ºÍæ.                                      
+                                                                                 
+ÏÖ´úUnix½ÔÊ¹ÓÃpagingµÄ»úÖÆÀ´Ìá¹©ÐéÄâ¼ÇÒäÌå. ²»¹ýÍ¨³£CPU¶Ô                        
+pagingµÄ»úÖÆ¶¼²»ÍêÈ«. kernel³ýÁËÎ¬»¤cpuËùÐèµÄpaging table                        
+Ö®Íâ, ×Ô¼º»¹ÐèÒªÎ¬»¤Ò»·ÝÏà¶ÔÓ¦µÄ±í¸ñ, ÒÔÂú×ãËùÐè.                                
+                                                                                 
+±¾ÕÂ×îááÌÖÂÛÁË4.3BSDµÄVirtual MemoryÏµÍ³. 4.3BSDÊ¹ÓÃcmap[]                       
+µÄ×ÊÁÏ½á¹¹À´¸¨Öúpaging¹ÜÀí. cmapµÄ·½Ê½ÊÇÔÚVAX-11µÄ¼Ü¹¹ÏÂÉè                       
+¼ÆµÄ, Ã»ÓÐshared memoryÒ²Ã»ÓÐshared library, Ã»ÓÐmemory                          
+mapped file, Ã»ÓÐcopy-on-writeµÈµÈµÄÖ§Ô®,²»Ê¤Ã¶¾Ù, ÔÚÏÖ´ú                        
+ÒÑ¾­¿ÉÒÔ×÷¹ÅÁË. ²»¹ý4.3BSDµÄ¼Ü¹¹ÈÔÈ»ÎªÈÕááµÄ·¢Õ¹µìÁ¢µÄÁ¼ºÃ                       
+µÄ»ù´¡.                                                                          
+                                                                                 
+BSD¶Ôswap spaceµÄ´¦ÀíÆÄÎª±£ÊØ. ÒªÇóËùÓÐÔÚÖ÷¼ÇÒäÌåµÄpage                          
+ÔÚÅäÖÃÇ°¶¼±ØÐëÒªÏÈÓÐÒ»¿éswap space. ËùÒÔswap spaceµÄ´ó                           
+Ð¡ÏÞÖÆÁË¿ÉÒÔÖ´ÐÐµÄ³ÌÊ½ÊýÁ¿.²»¹ýÕâÒ²±£Ö¤³ÌÊ½Ö»ÓÐÔÚfork»ò                          
+execÊ±²Å»á·¢Éú¼ÇÒäÌå²»×ãµÄÏÖÏó, ¶ø²»»áÖ´ÐÐµ½Ò»°ëÒª±»swap                         
+³öÈ¥, È´ÕÒ Virtual Memory                                                        
+                                                                                 
+±¾ÕÂ¶Ôvirtual memory×÷¸öÍ¨ÂÛ, Èçpaging, segmentation, swaping,                   
+virtual memoryµÈµÈ×÷¸ö½éÉÜ, ¸ú×÷ÒµÏµÍ³µÄÊé½²µÄ²î²»¶à. È»áá¸ö°¸                   
+ÌÖÂÛÁË¼¸¸öÈÈÃÅµÄCPUµÄMMU. MIPS R3000±È½ÏÌØ±ð, CPUÃ»ÓÐ×Ô¶¯´¦Àí                    
+TLB, ¶øÊÇÌá¹©ÁËÒ»¶ÑTLBÔÝ´æÆ÷ÈÃkernel×Ô¼ºÍæ.                                      
+                                                                                 
+ÏÖ´úUnix½ÔÊ¹ÓÃpagingµÄ»úÖÆÀ´Ìá¹©ÐéÄâ¼ÇÒäÌå. ²»¹ýÍ¨³£CPU¶Ô                        
+pagingµÄ»úÖÆ¶¼²»ÍêÈ«. kernel³ýÁËÎ¬»¤cpuËùÐèµÄpaging table                        
+Ö®Íâ, ×Ô¼º»¹ÐèÒªÎ¬»¤Ò»·ÝÏà¶ÔÓ¦µÄ±í¸ñ, ÒÔÂú×ãËùÐè.                                
+                                                                                 
+±¾ÕÂ×îááÌÖÂÛÁË4.3BSDµÄVirtual MemoryÏµÍ³. 4.3BSDÊ¹ÓÃcmap[]                       
+µÄ×ÊÁÏ½á¹¹À´¸¨Öúpaging¹ÜÀí. cmapµÄ·½Ê½ÊÇÔÚVAX-11µÄ¼Ü¹¹ÏÂÉè                       
+¼ÆµÄ, Ã»ÓÐshared memoryÒ²Ã»ÓÐshared library, Ã»ÓÐmemory                          
+mapped file, Ã»ÓÐcopy-on-writeµÈµÈµÄÖ§Ô®,²»Ê¤Ã¶¾Ù, ÔÚÏÖ´ú                        
+ÒÑ¾­¿ÉÒÔ×÷¹ÅÁË. ²»¹ý4.3BSDµÄ¼Ü¹¹ÈÔÈ»ÎªÈÕááµÄ·¢Õ¹µìÁ¢µÄÁ¼ºÃ                       
+µÄ»ù´¡.                                                                          
+                                                                                 
+BSD¶Ôswap spaceµÄ´¦ÀíÆÄÎª±£ÊØ. ÒªÇóËùÓÐÔÚÖ÷¼ÇÒäÌåµÄpage                          
+ÔÚÅäÖÃÇ°¶¼±ØÐëÒªÏÈÓÐÒ»¿éswap space. ËùÒÔswap spaceµÄ´ó                           
+Ð¡ÏÞÖÆÁË¿ÉÒÔÖ´ÐÐµÄ³ÌÊ½ÊýÁ¿.²»¹ýÕâÒ²±£Ö¤³ÌÊ½Ö»ÓÐÔÚfork»ò                          
+execÊ±²Å»á·¢Éú¼ÇÒäÌå²»×ãµÄÏÖÏó, ¶ø²»»áÖ´ÐÐµ½Ò»°ëÒª±»swap                         
+³öÈ¥, È´ÕÒ²»µ½swap space¿ÉÓÃµÄ¾½¿ö.Ò²¾ÍÊÇËµÈç¹ûÄãµÄµçÄÔÓÐ                        
+64MBµÄ¼ÇÒäÌå,µ«ÊÇÖ»»®ÁË16MBµÄ¼ÇÒäÌå,ÕâÑùµÄÏµÍ³Ö»Ô¸ÒâÈÃÄãÊ¹                       
+ÓÃ16MB¶øÒÑ, ÕâÒ²ÊÇÓÐÐ©ÏµÍ³¹ÜÀíµÄÊé¼®½¨ÒéÄãswap space²»Òª±È                       
+main memoryÐ¡µÄÔ­Òò.                                                             
+                                                                                 
+                                                                                 
+Chapter 14 The SVR4 VM Architecture                                              
+                                                                                 
+SVR4µÄVM ArchitectureÔ´×Ôì¶SunOS 4.0Òý½øµÄVM¼¼Êõ(Virtual                         
+MemoryÖ®Òâ).SunOS·¢Õ¹VMµÄÓÃÍ¾ÔÚì¶Ìá¹©memory sharing,                             
+shared libraries, memory-mapped files. ÓÖÒòÎªSunOS¿ÉÒÔÔÚ                         
+M68K, I386, SPARCÉÏÖ´ÐÐ, ËùÒÔVM¼Ü¹¹Ê®·ÖµÄportable.                               
+                                                                                 
+Ö®áá, ÔÚSunºÍAT&TºÏÁ¦Ö®ÏÂ, ÒÔVMÎª»ù´¡, Éè¼ÆÁËSVR4µÄvirtual                       
+memoryÏµÍ³.È¡´úSVR3ÒÔÇ°Ê¹ÓÃµÄregions¼Ü¹¹. regions¼Ü¹¹ÔÚBach                      
+µÄÊéÉÏÓÐÌáµ½.                                                                    
+                                                                                 
+Memory-Mapped FilesÊÇÍ¸¹ývirtual memory¼¼Êõ, °Ñµµ°¸µÄÄÚ                          
+ÈÝÓ³µ½³ÌÊ½µÄ¶¨Ö·¿Õ¼ä, Ê¹µÃ³ÌÊ½¿ÉÒÔÖ±½ÓÒÔ´æÈ¡¼ÇÒäÌåµÄ·½                           
+·¨´æÈ¡µµ°¸. kernelÌá¹©ÁËmmap() ÏµÍ³ºô½ÐÀ´×÷Îª´Ë»úÖÆµÄ½éÃæ.                       
+                                                                                 
+SVR4 VMµÄÉè¼Æ¸ÅÄî, ¿ÉÒÔËµÊÇµß¸²ÁË´«Í³¶Ô¼ÇÒäÌåµÄ¹ÛÄî.                             
+ÔÚVMÀïÃæ,physical memory±ä³ÉÊÇvirtual address spaceµÄ                            
+cache¶øÒÑ. Ôõ÷áËµÄØ? Ò»¸ö³ÌÊ½µÄÎ»Ö·¿Õ¼ä¿ÉÒÔ±»VM¸³Óè²»Í¬                          
+ÕâÑùµÄÈ±µãÊÇ²»ÄÜ¶¯Ì¬µÄÒÆ³ýswap disk/file.ÎªÁË´ïµ½Õâ¸ö                            
+¹¦Ð§, SloarisÉè¼ÆÁËswapfs, ÓÃÀ´¹ÜÀíswap space. anonymous                         
+page´Ó´Ë¾Í»Ø´æµ½swapfsÉÏ, ¶ø²»ÊÇÖ±½Ópass¹ýfilesystem,                            
+´æµ½swapÉÏÁË.                                                                    
+                                                                                 
+µ±VM´ÓSunOSÒÆÖ²µ½SVR4ÉÏÊ±, Ð§ÄÜºÍregions¼Ü¹¹Ïà±ÈºÜ²»ÀíÏë. ¾­¹ý                   
+·ÖÎöSVR4µÄfault rateÌ«¸ßÁË, ËùÒÔ¿ÉÒÔ×÷Ð©¸ÄÉÆ.                                    
+                                                                                 
+ÒòÎªVMÌ«ÀÁÁË, ËùÓÐµÄ¶«Î÷¶¼ÊÇpage faultÖ®ááÔÙ×÷, ¶øpage fault                     
+µÄ´ú¼ÛÉõ¸ß.ËùÒÔoptimization³¯Ïò½«Ò»Ð©ÏÔÈ»»á·¢ÉúµÄpage fault                      
+¼õÉÙ. ±ÈÈçËµÔÚforkºÍexecÖÐ¼äÒ»°ã³ÌÊ½¶¼»á×öÒ»Ð©ÊÂ, ËùÒÔ°Ñ                         
+paging table initializeÍêÕûÊÇ¼þºÃÊÂ.execÊ±, Ò²°ÑÐÂµÄpaging                       
+table initializeºÃ,Ê¡µÃÒ»Ö´ÐÐÓÖ²úÉúpage fault.                                   
+execÒ²»á¼ì²éÐÂÖ´ÐÐµÄ³ÌÊ½ÊÇ·ñÓÐtext pageÔÚÖ÷¼ÇÒäÌåÀï,                             
+ÓÐµÄ»°¾ÍË³±ãÒ»¸ösegment. ´¦ÀíÕâÖÖsegmentµÄ³ÌÊ½¾ÍÊÇsegment driver.                
+±¾½Ú²¢Ìáµ½vnodeºÍpagingÏµÍ³µÄÏà»¥×÷ÓÃ.                                           
+                                                                                 
+Solaris 2.x¶ÔSVR4µÄ¸Ä½øÎªÌá³övirtual swap spaceµÄ·½·¨, °Ñ                        
+swap spaceÀ©Õ¹³Éswap area + physical memory (ËùÒÔswap´óÐ¡                        
+¿ÉÒÔÐ¡ì¶physicalmemÁË?!)²¢ÇÒ¿ÉÒÔ¶¯Ì¬µÄÖØÐÂ·ÖÅäswapÇø. Ö®Ç°                       
+µÄ×÷·¨ÊÇÄ³¿éswapÇøÖ»ÒªÅä¸øÄÄ¸öpage, ÄÇÕû¸öprocessµÄÉúÃüÖÜ                        
+ÆÚÄÚ, Õâ¿éswap¾ÍÊÇÐíÅä¸øÕâ¸öprocessµÄÌØ¶¨page,²»»áÔÙ»»ÁË,                        
+¶øÃ¿´Îforkáá¶¼»áÒÔÏàÍ¬µÄpatternÀ´ÐÞ¸Ä±äÊý.                                       
+                                                                                 
+×îáá±¾ÕÂÌáÁËÒ»¸ö²âÁ¿½á¹û, page fault´ÎÊýÓÐÁËÃ÷ÏÔµÄ¸Ä½ø, ÒÑ¾­¸ÄÉÆµ½               
+±ÈSVR3Ê±ºÃÁË.                                                                    
+                                                                                 
+                                                                                 
+Chapter 15 More Memory Management Topics                                         
+                                                                                 
+±¾ÕÂÌáÁËMachµÄvirtual memory¹ÜÀí. ËäÈ»ÊÇ²»Í¬µÄÉè¼Æ, ÊõÓïÒ²²»Í¬,                  
+µ«ÊÇºÍSVR4µÄVM¼Ü¹¹ÓÐÐí¶àµØ·½¶¼ÊÇÏàÍ¬µÄ. MachµÄÉè¼Æ±È½ÏÇå³þÒ×¶®,                  
+Èç¹ûChapter 14¿´²»¶®,¿ÉÒÔÏÈ¿´±¾ÕÂ. 4.4BSD VM¼Ü¹¹¾ÍÊÇ»ùì¶MachµÄ.                  
+²»¹ý4.4BSDµÄÏµÍ³¹ÜÀí±È½ÏÏòSVR4.                                                  
+                                                                                 
+±¾ÕÂÁíÒ»¸öÖØµãÊÇTLBÒ»ÖÂÐÔµÄ´¦Àí. ÕâÊÇÔÚ¶à´¦ÀíÆ÷ÏÂ·¢ÉúµÄÎÊÌâ.                     
+Èç¹ûkernel¸ÄÁËÄ³¸öpageµÄ×ÊÁÏ, ËûÔõ÷áÈÃÆäËûµÄ´¦ÀíÆ÷ÖªµÀ²¢ÇÒ¸üÕý                   
+TLBµÄÄÚÈÝ.  »ù±¾ÉÏÕâÊÇÒ»¼þºÜÂé·³µÄÎÊÌâ, ÓÈÆäÊÇCPUÃ»Ê²÷áÖ§Ô®µÄ×´¿öÏÂ.             
+MachµÄ·½·¨×î¼òµ¥,Ò²×îÍ¨ÓÃ(²»ÐèÒªcpuÖ§Ô®,Ö»ÒªÓÐ¸öinter-processor lock),           
+µ«ÊÇÀË·ÑÐí¶àÊ±¼äÔÚsynchronizeÉÏ, Ã»Ê²÷áÐ§ÂÊ. ´¦ÀíTLBÓ¦¸ÃËãÊÇ                     
+multiprocessor supportÄÚ×îÂé·³µÄÎÊÌâÁË, ´¦Àí²»ºÃ,Ò»¶Ñprocessor                   
+¶¼»áÀË·ÑÊ±¼äÔÚsynchronizeÉÏ.                                                     
+                                                                                 
+Ã¤Ä¿µÄsynchronizeÔì³É²»ÉÙµÄÀË·Ñ, ±È½Ï´ÏÃ÷µÄ×÷·¨ÊÇ·ÖÎöÊ²÷áÊ±ºò»áÐÞ¸ÄTL            
+¶øÃ¿´Îforkáá¶¼»áÒÔÏàÍ¬µÄpatternÀ´ÐÞ¸Ä±äÊý.                                       
+                                                                                 
+×îáá±¾ÕÂÌáÁËÒ»¸ö²âÁ¿½á¹û, page fault´ÎÊýÓÐÁËÃ÷ÏÔµÄ¸Ä½ø, ÒÑ¾­¸ÄÉÆµ½               
+±ÈSVR3Ê±ºÃÁË.                                                                    
+                                                                                 
+                                                                                 
+Chapter 15 More Memory Management Topics                                         
+                                                                                 
+±¾ÕÂÌáÁËMachµÄvirtual memory¹ÜÀí. ËäÈ»ÊÇ²»Í¬µÄÉè¼Æ, ÊõÓïÒ²²»Í¬,                  
+µ«ÊÇºÍSVR4µÄVM¼Ü¹¹ÓÐÐí¶àµØ·½¶¼ÊÇÏàÍ¬µÄ. MachµÄÉè¼Æ±È½ÏÇå³þÒ×¶®,                  
+Èç¹ûChapter 14¿´²»¶®,¿ÉÒÔÏÈ¿´±¾ÕÂ. 4.4BSD VM¼Ü¹¹¾ÍÊÇ»ùì¶MachµÄ.                  
+²»¹ý4.4BSDµÄÏµÍ³¹ÜÀí±È½ÏÏòSVR4.                                                  
+                                                                                 
+±¾ÕÂÁíÒ»¸öÖØµãÊÇTLBÒ»ÖÂÐÔµÄ´¦Àí. ÕâÊÇÔÚ¶à´¦ÀíÆ÷ÏÂ·¢ÉúµÄÎÊÌâ.                     
+Èç¹ûkernel¸ÄÁËÄ³¸öpageµÄ×ÊÁÏ, ËûÔõ÷áÈÃÆäËûµÄ´¦ÀíÆ÷ÖªµÀ²¢ÇÒ¸üÕý                   
+TLBµÄÄÚÈÝ.  »ù±¾ÉÏÕâÊÇÒ»¼þºÜÂé·³µÄÎÊÌâ, ÓÈÆäÊÇCPUÃ»Ê²÷áÖ§Ô®µÄ×´¿öÏÂ.             
+MachµÄ·½·¨×î¼òµ¥,Ò²×îÍ¨ÓÃ(²»ÐèÒªcpuÖ§Ô®,Ö»ÒªÓÐ¸öinter-processor lock),           
+µ«ÊÇÀË·ÑÐí¶àÊ±¼äÔÚsynchronizeÉÏ, Ã»Ê²÷áÐ§ÂÊ. ´¦ÀíTLBÓ¦¸ÃËãÊÇ                     
+multiprocessor supportÄÚ×îÂé·³µÄÎÊÌâÁË, ´¦Àí²»ºÃ,Ò»¶Ñprocessor                   
+¶¼»áÀË·ÑÊ±¼äÔÚsynchronizeÉÏ.                                                     
+                                                                                 
+Ã¤Ä¿µÄsynchronizeÔì³É²»ÉÙµÄÀË·Ñ, ±È½Ï´ÏÃ÷µÄ×÷·¨ÊÇ·ÖÎöÊ²÷áÊ±ºò»áÐÞ¸ÄTLB.          
+Èç¹ûÊÇ·¢ÉúÔÚkernelµÄ¶¨Ö·¿Õ¼ä, ÄÇ÷ákernel¿ÉÒÔÍ¸¹ý½÷É÷µÄÉè¼ÆÀ´±Ü¿ªTLBµÄÐÞ¸Ä,       
+ÄÇ÷áÐèÒªÐÞ¸ÄTLBµÄÊ±»ú¾ÍÖ»Ê£kernelËùÎÞ·¨ÕÆÎÕµÄuser processesÁË. ¶øÊ£ÏÂµÄ          
+ÕâÐ©×´¿öÒ²²»ÊÇÃ¿ÖÖ¶¼ÒªÂíÉÏ¸ü¸ÄÆäËûprocessorµÄtlb²»¿É. Òò´Ë¿ÉÒÔÊ¡ÏÂÁËÐí¶à         
+²»±ØÒªµÄÂé·³.                                                                    
+                                                                                 
+                                                                                 
+Chapter 16 Device Drivers and I/O                                                
+                                                                                 
+½éÉÜÓëdevice driver, io Ïà¹ØµÄ¿ÎÌâ. ÒÔ¼°device driver Óëfile system              
+¼äµÄ»¥ÏàÅäºÏ, dynamic loading unloadingµÈµÈ. »ù±¾ÉÏ¾ÍÊÇdevice driver             
+±ØÐëÌá¹©ÄÄÐ©½éÃæ¸økernel, ¿ÉÒÔÊ¹ÓÃkernelµÄÄÄÐ©function call,ºÍ±äÊý.              
+ËæUnix°æ±¾¶øÒì...                                                                
+                                                                                 
+Chapter 17 STREAMS                                                               
+                                                                                 
+STREAMS¼Ü¹¹±¾À´ÊÇÎªÁË½â¾öcharacter devicesÖØ¸´·¢Õ¹Ì«¶à³ÌÊ½ÂëºÍ                   
+bufferingµÄÎÊÌâ, ²»¹ýSTREAMSÉè¼ÆµÃÌ«Ç¿º·ÁË, Ê¹µÃterminal driver,                 
+pipeºÍÍøÂ·driver¶¼ÀûÓÃËûÀ´Íê³É. STREAMSÒÑ±»´ó¶àÊýµÄUNIX³§ÉÌËùÖ§³Ö,               
+³ÉÎª¹ãÎª½ÓÊÜµÄ±ê×¼, Ò²ÊÇÓÃÀ´Ð´ÍøÂ·driver½ÏÊÜ»¶Ó­µÄ¼Ü¹¹.                          
+                                                                                 
+STREAMSÊ¹ÓÃÄ£×é»¯µÄ·½Ê½, ÈÃÊ¹ÓÃÕß¿ÉÒÔÒÀ¶ÑµþµÄ·½Ê½Ñ­ÐòÍÆÈë´¦ÀíÄ£×é,               
+¶ø×ÊÁÏÁ÷ÔòÊÇÍ¨¹ýÒ»²ã²ãµÄÄ£×é´ïµ½Çý¶¯³ÌÊ½. ·´Ö®ÒàÈ». terminal driver              
+¾Í¿ÉÒÔ×¨ÐÄµÄ´¦ÀíÓëterminal¹µÍ¨µÄÏ¸½Ú, ¶øÓëUnixÏµÍ³ÆäËûµÄ²¿·Ý,ÒÔ¼°Ê¹              
+ÓÃÕß½éÃæ,¿ÉÒÔ¶ª¸øÉÏ²ãµÄÄ£×é´¦Àí¾ÍºÃÁË. STREAMS¼Ü¹¹ÏêÏ¸µÄ¶©¶¨¸÷Ä£×é¼ä             
+ÒªÈçºÎ¹µÍ¨ºÍÓ¦ÓÐµÄ"¾ÙÖ¹".                                                        
+                                                                                 
+System VÒ²¶¨ÒåÁËÒ»¸öTransport Provider Interface¼°Transport Layer                
+Interface(TPI/TLI), ¹¦ÓÃÀàËÆBSDµÄsocket½éÃæ,ÓÃÀ´Ìá¹©¸ß½×³ÌÊ½Éè¼Æ                 
+µÄ±ê×¼½éÃæ.                                                                      
+                                                                                 
+ËäÈ»STREAMS/TLIÔÚ±¾ÊéÐ´×÷Ö®Ê±ºÃÏñÆÄ¾ßÇ±Á¦,µ«ÊÇsocket½éÃæÊµÔÚÌ«Ç¿ÊÆÁË,            
+ÓÖÓÐwinsockÖú³¤ÉùÊÆ, ÏÔÈ»STREAMSÔÚÍøÂ·ÉÏÃ»³ÉÆøºò, µ«ÊÇÔÚÆäËû·½Ãæ                 
+Ôò·¢Õ¹µÃÊ®·ÖÁ¼ºÃ.                                                                
+                                                                                 
+                                                                                 
+áá¼Ç                                                                             
+                                                                                 
+¾ÍÕâÑù°ÑÕâ±¾ÊéÓÐÈ¤µÄÄÚÈÝÕûÀíÍêÁË. Ï£ÍûÎÒµÄÈ¡²Ä¿ÉÒÔÈÃÄÇÐ©ÂÔ¶®                     
+UnixµÄÈËÓÐ¸üÉîÈëµÄ¿Õ¼ä,Ìá¸ß²ã´Î. ÆäÖÐÎÒÊ¡ÂÔÁËÐí¶àUnix Kernel»ù                   
+´¡µÄ¸ÅÄî,Ï£Íû²»»áÈÃÈË²»ÖªËùÔÆ²ÅºÃ. ·´µ¹ÊÇ¶ÔUnixµÄ¼ò½éºÃÏñÐ´µÄ                    
+Ì«ÏêÏ¸ÁË, ÕâÊÇÒòÎªÎÒ·¢ÏÖÓÐºÜ¶àÖÐÎÄÊéÔÚÕâ·½ÃæÐ´´íÁË....                           
+                                                                                 
+Ç°ÑÔÌáµ½µÄÄÇ¼¸±¾Êé(º¬±¾Êé)¶¼ºÜÖµµÃÏëÁË½âUnixÕßÔÄ¶Á. ÓÐÐí¶àµÄÏ¸                   
+½Ú¶¼ÊÇÒª×ÐÏ¸µÄÕûÆªÔÄ¶Á²Å»áÁË½âµÄ, ÏñÕâÑùµÄÕªÒª²¢²»ÄÜÍêÕûµÄ±í´ï.                  
+                                                                                 
+ÊéÖÐ¶Ô4.4BSD, Mach, SVR4/SolarisµÄÃèÊö, ÎÒ¶¼¾¡Á¿Ìá¼°ÁË. Ï£Íû¶Ô                   
+Linux/FreeBSD/SolarisÒÔ¼°Î´À´µÄGNU Hurd ÒÔ¼°Æ»¹ûµÄ¿ñÏëÇúµÄÁË½â                   
+ÓÐËù°ïÖú. ÁíÍâÄãÊÇ·ñÒ²¸úÎÒÒ»Ñù·¢ÏÖSunÕæµÄ²»ÊÇÒ»ÕµÊ¡ÓÍµÄµÆ, È·                    
+ÊµÓÐÁ½Èý°ÑË¢×ÓÄØ?                                                                
+                                                                                 
+±¾ÊéÓÐ¸öÈ±µã¾ÍÊÇÐ£Õý²»Ì«ÍêÕû. ÄÚÎÄreferenceµ½Section 0ºÃ¼¸´Î, µ«ÊÇ               
+²¢Ã»ÓÐSection 0. Ó¦¸ÃÊÇÃÀÖÐ²»×ãµÄµØ·½°É!                                         
+                                                                                 
+±¾ÊéÃ»ÓÐÌáµ½tcp/ipÍøÂ·µÄ²¿·Ý, Ó¦²Î¿¼Stevens, TCP/IP Illustrated                  
+Volumne 1,2,3.                                                                   
+                                                                                 
+±¾Êé¶Ôshared libraryÒÔ¼°Ö´ÐÐµµµÄ½á¹¹Ã»ÓÐ×÷ÉîÈëµÄÌÖÂÛ, Ò²ÊÇÒ»¸ö                   
+ÒÅº¶...                                                                          
+                                                                                 

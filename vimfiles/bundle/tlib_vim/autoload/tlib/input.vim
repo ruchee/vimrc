@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1330
+" @Revision:    1340
 
 
 " :filedoc:
@@ -113,12 +113,17 @@ TLet g:tlib#input#numeric_chars = {
 
 
 " :nodefault:
-" The default key bindings for single-item-select list views. If you 
-" want to use <c-j>, <c-k> to move the cursor up and down, add these two 
-" lines to after/plugin/02tlib.vim: >
+" The default key bindings for single-item-select list views.
 "
-"   let g:tlib#input#keyagents_InputList_s[10] = 'tlib#agent#Down'  " <c-j>
-"   let g:tlib#input#keyagents_InputList_s[11] = 'tlib#agent#Up'    " <c-k>
+" This variable is best customized via the variable 
+" g:tlib_extend_keyagents_InputList_s. If you want to use <c-j>, <c-k> 
+" to move the cursor up and down, add these two lines to your |vimrc| 
+" file:
+"
+"   let g:tlib_extend_keyagents_InputList_s = {
+"       \ 10: 'tlib#agent#Down',
+"       \ 11: 'tlib#agent#Up'
+"       \ }
 TLet g:tlib#input#keyagents_InputList_s = {
             \ "\<PageUp>":   'tlib#agent#PageUp',
             \ "\<PageDown>": 'tlib#agent#PageDown',
@@ -154,6 +159,10 @@ TLet g:tlib#input#keyagents_InputList_s = {
             \ }
             " \ 63:            'tlib#agent#Help',
 
+if exists('g:tlib_extend_keyagents_InputList_s')
+    let g:tlib#input#keyagents_InputList_s = extend(g:tlib#input#keyagents_InputList_s, g:tlib_extend_keyagents_InputList_s)
+endif
+
 
 " :nodefault:
 TLet g:tlib#input#keyagents_InputList_m = {
@@ -165,6 +174,11 @@ TLet g:tlib#input#keyagents_InputList_m = {
             \ "\<F9>":     'tlib#agent#ToggleRestrictView',
             \ }
 " "\<c-space>": 'tlib#agent#Select'
+
+if exists('g:tlib_extend_keyagents_InputList_m')
+    let g:tlib#input#keyagents_InputList_m = extend(g:tlib#input#keyagents_InputList_m, g:tlib_extend_keyagents_InputList_m)
+endif
+
 
 
 " :nodefault:
@@ -759,7 +773,6 @@ function! tlib#input#ListW(world, ...) "{{{3
                 return ''
             endif
         elseif !empty(world.return_agent)
-            " TLog "return_agent"
             " TLogDBG 'return agent'
             " TLogVAR world.return_agent
             call world.CloseScratch()

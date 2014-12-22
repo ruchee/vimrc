@@ -7,13 +7,18 @@ from this [blog post](http://blogs.msdn.com/b/interoperability/archive/2012/10/0
 Install
 -------
 
-The simplest way to install is via a Vim add-in manager such as [Vundle](https://github.com/gmarik/vundle) 
+The simplest way to install is via a Vim add-in manager such as [Plug](https://github.com/junegunn/vim-plug), [Vundle](https://github.com/gmarik/vundle) 
 or [Pathogen](https://github.com/tpope/vim-pathogen/).
 
 If you want to install manually then you need to copy the files from this repository into your vim path,
 see the vim docs for [:help runtimepath](http://vimdoc.sourceforge.net/htmldoc/options.html#'runtimepath')
 for more information. This might be as simple as copying the files and directories to `~/.vim/` but it 
 depends on your Vim install and operating system.
+
+Indenting
+---------
+
+This plugin used to include some indent settings but they were not very good. There are better options around such as [vim-js-indent](https://github.com/jason0x43/vim-js-indent) that you should install as well.
 
 Usage
 -----

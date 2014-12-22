@@ -532,3 +532,23 @@ version: "1.11"
   MD5 checksum: 7995ab58f31eb6673d20deab8761838e
 version: "1.12"
 
+  - SetInitialFilter(): Use deepcopy()
+  - tlib#var#List(): use keys(namespace) for newer versions of vim
+  - g:tlib#input#user_shortcuts (not functional yet)
+  - tlib#input#List: state "picked"
+  - UseInputListScratch(): Allow customization via self.index_next_syntax
+  - tlib#cmd#Capture()
+  - Facilitate customization of key agents via g:tlib_extend_keyagents_InputList_s, g:tlib_extend_keyagents_InputList_m
+  MD5 checksum: 7dd8b17a1a5b555df979381dcbd4c9aa
+version: "1.13"
+
+  - SetInitialFilter(): Use deepcopy()
+  - tlib#var#List(): use keys(namespace) for newer versions of vim
+  - g:tlib#input#user_shortcuts (not functional yet)
+  - tlib#input#List: state "picked"
+  - UseInputListScratch(): Allow customization via self.index_next_syntax
+  - tlib#cmd#Capture()
+  - Facilitate customization of key agents via g:tlib_extend_keyagents_InputList_s, g:tlib_extend_keyagents_InputList_m
+  MD5 checksum: 7dd8b17a1a5b555df979381dcbd4c9aa
+version: "1.13"
+
