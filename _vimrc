@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-22 15:51
+" -----------------     Date: 2014-12-23 14:52
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,7 +17,7 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
 
-    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
+    set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
 else
     " set tags+=~/code/fms/laravel/tags
@@ -324,6 +324,7 @@ execute pathogen#infect()
 " 针对部分语言加减指定字符的单词属性
 au FileType clojure  set iskeyword-=.
 au FileType clojure  set iskeyword-=>
+au FileType perl,php set iskeyword-=.
 au FileType perl,php set iskeyword-=$
 au FileType perl,php set iskeyword-=-
 au FileType ruby     set iskeyword+=!
@@ -455,20 +456,16 @@ let g:go_highlight_operators = 1               " 开启Go语言操作符高亮
 let g:go_highlight_functions = 1               " 开启Go语言函数名高亮
 let g:go_highlight_methods   = 1               " 开启Go语言方法名高亮
 let g:go_highlight_structs   = 1               " 开启Go语言结构体名高亮
-
 let python_highlight_all     = 1               " 打开全部Python高亮
-
 
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
-
 
 " Tlist               调用TagList
 let Tlist_Show_One_File        = 1             " 只显示当前文件的tags
 let Tlist_Exit_OnlyWindow      = 1             " 如果Taglist窗口是最后一个窗口则退出Vim
 let Tlist_Use_Right_Window     = 1             " 在右侧窗口中显示
 let Tlist_File_Fold_Auto_Close = 1             " 自动折叠
-
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
@@ -485,15 +482,11 @@ let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
-let g:snipMate.scope_aliases['smarty']     = 'smarty,html'
-let g:snipMate.scope_aliases['twig']       = 'twig,html'
-let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
-let g:snipMate.scope_aliases['volt']       = 'volt,html'
-let g:snipMate.scope_aliases['htmldjango'] = 'django,html'
+let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
+let g:snipMate.scope_aliases['jinja.twig'] = 'twig,html'
 let g:snipMate.scope_aliases['jinja']      = 'jinja,html'
 let g:snipMate.scope_aliases['eruby']      = 'eruby,html'
-let g:snipMate.scope_aliases['typescript'] = 'typescript,javascript'
 let g:snipMate.scope_aliases['jst']        = 'jst,html'
 let g:snipMate.scope_aliases['mustache']   = 'mustache,html'
 let g:snipMate.scope_aliases['scss']       = 'scss,css'
@@ -520,7 +513,7 @@ let g:syntastic_mode_map      = {'mode': 'active',
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
 let g:syntastic_c_compiler_options = '-std=c11 -Wall'
-let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
+let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,angularjs'
@@ -652,9 +645,9 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == "cpp"
         if g:isWIN
-            exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
+            exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
         else
-            exec "!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r"
+            exec "!clang++ -Wall -std=c++11 -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "d"
         if g:isWIN
@@ -728,16 +721,10 @@ func! Compile_Run_Code()
         exec "!julia %:t"
     elseif &filetype == "dart"
         exec "!dart %:t"
-    elseif &filetype == "haxe"
-        exec "!haxe -main %:r --interp"
     elseif &filetype == "r"
         exec "!Rscript %:t"
     elseif &filetype == "coffee"
-        exec "!coffee -c %:t && node %:r.js"
-    elseif &filetype == "ls"
-        exec "!lsc -c %:t && node %:r.js"
-    elseif &filetype == "typescript"
-        exec "!tsc %:t && node %:r.js"
+        exec "!coffee %:t"
     elseif &filetype == "javascript"
         exec "!node %:t"
     elseif &filetype == "sh"
