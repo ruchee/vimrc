@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-23 14:52
+" -----------------     Date: 2014-12-23 23:34
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -452,6 +452,7 @@ endfunction
 
 " 开启部分语法高亮的非默认特性
 let g:go_auto_type_info      = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
+let g:go_def_mapping_enabled = 0               " 关闭Go语言对gd的绑定
 let g:go_highlight_operators = 1               " 开启Go语言操作符高亮
 let g:go_highlight_functions = 1               " 开启Go语言函数名高亮
 let g:go_highlight_methods   = 1               " 开启Go语言方法名高亮
