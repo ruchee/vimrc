@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-25 10:52
+" -----------------     Date: 2014-12-29 15:46
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,8 +14,9 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
-    set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
+    set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
 
     " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
@@ -46,6 +47,7 @@ endif
 " \v                         --从公共剪贴板粘贴       [全模式可用]
 "
 " \rr                        --一键编译&&运行         [全模式可用]
+" \\                         --一键替换反斜杠         [全模式可用]
 " \rb                        --一键去除所有尾部空白   [全模式可用]
 " \rm                        --一键去除字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
@@ -578,6 +580,11 @@ nmap <leader>tl :Tlist<CR><c-w><c-l>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
+
+" \\                  一键将当前行的反斜杠替换成斜杠
+imap <leader>\ <ESC>:s/\\/\//g<CR>
+nmap <leader>\ :s/\\/\//g<CR>
+vmap <leader>\ <ESC>:s/\\/\//g<CR>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
