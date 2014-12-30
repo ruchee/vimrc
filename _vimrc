@@ -17,10 +17,7 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
     set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
-
-    set tags+=D:/Ruchee/Files/code/self/thinkphp/tags
 else
-    set tags+=~/code/fms/thinkphp/tags
 endif
 
 
