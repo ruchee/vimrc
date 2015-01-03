@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2014-12-29 23:13
+" -----------------     Date: 2015-01-01 16:13
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -16,8 +16,9 @@ endif
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
-    set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
 else
+    set tags+=D:/Ruchee/Ruby/lib/ruby/2.0.0/tags
+    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/tags
 endif
 
 
@@ -219,7 +220,7 @@ au BufRead,BufNewFile *.ini      setlocal ft=dosini
 " 设置着色模式和字体
 if g:isWIN
     colorscheme molokai
-    set guifont=Monaco:h12
+    set guifont=Monaco:h11
 else
     colorscheme molokai
     set guifont=Monaco\ 11
