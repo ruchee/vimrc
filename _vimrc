@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-04 13:26
+" -----------------     Date: 2015-01-06 11:10
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -318,6 +318,7 @@ endf
 
 " 加载pathogen插件管理器
 execute pathogen#infect()
+execute pathogen#helptags()
 
 
 " 针对部分语言加减指定字符的单词属性
