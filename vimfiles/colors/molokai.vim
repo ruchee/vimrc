@@ -79,7 +79,7 @@ hi Search          guifg=#FFFFFF guibg=#455354
 hi SignColumn      guifg=#A6E22E guibg=#232526
 hi SpecialChar     guifg=#F92672               gui=bold
 hi SpecialComment  guifg=#465457               gui=bold
-hi Special         guifg=#66D9EF guibg=bg      gui=italic
+hi Special         guifg=#66D9EF guibg=bg
 hi SpecialKey      guifg=#888A85               gui=italic
 if has("spell")
     hi SpellBad    guisp=#FF0000 gui=undercurl
