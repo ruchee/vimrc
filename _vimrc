@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-06 11:10
+" -----------------     Date: 2015-01-08 10:23
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,7 +14,7 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
+    " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/cps.7433.com/tags
@@ -46,9 +46,11 @@ endif
 "
 " \rr                        --一键编译&&运行         [全模式可用]
 " \rb                        --一键去除所有尾部空白   [全模式可用]
-" \rm                        --一键去除字符         [全模式可用]
+" \rm                        --一键去除^M字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
 "
+" \ww                        --打开Vimwiki主页
+" \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
@@ -74,7 +76,6 @@ endif
 " ---------- 补全命令 ----------
 "
 " Ctrl + P                   --缓冲区补全             [插入模式]
-" Ctrl + Z                   --omni补全               [插入模式] [只支持定义了omnifunc的语言]
 " Tab键                      --语法结构补全           [插入模式] [snipMate插件]
 " Ctrl + Y + ,               --HTML标签补全           [插入模式] [emmet插件]
 
@@ -174,6 +175,12 @@ endif
 " ]z                         --到当前打开的折叠的末尾处
 " zj                         --向下移动到后一个折叠的开始处
 " zk                         --向上移动到前一个折叠的结束处
+"
+" ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
+"
+" 链接：[[链接地址|链接描述]]
+" 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
+" 代码：{{{语言名 代码 }}}，如 {{{C++ 代码 }}}
 "
 " ---------- 其他常用内建命令 ------------------------------
 "
@@ -514,7 +521,7 @@ let g:syntastic_mode_map      = {'mode': 'active',
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
 let g:syntastic_c_compiler_options = '-std=c11 -Wall'
-let g:syntastic_cpp_compiler_options = '-std=c++11 -Wall'
+let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,angularjs'
@@ -549,9 +556,6 @@ imap <m-k> <Up>
 
 " Alt  + L            光标右移一格
 imap <m-l> <Right>
-
-" Ctrl + Z            omni补全
-imap <c-z> <c-x><c-o>
 
 " \c                  复制至公共剪贴板
 vmap <leader>c "+y
@@ -613,6 +617,11 @@ imap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><
 nmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 vmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
 
+" \wa                 一键编译所有Vimwiki源文件
+imap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+nmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 
@@ -646,9 +655,9 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == "cpp"
         if g:isWIN
-            exec "!g++ -Wall -std=c++11 -o %:r %:t && %:r.exe"
+            exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
         else
-            exec "!clang++ -Wall -std=c++11 -o %:r %:t && ./%:r"
+            exec "!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r"
         endif
     elseif &filetype == "d"
         if g:isWIN
@@ -737,3 +746,38 @@ endfunc
 imap <leader>rr <ESC>:call Compile_Run_Code()<CR>
 nmap <leader>rr :call Compile_Run_Code()<CR>
 vmap <leader>rr <ESC>:call Compile_Run_Code()<CR>
+
+
+" ======= Vimwiki ======= "
+
+let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
+let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
+" 声明可以在 wiki 里面使用的 HTML 标签
+let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
+
+let blog = {}
+if g:atCompany
+    if g:isWIN
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+    endif
+else
+    if g:isWIN
+        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+    else
+        let blog.path          = '~/mysite/wiki/'
+        let blog.path_html     = '~/mysite/html/'
+        let blog.template_path = '~/mysite/templates/'
+    endif
+endif
+let blog.template_default = 'site'
+let blog.template_ext     = '.html'
+let blog.auto_export      = 1
+
+" 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Dlang': 'd', 'Go': 'go', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Rlang': 'r', 'Coffee': 'coffee', 'LiveScript': 'ls', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
+
+let g:vimwiki_list = [blog]
