@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-08 21:56
+" -----------------     Date: 2015-01-09 21:08
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -107,6 +107,9 @@ endif
 " Ctrl + ]                   --转到函数定义           [ctags跳转]
 " Ctrl + T                   --返回调用函数           [ctags跳转]
 " g Ctrl+]                   --列出可选跳转列表       [ctags跳转]
+
+" Ctrl + O                   --跳到上一个编辑位置     [Normal模式]
+" Ctrl + I                   --跳回下一个编辑位置     [Normal模式]
 
 " 0 or ^ or $                --跳至 行首 or 第一个非空字符 or 行尾
 " %                          --在匹配的括号间跳跃
