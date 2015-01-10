@@ -223,7 +223,7 @@ function! syntastic#util#findInParent(what, where) " {{{2
 
     let old = ''
     while here != ''
-        let p = split(globpath(here, a:what), '\n')
+        let p = split(globpath(here, a:what, 1), '\n')
 
         if !empty(p)
             return fnamemodify(p[0], ':p')
@@ -260,8 +260,8 @@ function! syntastic#util#shescape(string) " {{{2
 endfunction " }}}2
 
 " A less noisy shellescape(expand())
-function! syntastic#util#shexpand(string) " {{{2
-    return syntastic#util#shescape(expand(a:string))
+function! syntastic#util#shexpand(string, ...) " {{{2
+    return syntastic#util#shescape(a:0 ? expand(a:string, a:1) : expand(a:string, 1))
 endfunction " }}}2
 
 " decode XML entities
@@ -322,16 +322,38 @@ function! s:_translateFilter(filters) " {{{2
 endfunction " }}}2
 
 function! s:_translateElement(key, term) " {{{2
-    if a:key ==? 'level'
-        let ret = 'v:val["type"] !=? ' . string(a:term[0])
-    elseif a:key ==? 'type'
-        let ret = a:term ==? 'style' ? 'get(v:val, "subtype", "") !=? "style"' : 'has_key(v:val, "subtype")'
-    elseif a:key ==? 'regex'
-        let ret = 'v:val["text"] !~? ' . string(a:term)
-    elseif a:key ==? 'file'
-        let ret = 'bufname(str2nr(v:val["bufnr"])) !~# ' . string(a:term)
+    let fkey = a:key
+    if fkey[0] == '!'
+        let fkey = fkey[1:]
+        let not = 1
     else
-        call syntastic#log#warn('quiet_messages: ignoring invalid key ' . strtrans(string(a:key)))
+        let not = 0
+    endif
+
+    if fkey ==? 'level'
+        let op = not ? ' ==? ' : ' !=? '
+        let ret = 'v:val["type"]' . op . string(a:term[0])
+    elseif fkey ==? 'type'
+        if a:term ==? 'style'
+            let op = not ? ' ==? ' : ' !=? '
+            let ret = 'get(v:val, "subtype", "")' . op . '"style"'
+        else
+            let op = not ? '!' : ''
+            let ret = op . 'has_key(v:val, "subtype")'
+        endif
+    elseif fkey ==? 'regex'
+        let op = not ? ' =~? ' : ' !~? '
+        let ret = 'v:val["text"]' . op . string(a:term)
+    elseif fkey ==? 'file' || fkey[:4] ==? 'file:'
+        let op = not ? ' =~# ' : ' !~# '
+        let ret = 'bufname(str2nr(v:val["bufnr"]))'
+        let mod = fkey[4:]
+        if mod != ''
+            let ret = 'fnamemodify(' . ret . ', ' . string(mod) . ')'
+        endif
+        let ret .= op . string(a:term)
+    else
+        call syntastic#log#warn('quiet_messages: ignoring invalid key ' . strtrans(string(fkey)))
         let ret = "1"
     endif
     return ret
@@ -343,7 +365,7 @@ function! s:_rmrf(what) " {{{2
     endif
 
     if getftype(a:what) ==# 'dir'
-        for f in split(globpath(a:what, '*'), "\n")
+        for f in split(globpath(a:what, '*', 1), "\n")
             call s:_rmrf(f)
         endfor
         silent! call system(s:rmdir . ' ' . syntastic#util#shescape(a:what))

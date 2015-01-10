@@ -18,9 +18,17 @@ endfunction " }}}2
 " read additional compiler flags from the given configuration file
 " the file format and its parsing mechanism is inspired by clang_complete
 function! syntastic#c#ReadConfig(file) " {{{2
-    " search in the current file's directory upwards
+    call syntastic#log#debug(g:_SYNTASTIC_DEBUG_CHECKERS, 'ReadConfig: looking for', a:file)
+
+    " search upwards from the current file's directory
     let config = findfile(a:file, '.;')
-    if config == '' || !filereadable(config)
+    if config == ''
+        call syntastic#log#debug(g:_SYNTASTIC_DEBUG_CHECKERS, 'ReadConfig: file not found')
+        return ''
+    endif
+    call syntastic#log#debug(g:_SYNTASTIC_DEBUG_CHECKERS, 'ReadConfig: config file:', config)
+    if !filereadable(config)
+        call syntastic#log#debug(g:_SYNTASTIC_DEBUG_CHECKERS, 'ReadConfig: file unreadable')
         return ''
     endif
 
@@ -31,6 +39,7 @@ function! syntastic#c#ReadConfig(file) " {{{2
     try
         let lines = readfile(config)
     catch /\m^Vim\%((\a\+)\)\=:E48[45]/
+        call syntastic#log#debug(g:_SYNTASTIC_DEBUG_CHECKERS, 'ReadConfig: error reading file')
         return ''
     endtry
 
@@ -199,7 +208,7 @@ endfunction " }}}2
 " resolve user CFLAGS
 function! s:_get_cflags(ft, ck, opts) " {{{2
     " determine whether to parse header files as well
-    if has_key(a:opts, 'header_names') && expand('%') =~? a:opts['header_names']
+    if has_key(a:opts, 'header_names') && expand('%', 1) =~? a:opts['header_names']
         if s:_get_checker_var('g', a:ft, a:ck, 'check_header', 0)
             let flags = get(a:opts, 'header_flags', '') . ' -c ' . syntastic#c#NullOutput()
         else
@@ -288,7 +297,7 @@ function! s:_search_headers() " {{{2
     " search included headers
     for hfile in files
         if hfile != ''
-            let filename = expand('%:p:h') . syntastic#util#Slash() . hfile
+            let filename = expand('%:p:h', 1) . syntastic#util#Slash() . hfile
 
             try
                 let lines = readfile(filename, '', 100)

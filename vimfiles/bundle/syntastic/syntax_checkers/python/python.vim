@@ -18,7 +18,7 @@ let g:loaded_syntastic_python_python_checker = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:compiler = expand('<sfile>:p:h') . syntastic#util#Slash() . 'compile.py'
+let s:compiler = expand('<sfile>:p:h', 1) . syntastic#util#Slash() . 'compile.py'
 
 function! SyntaxCheckers_python_python_IsAvailable() dict
     if !executable(self.getExec())
@@ -52,4 +52,4 @@ call g:SyntasticRegistry.CreateAndRegisterChecker({
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
-" vim: set et sts=4 sw=4:
+" vim: set sw=4 sts=4 et fdm=marker:

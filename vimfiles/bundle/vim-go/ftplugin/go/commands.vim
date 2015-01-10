@@ -17,6 +17,7 @@ nnoremap <silent> <Plug>(go-info) :<C-u>call go#complete#Info()<CR>
 nnoremap <silent> <Plug>(go-import) :<C-u>call go#import#SwitchImport(1, '', expand('<cword>'))<CR>
 
 nnoremap <silent> <Plug>(go-implements) :<C-u>call go#oracle#Implements(-1)<CR>
+nnoremap <silent> <Plug>(go-callees) :<C-u>call go#oracle#Callees(-1)<CR>
 
 nnoremap <silent> <Plug>(go-rename) :<C-u>call go#rename#Rename()<CR>
 
@@ -25,10 +26,10 @@ nnoremap <silent> <Plug>(go-def-vertical) :<C-u>call go#def#JumpMode("vsplit")<C
 nnoremap <silent> <Plug>(go-def-split) :<C-u>call go#def#JumpMode("split")<CR>
 nnoremap <silent> <Plug>(go-def-tab) :<C-u>call go#def#JumpMode("tab")<CR>
 
-nnoremap <silent> <Plug>(go-doc) :<C-u>call go#doc#Open("leftabove new")<CR>
-nnoremap <silent> <Plug>(go-doc-tab) :<C-u>call go#doc#Open("tabnew")<CR>
-nnoremap <silent> <Plug>(go-doc-vertical) :<C-u>call go#doc#Open("vnew")<CR>
-nnoremap <silent> <Plug>(go-doc-split) :<C-u>call go#doc#Open("split")<CR>
+nnoremap <silent> <Plug>(go-doc) :<C-u>call go#doc#Open("new", "split")<CR>
+nnoremap <silent> <Plug>(go-doc-tab) :<C-u>call go#doc#Open("tabnew", "tabe")<CR>
+nnoremap <silent> <Plug>(go-doc-vertical) :<C-u>call go#doc#Open("vnew", "vsplit")<CR>
+nnoremap <silent> <Plug>(go-doc-split) :<C-u>call go#doc#Open("new", "split")<CR>
 nnoremap <silent> <Plug>(go-doc-browser) :<C-u>call go#doc#OpenBrowser()<CR>
 
 
@@ -37,6 +38,7 @@ command! -nargs=? GoRename call go#rename#Rename(<f-args>)
 
 " oracle
 command! -range=% GoImplements call go#oracle#Implements(<count>)
+command! -range=% GoCallees call go#oracle#Callees(<count>)
 
 " tool
 command! -nargs=0 GoFiles echo go#tool#Files()
@@ -58,7 +60,7 @@ command! -nargs=0 -range=% GoPlay call go#play#Share(<count>, <line1>, <line2>)
 command! -nargs=* -range GoDef :call go#def#Jump(<f-args>)
 
 " -- doc
-command! -nargs=* -range -complete=customlist,go#package#Complete GoDoc call go#doc#Open('leftabove new', <f-args>)
+command! -nargs=* -range -complete=customlist,go#package#Complete GoDoc call go#doc#Open('new', 'split', <f-args>)
 command! -nargs=* -range -complete=customlist,go#package#Complete GoDocBrowser call go#doc#OpenBrowser(<f-args>)
 
 " -- fmt
@@ -79,7 +81,6 @@ command! -nargs=? -complete=customlist,go#package#Complete GoErrCheck call go#er
 " Disable all commands until they are fully integrated.
 "
 " command! -range=% GoOracleDescribe call go#oracle#Describe(<count>)
-" command! -range=% GoOracleCallees  call go#oracle#Callees(<count>)
 " command! -range=% GoOracleCallers call go#oracle#Callers(<count>)
 " command! -range=% GoOracleCallgraph call go#oracle#Callgraph(<count>)
 " command! -range=% GoOracleCallstack call go#oracle#Callstack(<count>)

@@ -26,13 +26,15 @@ function! SyntaxCheckers_c_sparse_GetLocList() dict
         \ 'args': syntastic#c#ReadConfig(g:syntastic_sparse_config_file),
         \ 'args_after': '-ftabstop=' . &ts })
 
-    let errorformat = '%f:%l:%v: %trror: %m,%f:%l:%v: %tarning: %m,'
+    let errorformat =
+        \ '%f:%l:%v: %trror: %m,' .
+        \ '%f:%l:%v: %tarning: %m,'
 
     let loclist = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
         \ 'defaults': {'bufnr': bufnr("")},
-        \ 'returns': [0] })
+        \ 'returns': [0, 1] })
     return loclist
 endfunction
 
@@ -43,4 +45,4 @@ call g:SyntasticRegistry.CreateAndRegisterChecker({
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
-" vim: set et sts=4 sw=4:
+" vim: set sw=4 sts=4 et fdm=marker:

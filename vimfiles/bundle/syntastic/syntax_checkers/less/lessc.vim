@@ -26,7 +26,7 @@ endif
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:node_file = 'node ' . syntastic#util#shescape(expand('<sfile>:p:h') . syntastic#util#Slash() . 'less-lint.js')
+let s:node_file = 'node ' . syntastic#util#shescape(expand('<sfile>:p:h', 1) . syntastic#util#Slash() . 'less-lint.js')
 
 function! SyntaxCheckers_less_lessc_IsAvailable() dict
     call self.log('g:syntastic_less_use_less_lint =', g:syntastic_less_use_less_lint)
@@ -63,4 +63,4 @@ call g:SyntasticRegistry.CreateAndRegisterChecker({
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
-" vim: set et sts=4 sw=4:
+" vim: set sw=4 sts=4 et fdm=marker:

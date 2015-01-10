@@ -41,7 +41,7 @@ function! SyntaxCheckers_cuda_nvcc_GetLocList() dict
         \ '%DMaking %*\a in %f,'.
         \ '%f|%l| %m'
 
-    if expand('%') =~? '\m\%(.h\|.hpp\|.cuh\)$'
+    if expand('%', 1) =~? '\m\%(.h\|.hpp\|.cuh\)$'
         if exists('g:syntastic_cuda_check_header')
             let makeprg =
                 \ 'echo > .syntastic_dummy.cu ; ' .
@@ -63,4 +63,4 @@ call g:SyntasticRegistry.CreateAndRegisterChecker({
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
-" vim: set et sts=4 sw=4:
+" vim: set sw=4 sts=4 et fdm=marker:

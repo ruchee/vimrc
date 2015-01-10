@@ -49,11 +49,15 @@ function! SyntaxCheckers_go_go_GetLocList() dict
 
     " Test files, i.e. files with a name ending in `_test.go`, are not
     " compiled by `go build`, therefore `go test` must be called for those.
-    if match(expand('%'), '\m_test\.go$') == -1
-        let makeprg = self.getExec() . ' build ' . syntastic#c#NullOutput()
+    if match(expand('%', 1), '\m_test\.go$') == -1
+        let opts = syntastic#util#var('go_go_build_args')
+        let opts = opts != '' ? syntastic#util#shescape(opts) : ''
+        let makeprg = self.getExec() . ' build ' . opts . ' ' . syntastic#c#NullOutput()
         let cleanup = 0
     else
-        let makeprg = self.getExec() . ' test -c ' . syntastic#c#NullOutput()
+        let opts = syntastic#util#var('go_go_test_args')
+        let opts = opts != '' ? syntastic#util#shescape(opts) : ''
+        let makeprg = self.getExec() . ' test -c ' . opts . ' ' . syntastic#c#NullOutput()
         let cleanup = 1
     endif
 
@@ -72,11 +76,11 @@ function! SyntaxCheckers_go_go_GetLocList() dict
     let errors = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'cwd': expand('%:p:h'),
+        \ 'cwd': expand('%:p:h', 1),
         \ 'defaults': {'type': 'e'} })
 
     if cleanup
-        call delete(expand('%:p:h') . syntastic#util#Slash() . expand('%:p:h:t') . '.test')
+        call delete(expand('%:p:h', 1) . syntastic#util#Slash() . expand('%:p:h:t', 1) . '.test')
     endif
 
     return errors
@@ -89,4 +93,4 @@ call g:SyntasticRegistry.CreateAndRegisterChecker({
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
-" vim: set et sts=4 sw=4:
+" vim: set sw=4 sts=4 et fdm=marker:

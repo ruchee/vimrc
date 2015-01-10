@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-09 21:08
+" -----------------     Date: 2015-01-10 14:59
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -737,7 +737,7 @@ func! Compile_Run_Code()
     elseif &filetype == "r"
         exec "!Rscript %:t"
     elseif &filetype == "coffee"
-        exec "!coffee %:t"
+        exec "!coffee -c %:t && coffee %:t"
     elseif &filetype == "javascript"
         exec "!node %:t"
     elseif &filetype == "sh"
