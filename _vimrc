@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-10 14:59
+" -----------------     Date: 2015-01-11 21:54
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -19,8 +19,6 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/cps.7433.com/tags
 else
-    set tags+=D:/Ruchee/Ruby/lib/ruby/2.0.0/tags
-    set tags+=D:/Ruchee/Ruby/lib/ruby/gems/2.0.0/gems/tags
 endif
 
 
