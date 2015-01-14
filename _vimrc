@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-11 22:40
+" -----------------     Date: 2015-01-14 19:34
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -214,6 +214,7 @@ au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,j
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        setlocal ft=c
+au BufRead,BufNewFile *.m        setlocal ft=objc
 au BufRead,BufNewFile *.di       setlocal ft=d
 au BufRead,BufNewFile *.cl       setlocal ft=lisp
 au BufRead,BufNewFile *.phpt     setlocal ft=php
@@ -488,6 +489,7 @@ let g:snipMate.no_default_aliases          = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate.scope_aliases               = {}
 let g:snipMate.scope_aliases['c']          = 'cpp'
+let g:snipMate.scope_aliases['objc']       = 'objc,cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
