@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-14 19:34
+" -----------------     Date: 2015-01-15 23:29
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -192,8 +192,13 @@ endif
 " 判断操作系统类型
 if(has("win32") || has("win64"))
     let g:isWIN = 1
+    let g:isMAC = 0
+elseif has("mac")
+    let g:isWIN = 0
+    let g:isMAC = 1
 else
     let g:isWIN = 0
+    let g:isMAC = 0
 endif
 
 " 判断是否处于GUI界面
@@ -232,6 +237,9 @@ au BufRead,BufNewFile *.ini      setlocal ft=dosini
 if g:isWIN
     colorscheme molokai
     set guifont=Monaco:h11
+elseif g:isMAC
+    colorscheme molokai
+    set guifont=Monaco:h14
 else
     colorscheme molokai
     set guifont=Monaco\ 11
