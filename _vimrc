@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-18 15:00
+" -----------------     Date: 2015-01-19 18:43
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -18,6 +18,7 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/cps.7433.com/tags
+    " set tags+=D:/Ruchee/Files/code/7433/plat.7433.com/tags
 else
 endif
 
@@ -708,7 +709,7 @@ func! Compile_Run_Code()
     elseif &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
-        if g:isWIN
+        if g:isWIN || g:isMAC
             exec "!ccl -l %:t"
         else
             exec "!clisp -i %:t"

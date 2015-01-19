@@ -1,6 +1,7 @@
 /vim74
 
 .DS_Store
+.netrwhist
 *.cache
 *.swp
 tags

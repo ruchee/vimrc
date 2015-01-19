@@ -1209,6 +1209,7 @@ htmlentities
 htmlentities(string.string[,int.quote_style][,string.charset])
 htmlspecialchars
 htmlspecialchars(string.string[,int.quote_style][,string.charset])
+http_build_query
 HTTP_ACCEPT
 HTTP_ACCEPT_CHARSET
 HTTP_ACCEPT_LANGUAGE
