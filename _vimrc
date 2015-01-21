@@ -194,12 +194,14 @@ endif
 if(has("win32") || has("win64"))
     let g:isWIN = 1
     let g:isMAC = 0
-elseif has("mac")
-    let g:isWIN = 0
-    let g:isMAC = 1
 else
-    let g:isWIN = 0
-    let g:isMAC = 0
+    if system("uname") =~ "Darwin"
+        let g:isWIN = 0
+        let g:isMAC = 1
+    else
+        let g:isWIN = 0
+        let g:isMAC = 0
+    endif
 endif
 
 " 判断是否处于GUI界面
@@ -673,6 +675,8 @@ func! Compile_Run_Code()
     elseif &filetype == "d"
         if g:isWIN
             exec "!dmd -wi %:t && del %:r.obj && %:r.exe"
+        elseif g:isMAC
+            exec "!dmd -wi %:t && rm %:r.o && ./%:r"
         else
             exec "!gdc -Wall -o %:r %:t && ./%:r"
         endif
