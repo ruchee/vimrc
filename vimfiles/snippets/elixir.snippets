@@ -16,6 +16,12 @@ snippet d       方法定义 [不带参数]
 	def ${1:f_name} do
 	  ${0}
 	end
+snippet d.      方法定义 [带参数]
+	def ${1:f_name}(${2}) do
+	  ${0}
+	end
+snippet la      匿名函数
+	fn -> ${1:f_name}(${2}) ${0} end
 # 流程控制
 snippet do      do
 	do
@@ -29,3 +35,5 @@ snippet p       输出
 # 其他
 snippet {       #{ .. }
 	#{${0}
+snippet .       |>
+	|> ${0}

@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-19 18:43
+" -----------------     Date: 2015-01-21 19:53
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -311,7 +311,8 @@ if g:isGUI
     set guioptions-=r        " 隐藏右侧滚动条
     set guioptions-=b        " 隐藏底部滚动条
     set showtabline=0        " 隐藏Tab栏
-    set cursorline           " 突出显示当前行
+    set cursorline           " 高亮突出当前行
+    set cursorcolumn         " 高亮突出当前列
 endif
 
 
