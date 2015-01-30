@@ -77,6 +77,23 @@ function! g:SyntasticChecker.getLocList() " {{{2
     return g:SyntasticLoclist.New(self.getLocListRaw())
 endfunction " }}}2
 
+function! g:SyntasticChecker.getVersion(...) " {{{2
+    if !exists('self._version')
+        let command = a:0 ? a:1 : self.getExecEscaped() . ' --version'
+        call self.setVersion(syntastic#util#parseVersion(system(command)))
+    endif
+    return get(self, '_version', [])
+endfunction " }}}2
+
+function! g:SyntasticChecker.setVersion(version) " {{{2
+    if len(a:version)
+        let self._version = copy(a:version)
+        call self.log(self.getExec() . ' version =', a:version)
+    else
+        call syntastic#log#error("checker " . self._filetype . "/" . self._name . ": can't parse version string (abnormal termination?)")
+    endif
+endfunction " }}}2
+
 function! g:SyntasticChecker.log(msg, ...) " {{{2
     let leader = self._filetype . '/' . self._name . ': '
     if a:0 > 0
@@ -162,21 +179,11 @@ endfunction " }}}2
 
 function! g:SyntasticChecker._getOpt(opts, basename, name, default) " {{{2
     let ret = []
-    call extend( ret, self._shescape(get(a:opts, a:name . '_before', '')) )
-    call extend( ret, self._shescape(syntastic#util#var( a:basename . a:name, get(a:opts, a:name, a:default) )) )
-    call extend( ret, self._shescape(get(a:opts, a:name . '_after', '')) )
+    call extend( ret, syntastic#util#argsescape(get(a:opts, a:name . '_before', '')) )
+    call extend( ret, syntastic#util#argsescape(syntastic#util#var( a:basename . a:name, get(a:opts, a:name, a:default) )) )
+    call extend( ret, syntastic#util#argsescape(get(a:opts, a:name . '_after', '')) )
 
     return ret
-endfunction " }}}2
-
-function! g:SyntasticChecker._shescape(opt) " {{{2
-    if type(a:opt) == type('') && a:opt != ''
-        return [a:opt]
-    elseif type(a:opt) == type([])
-        return map(copy(a:opt), 'syntastic#util#shescape(v:val)')
-    endif
-
-    return []
 endfunction " }}}2
 
 " }}}1

@@ -3,8 +3,8 @@
 " Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
 " URL:		http://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2014 November 26th
-" Version:	1.57
+" Last Change:	2015 January 23rd
+" Version:	1.58
 "
 "
 "	Type :help php-indent for available options
@@ -40,6 +40,9 @@
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
 "
+"
+" Changes: 1.58		- Check shiftwidth() instead of 'shiftwidth' (will use
+"			  the 'tabstop' value if 'shiftwidth' is 0)
 "
 " Changes: 1.57		- Fix an unreported non-blocking syntax error (VimLint)
 "
@@ -386,17 +389,29 @@ let b:did_indent = 1
 
 let g:php_sync_method = 0
 
+" Get the effective value of 'shiftwidth'. Vim since 7.3-703 allows a value of
+" 0, which uses the value of 'tabstop', in which case we need to use the
+" shiftwidth() function.
+if exists('*shiftwidth')
+  function! s:sw()
+    return shiftwidth()
+  endfunction
+else
+  function! s:sw()
+    return &shiftwidth
+  endfunction
+endif
 
 " Apply options
 
 if exists("PHP_default_indenting")
-    let b:PHP_default_indenting = PHP_default_indenting * &sw
+    let b:PHP_default_indenting = PHP_default_indenting * s:sw()
 else
     let b:PHP_default_indenting = 0
 endif
 
 if exists("PHP_outdentSLComments")
-    let b:PHP_outdentSLComments = PHP_outdentSLComments * &sw
+    let b:PHP_outdentSLComments = PHP_outdentSLComments * s:sw()
 else
     let b:PHP_outdentSLComments = 0
 endif
@@ -700,7 +715,7 @@ function! FindTheSwitchIndent (lnum) " {{{
     let test = GetLastRealCodeLNum(a:lnum - 1)
 
     if test <= 1
-	return indent(1) - &sw * b:PHP_vintage_case_default_indent
+	return indent(1) - s:sw() * b:PHP_vintage_case_default_indent
     end
 
     " A closing bracket? let skip the whole block to save some recursive calls
@@ -722,7 +737,7 @@ function! FindTheSwitchIndent (lnum) " {{{
 	return indent(test)
     elseif getline(test) =~# s:defaultORcase
 	" DEBUG call DebugPrintReturn('found a default/case on ' . test)
-	return indent(test) - &sw * b:PHP_vintage_case_default_indent
+	return indent(test) - s:sw() * b:PHP_vintage_case_default_indent
     else
 	" DEBUG call DebugPrintReturn('recursing from ' . test)
 	return FindTheSwitchIndent(test)
@@ -822,7 +837,7 @@ function! GetPhpIndent()
     endif
 
     if b:PHP_default_indenting
-	let b:PHP_default_indenting = g:PHP_default_indenting * &sw
+	let b:PHP_default_indenting = g:PHP_default_indenting * s:sw()
     endif
 
     " current line
@@ -1183,7 +1198,7 @@ function! GetPhpIndent()
     elseif cline =~# s:defaultORcase
 	" DEBUG call DebugPrintReturn(1064)
 	" case and default need a special treatment
-	return FindTheSwitchIndent(v:lnum) + &sw * b:PHP_vintage_case_default_indent
+	return FindTheSwitchIndent(v:lnum) + s:sw() * b:PHP_vintage_case_default_indent
     elseif cline =~ '^\s*)\=\s*{'
 	let previous_line = last_line
 	let last_line_num = lnum
@@ -1198,7 +1213,7 @@ function! GetPhpIndent()
 
 		" If the PHP_BracesAtCodeLevel is set then indent the '{'
 		if  b:PHP_BracesAtCodeLevel
-		    let ind = ind + &sw
+		    let ind = ind + s:sw()
 		endif
 
 		" DEBUG call DebugPrintReturn(1083)
@@ -1210,7 +1225,7 @@ function! GetPhpIndent()
 	endwhile
 
     elseif last_line =~# unstated && cline !~ '^\s*);\='.endline
-	let ind = ind + &sw " we indent one level further when the preceding line is not stated
+	let ind = ind + s:sw() " we indent one level further when the preceding line is not stated
 	" DEBUG call DebugPrintReturn(1093)
 	return ind + addSpecial
 
@@ -1394,7 +1409,7 @@ function! GetPhpIndent()
 	    " indent if we don't want braces at code level or if the last line
 	    " is not a lonely '{' (default indent for the if block)
 	    if !dontIndent && (!b:PHP_BracesAtCodeLevel || last_line !~# '^\s*{')
-		let ind = ind + &sw
+		let ind = ind + s:sw()
 	    endif
 
 	    if b:PHP_BracesAtCodeLevel || b:PHP_vintage_case_default_indent == 1
@@ -1421,7 +1436,7 @@ function! GetPhpIndent()
 	    " if the line before starts a block then we need to indent the
 	    " current line.
 	elseif last_line =~ '^\s*'.s:blockstart
-	    let ind = ind + &sw
+	    let ind = ind + s:sw()
 
 	    " In all other cases if !LastLineClosed indent 1 level higher
 	    " _only_ if the ante-penultimate line _is_ 'closed' or if it's a
@@ -1431,7 +1446,7 @@ function! GetPhpIndent()
 	    " were in this "list"
 
     elseif AntepenultimateLine =~ '{'.endline || AntepenultimateLine =~ terminated || AntepenultimateLine =~# s:defaultORcase
-	    let ind = ind + &sw
+	    let ind = ind + s:sw()
 	    " DEBUG call DebugPrintReturn(1422 . '  ' . AntepenultimateLine)
 	endif
 
@@ -1439,7 +1454,7 @@ function! GetPhpIndent()
 
     " If the current line closes a multiline function call or array def
     if cline =~  '^\s*[)\]];\='
-	let ind = ind - &sw
+	let ind = ind - s:sw()
     endif
 
     let b:PHP_CurrentIndentLevel = ind

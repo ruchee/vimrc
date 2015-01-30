@@ -61,7 +61,8 @@ endfunction " }}}2
 
 " Recursively remove a directory
 function! syntastic#util#rmrf(what) " {{{2
-    if a:what == '.'
+    " try to make sure we don't delete directories we didn't create
+    if a:what !~? 'vim-syntastic-'
         return
     endif
 
@@ -118,12 +119,6 @@ endfunction " }}}2
 " Parse a version string.  Return an array of version components.
 function! syntastic#util#parseVersion(version) " {{{2
     return map(split(matchstr( a:version, '\v^\D*\zs\d+(\.\d+)+\ze' ), '\m\.'), 'str2nr(v:val)')
-endfunction " }}}2
-
-" Run 'command' in a shell and parse output as a version string.
-" Returns an array of version components.
-function! syntastic#util#getVersion(command) " {{{2
-    return syntastic#util#parseVersion(system(a:command))
 endfunction " }}}2
 
 " Verify that the 'installed' version is at least the 'required' version.
@@ -264,6 +259,17 @@ function! syntastic#util#shexpand(string, ...) " {{{2
     return syntastic#util#shescape(a:0 ? expand(a:string, a:1) : expand(a:string, 1))
 endfunction " }}}2
 
+" Escape arguments
+function! syntastic#util#argsescape(opt) " {{{2
+    if type(a:opt) == type('') && a:opt != ''
+        return [a:opt]
+    elseif type(a:opt) == type([])
+        return map(copy(a:opt), 'syntastic#util#shescape(v:val)')
+    endif
+
+    return []
+endfunction " }}}2
+
 " decode XML entities
 function! syntastic#util#decodeXMLEntities(string) " {{{2
     let str = a:string
@@ -365,6 +371,10 @@ function! s:_rmrf(what) " {{{2
     endif
 
     if getftype(a:what) ==# 'dir'
+        if filewritable(a:what) != 2
+            return
+        endif
+
         for f in split(globpath(a:what, '*', 1), "\n")
             call s:_rmrf(f)
         endfor
