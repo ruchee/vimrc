@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-04 20:03
+" -----------------     Date: 2015-02-05 00:49
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -665,6 +665,8 @@ func! Compile_Run_Code()
     if &filetype == "nasm"
         if g:isWIN
             exec "!nasm -f elf %:t && ld -s -o %:r.exe %:r.o && del %:r.o && %:r.exe"
+        elseif g:isMAC
+            exec "!nasm -f macho64 %:t && ld -macosx_version_min 10.7.0 -lSystem -o %:r %:r.o && rm %:r.o && ./%:r"
         else
             exec "!nasm -f elf %:t && ld -s -o %:r %:r.o && rm %:r.o && ./%:r"
         endif
