@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-01-30 20:06
+" -----------------     Date: 2015-02-04 20:03
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -221,6 +221,7 @@ au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,j
 au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
+au BufRead,BufNewFile *.s        setlocal ft=nasm
 au BufRead,BufNewFile *.h        setlocal ft=c
 au BufRead,BufNewFile *.m        setlocal ft=objc
 au BufRead,BufNewFile *.di       setlocal ft=d
@@ -661,7 +662,13 @@ nmap <leader>html <ESC>:se ft=html<CR>
 " 编译并运行
 func! Compile_Run_Code()
     exec "w"
-    if &filetype == "c"
+    if &filetype == "nasm"
+        if g:isWIN
+            exec "!nasm -f elf %:t && ld -s -o %:r.exe %:r.o && del %:r.o && %:r.exe"
+        else
+            exec "!nasm -f elf %:t && ld -s -o %:r %:r.o && rm %:r.o && ./%:r"
+        endif
+    elseif &filetype == "c"
         if g:isWIN
             exec "!gcc -Wall -std=c11 -o %:r %:t && %:r.exe"
         else
@@ -794,6 +801,6 @@ let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Swift': 'swift', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Nasm': 'nasm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Swift': 'swift', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
 
 let g:vimwiki_list = [blog]
