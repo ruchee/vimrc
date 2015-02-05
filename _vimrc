@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-05 00:49
+" -----------------     Date: 2015-02-05 20:16
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -15,10 +15,9 @@ endif
 " 针对不同的使用环境进行具体配置
 if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
-    " set tags+=D:/Ruchee/Files/code/wuyun/bg/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
-    " set tags+=D:/Ruchee/Files/code/baofeng/cps.7433.com/tags
-    " set tags+=D:/Ruchee/Files/code/7433/plat.7433.com/tags
+    " set tags+=D:/Ruchee/Files/code/baofeng/plat.7433.com/tags
+    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
 else
 endif
 
