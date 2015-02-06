@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-05 20:16
+" -----------------     Date: 2015-02-06 20:09
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -67,6 +67,9 @@ endif
 " \cs                        --添加SexStyle块注释     [NERD_commenter]
 "
 " \php                       --一键切换到PHP语法高亮
+" \blade                     --一键切换到Blade语法高亮
+" \ruby                      --一键切换到Ruby语法高亮
+" \eruby                     --一键切换到eRuby语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
 " \html                      --一键切换到HTML语法高亮
@@ -543,6 +546,10 @@ let g:used_javascript_libs = 'jquery,angularjs'
 
 " ======= 自定义快捷键 ======= "
 
+" Ctrl + ]            tags选择性跳转
+nmap <c-]> g<c-]>
+vmap <c-]> g<c-]>
+
 " Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal模式]
 imap <c-h> <ESC>I
 map <c-h> <c-w><c-h>
@@ -642,6 +649,18 @@ nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 " \php                一键切换到PHP语法高亮
 imap <leader>php <ESC>:se ft=php<CR>li
 nmap <leader>php <ESC>:se ft=php<CR>
+
+" \blade              一键切换到Blade语法高亮
+imap <leader>blade <ESC>:se ft=blade<CR>li
+nmap <leader>blade <ESC>:se ft=blade<CR>
+
+" \ruby               一键切换到Ruby语法高亮
+imap <leader>ruby <ESC>:se ft=ruby<CR>li
+nmap <leader>ruby <ESC>:se ft=ruby<CR>
+
+" \eruby              一键切换到eRuby语法高亮
+imap <leader>eruby <ESC>:se ft=eruby<CR>li
+nmap <leader>eruby <ESC>:se ft=eruby<CR>
 
 " \js                 一键切换到JavaScript语法高亮
 imap <leader>js <ESC>:se ft=javascript<CR>li
