@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-06 20:09
+" -----------------     Date: 2015-02-07 16:03
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -18,6 +18,7 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/plat.7433.com/tags
     " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
+    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
 else
 endif
 
@@ -107,7 +108,6 @@ endif
 "
 " Ctrl + ]                   --转到函数定义           [ctags跳转]
 " Ctrl + T                   --返回调用函数           [ctags跳转]
-" g Ctrl+]                   --列出可选跳转列表       [ctags跳转]
 
 " Ctrl + O                   --跳到上一个编辑位置     [Normal模式]
 " Ctrl + I                   --跳回下一个编辑位置     [Normal模式]
@@ -682,11 +682,11 @@ func! Compile_Run_Code()
     exec "w"
     if &filetype == "nasm"
         if g:isWIN
-            exec "!nasm -f elf %:t && ld -s -o %:r.exe %:r.o && del %:r.o && %:r.exe"
+            exec "!nasm -f win64 %:t && ld -s -o %:r.exe %:r.obj && del %:r.obj && %:r.exe"
         elseif g:isMAC
             exec "!nasm -f macho64 %:t && ld -macosx_version_min 10.7.0 -lSystem -o %:r %:r.o && rm %:r.o && ./%:r"
         else
-            exec "!nasm -f elf %:t && ld -s -o %:r %:r.o && rm %:r.o && ./%:r"
+            exec "!nasm -f elf64 %:t && ld -s -o %:r %:r.o && rm %:r.o && ./%:r"
         endif
     elseif &filetype == "c"
         if g:isWIN
