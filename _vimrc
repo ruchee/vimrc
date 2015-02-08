@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-07 16:03
+" -----------------     Date: 2015-02-08 18:05
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -716,6 +716,8 @@ func! Compile_Run_Code()
         else
             exec "!rustc %:t && ./%:r"
         endif
+    elseif &filetype == "swift"
+        exec "!swift %:t"
     elseif &filetype == "java"
         exec "!javac %:t && java %:r"
     elseif &filetype == "groovy"
@@ -821,6 +823,6 @@ let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Nasm': 'nasm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Swift': 'swift', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Nasm': 'nasm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
 
 let g:vimwiki_list = [blog]
