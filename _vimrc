@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-09 22:33
+" -----------------     Date: 2015-02-11 00:11
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -63,15 +63,16 @@ endif
 " \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
 " \ev                        --编辑当前所使用的Vim配置文件
 "
+" \gg                        --等同G
+" \ii                        --等同I
+" \aa                        --等同A
+"
 " \cc                        --添加注释               [NERD_commenter]
 " \cu                        --取消注释               [NERD_commenter]
 " \cm                        --添加块注释             [NERD_commenter]
 " \cs                        --添加SexStyle块注释     [NERD_commenter]
 "
 " \php                       --一键切换到PHP语法高亮
-" \blade                     --一键切换到Blade语法高亮
-" \ruby                      --一键切换到Ruby语法高亮
-" \eruby                     --一键切换到eRuby语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
 " \html                      --一键切换到HTML语法高亮
@@ -649,21 +650,18 @@ vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <ESC>:e $MYVIMRC<CR>
 
+" \gg                 等同G
+nmap <leader>gg <ESC>G
+
+" \ii                 等同I
+nmap <leader>ii <ESC>I
+
+" \aa                 等同A
+nmap <leader>aa <ESC>A
+
 " \php                一键切换到PHP语法高亮
 imap <leader>php <ESC>:se ft=php<CR>li
 nmap <leader>php <ESC>:se ft=php<CR>
-
-" \blade              一键切换到Blade语法高亮
-imap <leader>blade <ESC>:se ft=blade<CR>li
-nmap <leader>blade <ESC>:se ft=blade<CR>
-
-" \ruby               一键切换到Ruby语法高亮
-imap <leader>ruby <ESC>:se ft=ruby<CR>li
-nmap <leader>ruby <ESC>:se ft=ruby<CR>
-
-" \eruby              一键切换到eRuby语法高亮
-imap <leader>eruby <ESC>:se ft=eruby<CR>li
-nmap <leader>eruby <ESC>:se ft=eruby<CR>
 
 " \js                 一键切换到JavaScript语法高亮
 imap <leader>js <ESC>:se ft=javascript<CR>li
