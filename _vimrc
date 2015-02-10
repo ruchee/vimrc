@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-09 19:57
+" -----------------     Date: 2015-02-09 22:33
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -56,6 +56,7 @@ endif
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
+" \da                        --打开Dash查看文档       [Normal模式可用] [仅安装了Dash的Mac有效]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -223,7 +224,6 @@ au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,j
 au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,coffee,jade,sh set tabstop=2
 
 " 根据后缀名指定文件类型
-au BufRead,BufNewFile *.s        setlocal ft=nasm
 au BufRead,BufNewFile *.h        setlocal ft=c
 au BufRead,BufNewFile *.m        setlocal ft=objc
 au BufRead,BufNewFile *.di       setlocal ft=d
@@ -604,6 +604,9 @@ nmap <leader>tl :Tlist<CR><c-w><c-l>
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
 
+" \da                 查找当前光标处字串的文档 [Dash插件] [仅安装了Dash的Mac有效]
+nmap <leader>da :Dash<CR>
+
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
 nmap <leader>rb :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
@@ -680,15 +683,7 @@ nmap <leader>html <ESC>:se ft=html<CR>
 " 编译并运行
 func! Compile_Run_Code()
     exec "w"
-    if &filetype == "nasm"
-        if g:isWIN
-            exec "!nasm -f win64 %:t && ld -s -o %:r.exe %:r.obj && del %:r.obj && %:r.exe"
-        elseif g:isMAC
-            exec "!nasm -f macho64 %:t && ld -macosx_version_min 10.7.0 -lSystem -o %:r %:r.o && rm %:r.o && ./%:r"
-        else
-            exec "!nasm -f elf64 %:t && ld -s -o %:r %:r.o && rm %:r.o && ./%:r"
-        endif
-    elseif &filetype == "c"
+    if &filetype == "c"
         if g:isWIN
             exec "!gcc -Wall -std=c11 -o %:r %:t && %:r.exe"
         else
@@ -823,6 +818,6 @@ let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Nasm': 'nasm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
 
 let g:vimwiki_list = [blog]
