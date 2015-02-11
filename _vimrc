@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-11 00:11
+" -----------------     Date: 2015-02-11 20:13
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,8 +17,6 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/plat.7433.com/tags
-    " set tags+=D:/Ruchee/Ruby/lib/ruby/tags
-    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
 else
 endif
 
@@ -62,10 +60,6 @@ endif
 " \bn                        --自定义对齐
 " \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
 " \ev                        --编辑当前所使用的Vim配置文件
-"
-" \gg                        --等同G
-" \ii                        --等同I
-" \aa                        --等同A
 "
 " \cc                        --添加注释               [NERD_commenter]
 " \cu                        --取消注释               [NERD_commenter]
@@ -649,15 +643,6 @@ vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
 
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <ESC>:e $MYVIMRC<CR>
-
-" \gg                 等同G
-nmap <leader>gg <ESC>G
-
-" \ii                 等同I
-nmap <leader>ii <ESC>I
-
-" \aa                 等同A
-nmap <leader>aa <ESC>A
 
 " \php                一键切换到PHP语法高亮
 imap <leader>php <ESC>:se ft=php<CR>li
