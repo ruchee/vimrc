@@ -1,0 +1,233 @@
+*swift.txt*      Filetype plugin for Swift
+
+==============================================================================
+CONTENTS                                                    *swift* *ft-swift*
+
+1. Introduction                                                  |swift-intro|
+2. Settings                                                   |swift-settings|
+3. Commands                                                   |swift-commands|
+4. Mappings                                                   |swift-mappings|
+5. Unite Sources                                         |swift-unite-sources|
+
+==============================================================================
+INTRODUCTION                                                     *swift-intro*
+
+This plugin provides syntax and supporting functionality for the Swift
+filetype.
+
+==============================================================================
+SETTINGS                                                      *swift-settings*
+
+This plugin has variables you can define in your vimrc that change the
+behavior of the plugin.
+
+                                                          *g:swift_no_conceal*
+g:swift_no_conceal~
+	Type: Number
+	Set this option to turn off |conceal| support: >
+	    let g:swift_no_conceal = 1
+<
+
+                                                             *g:swift_no_fold*
+g:swift_no_fold~
+	Type: Number
+	Set this option to turn off |folding|: >
+	    let g:swift_no_fold = 1
+<
+	Value		Effect ~
+	0		Folding is enabled. All folds are open by default.
+	1		Folding is enabled. 'foldlevel' is reset to the global
+			value (all folds are closed by default).
+	2		Folding is not enabled. 'foldmethod' and 'foldlevel'
+			are both left at their current values.
+
+                                                       *g:swift_developer_dir*
+g:swift_developer_dir~
+	Type: String
+	Set this option to a path to use for DEVELOPER_DIR: >
+		let g:swift_developer_dir='/Applications/Xcode-Beta.app'
+<
+	This option may also be specified as *w:swift_developer_dir* or
+	*b:swift_developer_dir*
+
+	If unset, the default developer dir is used (see `xcode-select`).
+
+                                                            *g:swift_platform*
+g:swift_platform~
+	Type: String
+	Set this option to the platform to compile the code for.
+	Possible values are "macosx" and "iphoneos": >
+	    let g:swift_platform = 'macosx'
+<
+	This option may also be specified as *w:swift_platform* or
+	*b:swift_platform*
+
+	If *b:swift_platform* is unset, this option can be inferred from a
+	comment in the file of the form: >
+	    // swift: platform=iphoneos
+<
+	If unset, and if no comment is found as described above, if the file
+	includes an import for the 'UIKit' framework it is assumed to be
+	"iphoneos", and if the file includes an import for the 'AppKit' or
+	'Cocoa' frameworks it is assumed to be "macosx".
+
+	If no value is set or inferred, it defaults to "macosx".
+
+                                                              *g:swift_device*
+g:swift_device~
+	Type: String
+	The name of the configured iOS Simulator device to use when running
+	code for the "iphoneos" platform: >
+	    let g:swift_device = 'iPhone 6'
+<
+	This option can also be specified as *w:swift_device* or
+	*b:swift_device*
+
+	Like |g:swift_platform|, this option can be inferred from a comment of
+	the form: >
+	    // swift: device=iPhone 6
+<
+	If unset, attempting to run code for the "iphoneos" platform will
+	fail.
+
+                                               *g:swift_platform_detect_limit*
+g:swift_platform_detect_limit~
+	Type: Number
+	This option defines the number of lines that are scanned in order to
+	detect the platform if |g:swift_platform| is unset: >
+	    let g:swift_platform_detect_limit = 20
+<
+	This option can also be specified as *w:swift_platform_detect_limit*
+	or *b:swift_platform_detect_limit*
+
+	The default value is 128.
+
+==============================================================================
+COMMANDS                                                      *swift-commands*
+
+:SwiftRun  [args]                                                  *:SwiftRun*
+:SwiftRun! [swift-args] [-- [args]]
+		Compiles and runs the current file. If it has unsaved changes,
+		it will be saved first using |:update|. If the current file is
+		an unnamed buffer, it will be written to a temporary file
+		first. The compiled binary is always placed in a temporary
+		directory, but it is run from the current directory.
+
+		The arguments given to |:SwiftRun| will be passed to the
+		compiled binary.
+
+		If ! is specified, the arguments are passed to swiftc instead.
+		A "--" argument will separate the compiler arguments from the
+		arguments passed to the binary.
+
+:SwiftEmitIr [args]                                             *:SwiftEmitIr*
+		Compiles the current file to LLVM IR and displays the results
+		in a new split. If the current file has unsaved changes, it
+		will be saved first using |:update|. If the current file is an
+		unnamed buffer, it will be written to a temporary file first.
+
+		The arguments given to |:SwiftEmitIr| will be passed to
+		swiftc.
+
+:TabSwiftEmitIr [args]                                       *:TabSwiftEmitIr*
+		Same as |:SwiftEmitIr| but the results are displayed in a new
+		tab instead.
+		{not available when the |+windows| feature was disabled at
+		compile time}
+
+:SwiftEmitSil  [args]                                          *:SwiftEmitSil*
+:SwiftEmitSil! [args]
+		Compiles the current file to SIL and displays the results in a
+		new split. If the current file has unsaved changes, it will be
+		saved first using |:update|. If the current file is an unnamed
+		buffer, it will be written to a temporary file first.
+
+		The arguments given to |:SwiftEmitSil| will be passed to
+		swiftc.
+
+		If ! is specified, raw SIL will be emitted instead of
+		canonical SIL.
+
+:TabSwiftEmitSil  [args]                                    *:TabSwiftEmitSil*
+:TabSwiftEmitSil! [args]
+		Same as |:SwiftEmitSil| but the results are displayed in a new
+		tab instead.
+		{not available when the |+windows| feature was disabled at
+		compile time}
+
+:SwiftEmitAsm [args]                                           *:SwiftEmitAsm*
+		Compiles the current file to assembly and displays the results
+		in a new split. If the current file has unsaved changes, it
+		will be saved first using |:update|. If the current file is an
+		unnamed buffer, it will be written to a temporary file first.
+
+		The arguments given to |:SwiftEmitAsm| will be passed to
+		swiftc.
+
+:TabSwiftEmitAsm [args]                                     *:TabSwiftEmitAsm*
+		Same as |:SwiftEmitAsm| but the results are displayed in a new
+		tab instead.
+		{not available when the |+windows| feature was disabled at
+		compile time}
+
+:SwiftEmitHeader [args]                                     *:SwiftEmitHeader*
+		Compiles the current file and displays a synthesized
+		Objective-C header in a new split. The current file will
+		always be written to a temporary buffer first.
+
+		The arguments given to |:SwiftEmitHeader| will be passed to
+		swiftc.
+
+:TabSwiftEmitHeader [args]                                 *:TabSwiftEmitHeader*
+		Same as |:SwiftEmitHeader| but the results are displayed in a
+		new tab instead.
+		{not available when the |+windows| feature was disabled at
+		compile time}
+
+:SwiftRunTests [args]                                         *:SwiftRunTests*
+		Compiles the current file and runs it using the `xctest` test
+		runner.
+
+		The arguments given to |:SwiftRunTests| will be passed to
+		swiftc.
+
+		Note: This seems to work when all the tests pass, but failed
+		test assertions cause the test runner to exit with code 11. I
+		don't know what's going on. This also doesn't seem to work
+		with iOS files.
+
+:SwiftVersion                                                  *:SwiftVersion*
+		Prints the current Swift compiler version.
+
+==============================================================================
+MAPPINGS                                                      *swift-mappings*
+
+							*swift_<D-r>*
+<D-r>			Executes |:SwiftRun| with no arguments.
+			Note: This binding is only available in MacVim.
+
+							*swift_<D-R>*
+<D-R>			Populates the command line with |:SwiftRun|! using the
+			arguments given to the last invocation, but does not
+			execute it.
+			Note: This binding is only available in MacVim.
+
+==============================================================================
+UNITE SOURCES                                            *swift-unite-sources*
+
+If you have |unite| installed, a source is provided for picking the iOS
+Simulator device to use.
+
+|unite|: http://github.com/Shougo/unite.vim
+
+swift/device                                 *swift-unite-source-swift-device*
+		Candidates are all available iOS Simulator devices. The
+		default action is to set |g:swift_device|.
+
+swift/developer_dir                   *swift-unite-source-swift-developer_dir*
+		Note: Requires |vimproc|.
+		Candidates are the available Xcode installations on the
+		system. The default action is to set |g:swift_developer_dir|.
+
+==============================================================================
+ vim:tw=78:sw=4:noet:ts=8:ft=help:norl:

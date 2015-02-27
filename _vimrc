@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-02-13 19:57
+" -----------------     Date: 2015-02-27 15:18
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -229,6 +229,7 @@ au BufRead,BufNewFile *.inc      setlocal ft=php
 au BufRead,BufNewFile *.sql      setlocal ft=mysql
 au BufRead,BufNewFile *.tpl      setlocal ft=smarty
 au BufRead,BufNewFile *.txt      setlocal ft=txt
+au BufRead,BufNewFile *.log      setlocal ft=conf
 au BufRead,BufNewFile hosts      setlocal ft=conf
 au BufRead,BufNewFile http*.conf setlocal ft=apache
 au BufRead,BufNewFile *.conf     setlocal ft=nginx
@@ -470,13 +471,15 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let g:go_auto_type_info      = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
-let g:go_def_mapping_enabled = 0               " 关闭Go语言对gd的绑定
-let g:go_highlight_operators = 1               " 开启Go语言操作符高亮
-let g:go_highlight_functions = 1               " 开启Go语言函数名高亮
-let g:go_highlight_methods   = 1               " 开启Go语言方法名高亮
-let g:go_highlight_structs   = 1               " 开启Go语言结构体名高亮
-let python_highlight_all     = 1               " 打开全部Python高亮
+let g:cpp_class_scope_highlight           = 1               " 高亮C++ class scope
+let g:cpp_experimental_template_highlight = 1               " 高亮C++ template functions
+let g:go_auto_type_info                   = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
+let g:go_def_mapping_enabled              = 0               " 关闭Go语言对gd的绑定
+let g:go_highlight_operators              = 1               " 开启Go语言操作符高亮
+let g:go_highlight_functions              = 1               " 开启Go语言函数名高亮
+let g:go_highlight_methods                = 1               " 开启Go语言方法名高亮
+let g:go_highlight_structs                = 1               " 开启Go语言结构体名高亮
+let python_highlight_all                  = 1               " 打开全部Python高亮
 
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
@@ -537,7 +540,7 @@ let g:syntastic_c_compiler_options = '-std=c11 -Wall'
 let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,angularjs'
+let g:used_javascript_libs = 'requirejs,jquery,backbone,underscore,angularjs,angularui,react'
 
 
 " ======= 自定义快捷键 ======= "
@@ -718,7 +721,7 @@ func! Compile_Run_Code()
             exec "!fsharpc %:t && ./%:r"
         endif
     elseif &filetype == "scheme"
-        exec "!mit-scheme --load %:t"
+        exec "!guile -l %:t"
     elseif &filetype == "racket"
         exec "!racket -fi %:t"
     elseif &filetype == "lisp"
