@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-03-06 13:51
+" -----------------     Date: 2015-03-07 08:59
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -56,7 +56,6 @@ endif
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
-" \da                        --打开Dash查看文档       [Normal模式可用] [仅安装了Dash的Mac有效]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -603,9 +602,6 @@ nmap <leader>tl :Tlist<CR><c-w><c-l>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
-
-" \da                 查找当前光标处字串的文档 [Dash插件] [仅安装了Dash的Mac有效]
-nmap <leader>da :Dash<CR>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
