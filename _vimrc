@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-03-07 08:59
+" -----------------     Date: 2015-03-07 09:56
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -17,8 +17,9 @@ if g:atCompany
     " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
     " set tags+=D:/Ruchee/Files/code/baofeng/plat.7433.com/tags
-    " set tags+=D:/Ruchee/Files/code/self/discuz/tags
+    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
     " set tags+=D:/Ruchee/Files/code/self/sf/tags
+    " set tags+=D:/Ruchee/Files/code/self/discuz/tags
 else
 endif
 
@@ -506,6 +507,10 @@ let g:snipMate.scope_aliases['c']          = 'cpp'
 let g:snipMate.scope_aliases['objc']       = 'objc,cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
+let g:snipMate.scope_aliases['typescript'] = 'typescript,javascript'
+let g:snipMate.scope_aliases['scss']       = 'scss,css'
+let g:snipMate.scope_aliases['less']       = 'less,css'
+let g:snipMate.scope_aliases['xhtml']      = 'html'
 let g:snipMate.scope_aliases['blade']      = 'blade,html'
 let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
 let g:snipMate.scope_aliases['jinja.twig'] = 'twig,html'
@@ -513,9 +518,6 @@ let g:snipMate.scope_aliases['jinja']      = 'jinja,html'
 let g:snipMate.scope_aliases['eruby']      = 'eruby,html'
 let g:snipMate.scope_aliases['jst']        = 'jst,html'
 let g:snipMate.scope_aliases['mustache']   = 'mustache,html'
-let g:snipMate.scope_aliases['scss']       = 'scss,css'
-let g:snipMate.scope_aliases['less']       = 'less,css'
-let g:snipMate.scope_aliases['xhtml']      = 'html'
 
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
@@ -531,7 +533,7 @@ let g:airline_theme = 'badwolf'                " 设置主题
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {'mode': 'active',
             \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml', 'go', 'groovy', 'scala', 'clojure', 'racket', 'eruby', 'slim', 'jade', 'scss', 'less']
+            \'passive_filetypes': ['html', 'css', 'xhtml', 'go', 'groovy', 'scala', 'clojure', 'racket', 'typescript', 'eruby', 'slim', 'jade', 'scss', 'less']
             \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
 " 自定义编译器和编译参数
 let g:syntastic_c_compiler = 'gcc'
@@ -759,6 +761,8 @@ func! Compile_Run_Code()
         exec "!Rscript %:t"
     elseif &filetype == "coffee"
         exec "!coffee -c %:t && coffee %:t"
+    elseif &filetype == "typescript"
+        exec "!tsc %:t && node %:r.js"
     elseif &filetype == "javascript"
         exec "!node %:t"
     elseif &filetype == "sh"
@@ -802,6 +806,6 @@ let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Rlang': 'r', 'Coffee': 'coffee', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx'}
 
 let g:vimwiki_list = [blog]
