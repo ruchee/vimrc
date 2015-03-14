@@ -709,7 +709,7 @@ func! Compile_Run_Code()
         if g:isWIN
             exec "!csc %:t && %:r.exe"
         else
-            exec "!mono-csc %:t && ./%:r"
+            exec "!mcs %:t && mono %:r.exe"
         endif
     elseif &filetype == "fsharp"
         if g:isWIN
