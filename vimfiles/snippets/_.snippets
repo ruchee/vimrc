@@ -3,21 +3,15 @@ snippet sn        snippet自用
 	snippet ${0}
 snippet sn-       分隔条
 	----------------------------------------------------------------------${0}
-snippet cprt      版权信息
-	`&enc[:2] == "utf" ? "©" : "(c)"` Copyright ${1:`strftime("%Y")`} `g:snips_author`. All Rights Reserved.${0}
 snippet date      插入当前日期
 	`strftime("%Y-%m-%d")`${0}
 snippet time      插入当前时间
-	`strftime("%Y-%m-%d %H:%M")`${0}
-snippet fiok      最后更新时间
-	# LastUpdated: `strftime("%Y-%m-%d %H:%M")`${0}
-snippet desc      文件描述
-	# Description:${0}
+	`strftime("%Y-%m-%d %H:%M:%S")`${0}
 snippet adby      添加者
-	Added by `g:snips_author` `strftime("%Y-%m-%d %H:%M")`${0}
+	Added by `g:snips_author` `strftime("%Y-%m-%d %H:%M:%S")`${0}
 snippet upby      更新者
-	Updated by `g:snips_author` `strftime("%Y-%m-%d %H:%M")`${0}
-snippet fort      仅用作测试用途
-	For Test${0}
-snippet ford      仅用作调试用途
-	For Debug${0}
+	Updated by `g:snips_author` `strftime("%Y-%m-%d %H:%M:%S")`${0}
+snippet mdby      修改者
+	Modified by `g:snips_author` `strftime("%Y-%m-%d %H:%M:%S")`${0}
+snippet deby      删除者
+	Deleted by `g:snips_author` `strftime("%Y-%m-%d %H:%M:%S")`${0}
