@@ -24,7 +24,18 @@
 8. 使用任意文本编辑器打开 _vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
 9. 然后。。。然后就大功告成了，接下只需学习如何使用而已，使用说明全部集中在了 `_vimrc` 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
 
----
+----
+
+#### Mac OSX
+
+1. 首先安装 `brew` 包管理器，如果已经安装则此步可跳过：`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+2. `brew install macvim ctags git`
+3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件，如果没有则不需要执行删除动作 [使用命令 `rm -rf ~/.vim ~/.vimrc`，请注意备份]
+4. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，取代已删文件的位置，然后将 vimfiles、_vimrc 改名为 .vim、.vimrc [命令为 `git clone https://github.com/ruchee/vimrc.git`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]（也可以点击本页面的 Download ZIP 按钮下载）
+5. 使用任意文本编辑器打开 .vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
+6. 将 `vim` 命令指定为使用 `macvim` [命令为 `cd /usr/local/bin && ln -s mvim vim`]
+
+----
 
 #### Linux [具体指 Debian、Ubuntu 及其各衍生版，譬如 LinuxMint、Kubuntu、Xubuntu 等]
 
