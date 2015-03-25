@@ -2,16 +2,13 @@
 
 ## Description
 
-This is a vim plugin provides [Rust][r] file detection and syntax highlighting.
-
-It is synchronized daily to the vim support code in [rust-lang/rust][rr]'s
-master branch via cronjob.
+This is a vim plugin that provides [Rust][r] file detection and syntax highlighting.
 
 ## Installation
 
 ### Using [Vundle][v]
 
-1. Add `Plugin 'wting/rust.vim'` to `~/.vimrc`
+1. Add `Plugin 'rust-lang/rust.vim'` to `~/.vimrc`
 2. `vim +PluginInstall +qall`
 
 *Note:* Vundle will not automatically detect Rust files properly if `filetype
@@ -21,10 +18,9 @@ details.
 ### Using [Pathogen][p]
 
 1. `cd ~/.vim/bundle`
-2. `git clone https://github.com/wting/rust.vim.git`
+2. `git clone https://github.com/rust-lang/rust.vim.git`
 
-[rr]: https://github.com/rust-lang/rust
-[p]: https://github.com/tpope/vim-pathogen
-[r]: https://en.wikipedia.org/wiki/Rust_language
+[r]: https://rust-lang.org
 [v]: https://github.com/gmarik/vundle
 [vqs]: https://github.com/gmarik/vundle#quick-start
+[p]: https://github.com/tpope/vim-pathogen

@@ -371,6 +371,7 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
   let dollar_expr = emmet#getResource(type, 'dollar_expr', 1)
   let q = emmet#getResource(type, 'quote_char', '"')
   let ct = emmet#getResource(type, 'comment_type', 'both')
+  let an = emmet#getResource(type, 'attribute_name', {})
 
   if emmet#useFilter(filters, 'haml')
     return emmet#lang#haml#toString(settings, current, type, inline, filters, itemno, indent)
@@ -457,6 +458,9 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
           endif
         endfor
       endif
+      if has_key(an, attr)
+        let attr = an[attr]
+      endif
       let str .= ' ' . attr . '=' . q . Val . q
       if emmet#useFilter(filters, 'c')
         if attr ==# 'id' | let comment .= '#' . Val | endif
@@ -510,7 +514,11 @@ function! emmet#lang#html#toString(settings, current, type, inline, filters, ite
         let str .= inner
       endfor
     else
-      let str .= '${cursor}'
+      if settings.html.indent_blockelement && len(current_name) > 0 && stridx(','.settings.html.inline_elements.',', ','.current_name.',') == -1
+        let str .= "\n" . indent . '${cursor}' . "\n"
+      else
+        let str .= '${cursor}'
+      endif
     endif
     if dr
       let str .= "\n"

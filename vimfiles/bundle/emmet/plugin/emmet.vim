@@ -90,10 +90,6 @@ if !exists('g:emmet_curl_command')
   let g:emmet_curl_command = 'curl -s -L -A Mozilla/5.0'
 endif
 
-if exists('g:user_emmet_complete_tag') && g:user_emmet_complete_tag
-  setlocal omnifunc=emmet#completeTag
-endif
-
 if !exists('g:user_emmet_leader_key')
   let g:user_emmet_leader_key = '<c-y>'
 endif
@@ -118,6 +114,10 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'n', 'var': 'user_emmet_next_key', 'key': 'n', 'plug': 'emmet-move-next', 'func': ':call emmet#moveNextPrev(0)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': '<esc>:call emmet#moveNextPrev(1)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': ':call emmet#moveNextPrev(1)<cr>'},
+  \ {'mode': 'i', 'var': '', 'key': '', 'plug': 'emmet-move-next-item', 'func': '<esc>:call emmet#moveNextPrevItem(0)<cr>'},
+  \ {'mode': 'n', 'var': '', 'key': '', 'plug': 'emmet-move-next-item', 'func': ':call emmet#moveNextPrevItem(0)<cr>'},
+  \ {'mode': 'i', 'var': '', 'key': '', 'plug': 'emmet-move-prev-item', 'func': '<esc>:call emmet#moveNextPrevItem(1)<cr>'},
+  \ {'mode': 'n', 'var': '', 'key': '', 'plug': 'emmet-move-prev-item', 'func': ':call emmet#moveNextPrevItem(1)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#imageSize()<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': ':call emmet#imageSize()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toggle-comment', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#toggleComment()<cr>'},
@@ -134,23 +134,34 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'v', 'var': 'user_emmet_codepretty_key', 'key': 'c', 'plug': 'emmet-code-pretty', 'func': ':call emmet#codePretty()<cr>'},
   \]
 
+  let only_plug = get(g:, 'emmet_install_only_plug', 0)
   for item in items
     if a:mode !=# 'a' && stridx(a:mode, item.mode) == -1
       continue
     endif
     exe item.mode . 'noremap '. buffer .' <plug>(' . item.plug . ') ' . item.func
-    if exists('g:' . item.var)
-      let key = eval('g:' . item.var)
-    else
-      let key = g:user_emmet_leader_key . item.key
-    endif
-    if !hasmapto('<plug>(' . item.plug . ')', item.mode) && !len(maparg(key, item.mode))
-      exe item.mode . 'map ' . buffer . ' <unique> ' . key . ' <plug>(' . item.plug . ')'
+    if item.var != '' && !only_plug
+      if exists('g:' . item.var)
+        let key = eval('g:' . item.var)
+      else
+        let key = g:user_emmet_leader_key . item.key
+      endif
+      if !hasmapto('<plug>(' . item.plug . ')', item.mode) && !len(maparg(key, item.mode))
+        exe item.mode . 'map ' . buffer . ' <unique> ' . key . ' <plug>(' . item.plug . ')'
+      endif
     endif
   endfor
+
+  if exists('g:user_emmet_complete_tag') && g:user_emmet_complete_tag
+    if get(g:, 'user_emmet_install_global', 1)
+      set omnifunc=emmet#completeTag
+    else
+      setlocal omnifunc=emmet#completeTag
+    endif
+  endif
 endfunction
 
-command! -nargs=0 EmmetInstall call <SID>install_plugin(get(g:, 'user_emmet_mode', 'a'), 1)
+command! -nargs=0 -bar EmmetInstall call <SID>install_plugin(get(g:, 'user_emmet_mode', 'a'), 1)
 
 if get(g:, 'user_emmet_install_global', 1)
   call s:install_plugin(get(g:, 'user_emmet_mode', 'a'), 0)

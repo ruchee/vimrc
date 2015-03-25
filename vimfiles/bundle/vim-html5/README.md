@@ -1,6 +1,6 @@
 # html5.vim
 
-HTML5 + inline SVG omnicomplete funtion, indent and syntax for Vim.
+HTML5 + inline SVG omnicomplete function, indent and syntax for Vim.
 Based on the default htmlcomplete.vim.
 
 ## Feature
@@ -83,7 +83,7 @@ THE SOFTWARE.
 
 [html5.vim]:http://www.vim.org/scripts/script.php?script_id=3236
 
-[microdata]:http://dev.w3.org/html5/md/
+[microdata]:http://www.w3.org/TR/microdata/
 [RDFa]:http://www.w3.org/TR/rdfa-syntax/
 [aria]:http://www.w3.org/TR/wai-aria/
 

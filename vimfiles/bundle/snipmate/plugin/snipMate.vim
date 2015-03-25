@@ -28,11 +28,12 @@ if (!exists('g:snipMateSources'))
   let g:snipMateSources['default'] = funcref#Function('snipMate#DefaultPool')
 endif
 
-au BufRead,BufNewFile *.snippet set ft=snippet
-au FileType snippet setl noet nospell
-
-au BufRead,BufNewFile *.snippets set ft=snippets
-au FileType snippets setl noet nospell fdm=expr fde=getline(v:lnum)!~'^\\t\\\\|^$'?'>1':1
+au BufRead,BufNewFile *.snippet,*.snippets setlocal filetype=snippets
+au FileType snippets if expand('<afile>:e') =~# 'snippet$'
+				\ | setlocal syntax=snippet
+			\ | else
+				\ | setlocal syntax=snippets
+			\ | endif
 
 inoremap <silent> <Plug>snipMateNextOrTrigger  <C-R>=snipMate#TriggerSnippet()<CR>
 snoremap <silent> <Plug>snipMateNextOrTrigger  <Esc>a<C-R>=snipMate#TriggerSnippet()<CR>
@@ -89,8 +90,7 @@ endif
 
 let g:snipMate['get_snippets'] = get(g:snipMate, 'get_snippets', funcref#Function("snipMate#GetSnippets"))
 
-" List of paths where snippets/ dirs are located, or a function returning such
-" a list
+" List of paths where snippets/ dirs are located
 let g:snipMate['snippet_dirs'] = get(g:snipMate, 'snippet_dirs', split(&rtp, ','))
 if type(g:snipMate['snippet_dirs']) != type([])
 	echohl WarningMsg

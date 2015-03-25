@@ -259,6 +259,10 @@ specified with a version line, e.g.: >
 
     version 1
 
+Specification of a version applies to the snippets following it. Multiple
+version specifications can appear in a single file to intermix version 0 and
+version 1 snippets.
+
 Comments can be made in .snippets files by starting a line with a # character.
 However these can't be used inside of snippet definitions: >
 
@@ -374,6 +378,9 @@ is expanded. Expressions are specified inside backticks: >
  snippet date
         `strftime("%Y-%m-%d")`
 
+If the expression results in any Vim error, the error will be displayed (or
+found in :messages) and the result of the expression will be the empty string.
+
 Filename([{expr}] [, {defaultText}])                     *SnipMate-Filename()*
 
 Since the current filename is used often in snippets, a default function
@@ -423,17 +430,14 @@ SNIPPET SOURCES                                     *SnipMate-snippet-sources*
 
 SnipMate is configurable.
 
-plugin/SnipMate.vim assigns three important keys: >
+plugin/SnipMate.vim assigns a couple important keys: >
 
     " default implementation collecting snippets by handlers
     let g:SnipMate['get_snippets'] = SnipMate#GetSnippets
     " default handler:
     let g:SnipMateSources['default'] = SnipMate#DefaultPool
-    " default directories containing snippets:
-    let g:SnipMate['snippet_dirs']
-                \ = funcref#Function('return split(&runtimepath,",")')
 
-You can override all of those settings.
+You can override both of those settings.
 
 You can see that the default set of snippets is determined by Vim's 'rtp'.
 

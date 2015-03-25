@@ -2,7 +2,7 @@
 " Language:    SCSS (Sassy CSS)
 " Author:      Daniel Hofstetter (daniel.hofstetter@42dh.com)
 " URL:         https://github.com/cakebaker/scss-syntax.vim
-" Last Change: 2014-02-25
+" Last Change: 2015-03-23
 " Inspired by the syntax files for sass and css. Thanks to the authors of
 " those files!
 
@@ -33,17 +33,22 @@ if v:version < 704
   syn match cssBoxProp contained "\<rotation\(-point\)\=\>"
 endif
 
-syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssComment,cssInclude,scssAtRootStatement,scssComment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,@scssControl,scssWarn,scssError containedin=cssMediaBlock
+" override @font-face blocks to allow scss elements inside
+syn region cssFontDescriptorBlock contained transparent matchgroup=cssBraces start="{" end="}" contains=cssError,cssUnicodeEscape,cssFontProp,cssFontAttr,cssCommonAttr,cssStringQ,cssStringQQ,cssFontDescriptorProp,cssValue.*,cssFontDescriptorFunction,cssUnicodeRange,cssFontDescriptorAttr,@comment,scssDefinition,scssFunction,scssVariable,@scssControl,scssDebug,scssError,scssWarn
 
-syn match scssSelector "^\zs\([^:@]\|:[^ ]\)\+{\@=" contained contains=@scssSelectors
-syn match scssSelector "^\s*\zs\([^:@{]\|:[^ ]\)\+\_$" contained contains=@scssSelectors
-syn cluster scssSelectors contains=cssTagName,cssPseudoClass,cssAttributeSelector,scssSelectorChar,scssAmpersand,scssInterpolation
+syn region scssDefinition matchgroup=cssBraces start='{' end='}' contains=cssInclude,cssFontDescriptor,scssAtRootStatement,@comment,scssDefinition,scssProperty,scssSelector,scssVariable,scssImport,scssExtend,scssInclude,scssFunction,@scssControl,scssWarn,scssError,scssDebug,scssReturn containedin=cssMediaBlock fold
+
+syn match scssSelector _^\zs\([^:@]\|:[^ ]\|['"].*['"]\)\+{\@=_ contained contains=@scssSelectors
+syn match scssSelector "^\s*\zs\([^:@{]\|:[^ ]\|['"].*['"]\)\+\_$" contained contains=@scssSelectors
+" fix for #54 to recognize a multiline selector containing a string interpolation
+syn match scssSelector "^\zs\([^:@]\|:[^ ]\)\+#{.*}[^;{]\+\_$" contained contains=@scssSelectors
+syn cluster scssSelectors contains=cssComment,cssSelectorOp,cssTagName,cssPseudoClass,cssAttributeSelector,scssSelectorChar,scssAmpersand,scssInterpolation
 
 syn match scssProperty "\([[:alnum:]-]\)\+\s*\(:\)\@=" contained contains=css.*Prop,cssVendor containedin=cssMediaBlock nextgroup=scssAttribute,scssAttributeWithNestedDefinition
 syn match scssAttribute ":[^;]*;" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssFunction,scssInterpolation,scssVariable
 
-syn match scssAttributeWithNestedDefinition ": [^#]*{\@=" nextgroup=scssNestedDefinition contained contains=cssValue.*,scssVariable
-syn region scssNestedDefinition matchgroup=cssBraces start="{" end="}" contained contains=cssComment,scssComment,scssProperty,scssNestedProperty
+syn match scssAttributeWithNestedDefinition ": [^#]*{\@=" nextgroup=scssNestedDefinition contained contains=css.*Attr,cssValue.*,scssVariable
+syn region scssNestedDefinition matchgroup=cssBraces start="{" end="}" contained contains=@comment,scssProperty,scssNestedProperty
 
 " CSS properties from https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
 " align
@@ -107,36 +112,39 @@ syn keyword scssNestedProperty contained bidi range nextgroup=scssAttribute
 " word
 syn keyword scssNestedProperty contained break spacing wrap nextgroup=scssAttribute
 
-syn region scssInterpolation matchgroup=scssInterpolationDelimiter start="#{" end="}" contains=cssValue.*,cssColor,cssString.*,scssFunction,scssVariable containedin=cssInclude,cssString.*,cssURL,scssFunction
+syn region scssInterpolation matchgroup=scssInterpolationDelimiter start="#{" end="}" contains=cssValue.*,cssColor,cssString.*,scssFunction,scssVariable containedin=cssComment,cssInclude,cssString.*,cssURL,scssFunction
 
 " ignores the url() function so it can be handled by css.vim
-syn region scssFunction contained matchgroup=scssFunctionName start="\<\(url(\)\@!\([[:alnum:]-]\)\+\s*(" end=")" oneline keepend extend containedin=cssMediaType
-syn match scssParameterList ".*" contained containedin=cssFunction,scssFunction contains=css.*Attr,cssColor,cssString.*,cssValue.*,scssFunction,scssVariable
+syn region scssFunction contained matchgroup=scssFunctionName start="\<\(url(\)\@!\([[:alnum:]-_]\)\+\s*(" skip=+([^)]*)+ end=")" keepend extend containedin=cssInclude,cssMediaType
+syn match scssParameterList ".*" contained containedin=cssFunction,scssFunction contains=css.*Attr,cssColor,cssString.*,cssValue.*,scssBoolean,scssFunction,scssInterpolation,scssMap,scssNull,scssVariable
 
-syn match scssVariable "$[[:alnum:]_-]\+" containedin=cssFunction,scssFunction,cssMediaType nextgroup=scssVariableAssignment skipwhite
+syn match scssVariable "$[[:alnum:]_-]\+" containedin=cssFunction,scssFunction,cssInclude,cssMediaBlock,cssMediaType nextgroup=scssVariableAssignment skipwhite
 syn match scssVariableAssignment ":" contained nextgroup=scssVariableValue skipwhite
-syn match scssVariableValue "[^;)]\+[;)]\@=" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssDefault,scssFunction,scssInterpolation,scssNull,scssVariable,scssMap,scssGlobal,scssAmpersand
+syn region scssVariableValue start="" end="\ze[;)]" contained contains=css.*Attr,cssValue.*,cssColor,cssFunction,cssString.*,cssURL,scssBoolean,scssDefault,scssFunction,scssInterpolation,scssNull,scssVariable,scssMap,scssGlobal,scssAmpersand,@comment
 syn match scssGlobal "!global" contained
+
 syn keyword scssNull null contained
+syn keyword scssBoolean true false contained
+syn keyword scssBooleanOp and or not contained
 
 syn match scssMixin "^@mixin" nextgroup=scssMixinName skipwhite
 syn match scssMixinName "[[:alnum:]_-]\+" contained nextgroup=scssDefinition,scssMixinParams
-syn region scssMixinParams contained contains=css.*Attr,cssColor,cssValue.*,cssString.*,scssVariable,scssFunction start="(" end=")" oneline extend
+syn region scssMixinParams contained contains=css.*Attr,cssColor,cssValue.*,cssString.*,scssVariable,scssFunction start="(" end=")" extend
 syn match scssInclude "@include" nextgroup=scssMixinName skipwhite containedin=cssMediaBlock
 syn match scssContent "@content" contained containedin=scssDefinition
 
 syn match scssFunctionDefinition "^@function" nextgroup=scssFunctionName skipwhite
 syn match scssFunctionName "[[:alnum:]_-]\+" contained nextgroup=scssFunctionParams
 syn region scssFunctionParams contained start="(" end=")" nextgroup=scssFunctionBody contains=scssVariable skipwhite
-syn region scssFunctionBody contained matchgroup=cssBraces start="{" end="}" contains=cssString.*,cssValue.*,scssVariable,scssReturn,scssFunction
+syn region scssFunctionBody contained matchgroup=cssBraces start="{" end="}" contains=cssString.*,cssValue.*,@scssControl,scssBooleanOp,scssComment,scssVariable,scssReturn,scssFunction,scssDebug,scssError,scssWarn,scssDefinition,scssInterpolation fold
 syn match scssReturn "@return" contained
 syn match scssExtend "@extend" nextgroup=scssExtendedSelector skipwhite containedin=cssMediaBlock
-syn match scssExtendedSelector "[^ ;]\+" contained contains=cssTagName,cssPseudoClass,scssSelectorChar nextgroup=scssOptional skipwhite
+syn match scssExtendedSelector "[^;]\+" contained contains=cssTagName,cssPseudoClass,scssOptional,scssSelectorChar skipwhite
 syn match scssOptional "!optional" contained
 syn match scssImport "@import" nextgroup=scssImportList
 syn match scssImportList "[^;]\+" contained contains=cssString.*,cssMediaType,cssURL
 
-syn match scssSelectorChar "\(#\|\.\|%\)\([[:alnum:]_-]\|#{.*}\)\@=" nextgroup=scssSelectorName containedin=cssMediaBlock
+syn match scssSelectorChar "\(#\|\.\|%\)\([[:alnum:]_-]\|#{.*}\)\@=" nextgroup=scssSelectorName containedin=cssMediaBlock,cssPseudoClassFn
 syn match scssSelectorName "\([[:alnum:]_-]\|#{[^}]*}\)\+" contained contains=scssInterpolation
 
 syn match scssAmpersand "&" nextgroup=cssPseudoClass,scssSelectorName containedin=cssMediaBlock
@@ -148,7 +156,7 @@ syn match scssOutput "[^;]\+" contained contains=cssValue.*,cssString.*,scssFunc
 syn match scssDefault "!default" contained
 
 syn match scssIf "@\=if" nextgroup=scssCondition
-syn match scssCondition "[^{]\+" contained contains=cssValue.*,cssString.*,scssFunction,scssNull,scssVariable,scssAmpersand
+syn match scssCondition "[^{]\+" contained contains=cssValue.*,cssString.*,scssBoolean,scssBooleanOp,scssFunction,scssNull,scssVariable,scssAmpersand
 syn match scssElse "@else" nextgroup=scssIf
 syn match scssElse "@else\(\s*\({\|$\)\)\@="
 syn match scssWhile "@while" nextgroup=scssCondition
@@ -158,20 +166,24 @@ syn region scssEach matchgroup=scssEachKeyword start="@each" end="in" contains=s
 syn region scssCollection start=" " end="\ze{" contained contains=scssFunction,scssMap,scssVariable
 syn cluster scssControl contains=scssIf,scssElse,scssWhile,scssFor,scssEach
 
-syn region scssMap matchgroup=cssBraces start=" \zs(\ze.\+:" end=")" contains=scssMapKey,scssMapValue
-syn match scssMapKey "[^: ]\+\ze[:]" contained contains=css.*Attr,cssString.*,scssVariable
-syn match scssMapValue "[^, ]\+\ze[,)]" contained contains=cssColor,css.*Prop,cssString.*,scssVariable
+syn region scssMap matchgroup=scssMapParens start="[^:alpha:]\=\zs(\ze\(\s*$\|.\+:\)" end=")" contains=@comment,scssMapKey extend
+syn match scssMapKey "[^: ]\+\ze[:]" contained contains=css.*Attr,cssString.*,scssVariable nextgroup=scssMapValue
+syn match scssMapValue "[^,)]\+\ze[,)]" contained contains=cssColor,css.*Prop,cssString.*,cssValueLength,scssBoolean,scssFunction,scssNull,scssVariable
 
 syn region scssAtRootStatement start="@at-root" end="\ze{" contains=@scssSelectors,scssAtRoot
 syn match scssAtRoot "@at-root" contained
+syn match scssAtRoot "(\zswith\(out\)\=\ze:" contained
 
 syn match scssComment "//.*$" contains=@Spell containedin=cssMediaBlock
-syn keyword scssTodo TODO FIXME NOTE OPTIMIZE XXX contained containedin=cssComment,scssComment
+syn cluster comment contains=cssComment,scssComment
+syn keyword scssTodo TODO FIXME NOTE OPTIMIZE XXX contained containedin=@comment
 
 hi def link scssNestedProperty cssProp
 hi def link scssVariable  Identifier
 hi def link scssGlobal    Special
 hi def link scssNull      Constant
+hi def link scssBoolean   Constant
+hi def link scssBooleanOp Operator
 hi def link scssMixin     PreProc
 hi def link scssMixinName Function
 hi def link scssContent   PreProc
@@ -198,6 +210,7 @@ hi def link scssInterpolationDelimiter Delimiter
 hi def link scssImport    Include
 hi def link scssTodo      Todo
 hi def link scssAtRoot    Keyword
+hi def link scssMapParens Delimiter
 
 let b:current_syntax = "scss"
 if main_syntax == 'scss'

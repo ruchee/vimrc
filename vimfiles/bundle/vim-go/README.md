@@ -15,48 +15,47 @@ disabled/enabled easily.
 * Auto completion support via `gocode`
 * Better `gofmt` on save, keeps cursor position and doesn't break your undo
   history
-* Go to symbol/declaration with `godef`
-* Look up documentation with `godoc` inside Vim or open it in browser.
-* Automatically import packages via `goimports`
-* Compile and `go build` your package, install it with `go install`
-* `go run` quickly your current file/files
-* Run `go test` and see any errors in quickfix window
+* Go to symbol/declaration with `:GoDef`
+* Look up documentation with `:GoDoc` inside Vim or open it in browser.
+* Automatically import packages via `:GoImport` or plug it into autosave
+* Compile your package with `:GoBuild` , install it with `:GoInstall`
+* `:GoRun` quickly your current file/files
+* Run `:GoTest` and see any errors in quickfix window
 * Create a coverage profile and display annotated source code in browser to see
-  which functions are covered.
-* Lint your code with `golint`
-* Run your code through `go vet` to catch static errors.
-* Advanced source analysis tool with `oracle`
-* Precise type-safe renaming of identifiers with `gorename`
+  which functions are covered with `:GoCoverage`
+* Lint your code with `:GoLint`
+* Run your code through `:GoVet` to catch static errors.
+* Advanced source analysis tool with oracle, such as `:GoImplements`, `:GoCallees`, `:GoReferrers`
+* Precise type-safe renaming of identifiers with `:GoRename`
 * List all source files and dependencies
-* Checking with `errcheck` for unchecked errors.
+* Checking with `:GoErrCheck` for unchecked errors.
 * Integrated and improved snippets. Supports `ultisnips` or `neosnippet`
-* Share your current code to [play.golang.org](http://play.golang.org)
-* On-the-fly type information about the word under the cursor
+* Share your current code to [play.golang.org](http://play.golang.org) with `:GoPlay`
+* On-the-fly type information about the word under the cursor. Plug it into your custom vim function.
 * Tagbar support to show tags of the source code in a sidebar with `gotags`
 * Custom vim text objects, such a `a function` or `inner function`
 
 ## Install
 
-First of all, do not use it with other Go plugins. If you use pathogen, just
-clone it into your bundle directory:
+Vim-go follows the standard runtime path structure, so I highly recommend to use
+a common and well known plugin manager to install vim-go. Do not use vim-go with
+other Go plugins. For Pathogen just clone the repo, for other plugin managers
+add the appropriate lines and execute the plugin's install command.
 
-```bash
-$ cd ~/.vim/bundle
-$ git clone https://github.com/fatih/vim-go.git
-```
-
-For Vundle add this line to your vimrc:
-
-```vimrc
-Plugin 'fatih/vim-go'
-```
-and execute `:PluginInstall` (or `:BundleInstall` for older versions of Vundle)
+*  [Pathogen](https://github.com/tpope/vim-pathogen)
+  * `git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go`
+*  [vim-plug](https://github.com/junegunn/vim-plug)
+  * `Plug 'fatih/vim-go'`
+*  [NeoBundle](https://github.com/Shougo/neobundle.vim)
+  * `NeoBundle 'fatih/vim-go'`
+*  [Vundle](https://github.com/gmarik/vundle)
+  * `Plugin 'fatih/vim-go'`
 
 Please be sure all necessary binaries are installed (such as `gocode`, `godef`,
 `goimports`, etc..). You can easily install them with the included
-`:GoInstallBinaries` command. Those binaries will be automatically downloaded
-and installed to your `$GOBIN` environment (if not set it will use
-`$GOPATH/bin`).  It requires `git` and `hg` for fetching the individual Go
+`:GoInstallBinaries` command. If you invoke it, all necessary binaries will be
+automatically downloaded and installed to your `$GOBIN` environment (if not set
+it will use `$GOPATH/bin`).  It requires `git` for fetching the individual Go
 packages.
 
 ### Optional
@@ -85,34 +84,6 @@ additional settings needed. All usages and commands are listed in
 vim-go has several `<Plug>` mappings which can be used to create custom
 mappings. Below are some examples you might find useful:
 
-Show a list of interfaces which is implemented by the type under your cursor
-with `<leader>s` 
-
-```vim
-au FileType go nmap <Leader>s <Plug>(go-implements)
-```
-
-Show type info for the word under your cursor with `<leader>i` (useful if you
-have disabled auto showing type info via `g:go_auto_type_info`)
-
-```vim
-au FileType go nmap <Leader>i <Plug>(go-info)
-```
-
-Open the relevant Godoc for the word under the cursor with `<leader>gd` or open
-it vertically with `<leader>gv`
-
-```vim
-au FileType go nmap <Leader>gd <Plug>(go-doc)
-au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
-```
-
-Or open the Godoc in browser
-
-```vim
-au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
-```
-
 Run commands, such as  `go run` with `<leader>r` for the current file or `go
 build` and `go test` for the current package with `<leader>b` and `<leader>t`.
 Display a beautiful annotated source code to see which functions are covered
@@ -133,6 +104,34 @@ horizontal or tab for the word under your cursor:
 au FileType go nmap <Leader>ds <Plug>(go-def-split)
 au FileType go nmap <Leader>dv <Plug>(go-def-vertical)
 au FileType go nmap <Leader>dt <Plug>(go-def-tab)
+```
+
+Open the relevant Godoc for the word under the cursor with `<leader>gd` or open
+it vertically with `<leader>gv`
+
+```vim
+au FileType go nmap <Leader>gd <Plug>(go-doc)
+au FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
+```
+
+Or open the Godoc in browser
+
+```vim
+au FileType go nmap <Leader>gb <Plug>(go-doc-browser)
+```
+
+Show a list of interfaces which is implemented by the type under your cursor
+with `<leader>s`
+
+```vim
+au FileType go nmap <Leader>s <Plug>(go-implements)
+```
+
+Show type info for the word under your cursor with `<leader>i` (useful if you
+have disabled auto showing type info via `g:go_auto_type_info`)
+
+```vim
+au FileType go nmap <Leader>i <Plug>(go-info)
 ```
 
 Rename the identifier under the cursor to a new name
@@ -185,24 +184,26 @@ To change it:
 let g:go_highlight_functions = 1
 let g:go_highlight_methods = 1
 let g:go_highlight_structs = 1
+let g:go_highlight_operators = 1
+let g:go_highlight_build_constraints = 1
 ```
 
 ## Troubleshooting
 
 ### Command not found
 
-If trying to use `:GoDef`,  `:Goinfo` and get a `command not found`, check that you have the binaries installed by using: `:GoInstallBinaries`
+If trying to use `:GoDef`,  `:GoInfo` and get a `command not found`, check that you have the binaries installed by using: `:GoInstallBinaries`
 
 Before opening vim, check your current `$PATH`:
 
 	echo $PATH
-	
-after opening vim, run `:echo $PATH`, the output must be your current `$PATH` + `$PATH/bin` (the location where `:GoInstallBinaries` installed the binaries
+
+after opening vim, run `:echo $PATH`, the output must be your current `$PATH` + `$GOPATH/bin` (the location where `:GoInstallBinaries` installed the binaries
 
 If problem persists and you are using maybe 'csh' or other shell, try adding this to your .vimrc:
 
     set shell=/bin/sh
-   
+
 
 
 ### I'm using Fish shell but have some problems using Vim-go
@@ -238,7 +239,7 @@ Give it a try. I hope you like it. Feel free to contribute to the project.
 
 ## Donations
 
-Vim-go is an open source project and I'm working on it on my free times. I'm spending a lot of time and thoughts to make it stable, fixing bugs, adding new features, etc... If you like vim-go and find it helpful, you might give me a gift from some of the books (kindle) I have in my wish list: 
+Vim-go is an open source project and I'm working on it on my free times. I'm spending a lot of time and thoughts to make it stable, fixing bugs, adding new features, etc... If you like vim-go and find it helpful, you might give me a gift from some of the books (kindle) I have in my wish list:
 
 [Amazon.com Fatih's Wish List](http://amzn.com/w/3RUTKZC0U30P6). Thanks!
 

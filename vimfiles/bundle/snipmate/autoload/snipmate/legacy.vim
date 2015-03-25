@@ -25,7 +25,8 @@ function! snipmate#legacy#process_snippet(snip) abort
 		let isexp = 0
 		for i in snip
 			if isexp
-				call add(new, substitute(eval(i), "\n\\%$", '', ''))
+				call add(new, substitute(snipmate#util#eval(i),
+                                            \ "\n\\%$", '', ''))
 			else
 				call add(new, i)
 			endif
@@ -62,6 +63,7 @@ function! snipmate#legacy#process_snippet(snip) abort
 	if &et " Expand tabs to spaces if 'expandtab' is set.
 		return substitute(snippet, '\t', repeat(' ', (&sts > 0) ? &sts : &sw), 'g')
 	endif
+        echom string(snippet)
 	return snippet
 endfunction
 

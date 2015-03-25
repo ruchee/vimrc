@@ -15,7 +15,7 @@ syn include @htmlCss syntax/css/css3-layout.vim
 syn include @htmlCss syntax/css/css3-linebox.vim
 syn include @htmlCss syntax/css/css3-multicol.vim
 syn include @htmlCss syntax/css/css3-page.vim
-syn include @htmlCss syntax/css/css3-preslev.vim
+syn include @htmlCss syntax/css/css3-positioning.vim
 syn include @htmlCss syntax/css/css3-regions.vim
 syn include @htmlCss syntax/css/css3-selectors.vim
 syn include @htmlCss syntax/css/css3-sizing.vim
@@ -35,6 +35,7 @@ syn include @htmlCss syntax/css/css-line-grid-1.vim
 syn include @htmlCss syntax/css/css-lists-3.vim
 syn include @htmlCss syntax/css/css-masking-1.vim
 syn include @htmlCss syntax/css/css-overflow-3.vim
+syn include @htmlCss syntax/css/css-pseudo-4.vim
 syn include @htmlCss syntax/css/css-ruby-1.vim
 syn include @htmlCss syntax/css/css-scoping-1.vim
 syn include @htmlCss syntax/css/css-shapes-1.vim

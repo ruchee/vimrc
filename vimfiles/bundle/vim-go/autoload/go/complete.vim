@@ -31,6 +31,9 @@ fu! s:system(str, ...)
 endf
 
 fu! s:gocodeShellescape(arg)
+    if go#vimproc#has_vimproc()
+        return vimproc#shellescape(a:arg)
+    endif
     try
         let ssl_save = &shellslash
         set noshellslash
@@ -53,7 +56,7 @@ fu! s:gocodeCommand(cmd, preargs, args)
         return
     endif
 
-    let result = s:system(printf('%s %s %s %s', bin_path, join(a:preargs), a:cmd, join(a:args)))
+    let result = s:system(printf('%s %s %s %s', s:gocodeShellescape(bin_path), join(a:preargs), s:gocodeShellescape(a:cmd), join(a:args)))
     if v:shell_error != 0
         return "[\"0\", []]"
     else
@@ -135,6 +138,11 @@ function! go#complete#Info()
     endif
 endfunction
 
+function! s:trim_bracket(val)
+    let a:val.word = substitute(a:val.word, '[(){}\[\]]\+$', '', '')
+    return a:val
+endfunction
+
 fu! go#complete#Complete(findstart, base)
     "findstart = 1 when we need to get the text length
     if a:findstart == 1
@@ -142,6 +150,10 @@ fu! go#complete#Complete(findstart, base)
         return col('.') - g:gocomplete_completions[0] - 1
         "findstart = 0 when we need to return the list of completions
     else
+        let s = getline(".")[col('.') - 1]
+        if s =~ '[(){}\{\}]'
+            return map(copy(g:gocomplete_completions[1]), 's:trim_bracket(v:val)')
+        endif
         return g:gocomplete_completions[1]
     endif
 endf

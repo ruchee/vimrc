@@ -9,11 +9,11 @@ I recommend to use a plugin manager like [Vundle](https://github.com/gmarik/vund
 Open your `~/.vimrc` file and add the following line(s):
 
 ```vim
-Bundle 'JulesWang/css.vim' " only necessary if your Vim version < 7.4
-Bundle 'cakebaker/scss-syntax.vim'
+Plugin 'JulesWang/css.vim' " only necessary if your Vim version < 7.4
+Plugin 'cakebaker/scss-syntax.vim'
 ```
 
-Afterwards, run `:BundleInstall` in Vim.
+Afterwards, run `:PluginInstall` in Vim.
 
 ### Manual
 

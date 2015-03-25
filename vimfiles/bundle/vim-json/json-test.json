@@ -8,8 +8,17 @@
 };
 
 
-// normative JSON examples from http://json.org/example.html
+//even with concealment, strings and numbers & booleans are distinct
+{
+    "string": "this is a string, with a escaped \" inside",
+    "string": "500",
+    "NOT a string": 500,
+    "string": "true",
+    "NOT a string": true
+}
 
+
+// normative JSON examples from http://json.org/example.html
 {"menu": {
   "id": "file",
   "value": "File",
@@ -44,6 +53,7 @@
         }
     }
 }
+
 
 {"widget": {
     "debug": "on",
@@ -93,3 +103,5 @@
   "object1": true
   "object2": 2
 }
+
+//this file is deliberately mis-indented, try gg=G to indent it properly
