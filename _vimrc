@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-03-25 13:25:52
+" -----------------     Date: 2015-03-26 10:04:30
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -705,11 +705,7 @@ func! Compile_Run_Code()
     elseif &filetype == "groovy"
         exec "!groovy %:t"
     elseif &filetype == "kotlin"
-        if g:isWIN
-            exec "!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar && del %:r.jar"
-        else
-            exec "!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar && rm %:r.jar"
-        endif
+        exec "!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar"
     elseif &filetype == "scala"
         exec "!scala %:t"
     elseif &filetype == "clojure"
