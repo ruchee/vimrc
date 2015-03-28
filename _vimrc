@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-03-26 10:04:30
+" -----------------     Date: 2015-03-28 17:36:23
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,13 +14,6 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/wuyun/kernel/tags
-    " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game/tags
-    " set tags+=D:/Ruchee/Files/code/baofeng/baofeng_game_client/tags
-    " set tags+=D:/Ruchee/Files/code/baofeng/plat.7433.com/tags
-    " set tags+=D:/Ruchee/Files/code/baofeng/cps.7433.com/tags
-    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
-    " set tags+=D:/Ruchee/Files/code/self/sf/tags
 else
 endif
 
@@ -475,13 +468,23 @@ endfunction
 " 开启部分语法高亮的非默认特性
 let g:cpp_class_scope_highlight           = 1               " 高亮C++ class scope
 let g:cpp_experimental_template_highlight = 1               " 高亮C++ template functions
+
 let g:go_auto_type_info                   = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
 let g:go_def_mapping_enabled              = 0               " 关闭Go语言对gd的绑定
 let g:go_highlight_operators              = 1               " 开启Go语言操作符高亮
 let g:go_highlight_functions              = 1               " 开启Go语言函数名高亮
 let g:go_highlight_methods                = 1               " 开启Go语言方法名高亮
 let g:go_highlight_structs                = 1               " 开启Go语言结构体名高亮
+
+let g:haskell_enable_quantification       = 1               " 开启Haskell高亮 forall
+let g:haskell_enable_recursivedo          = 1               " 开启Haskell高亮 mdo and rec
+let g:haskell_enable_arrowsyntax          = 1               " 开启Haskell高亮 proc
+let g:haskell_enable_pattern_synonyms     = 1               " 开启Haskell高亮 pattern
+let g:haskell_enable_typeroles            = 1               " 开启Haskell高亮 type roles
+let g:haskell_enable_static_pointers      = 1               " 开启Haskell高亮 static
+
 let python_highlight_all                  = 1               " 打开全部Python高亮
+
 
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
