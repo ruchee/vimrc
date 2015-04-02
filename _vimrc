@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-03-28 17:36:23
+" -----------------     Date: 2015-04-02 19:23:53
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -14,6 +14,9 @@ endif
 
 " 针对不同的使用环境进行具体配置
 if g:atCompany
+    " set tags+=D:/Ruchee/Files/code/self/ci/tags
+    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
+    " set tags+=D:/Ruchee/Files/code/self/sf/tags
 else
 endif
 
@@ -51,6 +54,8 @@ endif
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
+" \ff                        --打开文件搜索窗口       [Normal模式可用]
+" \mp                        --生成Promptline脚本文件 [Normal模式可用]
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -546,7 +551,7 @@ let g:syntastic_c_compiler_options = '-std=c11 -Wall'
 let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'requirejs,jquery,backbone,underscore,angularjs,angularui,react'
+let g:used_javascript_libs = 'jquery,requirejs,backbone,underscore,prelude,angularjs,angularui,react'
 
 
 " ======= 自定义快捷键 ======= "
@@ -608,6 +613,12 @@ nmap <leader>tl :Tlist<CR><c-w><c-l>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<CR>
+
+" \ff                 打开文件搜索窗口，在最下方显示 [CtrlP插件]
+nmap <leader>ff :CtrlPMixed<CR>
+
+" \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件 ]
+nmap <leader>mp :PromptlineSnapshot ~/.promptline airline<CR>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
@@ -770,9 +781,11 @@ func! Compile_Run_Code()
     elseif &filetype == "r"
         exec "!Rscript %:t"
     elseif &filetype == "coffee"
-        exec "!coffee -c %:t && coffee %:t"
+        exec "!coffee -c %:t && node %:r.js"
     elseif &filetype == "typescript"
         exec "!tsc %:t && node %:r.js"
+    elseif &filetype == "ls"
+        exec "!lsc -c %:t && node %:r.js"
     elseif &filetype == "javascript"
         exec "!node %:t"
     elseif &filetype == "sh"
@@ -816,6 +829,6 @@ let blog.template_ext     = '.html'
 let blog.auto_export      = 1
 
 " 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Io': 'io', 'Rlang': 'r', 'Coffee': 'coffee', 'TypeScript': 'typescript', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'Ini': 'dosini', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx', 'Make': 'make'}
+let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Io': 'io', 'Rlang': 'r', 'Coffee': 'coffee', 'TypeScript': 'typescript', 'LiveScript': 'ls', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'Ini': 'dosini', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx', 'Make': 'make'}
 
 let g:vimwiki_list = [blog]
