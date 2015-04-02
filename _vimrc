@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-04-02 19:23:53
+" -----------------     Date: 2015-04-02 21:55:39
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -537,6 +537,15 @@ let g:indent_guides_guide_size            = 1  " 指定对齐线的尺寸
 
 " AirLine             彩色状态栏
 let g:airline_theme = 'badwolf'                " 设置主题
+
+" Promptline          终端辅助工具
+let g:promptline_powerline_symbols = 0         " 关闭特殊符号
+let g:promptline_preset = {
+        \'a'    : [ '\u' ],
+        \'b'    : [ promptline#slices#cwd() ],
+        \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
+        \'warn' : [ promptline#slices#last_exit_code() ]
+        \}                                     " 自定义命令行显示
 
 " Syntastic           语法检查
 let g:syntastic_check_on_open = 1              " 默认开启
