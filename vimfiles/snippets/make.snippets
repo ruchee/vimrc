@@ -5,7 +5,7 @@ snippet cl      清除
 	.PHONY: clean
 	clean:
 		${1}
-snippet gtk     编译GTK+程序
+snippet gtk3    编译GTK+3.0程序
 	GTK_FLAGS = $(shell pkg-config --cflags --libs gtk+-3.0)
 
 	all:

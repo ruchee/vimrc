@@ -1,6 +1,6 @@
 " -----------------   Author: Ruchee
 " -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-04-02 21:55:39
+" -----------------     Date: 2015-04-03 15:15:35
 " -----------------    https://github.com/ruchee/vimrc
 
 
@@ -50,12 +50,19 @@ endif
 " \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开NERDTree文件树窗口
 " \tl                        --打开/关闭TagList/TxtBrowser窗口
+"
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
 " \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
+"
 " \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
 " \ff                        --打开文件搜索窗口       [Normal模式可用]
 " \mp                        --生成Promptline脚本文件 [Normal模式可用]
+"
+" \gi                        --开启或关闭GitGutter    [Normal模式可用]
+" \gd                        --打开Git文件对比模式 [竖直] [Normal模式可用]
+" \gs                        --打开Git文件对比模式 [水平] [Normal模式可用]
+"
 " \ig                        --显示/关闭对齐线
 " \bb                        --按=号对齐代码
 " \bn                        --自定义对齐
@@ -116,6 +123,9 @@ endif
 " gd                         --跳至当前光标所在单词首次出现的位置
 " gf                         --打开当前光标所在的文件名，如果确实存在该文件的话
 "
+" ]c                         --跳到下一个差异处
+" [c                         --跳到上一个差异处
+"
 " [ Ctrl+D                   --跳至当前光标所在变量的首次定义位置 [从文件头部开始]
 " [ Ctrl+I                   --跳至当前光标所在变量的首次出现位置 [从文件头部开始]
 " [ D                        --列出当前光标所在变量的所有定义位置 [从文件头部开始]
@@ -157,6 +167,11 @@ endif
 " cs"<p>                      --将外围的双引号变成HTML标签对 [surround.vim插件]
 " cst"                        --将外围的界定符变成双引号     [surround.vim插件]
 " ds"                         --删除外围的双引号定界符       [surround.vim插件]
+"
+" ---------- 文本比较 ----------
+"
+" dp                         --将当前文件所在差异行替换到对比文件 [give]
+" do                         --将对比文件所在差异行替换到当前文件 [get]
 "
 " ---------- 便捷操作 ----------
 "
@@ -512,7 +527,7 @@ let g:snipMate                             = {}
 let g:snipMate.no_default_aliases          = 1
 " 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
 let g:snipMate.scope_aliases               = {}
-let g:snipMate.scope_aliases['c']          = 'cpp'
+let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
 let g:snipMate.scope_aliases['objc']       = 'objc,cpp'
 let g:snipMate.scope_aliases['scheme']     = 'racket'
 let g:snipMate.scope_aliases['php']        = 'php,html'
@@ -546,6 +561,16 @@ let g:promptline_preset = {
         \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
         \'warn' : [ promptline#slices#last_exit_code() ]
         \}                                     " 自定义命令行显示
+
+" GitGutter           Git辅助插件
+let g:gitgutter_enabled               = 0      " 默认不开启
+let g:gitgutter_signs                 = 0      " 默认不开启提示
+let g:gitgutter_highlight_lines       = 0      " 默认不高亮行
+let g:gitgutter_sign_added            = '+'    " 自定义新增指示符
+let g:gitgutter_sign_modified         = '>'    " 自定义修改指示符
+let g:gitgutter_sign_removed          = '-'    " 自定义删除指示符
+let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指示符
+
 
 " Syntastic           语法检查
 let g:syntastic_check_on_open = 1              " 默认开启
@@ -627,7 +652,16 @@ nmap <leader>fe :FencView<CR>
 nmap <leader>ff :CtrlPMixed<CR>
 
 " \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件 ]
-nmap <leader>mp :PromptlineSnapshot ~/.promptline airline<CR>
+nmap <leader>mp :!rm ~/.promptline<CR><ESC>:PromptlineSnapshot ~/.promptline airline<CR>
+
+" \gi                 开启或关闭GitGutter [GitGutter插件]
+nmap <leader>gi :GitGutterToggle<CR>:GitGutterSignsToggle<CR>:GitGutterLineHighlightsToggle<CR>
+
+" \gd                 打开Git文件对比模式 [竖直] [GitGutter插件]
+nmap <leader>gd :Gdiff<CR>
+
+" \gs                 打开Git文件对比模式 [水平] [GitGutter插件]
+nmap <leader>gs :Gsdiff<CR>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
