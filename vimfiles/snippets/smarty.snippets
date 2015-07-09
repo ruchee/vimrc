@@ -1,0 +1,95 @@
+snippet /       单行注释
+	{{* ${0} *}}
+snippet //      多行注释
+	{{*${1}*}}
+snippet #       引用配置变量
+	{{#${1}#}}
+# 配置、变量、继承、重用相关
+snippet in      包含模板文件
+	{{include '${0}'}}
+snippet ex      模版继承
+	{{extends file='${0}'}}
+snippet bl      定义区块
+	{{block name=${1}}}${0}{{/block}}
+snippet cl      加载配置文件
+	{{config_load '${0}'}}
+snippet as      定义变量/数组
+	{{assign '${1}'${0}}}
+snippet cap     标记范围或捕获标记范围的内容到变量/数组
+	{{capture ${1}}}${0}{{/capture}}
+snippet lit     忽略对标签的解析
+	{{literal}}${0}{{/literal}}
+snippet php     不解析PHP代码
+	{{php}}${0}{{/php}}
+# 保留变量
+snippet sm      $smarty保留变量
+	$smarty.${0}
+snippet smget   访问$_GET数组
+	$smarty.get.${0}
+snippet smpos   访问$_POST数组
+	$smarty.post.${0}
+snippet smreq   访问$_REQUEST数组
+	$smarty.request.${0}
+snippet smcoo   访问$_COOKIE数组
+	$smarty.cookies.${0}
+snippet smses   访问$_SESSION数组
+	$smarty.session.${0}
+snippet smser   访问$_SERVER数组
+	$smarty.server.${0}
+snippet smenv   访问环境信息
+	$smarty.env.${0}
+################
+snippet smcf    访问配置变量
+	$smarty.config.${0}
+snippet smco    访问PHP常量
+	$smarty.const.${0}
+snippet smca    访问标记范围
+	$smarty.capture.${0}
+snippet smse    访问section循环中的属性
+	$smarty.section.${0}
+snippet smte    返回当前模板名称
+	$smarty.template${0}
+snippet smto    返回当前模板对象
+	$smarty.template_object${0}
+snippet smcd    返回当前模板目录
+	$smarty.current_dir${0}
+snippet smve    返回当前使用的Smarty版本
+	$smarty.version${0}
+snippet smbc    返回子模块的区块代码
+	$smarty.block.child${0}
+snippet smbp    返回父模块的区块代码
+	$smarty.block.parent${0}
+snippet smld    显示Smarty左定界符
+	$smarty.ldelim${0}
+snippet smrd    显示Smarty右定界符
+	$smarty.rdelim${0}
+# 流程控制
+snippet if      if
+	{{if ${1}}}${0}{{/if}}
+snippet elif    elseif
+	{{elseif ${1}}}${0}
+snippet el      else
+	{{else}}${0}
+snippet fe      foreach
+	{{foreach from=$${1} key=${2} item=${3}}}${0}{{/foreach}}
+snippet feel    foreachelse
+	{{foreachelse}}${0}
+snippet se      section
+	{{section}}${0}{{/section}}
+# 辅助函数
+snippet def     默认值
+	default:'${0}'
+snippet dfm     格式化时间
+	date_format:'${0}'
+snippet nfm     格式化数值
+	number_format:${0}
+snippet mto     生成邮件链接
+	mailto '${0}'
+# 调用PHP调试函数
+snippet pvd     var_dump
+	{{ var_dump($${0}) }}
+snippet ppr     print_r
+	{{ print_r($${0}) }}
+# 其他
+snippet .       {{ .. }}
+	{{ ${0} }}

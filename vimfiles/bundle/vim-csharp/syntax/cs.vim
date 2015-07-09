@@ -64,12 +64,12 @@ syn keyword csNewDecleration            new nextgroup=csClass skipwhite
 "Interface  & Class Identifier
 syn match csClass contained       /\<[A-Z][a-z]\w\+/ nextgroup=csGeneric
 syn match csIface contained       /\<I[A-Z][a-z]\w\+/ nextgroup=csGeneric
-syn region csGeneric start="<" end=">" contains=csIface,csClass
+" syn region csGeneric start="<" end=">" contains=csIface,csClass
 syn region csEnclosed start="(" end=")" contains=csConstant,csType,csString, csVerbatimString, csCharacter, csNumber,csIface,csClass
 "syn region csInherits start=":" end="{" contains=csIface,csClass
 
 " Attributes
-syn region csAttributeLine start="^\s*\[" end="\]\s*$" contains=csString, csVerbatimString, csCharacter, csNumber, csType
+syn region csAttribute start="^\s*\[" end="\]\s*" contains=csString, csVerbatimString, csCharacter, csNumber, csType
 
 
 " Comments
@@ -152,6 +152,7 @@ hi def link csLinq                      Keyword
 hi def link csAsync                     Keyword
 hi def link csContextualStatement	Statement
 hi def link csOperatorError		Error
+hi def link csAttribute			PreProc
 
 hi def link csIface                     Type
 hi def link csClass                     Type

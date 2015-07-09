@@ -4,6 +4,22 @@
 " @Revision:    151
 
 
+if !exists('g:tlib#file#drop')
+    " If true, use |:drop| to edit loaded buffers (only available with GUI).
+    let g:tlib#file#drop = has('gui')   "{{{2
+endif
+
+
+if !exists('g:tlib#file#use_tabs')
+    let g:tlib#file#use_tabs = 0   "{{{2
+endif
+
+
+if !exists('g:tlib#file#edit_cmds')
+    let g:tlib#file#edit_cmds = g:tlib#file#use_tabs ? {'buffer': 'tab split | buffer', 'edit': 'tabedit'} : {}  "{{{2
+endif
+
+
 """ File related {{{1
 " For the following functions please see ../../test/tlib.vim for examples.
 
@@ -172,4 +188,51 @@ function! tlib#file#With(fcmd, bcmd, files, ...) "{{{3
     " TLogDBG "done"
 endf
 
+
+" Return 0 if the file isn't readable/doesn't exist.
+" Otherwise return 1.
+function! tlib#file#Edit(fileid) "{{{3
+    if type(a:fileid) == 0
+        let bn = a:fileid
+        let filename = fnamemodify(bufname(bn), ':p')
+    else
+        let filename = fnamemodify(a:fileid, ':p')
+        let bn = bufnr(filename)
+    endif
+    if filename == expand('%:p')
+        return 1
+    else
+        " TLogVAR a:fileid, bn, filename, g:tlib#file#drop, filereadable(filename)
+        if bn != -1 && buflisted(bn)
+            if g:tlib#file#drop
+                " echom "DBG" get(g:tlib#file#edit_cmds, 'drop', 'drop') fnameescape(filename)
+                exec get(g:tlib#file#edit_cmds, 'drop', 'drop') fnameescape(filename)
+            else
+                " echom "DBG" get(g:tlib#file#edit_cmds, 'buffer', 'buffer') bn
+                exec get(g:tlib#file#edit_cmds, 'buffer', 'buffer') bn
+            endif
+            return 1
+        elseif filereadable(filename)
+            try
+                " let file = tlib#arg#Ex(filename)
+                " " TLogVAR file
+                " echom "DBG" get(g:tlib#file#edit_cmds, 'edit', 'edit') fnameescape(filename)
+                exec get(g:tlib#file#edit_cmds, 'edit', 'edit') fnameescape(filename)
+            catch /E325/
+                " swap file exists, let the user handle it
+            catch
+                echohl error
+                echom v:exception
+                echohl NONE
+            endtry
+            return 1
+        else
+            echom "TLIB: File not readable: " . filename
+            if filename != a:fileid
+                echom "TLIB: original filename: " . a:fileid
+            endif
+        endif
+    endif
+    return 0
+endf
 

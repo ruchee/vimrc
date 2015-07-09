@@ -1,4 +1,4 @@
-if exists("g:loaded_syntastic_preprocess_autoload") || !exists("g:loaded_syntastic_plugin")
+if exists('g:loaded_syntastic_preprocess_autoload') || !exists('g:loaded_syntastic_plugin')
     finish
 endif
 let g:loaded_syntastic_preprocess_autoload = 1
@@ -13,14 +13,14 @@ function! syntastic#preprocess#cabal(errors) abort " {{{2
     let star = 0
     for err in a:errors
         if star
-            if err == ''
+            if err ==# ''
                 let star = 0
             else
                 let out[-1] .= ' ' . err
             endif
         else
             call add(out, err)
-            if err =~ '\m^*\s'
+            if err =~# '\m^*\s'
                 let star = 1
             endif
         endif
@@ -68,10 +68,15 @@ function! syntastic#preprocess#flow(errors) abort " {{{2
     let false = 0
     let null = ''
 
+    let idx = 0
+    while idx < len(a:errors) && a:errors[idx][0] != '{'
+        let idx += 1
+    endwhile
+
     " A hat tip to Marc Weber for this trick
     " http://stackoverflow.com/questions/17751186/iterating-over-a-string-in-vimscript-or-parse-a-json-file/19105763#19105763
     try
-        let errs = eval(join(a:errors, ''))
+        let errs = eval(join(a:errors[idx :], ''))
     catch
         let errs = {}
     endtry
@@ -88,7 +93,7 @@ function! syntastic#preprocess#flow(errors) abort " {{{2
                         \ m['path'] . ':' .
                         \ m['line'] . ':' .
                         \ m['start'] . ':' .
-                        \ (m['line'] ==# m['endline'] ? m['end'] . ':' : '') .
+                        \ (m['line'] ==# m['endline'] && str2nr(m['end']) > 0 ? m['end'] . ':' : '') .
                         \ ' ' . m['descr']
 
                     if len(t)
@@ -124,7 +129,7 @@ endfunction " }}}2
 " @vimlint(EVL102, 0, l:null)
 
 function! syntastic#preprocess#killEmpty(errors) abort " {{{2
-    return filter(copy(a:errors), 'v:val != ""')
+    return filter(copy(a:errors), 'v:val !=# ""')
 endfunction " }}}2
 
 function! syntastic#preprocess#perl(errors) abort " {{{2
@@ -204,7 +209,7 @@ function! syntastic#preprocess#rparse(errors) abort " {{{2
     " remove uninteresting lines and handle continuations
     let i = 0
     while i < len(errlist)
-        if i > 0 && errlist[i][:1] == '  ' && errlist[i] !~ '\m\s\+\^$'
+        if i > 0 && errlist[i][:1] ==# '  ' && errlist[i] !~# '\m\s\+\^$'
             let errlist[i-1] .= errlist[i][1:]
             call remove(errlist, i)
         elseif errlist[i] !~# '\m^\(Lint:\|Lint checking:\|Error in\) '
@@ -224,7 +229,7 @@ function! syntastic#preprocess#rparse(errors) abort " {{{2
                     call add(out, 'E:' . fname . ':' . line . ': ' . parts[1])
                 endfor
             endif
-            if len(parts) >= 5 && parts[4] != ''
+            if len(parts) >= 5 && parts[4] !=# ''
                 call add(out, 'E:' . fname . ':0: ' . parts[1] . ' - ' . parts[4] . ' messages not shown')
             endif
         elseif match(e, '\m^Lint checking: ') == 0

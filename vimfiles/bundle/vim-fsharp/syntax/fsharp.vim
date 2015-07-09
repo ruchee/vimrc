@@ -1,6 +1,6 @@
 " Vim syntax file
 " Language:     F#
-" Last Change:  Thu 07 Mar 2013 10:44:27 PM CET
+" Last Change:  Sun 19 Oct 2014 11:11:44 PM CEST
 " Maintainer:   Gregor Uhlenheuer <kongo2002@googlemail.com>
 "
 " Note:         This syntax file is a complete rewrite of the original version
@@ -165,10 +165,10 @@ syn match    fsharpKeyChar      "|"
 syn match    fsharpOperator     "<-"
 
 syn match    fsharpNumber        "\<\d\+"
-syn match    fsharpNumber        "\<-\=\d\(_\|\d\)*[l|L|n]\?\>"
-syn match    fsharpNumber        "\<-\=0[x|X]\(\x\|_\)\+[l|L|n]\?\>"
-syn match    fsharpNumber        "\<-\=0[o|O]\(\o\|_\)\+[l|L|n]\?\>"
-syn match    fsharpNumber        "\<-\=0[b|B]\([01]\|_\)\+[l|L|n]\?\>"
+syn match    fsharpNumber        "\<-\=\d\(_\|\d\)*\(u\|u\?[yslLn]\|UL\)\?\>"
+syn match    fsharpNumber        "\<-\=0[x|X]\(\x\|_\)\+\(u\|u\?[yslLn]\|UL\)\?\>"
+syn match    fsharpNumber        "\<-\=0[o|O]\(\o\|_\)\+\(u\|u\?[yslLn]\|UL\)\?\>"
+syn match    fsharpNumber        "\<-\=0[b|B]\([01]\|_\)\+\(u\|u\?[yslLn]\|UL\)\?\>"
 syn match    fsharpFloat         "\<-\=\d\(_\|\d\)*\.\(_\|\d\)*\([eE][-+]\=\d\(_\|\d\)*\)\=\>"
 syn match    fsharpFloat         "\<-\=\d\(_\|\d\)*\.\(_\|\d\)*\([eE][-+]\=\d\(_\|\d\)*\)\=\>"
 syn match    fsharpFloat         "\<\d\+\.\d*"
@@ -182,7 +182,6 @@ syn region   fsharpAttrib matchgroup=fsharpAttribute start="\[<" end=">]"
 " regions
 syn region   fsharpRegion matchgroup=fsharpPreCondit start="\%(end\)\@<!region.*$"
             \ end="endregion" fold contains=ALL contained
-
 
 if version >= 508 || !exists("did_fs_syntax_inits")
     if version < 508

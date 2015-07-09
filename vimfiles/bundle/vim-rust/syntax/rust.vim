@@ -43,7 +43,6 @@ syn match     rustIdentifier  contains=rustIdentifierPrime "\%([^[:cntrl:][:spac
 syn match     rustFuncName    "\%([^[:cntrl:][:space:][:punct:][:digit:]]\|_\)\%([^[:cntrl:][:punct:][:space:]]\|_\)*" display contained
 
 syn region    rustBoxPlacement matchgroup=rustBoxPlacementParens start="(" end=")" contains=TOP contained
-syn keyword   rustBoxPlacementExpr GC containedin=rustBoxPlacement
 " Ideally we'd have syntax rules set up to match arbitrary expressions. Since
 " we don't, we'll just define temporary contained rules to handle balancing
 " delimiters.
@@ -78,26 +77,22 @@ syn keyword   rustTrait       Drop Fn FnMut FnOnce
 
 " Reexported types and traits {{{3
 syn keyword rustTrait Box
-syn keyword rustTrait CharExt
 syn keyword rustTrait Clone
 syn keyword rustTrait PartialEq PartialOrd Eq Ord
+syn keyword rustTrait AsRef AsMut Into From
 syn keyword rustTrait DoubleEndedIterator
 syn keyword rustTrait ExactSizeIterator
 syn keyword rustTrait Iterator IteratorExt Extend
 syn keyword rustEnum Option
 syn keyword rustEnumVariant Some None
-syn keyword rustTrait PtrExt MutPtrExt
 syn keyword rustEnum Result
 syn keyword rustEnumVariant Ok Err
-syn keyword rustTrait AsSlice
-syn keyword rustTrait SliceExt SliceConcatExt
-syn keyword rustTrait Str StrExt
+syn keyword rustTrait SliceConcatExt AsSlice
+syn keyword rustTrait Str
 syn keyword rustTrait String ToString
 syn keyword rustTrait Vec
-" FIXME: remove when path reform lands
-syn keyword rustTrait Path GenericPath
-" FIXME: remove when I/O reform lands
-syn keyword rustTrait Buffer Writer Reader Seek BufferPrelude
+
+syn keyword rustTrait Wrapping WrappingOps
 
 " Other syntax {{{2
 syn keyword   rustSelf        self
@@ -256,7 +251,6 @@ hi def link rustInvalidBareKeyword Error
 hi def link rustExternCrate   rustKeyword
 hi def link rustObsoleteExternMod Error
 hi def link rustBoxPlacementParens Delimiter
-hi def link rustBoxPlacementExpr rustKeyword
 
 " Other Suggestions:
 " hi rustAttribute ctermfg=cyan

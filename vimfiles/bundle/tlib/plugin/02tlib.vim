@@ -1,6 +1,6 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Created:     2007-04-10.
-" @Last Change: 2014-07-03.
+" @Last Change: 2015-05-20.
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Revision:    756
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
@@ -14,7 +14,7 @@ if v:version < 700 "{{{2
     echoerr "tlib requires Vim >= 7"
     finish
 endif
-let g:loaded_tlib = 113
+let g:loaded_tlib = 114
 
 let s:save_cpo = &cpo
 set cpo&vim

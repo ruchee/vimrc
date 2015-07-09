@@ -34,12 +34,6 @@ snippet dl      列表迭代
 	dolist (${1})${0}
 snippet dt      指定循环次数
 	dotimes ${0}
-snippet an      与
-	and ${0}
-snippet or      或
-	or ${0}
-snippet no      非
-	not ${0}
 # 判断函数
 snippet nu      是否为空
 	null ${0}
@@ -61,9 +55,9 @@ snippet bp      是否为全局变量或常量
 	boundp ${0}
 snippet tp      是否属于某类型
 	typep ${1} '${0}
-snippet eve     判断是不是每一个都满足某条件
+snippet ev      判断是不是每一个都满足某条件
 	every ${0}
-snippet som     判断是不是有一个满足某条件
+snippet sm      判断是不是有一个满足某条件
 	some ${0}
 # 比较函数
 snippet c<      字符小于
@@ -83,10 +77,6 @@ snippet eq      是否有相同的值
 snippet seq     是否有相同的值 [不区分大小写]
 	string-equal ${0}
 # 列表操作
-snippet a       取序列第一个元素
-	car ${0}
-snippet d       取序列剩余元素
-	cdr ${0}
 snippet pu      压入元素
 	push ${0}
 snippet pun     只有当元素不存在时才压入
@@ -156,6 +146,8 @@ snippet app     接受一个函数对象和任意个参数，最后一个参数�
 snippet fca     接受一个函数对象和任意个参数。参数不能为列表
 	funcall #'${0}
 # 单个关键字
+snippet c       字符
+	#\${0}
 snippet q       返回列表（'是其语法糖）
 	quote ${0}
 snippet f       获取一个函数对象（#'是其语法糖）
@@ -164,25 +156,25 @@ snippet re      返回
 	return ${0}
 snippet ref     从 .. 返回
 	return-from ${0}
-snippet le      设置局部变量
+snippet l       设置局部变量
 	let ((${1})${2})${0}
-snippet se      赋值
+snippet s       赋值
 	setf ${0}
-snippet ge      取值
+snippet g       取值
 	getf ${0}
-snippet ev      将字符串作为代码运行
+snippet e       将字符串作为代码运行
 	eval ${0}
-snippet in      自增1
+snippet i       自增1
 	incf ${0}
 snippet col     收集
 	collecting${0}
 snippet gen     产生一个随机变量
 	gensym${0}
 # 输入输出
+snippet p       输出
+	print ${0}
 snippet pc      输出字符
 	princ ${0}
-snippet pi      输出
-	print ${0}
 snippet fm      格式化输出
 	format ${1:t} "${2}"${0}
 snippet wl      输出一行
@@ -221,9 +213,7 @@ snippet rev     翻转列表
 # 其他
 snippet .       #'
 	#'${0}
-snippet <       `
-	\`${0}
-snippet >       '
-	'${0}
-snippet *       **
-	*${1}*${0}
+snippet <       car
+	car ${0}
+snippet >       cdr
+	cdr ${0}

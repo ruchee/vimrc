@@ -1,0 +1,50 @@
+snippet /       单行注释
+	{# ${0} #}
+snippet //      多行注释
+	{# ${0}#}
+# 代码重用
+snippet in      包含模板
+	{% include '${1}' %}${0}
+snippet inw     包含模板 [include .. with]
+	{% include '${1}' with [${2}] %}${0}
+snippet ex      继承并扩充模版
+	{% extends '${1}' %}${0}
+snippet bl      代码区块
+	{% block ${1} %}${0}{% endblock %}
+snippet ma      定义宏 [相当于定义一个函数，可传递参数，可设置默认参数值，可返回值]
+	{%- macro ${1:ma_name} (${2}) %}${0}{%- endmacro %}
+# 流程控制
+snippet if      if
+	{% if ${1} %}${0}{% endif %}
+snippet elif    elseif
+	{% elseif ${1} %}${0}
+snippet el      else
+	{% else %}${0}
+snippet fo      for .. in
+	{% for ${1} in ${2} %}${0}{% endfor %}
+snippet foif    for .. in .. if
+	{% for ${1} in ${2} if ${3} %}${0}{% endfor %}
+snippet aut     打开自动过滤
+	{% autoescape true %}${0}{% endautoescape %}
+snippet auf     关闭自动过滤
+	{% autoescape false %}${0}{% endautoescape %}
+# 单个关键字
+snippet co      继续
+	{% continue %}${0}
+snippet br      结束
+	{% break %}${0}
+snippet se      赋值
+	{% set ${1} = ${0} %}
+snippet do      只执行不输出
+	{% do ${0} %}
+snippet su      调用父区块
+	{{ super() }}${0}
+# 内建变量
+snippet lo      循环内置对象
+	loop.${0}
+# 辅助函数
+# 其他
+snippet <       {% .. %}
+	{% ${0} %}
+snippet .       {{ .. }}
+	{{ ${0} }}

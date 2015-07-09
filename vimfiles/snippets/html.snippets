@@ -27,7 +27,7 @@ snippet head    头部
 snippet title   标题
 	<title>${0}</title>
 snippet meta    页面信息
-	<meta content="text/html; charset=utf-8"${0}>
+	<meta charset="utf-8"${0}>
 # 主体信息
 snippet body    主体
 	<body${1}>
@@ -40,7 +40,7 @@ snippet script  内部脚本
 	    ${0}
 	</script>
 snippet link    外部样式表
-	<link rel="stylesheet" type="text/css" href="${1}"${0}>
+	<link rel="stylesheet" href="${1}"${0}>
 snippet style   内部样式表
 	<style type="text/css">
 	    ${0}

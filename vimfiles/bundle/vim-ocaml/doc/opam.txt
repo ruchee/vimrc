@@ -1,0 +1,18 @@
+*opam.txt*  Switch OCaml versions from inside Vim using OPAM
+
+Author:  Rudi Grinberg <http://rgrinberg.com>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+COMMANDS                                        *:opam*
+
+:Opam {version}          Set the current OCaml version to {version}.
+
+ABOUT                                           *opam-about*
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/rgrinberg/opam.vim
+
+ vim:tw=78:et:ft=help:norl:

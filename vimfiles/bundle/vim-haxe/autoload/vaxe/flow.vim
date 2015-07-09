@@ -48,6 +48,12 @@ function! vaxe#flow#Clean(...)
     call s:Sys(command)
 endfunction
 
+function! vaxe#flow#RebuildHxml()
+   if exists("b:vaxe_flow")
+      call vaxe#flow#BuildFlowHxml(b:vaxe_flow)
+   endif
+endfunction
+
 "A simple system function that first changes directory to the current vaxe
 "working directory
 function! s:Sys(cmd)

@@ -174,6 +174,8 @@ with LimeTarget, one will be chosen from an input list.
 
 |LimeUpdate|             Call the |vaxe#lime#Update| function.
 
+|LimeRebuildHxml|        Call the |vaxe#lime#RebuildHxml| function.
+
 ==============================================================================
 
 FLOW COMMANDS                                 *vaxe-flow-commands*
@@ -189,6 +191,8 @@ with FlowTarget, one will be chosen from an input list.
 |FlowTarget|             Call the |vaxe#flow#Target| function.
 
 |FlowClean|              Call the |vaxe#flow#Clean| function.
+
+|FlowRebuildHxml|        Call the |vaxe#flow#RebuildHxml| function.
 
 ==============================================================================
 
@@ -282,6 +286,9 @@ FUNCTIONS                                        *vaxe-functions*
                         for the current target, or the target specified by the
                         (optional) argument.
 
+*vaxe#lime#RebuildHxml*  Calling this function rebuilds the associated hxml 
+                        used for completions, etc.
+
 *vaxe#flow#Target*    Calling this function will select a new flow target to
                         use for builds and completions.
 
@@ -291,6 +298,9 @@ FUNCTIONS                                        *vaxe-functions*
 *vaxe#flow#Clean*     Calling this function will clean the boilerplate code
                         for the current target, or the target specified by the
                         (optional) argument.
+
+*vaxe#flow#RebuildHxml*  Calling this function rebuilds the associated hxml 
+                        used for completions, etc.
 
 ==============================================================================
 
@@ -383,7 +393,7 @@ SETTINGS                                        *vaxe-settings*
                         Defaults to 0 (equivalent to always adding --no-output
                         in the hxml).
 
-*g:vaxe_completion_completion_bufwrite_events*
+*g:vaxe_completion_prevent_bufwrite_events*
                         Vaxe uses the compiler to make completions.  This can
                         happen frequently, and causes the buffer to be written.
                         This can in turn interfere with other scripts that

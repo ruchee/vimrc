@@ -1,0 +1,61 @@
+snippet /       单行注释
+	; ${0}
+snippet -       分隔注释
+	; -------------------------------${0}
+# 代码重用
+snippet rq      导入包
+	require ${0}
+snippet ld      加载源文件
+	load "${0}"
+snippet be      开始一个代码区块
+	begin${0}
+# 变量、函数、语言结构
+snippet d       定义变量
+	define ${0}
+snippet df      定义函数
+	define (${1})${0}
+snippet la      匿名函数
+	lambda (${1})${0}
+snippet co      点对
+	cons ${0}
+snippet li      列表
+	list ${0}
+# 流程控制
+snippet if      if
+	if (${1})${0}
+# 判断函数
+snippet nu?     是否为空
+	null? ${0}
+snippet bo?     是否为布尔值
+	boolean?${0}
+snippet st=?    两字符串是否相等
+	string=? ${0}
+# 类型转换
+snippet nm>st   数值转字符串
+	number->string ${0}
+snippet st>nm   字符串转数值
+	string->number ${0}
+# 常用函数
+snippet stap    拼接字符串
+	string-append ${0}
+snippet stle    获取字符串的长度
+	string-length ${0}
+# 输入输出
+snippet di      标准输出
+	display ${0}
+snippet nl      输出换行
+	newline${0}
+# 单个关键字
+snippet c       字符
+	#\${0}
+snippet t       #t
+	#t${0}
+snippet f       #f
+	#f${0}
+# 其他
+snippet .       #'
+	#'${0}
+snippet <       car
+	car ${0}
+snippet >       cdr
+	cdr ${0}

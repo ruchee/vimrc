@@ -15,11 +15,15 @@ command -nargs=? -complete=file ProjectLime
 command -nargs=? -complete=customlist,vaxe#lime#Targets LimeTarget
             \ call vaxe#lime#Target(<q-args>)
 
-command -nargs=? -complete=customlist,vaxe#lime#Targets LimeClean
+command -nargs=? LimeClean
             \ call vaxe#lime#Clean(<q-args>)
 
-command -nargs=? -complete=customlist,vaxe#lime#Targets LimeUpdate
+command -nargs=? LimeUpdate
             \ call vaxe#lime#Update(<q-args>)
+
+command -nargs=? LimeRebuildHxml
+            \ call vaxe#lime#RebuildHxml()
+
 
 " Flow commands
 command -nargs=? -complete=file ProjectFlow
@@ -28,8 +32,11 @@ command -nargs=? -complete=file ProjectFlow
 command -nargs=? -complete=customlist,vaxe#flow#Targets FlowTarget
             \ call vaxe#flow#Target(<q-args>)
 
-command -nargs=? -complete=customlist,vaxe#flow#Targets FlowClean
+command -nargs=? FlowClean
             \ call vaxe#flow#Clean(<q-args>)
+
+command -nargs=? FlowRebuildHxml
+            \ call vaxe#flow#RebuildHxml()
 
 " Completion Server Commands
 command VaxeStopCompletionServer call vaxe#KillCacheServer()

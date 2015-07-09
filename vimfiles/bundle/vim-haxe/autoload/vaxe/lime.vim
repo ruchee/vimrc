@@ -52,6 +52,7 @@ function! vaxe#lime#ProjectLime(...)
     return g:vaxe_lime
 endfunction
 
+
 function! vaxe#lime#Clean(...)
     if (a:0 && a:1 != '')
         let target = split(a:1)[0]
@@ -61,6 +62,12 @@ function! vaxe#lime#Clean(...)
     let command = "lime clean ".target
     call vaxe#Log(command)
     call s:Sys(command)
+endfunction
+
+function! vaxe#lime#RebuildHxml()
+   if exists("b:vaxe_lime")
+      call vaxe#lime#BuildLimeHxml(b:vaxe_lime)
+   endif
 endfunction
 
 "A simple system function that first changes directory to the current vaxe

@@ -7,16 +7,20 @@ snippet ev      工作模式
 	events {
 	    ${0}
 	}
-snippet ht      HTTP服务器
+snippet http    HTTP服务器
 	http {
 	    ${0}
 	}
-snippet hts     HTTPS服务器
+snippet https   HTTPS服务器
 	https {
 	    ${0}
 	}
-snippet se      虚拟服务器
+snippet ser     虚拟服务器
 	server {
+	    ${0}
+	}
+snippet loc     匹配URL
+	location ${1} {
 	    ${0}
 	}
 # 常用指令
@@ -28,5 +32,15 @@ snippet kt      超时时间
 	keepalive_timeout ${1:80};${0}
 snippet dt      默认类型
 	default_type ${1:application/octet-stream};${0}
-snippet li      
+snippet lis     监听指定端口
+	listen ${1};${0}
+snippet s       设置变量
+	set $${1};${0}
+snippet rw      重写路由
+	rewrite ${1};${0}
 # 流程控制
+# 输入输出
+snippet e       输出信息
+	echo ${1};${0}
+snippet ee      内部跳转
+	echo_exec ${1};${0}

@@ -80,6 +80,10 @@ snippet ffu     带use子句的匿名函数
 	function (${1}) use (${2}) {${0}};
 snippet abf     用于声明抽象方法
 	abstract function ${1:f_name} (${2});${0}
+snippet prs     private static属性
+	private static ${0}
+snippet pus     public static方法
+	public static ${0}
 snippet fc      构造方法
 	function __construct (${1}) {
 	    ${0}
@@ -99,31 +103,55 @@ snippet fcl     克隆方法
 	    ${0}
 	}
 snippet fts     将类当作字符串打印
-	function __toString (${1}) {
+	function __toString () {
 	    ${0}
 	}
-snippet fal     自动加载
+snippet fau     自动加载
 	function __autoload (${1}) {
 	    ${0}
 	}
-snippet fge     __get()：访问未定义的属性时被调用
-	function __get (${1:property}) {
+snippet fsl     __sleep()：执行serialize()时触发
+	function __sleep () {
 	    ${0}
 	}
-snippet fse     __set()：给未定义的属性赋值时被调用
-	function __set (${1:property}, ${2:value}) {
+snippet fwa     __wakeup()：执行unserialize()时触发
+	function __wakeup () {
 	    ${0}
 	}
-snippet fca     __call()：调用未定义的方法时被调用
-	function __call (${1:$methodname}, ${2:args}) {
+snippet fge     __get()：访问未定义的属性时触发
+	function __get (${1}) {
 	    ${0}
 	}
-snippet fis     __isset()：对未定义的属性调用isset()时被调用
-	function __isset (${1:property}) {
+snippet fse     __set()：给未定义的属性赋值时触发
+	function __set (${1}) {
 	    ${0}
 	}
-snippet fus     __unset()：对未定义的属性调用unset()时被调用
-	function __unset (${1:property}) {
+snippet fca     __call()：调用未定义的方法时触发
+	function __call (${1}) {
+	    ${0}
+	}
+snippet fcas    __callStatic()：静态方法，静态调用未定义的方法时触发
+	function __callStatic (${1}) {
+	    ${0}
+	}
+snippet fis     __isset()：对未定义的属性调用isset()时触发
+	function __isset (${1}) {
+	    ${0}
+	}
+snippet fus     __unset()：对未定义的属性调用unset()时触发
+	function __unset (${1}) {
+	    ${0}
+	}
+snippet fiv     __invoke()：尝试以调用函数的方式调用对象时触发
+	function __invoke (${1}) {
+	    ${0}
+	}
+snippet fss     __set_state()：静态方法，执行var_export()时触发
+	function __set_state (${1}) {
+	    ${0}
+	}
+snippet fde     __debuginfo()：执行var_dump()时触发
+	function __debuginfo () {
 	    ${0}
 	}
 # 流程控制
@@ -248,8 +276,12 @@ snippet nuf     数值格式化
 # 调试
 snippet ee      输出信息，并终止执行
 	echo ${0}; exit();
+snippet en      输出换行
+	echo ${1}."\n";${0}
+snippet eb      输出HTML换行
+	echo ${1}.'<br>';${0}
 snippet e-      打印调试分隔符
-	echo '------ ${0} ------<br/>';
+	echo '------ ${0} ------<br>';
 snippet vd      打印变量信息
 	var_dump(${0});
 snippet vde     打印变量信息，并终止执行
@@ -328,13 +360,13 @@ snippet exp     字符串分割
 	explode('${1}', ${0})
 snippet imp     字符串组合
 	implode('${1}', ${0})
-snippet jen     编程成JSON
+snippet jen     编码JSON
 	json_encode(${0})
 snippet jde     解码JSON
 	json_decode(${0})
 snippet uen     编码URL字符串
 	urlencode(${0})
-snippet ude     解码已编码的URL字符串
+snippet ude     解码URL字符串
 	urldecode(${0})
 #### 判断类型 #####
 snippet isn     是否为空
@@ -374,16 +406,20 @@ snippet psw     switch标签
 	<?php switch (${1}): ?>${0}<?php endswitch ?>
 snippet pcs     case标签
 	<?php case ${1}: ?>${0}
-snippet pvd     打印变量详情
+snippet pvd     打印变量详情 [var_dump]
 	<?php var_dump(${0}) ?>
-snippet pvde    打印变量详情并终止执行
+snippet pvde    打印变量详情并终止执行 [var_dump]
 	<?php var_dump(${0}); exit() ?>
-snippet ppr     打印变量信息
+snippet pve     打印变量详情 [var_export]
+	<?php var_export(${0}) ?>
+snippet pvee    打印变量详情并终止执行 [var_export]
+	<?php var_export(${0}); exit() ?>
+snippet ppr     打印变量详情 [print_r]
 	<?php print_r(${0}) ?>
-snippet ppre    打印变量信息并终止执行
+snippet ppre    打印变量详情并终止执行 [print_r]
 	<?php print_r(${0}); exit() ?>
 # 单个关键字
-snippet ab      抽象类
+snippet ab      抽象
 	abstract ${0}
 snippet pu      公共
 	public ${0}
@@ -422,7 +458,7 @@ snippet ins     检查对象是否是指定类的实例
 snippet v       var
 	var ${0};
 snippet n       new
-	new ${0};
+	new ${0}
 snippet s       self::
 	self::${0}
 snippet t       $this->

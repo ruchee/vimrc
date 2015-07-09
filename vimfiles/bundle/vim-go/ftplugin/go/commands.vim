@@ -9,6 +9,7 @@ nnoremap <silent> <Plug>(go-run) :<C-u>call go#cmd#Run(expand('%'))<CR>
 nnoremap <silent> <Plug>(go-build) :<C-u>call go#cmd#Build('')<CR>
 nnoremap <silent> <Plug>(go-install) :<C-u>call go#cmd#Install()<CR>
 nnoremap <silent> <Plug>(go-test) :<C-u>call go#cmd#Test(0, '')<CR>
+nnoremap <silent> <Plug>(go-test-func) :<C-u>call go#cmd#TestFunc('')<CR>
 nnoremap <silent> <Plug>(go-test-compile) :<C-u>call go#cmd#Test(1, '')<CR>
 nnoremap <silent> <Plug>(go-coverage) :<C-u>call go#cmd#Coverage('')<CR>
 nnoremap <silent> <Plug>(go-vet) :<C-u>call go#cmd#Vet()<CR>
@@ -21,7 +22,6 @@ nnoremap <silent> <Plug>(go-implements) :<C-u>call go#oracle#Implements(-1)<CR>
 nnoremap <silent> <Plug>(go-callees) :<C-u>call go#oracle#Callees(-1)<CR>
 nnoremap <silent> <Plug>(go-callers) :<C-u>call go#oracle#Callers(-1)<CR>
 nnoremap <silent> <Plug>(go-describe) :<C-u>call go#oracle#Describe(-1)<CR>
-nnoremap <silent> <Plug>(go-callgraph) :<C-u>call go#oracle#Callgraph(-1)<CR>
 nnoremap <silent> <Plug>(go-callstack) :<C-u>call go#oracle#Callstack(-1)<CR>
 nnoremap <silent> <Plug>(go-freevars) :<C-u>call go#oracle#Freevars(-1)<CR>
 nnoremap <silent> <Plug>(go-channelpeers) :<C-u>call go#oracle#ChannelPeers(-1)<CR>
@@ -49,7 +49,6 @@ command! -range=% GoImplements call go#oracle#Implements(<count>)
 command! -range=% GoCallees call go#oracle#Callees(<count>)
 command! -range=% GoDescribe call go#oracle#Describe(<count>)
 command! -range=% GoCallers call go#oracle#Callers(<count>)
-command! -range=% GoCallgraph call go#oracle#Callgraph(<count>)
 command! -range=% GoCallstack call go#oracle#Callstack(<count>)
 command! -range=% GoFreevars call go#oracle#Freevars(<count>)
 command! -range=% GoChannelPeers call go#oracle#ChannelPeers(<count>)
@@ -65,6 +64,7 @@ command! -nargs=* -bang GoRun call go#cmd#Run(<bang>0,<f-args>)
 command! -nargs=* -bang GoBuild call go#cmd#Build(<bang>0,<f-args>)
 command! -nargs=* GoInstall call go#cmd#Install(<f-args>)
 command! -nargs=* GoTest call go#cmd#Test(0, <f-args>)
+command! -nargs=* GoTestFunc call go#cmd#TestFunc(<f-args>)
 command! -nargs=* GoTestCompile call go#cmd#Test(1, <f-args>)
 command! -nargs=* GoCoverage call go#cmd#Coverage(<f-args>)
 command! -nargs=0 GoVet call go#cmd#Vet()

@@ -73,3 +73,12 @@ snippet _t      当前上下文的引用
 	_context${0}
 snippet _c      当前字符集设置的引用
 	_charset${0}
+# 调试工具
+snippet d       打印变量详情
+	dump(${0})
+snippet c       当前控制器全名
+	app.request.attributes.get('_controller')
+snippet r       当前路由的名字
+	app.request.attributes.get('_route')
+snippet rp      当前路由的参数
+	app.request.attributes.get('_route_params')

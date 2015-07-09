@@ -28,8 +28,12 @@ snippet f       常规函数
 	function ${1:f_name} (${2}) {
 	    ${0}
 	}
-snippet ff      单行匿名函数
+snippet f.      单行常规函数
+	function ${1:f_name} (${2}) { ${0} }
+snippet ff      匿名函数
 	function (${1}) {${0}}
+snippet ff6     匿名函数 [ES6语法]
+	(${1}) => {${0}}
 snippet wi      指定缺省对象
 	with (${1}) {
 	    ${0}
@@ -50,8 +54,16 @@ snippet fo      for
 	for (var ${1}) {
 	    ${0}
 	}
+snippet fo6     for [ES6语法]
+	for (let ${1}) {
+	    ${0}
+	}
 snippet fi      for .. in
 	for (var ${1} in ${2}) {
+	    ${0}
+	}
+snippet fi6     for .. in [ES6语法]
+	for (let ${1} in ${2}) {
 	    ${0}
 	}
 snippet fe      for each [ES6新增]

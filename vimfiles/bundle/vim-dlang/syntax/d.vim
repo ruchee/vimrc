@@ -2,8 +2,8 @@
 "
 " Language:     D
 " Maintainer:   Jesse Phillips <Jesse.K.Phillips+D@gmail.com>
-" Last Change:  2013 October 5
-" Version:      0.26
+" Last Change:  2014 June 6
+" Version:      0.27
 "
 " Contributors:
 "   - Jason Mills: original Maintainer
@@ -168,10 +168,10 @@ syn match dExternal     "\<extern\>"
 syn match dExtern       "\<extern\s*([_a-zA-Z][_a-zA-Z0-9\+]*\>"he=s+6 contains=dExternIdentifier
 
 " Make import a region to prevent highlighting keywords
-syn region dImport start="import\_s" end=";" contains=dExternal,@dComment
+syn region dImport start="\<import\_s" end=";" contains=dExternal,@dComment
 
 " Make module a region to prevent highlighting keywords
-syn region dImport start="module\_s" end=";" contains=dExternal,@dComment
+syn region dImport start="\<module\_s" end=";" contains=dExternal,@dComment
 
 " dTokens is used by the token string highlighting
 syn cluster dTokens contains=dExternal,dConditional,dBranch,dRepeat,dBoolean
@@ -246,12 +246,16 @@ syn match dUnicode "\\u\d\{4\}"
 
 " String.
 "
-syn region dString	start=+"+ end=+"[cwd]\=+ skip=+\\\\\|\\"+ contains=dEscSequence,@Spell
+syn match	dFormat		display "%\(\d\+\$\)\=[-+' #0*]*\(\d*\|\*\|\*\d\+\$\)\(\.\(\d*\|\*\|\*\d\+\$\)\)\=\([hlL]\|ll\)\=\([bdiuoxXDOUfeEgGcCsSpn]\|\[\^\=.[^]]*\]\)" contained
+syn match	dFormat		display "%%" contained
+
+syn region dString	start=+"+ end=+"[cwd]\=+ skip=+\\\\\|\\"+ contains=dFormat,dEscSequence,@Spell
 syn region dRawString	start=+`+ end=+`[cwd]\=+ contains=@Spell
 syn region dRawString	start=+r"+ end=+"[cwd]\=+ contains=@Spell
 syn region dHexString	start=+x"+ end=+"[cwd]\=+ contains=@Spell
 syn region dDelimString	start=+q"\z(.\)+ end=+\z1"+ contains=@Spell
 syn region dHereString	start=+q"\z(\I\i*\)\n+ end=+^\z1"+ contains=@Spell
+
 
 " Nesting delimited string contents
 "
@@ -276,8 +280,8 @@ syn cluster dTokens add=dString,dRawString,dHexString,dDelimString,dNestString
 
 " Token strings
 "
-syn region dNestTokenString start=+{+ end=+}+ contained contains=dNestTokenString,@dTokens
-syn region dTokenString matchgroup=dTokenStringBrack transparent start=+q{+ end=+}+ contains=dNestTokenString,@dTokens
+syn region dNestTokenString start=+{+ end=+}+ contained contains=dNestTokenString,@dTokens,dFormat
+syn region dTokenString matchgroup=dTokenStringBrack transparent start=+q{+ end=+}+ contains=dNestTokenString,@dTokens,dFormat
 
 syn cluster dTokens add=dTokenString
 
@@ -357,6 +361,7 @@ hi def link dString              String
 hi def link dHexString           String
 hi def link dCharacter           Character
 hi def link dEscSequence         SpecialChar
+hi def link dFormat              SpecialChar
 hi def link dSpecialCharError    Error
 hi def link dOctalError          Error
 hi def link dOperator            Operator

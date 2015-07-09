@@ -5,6 +5,7 @@ for @foo <-> $value {
 sub infix:<->(Foo) is required {
 }
 
+( < foo bar>)
 class Request { }
 
 ok("a cat_O_9_tails" ~~ m:s/<alpha> <ident>/, 'Standard captures' );
@@ -38,6 +39,10 @@ ok $b (<) $bub, "(<) - {$b.gist} is a strict submix of {$bub.gist} (texas)";
 
 is test_ff({/B/ fff^ /B/ }, <A B A B A>), 'xBAxx', '/B/ fff^ /B/, lhs == rhs';
 
+use v6.*
+use v6*
+
+rule => "foo"
 -100
 is Inf / 100, Inf;
 is Inf*-100, -Inf;

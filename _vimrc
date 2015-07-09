@@ -1,24 +1,8 @@
-" -----------------   Author: Ruchee
-" -----------------    Email: my@ruchee.com
-" -----------------     Date: 2015-04-03 16:23:05
-" -----------------    https://github.com/ruchee/vimrc
+" -----------------  Author: Ruchee
+" -----------------   Email: my@ruchee.com
+" -----------------    Date: 2015-07-09 10:22:12
+" -----------------   https://github.com/ruchee/vimrc
 
-
-" 判断工作地点，根据指定路径的文件是否存在判断
-" （仅为我个人所用，如无工作场所切换需求，可将本文件所有 atCompany 相关的判断语句全部去掉）
-if filereadable("~/.atCompany") || filereadable("C:/atCompany.txt")
-    let g:atCompany = 1
-else
-    let g:atCompany = 0
-endif
-
-" 针对不同的使用环境进行具体配置
-if g:atCompany
-    " set tags+=D:/Ruchee/Files/code/self/ci/tags
-    " set tags+=D:/Ruchee/Files/code/self/laravel/tags
-    " set tags+=D:/Ruchee/Files/code/self/sf/tags
-else
-endif
 
 
 " ---------- Ctrl系按键 ----------
@@ -45,11 +29,12 @@ endif
 " \rb                        --一键去除所有尾部空白   [全模式可用]
 " \rm                        --一键去除^M字符         [全模式可用]
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
+" \ra                        --一键清理当前代码文件   [Normal模式可用]
 "
 " \ww                        --打开Vimwiki主页
 " \wa                        --一键编译所有Vimwiki源文件
-" \nt                        --打开NERDTree文件树窗口
-" \tl                        --打开/关闭TagList/TxtBrowser窗口
+" \nt                        --打开/关闭NERDTree文件树窗口
+" \tl                        --打开/关闭Tags窗口
 "
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
 " \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
@@ -69,19 +54,25 @@ endif
 " \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
 " \ev                        --编辑当前所使用的Vim配置文件
 "
-" \cc                        --添加注释               [NERD_commenter]
-" \cu                        --取消注释               [NERD_commenter]
+" \cc                        --添加行注释             [NERD_commenter]
 " \cm                        --添加块注释             [NERD_commenter]
 " \cs                        --添加SexStyle块注释     [NERD_commenter]
+" \cu                        --取消注释               [NERD_commenter]
 "
 " \php                       --一键切换到PHP语法高亮
+" \tw1                       --一键切换到html.twig语法高亮
+" \tw2                       --一键切换到jinja.twig语法高亮
+" \tw3                       --一键切换到htmldjango.twig语法高亮
+" \ruby                      --一键切换到Ruby语法高亮
+" \eruby                     --一键切换到eRuby语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
 " \html                      --一键切换到HTML语法高亮
 
 " ---------- 补全命令 ----------
 "
-" Ctrl + P                   --缓冲区补全             [插入模式]
+" Ctrl + P                   --缓冲区补全             [插入模式] [也可在Normal模式下打开文件搜索窗口，由ctrlP插件提供]
+" Ctrl + U                   --全能补全               [插入模式]
 " Tab键                      --语法结构补全           [插入模式] [snipMate插件]
 " Ctrl + Y + ,               --HTML标签补全           [插入模式] [emmet插件]
 
@@ -95,6 +86,9 @@ endif
 " u [小写]                   --单步复原               [非插入模式]
 " U [大写]                   --整行复原               [非插入模式]
 " Ctrl + R                   --撤消“撤消”操作         [非插入模式]
+"
+" \pcf                       --格式化当前PHP文件              [Normal模式] [php-cs-fixer插件]
+" \pcd                       --格式化当前目录下的所有PHP文件  [Normal模式] [php-cs-fixer插件]
 "
 " ---------- 查看命令 ----------
 "
@@ -205,11 +199,11 @@ endif
 
 
 " 判断操作系统类型
-if(has("win32") || has("win64"))
+if(has('win32') || has('win64'))
     let g:isWIN = 1
     let g:isMAC = 0
 else
-    if system("uname") =~ "Darwin"
+    if system('uname') =~ 'Darwin'
         let g:isWIN = 0
         let g:isMAC = 1
     else
@@ -218,8 +212,9 @@ else
     endif
 endif
 
+
 " 判断是否处于GUI界面
-if has("gui_running")
+if has('gui_running')
     let g:isGUI = 1
 else
     let g:isGUI = 0
@@ -231,13 +226,21 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,haxe,coffee,jade,sh set shiftwidth=2
-au FileType groovy,scala,clojure,scheme,racket,lisp,lua,ruby,eruby,slim,elixir,julia,dart,haxe,coffee,jade,sh set tabstop=2
+au FileType scheme,racket,lisp,clojure,lua,ruby,scala,elixir,julia,dart,coffee,sh,eruby,slim,jade set shiftwidth=2
+au FileType scheme,racket,lisp,clojure,lua,ruby,scala,elixir,julia,dart,coffee,sh,eruby,slim,jade set tabstop=2
+
+" 修正Go语言的部分快捷键
+" go get -u github.com/jstemmer/gotags
+" go get -u github.com/rogpeppe/godef
+" go get -u github.com/nsf/gocode [Windows使用 go get -u -ldflags -H=windowsgui github.com/nsf/gocode]
+au FileType go nmap <c-]> :GoDef<cr>
+au FileType go nmap <c-t> <c-o>
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        setlocal ft=c
 au BufRead,BufNewFile *.m        setlocal ft=objc
 au BufRead,BufNewFile *.di       setlocal ft=d
+au BufRead,BufNewFile *.ss       setlocal ft=scheme
 au BufRead,BufNewFile *.cl       setlocal ft=lisp
 au BufRead,BufNewFile *.phpt     setlocal ft=php
 au BufRead,BufNewFile *.inc      setlocal ft=php
@@ -270,7 +273,6 @@ set ai!                      " 设置自动缩进
 set smartindent              " 智能自动缩进
 set relativenumber           " 开启相对行号
 set nu!                      " 显示行号
-set mouse=a                  " 启用鼠标
 set ruler                    " 右下角显示光标位置的状态行
 set incsearch                " 开启实时搜索功能
 set hlsearch                 " 开启高亮显示结果
@@ -289,7 +291,6 @@ set list                     " 显示特殊字符，其中Tab使用高亮~代替
 set listchars=tab:\~\ ,trail:.
 set expandtab                " 将Tab自动转化成空格 [需要输入真正的Tab键时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
-"set nowrap                  " 设置不自动换行
 
 syntax enable                " 打开语法高亮
 syntax on                    " 开启文件类型侦测
@@ -327,25 +328,28 @@ if g:isGUI
     set guioptions-=b        " 隐藏底部滚动条
     set showtabline=0        " 隐藏Tab栏
     set cursorline           " 高亮突出当前行
-    "set cursorcolumn        " 高亮突出当前列
+    " set cursorcolumn       " 高亮突出当前列
 endif
 
 
 " ======= 引号 && 括号自动匹配 ======= "
 
-:inoremap ( ()<ESC>i
-:inoremap ) <c-r>=ClosePair(')')<CR>
-:inoremap { {}<ESC>i
-:inoremap } <c-r>=ClosePair('}')<CR>
-:inoremap [ []<ESC>i
-:inoremap ] <c-r>=ClosePair(']')<CR>
-:inoremap " ""<ESC>i
-:inoremap ' ''<ESC>i
-:inoremap ` ``<ESC>i
+:inoremap ( ()<esc>i
+:inoremap ) <c-r>=ClosePair(')')<cr>
+:inoremap { {}<esc>i
+:inoremap } <c-r>=ClosePair('}')<cr>
+:inoremap [ []<esc>i
+:inoremap ] <c-r>=ClosePair(']')<cr>
+:inoremap " ""<esc>i
+:inoremap ' ''<esc>i
+:inoremap ` ``<esc>i
+au FileType scheme,racket,lisp,clojure :inoremap ' '
+au FileType scheme,racket,lisp,clojure :inoremap ` `
+au FileType scheme,racket,lisp,clojure :inoremap * **<esc>i
 
 function ClosePair(char)
     if getline('.')[col('.') - 1] == a:char
-        return "\<Right>"
+        return '\<Right>'
     else
         return a:char
     endif
@@ -357,13 +361,15 @@ execute pathogen#infect()
 
 
 " 针对部分语言加减指定字符的单词属性
-au FileType clojure  set iskeyword-=.
-au FileType clojure  set iskeyword-=>
-au FileType perl,php set iskeyword-=.
-au FileType perl,php set iskeyword-=$
-au FileType perl,php set iskeyword-=-
-au FileType ruby     set iskeyword+=!
-au FileType ruby     set iskeyword+=?
+au FileType clojure   set iskeyword-=.
+au FileType clojure   set iskeyword-=>
+au FileType perl,php  set iskeyword-=.
+au FileType perl,php  set iskeyword-=$
+au FileType perl,php  set iskeyword-=-
+au FileType ruby      set iskeyword+=!
+au FileType ruby      set iskeyword+=?
+au FileType nginx     set iskeyword-=/
+au FileType nginx     set iskeyword-=.
 
 
 " 针对部分语言添加字典补全
@@ -375,7 +381,6 @@ au FileType perl       call AddPerlDict()
 au FileType php        call AddPHPDict()
 au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
-au FileType scala      call AddScalaDict()
 au FileType javascript call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
 
@@ -455,22 +460,11 @@ function AddRubyDict()
     set complete+=k
 endfunction
 
-function AddScalaDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/scala.txt
-    else
-        set dict+=~/.vim/dict/scala.txt
-    endif
-    set complete+=k
-endfunction
-
 function AddJavaScriptDict()
     if g:isWIN
         set dict+=$VIM/vimfiles/dict/javascript.txt
-        set dict+=$VIM/vimfiles/dict/node.txt
     else
         set dict+=~/.vim/dict/javascript.txt
-        set dict+=~/.vim/dict/node.txt
     endif
     set complete+=k
 endfunction
@@ -486,34 +480,30 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let g:cpp_class_scope_highlight           = 1               " 高亮C++ class scope
-let g:cpp_experimental_template_highlight = 1               " 高亮C++ template functions
-
-let g:go_auto_type_info                   = 0               " 关闭Go语言自动显示类型信息（默认就是关闭的，此处用于方便需要时开启）
-let g:go_def_mapping_enabled              = 0               " 关闭Go语言对gd的绑定
-let g:go_highlight_operators              = 1               " 开启Go语言操作符高亮
-let g:go_highlight_functions              = 1               " 开启Go语言函数名高亮
-let g:go_highlight_methods                = 1               " 开启Go语言方法名高亮
-let g:go_highlight_structs                = 1               " 开启Go语言结构体名高亮
-
-let g:haskell_enable_quantification       = 1               " 开启Haskell高亮 forall
-let g:haskell_enable_recursivedo          = 1               " 开启Haskell高亮 mdo and rec
-let g:haskell_enable_arrowsyntax          = 1               " 开启Haskell高亮 proc
-let g:haskell_enable_pattern_synonyms     = 1               " 开启Haskell高亮 pattern
-let g:haskell_enable_typeroles            = 1               " 开启Haskell高亮 type roles
-let g:haskell_enable_static_pointers      = 1               " 开启Haskell高亮 static
-
-let python_highlight_all                  = 1               " 打开全部Python高亮
+let g:cpp_class_scope_highlight           = 1 " 高亮C++ class scope
+let g:cpp_experimental_template_highlight = 1 " 高亮C++ template functions
+let g:go_auto_type_info                   = 0 " 关闭Go语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
+let g:go_def_mapping_enabled              = 0 " 关闭Go语言对gd的绑定
+let g:go_highlight_operators              = 1 " 开启Go语言操作符高亮
+let g:go_highlight_functions              = 1 " 开启Go语言函数名高亮
+let g:go_highlight_methods                = 1 " 开启Go语言方法名高亮
+let g:go_highlight_structs                = 1 " 开启Go语言结构体名高亮
+let g:haskell_enable_quantification       = 1 " 开启Haskell高亮 forall
+let g:haskell_enable_recursivedo          = 1 " 开启Haskell高亮 mdo and rec
+let g:haskell_enable_arrowsyntax          = 1 " 开启Haskell高亮 proc
+let g:haskell_enable_pattern_synonyms     = 1 " 开启Haskell高亮 pattern
+let g:haskell_enable_typeroles            = 1 " 开启Haskell高亮 type roles
+let g:haskell_enable_static_pointers      = 1 " 开启Haskell高亮 static
+let g:python_highlight_all                = 1 " 开启Python的所有高亮
 
 
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
 
-" Tlist               调用TagList
-let Tlist_Show_One_File        = 1             " 只显示当前文件的tags
-let Tlist_Exit_OnlyWindow      = 1             " 如果Taglist窗口是最后一个窗口则退出Vim
-let Tlist_Use_Right_Window     = 1             " 在右侧窗口中显示
-let Tlist_File_Fold_Auto_Close = 1             " 自动折叠
+" TagBar              tags标签浏览器
+let g:tagbar_sort = 0                          " 关闭排序     [也就是按标签本身在文件中的位置排序]
+let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局关于行号的默认配置]
+let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
@@ -522,26 +512,36 @@ if g:isWIN
 else
     let g:snippets_dir = '~/.vim/snippets/'
 endif
-let g:snipMate                             = {}
+let g:snipMate                                  = {}
 " 不使用插件自带的默认继承
-let g:snipMate.no_default_aliases          = 1
-" 设置补全项之间的继承关系，比如 PHP补全继承HTML的补全
-let g:snipMate.scope_aliases               = {}
-let g:snipMate.scope_aliases['c']          = 'cpp,gtk'
-let g:snipMate.scope_aliases['objc']       = 'objc,cpp'
-let g:snipMate.scope_aliases['scheme']     = 'racket'
-let g:snipMate.scope_aliases['php']        = 'php,html'
-let g:snipMate.scope_aliases['typescript'] = 'typescript,javascript'
-let g:snipMate.scope_aliases['scss']       = 'scss,css'
-let g:snipMate.scope_aliases['less']       = 'less,css'
-let g:snipMate.scope_aliases['xhtml']      = 'html'
-let g:snipMate.scope_aliases['blade']      = 'blade,html'
-let g:snipMate.scope_aliases['html.twig']  = 'twig,html'
-let g:snipMate.scope_aliases['jinja.twig'] = 'twig,html'
-let g:snipMate.scope_aliases['jinja']      = 'jinja,html'
-let g:snipMate.scope_aliases['eruby']      = 'eruby,html'
-let g:snipMate.scope_aliases['jst']        = 'jst,html'
-let g:snipMate.scope_aliases['mustache']   = 'mustache,html'
+let g:snipMate.no_default_aliases               = 1
+" 同名同描述补全开启覆盖，只取最后一个生效
+let g:snipMate.override                         = 1
+" 使用旧版解析器
+let g:snipMate.snippet_version                  = 0
+" 设置补全项之间的继承关系，比如 C语言补全继承C++的补全
+let g:snipMate.scope_aliases                    = {}
+let g:snipMate.scope_aliases['c']               = 'cpp'
+let g:snipMate.scope_aliases['objc']            = 'cpp,objc'
+let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
+let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
+let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
+let g:snipMate.scope_aliases['smarty']          = 'html,smarty'
+let g:snipMate.scope_aliases['blade']           = 'html,blade'
+let g:snipMate.scope_aliases['volt']            = 'html,volt'
+let g:snipMate.scope_aliases['latte']           = 'html,latte'
+let g:snipMate.scope_aliases['html.twig']       = 'html,twig'
+let g:snipMate.scope_aliases['jinja.twig']      = 'html,twig'
+let g:snipMate.scope_aliases['htmldjango.twig'] = 'html,twig'
+let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
+let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
+let g:snipMate.scope_aliases['eruby']           = 'html,eruby'
+let g:snipMate.scope_aliases['jst']             = 'html,jst'
+let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
+let g:snipMate.scope_aliases['handlebars']      = 'html,mustache'
+let g:snipMate.scope_aliases['scss']            = 'css,scss'
+let g:snipMate.scope_aliases['less']            = 'css,less'
+let g:snipMate.scope_aliases['xhtml']           = 'html'
 
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
@@ -556,11 +556,11 @@ let g:airline_theme = 'badwolf'                " 设置主题
 " Promptline          终端辅助工具
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
 let g:promptline_preset = {
-        \'a'    : [ '\u' ],
-        \'b'    : [ promptline#slices#cwd() ],
-        \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
-        \'warn' : [ promptline#slices#last_exit_code() ]
-        \}                                     " 自定义命令行显示
+            \'a'    : [ '\u' ],
+            \'b'    : [ '\W' ],
+            \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
+            \'warn' : [ promptline#slices#last_exit_code() ]
+            \}                                 " 自定义命令行显示
 
 " GitGutter           Git辅助插件
 let g:gitgutter_enabled               = 0      " 默认不开启
@@ -574,272 +574,333 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 
 " Syntastic           语法检查
 let g:syntastic_check_on_open = 1              " 默认开启
-let g:syntastic_mode_map      = {'mode': 'active',
-            \'active_filetypes':  [],
-            \'passive_filetypes': ['html', 'css', 'xhtml', 'go', 'groovy', 'scala', 'clojure', 'racket', 'typescript', 'eruby', 'slim', 'jade', 'scss', 'less']
-            \}                                 " 指定不需要检查的语言 [主要是因为开启这些语言的语法检查会妨碍到正常的工作]
+let g:syntastic_mode_map      = {
+            \'mode': 'active',
+            \'passive_filetypes': ['go', 'lisp', 'clojure', 'groovy', 'kotlin', 'scala', 'typescript', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
+            \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 let g:syntastic_c_compiler = 'gcc'
 let g:syntastic_cpp_compiler = 'g++'
 let g:syntastic_c_compiler_options = '-std=c11 -Wall'
 let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
+" 自定义指定后缀的文件不开启语法检查
+au BufRead,BufNewFile *.min.js,*.jsx,*.html exec ':SyntasticToggleMode'
+
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,backbone,underscore,prelude,angularjs,angularui,react'
+let g:used_javascript_libs = 'jquery,requirejs,angularjs,angularui,react'
+
+
+" php-cs-fixer                                   格式化PHP代码
+let g:php_cs_fixer_level = 'symfony'           " 使用Symfony推荐的代码风格
+let g:php_cs_fixer_config = 'default'          " 使用默认配置
+let g:php_cs_fixer_php_path = 'php'            " 指定PHP可执行文件的路径
+let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
+let g:php_cs_fixer_dry_run = 0                 " 只提示需要格式化的位置，不执行格式化 [0为不开启]
 
 
 " ======= 自定义快捷键 ======= "
 
-" Ctrl + ]            tags选择性跳转
+" Ctrl + ]            多选择跳转
 nmap <c-]> g<c-]>
 vmap <c-]> g<c-]>
 
+" Ctrl + U            简化全能补全按键
+imap <c-u> <c-x><c-o>
+
 " Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal模式]
-imap <c-h> <ESC>I
+imap <c-h> <esc>I
 map <c-h> <c-w><c-h>
 
 " Ctrl + J            光标移下一行行首[插入模式]、切换下窗口[Normal模式]
-imap <c-j> <ESC><Down>I
+imap <c-j> <esc><down>I
 map <c-j> <c-w><c-j>
 
 " Ctrl + K            光标移上一行行尾[插入模式]、切换上窗口[Normal模式]
-imap <c-k> <ESC><Up>A
+imap <c-k> <esc><up>A
 map <c-k> <c-w><c-k>
 
 " Ctrl + L            光标移当前行行尾[插入模式]、切换右窗口[Normal模式]
-imap <c-l> <ESC>A
+imap <c-l> <esc>A
 map <c-l> <c-w><c-l>
 
 " Alt  + H            光标左移一格
-imap <m-h> <Left>
+imap <m-h> <left>
 
 " Alt  + J            光标下移一格
-imap <m-j> <Down>
+imap <m-j> <down>
 
 " Alt  + K            光标上移一格
-imap <m-k> <Up>
+imap <m-k> <up>
 
 " Alt  + L            光标右移一格
-imap <m-l> <Right>
+imap <m-l> <right>
 
 " \c                  复制至公共剪贴板
 vmap <leader>c "+y
 
 " \a                  复制所有至公共剪贴板
-nmap <leader>a <ESC>ggVG"+y<ESC>
+nmap <leader>a <esc>ggVG"+y<esc>
 
 " \v                  从公共剪贴板粘贴
-imap <leader>v <ESC>"+p
+imap <leader>v <esc>"+p
 nmap <leader>v "+p
 vmap <leader>v "+p
 
 " \bb                 按=号对齐代码 [Tabular插件]
-nmap <leader>bb :Tab /=<CR>
+nmap <leader>bb :Tab /=<cr>
 
 " \bn                 自定义对齐    [Tabular插件]
 nmap <leader>bn :Tab /
 
-" \nt                 打开NERDTree窗口，在左侧栏显示
-nmap <leader>nt :NERDTree<CR>
+" \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree插件]
+nmap <leader>nt :NERDTree<cr>
 
-" \tl                 打开Taglist/TxtBrowser窗口，在右侧栏显示
-nmap <leader>tl :Tlist<CR><c-w><c-l>
+" \tl                 打开/关闭Tags窗口，在右侧栏显示 [Tagbar插件]
+nmap <leader>tl :TagbarToggle<cr><c-w><c-l>
 
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
-nmap <leader>fe :FencView<CR>
+nmap <leader>fe :FencView<cr>
 
 " \ff                 打开文件搜索窗口，在最下方显示 [CtrlP插件]
-nmap <leader>ff :CtrlPMixed<CR>
+nmap <leader>ff :CtrlPMixed<cr>
 
 " \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件 ]
-nmap <leader>mp :!rm ~/.promptline<CR><ESC>:PromptlineSnapshot ~/.promptline airline<CR>
+nmap <leader>mp :!rm ~/backup/.promptline<cr><esc>:PromptlineSnapshot ~/backup/.promptline airline<cr>
 
 " \gi                 开启或关闭GitGutter [GitGutter插件]
-nmap <leader>gi :GitGutterToggle<CR>:GitGutterSignsToggle<CR>:GitGutterLineHighlightsToggle<CR>
+nmap <leader>gi :GitGutterToggle<cr>:GitGutterSignsToggle<cr>:GitGutterLineHighlightsToggle<cr>
 
 " \gd                 打开Git文件对比模式 [竖直] [GitGutter插件]
-nmap <leader>gd :Gdiff<CR>
+nmap <leader>gd :Gdiff<cr>
 
 " \gs                 打开Git文件对比模式 [水平] [GitGutter插件]
-nmap <leader>gs :Gsdiff<CR>
+nmap <leader>gs :Gsdiff<cr>
 
 " \rb                 一键去除所有尾部空白
-imap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
-nmap <leader>rb :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
-vmap <leader>rb <ESC>:let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
+nmap <leader>rb :let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
+vmap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 
-" \rm                 一键去除字符
-imap <leader>rm <ESC>:%s/<c-v><c-m>//g<CR>
-nmap <leader>rm :%s/<c-v><c-m>//g<CR>
-vmap <leader>rm <ESC>:%s/<c-v><c-m>//g<CR>
+" \rm                 一键去除字符
+imap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
+nmap <leader>rm :%s/<c-v><c-m>//g<cr>
+vmap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 
 " \rt                 一键替换全部Tab为空格
 func! RemoveTabs()
     if &shiftwidth == 2
-        exec "%s/	/  /g"
+        exec '%s/	/  /g'
     elseif &shiftwidth == 4
-        exec "%s/	/    /g"
+        exec '%s/	/    /g'
     elseif &shiftwidth == 6
-        exec "%s/	/      /g"
+        exec '%s/	/      /g'
     elseif &shiftwidth == 8
-        exec "%s/	/        /g"
+        exec '%s/	/        /g'
     else
-        exec "%s/	/ /g"
+        exec '%s/	/ /g'
     end
 endfunc
 
-imap <leader>rt <ESC>:call RemoveTabs()<CR>
-nmap <leader>rt :call RemoveTabs()<CR>
-vmap <leader>rt <ESC>:call RemoveTabs()<CR>
+imap <leader>rt <esc>:call RemoveTabs()<cr>
+nmap <leader>rt :call RemoveTabs()<cr>
+vmap <leader>rt <esc>:call RemoveTabs()<cr>
+
+" \ra                 一键清理当前代码文件
+nmap <leader>ra <esc>\rt<esc>\rb<esc>gg=G<esc>gg<esc>
 
 " \th                 一键生成与当前编辑文件同名的HTML文件 [不输出行号]
-imap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
-nmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
-vmap <leader>th <ESC>:set nonumber<CR>:set norelativenumber<CR><ESC>:TOhtml<CR><ESC>:w %:r.html<CR><ESC>:q<CR>:set number<CR>:set relativenumber<CR>
+imap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
+nmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
+vmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 
 " \wa                 一键编译所有Vimwiki源文件
-imap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
-nmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
-vmap <leader>wa <ESC>\ww<ESC>:VimwikiAll2HTML<CR>:qa<CR>
+imap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
+nmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
+vmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 
 " \ev                 编辑当前所使用的Vim配置文件
-nmap <leader>ev <ESC>:e $MYVIMRC<CR>
+nmap <leader>ev <esc>:e $MYVIMRC<cr>
 
 " \php                一键切换到PHP语法高亮
-imap <leader>php <ESC>:se ft=php<CR>li
-nmap <leader>php <ESC>:se ft=php<CR>
+imap <leader>php <esc>:se ft=php<cr>li
+nmap <leader>php <esc>:se ft=php<cr>
+
+" \tw1                一键切换到html.twig语法高亮
+imap <leader>tw1 <esc>:se ft=html.twig<cr>li
+nmap <leader>tw1 <esc>:se ft=html.twig<cr>
+
+" \tw2                一键切换到jinja.twig语法高亮
+imap <leader>tw2 <esc>:se ft=jinja.twig<cr>li
+nmap <leader>tw2 <esc>:se ft=jinja.twig<cr>
+
+" \tw3                一键切换到htmldjango.twig语法高亮
+imap <leader>tw3 <esc>:se ft=htmldjango.twig<cr>li
+nmap <leader>tw3 <esc>:se ft=htmldjango.twig<cr>
+
+" \ruby               一键切换到Ruby语法高亮
+imap <leader>ruby <esc>:se ft=ruby<cr>li
+nmap <leader>ruby <esc>:se ft=ruby<cr>
+
+" \eruby              一键切换到eRuby语法高亮
+imap <leader>eruby <esc>:se ft=eruby<cr>li
+nmap <leader>eruby <esc>:se ft=eruby<cr>
 
 " \js                 一键切换到JavaScript语法高亮
-imap <leader>js <ESC>:se ft=javascript<CR>li
-nmap <leader>js <ESC>:se ft=javascript<CR>
+imap <leader>js <esc>:se ft=javascript<cr>li
+nmap <leader>js <esc>:se ft=javascript<cr>
 
 " \css                一键切换到CSS语法高亮
-imap <leader>css <ESC>:se ft=css<CR>li
-nmap <leader>css <ESC>:se ft=css<CR>
+imap <leader>css <esc>:se ft=css<cr>li
+nmap <leader>css <esc>:se ft=css<cr>
 
 " \html               一键切换到HTML语法高亮
-imap <leader>html <ESC>:se ft=html<CR>li
-nmap <leader>html <ESC>:se ft=html<CR>
+imap <leader>html <esc>:se ft=html<cr>li
+nmap <leader>html <esc>:se ft=html<cr>
 
 
 " ======= 编译 && 运行 && 模板 ======= "
 
 " 编译并运行
 func! Compile_Run_Code()
-    exec "w"
-    if &filetype == "c"
+    exec 'w'
+    if &filetype == 'asm'
         if g:isWIN
-            exec "!gcc -Wall -std=c11 -o %:r %:t && %:r.exe"
-        else
-            exec "!clang -Wall -std=c11 -o %:r %:t && ./%:r"
-        endif
-    elseif &filetype == "cpp"
-        if g:isWIN
-            exec "!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe"
-        else
-            exec "!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r"
-        endif
-    elseif &filetype == "d"
-        if g:isWIN
-            exec "!dmd -wi %:t && del %:r.obj && %:r.exe"
+            exec '!nasm -f win64 %:t && gcc -m64 -o %:r %:r.obj && %:r.exe'
         elseif g:isMAC
-            exec "!dmd -wi %:t && rm %:r.o && ./%:r"
+            exec '!nasm -f macho64 %:t && ld -macosx_version_min 10.7.0 -lSystem -o %:r %:r.o && ./%:r'
         else
-            exec "!gdc -Wall -o %:r %:t && ./%:r"
+            exec '!nasm -f elf64 %:t && gcc -nostdlib -o %:r %:r.o && ./%:r'
         endif
-    elseif &filetype == "go"
-        exec "!go run %:t"
-    elseif &filetype == "rust"
+    elseif &filetype == 'c'
         if g:isWIN
-            exec "!rustc %:t && %:r.exe"
+            exec '!gcc -Wall -std=c11 -o %:r %:t && %:r.exe'
         else
-            exec "!rustc %:t && ./%:r"
+            exec '!clang -Wall -std=c11 -o %:r %:t && ./%:r'
         endif
-    elseif &filetype == "swift"
-        exec "!swift %:t"
-    elseif &filetype == "java"
-        exec "!javac %:t && java %:r"
-    elseif &filetype == "groovy"
-        exec "!groovy %:t"
-    elseif &filetype == "kotlin"
-        exec "!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar"
-    elseif &filetype == "scala"
-        exec "!scala %:t"
-    elseif &filetype == "clojure"
-        exec "!clojure -i %:t"
-    elseif &filetype == "cs"
+    elseif &filetype == 'cpp'
         if g:isWIN
-            exec "!csc %:t && %:r.exe"
+            exec '!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe'
         else
-            exec "!mcs %:t && mono %:r.exe"
+            exec '!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r'
         endif
-    elseif &filetype == "fsharp"
+    elseif &filetype == 'd'
         if g:isWIN
-            exec "!fsc %:t && %:r.exe"
+            exec '!dmd -wi %:t && del %:r.obj && %:r.exe'
         else
-            exec "!fsharpc %:t && ./%:r"
+            exec '!dmd -wi %:t && rm %:r.o && ./%:r'
         endif
-    elseif &filetype == "scheme"
-        exec "!guile -l %:t"
-    elseif &filetype == "racket"
-        exec "!racket -fi %:t"
-    elseif &filetype == "lisp"
-        if g:isWIN || g:isMAC
-            exec "!ccl -l %:t"
-        else
-            exec "!clisp -i %:t"
-        endif
-    elseif &filetype == "ocaml"
+    elseif &filetype == 'rust'
         if g:isWIN
-            exec "!ocamlc -o %:r.exe %:t && %:r.exe"
+            exec '!rustc %:t && %:r.exe'
         else
-            exec "!ocamlc -o %:r %:t && ./%:r"
+            exec '!rustc %:t && ./%:r'
         endif
-    elseif &filetype == "haskell"
+    elseif &filetype == 'go'
         if g:isWIN
-            exec "!ghc -o %:r %:t && %:r.exe"
+            exec '!go build %:t && %:r.exe'
         else
-            exec "!ghc -o %:r %:t && ./%:r"
+            exec '!go build %:t && ./%:r'
         endif
-    elseif &filetype == "lua"
-        exec "!lua %:t"
-    elseif &filetype == "perl"
-        exec "!perl %:t"
-    elseif &filetype == "php"
-        exec "!php %:t"
-    elseif &filetype == "python"
-        exec "!python %:t"
-    elseif &filetype == "ruby"
-        exec "!ruby %:t"
-    elseif &filetype == "elixir"
-        exec "!elixir %:t"
-    elseif &filetype == "julia"
-        exec "!julia %:t"
-    elseif &filetype == "dart"
-        exec "!dart %:t"
-    elseif &filetype == "haxe"
-        exec "!haxe -main %:r --interp"
-    elseif &filetype == "io"
-        exec "!io %:t"
-    elseif &filetype == "r"
-        exec "!Rscript %:t"
-    elseif &filetype == "coffee"
-        exec "!coffee -c %:t && node %:r.js"
-    elseif &filetype == "typescript"
-        exec "!tsc %:t && node %:r.js"
-    elseif &filetype == "ls"
-        exec "!lsc -c %:t && node %:r.js"
-    elseif &filetype == "javascript"
-        exec "!node %:t"
-    elseif &filetype == "sh"
-        exec "!bash %:t"
+    elseif &filetype == 'nim'
+        if g:isWIN
+            exec '!nim c %:t && %:r.exe'
+        else
+            exec '!nim c %:t && ./%:r'
+        endif
+    elseif &filetype == 'vala'
+        if g:isWIN
+            exec '!valac %:t && %:r.exe'
+        else
+            exec '!valac %:t && ./%:r'
+        endif
+    elseif &filetype == 'objc'
+        if g:isMAC
+            exec '!clang -fobjc-arc -framework Foundation %:t -o %:r && ./%:r'
+        endif
+    elseif &filetype == 'swift'
+        if g:isMAC
+            exec '!swift %:t'
+        endif
+    elseif &filetype == 'java'
+        exec '!javac %:t && java %:r'
+    elseif &filetype == 'cs'
+        if g:isWIN
+            exec '!csc %:t && %:r.exe'
+        else
+            exec '!mcs %:t && mono %:r.exe'
+        endif
+    elseif &filetype == 'erlang'
+        exec '!escript %:t'
+    elseif &filetype == 'scheme' || &filetype == 'racket'
+        exec '!racket -fi %:t'
+    elseif &filetype == 'lisp'
+        exec '!sbcl --load %:t'
+    elseif &filetype == 'ocaml'
+        if g:isWIN
+            exec '!ocamlc -o %:r.exe %:t && %:r.exe'
+        else
+            exec '!ocamlc -o %:r %:t && ./%:r'
+        endif
+    elseif &filetype == 'haskell'
+        if g:isWIN
+            exec '!ghc -o %:r %:t && %:r.exe'
+        else
+            exec '!ghc -o %:r %:t && ./%:r'
+        endif
+    elseif &filetype == 'lua'
+        exec '!lua %:t'
+    elseif &filetype == 'perl'
+        exec '!perl %:t'
+    elseif &filetype == 'php'
+        exec '!php %:t'
+    elseif &filetype == 'python'
+        exec '!python3 %:t'
+    elseif &filetype == 'ruby'
+        exec '!ruby %:t'
+    elseif &filetype == 'groovy'
+        exec '!groovy %:t'
+    elseif &filetype == 'kotlin'
+        exec '!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar'
+    elseif &filetype == 'scala'
+        exec '!scala %:t'
+    elseif &filetype == 'clojure'
+        exec '!clojure -i %:t -r'
+    elseif &filetype == 'fsharp'
+        if g:isWIN
+            exec '!fsc %:t && %:r.exe'
+        else
+            exec '!fsharpc %:t && ./%:r'
+        endif
+    elseif &filetype == 'elixir'
+        exec '!elixir %:t'
+    elseif &filetype == 'julia'
+        exec '!julia %:t'
+    elseif &filetype == 'dart'
+        exec '!dart %:t'
+    elseif &filetype == 'haxe'
+        exec '!haxe -main %:r --interp'
+    elseif &filetype == 'io'
+        exec '!io %:t'
+    elseif &filetype == 'r'
+        exec '!Rscript %:t'
+    elseif &filetype == 'coffee'
+        exec '!coffee -c %:t && node %:r.js'
+    elseif &filetype == 'typescript'
+        exec '!tsc %:t && node %:r.js'
+    elseif &filetype == 'ls'
+        exec '!lsc -c %:t && node %:r.js'
+    elseif &filetype == 'javascript'
+        exec '!node %:t'
+    elseif &filetype == 'sh'
+        exec '!bash %:t'
     endif
 endfunc
 
 " \rr        一键保存、编译、运行
-imap <leader>rr <ESC>:call Compile_Run_Code()<CR>
-nmap <leader>rr :call Compile_Run_Code()<CR>
-vmap <leader>rr <ESC>:call Compile_Run_Code()<CR>
+imap <leader>rr <esc>:call Compile_Run_Code()<cr>
+nmap <leader>rr :call Compile_Run_Code()<cr>
+vmap <leader>rr <esc>:call Compile_Run_Code()<cr>
 
 
 " ======= Vimwiki ======= "
@@ -850,28 +911,16 @@ let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
 let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
 
 let blog = {}
-if g:atCompany
-    if g:isWIN
-        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
-    endif
+if g:isWIN
+    let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+    let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+    let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
 else
-    if g:isWIN
-        let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-        let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-        let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
-    else
-        let blog.path          = '~/mysite/wiki/'
-        let blog.path_html     = '~/mysite/html/'
-        let blog.template_path = '~/mysite/templates/'
-    endif
+    let blog.path          = '~/mysite/wiki/'
+    let blog.path_html     = '~/mysite/html/'
+    let blog.template_path = '~/mysite/templates/'
 endif
-let blog.template_default = 'site'
-let blog.template_ext     = '.html'
-let blog.auto_export      = 1
-
-" 声明可以在 wiki 里面高亮的程序语言，键为调用名，值为该语言在 Vim 里面实际的语法名
-let blog.nested_syntaxes  = {'Asm': 'asm', 'Clang': 'c', 'C++': 'cpp', 'Objc': 'objc', 'Dlang': 'd', 'Go': 'go', 'Rust': 'rust', 'Swift': 'swift', 'Java': 'java', 'Groovy': 'groovy', 'Scala': 'scala', 'Clojure': 'clojure', 'C#': 'cs', 'F#': 'fsharp', 'Erlang': 'erlang', 'Scheme': 'scheme', 'Racket': 'racket', 'Lisp': 'lisp', 'Ocaml': 'ocaml', 'Haskell': 'haskell', 'Lua': 'lua', 'Perl': 'perl', 'PHP': 'php', 'Python': 'python', 'Ruby': 'ruby', 'Elixir': 'elixir', 'Julia': 'julia', 'Dart': 'dart', 'Haxe': 'haxe', 'Io': 'io', 'Rlang': 'r', 'Coffee': 'coffee', 'TypeScript': 'typescript', 'LiveScript': 'ls', 'JavaScript': 'javascript', 'Bash': 'sh', 'Sed': 'sed', 'Bat': 'dosbatch', 'Ini': 'dosini', 'HTML': 'html', 'CSS': 'css', 'Apache': 'apache', 'Nginx': 'nginx', 'Make': 'make'}
-
-let g:vimwiki_list = [blog]
+let blog.template_default  = 'site'
+let blog.template_ext      = '.html'
+let blog.auto_export       = 1
+let g:vimwiki_list         = [blog]

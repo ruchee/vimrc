@@ -1,8 +1,7 @@
 " Vim syntax file
-" Language:     Racket 5.1
+" Language:     Racket
 " Maintainer:   Will Langstroth <will@langstroth.com>
 " URL:          http://github.com/wlangstroth/vim-racket.git
-" Last Change:  2012-02-18
 " Description:  Contains all of the keywords in #lang racket
 
 " Initializing:
@@ -166,7 +165,8 @@ syn keyword racketFunc string-fill! string-append string->list list->string
 syn keyword racketFunc build-string string=? string<? string<=? string>? string>=?
 syn keyword racketFunc string-ci=? string-ci<? string-ci<=? string-ci>? string-ci>=?
 syn keyword racketFunc string-upcase string-downcase string-titlecase string-foldcase
-syn keyword racketFunc string-normalize-nfd string-normalize-nfc string-normalize-nfkc 
+syn keyword racketFunc string-normalize-nfd string-normalize-nfc string-normalize-nfkc
+syn keyword racketFunc string-normalize-spaces string-trim
 syn keyword racketFunc string-locale=? string-locale>? string-locale<?
 syn keyword racketFunc string-locale-ci=? string-locale<=?
 syn keyword racketFunc string-locale-upcase string-locale-downcase
@@ -179,7 +179,7 @@ syn keyword racketFunc bytes-copy! bytes-fill! bytes-append bytes->list list->by
 syn keyword racketFunc make-shared-bytes shared-bytes
 syn keyword racketFunc bytes=? bytes<? bytes>?
 syn keyword racketFunc bytes->string/utf-8 bytes->string/latin-1
-syn keyword racketFunc string->bytes/locale string->bytes/latin-1
+syn keyword racketFunc string->bytes/locale string->bytes/latin-1 string->bytes/utf-8
 syn keyword racketFunc string-utf-8-length bytes-utf8-ref bytes-utf-8-index
 syn keyword racketFunc bytes-open-converter bytes-close-converter
 syn keyword racketFunc bytes-convert bytes-convert-end bytes-converter?

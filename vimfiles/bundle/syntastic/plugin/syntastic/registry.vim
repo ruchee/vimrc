@@ -1,4 +1,4 @@
-if exists("g:loaded_syntastic_registry") || !exists("g:loaded_syntastic_plugin")
+if exists('g:loaded_syntastic_registry') || !exists('g:loaded_syntastic_plugin')
     finish
 endif
 let g:loaded_syntastic_registry = 1
@@ -94,7 +94,7 @@ let s:_DEFAULT_CHECKERS = {
         \ 'yaml':          ['jsyaml'],
         \ 'z80':           ['z80syntaxchecker'],
         \ 'zpt':           ['zptlint'],
-        \ 'zsh':           ['zsh', 'shellcheck'],
+        \ 'zsh':           ['zsh'],
     \ }
 lockvar! s:_DEFAULT_CHECKERS
 
@@ -105,6 +105,7 @@ let s:_DEFAULT_FILETYPE_MAP = {
         \ 'litcoffee': 'coffee',
         \ 'mail': 'text',
         \ 'mkd': 'markdown',
+        \ 'pe-puppet': 'puppet',
         \ 'sgml': 'docbk',
         \ 'sgmllnx': 'docbk',
     \ }
@@ -285,7 +286,7 @@ function! g:SyntasticRegistry._loadCheckersFor(filetype) abort " {{{2
         return
     endif
 
-    execute "runtime! syntax_checkers/" . a:filetype . "/*.vim"
+    execute 'runtime! syntax_checkers/' . a:filetype . '/*.vim'
 
     if !has_key(self._checkerMap, a:filetype)
         let self._checkerMap[a:filetype] = {}

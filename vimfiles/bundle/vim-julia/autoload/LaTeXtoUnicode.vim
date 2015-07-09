@@ -16,6 +16,9 @@ function! s:L2U_Setup()
   if !has_key(b:, "l2u_tab_set")
     let b:l2u_tab_set = 0
   endif
+  if !has_key(b:, "l2u_cmdtab_set")
+    let b:l2u_cmdtab_set = 0
+  endif
 
   " Did we activate the L2U as-you-type substitutions?
   if !has_key(b:, "l2u_autosub_set")
@@ -67,7 +70,11 @@ function! s:L2U_SetupGlobal()
 
   " A hack to forcibly get out of completion mode: feed
   " this string with feedkeys()
-  let s:l2u_esc_sequence = "\u0091\<BS>"
+  if has("win32") || has("win64")
+    let s:l2u_esc_sequence = "\u0006\b"
+  else
+    let s:l2u_esc_sequence = "\u0091\b"
+  end
 
   " Trigger for the previous mapping of <Tab>
   let s:l2u_fallback_trigger = "\u0091L2UFallbackTab"
@@ -109,15 +116,15 @@ function! LaTeXtoUnicode#Enable()
     let b:prev_omnifunc = &omnifunc
   endif
 
-  set omnifunc=LaTeXtoUnicode#ommnifunc
+  setlocal omnifunc=LaTeXtoUnicode#ommnifunc
 
   let b:l2u_enabled = 1
 
-  " If we're editing the first file upon opening vim, this won't do anything,
-  " and the actual initialization will be performed by the autocmd triggered
-  " by VimEnter, defined in /ftdetect.vim.
+  " If we're editing the first file upon opening vim, this will only init the
+  " command line mode mapping, and the full initialization will be performed by
+  " the autocmd triggered by InsertEnter, defined in /ftdetect.vim.
   " Otherwise, if we're opening a file from within a running vim session, this
-  " will actually initialize the LaTeX-to-Unicode substitutions.
+  " will actually initialize all the LaTeX-to-Unicode substitutions.
   call LaTeXtoUnicode#Init()
 
   return ""
@@ -210,7 +217,7 @@ function! s:L2U_longest_common_prefix(partmatches)
   for i in range(1, len(a:partmatches)-1)
     let p = a:partmatches[i]
     if len(p) < len(common)
-      common = common[0 : len(p)-1]
+      let common = common[0 : len(p)-1]
     endif
     for j in range(1, len(common)-1)
       if p[j] != common[j]
@@ -350,10 +357,12 @@ function! LaTeXtoUnicode#Tab()
   " the <Tab> is passed through to the fallback mapping if the completion
   " menu is present, and it hasn't been raised by the L2U tab, and there
   " isn't an exact match before the cursor when suggestions are disabled
-  if pumvisible() && !b:l2u_tab_completing && (get(g:, "latex_to_unicode_suggestions", 1) || !LaTeXtoUnicode#ismatch())
+  if pumvisible() && !b:l2u_tab_completing && (get(g:, "latex_to_unicode_suggestions", 1) || !s:L2U_ismatch())
     call feedkeys(s:l2u_fallback_trigger)
     return ''
   endif
+  " reset the in_fallback info
+  let b:l2u_in_fallback = 0
   " temporary change to completeopt to use the `longest` setting, which is
   " probably the only one which makes sense given that the goal of the
   " completion is to substitute the final string
@@ -438,12 +447,17 @@ function! LaTeXtoUnicode#CmdTab()
 endfunction
 
 " Setup the L2U tab mapping
-function! s:L2U_SetTab(wait_vim_enter)
+function! s:L2U_SetTab(wait_insert_enter)
+  if !b:l2u_cmdtab_set
+    cmap <buffer> <S-Tab> <Plug>L2UCmdTab
+    cnoremap <buffer> <Plug>L2UCmdTab <C-\>eLaTeXtoUnicode#CmdTab()<CR>
+    let b:l2u_cmdtab_set = 1
+  endif
   if b:l2u_tab_set
     return
   endif
-  " g:l2u_did_vim_enter is set from an autocommand in ftdetect
-  if a:wait_vim_enter && !get(g:, "l2u_did_vim_enter", 0)
+  " g:did_insert_enter is set from an autocommand in ftdetect
+  if a:wait_insert_enter && !get(g:, "did_insert_enter", 0)
     return
   endif
   if !get(g:, "latex_to_unicode_tab", 1) || !b:l2u_enabled
@@ -451,12 +465,10 @@ function! s:L2U_SetTab(wait_vim_enter)
   endif
   call s:L2U_SetFallbackMapping('<Tab>', s:l2u_fallback_trigger)
   imap <buffer> <Tab> <Plug>L2UTab
-  cmap <buffer> <S-Tab> <Plug>L2UCmdTab
   inoremap <buffer><expr> <Plug>L2UTab LaTeXtoUnicode#Tab()
-  cnoremap <buffer> <Plug>L2UCmdTab <C-\>eLaTeXtoUnicode#CmdTab()<CR>
 
   augroup L2UTab
-    autocmd!
+    autocmd! * <buffer>
     " Every time a completion finishes, the fallback may be invoked
     autocmd CompleteDone <buffer> call LaTeXtoUnicode#FallbackCallback()
   augroup END
@@ -466,6 +478,10 @@ endfunction
 
 " Revert the LaTeX-to-Unicode tab mapping settings
 function! s:L2U_UnsetTab()
+  if b:l2u_cmdtab_set
+    cunmap <buffer> <S-Tab>
+    let b:l2u_cmdtab_set = 0
+  endif
   if !b:l2u_tab_set
     return
   endif
@@ -475,8 +491,9 @@ function! s:L2U_UnsetTab()
   endif
   iunmap <buffer> <Plug>L2UTab
   exe 'iunmap <buffer> ' . s:l2u_fallback_trigger
-  autocmd! L2UTab
-  augroup! L2UTab
+  augroup L2UTab
+    autocmd! * <buffer>
+  augroup END
   let b:l2u_tab_set = 0
 endfunction
 
@@ -515,12 +532,12 @@ function! LaTeXtoUnicode#AutoSub(...)
 endfunction
 
 " Setup the auto as-you-type LaTeX-to-Unicode substitution
-function! s:L2U_SetAutoSub(wait_vim_enter)
+function! s:L2U_SetAutoSub(wait_insert_enter)
   if b:l2u_autosub_set
     return
   endif
-  " g:l2u_did_vim_enter is set from an autocommand in ftdetect
-  if a:wait_vim_enter && !get(g:, "l2u_did_vim_enter", 0)
+  " g:did_insert_enter is set from an autocommand in ftdetect
+  if a:wait_insert_enter && !get(g:, "did_insert_enter", 0)
     return
   endif
   if !get(g:, "latex_to_unicode_auto", 0) || !b:l2u_enabled
@@ -533,7 +550,7 @@ function! s:L2U_SetAutoSub(wait_vim_enter)
   inoremap <buffer><expr> <Plug>L2UAutoSub LaTeXtoUnicode#AutoSub("\n", "\<CR>")
 
   augroup L2UAutoSub
-    autocmd!
+    autocmd! * <buffer>
     autocmd InsertCharPre <buffer> call LaTeXtoUnicode#AutoSub()
   augroup END
 
@@ -548,19 +565,27 @@ function! s:L2U_UnsetAutoSub()
 
   iunmap <buffer> <CR>
   iunmap <buffer> <Plug>L2UAutoSub
-  autocmd! L2UAutoSub
-  augroup! L2UAutoSub
+  augroup L2UAutoSub
+    autocmd! * <buffer>
+  augroup END
   let b:l2u_autosub_set = 0
 endfunction
 
 " Initialization. Can be used to re-init when global settings have changed.
 function! LaTeXtoUnicode#Init(...)
-  let wait_vim_enter = a:0 > 0 ? a:1 : 1
+  let wait_insert_enter = a:0 > 0 ? a:1 : 1
+
+  if !wait_insert_enter
+    augroup L2UInit
+      autocmd!
+    augroup END
+  endif
+
   call s:L2U_UnsetTab()
   call s:L2U_UnsetAutoSub()
 
-  call s:L2U_SetTab(wait_vim_enter)
-  call s:L2U_SetAutoSub(wait_vim_enter)
+  call s:L2U_SetTab(wait_insert_enter)
+  call s:L2U_SetAutoSub(wait_insert_enter)
 endfunction
 
 function! LaTeXtoUnicode#Toggle()

@@ -1,7 +1,6 @@
-" Language:     Racket 5.1
+" Language:     Racket
 " Maintainer:   Will Langstroth <will@langstroth.com>
 " URL:          http://github.com/wlangstroth/vim-racket
-" Last Change:  2012-02-18
 
 if exists("b:did_indent")
    finish

@@ -1,0 +1,976 @@
+*NERD_commenter.txt*         注释代码的插件
+
+
+                        NERD COMMENTER 参考手册~
+
+		译者：minyangyang <minyangyang@163.com>
+
+
+
+==============================================================================
+内容                                                   *NERDCommenterContents*
+
+    1.介绍....................................|NERDCommenter|
+    2.安装....................................|NERDComInstallation|
+    3.提供的功能..............................|NERDComFunctionality|
+        3.1 功能概要..........................|NERDComFunctionalitySummary|
+        3.2 功能细节..........................|NERDComFunctionalityDetails|
+            3.2.1 注释 键映射.................|NERDComComment|
+            3.2.2 嵌套注释 键映射.............|NERDComNestedComment|
+            3.2.3 切换注释状态的 映射.........|NERDComToggleComment|
+            3.2.4 最简注释 键映射.............|NERDComMinimalComment|
+            3.2.5 反转注释 键映射.............|NERDComInvertComment|
+            3.2.6 Sexy注释 键映射.............|NERDComSexyComment|
+            3.2.7 注释前复制 键映射...........|NERDComYankComment|
+            3.2.8 注释到行末 键映射...........|NERDComEOLComment|
+            3.2.9 行注释 键映射...............|NERDComAppendComment|
+            3.2.10 插入注释 键映射............|NERDComInsertComment|
+            3.2.11 使用可选注释符 键映射......|NERDComAltDelim|
+            3.2.12 注释符对齐 键映射..........|NERDComAlignedComment|
+            3.2.13 取消注释 键映射............|NERDComUncommentLine|
+        3.3 Sexy(性感)注释风格................|NERDComSexyComments|
+        3.4 The NERDComment 函数..............|NERDComNERDComment|
+    4.选项....................................|NERDComOptions|
+        4.1 选项概要..........................|NERDComOptionsSummary|
+        4.2 选项细节..........................|NERDComOptionsDetails|
+        4.3 默认分隔符选项....................|NERDComDefaultDelims|
+    5.  自定义键映题..........................|NERDComMappings|
+    6. 本脚本的问题...........................|NERDComIssues|
+        6.1 注释符检测探究....................|NERDComHeuristics|
+        6.2 嵌套注释问题......................|NERDComNesting|
+    7.关于..     .............................|NERDComAbout|
+    8.更新历史................................|NERDComChangelog|
+    9.贡献者..................................|NERDComCredits|
+    10.许可...................................|NERDComLicense|
+
+==============================================================================
+1. 简介                                                        *NERDCommenter*
+
+The NERD commenter 提供许多不同的注释操作和风格
+
+它用各种键映射和菜单为大多数的文件类型提供注释操作
+
+
+还可以通过选项把它调整成你喜欢的用法
+
+==============================================================================
+3. 安装                                                  *NERDComInstallation*
+
+NERD Commenter 需要 Vim 版本为7以上。
+
+把插件文件放到你的 ~/.vim (*nix) 或者 ~/vimfiles (Windows)。你应该有两个文件： >
+    plugin/NERD_commenter.vim
+    doc/NERD_commenter.txt
+<
+接下来，使用下面的文件来安装帮助文件： >
+    :helptags ~/.vim/doc
+<
+详见 |add-local-help| 。
+
+需要开启 filetype plugins enabled，因为插件在可能的时候会使用 |'commentstring'|
+（通常在一个文件类型插件中设置）。
+详见 |filetype-plugin-on| ，不过通常要把下面的行加到你的 vimrc 里面 >
+    filetype plugin on
+<
+
+==============================================================================
+3. 提供的功能		                                *NERDComFunctionality*
+
+------------------------------------------------------------------------------
+3.1 功能概要			                 *NERDComFunctionalitySummary*
+
+以下的键映射是默认提供的
+(下面的键映射有相应菜单):
+
+[count]|<Leader>|cc |NERDComComment|
+注释当前行或可视模式中的高亮文本.
+
+[count]|<Leader>|cn |NERDComNestedComment|
+同 |<Leader>|cc 但强制嵌套.
+
+
+[count]|<Leader>|c<space> |NERDComToggleComment|
+切换所选行的注释状态,如果所选行的第一行已注释,
+那么取消全部所选行的注释，反之亦然。
+(即根据第一行来切换注释状态)
+
+
+[count]|<Leader>|cm |NERDComMinimalComment|
+用一对多亏分隔符进行注释。
+
+
+[count]|<Leader>|ci |NERDComInvertComment|
+每行分开处理，反转注释状态。
+
+
+[count]|<Leader>|cs |NERDComSexyComment|
+用 ``sexily'' 风格注释所选的行。
+
+
+[count]|<Leader>|cy |NERDComYankComment|
+和 |<Leader>|cc 一样，但注释前先复制所选的行。
+
+
+|<Leader>|c$ |NERDComEOLComment|
+作用于在当前行，在光标和行末添加注释分隔符。
+
+
+|<Leader>|cA |NERDComAppendComment|
+在行末添加注释分格符,并在分隔符中进入插入模式。
+
+
+|NERDComInsertComment|
+在当前光村位置添加注释分隔符并将光标插入其中。
+默认禁用。
+
+
+|<Leader>|ca |NERDComAltDelim|
+转换成可选注释分隔符。
+
+
+[count]|<Leader>|cl
+[count]|<Leader>|cb    |NERDComAlignedComment|
+和 |NERDComComment| 是一样的，除了注释符为左对齐
+ (|<Leader>|cl) 或 两边对齐 (|<Leader>|cb).
+
+
+[count]|<Leader>|cu |NERDComUncommentLine|
+取消所选行的注释.
+
+------------------------------------------------------------------------------
+3.2 功能细节		                         *NERDComFunctionalityDetails*
+
+------------------------------------------------------------------------------
+3.2.1 注释的键映射                                            *NERDComComment*
+
+默认键映射: [count]|<Leader>|cc
+映射到: <plug>NERDCommenterComment
+工作模式: normal visual visual-line visual-block.
+
+
+当前行整行注释。可视行模式下，选定多行也可以全部注释。
+可视模式下如果只选定部分为部分文本或为一个选择块。
+如果可行的话，脚本会尝试用分隔符准确注释所选的部分。
+
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+------------------------------------------------------------------------------
+3.2.2 嵌套注释 键映射                                   *NERDComNestedComment*
+
+默认键映射: [count]|<Leader>|cn
+映射到: <plug>NERDCommenterNested
+工作模式: normal visual visual-line visual-block.
+
+执行嵌套注释。就像 |<Leader>|cc 一样，不同的是如果所选的行已经注释过，
+那么所选行会被再注释一次（添加多一次注释符）。
+
+如果设置了 |'NERDUsePlaceHolders'| 那么之前的注释分隔符在
+需要时会被 place-holder 的注释分隔符替换掉。如果没有可以
+避免语法错误注释分隔符，就会直接添加当前的注释分隔符
+
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+相关选项:
+|'NERDDefaultNesting'|
+
+------------------------------------------------------------------------------
+3.2.3 切换注释 键映射                                   *NERDComToggleComment*
+
+默认键映射: [count]|<Leader>|c<space>
+映射到: <plug>NERDCommenterToggle
+工作模式: normal visual-line.
+
+切换所选行的的注释状态. 此键映射的行为基于所选第一行是否已被注释
+如果是已注释，则所选行将取消注释反之亦然。
+
+此键映是通过行首的注释符来射判断所选行是否被注释
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+------------------------------------------------------------------------------
+3.2.4 最简注释 键映射	                               *NERDComMinimalComment*
+
+默认键映射: [count]|<Leader>|cm
+映射到: <plug>NERDCommenterMinimal
+工作模式: normal visual-line.
+
+如果可行的话 只用一对注释符进行注释.
+
+举个例子: 如果你用 c 编程并
+选定 5 行然后按 |<Leader>|cm 那么只有
+一个 '/*' 在最上一行的开头
+一个 '*/' 在最后一行的行末.
+
+如果为当前文件类型设定了|'NERDUsePlaceHolders'|.
+这对注释符替换成 place holders (查看 |'NERDLPlace'|) 所设定的注释符。
+如果没有设定,会因为 place holders 防止语法错误，而无法注释.
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+------------------------------------------------------------------------------
+3.2.5 反转注释 键映射                                   *NERDComInvertComment*
+
+默认键映射: |<Leader>|ci
+映射到: <plug>NERDCommenterInvert
+工作模式: normal visual-line.
+
+反转每一行的注释状态. 所选行已注释则取消注释
+如果未注释则添加注释.每一行都会分开检查
+并进行注释/取消注释。
+
+此键映射通过行开头的
+左分隔符来判断此行是否被注释了。
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+------------------------------------------------------------------------------
+3.2.6 Sexy 注释 键映射                                    *NERDComSexyComment*
+
+默认键映射: [count]|<Leader>|cs
+映射到: <plug>NERDCommenterSexy
+工作模式: normal, visual-line.
+
+注释所选行 ``sexily''(性感地)... 查看 |NERDComSexyComments| 详细的描述。
+了解什么是 sexy 注释. 只能工作于特定文件类型
+  此类文件有一套以上的注释分隔符.
+
+Sexy 注释不能嵌套 and sexy 注释里的行不能再次注释
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+相关选项
+|'NERDCompactSexyComs'|
+
+------------------------------------------------------------------------------
+3.2.7 注释前复制 键映射                                   *NERDComYankComment*
+
+默认键映射: [count]|<Leader>|cy
+映射到: <plug>NERDCommenterYank
+工作模式: normal visual visual-line visual-block.
+
+和 |<Leader>|cc 一样,除了会在注释前先复制所选内容.
+
+------------------------------------------------------------------------------
+3.2.8 注释到结尾 键映射                                    *NERDComEOLComment*
+
+默认键映射: |<Leader>|c$
+映射到: <plug>NERDCommenterToEOL
+工作模式: normal.
+
+在当前行，从光标开始添加注释到行末
+
+------------------------------------------------------------------------------
+3.2.9 行注释 键映射				        *NERDComAppendComment*
+
+默认键映射: |<Leader>|cA
+映射到: <plug>NERDCommenterAppend
+工作模式: normal.
+
+附加注释符到当前行并将然后转为
+插入模式并将光标插入新的注释符中.
+
+
+------------------------------------------------------------------------------
+3.2.10 插入注释 键映射		                        *NERDComInsertComment*
+
+默认键映射: 默认禁用
+映射到: <plug>NERDCommenterInsert
+工作模式: insert.
+
+添加注释符到当前光标位置
+并置光标于其中。
+
+NOTE: 在2.1.17之前的版本。此功能映射至 ctrl-c. 恢复此映射
+，你添加 >
+    imap <C-c> <plug>NERDCommenterInsert
+<
+到你的vimrc.
+
+------------------------------------------------------------------------------
+3.2.11 使用可选注释符 键映射                                 *NERDComAltDelim*
+
+默认键映射: |<Leader>|ca
+映射到: <plug>NERDCommenterAltDelims
+工作模式: normal.
+
+如果可用则使用成另一种注释风格. 举个例子,
+如果用户在编写 c++ 文件用 // 注释，然后输入 |<Leader>|ca
+将会切换到用 /**/ 注释.
+
+还可参考 |NERDComDefaultDelims|
+
+------------------------------------------------------------------------------
+3.2.12 注释 aligned 键映射s                            *NERDComAlignedComment*
+
+默认键映射s: [count]|<Leader>|cl   [count]|<Leader>|cb
+映射到: <plug>NERDCommenterAlignLeft
+           <plug>NERDCommenterAlignBoth
+工作模式: normal visual-line.
+
+功能与 |<Leader>|cc 相同，但|<Leader>|cl的注释符为左边对齐
+而|<Leader>|cb为两边对齐。 如果所选行已注释，这几个映射
+会再注释一次（嵌套注释）。
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+------------------------------------------------------------------------------
+3.2.13 Uncomment line 键映射                           *NERDComUncommentLine*
+
+默认键映射: [count]|<Leader>|cu
+映射到: <plug>NERDCommenterUncomment
+工作模式: normal visual visual-line visual-block.
+
+取消当前行的映射。如果在可视模式选择了多行
+那么它们的注释将被取消
+
+所选行里没有注释符情况下,如果行里有多套分隔符则
+``最两边的'' 那对分隔符将被删除。
+
+所选行里没有注释符情况下，此脚本用一个智能的方法区分 ``真的''和
+``假的''注释符. 详细请查看 |NERDComIssues| .
+
+如果普通模式下给出[count],此映射就好像对
+在可视行模式里选择了那么多行起作用。
+
+相关选项:
+|'NERDRemoveAltComs'|
+|'NERDRemoveExtraSpaces'|
+
+------------------------------------------------------------------------------
+3.3 Sexy(性感)风格 注释                                  *NERDComSexyComments*
+有这样一套注释使用了多块注释分隔符和标记符号,
+像下面这样: >
+    /*
+     * This is a c style sexy comment
+     * So there!
+     */
+
+    /* This is a c style sexy comment
+     * So there!
+     * But this one is ``compact'' style */
+<
+多fnw 注释分隔符是 /* 和 */ ，标记是 *.
+
+------------------------------------------------------------------------------
+3.4 The NERDComment 函数                                  *NERDComNERDComment*
+
+所有的 NERD commenter 映射和菜单只用一个的函数可以调用所有注释功能
+此函数是全局的并有原型: >
+    function! NERDComment(mode, type)
+<
+此函数有简单的参数：
+    - mode: 一个指定调用注释功能时的vim模式的字符，'n'代表普通，'x'代表可视
+    - type: 用于指定注释的类型，可用的参数如下:
+	  "sexy", "invert","minimal", "toggle",
+	  "alignLeft", "alignBoth", "comment", "nested",
+      "toEOL", "append", "insert", "uncomment", "yank"
+
+例如你输入: >
+    :call NERDComment(1, 'sexy')
+<
+那么此函数会在高亮选择块添加 sexy 注释.
+
+
+==============================================================================
+4. 选项                                                       *NERDComOptions*
+
+------------------------------------------------------------------------------
+4.1 选项概要                                           *NERDComOptionsSummary*
+
+|'loaded_nerd_comments'|              禁用此脚本.
+
+|'NERDAllowAnyVisualDelims'|          允许在可视/可视行模式使用多块注释符.
+
+|'NERDBlockComIgnoreEmpty'|           强制可视块添加正确注释符.
+
+|'NERDCommentWholeLinesInVMode'|      改变可视注释时的方法.
+
+|'NERDCreateDefaultMappings'|         启用/禁用 默认键映射.
+
+|'NERDCustomDelimiters'|              添加或覆盖任何文件类型的分隔符.
+
+|'NERDDefaultNesting'|                启用默认嵌套注释
+
+|'NERDMenuMode'|                      指定 NERD commenter 菜单显示的方式
+				    (如果有的话).
+|'NERDLPlace'|                        当嵌套注释时，指定placeholder
+				    左侧的注释分隔符。
+|'NERDUsePlaceHolders'|		    当嵌套注释时,指定那种文件类型可以
+			            使用 placeholders 的注释分隔符.
+|'NERDRemoveAltComs'|                 告诉脚本是否在取消注释时
+			            移除可选的注释分隔符.
+|'NERDRemoveExtraSpaces'|             取消注释时总清除多余的空格
+                                    (不管 NERDSpaceDelims 是否已设定)
+|'NERDRPlace'|                        当嵌套注释时，指定placeholder
+				    右侧的注释分隔符。
+|'NERDSpaceDelims'|                   当注释时是否在注释符周围添加空格,
+				    取消注释时是否删除这些空格.
+|'NERDCompactSexyComs'|               指定是否使用简洁风格 sexy 注释.
+
+------------------------------------------------------------------------------
+4.2 选项细节                                           *NERDComOptionsDetails*
+
+你可以在~/.vimrc 添加选项来启用禁用相应的功能.
+
+                                                       *'loaded_nerd_comments'*
+如果此脚本使你发疯的话,你可以用这个选项关闭它.
+ >
+    let loaded_nerd_comments=1
+<
+------------------------------------------------------------------------------
+                                                  *'NERDAllowAnyVisualDelims'*
+可用值: 0 or 1.
+默认值: 1.
+
+如果设为 1  对可视/可视块(不是可视行)进行注释时, 此脚本会选择使用正确的
+注释符.这意味着脚本注释多个可视块时会正确地选择当前的注释符或可选注释符。
+例如我编写如下 java 代码: >
+    float foo = 1221;
+    float bar = 324;
+    System.out.println(foo * bar);
+<
+如果我用默认 // 注释且在可视块模式下选择 "foo" 和 "bar" ,
+如下面左侧显示 (这里 '|' 代表可视块的边界),
+执行注释操作，脚本就会使用可选的注释符
+得到右边的结果: >
+
+    float |foo| = 1221;                   float /*foo*/ = 1221;
+    float |bar| = 324;                    float /*bar*/ = 324;
+    System.out.println(foo * bar);        System.out.println(foo * bar);
+<
+------------------------------------------------------------------------------
+                                                   *'NERDBlockComIgnoreEmpty'*
+可用值: 0 or 1.
+默认值: 1.
+
+此选项作用于可视块模式注释. 如果启用此选项，
+可视块里为空格的部分将被忽略。
+
+例如, 你在可视块模式注释如下大块 c 代码
+(这里 '|' 代表可视块的边界) >
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <stdio.h>
+   |int| main(){
+   |   | printf("SUCK THIS\n");
+   |   | while(1){
+   |   |     fork();
+   |   | }
+   |}  |
+<
+如果 NERDBlockComIgnoreEmpty=0 代码会变成: >
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <stdio.h>
+    /*int*/ main(){
+    /*   */ printf("SUCK THIS\n");
+    /*   */ while(1){
+    /*   */     fork();
+    /*   */ }
+    /*}  */
+<
+如果为 1 代码块会变成: >
+    #include <sys/types.h>
+    #include <unistd.h>
+    #include <stdio.h>
+    /*int*/ main(){
+    printf("SUCK THIS\n");
+    while(1){
+        fork();
+    }
+    /*}  */
+<
+------------------------------------------------------------------------------
+                                              *'NERDCommentWholeLinesInVMode'*
+可用值: 0, 1 or 2.
+默认值: 0.
+
+可视模式下，脚本默认准确注释可视块.
+例如 你选择并注释以下 c 代码
+(这里 '|' 代表可视块的边界): >
+    in|t foo = 3;
+    int bar =| 9;
+    int baz = foo + bar;
+<
+默认得到以下结果: >
+    in/*t foo = 3;*/
+    /*int bar =*/ 9;
+    int baz = foo + bar;
+<
+但有些用户更喜欢整行注释，如下: >
+    /*int foo = 3;*/
+    /*int bar = 9;*/
+    int baz = foo + bar;
+<
+如果你喜欢第二种,你添加下面的选项到你的vimrc: >
+    let NERDCommentWholeLinesInVMode=1
+<
+
+如果你的编辑的文件类型没多行注释符(例如
+shell 脚本) 如果你没设置此选项那么得到如下结果 >
+    in#t foo = 3;
+    #int bar = 9;
+<
+(这里 # 是注释分隔符) 这是最近我们能够注释可视块的脚本
+如果你想在没有多块注释分隔符时注释整行，有的时候准确注释
+所选的可视块。那么添加下面这行选项到你的 vimrc: >
+    let NERDCommentWholeLinesInVMode=2
+<
+
+注意 此选项不会改变可视块模式|visual-block|下注释行为。
+
+
+------------------------------------------------------------------------------
+                                                   *'NERDCreateDefaultMappings'*
+可用值: 0 or 1.
+默认值: 1.
+
+如果设为 0 , 就没有默认键映射.
+
+还可以参考 |NERDComMappings|.
+
+------------------------------------------------------------------------------
+                                                        *'NERDCustomDelimiters'*
+Values: 一个字典类型 (格式在下面指定).
+Default: {}
+
+如果你需要插件处理新的文件类型或覆盖某个文件类型的默认分隔符，使用这个选项。
+
+例如: >
+    let g:NERDCustomDelimiters = {
+        \ 'ruby': { 'left': '#', 'leftAlt': 'FOO', 'rightAlt': 'BAR' },
+        \ 'grondle': { 'left': '{{', 'right': '}}' }
+    \ }
+<
+
+这里我们覆盖了 ruby 的分隔符，并且添加了 FOO/BAR
+作为备选。
+我们还添加了新的文件类型 'grondle' 并且指定了分隔符 {{ 和 }}。
+
+------------------------------------------------------------------------------
+                                                           *'NERDRemoveAltComs'*
+可用值: 0 or 1.
+默认值: 1.
+
+当取消注释(对那些有可选注释风格的文件类型而言),
+此选项告诉脚本是否查找和移除可选的注释分隔符.
+
+例如, 你正编写一个 c++ 文件默认使用 //  注释。
+你在这行输入|<Leader>|cu: >
+    /* This is a c++ comment baby! */
+<
+当 NERDRemoveAltComs 设为 0 注释不会取消.
+
+------------------------------------------------------------------------------
+                                                       *'NERDRemoveExtraSpaces'*
+可用值: 0 or 1.
+默认值: 0.
+
+NERD commenter 默认会移除注释符周围的空格。
+如果以下任一选项:
+1. |'NERDSpaceDelims'| 设为 1.
+3. 'NERDRemoveExtraSpaces' 设为 1.
+
+例如：如果取消以下 c 代码行注释: >
+    /* int foo = 5; */
+    /* int bar = 10; */
+    int baz = foo + bar
+<
+上面的条件成立，取消的注释结果如下: >
+    int foo = 5;
+    int bar = 10;
+    int baz = foo + bar
+<
+否则，会得到以下结果: >
+     int foo = 5;
+     int bar = 10;
+    int baz = foo + bar
+<
+------------------------------------------------------------------------------
+                                                                  *'NERDLPlace'*
+                                                                  *'NERDRPlace'*
+可用值: 任意字符串.
+默认值:
+    NERDLPlace: "[>"
+    NERDRPlace: "<]"
+
+这两个选项设定字符串作为 place-holder 分隔符.
+Place holder 分隔符 会在执行嵌套注释使用，
+当文件类型支持用左边和右边分隔符进行注释时。
+将这两个选项设定下面内容: >
+    let NERDLPlace="FOO"
+    let NERDRPlace="BAR"
+<
+基于上面的设定, 对下面这行 c 代码: >
+    /* int horse */
+<
+我们用 |<Leader>|cn 注释，它就会变成: >
+    /*FOO int horse BAR*/
+<
+当我们取消注释时它就会变成原来的样子。
+
+------------------------------------------------------------------------------
+                                                                *'NERDMenuMode'*
+可用值: 0, 1, 2, 3.
+默认值: 3
+
+此选项有 4 个可用值:
+    "0": 关闭菜单.
+    "1": '注释' 菜单没有快捷键.
+    "2": '注释' 菜单有 <alt>-c 快捷键.
+    "3": 使用 'Plugin -> 注释' 菜单并有 <alt>-c 快捷键.
+
+------------------------------------------------------------------------------
+                                                         *'NERDUsePlaceHolders'*
+可用值: 0 or 1.
+默认值 1.
+
+选项指定是否在嵌套注释时此使用 place-holder 的分隔符。
+
+------------------------------------------------------------------------------
+                                                             *'NERDSpaceDelims'*
+可用值: 0 or 1.
+默认值 0.
+
+有些人喜欢在左注释符之后，右注释符之前留有空格。
+就像下面这样: >
+    /* int foo=2; */
+<
+但有些人不喜欢: >
+    /*int foo=2;*/
+<
+如果你喜欢留有空格就就在你的 vimrc 将 NERDSpaceDelims 设为 1 .
+
+还可参考|'NERDRemoveExtraSpaces'|.
+
+------------------------------------------------------------------------------
+                                                         *'NERDCompactSexyComs'*
+可用值: 0 or 1.
+默认值 0.
+
+有些人喜欢他们的 sexy 注释是这样的: >
+    /* Hi There!
+     * This is a sexy comment
+     * in c */
+<
+而有些人喜欢的却是这样的: >
+    /*
+     * Hi There!
+     * This is a sexy comment
+     * in c
+     */
+<
+如果喜欢第二种风格就将选项值设为1.
+
+------------------------------------------------------------------------------
+                                                          *'NERDDefaultNesting'*
+可用值: 0 or 1.
+默认值 1.
+
+当选项值为1, 注释将自动控制嵌套。也就是说
+你在已注释的行再打 |<Leader>|cc 它将再添加注释一次
+
+------------------------------------------------------------------------------
+4.3 默认值: 分隔符 定制		                        *NERDComDefaultDelims*
+
+如果你想 NERD commenter 在特定的文件类型默认使用
+可选分隔符分隔符。在你的 vimrc 添加下面这行: >
+    let NERD_<filetype>_alt_style=1
+<
+例如: java 默认使用 // 注释, 但你想默认使 /* */  注释.
+你的 vimrc 应加入: >
+    let NERD_java_alt_style=1
+<
+
+查看 |NERDComAltDelim| 如何实时切换注释风格.
+
+==============================================================================
+5. 键映射 定制			                             *NERDComMappings*
+
+要更改键映射，只需映射另一个组合键到内部 <plug> 映射.
+例如, 重新映射 |NERDComComment| 到 ",omg" ，就在你的 vimrc 加入: >
+    map ,omg <plug>NERDCommenterComment
+<
+相应默认键映射会失效.
+
+可查看映射问题，看看那个 <plug> 映射已用什么键映射.
+
+还可参考|'NERDCreateDefaultMappings'|.
+
+==============================================================================
+6. 此脚本问题		                                       *NERDComIssues*
+
+
+------------------------------------------------------------------------------
+6.1 注释符检测 heuristics                                  *NERDComHeuristics*
+
+Heuristics 用于区分真的注释符
+
+因为我们有注释映射将分隔符置于代码行的中间，
+移除注释符变成有点古怪.如果注释分隔符出现代码行里并不意味着
+它们就是真分隔符.例如：在Java里使用的 // 注释符
+出现在下面这行代码里 >
+    System.out.println("//");
+<
+很明显它不是真的注释符.
+
+为了区分``真的''  和 ``假的'' 注释符 我们使用了一套
+heuristics. 例如, 有这样一种 heuristic 情形，任意奇数的非转义
+注释分隔符 " ,在它之前和之后不是注释,因为它很可能是字符串
+的一部分. 这些 heuristics, 通常很准确, 但不是百分百准确.
+
+------------------------------------------------------------------------------
+5.2 嵌套注释问题                                              *NERDComNesting*
+
+如果我们有些像这样的代码行: >
+    /*int foo */ = /*5 + 9;*/
+<
+这就没办法正确取消注释. NERD commenter
+会移除"最外边"的注释分隔符,这行代码会变成: >
+    int foo */ = /*5 + 9;
+<
+变成这样肯定不是你想要的. 但嵌套的注释
+能被很好取消. 例如: >
+    /*int/* foo =*/ 5 + 9;*/
+<
+然后会变成: >
+    int/* foo =*/ 5 + 9;
+<
+(注意: 简单起见在上面的例子中我故意没有使用 place holders)
+
+==============================================================================
+7. 关于                                                         *NERDComAbout*
+
+The NERD commenter 的作者是 Martyzillatron --- 半机器,半恐龙，威振天和哥斯拉
+的杂交种.他喜欢破坏大都市和吃旅游巴士 .
+
+在msn.com的martin_grenfell留条信息. 收到你的信息他会很高兴.
+作为世界上最强最恐怖的机器，无敌总是最寂寞.
+你的脸看起来就像面包机和霸王龙拼凑在一块你会有什么感觉? :(
+
+最新稳定版本在:
+    http://www.vim.org/scripts/script.php?script_id=1218
+
+最新在开发版本在github:
+    http://github.com/scrooloose/nerdcommenter
+
+==============================================================================
+8. 更新历史                                                 *NERDComChangelog*
+
+2.3.0
+    - remove all filetypes which have a &commentstring in the standard vim
+      runtime for vim > 7.0 unless the script stores an alternate set of
+      delimiters
+    - make the script complain if the user doesnt have filetype plugins enabled
+    - use |<Leader>| instead of comma to start the default mappings
+    - fix a couple of bugs with sexy comments - thanks to Tim Smart
+    - lots of refactoring
+
+2.2.2
+    - remove the NERDShutup option and the message is suppresses, this makes
+      the plugin silently rely on &commentstring for unknown filetypes.
+    - add support for dhcpd, limits, ntp, resolv, rgb, sysctl, udevconf and
+      udevrules. Thanks to Thilo Six.
+    - match filetypes case insensitively
+    - add support for mp (metapost), thanks to Andrey Skvortsov.
+    - add support for htmlcheetah, thanks to Simon Hengel.
+    - add support for javacc, thanks to Matt Tolton.
+    - make <%# %> the default delims for eruby, thanks to tpope.
+    - add support for javascript.jquery, thanks to Ivan Devat.
+    - add support for cucumber and pdf. Fix sass and railslog delims,
+      thanks to tpope
+
+2.2.1
+    - add support for newlisp and clojure, thanks to Matthew Lee Hinman.
+    - fix automake comments, thanks to Elias Pipping
+    - make haml comments default to -# with / as the alternative delimiter,
+      thanks to tpope
+    - add support for actionscript and processing thanks to Edwin Benavides
+    - add support for ps1 (powershell), thanks to Jason Mills
+    - add support for hostsaccess, thanks to Thomas Rowe
+    - add support for CVScommit
+    - add support for asciidoc, git and gitrebase. Thanks to Simon Ruderich.
+    - use # for gitcommit comments, thanks to Simon Ruderich.
+    - add support for mako and genshi, thanks to Keitheis.
+    - add support for conkyrc, thanks to David
+    - add support for SVNannotate, thanks to Miguel Jaque Barbero.
+    - add support for sieve, thanks to Stefan Walk
+    - add support for objj, thanks to Adam Thorsen.
+
+2.2.0
+    - rewrote the mappings system to be more "standard".
+      - removed all the mapping options. Now, mappings to <plug> mappings are
+        used
+      - see :help NERDComMappings, and :help NERDCreateDefaultMappings for
+        more info
+    - remove "prepend comments" and "right aligned comments".
+    - add support for applescript, calbire, man, SVNcommit, potwiki, txt2tags and SVNinfo.
+      Thanks to nicothakis, timberke, sgronblo, mntnoe, Bernhard Grotz, John
+      O'Shea, François and Giacomo Mariani respectively.
+    - bugfix for haskell delimiters. Thanks to mntnoe.
+2.1.18
+    - add support for llvm. Thanks to nicothakis.
+    - add support for xquery. Thanks to Phillip Kovalev.
+2.1.17
+    - fixed haskell delimiters (hackily). Thanks to Elias Pipping.
+    - add support for mailcap. Thanks to Pascal Brueckner.
+    - add support for stata. Thanks to Jerónimo Carballo.
+    - applied a patch from ewfalor to fix an error in the help file with the
+      NERDMapleader doc
+    - disable the insert mode ctrl-c mapping by default, see :help
+      NERDComInsertComment if you wish to restore it
+
+==============================================================================
+9. 相关工作人员                                               *NERDComCredits*
+
+感谢以下帮忙给建议和打补丁的人:
+
+Nick Brettell
+Matthew Hawkins
+Mathieu Clabaut
+Greg Searle
+Nguyen
+Litchi
+Jorge Scandaliaris
+Shufeng Zheng
+Martin Stubenschrott
+Markus Erlmann
+Brent Rice
+Richard Willis
+Igor Prischepoff
+Harry
+David Bourgeois
+Eike Von Seggern
+Torsten Blix
+Alexander Bosecke
+Stefano Zacchiroli
+Norick Chen
+Joseph Barker
+Gary Church
+Tim Carey-Smith
+Markus Klinik
+Anders
+Seth Mason
+James Hales
+Heptite
+Cheng Fang
+Yongwei Wu
+David Miani
+Jeremy Hinegardner
+Marco
+Ingo Karkat
+Zhang Shuhan
+tpope
+Ben Schmidt
+David Fishburn
+Erik Falor
+JaGoTerr
+Elias Pipping
+mntnoe
+Mark S.
+
+
+感谢以下帮忙提交新文件类型支持的人:
+
+The hackers                         The filetypes~
+Sam R                               verilog
+Jonathan                            Derque context, plaintext and mail
+Vigil                               fetchmail
+Michael Brunner                     kconfig
+Antono Vasiljev                     netdict
+Melissa Reid                        omlet
+Ilia N Ternovich                    quickfix
+John O'Shea                         RTF, SVNcommitlog and vcscommit, SVNCommit
+Anders                              occam
+Mark Woodward                       csv
+fREW                                gentoo-package-mask,
+                                    gentoo-package-keywords,
+                                    gentoo-package-use, and vo_base
+Alexey                              verilog_systemverilog, systemverilog
+Lizendir                            fstab
+Michael Böhler                      autoit, autohotkey and docbk
+Aaron Small                         cmake
+Ramiro                              htmldjango and django
+Stefano Zacchiroli                  debcontrol, debchangelog, mkd
+Alex Tarkovsky                      ebuild and eclass
+Jorge Rodrigues                     gams
+Rainer Müller                       Objective C
+Jason Mills                         Groovy, ps1
+Normandie Azucena                   vera
+Florian Apolloner                   ldif
+David Fishburn                      lookupfile
+Niels Aan de Brugh                  rst
+Don Hatlestad                       ahk
+Christophe Benz                     Desktop and xsd
+Eyolf Østrem                        lilypond, bbx and lytex
+Ingo Karkat                         dosbatch
+Nicolas Weber                       markdown, objcpp
+tinoucas                            gentoo-conf-d
+Greg Weber                          D, haml
+Bruce Sherrod                       velocity
+timberke                            cobol, calibre
+Aaron Schaefer                      factor
+Mr X                                asterisk, mplayerconf
+Kuchma Michael                      plsql
+Brett Warneke                       spectre
+Pipp                                lhaskell
+Renald Buter                        scala
+Vladimir Lomov                      asymptote
+Marco                               mrxvtrc, aap
+nicothakis                          SVNAnnotate, CVSAnnotate, SVKAnnotate,
+                                    SVNdiff, gitAnnotate, gitdiff, dtrace
+                                    llvm, applescript
+Chen Xing                           Wikipedia
+Jacobo Diaz                         dakota, patran
+Li Jin                              gentoo-env-d, gentoo-init-d,
+                                    gentoo-make-conf, grub, modconf, sudoers
+SpookeyPeanut                       rib
+Greg Jandl                          pyrex/cython
+Christophe Benz                     services, gitcommit
+A Pontus                            vimperator
+Stromnov                            slice, bzr
+Martin Kustermann                   pamconf
+Indriði Einarsson                   mason
+Chris                               map
+Krzysztof A. Adamski                group
+Pascal Brueckner                    mailcap
+Jerónimo Carballo                   stata
+Phillip Kovalev                     xquery
+Bernhard Grotz                      potwiki
+sgronblo                            man
+François                            txt2tags
+Giacomo Mariani                     SVNinfo
+Matthew Lee Hinman                  newlisp, clojure
+Elias Pipping                       automake
+Edwin Benavides                     actionscript, processing
+Thomas Rowe                         hostsaccess
+Simon Ruderich                      asciidoc, git, gitcommit, gitrebase
+Keitheis                            mako, genshi
+David                               conkyrc
+Miguel Jaque Barbero                SVNannotate
+Stefan Walk                         sieve
+Adam Thorsen                        objj
+Thilo Six                           dhcpd, limits, ntp, resolv, rgb, sysctl,
+                                    udevconf, udevrules
+Andrey Skvortsov                    mp
+Simon Hengel                        htmlcheetah
+Matt Tolton                         javacc
+Ivan Devat                          javascript.jquery
+tpope                               cucumber,pdf
+==============================================================================
+10. 许可                                                      *NERDComLicense*
+
+The NERD commenter 在 wtfpl 许可下发行.
+查看 http://sam.zoy.org/wtfpl/COPYING.
+
+===============================================================================
+vim:tw=78:noet:wrap:ts=8:ft=help:norl:

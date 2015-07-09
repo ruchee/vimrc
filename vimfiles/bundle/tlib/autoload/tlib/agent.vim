@@ -411,14 +411,17 @@ function! tlib#agent#ViewFile(world, selected) "{{{3
     if !empty(a:selected)
         let back = a:world.SwitchWindow('win')
         " TLogVAR back
-        if !&hidden && &l:modified
-            let cmd0 = 'split'
-            let cmd1 = 'sbuffer'
-        else
-            let cmd0 = 'edit'
-            let cmd1 = 'buffer'
-        endif
-        call tlib#file#With(cmd0, cmd1, a:selected, a:world)
+        for filename in a:selected
+            call tlib#file#Edit(filename)
+        endfor
+        " if !&hidden && &l:modified
+        "     let cmd0 = 'split'
+        "     let cmd1 = 'sbuffer'
+        " else
+        "     let cmd0 = 'edit'
+        "     let cmd1 = 'buffer'
+        " endif
+        " call tlib#file#With(cmd0, cmd1, a:selected, a:world)
         " TLogVAR &filetype
         exec back
         let a:world.state = 'display'

@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-06-30.
-" @Last Change: 2013-09-25.
-" @Revision:    0.0.352
+" @Last Change: 2015-05-20.
+" @Revision:    0.1.352
 
 
 " Where to display the line when using |tlib#buffer#ViewLine|.
@@ -160,7 +160,7 @@ function! tlib#buffer#GetList(...)
     elseif order == 'basename'
         call sort(buffer_list, function('s:CompareBuffernameByBasename'))
     endif
-    let buffer_nr = map(copy(buffer_list), 'matchstr(v:val, ''\s*\zs\d\+\ze'')')
+    let buffer_nr = map(copy(buffer_list), 'str2nr(matchstr(v:val, ''\s*\zs\d\+\ze''))')
     " TLogVAR buffer_list, buffer_nr
     if show_number
         call map(buffer_list, 'matchstr(v:val, ''^\s*\d\+.\{-}\ze\s\+\S\+ \d\+\s*$'')')
