@@ -35,6 +35,8 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     3.23 Transforming into a table..............|csv-tabularize|
     3.24 Add new empty columns..................|AddColumn_CSV|
     3.25 Substitute in columns..................|Substitute_CSV|
+    3.26 Count values inside a column...........|Count_CSV|
+    3.27 Maximum/Minimum values ................|MaxCol_CSV|
 4. CSV Filetype configuration...................|csv-configuration|
     4.1 Delimiter...............................|csv-delimiter|
     4.2 Column..................................|csv-column|
@@ -54,7 +56,9 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     5.1 CSVPat()................................|CSVPat()|
     5.2 CSVField()..............................|CSVField()|
     5.3 CSVCol()................................|CSVCol()|
-    5.4 CSVSum()................................|CSVSum()|
+    5.4 CSVCount()..............................|CSVCount()|
+    5.4 CSVMax()................................|CSVMax()|
+    5.4 CSVMin()................................|CSVMin()|
 6. CSV Tips and Tricks..........................|csv-tips|
     6.1 Statusline..............................|csv-stl|
     6.2 Slow CSV plugin.........................|csv-slow|
@@ -204,7 +208,7 @@ If you want to automatically highlight a column, see |csv-hicol|
 If you would like all columns to be visually arranged, you can use the
 `:ArrangeColumn` or `:CSVArrangeColumn` command: >
 
-    :[range]ArrangeColumn[!]
+    :[range]ArrangeColumn[!] [<Row>]
 
 Beware, that this will change your file and depending on the size of
 your file may slow down Vim significantly. This is highly experimental.
@@ -217,6 +221,11 @@ slower, but especially if you have modified the file, this will correctly
 calculate the width of each column so that they can be correctly aligned. If
 no column width has been calculated before, the width will be calculated, even
 if the '!' has not been given.
+
+If <Row> is given, will use the Row, to calculate the width, else will
+calculate the maximum of at least the first 10,000 rows to calculate the
+width. The limit of 10,000 is set to speed up the processing and can be
+overriden by setting the "b:csv_arrange_use_all_rows" variable (see below).
 
 If [range] is not given, it defaults to the current line.
 
@@ -294,6 +303,8 @@ will delete all columns where the pattern "foobar" matches.
 -----------
 Reinitialize the Plugin. Use this, if you have changed the configuration
 of the plugin (see |csv-configuration| ).
+If you use the bang (!) attribute, it will keep the b:delimiter configuration
+variable.
 
                                                                 *:CSVHeader*
 3.9 Header lines						 *Header_CSV*
@@ -369,7 +380,10 @@ While this command >
 
 reverses the order based on column 3.
 
-Instead of a column, you can give the flag 'n' to have it sort numerically.
+The column number can be optionally followed by any of the flags [i], [n],
+[x] and [o] for [i]gnoring case, sorting by [n]umeric, he[x]adecimal
+or [o]ctal value.
+
 When no column number is given, it will sort by the column, on which the
 cursor is currently.
 
@@ -423,7 +437,7 @@ given, this calculates the sum for the column the cursor is on. Note, that the
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-By default, Vim uses the a numerica format that uses the '.' as decimal
+By default, Vim uses the a numerical format that uses the '.' as decimal
 separator while there is no thousands separator. If youre file contains
 the numbers in a different format, you can use the /format/ option to specify
 a different thousands separator or a different decimal separator. The format
@@ -542,12 +556,14 @@ and pressing  'E' again, it would move directly to
 
     |aaa,   bbbb,ccc `
 
+                                                            *csv-textobjects*
 Also, the csv plugin defines these text-object:
 
 if                      Inner Field (contains everything up to the delimiter)
-
 af                      Outer Field (contains everything up to and including
                         the delimiter)
+iL                      Inner Line (visually linewise select all lines, that
+                        has the same value at the cursor's column)
 
 Note, that the <BS>, <CR>, K and J overlap Vim's default mapping for |<CR>|,
 |<BS>|, |J| and |K| respectively. Therefore, this functionality has been
@@ -875,6 +891,58 @@ for every match ('g' flag) and asks for confirmation ('c' flag).
 
 Substitutes in each column starting from the third each number and appends the
 EURO suffix to it.
+
+3.26 Count Values inside a Column      				 *CountCol_CSV*
+---------------------------------
+You can let Vim output the number of values inside a column using the `:CSVCountCol` 
+command >
+
+    :[range]CountCol [nr] [distinct]
+
+This outputs the number of [distinct] values visible in the column [nr]
+If [distinct] is not given, count's all values. Note, header rows and folded
+rows won't be counted.
+
+See also |csv-aggregate-functions|
+
+
+                                                                *MinCol_CSV*
+3.27 Maximum/Minimum value of a Column 				*MaxCol_CSV*
+---------------------------------------
+You can let Vim output the 10 maximum/minimum values of a column using the
+`:CSVMaxCol` command >
+
+    :[range]MaxCol [nr] [/format/]
+    :[range]MinCol [nr] [/format/]
+
+This outputs the result of the column <nr> within the range given. If no range
+is given, this will calculate the max value of the whole column. If <nr> is not
+given, this calculates the sum for the column the cursor is on. Note, that the
+delimiter will be stripped away from each value and also empty values won't be
+considered.
+
+By default, Vim uses the a numerical format that uses the '.' as decimal
+separator while there is no thousands separator. If youre file contains
+the numbers in a different format, you can use the /format/ option to specify
+a different thousands separator or a different decimal separator. The format
+needs to be specified like this:
+    /x:y/
+where 'x' defines the thousands separator and y defines the decimal
+separator and each one is optional. This means, that >
+
+    :MaxCol 1 /:,/
+
+uses the default thousands separator and ',' as the decimal separator and >
+
+    :MaxCol 2 / :./
+
+uses the Space as thousands separator and the '.' as decimal separator.
+
+Note, if you Vim is compiled without floating point number format (|+float|),
+Vim will only aggregate the integer part and therefore won't use the 'y'
+argument in the /format/ specifier.
+
+See also |csv-aggregate-functions|
 ==============================================================================
 4. CSV Configuration					 *csv-configuration*
 
@@ -1248,6 +1316,19 @@ Returns the sum for column col. Uses fmt to parse number format (see
 |:CSVSumCol|) startline and endline specify the lines to consider, if empty,
 will be first and last line.
 
+5.5 CSVCount(col, fmt, startline, endline[, distinct])            *CSVCount()*
+------------------------------------------------------
+Returns the count of values for column col. If the optional parameter
+[distinct] is given, only returns the distinct number of values.
+
+5.6 CSVMax(col, fmt, startline, endline)                         *CSVMax()*
+------------------------------------------------------
+Returns the 10 largest values for column col. 
+
+5.7 CSVMin(col, fmt, startline, endline)                         *CSVMin()*
+------------------------------------------------------
+Returns the 10 smallest values for column col. 
+
 ==============================================================================
 6. CSV Tips and Tricks						*csv-tips*
 
@@ -1424,12 +1505,17 @@ slow down Vim considerably.
 
 6.5 Syntax error when opening a CSV file               *csv-syntax-error*
 ----------------------------------------
+If you see this error: >
+
+   CSV Syntax:Invalid column pattern, using default pattern \%([^,]*,\|$\)
+<
 This happens usually, when the syntax script is read before the filetype
 plugin, so the plugin did not have a chance to setup the column delimiter
 correctly.
 
-The easy way to fix it, is to reverse the order of the :syntax on (|:syn-on|)
-and :filetype plugin (|:filetype-plugin-on|) statements in your |.vimrc|
+The easy way to fix it, is to make sure the :syntax on (|:syn-on|) statement
+comes after the :filetype plugin (|:filetype-plugin-on|) statement in your
+|.vimrc|
 
 Alternatively, you can simply call |InitCSV| and ignore the error.
 
@@ -1473,6 +1559,38 @@ Index;Value1;Value2~
 - do not allow |:CSVTable| command for csv files, that's what the
   |:CSVTabularize| command is for.
 - add progressbar for the |:CSVArrangeCol| command. 
+- |InitCSV| accepts a '!' for keeping the b:delimiter (|csv-delimiter|) variable
+  (https://github.com/chrisbra/csv.vim/issues/43 reported by Jeet Sukumaran,
+  thanks!)
+- New text-object iL (Inner Line, to visually select the lines that have the
+  same value in the cursor column, as requested at
+  https://github.com/chrisbra/csv.vim/issues/44, thanks justmytwospence!)
+- |:CSVArrangeColumn| can be given an optional row number and the width will
+  be calculated using that row. (https://github.com/chrisbra/csv.vim/issues/45
+  reported by jchain, thanks!)
+- Allow for hexadecimal |Sort_CSV|
+  (https://github.com/chrisbra/csv.vim/issues/46, reported by ThomsonTan,
+  thanks!)
+- support all flags for |Sort_CSV| as for the builting |:sort| command (except
+  for "u" and "r")
+- prevent mapping of <Up> and <Down> in visual mode (reported by naught101 at
+  https://github.com/chrisbra/csv.vim/issues/50, thanks!)
+- prevent increasing column width on subsequent call of |:ArrangeColumn_CSV|
+  (reported by naught101 at https://github.com/chrisbra/csv.vim/issues/51,
+  thanks!)
+- New Count function |CSVCount()| (reported by jungle-booke at
+  https://github.com/chrisbra/csv.vim/issues/49, thanks!)
+- fix pattern generation for last column
+- |ConvertData_CSV| should filter out folded lines (reported by jungle-booke
+  at https://github.com/chrisbra/csv.vim/issues/53, thanks!)
+- Make |:CSVTable| ignore folded lines (reported by jungle-booke at 
+  https://github.com/chrisbra/csv.vim/issues/56, thanks!)
+- Better filtering for dynamic filters (reported by jungle-booke at 
+  https://github.com/chrisbra/csv.vim/issues/57, thanks!)
+- Implement a |MaxCol_CSV| and |MinCol_CSV| command (reported by jungle-booke at 
+  https://github.com/chrisbra/csv.vim/issues/60, thanks!)
+- Make |UnArrangeColumn_CSV| strip leading and trailing whitespace (reported
+  by SuperFluffy at https://github.com/chrisbra/csv.vim/issues/62, thanks!)
 
 0.31 Jan 15, 2015 {{{1
 - fix that H on the very first cell, results in an endless loop

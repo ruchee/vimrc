@@ -7,7 +7,7 @@ import json
 import threading
 import hidewin
 
-class Statics:
+class G:
     fsac = None
     fsi = None
     locations = []
@@ -113,7 +113,7 @@ class FSAutoComplete:
                 self._errors.update(parsed['Data'])
             elif parsed['Kind'] == "project":
                 data = parsed['Data']
-                Statics.projects[data['Project']] = data
+                G.projects[data['Project']] = data
                 self._project.update(data)
             elif parsed['Kind'] == "finddecl":
                 self._finddecl.update(parsed['Data'])
@@ -151,17 +151,10 @@ class FSAutoComplete:
         if msg is None:
             return []
 
-        msg = map(str, msg)
-
         if base != '':
             msg = filter(lambda(line):
-                    line.lower().find(base.lower()) != -1, msg)
-
-        msg.sort(key=lambda x: x.startswith(base), reverse=True)
-        msg = map(lambda(line):
-                {'word': line,
-                 'info': self.helptext(line), 
-                 'menu': ""}, msg)
+                    line['Name'].lower().find(base.lower()) != -1, msg)
+        msg.sort(key=lambda x: x['Name'].startswith(base), reverse=True)
 
         return msg
 
@@ -204,10 +197,11 @@ class FSAutoComplete:
         msg = self._helptext.send('helptext %s\n' % candidate)
         msg = str(msg[candidate])
 
-        if "'" in msg:
-            return msg
-        else:
-            return msg + " '" #HACK: - the ' appears to ensure that newlines are interpreted properly in the preview window
+        if "\'" in msg and "\"" in msg:
+            msg = msg.replace("\"", "") #HACK: dictionary parsing in vim gets weird if both ' and " get printed in the same string
+        elif "\n" in msg: 
+            msg = msg + "\n\n'" #HACK: - the ' is inserted to ensure that newlines are interpreted properly in the preview window
+        return msg
 
 class FSharpVimFixture(unittest.TestCase):
     def setUp(self):

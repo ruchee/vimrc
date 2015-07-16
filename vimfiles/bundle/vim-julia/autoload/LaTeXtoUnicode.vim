@@ -71,7 +71,11 @@ function! s:L2U_SetupGlobal()
   " A hack to forcibly get out of completion mode: feed
   " this string with feedkeys()
   if has("win32") || has("win64")
-    let s:l2u_esc_sequence = "\u0006\b"
+    if has("gui_running")
+      let s:l2u_esc_sequence = "\u0006"
+    else
+      let s:l2u_esc_sequence = "\u0006\b"
+    endif
   else
     let s:l2u_esc_sequence = "\u0091\b"
   end
@@ -116,7 +120,7 @@ function! LaTeXtoUnicode#Enable()
     let b:prev_omnifunc = &omnifunc
   endif
 
-  setlocal omnifunc=LaTeXtoUnicode#ommnifunc
+  setlocal omnifunc=LaTeXtoUnicode#omnifunc
 
   let b:l2u_enabled = 1
 
@@ -236,7 +240,7 @@ endfunction
 "  *) either returns a list of completions if a partial match is found, or a
 "     Unicode char if an exact match is found
 "  *) forces its way out of completion mode through a hack in some cases
-function! LaTeXtoUnicode#ommnifunc(findstart, base)
+function! LaTeXtoUnicode#omnifunc(findstart, base)
   if a:findstart
     " first stage
     " avoid infinite loop if the fallback happens to call omnicompletion
@@ -272,7 +276,7 @@ function! LaTeXtoUnicode#ommnifunc(findstart, base)
     " completion not found
     if col0 == -1
       let b:l2u_found_completion = 0
-      call feedkeys(s:l2u_esc_sequence)
+      call feedkeys(s:l2u_esc_sequence, 'n')
       let col0 = -2
     endif
     return col0
@@ -305,7 +309,7 @@ function! LaTeXtoUnicode#ommnifunc(findstart, base)
       " the completion is successful: reset the last completion info...
       call s:L2U_ResetLastCompletionInfo()
       " ...force our way out of completion mode...
-      call feedkeys(s:l2u_esc_sequence)
+      call feedkeys(s:l2u_esc_sequence, 'n')
       " ...return the Unicode symbol
       return [g:l2u_symbols_dict[a:base]]
     endif
@@ -317,7 +321,7 @@ function! LaTeXtoUnicode#ommnifunc(findstart, base)
       call sort(partmatches, "s:L2U_partmatches_sort")
     endif
     if empty(partmatches)
-      call feedkeys(s:l2u_esc_sequence)
+      call feedkeys(s:l2u_esc_sequence, 'n')
       let b:l2u_found_completion = 0
     endif
     return partmatches
@@ -448,7 +452,7 @@ endfunction
 
 " Setup the L2U tab mapping
 function! s:L2U_SetTab(wait_insert_enter)
-  if !b:l2u_cmdtab_set
+  if !b:l2u_cmdtab_set && get(g:, "latex_to_unicode_tab", 1) && b:l2u_enabled
     cmap <buffer> <S-Tab> <Plug>L2UCmdTab
     cnoremap <buffer> <Plug>L2UCmdTab <C-\>eLaTeXtoUnicode#CmdTab()<CR>
     let b:l2u_cmdtab_set = 1

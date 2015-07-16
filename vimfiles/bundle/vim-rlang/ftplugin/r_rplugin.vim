@@ -30,35 +30,39 @@ function! ShowRout()
         call delete(b:routfile)
     endif
 
-    if !exists("b:rplugin_R")
-        call SetRPath()
-    endif
-
     " if not silent, the user will have to type <Enter>
     silent update
 
     if has("win32") || has("win64")
         let rcmd = 'Rcmd.exe BATCH --no-restore --no-save "' . expand("%") . '" "' . b:routfile . '"'
     else
-        let rcmd = b:rplugin_R . " CMD BATCH --no-restore --no-save '" . expand("%") . "' '" . b:routfile . "'"
+        let rcmd = g:rplugin_R . " CMD BATCH --no-restore --no-save '" . expand("%") . "' '" . b:routfile . "'"
     endif
 
-    echon "Please wait for: " . rcmd
-    redraw
-    let rlog = system(rcmd)
-    if v:shell_error && rlog != ""
-        call RWarningMsg('Error: "' . rlog . '"')
-        sleep 1
-    endif
-    if filereadable(b:routfile)
-        if g:vimrplugin_routnotab == 1
-            exe "split " . b:routfile
-        else
-            exe "tabnew " . b:routfile
+    if has("win32") || has("win64") || v:servername == ""
+        echon "Please wait for: " . rcmd
+        redraw
+        let rlog = system(rcmd)
+        if v:shell_error && rlog != ""
+            call RWarningMsg('Error: "' . rlog . '"')
+            sleep 1
         endif
-        set filetype=rout
+        if filereadable(b:routfile)
+            if g:vimrplugin_routnotab == 1
+                exe "split " . b:routfile
+            else
+                exe "tabnew " . b:routfile
+            endif
+            set filetype=rout
+        else
+            call RWarningMsg("The file '" . b:routfile . "' is not readable.")
+        endif
     else
-        call RWarningMsg("The file '" . b:routfile . "' is not readable.")
+        let shlines = [rcmd,
+                    \ 'vim --servername ' . v:servername . " --remote-expr '" . 'GetROutput("' . b:routfile . '")' . "'",
+                    \ 'rm "' . g:rplugin_tmpdir . '/runRcmdbatch.sh' . '"']
+        call writefile(shlines, g:rplugin_tmpdir . '/runRcmdbatch.sh')
+        call system('sh "' .  g:rplugin_tmpdir . '/runRcmdbatch.sh" >/dev/null 2>/dev/null &')
     endif
 endfunction
 
@@ -75,10 +79,6 @@ endfunction
 
 let b:IsInRCode = function("DefaultIsInRCode")
 
-" Pointer to function that must be different if the plugin is used as a
-" global one:
-let b:SourceLines = function("RSourceLines")
-
 "==========================================================================
 " Key bindings and menu items
 
@@ -86,7 +86,8 @@ call RCreateStartMaps()
 call RCreateEditMaps()
 
 " Only .R files are sent to R
-call RCreateMaps("ni", '<Plug>RSendFile',     'aa', ':call SendFileToR()')
+call RCreateMaps("ni", '<Plug>RSendFile',     'aa', ':call SendFileToR("silent")')
+call RCreateMaps("ni", '<Plug>RESendFile',    'ae', ':call SendFileToR("echo")')
 call RCreateMaps("ni", '<Plug>RShowRout',     'ao', ':call ShowRout()')
 
 " Knitr::spin
@@ -107,7 +108,7 @@ endif
 call RSourceOtherScripts()
 
 if exists("b:undo_ftplugin")
-    let b:undo_ftplugin .= " | unlet! b:IsInRCode b:SourceLines"
+    let b:undo_ftplugin .= " | unlet! b:IsInRCode"
 else
-    let b:undo_ftplugin = "unlet! b:IsInRCode b:SourceLines"   
+    let b:undo_ftplugin = "unlet! b:IsInRCode"
 endif

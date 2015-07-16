@@ -62,7 +62,8 @@
 }
 
 .cascade {
-  all: unset;
+  all: initial;
+  display: unset;
 }
 
 .colors {
@@ -269,10 +270,6 @@
   initial-letter-align: auto;
 }
 
-.layout::slot(b) {
-  display: same;
-}
-
 .line-grid {
   line-grid: create;
   line-snap: block-start;
@@ -473,6 +470,14 @@
   display: contain-floats;
 }
 
+.snappoints {
+  scroll-snap-type: mandatory;
+  scroll-snap-points-x: proximity;
+  scroll-snap-points-y: auto;
+  scroll-snap-destination: auto;
+  scroll-snap-coordinate: auto;
+}
+
 .speech {
   voice-volume: 10dB;
   voice-balance: literal-punctuation;
@@ -561,17 +566,13 @@
 
 .values {
   display: 1ch;
-  display: 1rem;
   display: 1vw;
   display: 1vh;
   display: 1vmin;
+  display: 1q;
   display: 1turn;
-  display: 1dpi;
-  display: 1dpcm;
-  display: 1dppx;
   display: calc(100%/3 - 2*1em - 2*1px);
   display: toggle(italic, normal);
-  display: initial;
 }
 
 .variables {

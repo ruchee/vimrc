@@ -21,17 +21,22 @@ disabled/enabled easily.
 * Compile your package with `:GoBuild` , install it with `:GoInstall`
 * `:GoRun` quickly your current file/files
 * Run `:GoTest` and see any errors in quickfix window
+* Automatic `GOPATH` detection based on the directory structure (i.e: `godep`
+  vendored projects)
+* Change or display `GOPATH` with `:GoPath`
 * Create a coverage profile and display annotated source code in browser to see
   which functions are covered with `:GoCoverage`
 * Lint your code with `:GoLint`
 * Run your code through `:GoVet` to catch static errors.
-* Advanced source analysis tool with oracle, such as `:GoImplements`, `:GoCallees`, `:GoReferrers`
+* Advanced source analysis tool with oracle, such as `:GoImplements`,
+  `:GoCallees`, `:GoReferrers`
 * Precise type-safe renaming of identifiers with `:GoRename`
 * List all source files and dependencies
 * Checking with `:GoErrCheck` for unchecked errors.
 * Integrated and improved snippets. Supports `ultisnips` or `neosnippet`
 * Share your current code to [play.golang.org](http://play.golang.org) with `:GoPlay`
-* On-the-fly type information about the word under the cursor. Plug it into your custom vim function.
+* On-the-fly type information about the word under the cursor. Plug it into
+  your custom vim function.
 * Tagbar support to show tags of the source code in a sidebar with `gotags`
 * Custom vim text objects, such a `a function` or `inner function`
 
@@ -70,12 +75,15 @@ completion (completion by type) install:
 [ultisnips](https://github.com/SirVer/ultisnips) or
 [neosnippet](https://github.com/Shougo/neosnippet.vim).
 * Screenshot color scheme is a slightly modified molokai: [fatih/molokai](https://github.com/fatih/molokai).
+* For a better documentation viewer checkout: [go-explorer](https://github.com/garyburd/go-explorer).
 
 ## Usage
 
 Many of the [features](#features) are enabled by default. There are no
 additional settings needed. All usages and commands are listed in
-`doc/vim-go.txt`. Just open the help page to see all commands:
+`doc/vim-go.txt`. Note that help tags needs to be populated. Check your plugin
+manager settings to generate the documentation (some do it automatically).
+After that just open the help page to see all commands:
 
     :help vim-go
 
@@ -147,37 +155,6 @@ based on `:he go-commands`.
 ## Settings
 Below are some settings you might find useful. For the full list see `:he go-settings`.
 
-Disable opening browser after posting to your snippet to `play.golang.org`:
-
-```vim
-let g:go_play_open_browser = 0
-```
-
-By default vim-go shows errors for the fmt command, to disable it:
-
-```vim
-let g:go_fmt_fail_silently = 1
-```
-
-Enable goimports to automatically insert import paths instead of gofmt:
-
-```vim
-let g:go_fmt_command = "goimports"
-```
-
-Disable auto fmt on save:
-
-```vim
-let g:go_fmt_autosave = 0
-```
-
-By default binaries are installed to `$GOBIN` or `$GOPATH/bin`. To change it:
-
-```vim
-let g:go_bin_path = expand("~/.gotools")
-let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
-```
-
 By default syntax-highlighting for Functions, Methods and Structs is disabled.
 To change it:
 ```vim
@@ -188,58 +165,53 @@ let g:go_highlight_operators = 1
 let g:go_highlight_build_constraints = 1
 ```
 
-## Troubleshooting
+Enable goimports to automatically insert import paths instead of gofmt:
 
-### Command not found
+```vim
+let g:go_fmt_command = "goimports"
+```
 
-If trying to use `:GoDef`,  `:GoInfo` and get a `command not found`, check that you have the binaries installed by using: `:GoInstallBinaries`
+By default vim-go shows errors for the fmt command, to disable it:
 
-Before opening vim, check your current `$PATH`:
+```vim
+let g:go_fmt_fail_silently = 1
+```
 
-	echo $PATH
+Disable auto fmt on save:
 
-after opening vim, run `:echo $PATH`, the output must be your current `$PATH` + `$GOPATH/bin` (the location where `:GoInstallBinaries` installed the binaries
+```vim
+let g:go_fmt_autosave = 0
+```
 
-If problem persists and you are using maybe 'csh' or other shell, try adding this to your .vimrc:
+Disable opening browser after posting to your snippet to `play.golang.org`:
 
-    set shell=/bin/sh
+```vim
+let g:go_play_open_browser = 0
+```
+
+By default when `:GoInstallBinaries` is called, the binaries are installed to
+`$GOBIN` or `$GOPATH/bin`. To change it:
+
+```vim
+let g:go_bin_path = expand("~/.gotools")
+let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
+```
 
 
+## More info
 
-### I'm using Fish shell but have some problems using Vim-go
+Check out the Wiki page for more information. It includes Screencasts, FAQ
+section and many various piece of information:
 
-First environment variables in Fish are applied differently, it should be like:
+[https://github.com/fatih/vim-go/wiki](https://github.com/fatih/vim-go/wiki)
 
-	set -x GOPATH /your/own/gopath
-
-Second, Vim needs a POSIX compatible shell (more info here:
-https://github.com/dag/vim-fish#teach-a-vim-to-fish). If you use Fish to open
-vim, it will make certain shell based commands fail (means vim-go will fail
-too). To overcome this problem change the default shell by adding the following
-into your .vimrc (on the top of the file):
-
-	if $SHELL =~ 'fish'
-	  set shell='/bin/sh'
-	endif
-
-or
-
-	set shell='/bin/sh'
-
-## Why another plugin?
-
-This plugin/package is born mainly from frustration. I had to re-install my Vim
-plugins and especially for Go I had to install a lot of separate different
-plugins, setup the necessary binaries to make them work together and hope not
-to lose them again. Lots of plugins out there lack proper settings.
-This plugin is improved and contains all my fixes/changes that I'm using for
-months under heavy go development environment.
-
-Give it a try. I hope you like it. Feel free to contribute to the project.
 
 ## Donations
 
-Vim-go is an open source project and I'm working on it on my free times. I'm spending a lot of time and thoughts to make it stable, fixing bugs, adding new features, etc... If you like vim-go and find it helpful, you might give me a gift from some of the books (kindle) I have in my wish list:
+Vim-go is an open source project and I'm working on it on my free times. I'm
+spending a lot of time and thoughts to make it stable, fixing bugs, adding new
+features, etc... If you like vim-go and find it helpful, you might give me a
+gift from some of the books (kindle) I have in my wish list:
 
 [Amazon.com Fatih's Wish List](http://amzn.com/w/3RUTKZC0U30P6). Thanks!
 
@@ -247,4 +219,10 @@ Vim-go is an open source project and I'm working on it on my free times. I'm spe
 
 * Go Authors for official vim plugins
 * Gocode, Godef, Golint, Oracle, Goimports, Gotags, Errcheck projects and authors of those projects.
-* Other vim-plugins, thanks for inspiration (vim-golang, go.vim, vim-gocode, vim-godef)
+* Other vim-plugins, thanks for inspiration (vim-golang, go.vim, vim-gocode,
+  vim-godef)
+* [Contributors](https://github.com/fatih/vim-go/graphs/contributors) of vim-go
+
+## License
+
+The BSD 3-Clause License - see `LICENSE` for more details

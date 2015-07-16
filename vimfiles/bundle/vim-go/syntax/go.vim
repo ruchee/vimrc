@@ -52,7 +52,7 @@ if !exists("g:go_highlight_trailing_whitespace_error")
 endif
 
 if !exists("g:go_highlight_operators")
-	let g:go_highlight_operators = 1
+	let g:go_highlight_operators = 0
 endif
 
 if !exists("g:go_highlight_functions")
@@ -147,7 +147,7 @@ hi def link     goEscapeError       Error
 syn cluster     goStringGroup       contains=goEscapeOctal,goEscapeC,goEscapeX,goEscapeU,goEscapeBigU,goEscapeError
 syn region      goString            start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=@goStringGroup
 syn region      goRawString         start=+`+ end=+`+
-syn match       goFormatSpecifier   /%[#0\-\ \+\*]*[vTtbcdoqxXUeEfgGsp]/ contained containedin=goString
+syn match       goFormatSpecifier   /%[-#0 +]*\%(\*\|\d\+\)\=\%(\.\%(\*\|\d\+\)\)*[vTtbcdoqxXUeEfgGsp]/ contained containedin=goString
 
 hi def link     goString            String
 hi def link     goRawString         String
@@ -236,13 +236,11 @@ hi def link     goTodo              Todo
 
 " Operators; 
 if g:go_highlight_operators != 0
-	" match single-char operators:          - + % < > ! & | ^ =
-	" and corresponding two-char operators: -= += %= <= >= != &= |= ^= ==
-	syn match goOperator /[-+%<>!&|\^=]=\?/
-	" match * and *=
-	syn match goOperator /[^\/]\zs\*=\?/
+	" match single-char operators:          - + % < > ! & | ^ * =
+	" and corresponding two-char operators: -= += %= <= >= != &= |= ^= *= ==
+	syn match goOperator /[-+%<>!&|^*=]=\?/
 	" match / and /=
-	syn match goOperator /\/\%(=\|\ze[^\/\*]\)/
+	syn match goOperator /\/\%(=\|\ze[^/*]\)/
 	" match two-char operators:               << >> &^
 	" and corresponding three-char operators: <<= >>= &^=
 	syn match goOperator /\%(<<\|>>\|&^\)=\?/

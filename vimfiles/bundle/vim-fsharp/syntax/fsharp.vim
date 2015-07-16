@@ -111,7 +111,7 @@ syn keyword fsharpBoolean    false true
 syn keyword  fsharpType      array bool byte char decimal double enum exn float
 syn keyword  fsharpType      float32 int int16 int32 int64 lazy_t list nativeint
 syn keyword  fsharpType      obj option sbyte single string uint uint32 uint64
-syn keyword  fsharpType      unativeint unit
+syn keyword  fsharpType      uint16 unativeint unit
 
 " core classes
 syn match    fsharpCore      "\u\a*\." transparent contains=fsharpCoreClass
@@ -134,6 +134,8 @@ syn match    fsharpCharacter    "'\\\d\d\d'\|'\\[\'ntbr]'\|'.'"
 syn match    fsharpCharErr      "'\\\d\d'\|'\\\d'"
 syn match    fsharpCharErr      "'\\[^\'ntbr]'"
 syn region   fsharpString       start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=fsharpFormat
+syn region   fsharpString       start=+"""+ skip=+\\\\\|\\"+ end=+"""+ contains=fsharpFormat
+syn region   fsharpString       start=+@"+ skip=+""+ end=+"+ contains=fsharpFormat
 
 syn match    fsharpFunDef       "->"
 syn match    fsharpRefAssign    ":="
@@ -161,6 +163,7 @@ syn match    fsharpKeyChar      "\*"
 syn match    fsharpKeyChar      "+"
 syn match    fsharpKeyChar      "="
 syn match    fsharpKeyChar      "|"
+syn match    fsharpKeyChar      "(\*)"
 
 syn match    fsharpOperator     "<-"
 

@@ -5,7 +5,7 @@
 
 " Tell R to create a list of objects file listing all currently available
 " objects in its environment. The file is necessary for omni completion.
-function BuildROmniList()
+function BuildROmniList(pattern)
     if string(g:SendCmdToR) == "function('SendCmdToR_fake')"
         return
     endif
@@ -14,7 +14,7 @@ function BuildROmniList()
     if g:vimrplugin_allnames == 1
         let omnilistcmd = omnilistcmd . ', allnames = TRUE'
     endif
-    let omnilistcmd = omnilistcmd . ')'
+    let omnilistcmd = omnilistcmd . ', pattern = "' . a:pattern . '")'
 
     call delete(g:rplugin_tmpdir . "/vimbol_finished")
     call delete(g:rplugin_tmpdir . "/eval_reply")
@@ -52,12 +52,12 @@ fun! rcomplete#CompleteR(findstart, base)
     if a:findstart
         let line = getline('.')
         let start = col('.') - 1
-        while start > 0 && (line[start - 1] =~ '\w' || line[start - 1] =~ '\.' || line[start - 1] =~ '\$')
+        while start > 0 && (line[start - 1] =~ '\w' || line[start - 1] =~ '\.' || line[start - 1] =~ '\$' || line[start - 1] =~ '@')
             let start -= 1
         endwhile
-        call BuildROmniList()
         return start
     else
+        call BuildROmniList(a:base)
         let resp = []
         if strlen(a:base) == 0
             return resp
@@ -75,6 +75,10 @@ fun! rcomplete#CompleteR(findstart, base)
             if line =~ newbase
                 " Skip cols of data frames unless the user is really looking for them.
                 if a:base !~ '\$' && line =~ '\$'
+                    continue
+                endif
+                " Skip slots of S4 objects unless the user is really looking for them.
+                if a:base !~ '@' && line =~ '@'
                     continue
                 endif
                 let tmp1 = split(line, "\x06", 1)

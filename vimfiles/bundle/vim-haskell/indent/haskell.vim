@@ -54,7 +54,7 @@ if !exists('g:haskell_indent_in')
 endif
 
 setlocal indentexpr=GetHaskellIndent()
-setlocal indentkeys=!^F,o,O,0\|,0=where,0=in,0=let,0=deriving,0=->,0=\=>,<CR>
+setlocal indentkeys=!^F,o,O,0\|,0=where,0=in,0=let,0=deriving,0=->,0=\=>,<CR>,0}
 
 function! GetHaskellIndent()
   let l:prevline = getline(v:lnum - 1)
@@ -63,17 +63,21 @@ function! GetHaskellIndent()
     return match(l:prevline, '\S')
   endif
 
+  if l:prevline =~ '^\s*$'
+      return 0
+  endif
+
   let l:line = getline(v:lnum)
 
   if l:line =~ '\C^\s*\<where\>'
     let l:s = match(l:prevline, '\S')
-    return l:s + 2
+    return l:s + &shiftwidth
   endif
 
   if l:line =~ '\C^\s*\<deriving\>'
     let l:s = match(l:prevline, '\C\<\(newtype\|data\)\>')
     if l:s >= 0
-      return l:s + 2
+      return l:s + &shiftwidth
     endif
   endif
 
@@ -99,7 +103,7 @@ function! GetHaskellIndent()
       if match(l:prevline, '^\s*|\s') >= 0
         return match(l:prevline, '|')
       else
-        return 2
+        return &shiftwidth
       endif
     endif
   endif
@@ -114,12 +118,16 @@ function! GetHaskellIndent()
   if l:prevline =~ '\s\+[!#$%&*+./<>?@\\^|~-]\+\s*$'
     let l:s = match(l:prevline, '\S')
     if l:s > 0
-      return l:s + 2
+      return l:s + &shiftwidth
     endif
   endif
 
   if l:prevline =~ '[{([][^})\]]\+$'
     return match(l:prevline, '[{([]')
+  endif
+
+  if l:prevline =~ '\C\<let\>\s\+[^=]\+=\s*$'
+    return match(l:prevline, '\C\<let\>') + g:haskell_indent_let + &shiftwidth
   endif
 
   if l:prevline =~ '\C\<let\>\s\+.\+\(\<in\>\)\?\s*$'

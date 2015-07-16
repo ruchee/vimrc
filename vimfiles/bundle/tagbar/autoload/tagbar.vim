@@ -243,6 +243,15 @@ function! s:InitTypes() abort
     \ }
     let s:known_types.cpp = type_cpp
     let s:known_types.cuda = type_cpp
+    " CSS {{{3
+    let type_css = s:TypeInfo.New()
+    let type_css.ctagstype = 'css'
+    let type_css.kinds     = [
+        \ {'short' : 's', 'long' : 'selector',   'fold' : 0, 'stl' : 0},
+        \ {'short' : 'i', 'long' : 'identities', 'fold' : 1, 'stl' : 0},
+        \ {'short' : 'c', 'long' : 'classes',    'fold' : 1, 'stl' : 0}
+    \ ]
+    let s:known_types.css = type_css
     " C# {{{3
     let type_cs = s:TypeInfo.New()
     let type_cs.ctagstype = 'c#'
@@ -537,8 +546,10 @@ function! s:InitTypes() abort
     let type_php = s:TypeInfo.New()
     let type_php.ctagstype = 'php'
     let type_php.kinds     = [
+        \ {'short' : 'n', 'long' : 'namespaces',           'fold' : 0, 'stl' : 1},
         \ {'short' : 'i', 'long' : 'interfaces',           'fold' : 0, 'stl' : 1},
         \ {'short' : 'c', 'long' : 'classes',              'fold' : 0, 'stl' : 1},
+        \ {'short' : 't', 'long' : 'traits',               'fold' : 0, 'stl' : 1},
         \ {'short' : 'd', 'long' : 'constant definitions', 'fold' : 0, 'stl' : 0},
         \ {'short' : 'f', 'long' : 'functions',            'fold' : 0, 'stl' : 1},
         \ {'short' : 'v', 'long' : 'variables',            'fold' : 0, 'stl' : 0},
@@ -1028,7 +1039,7 @@ function! s:CreateAutocommands() abort
 endfunction
 
 " s:CheckForExCtags() {{{2
-" Test whether the ctags binary is actually Exuberant Ctags and not GNU ctags
+" Test whether the ctags binary is actually Exuberant Ctags and not BSD ctags
 " (or something else)
 function! s:CheckForExCtags(silent) abort
     call s:debug('Checking for Exuberant Ctags')
@@ -1086,9 +1097,9 @@ function! s:CheckForExCtags(silent) abort
 
     let ctags_output = s:ExecuteCtags(ctags_cmd)
 
-    if v:shell_error || ctags_output !~# 'Exuberant Ctags'
+    if v:shell_error || ctags_output !~# '\(Exuberant\|Universal\) Ctags'
         let errmsg = 'Tagbar: Ctags doesn''t seem to be Exuberant Ctags!'
-        let infomsg = 'GNU ctags will NOT WORK.' .
+        let infomsg = 'BSD ctags will NOT WORK.' .
             \ ' Please download Exuberant Ctags from ctags.sourceforge.net' .
             \ ' and install it in a directory in your $PATH' .
             \ ' or set g:tagbar_ctags_bin.'
@@ -1145,6 +1156,11 @@ function! s:CheckExCtagsVersion(output) abort
 
     if a:output =~ 'Exuberant Ctags Development'
         call s:debug("Found development version, assuming compatibility")
+        return 1
+    endif
+
+    if a:output =~ 'Universal Ctags'
+        call s:debug("Found Universal Ctags, assuming compatibility")
         return 1
     endif
 

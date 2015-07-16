@@ -208,7 +208,7 @@ function! RMakePDF(bibtex, knit)
 endfunction
 
 " Send Sweave chunk to R
-function! RnwSendChunkToR(m)
+function! RnwSendChunkToR(e, m)
     if RnwIsInRCode(0) == 0
         call RWarningMsg("Not inside an R code chunk.")
         return
@@ -216,7 +216,7 @@ function! RnwSendChunkToR(m)
     let chunkline = search("^<<", "bncW") + 1
     let docline = search("^@", "ncW") - 1
     let lines = getline(chunkline, docline)
-    let ok = RSourceLines(lines)
+    let ok = RSourceLines(lines, a:e)
     if ok == 0
         return
     endif
@@ -254,10 +254,6 @@ let b:PreviousRChunk = function("RnwPreviousChunk")
 let b:NextRChunk = function("RnwNextChunk")
 let b:SendChunkToR = function("RnwSendChunkToR")
 
-" Pointers to functions that must be different if the plugin is used as a
-" global one:
-let b:SourceLines = function("RSourceLines")
-
 let b:pdf_opened = 0
 
 
@@ -281,8 +277,10 @@ call RCreateMaps("nvi", '<Plug>RKnit',        'kn', ':call RKnitRnw()')
 call RCreateMaps("nvi", '<Plug>RMakePDFK',    'kp', ':call RMakePDF("nobib", 1)')
 call RCreateMaps("nvi", '<Plug>RBibTeXK',     'kb', ':call RMakePDF("bibtex", 1)')
 call RCreateMaps("nvi", '<Plug>RIndent',      'si', ':call RnwToggleIndentSty()')
-call RCreateMaps("ni",  '<Plug>RSendChunk',   'cc', ':call b:SendChunkToR("stay")')
-call RCreateMaps("ni",  '<Plug>RDSendChunk',  'cd', ':call b:SendChunkToR("down")')
+call RCreateMaps("ni",  '<Plug>RSendChunk',   'cc', ':call b:SendChunkToR("silent", "stay")')
+call RCreateMaps("ni",  '<Plug>RESendChunk',  'ce', ':call b:SendChunkToR("echo", "stay")')
+call RCreateMaps("ni",  '<Plug>RDSendChunk',  'cd', ':call b:SendChunkToR("silent", "down")')
+call RCreateMaps("ni",  '<Plug>REDSendChunk', 'ca', ':call b:SendChunkToR("echo", "down")')
 call RCreateMaps("nvi", '<Plug>ROpenPDF',     'op', ':call ROpenPDF("Get Master")')
 if g:vimrplugin_synctex
     call RCreateMaps("ni",  '<Plug>RSyncFor',     'gp', ':call SyncTeX_forward()')
@@ -401,8 +399,7 @@ function! GoToBuf(rnwbn, rnwf, basedir, rnwln)
 endfunction
 
 function! SyncTeX_backward(fname, ln)
-    let flnm = substitute(a:fname, 'file://', '', '') " Evince
-    let flnm = substitute(flnm, '/\./', '/', '')      " Okular
+    let flnm = substitute(a:fname, '/\./', '/', '')      " Okular
     let basenm = substitute(flnm, "\....$", "", "")   " Delete extension
     if basenm =~ "/"
         let basedir = substitute(basenm, '\(.*\)/.*', '\1', '')
@@ -446,8 +443,8 @@ function! SyncTeX_backward(fname, ln)
     let rnwf = substitute(rnwf, '^\./', '', '')
 
     if GoToBuf(rnwbn, rnwf, basedir, rnwln)
-        if g:rplugin_has_wmctrl
-            call system("wmctrl -xa " . g:vimrplugin_vim_window)
+        if g:rplugin_has_wmctrl && v:windowid != 0
+            call system("wmctrl -ia " . v:windowid)
         elseif has("gui_running")
             call foreground()
         endif
@@ -458,10 +455,6 @@ function! SyncTeX_forward(...)
     let basenm = expand("%:t:r")
     let lnum = 0
     let rnwf = expand("%:t")
-
-    if g:rplugin_pdfviewer == "evince" && expand("%:p") =~ " "
-        call RWarningMsg('SyncTeX may not work because there is space in the file path "' . expand("%:p") . '".')
-    endif
 
     let olddir = getcwd()
     if olddir != expand("%:p:h")
@@ -597,28 +590,33 @@ function! SyncTeX_SetPID(spid)
     exe 'autocmd VimLeave * call system("kill ' . a:spid . '")'
 endfunction
 
-function! Run_SyncTeX()
-    if $DISPLAY == "" || g:rplugin_pdfviewer == "none" || exists("b:did_synctex")
-        return
-    endif
-    let b:did_synctex = 1
-
+function! Run_EvinceBackward()
     let olddir = getcwd()
     if olddir != expand("%:p:h")
-        exe "cd " . substitute(expand("%:p:h"), ' ', '\\ ', 'g')
+        try
+            exe "cd " . substitute(expand("%:p:h"), ' ', '\\ ', 'g')
+        catch /.*/
+            return
+        endtry
     endif
-
-    if g:rplugin_pdfviewer == "evince"
-        let [basenm, basedir] = SyncTeX_GetMaster()
-        if basedir != '.'
-            exe "cd " . substitute(basedir, ' ', '\\ ', 'g')
-        endif
-        if v:servername != ""
-            call system("python " . g:rplugin_home . "/r-plugin/synctex_evince_backward.py '" . basenm . ".pdf' " . v:servername . " &")
-        endif
-        if basedir != '.'
-            cd -
-        endif
+    let [basenm, basedir] = SyncTeX_GetMaster()
+    if basedir != '.'
+        exe "cd " . substitute(basedir, ' ', '\\ ', 'g')
+    endif
+    let did_evince = 0
+    if !exists("g:rplugin_evince_list")
+        let g:rplugin_evince_list = []
+    else
+        for bb in g:rplugin_evince_list
+            if bb == basenm
+                let did_evince = 1
+                break
+            endif
+        endfor
+    endif
+    if !did_evince
+        call add(g:rplugin_evince_list, basenm)
+        call system("python " . g:rplugin_home . "/r-plugin/synctex_evince_backward.py '" . basenm . ".pdf' " . v:servername . " &")
     endif
     exe "cd " . substitute(olddir, ' ', '\\ ', 'g')
 endfunction
@@ -642,15 +640,15 @@ if g:rplugin_pdfviewer != "none"
         unlet s:key_list
         unlet s:has_key
     endif
-    if g:vimrplugin_synctex
-        call Run_SyncTeX()
+    if g:vimrplugin_synctex && g:rplugin_pdfviewer == "evince" && $DISPLAY != "" && v:servername != ""
+        call Run_EvinceBackward()
     endif
 endif
 
 call RSourceOtherScripts()
 
 if exists("b:undo_ftplugin")
-    let b:undo_ftplugin .= " | unlet! b:IsInRCode b:SourceLines b:PreviousRChunk b:NextRChunk b:SendChunkToR"
+    let b:undo_ftplugin .= " | unlet! b:IsInRCode b:PreviousRChunk b:NextRChunk b:SendChunkToR"
 else
-    let b:undo_ftplugin = " | unlet! b:IsInRCode b:SourceLines b:PreviousRChunk b:NextRChunk b:SendChunkToR"
+    let b:undo_ftplugin = "unlet! b:IsInRCode b:PreviousRChunk b:NextRChunk b:SendChunkToR"
 endif

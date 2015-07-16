@@ -16,11 +16,6 @@ unlet s:sleeptime
 
 let g:rplugin_sleeptime = g:vimrplugin_sleeptime . 'm'
 
-if g:vimrplugin_Rterm
-    let b:rplugin_R = "Rgui.exe"
-else
-    let b:rplugin_R = "Rterm.exe"
-endif
 if !exists("g:rplugin_rpathadded")
     if exists("g:vimrplugin_r_path")
         if !isdirectory(g:vimrplugin_r_path)

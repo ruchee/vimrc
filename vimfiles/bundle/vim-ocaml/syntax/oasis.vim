@@ -7,6 +7,11 @@ syn keyword oasisTodo FIXME NOTE NOTES TODO XXX contained
 syn match oasisComment "#.*$" contains=oasisTodo,@Spell
 syn keyword oasisPlugin META DevFiles StdFiles
 
+syn match oasisOperator "(\|)\|>=\|,\|&&"
+syn match oasisVariable "$\w\+"
+syn match oasisNumber "\d\+"
+syn region oasisString start=/"/ end=/"/
+
 syntax keyword oasisSection Document Executable Flag Library Document Test SourceRepository
 
 syntax match oasisKey "OASISFormat:"
@@ -29,6 +34,7 @@ syntax match oasisKey "Description:"
 syntax match oasisKey "AlphaFeatures:"
 syntax match oasisKey "BetaFeatures:"
 syntax match oasisKey "PostConfCommand:"
+syntax match oasisKey "FilesAB:"
 
 syntax match oasisKey2 "\c\s\+Index\$\=:"
 syntax match oasisKey2 "\c\s\+Format\$\=:"
@@ -60,6 +66,7 @@ syntax match oasisKey2 "\c\s\+InstallDir\$\=:"
 syntax match oasisKey2 "\c\s\+XOCamlbuildLibraries\$\=:"
 syntax match oasisKey2 "\c\s\+XOCamlbuildPath\$\=:"
 syntax match oasisKey2 "\c\s\+XOCamlbuildExtraArgs\$\=:"
+syntax match oasisKey2 "\c\s\+XOCamlbuildModules\$\=:"
 syntax match oasisKey2 "\c\s\+Type\$\=:"
 syntax match oasisKey2 "\c\s\+Location\$\=:"
 syntax match oasisKey2 "\c\s\+Branch\$\=:"
@@ -78,5 +85,9 @@ highlight link oasisTodo Todo
 highlight link oasisComment Comment
 highlight link oasisPlugin Type
 highlight link oasisSpecialFeatures Exception 
+highlight link oasisOperator Operator
+highlight link oasisVariable Statement
+highlight link oasisString String
+highlight link oasisNumber Number
 
 let b:current_syntax = "oasis"

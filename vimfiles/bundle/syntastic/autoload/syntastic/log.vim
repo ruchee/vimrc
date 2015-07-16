@@ -90,7 +90,7 @@ function! syntastic#log#debugShowOptions(level, names) abort " {{{2
 
     let vlist = copy(type(a:names) == type('') ? [a:names] : a:names)
     if !empty(vlist)
-        call map(vlist, "'&' . v:val . ' = ' . strtrans(string(eval('&' . v:val)))")
+        call map(vlist, "'&' . v:val . ' = ' . strtrans(string(eval('&' . v:val))) . (s:_is_modified(v:val) ? ' (!)' : '')")
         echomsg leader . join(vlist, ', ')
     endif
     call s:_logRedirect(0)
@@ -121,6 +121,21 @@ function! syntastic#log#debugDump(level) abort " {{{2
     endif
 
     call syntastic#log#debugShowVariables( a:level, sort(keys(g:_SYNTASTIC_DEFAULTS)) )
+endfunction " }}}2
+
+function! syntastic#log#ndebug(level, title, messages) abort " {{{2
+    if s:_isDebugEnabled(a:level)
+        return
+    endif
+
+    call syntastic#log#error(a:title)
+    if type(a:messages) == type([])
+        for msg in a:messages
+            echomsg msg
+        endfor
+    else
+        echomsg a:messages
+    endif
 endfunction " }}}2
 
 " }}}1
@@ -172,6 +187,20 @@ function! s:_format_variable(name) abort " {{{2
     endif
 
     return join(vals, ', ')
+endfunction " }}}2
+
+function! s:_is_modified(name) abort " {{{2
+    if !exists('s:option_defaults')
+        let s:option_defaults = {}
+    endif
+    if !has_key(s:option_defaults, a:name)
+        let opt_save = eval('&' . a:name)
+        execute 'set ' . a:name . '&'
+        let s:option_defaults[a:name] = eval('&' . a:name)
+        execute 'let &' . a:name . ' = ' . string(opt_save)
+    endif
+
+    return s:option_defaults[a:name] !=# eval('&' . a:name)
 endfunction " }}}2
 
 " }}}1

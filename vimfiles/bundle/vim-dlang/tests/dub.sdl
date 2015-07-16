@@ -1,0 +1,37 @@
+name "test-some-name"
+description "Demo syntax highlight of DUB configuration"
+copyright "Copyright © 2015, Joakim Brännström"
+authors "Joakim Brännström"
+license "BSL"
+
+dependency "tested" version="~>0.9.4"
+dependency "docopt" version="~>0.6.1-b.3"
+dependency "dsrcgen" path="dsrcgen"
+
+targetPath "build"
+mainSourceFile "source/app.d"
+sourcePaths "source" "clang"
+importPaths "source" "clang"
+stringImportPaths "clang/resources"
+excludedSourceFiles "source/wip_main.d" "source/analyze"
+lflags "-lclang" "-rpath" "." "-L." "$LFLAGS"
+
+buildRequirements {
+    "requireBoundsCheck"
+    "requireContracts"
+}
+
+buildType "unittest-cov" {
+    buildOptions "unittests" "debugMode" "debugInfo" "coverage"
+}
+
+configuration "release" {
+    targetType "executable"
+    excludedSourceFiles "source/wip_main.d" "source/generator/analyze"
+}
+
+configuration "unittest" {
+    targetName "unittest"
+    targetType "executable"
+    buildType "debugInfo"
+}

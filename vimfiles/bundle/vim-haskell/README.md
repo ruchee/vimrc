@@ -15,7 +15,7 @@ I hope you find this useful.
 * Highlighting for new features like type families, pattern synonyms, arrow syntax, recursive do, role annotations, QuasiQuotation
 * More contextual highlighting (e.g. highlight 'as' or 'family' only in appropriate places)
 * Smarter indentation
-* Better Cabal support (WIP)
+* Better Cabal support
 
 ## Installation
 
@@ -30,7 +30,6 @@ Be sure that the following lines are in your
 
 
     syntax on
-    filetype on
     filetype plugin indent on
 
 ### Manual Installation
@@ -133,9 +132,9 @@ To configure indentation in `haskell-vim` you can use the following variables to
           -- hs-source-dirs:
           default-language:    Haskell2010
 
-* `CabalAddLibrary`: Adds a new library section to the end of your cabal file. Prompts you for library name.
+* `CabalAddLibrary`: Adds a new library section to the end of your cabal file.
 
-        library name
+        library
           -- ghc-options:
           -- other-modules:
           -- other-extensions:

@@ -73,6 +73,17 @@ endif
 
 " }}}1
 
+" Constants {{{1
+
+let s:_FILE_SHORTCUTS = {
+        \ '%FILE_PATH%':  '%:p',
+        \ '%FILE_NAME%':  '%:t',
+        \ '%FILE_DIR%':   '%:p:h',
+    \ }
+lockvar! s:_FILE_SHORTCUTS
+
+" }}}1
+
 command! SyntasticJavacEditClasspath call s:EditClasspath()
 
 if g:syntastic_java_javac_config_file_enabled
@@ -129,7 +140,12 @@ function! SyntaxCheckers_java_javac_GetLocList() dict " {{{1
 
     " load custom classpath {{{2
     if g:syntastic_java_javac_custom_classpath_command !=# ''
-        let lines = syntastic#util#system(g:syntastic_java_javac_custom_classpath_command)
+        " Pre-process the classpath command string a little.
+        let classpath_command = g:syntastic_java_javac_custom_classpath_command
+        for [key, val] in items(s:_FILE_SHORTCUTS)
+            let classpath_command = substitute(classpath_command, '\V' . key, syntastic#util#shexpand(val), 'g')
+        endfor
+        let lines = syntastic#util#system(classpath_command)
         if syntastic#util#isRunningWindows() || has('win32unix')
             let lines = substitute(lines, "\r\n", "\n", 'g')
         endif
@@ -299,7 +315,7 @@ endfunction " }}}2
 
 function! s:GetMavenProperties() " {{{2
     let mvn_properties = {}
-    let pom = findfile('pom.xml', '.;')
+    let pom = syntastic#util#findFileInParent('pom.xml', expand('%:p:h', 1))
     if s:has_maven && filereadable(pom)
         if !has_key(g:syntastic_java_javac_maven_pom_properties, pom)
             let mvn_cmd = syntastic#util#shexpand(g:syntastic_java_maven_executable) .
@@ -334,7 +350,7 @@ function! s:GetMavenProperties() " {{{2
 endfunction " }}}2
 
 function! s:GetMavenClasspath() " {{{2
-    let pom = findfile('pom.xml', '.;')
+    let pom = syntastic#util#findFileInParent('pom.xml', expand('%:p:h', 1))
     if s:has_maven && filereadable(pom)
         if !has_key(g:syntastic_java_javac_maven_pom_ftime, pom) || g:syntastic_java_javac_maven_pom_ftime[pom] != getftime(pom)
             let mvn_cmd = syntastic#util#shexpand(g:syntastic_java_maven_executable) .
@@ -378,7 +394,7 @@ function! s:GetMavenClasspath() " {{{2
 endfunction " }}}2
 
 function! s:MavenOutputDirectory() " {{{2
-    let pom = findfile('pom.xml', '.;')
+    let pom = syntastic#util#findFileInParent('pom.xml', expand('%:p:h', 1))
     if s:has_maven && filereadable(pom)
         let mvn_properties = s:GetMavenProperties()
         let output_dir = getcwd()

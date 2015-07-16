@@ -77,7 +77,8 @@
 </style>
 <style>
 .cascade {
-  all: unset;
+  all: initial;
+  display: unset;
 }
 </style>
 <style>
@@ -300,11 +301,6 @@
 }
 </style>
 <style>
-.layout::slot(b) {
-  display: same;
-}
-</style>
-<style>
 .line-grid {
   line-grid: create;
   line-snap: block-start;
@@ -520,6 +516,15 @@
 }
 </style>
 <style>
+.snappoints {
+  scroll-snap-type: mandatory;
+  scroll-snap-points-x: proximity;
+  scroll-snap-points-y: auto;
+  scroll-snap-destination: auto;
+  scroll-snap-coordinate: auto;
+}
+</style>
+<style>
 .speech {
   voice-volume: 10dB;
   voice-balance: literal-punctuation;
@@ -614,17 +619,13 @@
 <style>
 .values {
   display: 1ch;
-  display: 1rem;
   display: 1vw;
   display: 1vh;
   display: 1vmin;
+  display: 1q;
   display: 1turn;
-  display: 1dpi;
-  display: 1dpcm;
-  display: 1dppx;
   display: calc(100%/3 - 2*1em - 2*1px);
   display: toggle(italic, normal);
-  display: initial;
 }
 </style>
 <style>

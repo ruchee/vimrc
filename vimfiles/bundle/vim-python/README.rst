@@ -81,7 +81,7 @@ Option and commands to select Python version
 
 ``python_version_2``
   Enable highlighting for Python 2 (Python 3 highlighting is enabled by
-  default). Can also be set as a local to buffer ``b:python_version_2``
+  default). Also can be set as a local to buffer ``b:python_version_2``
   variable.
 
 The following local to buffer commands can be used to switch between two
@@ -130,14 +130,16 @@ Contributors
 
 List of the contributors in alphabetical order:
 
-- Andrea Riciputi
+- `Andrea Riciputi <https://github.com/mrrech>`_
 - Anton Butanaev
 - Caleb Adamantine
-- Elizabeth Myers
-- Jeroen Ruigrok van der Werven
-- John Eikenberry
-- Marc Weber
-- Pedro Algarvio
-- pydave at GitHub
-- Will Gray
-- Yuri Habrusiev
+- `David Briscoe <https://github.com/idbrii>`_
+- `Elizabeth Myers <https://github.com/Elizafox>`_
+- `Ihor Gorobets <https://github.com/iho>`_
+- `Jeroen Ruigrok van der Werven <https://github.com/ashemedai>`_
+- `John Eikenberry <https://github.com/eikenb>`_
+- `Marc Weber <https://github.com/MarcWeber>`_
+- `Pedro Algarvio <https://github.com/s0undt3ch>`_
+- `Victor Salgado <https://github.com/mcsalgado>`_
+- `Will Gray <https://github.com/graywh>`_
+- `Yuri Habrusiev <https://github.com/yuriihabrusiev>`_
