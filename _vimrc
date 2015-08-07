@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-07-16 17:26:05
+" -----------------    Date: 2015-08-07 11:10:29
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -233,25 +233,28 @@ au FileType scheme,racket,lisp,clojure,lua,ruby,scala,elixir,julia,dart,coffee,s
 " go get -u github.com/jstemmer/gotags
 " go get -u github.com/rogpeppe/godef
 " go get -u github.com/nsf/gocode [Windows使用 go get -u -ldflags -H=windowsgui github.com/nsf/gocode]
+au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
 
 " 根据后缀名指定文件类型
-au BufRead,BufNewFile *.h        setlocal ft=c
-au BufRead,BufNewFile *.m        setlocal ft=objc
-au BufRead,BufNewFile *.di       setlocal ft=d
-au BufRead,BufNewFile *.ss       setlocal ft=scheme
-au BufRead,BufNewFile *.cl       setlocal ft=lisp
-au BufRead,BufNewFile *.phpt     setlocal ft=php
-au BufRead,BufNewFile *.inc      setlocal ft=php
-au BufRead,BufNewFile *.sql      setlocal ft=mysql
-au BufRead,BufNewFile *.tpl      setlocal ft=smarty
-au BufRead,BufNewFile *.txt      setlocal ft=txt
-au BufRead,BufNewFile *.log      setlocal ft=conf
-au BufRead,BufNewFile hosts      setlocal ft=conf
-au BufRead,BufNewFile http*.conf setlocal ft=apache
-au BufRead,BufNewFile *.conf     setlocal ft=nginx
-au BufRead,BufNewFile *.ini      setlocal ft=dosini
+au BufRead,BufNewFile *.h           setlocal ft=c
+au BufRead,BufNewFile *.i           setlocal ft=c
+au BufRead,BufNewFile *.m           setlocal ft=objc
+au BufRead,BufNewFile *.di          setlocal ft=d
+au BufRead,BufNewFile *.ss          setlocal ft=scheme
+au BufRead,BufNewFile *.cl          setlocal ft=lisp
+au BufRead,BufNewFile *.phpt        setlocal ft=php
+au BufRead,BufNewFile *.inc         setlocal ft=php
+au BufRead,BufNewFile *.sql         setlocal ft=mysql
+au BufRead,BufNewFile *.tpl         setlocal ft=smarty
+au BufRead,BufNewFile *.txt         setlocal ft=txt
+au BufRead,BufNewFile *.log         setlocal ft=conf
+au BufRead,BufNewFile hosts         setlocal ft=conf
+au BufRead,BufNewFile *.conf        setlocal ft=nginx
+au BufRead,BufNewFile http*.conf    setlocal ft=apache
+au BufRead,BufNewFile php-fpm*.conf setlocal ft=dosini
+au BufRead,BufNewFile *.ini         setlocal ft=dosini
 
 
 " 设置着色模式和字体
@@ -382,7 +385,12 @@ au FileType php        call AddPHPDict()
 au FileType python     call AddPythonDict()
 au FileType ruby       call AddRubyDict()
 au FileType javascript call AddJavaScriptDict()
+au FileType coffee     call AddJavaScriptDict()
+au FileType typescript call AddJavaScriptDict()
+au FileType ls         call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
+au FileType scss       call AddCSSDict()
+au FileType less       call AddCSSDict()
 
 function AddCDict()
     if g:isWIN
@@ -504,6 +512,7 @@ let g:bufExplorerSortBy = 'name'               " 按文件名排序
 let g:tagbar_sort = 0                          " 关闭排序     [也就是按标签本身在文件中的位置排序]
 let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局关于行号的默认配置]
 let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
+let g:tagbar_type_elixir = {'ctagstype': 'elixir', 'kinds': ['f:functions:0:0', 'c:callbacks:0:0', 'd:delegates:0:0', 'e:exceptions:0:0', 'i:implementations:0:0', 'a:macros:0:0', 'o:operators:0:0', 'm:modules:0:0', 'p:protocols:0:0', 'r:records:0:0'], 'sro': '.'}
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
@@ -543,6 +552,9 @@ let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
 
+" NERDTree            树形文件浏览器
+let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
+
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
@@ -576,7 +588,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {
             \'mode': 'active',
-            \'passive_filetypes': ['go', 'lisp', 'clojure', 'groovy', 'kotlin', 'scala', 'typescript', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
+            \'passive_filetypes': ['lisp', 'clojure', 'groovy', 'kotlin', 'scala', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
             \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 let g:syntastic_c_compiler = 'gcc'
@@ -588,7 +600,7 @@ au BufRead,BufNewFile *.min.js,*.jsx,*.html exec ':SyntasticToggleMode'
 
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,angularjs,angularui,react'
+let g:used_javascript_libs = 'jquery,underscore,backbone,requirejs,angularjs,angularui,react,handlebars'
 
 
 " php-cs-fixer                                   格式化PHP代码
@@ -808,6 +820,12 @@ func! Compile_Run_Code()
         else
             exec '!nim c %:t && ./%:r'
         endif
+    elseif &filetype == 'crystal'
+        if g:isWIN
+            exec '!crystal build %:t && %:r.exe'
+        else
+            exec '!crystal build %:t && ./%:r'
+        endif
     elseif &filetype == 'vala'
         if g:isWIN
             exec '!valac %:t && %:r.exe'
@@ -885,13 +903,13 @@ func! Compile_Run_Code()
     elseif &filetype == 'r'
         exec '!Rscript %:t'
     elseif &filetype == 'coffee'
-        exec '!coffee -c %:t && node %:r.js'
+        exec '!coffee -c %:t && node --harmony %:r.js'
     elseif &filetype == 'typescript'
-        exec '!tsc %:t && node %:r.js'
+        exec '!tsc %:t && node --harmony %:r.js'
     elseif &filetype == 'ls'
-        exec '!lsc -c %:t && node %:r.js'
+        exec '!lsc -c %:t && node --harmony %:r.js'
     elseif &filetype == 'javascript'
-        exec '!node %:t'
+        exec '!node --harmony %:t'
     elseif &filetype == 'sh'
         exec '!bash %:t'
     endif

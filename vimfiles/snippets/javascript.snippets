@@ -23,6 +23,8 @@ snippet ex      按层次导出
 	exports.${1} = ${2};${0}
 snippet moex    顶层导出
 	module.exports = ${1};${0}
+snippet df      AMD模块定义
+	define(${0});
 # 函数、流程控制
 snippet f       常规函数
 	function ${1:f_name} (${2}) {
@@ -66,8 +68,8 @@ snippet fi6     for .. in [ES6语法]
 	for (let ${1} in ${2}) {
 	    ${0}
 	}
-snippet fe      for each [ES6新增]
-	for each (${1})${0}
+snippet fe      forEach
+	forEach(${0});
 snippet wh      while
 	while (${1}) {
 	    ${0}
@@ -217,7 +219,7 @@ snippet gbyt    根据标签名取多个元素
 snippet ga      取属性值
 	getAttribute('${0}')
 snippet sa      设置属性
-	setAttribute('${0}', ${0})
+	setAttribute('${1}', ${0})
 ################
 snippet q       jQuery选择器
 	$(${0})

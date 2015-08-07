@@ -113,17 +113,19 @@ COMMANDS                                                          *go-commands*
                                                                   *:GoPath*
 :GoPath [path]
 
-    GoPath sets and ovverides GOPATH with the given {path}. If no {path} is
+    GoPath sets and overrides GOPATH with the given {path}. If no {path} is
     given it shows the current GOPATH. If `""` is given as path, it clears
     current `GOPATH` which was set with |GoPath| and restores `GOPATH` back to
-    the inital value which was sourced when Vim was started.
+    the initial value which was sourced when Vim was started.
 
                                                                   *:GoImport*
-:GoImport [path]
+:GoImport[!] [path]
 
     Import ensures that the provided package {path} is imported in the current
-    Go buffer, using proper style and ordering.  If {path} is already being
+    Go buffer, using proper style and ordering. If {path} is already being
     imported, an error will be displayed and the buffer will be untouched.
+
+    If [!] is given it will download the package with `go get`
 
                                                                 *:GoImportAs*
 :GoImportAs [localname] [path]
@@ -138,9 +140,9 @@ COMMANDS                                                          *go-commands*
     displayed and the buffer will be untouched.
 
                                                                     *:GoLint*
-:GoLint
+:GoLint [packages]
 
-    Run golint for the current Go file.
+    Run golint for the current Go file, or for given packages.
 
                                                                      *:GoDoc*
 :GoDoc [word]
@@ -177,13 +179,17 @@ COMMANDS                                                          *go-commands*
      'xterm-clipboard' otherwise it's get yanked into the `""` register.
 
                                                                      *:GoVet*
-:GoVet[!]
+:GoVet[!] [options]
 
     Run `go vet` for the directory under your current file. Vet examines Go
     source code and reports suspicious constructs, such as Printf calls whose
     arguments do not align with the format string. Vet uses heuristics that do not
     guarantee all reports are genuine problems, but it can find errors not caught
     by the compilers.
+
+    You may optionally pass any valid go tool vet flags/options. In this case,
+    `go tool vet` is run in place of `go vet`. For a full list please see
+    `go tool vet -h`.
 
     If [!] is not given the first error is jumped to.
 
@@ -202,42 +208,48 @@ COMMANDS                                                          *go-commands*
     current file is used. If an argument is passed, 'expand' is used as file
     selector. For example use `:GoRun %` to select the current file only.
 
+    You may optionally pass any valid go run flags/options. For a full list
+    please see `go help run`.
+
     If [!] is not given the first error is jumped to.
 
                                                                    *:GoBuild*
-:GoBuild[!] [options]
+:GoBuild[!] [expand]
 
     Build your package with `go build`. It automatically builds only the files
     that depends on the current file. GoBuild doesn't produce a result file.
     Use 'make' to create a result file.
 
     You may optionally pass any valid go build flags/options. For a full list
-    please see `go help build`.
+    please see `go help build`. Options are expanded with 'expand'.
 
     If [!] is not given the first error is jumped to.
 
                                                                    *:GoGenerate*
-:GoGenerate[!] [options]
+:GoGenerate[!] [expand]
 
     Creates or updates your auto-generated source files by running `go
     generate`.
 
     You may optionally pass any valid go generate flags/options. For a full list
-    please see `go help generate`.
+    please see `go help generate`. Options are expanded with 'expand'.
 
     If [!] is not given the first error is jumped to.
 
                                                                     *:GoInfo*
 :GoInfo
-    Show type information about the identifer under the cursor. For example
+    Show type information about the identifier under the cursor. For example
     putting it above a function call is going to show the full function
     signature. It uses gocode to get the type informations.
 
 
                                                                  *:GoInstall*
-:GoInstall[!]
+:GoInstall[!] [options]
 
-  Install your package with `go install`.
+    Install your package with `go install`.
+
+    You may optionally pass any valid go install flags/options. For a full list
+    please see `go help install`.
 
     If [!] is not given the first error is jumped to.
 
@@ -247,6 +259,9 @@ COMMANDS                                                          *go-commands*
     Run the tests on your _test.go files via in your current directory. Errors
     are populated in quickfix window.  If an argument is passed, 'expand' is
     used as file selector (useful for cases like `:GoTest ./...`).
+
+    You may optionally pass any valid go test flags/options. For a full list
+    please see `go help test`.
 
     If [!] is not given the first error is jumped to.
 
@@ -274,18 +289,24 @@ COMMANDS                                                          *go-commands*
     If [!] is not given the first error is jumped to.
 
                                                                 *:GoCoverage*
-:GoCoverage[!]
+:GoCoverage[!] [options]
 
     Create a coverage profile and open a browser to display the annotated
     source code of the current package.
 
+    You may optionally pass any valid go test flags/options, such as
+    `-covermode set,count,atomic`. For a full list please see `go help test`.
+
     If [!] is not given the first error is jumped to.
 
                                                                 *:GoErrCheck*
-:GoErrCheck
+:GoErrCheck [options]
 
     Check for unchecked errors in you current package. Errors are populated in
     quickfix window.
+
+    You may optionally pass any valid errcheck flags/options. For a full list
+    please see `errcheck -h`.
 
                                                                    *:GoFiles*
 :GoFiles
@@ -802,7 +823,7 @@ First environment variables in Fish are applied differently, it should be like:
 <
 Second, Vim needs a POSIX compatible shell (more info here:
 https://github.com/dag/vim-fish#teach-a-vim-to-fish). If you use Fish to open
-vim, it will make certainx shell based commands fail (means vim-go will fail
+vim, it will make certain shell based commands fail (means vim-go will fail
 too). To overcome this problem change the default shell by adding the
 following into your .vimrc (on the top of the file):
 >
@@ -835,7 +856,7 @@ You'll see a more detailed error. If this works, vim-go will work too.
 ===============================================================================
 CREDITS                                                         *go-credits*
 
-* Go Authors for offical vim plugins
+* Go Authors for official vim plugins
 * Gocode, Godef, Golint, Oracle, Goimports, Errcheck projects and authors of
   those projects.
 * Other vim-plugins, thanks for inspiration (vim-golang, go.vim, vim-gocode,

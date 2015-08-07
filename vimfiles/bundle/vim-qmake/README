@@ -1,0 +1,24 @@
+qmake project syntax file for Vim
+Copyright (C) 2011-2012 Arto Jonsson <artoj@iki.fi>
+
+ABOUT
+
+    qmake is a Makefile generator used by the Qt toolkit.
+
+    The 'qmake.vim' file provides syntax coloring for qmake project files.
+
+INSTALLATION
+
+    Put the 'syntax/qmake.vim' file to your $VIMRUNTIME/syntax/ directory.
+    Then you can use:
+
+        :set syntax=qmake
+
+    To use the syntax in the current buffer.
+
+    To set the syntax automatically for certain file types, such as '.pro' in
+    this case, put the 'ftdetect/pro.vim' in $VIMRUNTIME/ftdetect/ directory.
+
+    See ':help ftdetect' for more information.
+
+    Alternatively you can use bundle manager such as Vundle or Pathogen.

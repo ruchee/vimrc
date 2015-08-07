@@ -13,21 +13,41 @@ snippet im      导入单个包
 snippet im.     导入多个包
 	import (
 	    "${1}"
-	    "${2}"${0}
+		"${2}"${0}
 	)
 # 函数、复合结构
+snippet init    初始化函数
+	func init () {
+	    ${0}
+	}
 snippet main    主函数
 	func main () {
 	    ${0}
 	}
-snippet f       函数
-	func ${1:f_name} (${2}) ${3} {
+snippet f       函数1
+	func ${1:f_name} (${2})${3} {
+	    ${0}
+	}
+snippet f.      函数2
+	func (${1}) ${2:f_name} (${3})${4} {
 	    ${0}
 	}
 snippet ff      匿名函数
-	func (${1}) ${2} {${0}}
+	func (${1})${2} {${0}}
 snippet str     结构体
 	type ${1:str_name} struct {
+	    ${0}
+	}
+snippet <       结构体
+	type ${1:str_name} struct {
+	    ${0}
+	}
+snippet int     接口
+	type ${1:int_name} interface {
+	    ${0}
+	}
+snippet >       接口
+	type ${1:int_name} interface {
 	    ${0}
 	}
 # 流程控制
@@ -55,6 +75,10 @@ snippet sw      switch
 	switch ${1} {
 	    ${0}
 	}
+snippet se      select
+	select {
+	    ${0}
+	}
 snippet cs      case
 	case ${1}:
 	    ${0}
@@ -72,13 +96,19 @@ snippet br      中断
 	break ${0}
 snippet go      跳转
 	goto ${0}
+snippet de      函数返回之前执行
+	defer ${0}
 snippet ra      range
 	range ${0}
-snippet tp      type
-	type ${0}
-snippet con     常量
+snippet g       Go程
+	go ${0}
+snippet ch      管道
+	chan ${0}
+snippet d       删除
+	delete(${0})
+snippet con     定义常量
 	const ${0}
-snippet con.    多个常量
+snippet con.    定义多个常量
 	const (
 	    ${0}
 	)
@@ -88,9 +118,27 @@ snippet v.      定义多个变量
 	var (
 	    ${0}
 	)
-snippet i       初始置0，自增1
+snippet t       定义类型
+	type ${0}
+snippet t.      定义多个类型
+	type (
+	    ${0}
+	)
+snippet io      初始置0，自增1
 	iota${0}
 # 数据类型
+snippet e       error
+	error${0}
+snippet b       bool
+	bool${0}
+snippet r       rune
+	rune${0}
+snippet s       string
+	string${0}
+snippet by      byte
+	byte${0}
+snippet i       int
+	int${0}
 snippet i8      int8
 	int8${0}
 snippet i16     int16
@@ -99,6 +147,10 @@ snippet i32     int32
 	int32${0}
 snippet i64     int64
 	int64${0}
+snippet u       uint
+	uint${0}
+snippet up      uintptr
+	uintptr${0}
 snippet u8      uint8
 	uint8${0}
 snippet u16     uint16
@@ -115,34 +167,40 @@ snippet c64     complex64
 	complex64${0}
 snippet c128    complex128
 	complex128${0}
-snippet s       string
-	string${0}
-snippet err     错误
-	error${0}
-# 常用函数
-snippet l       取数组元素个数、字符串长度
+# 内置函数
+snippet cl      关闭管道
+	close(${0})
+snippet l       获取大小或长度
 	len(${0})
-snippet c       取数组切片分配的空间大小
+snippet c       获取最大容量
 	cap(${0})
-snippet m       创建
+snippet n       分配内存（值类型和用户自定义类型）
+	new(${0})
+snippet m       分配内存（返回对指定类型初始化之后的值）
 	make(${0})
-snippet d       删除
-	delete(${0})
+snippet ap      连接切片
+	append(${0})
+snippet pa      错误处理
+	panic(${0})
+snippet rv      错误处理
+	recover(${0})
 # 输入输出
 snippet p       输出（不换行）
 	print(${0})
 snippet pl      输出（换行）
 	println(${0})
-snippet fp      Printf
-	fmt.Printf(${0})
-snippet fpl     Println
+snippet fp      fmt.Print
+	fmt.Print(${0})
+snippet fpf     fmt.Printf
+	fmt.Printf("${1}", ${0})
+snippet fpl     fmt.Println
 	fmt.Println(${0})
-snippet fsp     Sprint
-	fmt.Sprint(${0})
-snippet ffp     Fprintf
+snippet fsp     fmt.Sprintf
+	fmt.Sprintf("${1}", ${0})
+snippet ffp     fmt.Fprintf
 	fmt.Fprintf(${0})
 # 其他
 snippet .       :=
 	:= ${0}
-snippet <       <-
+snippet ,       <-
 	<- ${0}

@@ -301,18 +301,19 @@ and so on. After expansion, SnipMate will jump to the first tab stop. From
 then on, the <Plug>snipMateNextOrTrigger map will jump to the next higher
 numbered tabs top.
 
-However, SnipMate will always stop at the zero tab stop $0. Once it jumps to
+In the case of an ambiguity, for example if a stop occurs just before
+a literal number, braces may be placed around the stop number to resolve it:
+${3}79 is the third tab stop followed by the string "79".
+
+NOTE: In the version 0 snippet parser, the braces are mandatory.
+
+                                                       *SnipMate-zero-tabstop*
+SnipMate will always stop at the special zero tab stop $0. Once it jumps to
 the zero tab stop, snippet expansion is finished. If the zero tab stop is not
 present in a definition, it will be put at the end.
 
-In the case of an ambiguity, for example if a stop occurs just before a literal
-number, braces may be placed around the stop number to resolve it: ${3}79 is
-the third tab stop followed by the string "79".
-
-Note: In the version 0 snippet parser, the braces are mandatory.
-
-For example, to place the cursor first on the id of a <div> tag, then on
-its class, and finally end editing its contents: >
+For example, to place the cursor first on the id of a <div> tag, then on its
+class, and finally end editing its contents: >
 
     snippet div
         <div id="$1" class="$2">

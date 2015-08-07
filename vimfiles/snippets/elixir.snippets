@@ -3,37 +3,170 @@ snippet #       可执行标识
 	${0}
 snippet /       单行注释
 	# ${0}
+snippet //      文档注释
+	"""${0}"""
 snippet -       分隔注释
 	#----------------------------------------------------------------------${0}
 # 包含指令
+snippet rq      引用宏
+	require ${0}
+snippet im      导入模块 [导入一个模块会自动require它]
+	import ${0}
+snippet al      给模块设置别名 [自动设置别名为模块名的最后一部分]
+	alias ${0}
+snippet u       使用模块
+	use ${0}
+# 代码文档
+snippet mdoc    模块文档
+	@moduledoc """${0}
+	"""
+snippet tdoc    类型文档
+	@typedoc """${0}
+	"""
+snippet doc     普通文档
+	@doc """${0}
+	"""
+snippet bdoc    行为文档
+	@behaviour """${0}
+	"""
+snippet bcdoc   编译前的钩子
+	@before_compile """${0}
+	"""
 # 模块、类
 snippet dm      定义模块
 	defmodule ${1:mo_name} do
 	  ${0}
 	end
+snippet da      定义共用宏
+	defmacro ${1:ma_name} do
+	  ${0}
+	end
+snippet dap     定义私有宏
+	defmacrop ${1:ma_name} do
+	  ${0}
+	end
+snippet dpr     定义协议
+	defprotocol ${1:pro_name} do
+	  ${0}
+	end
+snippet dim     实现协议
+	defimpl ${1} do
+	  ${0}
+	end
+snippet ds      定义结构体
+	defstruct ${0}
+snippet de      定义异常
+	defexception ${0}
 # 方法
-snippet d       方法定义 [不带参数]
-	def ${1:f_name} do
+snippet d       定义公用函数 [单行形式]
+	def ${1}, do: ${0}
+snippet d.      定义公用函数 [多行形式]
+	def ${1} do
 	  ${0}
 	end
-snippet d.      方法定义 [带参数]
-	def ${1:f_name}(${2}) do
+snippet dp      定义私有函数 [单行形式]
+	defp ${1}, do: ${0}
+snippet dp.     定义私有函数 [多行形式]
+	defp ${1} do
 	  ${0}
 	end
-snippet la      匿名函数
-	fn -> ${1:f_name}(${2}) ${0} end
+snippet ff      匿名函数 [单行形式]
+	fn${1} -> ${0} end
+snippet ff.     匿名函数 [多行形式]
+	fn${1} ->
+	  ${0}
+	end
 # 流程控制
 snippet do      do
 	do
 	  ${0}
 	end
+snippet re      receive
+	receive do
+	  ${0}
+	end
+snippet cs      case
+	case ${1} do
+	  ${0}
+	end
+snippet co      cond
+	cond do
+	  ${0}
+	end
+snippet if      if
+	if ${1} do
+	  ${0}
+	end
+snippet ul      unless
+	unless ${1} do
+	  ${0}
+	end
+snippet el      else
+	else
+	  ${0}
+snippet w       when
+	when ${0}
+snippet fo      for
+	for ${1} do
+	  ${0}
+	end
+snippet qu      quote
+	quote do: ${0}
+snippet qu.     quote
+	quote do
+	  ${0}
+	end
 # 异常处理
-# 输入输出
+snippet try     异常处理代码块
+	try do
+	  ${0}
+	end
+snippet ra      抛出异常
+	raise ${0}
+snippet thr     抛出异常
+	throw ${0}
+snippet res     捕获异常
+	rescue${0}
+snippet cat     捕获异常
+	catch${0}
+snippet ex      终止进程
+	exit ${0}
+# 单个关键字
+snippet se      self
+	self${0}
+snippet af      after
+	after${0}
+snippet uq      unquote
+	unquote(${0})
+snippet eq      执行AST
+	Code.eval_quoted(${0})
+# 内置函数
+snippet len     长度
+	length(${0})
+snippet sp      派生进程
+	spawn(${0})
+snippet spl     链接进程
+	spawn_link(${0})
+snippet ins     转换成字符串形式
+	inspect(${0})
+snippet ap      附加
+	append(${0})
+snippet g       输入
+	IO.gets ${0}
 snippet p       输出
 	IO.puts ${0}
-# 单个关键字
 # 其他
 snippet {       #{ .. }
 	#{${0}
-snippet .       |>
+snippet ,       <>
+	<> ${0}
+snippet ,,      << .. >>
+	<<${0}>>
+snippet <       <-
+	<- ${0}
+snippet >       ->
+	-> ${0}
+snippet |       |>
 	|> ${0}
+snippet .       =>
+	=> ${0}
