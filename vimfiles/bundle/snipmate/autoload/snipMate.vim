@@ -434,14 +434,13 @@ endf
 
 " used by both: completion and insert snippet
 fun! snipMate#GetSnippetsForWordBelowCursor(word, exact) abort
-	" Setup lookups: '1.2.3' becomes [1.2.3] + [3, 2.3]
-	let parts = split(a:word, '\W\zs')
-	" Since '\W\zs' results in splitting *after* a non-keyword character, the
-	" first \W stays connected to whatever's before it, so split it off
-	if !empty(parts) && parts[0] =~ '\W$'
-		let parts = [ parts[0][:-2], strpart(parts[0], len(parts[0]) - 1) ]
-					\ + parts[1:]
-	endif
+	" Split non-word characters into their own piece
+	" so 'foo.bar..baz' becomes ['foo', '.', 'bar', '.', '.', 'baz']
+	" First split just after a \W and then split each resultant string just
+	" before a \W
+	let parts = filter(tlib#list#Flatten(
+				\ map(split(a:word, '\W\zs'), 'split(v:val, "\\ze\\W")')),
+				\ '!empty(v:val)')
 	" Only look at the last few possibilities. Too many can be slow.
 	if len(parts) > 5
 		let parts = parts[-5:]

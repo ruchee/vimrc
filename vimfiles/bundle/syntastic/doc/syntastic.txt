@@ -54,7 +54,7 @@ CONTENTS                                                  *syntastic-contents*
         7.10.vim-go................................|syntastic-vim-go|
         7.11.vim-virtualenv........................|syntastic-vim-virtualenv|
         7.12.YouCompleteMe.........................|syntastic-ycm|
-        7.13.The zsh shell and rvm.................|syntastic-zsh|
+        7.13.The zsh shell and MacVim..............|syntastic-zsh|
     8.About........................................|syntastic-about|
     9.License......................................|syntastic-license|
 
@@ -110,10 +110,10 @@ these commands, or perhaps install a plugin such as Tim Pope's 'unimpaired'
 ------------------------------------------------------------------------------
 1.2. Recommended settings                              *syntastic-recommended*
 
-Syntastic has a large number of options that can be configured, and the
-defaults are not particularly well suitable for new users. It is recommended
-that you start by adding the following lines to your vimrc, and return to them
-later as needed: >
+Syntastic has numerous options that can be configured, and the defaults are
+not particularly well suitable for new users. It is recommended that you start
+by adding the following lines to your vimrc, and return to them later as
+needed: >
     set statusline+=%#warningmsg#
     set statusline+=%{SyntasticStatuslineFlag()}
     set statusline+=%*
@@ -247,7 +247,8 @@ You can selectively disable some of the errors found by checkers either
 using |'syntastic_quiet_messages'|, or by specifying a list of patterns in
 |'syntastic_ignore_files'|.
 
-See also: |'syntastic_<filetype>_<checker>_quiet_messages'|.
+See also: |'syntastic_<filetype>_<checker>_quiet_messages'| and
+|'b:syntastic_skip_checks'|.
 
 ==============================================================================
 3. Commands                                               *syntastic-commands*
@@ -356,7 +357,7 @@ Default: 1
 This option controls which errors are echoed to the command window if
 |'syntastic_echo_current_error'| is set and multiple errors are found on the
 same line. When the option is enabled, the first error corresponding to the
-current column is show. Otherwise, the first error on the current line is
+current column is shown. Otherwise, the first error on the current line is
 echoed, regardless of the cursor position on the current line.
 
 When dealing with very large lists of errors, disabling this option can speed
@@ -459,8 +460,8 @@ opens. >
 Default: []
 Use this option to specify files that syntastic should never check.  It's a
 list of |regular-expression| patterns.  The full paths of files (see |::p|) are
-matched against these patterns, and the matches are case sensitive. Use |\c|
-to specify case insensitive patterns.  Example: >
+matched against these patterns, and the matches are case-sensitive. Use |\c|
+to specify case-insensitive patterns.  Example: >
     let g:syntastic_ignore_files = ['\m^/usr/include/', '\m\c\.h$']
 <
                                                     *'syntastic_filetype_map'*
@@ -535,10 +536,10 @@ overriding filters, cf. |filter-overrides|).
 
     "level" - takes one of two values, "warnings" or "errors"
     "type"  - can be either "syntax" or "style"
-    "regex" - is matched against the messages' text as a case insensitive
+    "regex" - is matched against the messages' text as a case-insensitive
               |regular-expression|
     "file"  - is matched against the filenames the messages refer to, as a
-              case sensitive |regular-expression|.
+              case-sensitive |regular-expression|.
 
 If a key is prefixed by an exclamation mark "!", the corresponding filter is
 negated (i.e. the above example silences all messages that are NOT errors).
@@ -572,12 +573,25 @@ ones produced by "pylint": >
 Default: [Syntax: line:%F (%t)]
 Use this option to control what the syntastic statusline text contains. Several
 magic flags are available to insert information:
-    %e - number of errors
-    %w - number of warnings
-    %t - total number of warnings and errors
+    %e  - number of errors
+    %w  - number of warnings
+    %t  - total number of warnings and errors
+    %ne - filename of file containing first error
+    %nw - filename of file containing first warning
+    %N  - filename of file containing first warning or error
+    %pe - filename with path of file containing first error
+    %pw - filename with path of file containing first warning
+    %P  - filename with path of file containing first warning or error
     %fe - line number of first error
     %fw - line number of first warning
-    %F - line number of first warning or error
+    %F  - line number of first warning or error
+
+These flags accept width and alignment controls similar to the ones used by
+|'statusline'| flags:
+    %-0{minwid}.{maxwid}{flag}
+
+All fields except {flag} are optional. A single percent sign can be given as
+"%%".
 
 Several additional flags are available to hide text under certain conditions:
     %E{...} - hide the text in the brackets unless there are errors
@@ -799,7 +813,7 @@ Some Vim plugins use composite filetypes, such as "django.python" or
 "handlebars.html". Normally, syntastic deals with this situation by splitting
 the filetype in its simple components, and calling all checkers that apply.
 If this behaviour is not desirable, you can disable it by mapping the
-composite filetypes to a simple ones using |'syntastic_filetype_map'|, e.g.: >
+composite filetypes to simple ones using |'syntastic_filetype_map'|, e.g.: >
     let g:syntastic_filetype_map = { "handlebars.html": "handlebars" }
 <
 ------------------------------------------------------------------------------
@@ -966,16 +980,15 @@ have to set |g:ycm_show_diagnostics_ui| to 0. E.g.: >
     let g:ycm_show_diagnostics_ui = 0
 <
 ------------------------------------------------------------------------------
-7.13 The zsh shell and rvm                                     *syntastic-zsh*
+7.13 The zsh shell and MacVim                                  *syntastic-zsh*
 
 If you're running MacVim together with the "zsh" shell (http://www.zsh.org/)
-and "rvm" (https://rvm.io/), you need to be aware that MacVim does not source
-the .zshrc file, but will source a .zshenv file.  Consequently you have to
-either source the "rvm" scripts from within .zshenv, or just change your shell
-to something else: >
-    set shell=/bin/sh
-<
-Of course, you'll have to make sure "rvm" still works in the new shell.
+you need to be aware that MacVim does not source your .zshrc file, but will
+source a .zshenv file.  Consequently you have to move any setup steps relevant
+to the checkers you're using from .zshrc to .zshenv, otherwise your checkers
+will misbehave when run by syntastic.  This is particularly important for
+programs such as "rvm" (https://rvm.io/) or "rbenv" (http://rbenv.org/), that
+rely on setting environment variables.
 
 ==============================================================================
 8. About                                                     *syntastic-about*

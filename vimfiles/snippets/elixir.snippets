@@ -8,34 +8,37 @@ snippet //      文档注释
 snippet -       分隔注释
 	#----------------------------------------------------------------------${0}
 # 包含指令
-snippet rq      引用宏
+snippet rq      引入模块，使用该模块下的函数需要用 MyModule.my_func 的形式
 	require ${0}
-snippet im      导入模块 [导入一个模块会自动require它]
+snippet im      导入模块，使用该模块下的函数可直接用 my_func 的形式
 	import ${0}
-snippet al      给模块设置别名 [自动设置别名为模块名的最后一部分]
+snippet al      给模块设置别名 [没指定别名时，自动设置别名为模块名的最后一部分]
 	alias ${0}
-snippet u       使用模块
+snippet u       使用模块，需要在模块下实现 __using__ 宏
 	use ${0}
-# 代码文档
+# 文档、钩子
 snippet mdoc    模块文档
-	@moduledoc """${0}
-	"""
+	@moduledoc ${0}
 snippet tdoc    类型文档
-	@typedoc """${0}
-	"""
+	@typedoc ${0}
 snippet doc     普通文档
-	@doc """${0}
-	"""
-snippet bdoc    行为文档
-	@behaviour """${0}
-	"""
-snippet bcdoc   编译前的钩子
-	@before_compile """${0}
-	"""
+	@doc ${0}
+snippet bh      行为
+	@behaviour ${0}
+snippet sp      规格
+	@spec ${0}
+snippet bc      编译前的钩子
+	@before_compile ${0}
+snippet ac      编译后的钩子
+	@after_compile ${0}
+snippet er      指定外部资源
+	@external_resource ${0}
 # 模块、类
 snippet dm      定义模块
 	defmodule ${1:mo_name} do
+
 	  ${0}
+
 	end
 snippet da      定义共用宏
 	defmacro ${1:ma_name} do
@@ -45,12 +48,32 @@ snippet dap     定义私有宏
 	defmacrop ${1:ma_name} do
 	  ${0}
 	end
+snippet du      定义 __using__ 宏
+	defmacro __using__${1} do
+	  ${0}
+	end
+snippet dbh     定义 __behaviour__ 宏
+	defmacro __behaviour__${1} do
+	  ${0}
+	end
+snippet dbc     定义 __before_compile__ 宏
+	defmacro __before_compile__${1} do
+	  ${0}
+	end
+snippet dac     定义 __after_compile__ 宏
+	defmacro __after_compile__${1} do
+	  ${0}
+	end
 snippet dpr     定义协议
 	defprotocol ${1:pro_name} do
 	  ${0}
 	end
 snippet dim     实现协议
 	defimpl ${1} do
+	  ${0}
+	end
+snippet dre     实现记录
+	defrecord ${1} do
 	  ${0}
 	end
 snippet ds      定义结构体
@@ -111,11 +134,13 @@ snippet fo      for
 	  ${0}
 	end
 snippet qu      quote
-	quote do: ${0}
+	quote ${0}
 snippet qu.     quote
-	quote do
+	quote${1} do
 	  ${0}
 	end
+snippet uq      unquote
+	unquote(${0})
 # 异常处理
 snippet try     异常处理代码块
 	try do
@@ -136,26 +161,33 @@ snippet se      self
 	self${0}
 snippet af      after
 	after${0}
-snippet uq      unquote
-	unquote(${0})
-snippet eq      执行AST
-	Code.eval_quoted(${0})
 # 内置函数
 snippet len     长度
-	length(${0})
+	length ${0}
 snippet sp      派生进程
-	spawn(${0})
+	spawn ${0}
 snippet spl     链接进程
-	spawn_link(${0})
+	spawn_link ${0}
 snippet ins     转换成字符串形式
-	inspect(${0})
+	inspect ${0}
 snippet ap      附加
-	append(${0})
-snippet g       输入
-	IO.gets ${0}
+	append ${0}
 snippet p       输出
 	IO.puts ${0}
+snippet pp      输出复杂数据类型
+	IO.inspect ${0}
+# 特殊标识
+snippet _m     __MODULE__
+	__MODULE__${0}
+snippet _c     __CALLER__
+	__CALLER__${0}
+snippet _d     __DIR__
+	__DIR__${0}
+snippet _f     __FILE__
+	__FILE__${0}
 # 其他
+snippet r       ~r{ .. }
+	~r{${0}}
 snippet {       #{ .. }
 	#{${0}
 snippet ,       <>

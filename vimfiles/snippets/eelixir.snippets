@@ -1,0 +1,26 @@
+# 流程控制
+snippet if      if
+	<% if ${1} %>
+	  ${0}
+	<% end %>
+snippet el      else
+	<% else %>
+	  ${0}
+snippet fo      for .. in
+	<% for ${1} in ${2} %>
+	  ${0}
+	<% end %>
+snippet end     结束标签
+	<% end %>${0}
+snippet re      复用模板
+	<%= render ${0} %>
+# 工具方法
+snippet sp      静态资源路径
+	static_path(@${1:conn}, "${2}")
+snippet gf      获取Flash消息
+	get_flash(@${1:conn}, :${2:info})
+# 其他
+snippet <       执行代码
+	<% ${0} %>
+snippet .       执行代码后输出
+	<%= ${0} %>

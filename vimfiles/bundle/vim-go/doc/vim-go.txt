@@ -416,6 +416,15 @@ COMMANDS                                                          *go-commands*
     object as does the selected identifier, within any package in the analysis
     scope.
 
+                                                              *:GoMetaLinter*
+:GoMetaLinter [path]
+
+    Calls the underlying `gometalinter` tool and displays all warnings and
+    errors in a quickfix window. By default the following linters are enabled:
+    "'vet', 'golint', 'errcheck'". This can be changed with the
+    |g:go_metalinter_enabled| variable. To override the command completely use
+    the variable |g:go_metalinter_command|
+
 
 ===============================================================================
 MAPPINGS                                                        *go-mappings*
@@ -565,6 +574,9 @@ Show send/receive corresponding to selected channel op
 
 Show all refs to entity denoted by selected identifier
 
+                                                            *(go-metalinter)*
+
+Calls `go-metalinter` for the current directory
 
 ===============================================================================
 TEXT OBJECTS                                                 *go-text-objects*
@@ -793,6 +805,13 @@ Highlights build constraints. By default it's disabled. >
 
 	let g:go_highlight_build_constraints = 0
 <
+                                        *'g:go_highlight_string_spellcheck*
+
+Specifies spell checking enabled for strings. Spelling errors are highlighted
+if |spell| is enabled. By default it's enabled. >
+
+	let g:go_highlight_string_spellcheck = 1
+<
 
                                                 *'g:go_autodetect_gopath'*
 
@@ -800,7 +819,7 @@ Automatically modifies GOPATH for certain directory structures, such as for
 the tool godep which has his own dependencies via the `Godeps` folder. What
 this means is that all tools are now working with the newly modified GOPATH.
 So |GoDef| for example jumps to the source inside the `Godeps` (vendored)
-source. Currently only `godep` is supported, in the near future more tool
+source. Currently `godep` and `gb` is supported, in the near future more tool
 supports will be added. By default it's enabled. >
 
 	let g:go_autodetect_gopath = 1
@@ -810,12 +829,28 @@ supports will be added. By default it's enabled. >
 Adds custom text objects. By default it's enabled. >
 
 	let g:go_textobj_enabled = 1
+<
+
+                                                  *'g:go_metalinter_enabled'*
+
+Specifies the currently enabled linters for the |GoMetaLinter| command. By
+default it's using `vet`, `golint` and `errcheck`
+>
+  let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
+<
+                                                  *'g:go_metalinter_command'*
+
+Overrides the command to be executed when |GoMetaLinter| is called. This is
+an advanced settings and is for users who want to have a complete control
+over of how `gometalinter` should be executed. By default it's empty.
+>
+  let g:go_metalinter_command = ""
 
 
 ===============================================================================
 TROUBLESHOOTING                                         *go-troubleshooting*
 
-I'm using Fish shell but have some problems using Vim-go~
+I'm using Fish shell but have some problems using vim-go~
 
 First environment variables in Fish are applied differently, it should be like:
 >
@@ -823,7 +858,7 @@ First environment variables in Fish are applied differently, it should be like:
 <
 Second, Vim needs a POSIX compatible shell (more info here:
 https://github.com/dag/vim-fish#teach-a-vim-to-fish). If you use Fish to open
-vim, it will make certain shell based commands fail (means vim-go will fail
+Vim, it will make certain shell based commands fail (means vim-go will fail
 too). To overcome this problem change the default shell by adding the
 following into your .vimrc (on the top of the file):
 >
@@ -836,7 +871,7 @@ or
 	set shell='/bin/sh'
 >
 
-I'm seeing weirds errors during installation of binaries with
+I'm seeing weird errors during installation of binaries with
 GoInstallBinaries:
 
 If you see errors like this:

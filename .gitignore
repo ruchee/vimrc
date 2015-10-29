@@ -1,6 +1,9 @@
 /vim74
+/*.vim
 
+Thumbs.db
 .DS_Store
+*.pyc
 *.cache
 *.swp
 tags

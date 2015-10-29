@@ -9,15 +9,18 @@ if s:grep_available
 endif
 let s:hunk_re = '^@@ -\(\d\+\),\?\(\d*\) +\(\d\+\),\?\(\d*\) @@'
 
+let s:fish = &shell =~# 'fish'
 
 function! gitgutter#diff#run_diff(realtime, use_external_grep)
   " Wrap compound commands in parentheses to make Windows happy.
-  let cmd = '('
+  " bash doesn't mind the parentheses; fish doesn't want them.
+  let cmd = s:fish ? '' : '('
 
   let bufnr = gitgutter#utility#bufnr()
   let tracked = getbufvar(bufnr, 'gitgutter_tracked')  " i.e. tracked by git
   if !tracked
-    let cmd .= 'git ls-files --error-unmatch '.gitgutter#utility#shellescape(gitgutter#utility#filename()).' && ('
+    let cmd .= 'git ls-files --error-unmatch '.gitgutter#utility#shellescape(gitgutter#utility#filename())
+    let cmd .= s:fish ? '; and ' : ' && ('
   endif
 
   if a:realtime
@@ -29,7 +32,8 @@ function! gitgutter#diff#run_diff(realtime, use_external_grep)
       let blob_file .= '.'.extension
       let buff_file .= '.'.extension
     endif
-    let cmd .= 'git show '.blob_name.' > '.blob_file.' && '
+    let cmd .= 'git show '.blob_name.' > '.blob_file
+    let cmd .= s:fish ? '; and ' : ' && '
 
     " Writing the whole buffer resets the '[ and '] marks and also the
     " 'modified' flag (if &cpoptions includes '+').  These are unwanted
@@ -61,20 +65,24 @@ function! gitgutter#diff#run_diff(realtime, use_external_grep)
     " differences are found.  However we want to treat non-matches and
     " differences as non-erroneous behaviour; so we OR the command with one
     " which always exits with success (0).
-    let cmd.= ' || exit 0'
+    let cmd .= s:fish ? '; or ' : ' || '
+    let cmd .= 'exit 0'
   endif
 
-  let cmd .= ')'
-
-  if !tracked
+  if !s:fish
     let cmd .= ')'
-  endif
+
+    if !tracked
+      let cmd .= ')'
+    endif
+  end
 
   let diff = gitgutter#utility#system(gitgutter#utility#command_in_directory_of_file(cmd))
 
   if a:realtime
     call delete(blob_file)
     call delete(buff_file)
+    execute 'keepalt silent bwipeout' buff_file
   endif
 
   if gitgutter#utility#shell_error()

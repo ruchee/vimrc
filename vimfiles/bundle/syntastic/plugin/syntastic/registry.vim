@@ -8,7 +8,7 @@ let g:loaded_syntastic_registry = 1
 let s:_DEFAULT_CHECKERS = {
         \ 'actionscript':  ['mxmlc'],
         \ 'ada':           ['gcc'],
-        \ 'apiblueprint':  ['snowcrash'],
+        \ 'apiblueprint':  ['drafter'],
         \ 'applescript':   ['osacompile'],
         \ 'asciidoc':      ['asciidoc'],
         \ 'asm':           ['gcc'],
@@ -42,6 +42,7 @@ let s:_DEFAULT_CHECKERS = {
         \ 'haxe':          ['haxe'],
         \ 'hss':           ['hss'],
         \ 'html':          ['tidy'],
+        \ 'jade':          ['jade_lint'],
         \ 'java':          ['javac'],
         \ 'javascript':    ['jshint', 'jslint'],
         \ 'json':          ['jsonlint', 'jsonval'],

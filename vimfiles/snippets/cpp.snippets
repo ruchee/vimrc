@@ -15,17 +15,20 @@ snippet ins     包含标准输入输出头文件
 	#include <stdio.h>${0}
 snippet df      宏定义
 	#define ${0}
-snippet ifdf    包含了指定头文件时的处理方式
+snippet /if     包含了指定头文件时的处理方式
 	#ifdef ${1}
 	${0}
 	#endif
-snippet ifndf   防止头文件重复包含
+snippet /ifn    防止头文件重复包含
 	#ifndef _HEAD_${1:}_H_
 	#define _HEAD_$1_H_
 
 	${0}
 
 	#endif
+snippet /el     #else
+	#else
+	${0}
 snippet line    改变文件行号和文件名
 	#line ${1} "${0}"
 # 命名空间、类
@@ -176,7 +179,9 @@ snippet _d      日期
 snippet _t      时间
 	__TIME__${0}
 snippet _ff     函数名
-	__FUNCTION__${0}
+	__func__${0}
+snippet _va     所有剩余的宏参数
+	__VA_ARGS__${0}
 snippet _std    标准C
 	__STDC__${0}
 snippet _gnu    GNUC

@@ -30,8 +30,14 @@ snippet f       常规函数
 	function ${1:f_name} (${2}) {
 	    ${0}
 	}
+snippet f6      生成器函数 [ES6语法]
+	function* ${1:f_name} (${2}) {
+	    ${0}
+	}
 snippet f.      单行常规函数
 	function ${1:f_name} (${2}) { ${0} }
+snippet f6.     单行生成器函数 [ES6语法]
+	function* ${1:f_name} (${2}) { ${0} }
 snippet ff      匿名函数
 	function (${1}) {${0}}
 snippet ff6     匿名函数 [ES6语法]
@@ -66,6 +72,14 @@ snippet fi      for .. in
 	}
 snippet fi6     for .. in [ES6语法]
 	for (let ${1} in ${2}) {
+	    ${0}
+	}
+snippet foo     for .. of
+	for (var ${1} of ${2}) {
+	    ${0}
+	}
+snippet foo6    for .. of [ES6语法]
+	for (let ${1} of ${2}) {
 	    ${0}
 	}
 snippet fe      forEach

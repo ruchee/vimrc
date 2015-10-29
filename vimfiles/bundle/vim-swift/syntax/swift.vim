@@ -59,12 +59,15 @@ syntax match swiftMethod "\(\.\)\@<=\w\+\((\)\@="
 " Keywords {{{
 syntax keyword swiftKeywords
       \ as
+      \ atexit
       \ break
       \ case
+      \ catch
       \ class
       \ continue
       \ convenience
       \ default
+      \ defer
       \ deinit
       \ didSet
       \ do
@@ -76,9 +79,11 @@ syntax keyword swiftKeywords
       \ for
       \ func
       \ get
+      \ guard
       \ if
       \ import
       \ in
+      \ indirect
       \ infix
       \ init
       \ inout
@@ -88,6 +93,7 @@ syntax keyword swiftKeywords
       \ let
       \ mutating
       \ nil
+      \ nonmutating
       \ operator
       \ optional
       \ override
@@ -96,7 +102,9 @@ syntax keyword swiftKeywords
       \ private
       \ protocol
       \ public
+      \ repeat
       \ required
+      \ rethrows
       \ return
       \ self
       \ set
@@ -104,10 +112,10 @@ syntax keyword swiftKeywords
       \ subscript
       \ super
       \ switch
+      \ throws
+      \ try
       \ typealias
       \ unowned
-      \ unowned(safe)
-      \ unowned(unsafe)
       \ var
       \ weak
       \ where
@@ -119,17 +127,22 @@ syntax keyword swiftAttributes
       \ @assignment
       \ @autoclosure
       \ @availability
+      \ @convention
       \ @exported
       \ @IBAction
       \ @IBDesignable
       \ @IBInspectable
       \ @IBOutlet
+      \ @noescape
+      \ @nonobjc
       \ @noreturn
       \ @NSApplicationMain
       \ @NSCopying
       \ @NSManaged
       \ @objc
+      \ @testable
       \ @UIApplicationMain
+      \ @warn_unused_result
 
 syntax keyword swiftStructure
       \ struct
