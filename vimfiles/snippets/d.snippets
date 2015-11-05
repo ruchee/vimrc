@@ -1,0 +1,165 @@
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/*${0}*/
+snippet -       分隔注释
+	//----------------------------------------------------------------------${0}
+# 文档化注释
+snippet d/      /// ...
+	/// ${0}
+snippet d*      /** ... */
+	/** ${0} */
+snippet d+      /++ ... +/
+	/++ ${0} +/
+# 包、模块
+snippet mo      指定模块
+	module ${1};${0}
+snippet im      导入包
+	import ${1};${0}
+# 类、接口、模板
+snippet cl      类定义
+	class ${1:cl_name} {
+	    ${0}
+	}
+snippet int     接口定义
+	interface ${1:int_name} {
+	    ${0}
+	}
+snippet te      模板定义
+	template ${1:te_name} (${2}) {
+	    ${0}
+	}
+snippet tec     类模板
+	class ${1:te_name} (${2}) {
+	    ${0}
+	}
+snippet tef     函数模板
+	${1:te_name} (${2}) (${3}) {
+	    ${0}
+	}
+# 函数、数据结构
+snippet main    主函数
+	int main (string[] args) {
+	    ${0}
+
+		return 0;
+	}
+snippet f       函数定义
+	${1:void} ${2:f_name} (${3}) {
+	    ${0}
+	}
+snippet fc      构造函数
+	this (${1}) {
+	    ${0}
+	}
+snippet str     结构体定义
+	struct ${1:str_name} {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if (${1}) {
+	    ${0}
+	}
+snippet elif    else if
+	else if (${1}) {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for
+	for (${1}) {
+	    ${0}
+	}
+snippet fe      foreach
+	foreach (${1}; ${2}) {
+	    ${0}
+	}
+snippet wh      while
+	while (${1}) {
+	    ${0}
+	}
+snippet do      do-while
+	do {
+	    ${0}
+	} while (${1});
+snippet sw      switch
+	switch (${1}) {
+	    ${0}
+	}
+snippet cs      case
+	case ${1}:
+	    ${0}
+snippet def     default
+	default:
+	    ${0}
+snippet ver     指定特定版本
+	version (${1}) {
+	    ${0}
+	}
+snippet uni     单元测试
+	unittest {
+	    ${0}
+	}
+# 异常处理
+snippet try     监控代码块
+	try {
+	    ${0}
+	}
+snippet cat     捕获异常
+	catch (${1}) {
+	    ${0}
+	}
+snippet fin     善后处理
+	finally {
+	    ${0}
+	}
+# 单个关键字
+snippet pu      公共
+	public ${0}
+snippet po      保护
+	protected ${0}
+snippet pr      私有
+	private ${0}
+snippet st      静态
+	static ${0}
+snippet con     常量
+	const ${0}
+snippet imm     不可更改的
+	immutable ${0}
+snippet co      继续
+	continue;${0}
+snippet br      中断
+	break;${0}
+snippet go      跳转
+	goto ${0}
+snippet re      返回
+	return ${0};
+snippet de      删除对象
+	delete ${0}
+snippet al      变量别名
+	alias ${0}
+snippet au      自动变量
+	auto ${0}
+snippet as      断言
+	assert(${0});
+snippet ext     声明外部代码
+	extern (${1}):
+	${0}
+# 常用方法
+snippet len     取数组长度
+	length${0}
+# 输入输出
+snippet w       输出
+	write(${0});
+snippet wl      输出并换行
+	writeln(${0});
+snippet wf      格式化输出
+	writef("${1}"${0});
+snippet wfl     格式化输出并换行
+	writefln("${1}"${0});
+# 其他
+snippet <       { .. }
+	{ ${0} }

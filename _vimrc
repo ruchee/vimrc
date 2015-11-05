@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-10-29 14:51:24
+" -----------------    Date: 2015-11-05 12:30:58
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -30,6 +30,8 @@
 " \rt                        --一键替换全部Tab为空格  [全模式可用]
 " \ra                        --一键清理当前代码文件   [Normal模式可用]
 "
+" \ww                        --打开Vimwiki主页
+" \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开/关闭NERDTree文件树窗口
 " \tl                        --打开/关闭Tags窗口
 "
@@ -177,6 +179,12 @@
 " zj                         --向下移动到后一个折叠的开始处
 " zk                         --向上移动到前一个折叠的结束处
 "
+" ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
+"
+" 链接：[[链接地址|链接描述]]
+" 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
+" 代码：{{{语言名 代码 }}}，如 {{{C++ 代码 }}}
+"
 " ---------- 其他常用内建命令 ------------------------------
 "
 " :se ff=unix                --更改文件格式，可选 unix、dos、mac
@@ -223,6 +231,7 @@ au FileType go nmap <c-t> <c-o>
 au BufRead,BufNewFile *.h           setlocal ft=c
 au BufRead,BufNewFile *.i           setlocal ft=c
 au BufRead,BufNewFile *.m           setlocal ft=objc
+au BufRead,BufNewFile *.di          setlocal ft=d
 au BufRead,BufNewFile *.ss          setlocal ft=scheme
 au BufRead,BufNewFile *.cl          setlocal ft=lisp
 au BufRead,BufNewFile *.phpt        setlocal ft=php
@@ -712,6 +721,11 @@ imap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><
 nmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 vmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 
+" \wa                 一键编译所有Vimwiki源文件
+imap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
+nmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
+vmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
+
 " \ev                 编辑当前所使用的Vim配置文件
 nmap <leader>ev <esc>:e $MYVIMRC<cr>
 
@@ -757,6 +771,12 @@ func! Compile_Run_Code()
         if g:isMAC
             exec '!swift %:t'
         endif
+    elseif &filetype == 'd'
+        if g:isWIN
+            exec '!dmd -wi %:t && del %:r.obj && %:r.exe'
+        else
+            exec '!dmd -wi %:t && rm %:r.o && ./%:r'
+        endif
     elseif &filetype == 'rust'
         if g:isWIN
             exec '!rustc %:t && %:r.exe'
@@ -769,12 +789,30 @@ func! Compile_Run_Code()
         else
             exec '!go build %:t && ./%:r'
         endif
+    elseif &filetype == 'nim'
+        if g:isWIN
+            exec '!nim c %:t && %:r.exe'
+        else
+            exec '!nim c %:t && ./%:r'
+        endif
+    elseif &filetype == 'crystal'
+        if g:isWIN
+            exec '!crystal build %:t && %:r.exe'
+        else
+            exec '!crystal build %:t && ./%:r'
+        endif
+    elseif &filetype == 'vala'
+        if g:isWIN
+            exec '!valac %:t && %:r.exe'
+        else
+            exec '!valac %:t && ./%:r'
+        endif
     elseif &filetype == 'java'
         exec '!javac %:t && java %:r'
     elseif &filetype == 'groovy'
         exec '!groovy %:t'
     elseif &filetype == 'kotlin'
-        exec '!kotlinc-jvm %:t -include-runtime -d %:r.jar && java -jar %:r.jar'
+        exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
     elseif &filetype == 'scala'
         exec '!scala %:t'
     elseif &filetype == 'cs'
@@ -821,6 +859,8 @@ func! Compile_Run_Code()
         exec '!ruby %:t'
     elseif &filetype == 'julia'
         exec '!julia %:t'
+    elseif &filetype == 'haxe'
+        exec '!haxe -main %:r --interp'
     elseif &filetype == 'dart'
         exec '!dart %:t'
     elseif &filetype == 'javascript'
@@ -840,6 +880,29 @@ endfunc
 imap <leader>rr <esc>:call Compile_Run_Code()<cr>
 nmap <leader>rr :call Compile_Run_Code()<cr>
 vmap <leader>rr <esc>:call Compile_Run_Code()<cr>
+
+
+" ======= Vimwiki ======= "
+
+let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
+let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
+" 声明可以在 wiki 里面使用的 HTML 标签
+let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
+
+let blog = {}
+if g:isWIN
+    let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+    let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+    let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+else
+    let blog.path          = '~/mysite/wiki/'
+    let blog.path_html     = '~/mysite/html/'
+    let blog.template_path = '~/mysite/templates/'
+endif
+let blog.template_default  = 'site'
+let blog.template_ext      = '.html'
+let blog.auto_export       = 1
+let g:vimwiki_list         = [blog]
 
 
 " ======= 加载自定义工程配置文件 ======= "

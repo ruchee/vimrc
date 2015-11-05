@@ -1,0 +1,48 @@
+       |/// Written in the D programming language.
+       |/// Date: 2014-2015, Joakim Brännström
+       |module app_main;
+       |
+       |import std.conv;
+       |import logger = std.experimental.logger;
+       |
+       |void fun(int y) {
+0000000|    int x;
+0000000|    writeln(x+y);
+       |}
+       |
+       |class SimpleLogger : logger.Logger {
+       |    int line = -1;
+       |    string file = null;
+       |    string func = null;
+       |    string prettyFunc = null;
+       |    string msg = null;
+       |    logger.LogLevel lvl;
+       |
+      1|    this(const logger.LogLevel lv = logger.LogLevel.info) {
+      1|        super(lv);
+       |    }
+       |
+       |    override void writeLogMsg(ref LogEntry payload) @trusted {
+      2|        this.line = payload.line;
+      2|        this.file = payload.file;
+      2|        this.func = payload.funcName;
+      2|        this.prettyFunc = payload.prettyFuncName;
+      2|        this.lvl = payload.logLevel;
+      2|        this.msg = payload.msg;
+       |
+      2|        stderr.writefln("%s: %s", text(this.lvl), this.msg);
+       |    }
+       |}
+       |
+       |void rmain(string[] args) nothrow {
+      1|    auto simple_logger = new SimpleLogger();
+      1|    logger.sharedLog(simple_logger);
+      1|    logger.info("fun");
+      1|    logger.info("fun");
+       |}
+source/app_main.d is 0% covered
+source/app_main.d is 1% covered
+source/app_main.d is 39% covered
+source/app_main.d is 40% covered
+source/app_main.d is 99% covered
+source/app_main.d is 100% covered
