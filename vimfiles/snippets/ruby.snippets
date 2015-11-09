@@ -35,6 +35,8 @@ snippet rqr     相对包含
 	require_relative '${1}'${0}
 snippet ld      包含文件 [可加载多次]
 	load '${1}.rb'${0}
+snippet u       使用模块
+	using ${0}
 # 模块、类
 snippet mo      模块定义
 	module ${1:m_name}
@@ -46,6 +48,10 @@ snippet cl      类定义
 	end
 snippet cle     类继承
 	class ${1:cl_name} < ${2:pa_name}
+	  ${0}
+	end
+snippet cl<     打开一个匿名类
+	class <<${1:self}
 	  ${0}
 	end
 # 方法
@@ -81,6 +87,10 @@ snippet dmm     幽灵方法 [针对方法]
 	end
 snippet dcm     幽灵方法 [针对常量]
 	def const_missing (${1})
+	  ${0}
+	end
+snippet rf      改善打开类操作 [Ruby 2.0新增]
+	refine ${1} do
 	  ${0}
 	end
 snippet aw      写方法
