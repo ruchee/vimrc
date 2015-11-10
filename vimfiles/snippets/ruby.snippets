@@ -273,11 +273,11 @@ snippet lov     局部变量
 	local_variables${0}
 snippet clv     类变量
 	class_variables${0}
-snippet recv    删除类变量
+snippet rmcv    删除类变量
 	remove_class_variables${0}
-snippet rem     删除类方法
-	remove_method${0}
-snippet udm     解除类方法定义
+snippet rmm     屏蔽对方法的访问 [只屏蔽对类自身该方法的访问，祖先链中的同名方法可正常访问到]
+	remove_method ${0}
+snippet udm     屏蔽对方法的访问 [包含类自身以及其祖先链，均屏蔽访问]
 	undef_method ${0}
 snippet dfm     定义方法
 	define_method(${1}) ${0}
@@ -354,7 +354,13 @@ snippet al      别名
 snippet alm     方法别名
 	alias_method${0}
 snippet ev      执行代码
-	eval(${0})
+	eval ${0}
+snippet iev     实例作用域执行代码
+	instance_eval ${0}
+snippet mev     模块作用域执行代码
+	module_eval ${0}
+snippet cev     类作用域执行代码
+	class_eval ${0}
 snippet sh      弹出数组的第一个元素 [pop的反方向动作]
 	shift${0}
 snippet ush     向数组最前面插入元素 [push的反方向动作]
