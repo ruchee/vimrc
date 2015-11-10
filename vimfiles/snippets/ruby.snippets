@@ -280,7 +280,7 @@ snippet rmm     屏蔽对方法的访问 [只屏蔽对类自身该方法的访�
 snippet udm     屏蔽对方法的访问 [包含类自身以及其祖先链，均屏蔽访问]
 	undef_method ${0}
 snippet dfm     定义方法
-	define_method(${1}) ${0}
+	define_method ${0}
 snippet inm     实例方法
 	instance_methods${0}
 snippet inv     实例变量
@@ -361,6 +361,14 @@ snippet mev     模块作用域执行代码
 	module_eval ${0}
 snippet cev     类作用域执行代码
 	class_eval ${0}
+snippet ivg     读取实例变量
+	instance_variable_get ${0}
+snippet ivs     设置实例变量
+	instance_variable_set ${0}
+snippet cvg     读取类变量
+	class_variable_get ${0}
+snippet cvs     设置类变量
+	class_variable_set ${0}
 snippet sh      弹出数组的第一个元素 [pop的反方向动作]
 	shift${0}
 snippet ush     向数组最前面插入元素 [push的反方向动作]
