@@ -163,9 +163,9 @@ snippet be      代码块
 	end
 snippet ra      抛出异常
 	raise ${0}
-snippet res     捕获异常
+snippet rs      捕获异常
 	rescue ${0}
-snippet ens     善后处理
+snippet es      善后处理
 	ensure
 	  ${0}
 snippet thr     发出跳转执行流程的“信号”
@@ -205,7 +205,7 @@ snippet eli     each_line
 	each_line${0}
 snippet ep      传递键值分离的哈希对
 	each_pair${0}
-snippet es      each_slice
+snippet esl     each_slice
 	each_slice${0}
 # 类型转换
 snippet ta      转成数组
@@ -465,6 +465,8 @@ snippet ry      =~
 	=~ ${0}
 snippet rn      !~
 	!~ ${0}
+snippet ?       三元运算符
+	${1} ? ${2} : ${0};
 snippet {       #{ .. }
 	#{${0}
 snippet |       | .. |
