@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-05 12:30:58
+" -----------------    Date: 2015-11-12 20:55:30
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
+au FileType pony,scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
+au FileType pony,scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -800,6 +800,12 @@ func! Compile_Run_Code()
             exec '!crystal build %:t && %:r.exe'
         else
             exec '!crystal build %:t && ./%:r'
+        endif
+    elseif &filetype == 'pony'
+        if g:isWIN
+            exec '!ponyc && %:p:h:t.exe'
+        else
+            exec '!ponyc && ./%:p:h:t'
         endif
     elseif &filetype == 'vala'
         if g:isWIN
