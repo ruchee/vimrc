@@ -34,20 +34,20 @@ snippet rq      包含文件 [只加载一次]
 snippet rqr     相对包含
 	require_relative '${1}'${0}
 snippet ld      包含文件 [可加载多次]
-	load '${1}.rb'${0}
+	load '${1}'${0}
 snippet u       使用模块
 	using ${0}
 # 模块、类
 snippet mo      模块定义
-	module ${1:m_name}
+	module ${1}
 	  ${0}
 	end
 snippet cl      类定义
-	class ${1:cl_name}
+	class ${1}
 	  ${0}
 	end
 snippet cle     类继承
-	class ${1:cl_name} < ${2:pa_name}
+	class ${1} < ${2}
 	  ${0}
 	end
 snippet cl<     打开一个匿名类
@@ -56,11 +56,19 @@ snippet cl<     打开一个匿名类
 	end
 # 方法
 snippet d       方法定义 [不带参数]
-	def ${1:f_name}
+	def ${1}
 	  ${0}
 	end
 snippet d.      方法定义 [带参数]
-	def ${1:f_name} (${2})
+	def ${1} (${2})
+	  ${0}
+	end
+snippet ds      self方法定义 [不带参数]
+	def self.${1}
+	  ${0}
+	end
+snippet ds.     self方法定义 [带参数]
+	def self.${1} (${2})
 	  ${0}
 	end
 snippet ud      销毁方法
@@ -109,8 +117,10 @@ snippet la?     是否是一个Lambda
 	lambda?${0}
 snippet l       匿名函数 [简写形式]
 	->${1} { ${0} }
-snippet ca      调用函数
-	call${0}
+snippet se      调用方法
+	send ${0}
+snippet ca      执行方法
+	call ${0}
 # 流程控制
 snippet if      if
 	if ${1}
@@ -194,19 +204,19 @@ snippet st      step [可指定步进值]
 snippet e       each
 	each ${0}
 snippet ewi     each_with_index
-	each_with_index${0}
+	each_with_index ${0}
 snippet wi      with_index
-	with_index${0}
+	with_index ${0}
 snippet eb      each_byte
-	each_byte${0}
+	each_byte ${0}
 snippet ec      each_char
-	each_char${0}
+	each_char ${0}
 snippet eli     each_line
-	each_line${0}
+	each_line ${0}
 snippet ep      传递键值分离的哈希对
-	each_pair${0}
+	each_pair ${0}
 snippet esl     each_slice
-	each_slice${0}
+	each_slice ${0}
 # 类型转换
 snippet ta      转成数组
 	to_a${0}
@@ -420,6 +430,8 @@ snippet _d      文件所在路径，不含文件名 [Ruby 2.0新增]
 	__dir__${0}
 snippet _f      当前文件名 [__dir__ + '/' + __FILE__ 就是完整的路径了]
 	__FILE__${0}
+snippet _m      当前方法名
+	__method__${0}
 snippet _en     当前文件编码
 	__ENCODING__${0}
 snippet _v      Ruby版本号
@@ -436,6 +448,8 @@ snippet obs     观察者
 snippet sin     单键
 	Singleton${0}
 # 常用类型
+snippet obj     Object
+	Object${0}
 snippet int     整数
 	Integer${0}
 snippet fix     小整数
