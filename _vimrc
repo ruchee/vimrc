@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-13 17:02:24
+" -----------------    Date: 2015-11-13 17:30:49
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType pony,scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
-au FileType pony,scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -542,7 +542,6 @@ let g:snipMate.scope_aliases['handlebars']      = 'html,mustache'
 let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
-let g:snipMate.scope_aliases['html']            = 'html,blaze'
 
 " NERDTree            树形文件浏览器
 let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
@@ -579,7 +578,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {
             \'mode': 'active',
-            \'passive_filetypes': ['groovy', 'kotlin', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
+            \'passive_filetypes': ['groovy', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
             \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 if g:isWIN
@@ -600,7 +599,7 @@ let g:syntastic_python_python_exec = 'python3'
 au BufRead,BufNewFile *.min.js,*.jsx,*.html exec ':SyntasticToggleMode'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'underscore,jquery,requirejs,angularjs,angularui,angularuirouter,react,flux,handlebars'
+let g:used_javascript_libs = 'jquery,requirejs,angularjs,react,handlebars'
 
 " php-cs-fixer                                   格式化PHP代码
 let g:php_cs_fixer_level = 'symfony'           " 使用Symfony推荐的代码风格
@@ -790,24 +789,6 @@ func! Compile_Run_Code()
         else
             exec '!go build %:t && ./%:r'
         endif
-    elseif &filetype == 'nim'
-        if g:isWIN
-            exec '!nim c %:t && %:r.exe'
-        else
-            exec '!nim c %:t && ./%:r'
-        endif
-    elseif &filetype == 'crystal'
-        if g:isWIN
-            exec '!crystal build %:t && %:r.exe'
-        else
-            exec '!crystal build %:t && ./%:r'
-        endif
-    elseif &filetype == 'pony'
-        if g:isWIN
-            exec '!ponyc && %:p:h:t.exe'
-        else
-            exec '!ponyc && ./%:p:h:t'
-        endif
     elseif &filetype == 'vala'
         if g:isWIN
             exec '!valac %:t && %:r.exe'
@@ -818,8 +799,6 @@ func! Compile_Run_Code()
         exec '!javac %:t && java %:r'
     elseif &filetype == 'groovy'
         exec '!groovy %:t'
-    elseif &filetype == 'kotlin'
-        exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
     elseif &filetype == 'scala'
         exec '!scala %:t'
     elseif &filetype == 'cs'
@@ -868,8 +847,6 @@ func! Compile_Run_Code()
         exec '!ruby %:t'
     elseif &filetype == 'julia'
         exec '!julia %:t'
-    elseif &filetype == 'haxe'
-        exec '!haxe -main %:r --interp'
     elseif &filetype == 'dart'
         exec '!dart %:t'
     elseif &filetype == 'javascript'
@@ -878,8 +855,6 @@ func! Compile_Run_Code()
         exec '!coffee -c %:t && node %:r.js'
     elseif &filetype == 'typescript'
         exec '!tsc %:t && node %:r.js'
-    elseif &filetype == 'r'
-        exec '!Rscript %:t'
     elseif &filetype == 'sh'
         exec '!bash %:t'
     endif

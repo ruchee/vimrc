@@ -1,1 +1,0 @@
-call vaxe#DefaultHxml(expand("%"))
