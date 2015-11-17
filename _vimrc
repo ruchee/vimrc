@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-13 17:30:49
+" -----------------    Date: 2015-11-17 19:37:00
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -599,7 +599,7 @@ let g:syntastic_python_python_exec = 'python3'
 au BufRead,BufNewFile *.min.js,*.jsx,*.html exec ':SyntasticToggleMode'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,angularjs,react,handlebars'
+let g:used_javascript_libs = 'jquery,requirejs,underscore,backbone,angularjs,angularui,angularuirouter,react,flux,handlebars'
 
 " php-cs-fixer                                   格式化PHP代码
 let g:php_cs_fixer_level = 'symfony'           " 使用Symfony推荐的代码风格

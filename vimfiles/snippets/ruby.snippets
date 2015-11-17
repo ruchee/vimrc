@@ -71,6 +71,10 @@ snippet ds.     self方法定义 [带参数]
 	def self.${1} (${2})
 	  ${0}
 	end
+snippet dd      单行方法定义 [不带参数]
+	def ${1};${0} end
+snippet dd.     单行方法定义 [带参数]
+	def ${1} (${2});${0} end
 snippet ud      销毁方法
 	undef ${0}
 snippet di      构造方法 [不带参数]
@@ -127,9 +131,7 @@ snippet if      if
 	  ${0}
 	end
 snippet ul      uless [与if相反]
-	unless ${1}
-	  ${0}
-	end
+	unless ${0}
 snippet elif    elsif
 	elsif ${1}
 	  ${0}
@@ -403,7 +405,7 @@ snippet bsz     返回字节数
 	bytesize${0}
 snippet en      返回字符串的编码方式
 	encoding${0}
-snippet oid     对象ID
+snippet id      对象ID
 	object_id${0}
 snippet g       获取输入
 	gets${0}
@@ -420,8 +422,6 @@ snippet spr     格式化 [本身不会输出，返回填充好的字符串]
 # 特殊常量
 snippet _       __NAME__
 	__${0:LINE}__
-snippet _i      object_id
-	__id__${0}
 snippet _e      文件结束
 	__END__${0}
 snippet _l      当前代码行号
@@ -432,10 +432,14 @@ snippet _f      当前文件名 [__dir__ + '/' + __FILE__ 就是完整的路径�
 	__FILE__${0}
 snippet _m      当前方法名
 	__method__${0}
+snippet _id     对象ID
+	__id__${0}
 snippet _en     当前文件编码
 	__ENCODING__${0}
-snippet _v      Ruby版本号
+snippet rv      Ruby版本号
 	RUBY_VERSION${0}
+snippet tb      顶层绑定作用域
+	TOPLEVEL_BINDING${0}
 # 常用模块
 snippet enb     迭代器
 	Enumerable${0}
