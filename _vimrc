@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-17 19:37:00
+" -----------------    Date: 2015-11-18 22:36:10
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,slim,jade,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -233,7 +233,6 @@ au BufRead,BufNewFile *.i           setlocal ft=c
 au BufRead,BufNewFile *.m           setlocal ft=objc
 au BufRead,BufNewFile *.di          setlocal ft=d
 au BufRead,BufNewFile *.ss          setlocal ft=scheme
-au BufRead,BufNewFile *.lsp         setlocal ft=newlisp
 au BufRead,BufNewFile *.cl          setlocal ft=lisp
 au BufRead,BufNewFile *.phpt        setlocal ft=php
 au BufRead,BufNewFile *.inc         setlocal ft=php
@@ -337,9 +336,9 @@ endif
 :inoremap " ""<esc>i
 :inoremap ' ''<esc>i
 :inoremap ` ``<esc>i
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap ' '
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap ` `
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap * **<esc>i
+au FileType scheme,racket,lisp,clojure :inoremap ' '
+au FileType scheme,racket,lisp,clojure :inoremap ` `
+au FileType scheme,racket,lisp,clojure :inoremap * **<esc>i
 
 function ClosePair(char)
     if getline('.')[col('.') - 1] == a:char
@@ -789,12 +788,6 @@ func! Compile_Run_Code()
         else
             exec '!go build %:t && ./%:r'
         endif
-    elseif &filetype == 'vala'
-        if g:isWIN
-            exec '!valac %:t && %:r.exe'
-        else
-            exec '!valac %:t && ./%:r'
-        endif
     elseif &filetype == 'java'
         exec '!javac %:t && java %:r'
     elseif &filetype == 'groovy'
@@ -819,8 +812,6 @@ func! Compile_Run_Code()
         exec '!elixir %:t'
     elseif &filetype == 'scheme' || &filetype == 'racket'
         exec '!racket -fi %:t'
-    elseif &filetype == 'newlisp'
-        exec '!newlisp %:t'
     elseif &filetype == 'lisp'
         exec '!sbcl --load %:t'
     elseif &filetype == 'ocaml'
@@ -845,10 +836,6 @@ func! Compile_Run_Code()
         exec '!python3 %:t'
     elseif &filetype == 'ruby'
         exec '!ruby %:t'
-    elseif &filetype == 'julia'
-        exec '!julia %:t'
-    elseif &filetype == 'dart'
-        exec '!dart %:t'
     elseif &filetype == 'javascript'
         exec '!node %:t'
     elseif &filetype == 'coffee'
