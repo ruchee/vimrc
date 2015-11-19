@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-18 22:36:10
+" -----------------    Date: 2015-11-19 14:55:30
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,slim,jade,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,slim,jade,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -237,7 +237,6 @@ au BufRead,BufNewFile *.cl          setlocal ft=lisp
 au BufRead,BufNewFile *.phpt        setlocal ft=php
 au BufRead,BufNewFile *.inc         setlocal ft=php
 au BufRead,BufNewFile *.sql         setlocal ft=mysql
-au BufRead,BufNewFile *.tpl         setlocal ft=smarty
 au BufRead,BufNewFile *.txt         setlocal ft=txt
 au BufRead,BufNewFile *.log         setlocal ft=conf
 au BufRead,BufNewFile hosts         setlocal ft=conf
@@ -526,14 +525,10 @@ let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
 let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
 let g:snipMate.scope_aliases['eelixir']         = 'html,eelixir'
-let g:snipMate.scope_aliases['smarty']          = 'html,smarty'
-let g:snipMate.scope_aliases['blade']           = 'html,blade'
-let g:snipMate.scope_aliases['volt']            = 'html,volt'
 let g:snipMate.scope_aliases['html.twig']       = 'html,twig'
 let g:snipMate.scope_aliases['jinja.twig']      = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango.twig'] = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
-let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
 let g:snipMate.scope_aliases['eruby']           = 'html,eruby'
 let g:snipMate.scope_aliases['jst']             = 'html,jst'
 let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
@@ -577,7 +572,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {
             \'mode': 'active',
-            \'passive_filetypes': ['groovy', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
+            \'passive_filetypes': ['groovy', 'scala', 'clojure', 'lisp', 'eruby', 'scss', 'less', 'css', 'html', 'xhtml']
             \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 if g:isWIN

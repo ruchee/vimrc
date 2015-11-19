@@ -12,6 +12,10 @@ snippet rq      引入模块，使用该模块下的函数需要用 MyModule.my_
 	require ${0}
 snippet im      导入模块，使用该模块下的函数可直接用 my_func 的形式
 	import ${0}
+snippet imo     只导入模块下的指定方法
+	import ${1}, only: [${0}]
+snippet ime     导入模块下除指定方法以外的其他方法
+	import ${1}, except: [${0}]
 snippet al      给模块设置别名 [没指定别名时，自动设置别名为模块名的最后一部分]
 	alias ${0}
 snippet u       使用模块，需要在模块下实现 __using__ 宏
@@ -23,15 +27,15 @@ snippet tdoc    类型文档
 	@typedoc ${0}
 snippet doc     普通文档
 	@doc ${0}
-snippet bh      行为
+snippet beh     行为
 	@behaviour ${0}
-snippet sp      规格
+snippet spe     规格
 	@spec ${0}
-snippet bc      编译前的钩子
+snippet bfc     编译前的钩子
 	@before_compile ${0}
-snippet ac      编译后的钩子
+snippet afc     编译后的钩子
 	@after_compile ${0}
-snippet er      指定外部资源
+snippet exr     指定外部资源
 	@external_resource ${0}
 # 模块、类
 snippet dm      定义模块
@@ -91,6 +95,18 @@ snippet dp      定义私有函数 [单行形式]
 	defp ${1}, do: ${0}
 snippet dp.     定义私有函数 [多行形式]
 	defp ${1} do
+	  ${0}
+	end
+snippet dw      定义带卫兵的函数 [单行形式]
+	def ${1} when ${2}, do: ${0}
+snippet dw.     定义带卫兵的函数 [多行形式]
+	def ${1} when ${2} do
+	  ${0}
+	end
+snippet dpw     定义带卫兵的私有函数 [单行形式]
+	defp ${1} when ${2}, do: ${0}
+snippet dpw.    定义带卫兵的私有函数 [多行形式]
+	defp ${1} when ${2} do
 	  ${0}
 	end
 snippet ff      匿名函数 [单行形式]
@@ -190,14 +206,12 @@ snippet r       ~r{ .. }
 	~r{${0}}
 snippet {       #{ .. }
 	#{${0}
-snippet ,       <>
-	<> ${0}
-snippet ,,      << .. >>
+snippet <       <>
+	<${0}>
+snippet <<      << .. >>
 	<<${0}>>
-snippet <       <-
-	<- ${0}
-snippet >       ->
-	-> ${0}
+snippet \       \\
+	\\\\ ${0}
 snippet |       |>
 	|> ${0}
 snippet .       =>
