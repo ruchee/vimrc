@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-19 14:55:30
+" -----------------    Date: 2015-11-19 20:48:50
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -799,7 +799,7 @@ func! Compile_Run_Code()
         if g:isWIN
             exec '!fsc %:t && %:r.exe'
         else
-            exec '!fsharpc %:t && ./%:r'
+            exec '!fsharpc %:t && mono %:r.exe'
         endif
     elseif &filetype == 'erlang'
         exec '!escript %:t'
