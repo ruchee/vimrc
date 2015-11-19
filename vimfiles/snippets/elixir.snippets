@@ -124,11 +124,11 @@ snippet re      receive
 	receive do
 	  ${0}
 	end
-snippet cs      case
+snippet cs      case [匹配单一变量]
 	case ${1} do
 	  ${0}
 	end
-snippet co      cond
+snippet co      cond [不限制匹配变量]
 	cond do
 	  ${0}
 	end
@@ -137,9 +137,7 @@ snippet if      if
 	  ${0}
 	end
 snippet ul      unless
-	unless ${1} do
-	  ${0}
-	end
+	unless ${0}
 snippet el      else
 	else
 	  ${0}
@@ -214,5 +212,7 @@ snippet \       \\
 	\\\\ ${0}
 snippet |       |>
 	|> ${0}
+snippet >       ->
+	-> ${0}
 snippet .       =>
 	=> ${0}
