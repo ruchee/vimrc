@@ -178,6 +178,8 @@ snippet af      after
 # 内置函数
 snippet len     长度
 	length ${0}
+snippet bsz     字节数
+	byte_size ${0}
 snippet sp      派生进程
 	spawn ${0}
 snippet spl     链接进程
@@ -187,6 +189,8 @@ snippet ins     转换成字符串形式
 snippet ap      附加
 	append ${0}
 snippet p       输出
+	IO.write ${0}
+snippet pl      输出并换行
 	IO.puts ${0}
 snippet pp      输出复杂数据类型
 	IO.inspect ${0}
@@ -200,18 +204,26 @@ snippet _d     __DIR__
 snippet _f     __FILE__
 	__FILE__${0}
 # 其他
-snippet r       ~r{ .. }
+snippet s       ~s{ .. } [二进制字符串]
+	~s{${0}}
+snippet c       ~c{ .. } [字符列表]
+	~c{${0}}
+snippet r       ~r{ .. } [正则表达式]
 	~r{${0}}
+snippet x       ~x{ .. }
+	~${1}{${0}}
 snippet {       #{ .. }
 	#{${0}
-snippet <       <>
+snippet ,       <>
 	<${0}>
-snippet <<      << .. >>
+snippet ,,      << .. >>
 	<<${0}>>
 snippet \       \\
 	\\\\ ${0}
 snippet |       |>
 	|> ${0}
+snippet <       <-
+	<- ${0}
 snippet >       ->
 	-> ${0}
 snippet .       =>
