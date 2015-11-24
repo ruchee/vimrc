@@ -23,6 +23,10 @@ snippet dp      定义项目
 snippet ff      匿名函数
 	fn [${1}] ${0}
 # 流程控制
+snippet if      if
+	if (${1})${0}
+snippet fo      for
+	for [${1}]${0}
 # 单个关键字
 snippet a       原子
 	atom ${0}
@@ -36,7 +40,9 @@ snippet v       向量
 	vector ${0}
 snippet m       map
 	map ${0}
-# 列表操作
+snippet t       take
+	take ${0}
+# 序列操作
 snippet fi      头部元素
 	first ${0}
 snippet r       除头部以外的列表
