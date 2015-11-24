@@ -16,7 +16,13 @@ snippet d       定义变量
 	def ${0}
 snippet dn      定义函数
 	defn ${1} [${2}]${0}
-snippet dr      定义记录 [相当于类]
+snippet da      定义宏
+	defmacro ${1} [${2}]${0}
+snippet dr      获取引用
+	deref ${0}
+snippet dpr     定义协议
+	defprotocol ${0}
+snippet dre     定义实现
 	defrecord ${0}
 snippet dp      定义项目
 	defproject ${0}
@@ -42,6 +48,8 @@ snippet m       map
 	map ${0}
 snippet t       take
 	take ${0}
+snippet mex     宏展开
+	macroexpand ${0}
 # 序列操作
 snippet fi      头部元素
 	first ${0}
