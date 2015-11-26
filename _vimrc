@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-19 20:48:50
+" -----------------    Date: 2015-11-26 16:27:29
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,coffee,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -237,6 +237,7 @@ au BufRead,BufNewFile *.cl          setlocal ft=lisp
 au BufRead,BufNewFile *.phpt        setlocal ft=php
 au BufRead,BufNewFile *.inc         setlocal ft=php
 au BufRead,BufNewFile *.sql         setlocal ft=mysql
+au BufRead,BufNewFile *.tpl         setlocal ft=smarty
 au BufRead,BufNewFile *.txt         setlocal ft=txt
 au BufRead,BufNewFile *.log         setlocal ft=conf
 au BufRead,BufNewFile hosts         setlocal ft=conf
@@ -495,6 +496,10 @@ let g:haskell_enable_typeroles            = 1  " 开启Haskell高亮 type roles
 let g:haskell_enable_static_pointers      = 1  " 开启Haskell高亮 static
 let g:python_highlight_all                = 1  " 开启Python的所有高亮
 
+" 设置部分语言插件的特性
+let g:smarty_left_delimiter  = '{{'            " 设置Smarty标签左界定符
+let g:smarty_right_delimiter = '}}'            " 设置Smarty标签右界定符
+
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
 
@@ -525,10 +530,14 @@ let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
 let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
 let g:snipMate.scope_aliases['eelixir']         = 'html,eelixir'
+let g:snipMate.scope_aliases['smarty']          = 'html,smarty'
+let g:snipMate.scope_aliases['blade']           = 'html,blade'
+let g:snipMate.scope_aliases['volt']            = 'html,volt'
 let g:snipMate.scope_aliases['html.twig']       = 'html,twig'
 let g:snipMate.scope_aliases['jinja.twig']      = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango.twig'] = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
+let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
 let g:snipMate.scope_aliases['eruby']           = 'html,eruby'
 let g:snipMate.scope_aliases['jst']             = 'html,jst'
 let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
@@ -572,7 +581,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {
             \'mode': 'active',
-            \'passive_filetypes': ['groovy', 'scala', 'clojure', 'lisp', 'eruby', 'scss', 'less', 'css', 'html', 'xhtml']
+            \'passive_filetypes': ['groovy', 'kotlin', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
             \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 if g:isWIN
@@ -787,6 +796,8 @@ func! Compile_Run_Code()
         exec '!javac %:t && java %:r'
     elseif &filetype == 'groovy'
         exec '!groovy %:t'
+    elseif &filetype == 'kotlin'
+        exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
     elseif &filetype == 'scala'
         exec '!scala %:t'
     elseif &filetype == 'cs'
@@ -831,12 +842,20 @@ func! Compile_Run_Code()
         exec '!python3 %:t'
     elseif &filetype == 'ruby'
         exec '!ruby %:t'
+    elseif &filetype == 'julia'
+        exec '!julia %:t'
+    elseif &filetype == 'dart'
+        exec '!dart %:t'
+    elseif &filetype == 'haxe'
+        exec '!haxe -main %:r --interp'
     elseif &filetype == 'javascript'
         exec '!node %:t'
     elseif &filetype == 'coffee'
         exec '!coffee -c %:t && node %:r.js'
     elseif &filetype == 'typescript'
         exec '!tsc %:t && node %:r.js'
+    elseif &filetype == 'r'
+        exec '!Rscript %:t'
     elseif &filetype == 'sh'
         exec '!bash %:t'
     endif

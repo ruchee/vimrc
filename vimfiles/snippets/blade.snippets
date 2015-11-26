@@ -1,0 +1,75 @@
+snippet /       单行注释
+	{{-- ${0} --}}
+snippet //      多行注释
+	{{--${0}
+	--}}
+# 模板复用
+snippet in      包含模板 [继承当前模板的数据]
+	@include('${1}')${0}
+snippet re      包含模板 [不继承数据]
+	@render('${1}')${0}
+snippet ex      扩展模板
+	@extends('${1}')${0}
+snippet la      布局
+	@layout('${0}')
+snippet yi      向外传递数据
+	@yield('${0}')
+snippet se      填充区块
+	@section('${1}')
+	    ${0}
+	@stop
+snippet se.     默认内容
+	@section('${1}')
+	    ${0}
+	@show
+# 流程控制
+snippet if      if
+	@if (${1})
+	    ${0}
+	@endif
+snippet elif    elseif
+	@elseif (${1})
+	    ${0}
+snippet el      else
+	@else
+	    ${0}
+snippet ul      unless [与if相反]
+	@unless (${1})
+	    ${0}
+	@endunless
+snippet fo      for
+	@for (${1})
+	    ${0}
+	@endfor
+snippet fel     forelse
+	@forelse (${1})
+	    ${2}
+	@empty
+	    ${0}
+	@endforelse
+snippet e       each
+	@each(${0})
+snippet fe      foreach
+	@foreach (${1})
+	    ${0}
+	@endforeach
+snippet wh      while
+	@while (${1})
+	    ${0}
+	@endwhile
+# 辅助函数
+snippet lit     生成链接
+	link_to('${1}', ${0})
+# 其他
+snippet pa      引用父片段
+	@parent${0}
+snippet st      终止控制结构
+	@stop${0}
+snippet sh      显示
+	@show${1}
+snippet lan     语言
+	@lang('${0}')
+snippet cho     选择
+	@choice('${0}')
+snippet .       输出变量
+	{{ ${0} }}
