@@ -17,7 +17,7 @@ snippet imo     只导入模块下的指定方法
 snippet ime     导入模块下除指定方法以外的其他方法
 	import ${1}, except: [${0}]
 snippet al      给模块设置别名 [没指定别名时，自动设置别名为模块名的最后一部分]
-	alias ${0}
+	alias ${1}, as: ${0}
 snippet u       使用模块，需要在模块下实现 __using__ 宏
 	use ${0}
 # 文档、钩子
