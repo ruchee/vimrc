@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-11-26 16:27:29
+" -----------------    Date: 2015-11-27 18:51:45
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -791,6 +791,24 @@ func! Compile_Run_Code()
             exec '!go build %:t && %:r.exe'
         else
             exec '!go build %:t && ./%:r'
+        endif
+    elseif &filetype == 'nim'
+        if g:isWIN
+            exec '!nim c %:t && %:r.exe'
+        else
+            exec '!nim c %:t && ./%:r'
+        endif
+    elseif &filetype == 'crystal'
+        if g:isWIN
+            exec '!crystal build %:t && %:r.exe'
+        else
+            exec '!crystal build %:t && ./%:r'
+        endif
+    elseif &filetype == 'vala'
+        if g:isWIN
+            exec '!valac %:t && %:r.exe'
+        else
+            exec '!valac %:t && ./%:r'
         endif
     elseif &filetype == 'java'
         exec '!javac %:t && java %:r'
