@@ -25,8 +25,10 @@ snippet end     程序执行之后执行
 	  ${0}
 	}
 # 包含指令
-snippet in      包含模块 [对整个类有效]
+snippet in      包含模块 [继承序列在包含它的类之上] [对整个类有效]
 	include ${0}
+snippet pre     包含模块 [继承序列在包含它的类之下] [对整个类有效] [Ruby 2.0新增]
+	prepend ${0}
 snippet ext     包含模块 [只对调用该方法的单个对象有效]
 	extend ${0}
 snippet rq      包含文件 [只加载一次]
