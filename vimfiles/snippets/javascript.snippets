@@ -42,6 +42,14 @@ snippet ff      匿名函数
 	function (${1}) {${0}}
 snippet ff6     匿名函数 [ES6语法]
 	(${1}) => {${0}}
+snippet of      对象中的方法
+	${1:f_name}: function (${2}) {
+	    ${0}
+	},
+snippet of6     对象中的方法 [ES6语法]
+	${1:f_name} (${2}) {
+	    ${0}
+	},
 snippet wi      指定缺省对象
 	with (${1}) {
 	    ${0}
@@ -239,8 +247,4 @@ snippet q       jQuery选择器
 	$(${0})
 snippet q.      jQuery选择器 [带引号]
 	$('${1}')${0}
-snippet a       AngularJS控制器
-	function ${1:f_name} ($scope) {
-	    ${0}
-	}
 ###############
