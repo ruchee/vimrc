@@ -80,7 +80,7 @@ snippet dre     实现记录
 	defrecord ${1} do
 	  ${0}
 	end
-snippet ds      定义结构体
+snippet ds      定义Map结构
 	defstruct ${0}
 snippet de      定义异常
 	defexception ${0}
@@ -207,7 +207,7 @@ snippet _f     __FILE__
 	__FILE__${0}
 # 其他
 snippet m       map
-	%{${0}}
+	%${1}{${0}}
 snippet s       ~s{ .. } [二进制字符串]
 	~s{${0}}
 snippet c       ~c{ .. } [字符列表]
