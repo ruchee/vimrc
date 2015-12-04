@@ -190,13 +190,13 @@ snippet _cpp    C++
 	__cplusplus${0}
 # 输入输出
 snippet p       输出
-	printf("${1}"${0});
+	printf("${1}"${2});${0}
 snippet s       输入
-	scanf("${1}", ${0});
+	scanf("${1}", ${2});${0}
 snippet spr
-	sprintf(${1:stderr}, "${2:%s}", ${0});
+	sprintf(${1:stderr}, "${2:%s}", ${3});${0}
 snippet fpr
-	fprintf(${1:stderr}, "${2:%s}"${0});
+	fprintf(${1:stderr}, "${2:%s}"${3});${0}
 # 单个关键字
 snippet pu      公共 [不换行]
 	public${0}
