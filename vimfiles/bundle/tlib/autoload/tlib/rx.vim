@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    29
+" @Revision:    113
 
 
 " :def: function! tlib#rx#Escape(text, ?magic='m')
@@ -51,5 +51,10 @@ function! tlib#rx#Suffixes(...) "{{{3
     else
         return '\('. join(sfx, '\|') .'\)$'
     endif
+endf
+
+
+function! tlib#rx#LooksLikeRegexp(text) abort "{{{3
+    return a:text =~ '[.?*+{}\[\]]'
 endf
 

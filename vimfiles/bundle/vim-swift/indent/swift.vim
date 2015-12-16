@@ -11,61 +11,97 @@ let b:did_indent = 1
 let s:cpo_save = &cpo
 set cpo&vim
 
-setlocal indentkeys-=0{
-setlocal indentkeys-=0}
+setlocal nosmartindent
 setlocal indentkeys-=:
 setlocal indentkeys-=e
-setlocal indentkeys+=0[,0]
-setlocal indentexpr=SwiftIndent(v:lnum)
+setlocal indentkeys+=0]
+setlocal indentexpr=SwiftIndent()
 
-function! s:NumberOfMatches(char, string)
-  let regex = "[^" . a:char . "]"
-  return strlen(substitute(a:string, regex, "", "g"))
+function! s:NumberOfMatches(char, string, index)
+  let instances = 0
+  let i = 0
+  while i < strlen(a:string)
+    if a:string[i] == a:char && !s:IsExcludedFromIndentAtPosition(a:index, i + 1)
+      let instances += 1
+    endif
+
+    let i += 1
+  endwhile
+
+  return instances
 endfunction
 
-function! s:SyntaxGroup()
-  return synIDattr(synID(line("."), col("."), 0), "name")
+function! s:SyntaxNameAtPosition(line, column)
+  return synIDattr(synID(a:line, a:column, 0), "name")
 endfunction
 
-function! s:IsComment()
-  return s:SyntaxGroup() ==# 'swiftComment'
+function! s:SyntaxName()
+  return s:SyntaxNameAtPosition(line("."), col("."))
 endfunction
 
-function! SwiftIndent(lnum)
-  let line = getline(a:lnum)
-  let previousNum = prevnonblank(a:lnum - 1)
+function! s:IsExcludedFromIndentAtPosition(line, column)
+  let name = s:SyntaxNameAtPosition(a:line, a:column)
+  return name ==# "swiftComment" || name ==# "swiftString"
+endfunction
+
+function! s:IsExcludedFromIndent()
+  return s:SyntaxName() ==# "swiftComment" || s:SyntaxName() ==# "swiftString"
+endfunction
+
+function! s:IsCommentLine(lnum)
+    return synIDattr(synID(a:lnum,
+          \     match(getline(a:lnum), "\S") + 1, 0), "name")
+          \ ==# "swiftComment"
+endfunction
+
+function! SwiftIndent(...)
+  let clnum = a:0 ? a:1 : v:lnum
+
+  let line = getline(clnum)
+  let previousNum = prevnonblank(clnum - 1)
+  while s:IsCommentLine(previousNum) != 0
+    let previousNum = prevnonblank(previousNum - 1)
+  endwhile
+
   let previous = getline(previousNum)
-  let cindent = cindent(a:lnum)
+  let cindent = cindent(clnum)
   let previousIndent = indent(previousNum)
 
-  let numOpenParens = s:NumberOfMatches("(", previous)
-  let numCloseParens = s:NumberOfMatches(")", previous)
-  let numOpenBrackets = s:NumberOfMatches("{", previous)
-  let numCloseBrackets = s:NumberOfMatches("}", previous)
+  let numOpenParens = s:NumberOfMatches("(", previous, previousNum)
+  let numCloseParens = s:NumberOfMatches(")", previous, previousNum)
+  let numOpenBrackets = s:NumberOfMatches("{", previous, previousNum)
+  let numCloseBrackets = s:NumberOfMatches("}", previous, previousNum)
 
-  let currentOpenBrackets = s:NumberOfMatches("{", line)
-  let currentCloseBrackets = s:NumberOfMatches("}", line)
+  let currentOpenBrackets = s:NumberOfMatches("{", line, clnum)
+  let currentCloseBrackets = s:NumberOfMatches("}", line, clnum)
 
-  let numOpenSquare = s:NumberOfMatches("[", previous)
-  let numCloseSquare = s:NumberOfMatches("]", previous)
+  let numOpenSquare = s:NumberOfMatches("[", previous, previousNum)
+  let numCloseSquare = s:NumberOfMatches("]", previous, previousNum)
 
-  let currentCloseSquare = s:NumberOfMatches("]", line)
-  if numOpenSquare > numCloseSquare
+  let currentCloseSquare = s:NumberOfMatches("]", line, clnum)
+  if numOpenSquare > numCloseSquare && currentCloseSquare < 1
     return previousIndent + shiftwidth()
   endif
 
-  if currentCloseSquare > 0
-    let openingSquare = searchpair('\[', '', '\]', 'bWn')
+  if currentCloseSquare > 0 && line !~ '\v\[.*\]'
+    let column = col(".")
+    call cursor(line("."), 1)
+    let openingSquare = searchpair("\\[", "", "\\]", "bWn", "s:IsExcludedFromIndent()")
+    call cursor(line("."), column)
+
+    if openingSquare == 0
+      return -1
+    endif
 
     return indent(openingSquare)
   endif
 
-  if s:IsComment()
+  if s:IsExcludedFromIndent()
     return previousIndent
   endif
 
   if line =~ ":$"
-    let switch = search('switch', 'bWn')
+    let switch = search("switch", "bWn")
     return indent(switch)
   elseif previous =~ ":$"
     return previousIndent + shiftwidth()
@@ -73,35 +109,49 @@ function! SwiftIndent(lnum)
 
   if numOpenParens == numCloseParens
     if numOpenBrackets > numCloseBrackets
-      if currentCloseBrackets > currentOpenBrackets
-        normal! mi
-        let openingBracket = searchpair("{", "", "}", "bWn")
-        normal! `i
-        return indent(openingBracket)
+      if currentCloseBrackets > currentOpenBrackets || line =~ "\\v^\\s*}"
+        let column = col(".")
+        call cursor(line("."), 1)
+        let openingBracket = searchpair("{", "", "}", "bWn", "s:IsExcludedFromIndent()")
+        call cursor(line("."), column)
+        if openingBracket == 0
+          return -1
+        else
+          return indent(openingBracket)
+        endif
       endif
 
       return previousIndent + shiftwidth()
     elseif previous =~ "}.*{"
+      if line =~ "\\v^\\s*}"
+        return previousIndent
+      endif
+
       return previousIndent + shiftwidth()
     elseif line =~ "}.*{"
-      let openingBracket = searchpair("{", "", "}", "bWn")
+      let openingBracket = searchpair("{", "", "}", "bWn", "s:IsExcludedFromIndent()")
       return indent(openingBracket)
     elseif currentCloseBrackets > currentOpenBrackets
-      let openingBracket = searchpair("{", "", "}", "bWn")
+      let column = col(".")
+      call cursor(line("."), 1)
+      let openingBracket = searchpair("{", "", "}", "bWn", "s:IsExcludedFromIndent()")
+      call cursor(line("."), column)
+
       let bracketLine = getline(openingBracket)
 
-      let numOpenParensBracketLine = s:NumberOfMatches("(", bracketLine)
-      let numCloseParensBracketLine = s:NumberOfMatches(")", bracketLine)
+      let numOpenParensBracketLine = s:NumberOfMatches("(", bracketLine, openingBracket)
+      let numCloseParensBracketLine = s:NumberOfMatches(")", bracketLine, openingBracket)
       if numCloseParensBracketLine > numOpenParensBracketLine
-        normal! mi
-        execute "normal! " . openingBracket . "G"
-        let openingParen = searchpair("(", "", ")", "bWn")
-        normal! `i
+        let line = line(".")
+        let column = col(".")
+        call cursor(openingParen, column)
+        let openingParen = searchpair("(", "", ")", "bWn", "s:IsExcludedFromIndent()")
+        call cursor(line, column)
         return indent(openingParen)
       endif
       return indent(openingBracket)
     else
-      return previousIndent
+      return -1
     endif
   endif
 
@@ -113,14 +163,16 @@ function! SwiftIndent(lnum)
         endif
 
         if line =~ "}.*{"
-          let openingBracket = searchpair("{", "", "}", "bWn")
+          let openingBracket = searchpair("{", "", "}", "bWn", "s:IsExcludedFromIndent()")
           return indent(openingBracket)
         endif
 
         if numCloseParens > numOpenParens
-          normal! mik
-          let openingParen = searchpair("(", "", ")", "bWn")
-          normal! `i
+          let line = line(".")
+          let column = col(".")
+          call cursor(line - 1, column)
+          let openingParen = searchpair("(", "", ")", "bWn", "s:IsExcludedFromIndent()")
+          call cursor(line, column)
           return indent(openingParen)
         endif
 
@@ -128,7 +180,7 @@ function! SwiftIndent(lnum)
       endif
 
       if currentCloseBrackets > 0
-        let openingBracket = searchpair("{", "", "}", "bWn")
+        let openingBracket = searchpair("{", "", "}", "bWn", "s:IsExcludedFromIndent()")
         return indent(openingBracket)
       endif
 
@@ -145,18 +197,19 @@ function! SwiftIndent(lnum)
     endif
 
     if numOpenBrackets > numCloseBrackets
-      normal! mi
-      execute "normal! " . previousNum . "G"
-      let openingParen = searchpair("(", "", ")", "bWn")
-      normal! `i
-
+      let line = line(".")
+      let column = col(".")
+      call cursor(previousNum, column)
+      let openingParen = searchpair("(", "", ")", "bWn", "s:IsExcludedFromIndent()")
+      call cursor(line, column)
       return indent(openingParen) + shiftwidth()
     endif
 
-    normal! mi
-    execute "normal! " . previousNum . "G"
-    let openingParen = searchpair("(", "", ")", "bWn")
-    normal! `i
+    let line = line(".")
+    let column = col(".")
+    call cursor(previousNum, column)
+    let openingParen = searchpair("(", "", ")", "bWn", "s:IsExcludedFromIndent()")
+    call cursor(line, column)
 
     return indent(openingParen)
   endif

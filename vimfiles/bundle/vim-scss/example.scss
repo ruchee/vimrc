@@ -115,6 +115,7 @@ p {
   width: round(1.5)/2;        // Uses a function, does division
   height: (500px/2);          // Uses parentheses, does division
   margin-left: 5px + 8px/2px; // Uses +, does division
+  font: (italic bold 10px/8px); // In a list, parentheses don't count
 }
 
 p {
@@ -952,6 +953,23 @@ $list: "1",  /* comment not highlighted */
 "2",         // comment not highlighted
 "3";
 
+// issue #59: list is mistaken as a map and the string value is not recognized as a string
+$a: (
+  "string"
+);
+
+// issue #60 a) first comment is not recognized
+@mixin _setup-panel-title( // comment
+  $colors
+) {} // comment
+
+// issue #60 b) indented comment containing a "{" is not recognized
+@mixin m() {
+// { comment
+  // { another comment
+  // yet another comment
+}
+
 // function is not recognized in map
 $m: (key: fn());
 
@@ -992,6 +1010,47 @@ $a: fn_with_underscores();
 @function stringConcatCompassStyle($start,$last) {
     @return #{$start}-#{$last};
 }
+
+@function stringConcatCompassStyle($start,$last)
+{
+    @return #{$start}-#{$last};
+}
+
+@function fn($x) {
+    @if $x {
+        // string is not recognized
+        @return "string";
+    }
+
+    @return "string";
+}
+
+// null and boolean values are not recognized as parameters
+.foo {
+    @include myMixin(20, null, true, false);
+}
+
+// interpolation is not recognized in pseudo-selector
+$scope: 2;
+div.element:nth-child(#{$scope}n) {}
+
+// URL is not recognized
+.foo {
+  @include wallpaper(url(/images/logo.png));
+}
+
+// the exclamation mark of sticky comments should be highlighted
+/*! sticky comment */
+/* ! not a sticky comment */
+
+// params are not recognized if there is whitespace between function name and params
+@function test ($a, $b: $a/2) {
+    @return $b;
+}
+
+// attributes not terminated by a semicolon should be recognized
+a { color: red }
+a { color: red;}
 
 div {
   height: 10px;

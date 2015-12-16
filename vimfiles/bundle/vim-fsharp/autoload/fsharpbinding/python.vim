@@ -1,7 +1,4 @@
 " Vim autoload functions
-" Language:     F#
-" Last Change:  Mon 20 Oct 2014 08:21:43 PM CEST
-" Maintainer:   Gregor Uhlenheuer <kongo2002@googlemail.com>
 
 if exists('g:loaded_autoload_fsharpbinding_python')
     finish
@@ -26,6 +23,16 @@ endfunction
 function! s:get_complete_buffer()
     return join(getline(1, '$'), "\n")
 endfunction
+
+if has('win32') || has('win32unix')
+    function! s:platform_exec(cmd)
+        execute '!' . a:cmd
+    endfunction
+else
+    function! s:platform_exec(cmd)
+        execute '!mono' a:cmd
+    endfunction
+endif
 
 " Vim73-compatible version of pyeval
 " taken from: http://stackoverflow.com/questions/13219111/how-to-embed-python-expression-into-s-command-in-vim
@@ -67,9 +74,9 @@ function! fsharpbinding#python#BuildProject(...)
     try
         execute 'wa'
         if a:0 > 0
-            execute '!xbuild ' . fnameescape(a:1)
+            execute '!' . shellescape(g:fsharp_xbuild_path) . ' ' . fnameescape(a:1)
         elseif exists('b:proj_file')
-            execute '!xbuild ' . fnameescape(b:proj_file) "/verbosity:quiet /nologo"
+            execute '!' . shellescape(g:fsharp_xbuild_path) . ' ' . fnameescape(b:proj_file) "/verbosity:quiet /nologo"
             call fsharpbinding#python#ParseProject()
             let b:fsharp_buffer_changed = 1
         else
@@ -80,18 +87,16 @@ function! fsharpbinding#python#BuildProject(...)
     endtry
 endfunction
 
-
 function! fsharpbinding#python#RunProject(...)
     try
         execute 'wa'
         if a:0 > 0
-            execute '!mono ' . fnameescape(a:1)
+            call s:platform_exec(fnameescape(a:1))
         elseif exists('b:proj_file')
-            let cmd = 'G.projects["' . b:proj_file . '"]["Output"]'
-            echom "runproj pre s:pyeval " cmd
+            let cmd = 'G.projects[vim.eval("b:proj_file")]["Output"]'
+            "echom "runproj pre s:pyeval " cmd
             let target = s:pyeval(cmd)
-            echom "target" target
-            execute '!mono ' . fnameescape(target)
+            call s:platform_exec(fnameescape(target))
         else
             echoe "no project file could be found" > 0
         endif
@@ -105,17 +110,16 @@ function! fsharpbinding#python#RunTests(...)
         execute 'wa'
         call fsharpbinding#python#BuildProject()
         if a:0 > 0 && exists('g:fsharp_test_runner')
-            execute '!mono ' . g:fsharp_test_runner fnameescape(a:1)
+            call s:platform_exec(shellescape(g:fsharp_test_runner) . ' ' . fnameescape(a:1))
         elseif exists('b:proj_file') && exists('g:fsharp_test_runner')
-            let cmd = 'G.projects["' . b:proj_file . '"]["Output"]'
+            let cmd = 'G.projects[vim.eval("b:proj_file")]["Output"]'
             let target = s:pyeval(cmd)
-            echom "target" target
-            execute '!mono ' . g:fsharp_test_runner fnameescape(target)
+            call s:platform_exec(shellescape(g:fsharp_test_runner) . ' ' . fnameescape(target))
         else
             echoe "no project file or test runner could be found"
         endif
     catch
-        echoe "failed to execute build. ex: " v:exception
+        echoe "failed to execute tests. ex: " v:exception
     endtry
 endfunction
 
@@ -141,7 +145,7 @@ endfunction
 " {'lnum': 2, 'bufnr': 1, 'col': 1, 'valid': 1, 'vcol': 1, 'nr': -1, 'type': 'W', 'pattern': '', 'text': 'Expected an assignment or function call and instead saw an expression.'}
 
 " G.fsac format
-" {"StartLine":4,"StartLineAlternate":5,"EndLine":4,"EndLineAlternate":5,"StartColumn":0,"EndColumn":4,"Severity":"Error","Message":"The value or constructor 'asdf' is not defined","Subcategory":"typecheck","FileName":"/Users/karlnilsson/code/kjnilsson/fsharp-vim/test.fsx"}
+" {"StartLine":4,"StartLine":5,"EndLine":4,"EndLine":5,"StartColumn":0,"EndColumn":4,"Severity":"Error","Message":"The value or constructor 'asdf' is not defined","Subcategory":"typecheck","FileName":"/Users/karlnilsson/code/kjnilsson/fsharp-vim/test.fsx"}
 function! fsharpbinding#python#CurrentErrors()
     let result = []
     let buf = bufnr('%')
@@ -154,11 +158,11 @@ function! fsharpbinding#python#CurrentErrors()
         endif
         for e in errs
             call add(result,
-                \{'lnum': e['StartLineAlternate'],
-                \ 'col': e['StartColumn'],
+                \{'lnum': e['StartLine'],
+                \ 'col': e['StartColumn'] - 1,
                 \ 'type': e['Severity'][0],
                 \ 'text': e['Message'],
-                \ 'hl': '\%' . e['StartLineAlternate'] . 'l\%>' . e['StartColumn'] .  'c\%<' . (e['EndColumn'] + 1) . 'c',
+                \ 'hl': '\%' . e['StartLine'] . 'l\%>' . (e['StartColumn'] - 1) .  'c\%<' . e['EndColumn'] . 'c',
                 \ 'bufnr': buf,
                 \ 'valid': 1 })
         endfor
@@ -211,7 +215,7 @@ for line in G.fsac.complete(b.name, row, col + 1, vim.eval('a:base')):
     if int(vim.eval('g:fsharp_completion_helptext')) > 0:
         ht = G.fsac.helptext(name)
         x = {'word': name,
-             'info': ht, 
+             'info': ht,
              'menu': glyph}
         vim.eval('complete_add(%s)' % x)
     else:
@@ -272,7 +276,7 @@ EOF
 endfunction
 
 function! fsharpbinding#python#OnInsertLeave()
-    if exists ("b:fsharp_buffer_changed") != 0 
+    if exists ("b:fsharp_buffer_changed") != 0
         if b:fsharp_buffer_changed == 1
     python << EOF
 G.fsac.parse(vim.current.buffer.name, True, vim.current.buffer)
@@ -282,7 +286,8 @@ EOF
 endfunction
 
 function! fsharpbinding#python#OnCursorHold()
-    if exists ("g:fsharp_only_check_errors_on_write") != 0 
+    if exists ("g:fsharp_only_check_errors_on_write") != 0 &&
+    \  exists (':SyntasticCheck') == 2
         if g:fsharp_only_check_errors_on_write != 1 && b:fsharp_buffer_changed == 1
             exec "SyntasticCheck"
         endif
@@ -316,7 +321,7 @@ EOF
     "set makeprg
     if !filereadable(expand("%:p:h")."/Makefile")
         if exists('b:proj_file')
-            let &l:makeprg=g:fsharp_xbuild_path . ' ' . b:proj_file . ' /verbosity:quiet /nologo /p:Configuration=Debug'
+            let &l:makeprg=shellescape(g:fsharp_xbuild_path) . ' ' . b:proj_file . ' /verbosity:quiet /nologo /p:Configuration=Debug'
             setlocal errorformat=\ %#%f(%l\\\,%c):\ %m
         endif
     endif
@@ -358,7 +363,7 @@ function! fsharpbinding#python#FsiShow()
             exec 'wincmd p'
         endif
     catch
-        echohl WarningMsg "failed to display fsi output" 
+        echohl WarningMsg "failed to display fsi output"
     endtry
 endfunction
 
@@ -413,7 +418,7 @@ function! fsharpbinding#python#FsiEval(text)
         endif
         call fsharpbinding#python#FsiRead(5)
     catch
-        echohl WarningMsg "fsi eval failure" 
+        echohl WarningMsg "fsi eval failure"
     endtry
 endfunction
 

@@ -24,7 +24,7 @@ syn keyword   rustKeyword     continue
 syn keyword   rustKeyword     extern nextgroup=rustExternCrate,rustObsoleteExternMod skipwhite skipempty
 syn keyword   rustKeyword     fn nextgroup=rustFuncName skipwhite skipempty
 syn keyword   rustKeyword     for in if impl let
-syn keyword   rustKeyword     loop once pub
+syn keyword   rustKeyword     loop pub
 syn keyword   rustKeyword     return super
 syn keyword   rustKeyword     unsafe where while
 syn keyword   rustKeyword     use nextgroup=rustModPath skipwhite skipempty
@@ -58,7 +58,7 @@ syn match rustMacroVariable "$\w\+"
 syn keyword   rustReservedKeyword alignof become do offsetof priv pure sizeof typeof unsized yield abstract virtual final override macro
 
 " Built-in types {{{2
-syn keyword   rustType        isize usize float char bool u8 u16 u32 u64 f32
+syn keyword   rustType        isize usize char bool u8 u16 u32 u64 f32
 syn keyword   rustType        f64 i8 i16 i32 i64 str Self
 
 " Things from the libstd v1 prelude (src/libstd/prelude/v1.rs) {{{2
@@ -77,22 +77,20 @@ syn keyword   rustTrait       Drop Fn FnMut FnOnce
 
 " Reexported types and traits {{{3
 syn keyword rustTrait Box
+syn keyword rustTrait ToOwned
 syn keyword rustTrait Clone
 syn keyword rustTrait PartialEq PartialOrd Eq Ord
 syn keyword rustTrait AsRef AsMut Into From
-syn keyword rustTrait DoubleEndedIterator
-syn keyword rustTrait ExactSizeIterator
-syn keyword rustTrait Iterator IteratorExt Extend
+syn keyword rustTrait Default
+syn keyword rustTrait Iterator Extend IntoIterator
+syn keyword rustTrait DoubleEndedIterator ExactSizeIterator
 syn keyword rustEnum Option
 syn keyword rustEnumVariant Some None
 syn keyword rustEnum Result
 syn keyword rustEnumVariant Ok Err
-syn keyword rustTrait SliceConcatExt AsSlice
-syn keyword rustTrait Str
+syn keyword rustTrait SliceConcatExt
 syn keyword rustTrait String ToString
 syn keyword rustTrait Vec
-
-syn keyword rustTrait Wrapping WrappingOps
 
 " Other syntax {{{2
 syn keyword   rustSelf        self
@@ -118,7 +116,9 @@ syn match     rustSigil        display /[&~@*][^)= \t\r\n]/he=e-1,me=e-1
 " This isn't actually correct; a closure with no arguments can be `|| { }`.
 " Last, because the & in && isn't a sigil
 syn match     rustOperator     display "&&\|||"
-syn match     rustArrow        display "->"
+" This is rustArrowCharacter rather than rustArrow for the sake of matchparen,
+" so it skips the ->; see http://stackoverflow.com/a/30309949 for details.
+syn match     rustArrowCharacter display "->"
 
 syn match     rustMacro       '\w\(\w\)*!' contains=rustAssert,rustPanic
 syn match     rustMacro       '#\w\(\w\)*' contains=rustAssert,rustPanic
@@ -168,6 +168,7 @@ syn match   rustCharacterInvalidUnicode   display contained /b'\zs[^[:cntrl:][:g
 syn match   rustCharacter   /b'\([^\\]\|\\\(.\|x\x\{2}\)\)'/ contains=rustEscape,rustEscapeError,rustCharacterInvalid,rustCharacterInvalidUnicode
 syn match   rustCharacter   /'\([^\\]\|\\\(.\|x\x\{2}\|u\x\{4}\|U\x\{8}\|u{\x\{1,6}}\)\)'/ contains=rustEscape,rustEscapeUnicode,rustEscapeError,rustCharacterInvalid
 
+syn match rustShebang /\%^#![^[].*/
 syn region rustCommentLine                                        start="//"                      end="$"   contains=rustTodo,@Spell
 syn region rustCommentLineDoc                                     start="//\%(//\@!\|!\)"         end="$"   contains=rustTodo,@Spell
 syn region rustCommentBlock    matchgroup=rustCommentBlock        start="/\*\%(!\|\*[*/]\@!\)\@!" end="\*/" contains=rustTodo,rustCommentBlockNest,@Spell
@@ -221,7 +222,7 @@ hi def link rustEnumVariant   rustConstant
 hi def link rustConstant      Constant
 hi def link rustSelf          Constant
 hi def link rustFloat         Float
-hi def link rustArrow         rustOperator
+hi def link rustArrowCharacter rustOperator
 hi def link rustOperator      Operator
 hi def link rustKeyword       Keyword
 hi def link rustReservedKeyword Error
@@ -233,6 +234,7 @@ hi def link rustModPathSep    Delimiter
 hi def link rustFunction      Function
 hi def link rustFuncName      Function
 hi def link rustFuncCall      Function
+hi def link rustShebang       Comment
 hi def link rustCommentLine   Comment
 hi def link rustCommentLineDoc SpecialComment
 hi def link rustCommentBlock  rustCommentLine

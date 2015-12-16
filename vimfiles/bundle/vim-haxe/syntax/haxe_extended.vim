@@ -2,7 +2,7 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Haxedoc
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if exists("haxe_haxedoc") || main_syntax == 'jsp'
+if exists("haxe_haxedoc") || (exists("main_syntax") && main_syntax == 'jsp')
   syntax case ignore
   " syntax coloring for haxedoc comments (HTML)
   " syntax include @haxeHtml <sfile>:p:h/html.vim

@@ -1,6 +1,6 @@
 " Vim filetype plugin
 " Language:     F#
-" Last Change:  Thu 23 Oct 2014 08:39:53 PM CEST
+" Last Change:  Fri 16 Oct 2015
 " Maintainer:   Gregor Uhlenheuer <kongo2002@googlemail.com>
 
 if exists('b:did_ftplugin')
@@ -12,48 +12,43 @@ let b:did_ftplugin = 1
 if !exists('g:fsharp_only_check_errors_on_write')
     let g:fsharp_only_check_errors_on_write = 0
 endif
-if !exists('g:fsharp_xbuild_path')
-    let g:fsharp_xbuild_path = "xbuild"
-endif
 if !exists('g:fsharp_completion_helptext')
-    let g:fsharp_completion_helptext = 1 
+    let g:fsharp_completion_helptext = 1
 endif
 
 let s:cpo_save = &cpo
 set cpo&vim
-
-let s:candidates = [ 'fsi',
-            \ 'fsi.exe',
-            \ 'fsharpi',
-            \ 'fsharpi.exe' ]
-
-if !exists('g:fsharp_interactive_bin')
-    let g:fsharp_interactive_bin = ''
-    for c in s:candidates
-        if executable(c)
-            let g:fsharp_interactive_bin = c
-            break
-        endif
-    endfor
-endif
 
 " check for python support
 if has('python')
     python <<EOF
 import vim
 import os
+import re
 fsharp_dir = vim.eval("expand('<sfile>:p:h')")
 file_dir = vim.eval("expand('%:p:h')")
 sys.path.append(fsharp_dir)
 
-from fsharpvim import FSAutoComplete,G
-from fsi import FSharpInteractive 
+from fsharpvim import FSAutoComplete, G
+from fsi import FSharpInteractive
 import pyvim
 
 debug = vim.eval("get(g:, 'fsharpbinding_debug', 0)") != '0'
-if G.fsac == None:
-    G.fsac = FSAutoComplete(fsharp_dir, debug)
-if G.fsi == None:
+if G.fsac is None:
+   G.fsac = FSAutoComplete(fsharp_dir, debug)
+   G.fsac.get_paths()
+vim_var_exists = lambda var_name: vim.eval("exists('%s')" % var_name) != '0'
+# retrieve path to a compiler tool (fsi, msbuild/xbuild) with fsautocomplete unless set by the user
+def get_path(var_name, path_obj):
+    if vim_var_exists(var_name):
+        return
+    if path_obj not in G.paths:
+        G.paths = G.fsac.get_paths()
+    if path_obj in G.paths:
+        vim.command('let %s = "%s"' % (var_name, re.escape(G.paths[path_obj])))
+get_path('g:fsharp_interactive_bin', 'Fsi')
+get_path('g:fsharp_xbuild_path', 'MSBuild')
+if G.fsi is None and vim_var_exists('g:fsharp_interactive_bin'):
     G.fsi = FSharpInteractive(vim.eval('g:fsharp_interactive_bin'), debug)
 
 #find project file if any - assumes fsproj file will be in the same directory as the fs or fsi file
@@ -80,7 +75,7 @@ EOF
     com! -buffer -nargs=* -complete=file FSharpBuildProject call fsharpbinding#python#BuildProject(<f-args>)
     com! -buffer -nargs=* -complete=file FSharpRunTests call fsharpbinding#python#RunTests(<f-args>)
     com! -buffer -nargs=* -complete=file FSharpRunProject call fsharpbinding#python#RunProject(<f-args>)
-    
+
     "fsi
     com! -buffer FsiShow call fsharpbinding#python#FsiShow()
     com! -buffer FsiClear call fsharpbinding#python#FsiClear()
@@ -98,7 +93,7 @@ EOF
         au!
         " closing the scratch window after leaving insert mode
         " is common practice
-        au BufWritePre  *.fs,*.fsi,*fsx call fsharpbinding#python#OnBufWritePre() 
+        au BufWritePre  *.fs,*.fsi,*fsx call fsharpbinding#python#OnBufWritePre()
         if version > 703
             " these events new in Vim 7.4
             au TextChanged  *.fs,*.fsi,*fsx call fsharpbinding#python#OnTextChanged()

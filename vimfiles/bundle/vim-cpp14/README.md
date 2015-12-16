@@ -13,7 +13,7 @@ Development is done at: http://github.com/octol/vim-cpp-enhanced-highlight
 Optional features
 -----------------
 
-Highlighting of class scope if disabled by default. To enable set
+Highlighting of class scope is disabled by default. To enable set
 ```vim
 let g:cpp_class_scope_highlight = 1
 ```
@@ -30,18 +30,16 @@ Installation instructions
 Follow one of the sets of directions below and reload vim afterwards.
 
 #### Vundle
-If you have [vundle](https://github.com/gmarik/Vundle.vim) installed, 
-add 
+Instal using [vundle](https://github.com/gmarik/Vundle.vim) by adding
 ```vim
 Plugin 'octol/vim-cpp-enhanced-highlight'
 ```
-to .vimrc and run `:PluginInstall` from vim.
+to .vimrc and run `:PluginInstall`.
 
 
 #### Git submodule + Pathogen
 If you have [pathogen](https://github.com/tpope/vim-pathogen) installed,
-and you prefer to use git submodules, the following bash commands will help
-you do so.
+and you prefer to use git submodules, run
 ```sh
 cd ~/.vim
 git submodule add https://github.com/octol/vim-cpp-enhanced-highlight.git bundle/syntax/
@@ -51,10 +49,19 @@ git submodule add https://github.com/octol/vim-cpp-enhanced-highlight.git bundle
 If you don't have either Vundle or Pathogen installed, copy the cpp.vim file
 (optionally also c.vim) to .vim/after/syntax.
 ```sh
-git clone https://github.com/octol/vim-cpp-enhanced-highlight.git /tmp
+git clone https://github.com/octol/vim-cpp-enhanced-highlight.git /tmp/vim-cpp-enhanced-highlight
 mkdir -p ~/.vim/after/syntax/
-mv /tmp/vim-cpp-enhanced-highlight/after/syntax/cpp.vim after/syntax/cpp.vim
+mv /tmp/vim-cpp-enhanced-highlight/after/syntax/cpp.vim ~/.vim/after/syntax/cpp.vim
 rm -rf /tmp/vim-cpp-enhanced-highlight
+```
+
+Issues
+------
+
+Vim tend to a have issues with flagging braces as errors, see for example
+https://github.com/vim-jp/vim-cpp/issues/16. A workaround is to set
+```vim
+let c_no_curly_error=1
 ```
 
 Background information

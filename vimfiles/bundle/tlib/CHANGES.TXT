@@ -552,3 +552,106 @@ version: "1.13"
   MD5 checksum: 7dd8b17a1a5b555df979381dcbd4c9aa
 version: "1.13"
 
+version: "1.14"
+  - FIX #18: Make sure the scratch isn't readonly
+  - FIX: display filter (properly handle backslashes)
+  - Remove loaded_* guard from autoload files
+  - tlib#notify#Echo(): minor changes
+  - tlib#file#Edit() (used by tlib#agent#ViewFile)
+  - tlib#buffer#GetList(): Buffer numbers are converted to numbers
+  - tlib#sys: Change order of functions (move tlib#sys#IsCygwinBin to the (possibly FIX #19)
+  - g:tlib#sys#check_cygpath: Call tlib#sys#IsExecutable('cygpath', 1)  (possibly FIX #19)
+  MD5 checksum: 2cf6386218736a2d09db43c8e751e5a4
+
+version: "1.15"
+  - tlib#file#Join(): New optional argument: maybe_absolute Drop preceding parts if a part looks like an absolute filename
+  - tlib#sys#Open(), tlib#sys#IsSpecial() (moved from viki)
+  - tlib#list#Uniq(): Handle hetergenous lists
+  - FIX #21: duplicate help tag
+  - NEW tlib#dictionary#Rev()
+  - tlib#input#List(): Use <Tab> to complete current word
+  - NEW tlib#arg#GetOpts(); ENH tlib#arg#StringAsKeyArgsEqual()
+  - cache: Allow for in memory cache
+  - NEW tlib#eval#Extend()
+  - Move qfl/loclist browser from trag to tlib
+  - FIX tlib#eval#Extend()
+  - Simplify tlib#eval#Extend()
+  - World.index_next_syntax may be a dict
+  - tlib#qfl#QflList: Use copy()
+  - tlib#arg#GetOpts: Handle exit code
+  MD5 checksum: 13fd8b0e4ba9cd932c57fc40ac3f641f
+
+version: "1.15"
+  - tlib#file#Join(): New optional argument: maybe_absolute Drop preceding parts if a part looks like an absolute filename
+  - tlib#sys#Open(), tlib#sys#IsSpecial() (moved from viki)
+  - tlib#list#Uniq(): Handle hetergenous lists
+  - FIX #21: duplicate help tag
+  - NEW tlib#dictionary#Rev()
+  - tlib#input#List(): Use <Tab> to complete current word
+  - NEW tlib#arg#GetOpts(); ENH tlib#arg#StringAsKeyArgsEqual()
+  - cache: Allow for in memory cache
+  - NEW tlib#eval#Extend()
+  - Move qfl/loclist browser from trag to tlib
+  - FIX tlib#eval#Extend()
+  - Simplify tlib#eval#Extend()
+  - World.index_next_syntax may be a dict
+  - tlib#qfl#QflList: Use copy()
+  - tlib#arg#GetOpts: Handle exit code
+  MD5 checksum: 13fd8b0e4ba9cd932c57fc40ac3f641f
+
+  - tlib#arg#GetOpts: Handle short options
+  - tlib#arg: support short flags & facilitate completion
+  - NEW :TLibTrace
+  - tlib#sys#system_browser: FIX XDG string
+  - NEW tlib#sys#SystemInDir() (used by tlib#vcs#Ls)
+  - tlib#agent#Complete: improve fltrx
+  - Remove tlib#arg#Key(), :TKeyArg
+  - Move :TRequire, :TTimeCommand to macros/tlib.vim
+  - NEW tlib#cmd#TBrowseScriptnames()
+  - TScratch: use empty('<bang>')
+  - NEW :TLibTrace
+  - tlib#qfl: FIX TTagedFilesFilename regexp
+  - Remove tlib#arg#Key()
+  - tlib#buffer#InsertText(): Don't use TKeyArg
+  - tlib#eval#Extend: don't assign value
+  - NEW :TLibTrace, tlib#trace (was tlib#debug)
+  - NEW tlib#string#SplitCommaList()
+  - NEW tlib#time#FormatNow()
+  - tlib#arg#GetOpts: selectively disable "long", "short" flags
+  - tlib#arg#CComplete(): Support values completion (complete_customlist field)
+  - NEW tlib#date#Shift()
+  - tlib#qfl#Balloon(): Handle items with no bufnr
+  - NEW tlib#file#Glob, tlib#file#Globpath
+  - tlib#progressbar#Display(): optional "always" argument
+  - tlib#vcs#GitLsPostprocess(): Try to handle encoded filenames from git ls-files
+  - tlib#vcs#GitLsPostprocess: Eval only \ddd substrings
+  - FIX #22: duplicate tag
+  - tlib#buffer: Use 2match instead of 3match (incompatibility with matchparen)
+  - FIX #23: duplicate help tag
+  - tlib#string#SplitCommaList: optional "sep" argument
+  - Rename TLibTrace -> Tlibtrace; NEW Tlibtraceset command
+  - Rename s:SetSyntax -> tlib#qfl#SetSyntax
+  - mv tlib#rx#Convert to incubator
+  MD5 checksum: f3656fb35b7b3033084d6c5e504aca61
+version: "1.16"
+
+  - tlib#input#List: #ReduceFilter: make sure the regexp is valid
+  - TTimeCommand -> Ttimecommand
+  - tlib#eval#Extend: mode argument for expand() compatibility
+  - tlib#input#List: Key handlers can have additional arguments
+  - tlib#qfl#AgentWithSelected: Set world
+  - prototype.UseInputListScratch: Run tlib_UseInputListScratch hook earlier
+  - tlib#qfl#AgentWithSelected: typo
+  - tlib#arg#GetOpts: type conversion (comma-separated lists etc.)
+  - tlib#arg: validators
+  - NEW tlib#date#IsDate()
+  - tlib#balloon#Remove: Unset &ballooneval, &balloonexpr
+  - NEW tlib#balloon#Expand()
+  - NEW tlib#date#Format()
+  - FIX tlib#date#Shift(..., "+Xm") for months
+  - NEW tlib#trace#Backtrace()
+  - NEW tlib#type#Is(), tlib#type#Are(), tlib#type#Has(), tlib#type#Have()
+  - NEW :Tlibassert
+  MD5 checksum: 3c4125a28ff1860accd254846651c251
+version: "1.17"
+

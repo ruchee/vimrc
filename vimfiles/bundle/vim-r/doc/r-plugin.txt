@@ -5,7 +5,7 @@
 Authors: Jakson A. Aquino   <jalvesaq@gmail.com>
          Jose Claudio Faria <joseclaudio.faria@gmail.com>
 
-Version: 1.2.6
+Version: 1.2.7
 For Vim version 7.4
 
  1. Overview                                    |r-plugin-overview|
@@ -115,7 +115,7 @@ dependencies:
 
     * R's version must be >= 3.0.0: http://www.r-project.org/
 
-    * vimcom = 1.2-6: http://www.lepem.ufc.br/jaa/vimcom.html
+    * vimcom = 1.2-7: http://www.lepem.ufc.br/jaa/vimcom.html
 
       Note: If you cannot build vimcom yourself, you will want to
       download and install the zip file.
@@ -152,7 +152,7 @@ Before installing the plugin, you should install its dependencies:
 
    R >= 3.0.0: http://www.r-project.org/
 
-   vimcom = 1.2-6: http://www.lepem.ufc.br/jaa/vimcom.html
+   vimcom = 1.2-7: http://www.lepem.ufc.br/jaa/vimcom.html
 
    Only if you edit Rnoweb files: MacTeX, BasicTeX or other LaTeX system.
 
@@ -206,7 +206,7 @@ Before installing the plugin, you should install its dependencies:
 
    R >= 3.0.0: http://www.r-project.org/
 
-   vimcom = 1.2-6: http://www.lepem.ufc.br/jaa/vimcom.html
+   vimcom = 1.2-7: http://www.lepem.ufc.br/jaa/vimcom.html
 
    Tmux >= 1.8:   http://tmux.sourceforge.net
                   Tmux is necessary to send commands from Vim to R Console.
@@ -253,23 +253,25 @@ Put the following in your `~/.bashrc`:
 Before proceeding, you have to start a new shell session to have the alias
 enabled.
 
-If you start either GVim or Vim in a terminal emulator the plugin will start R
-in a external terminal emulator. If you start Vim inside of a Tmux session,
-the plugin will split the Tmux window in two and start R in the other pane.
-
-The recommended way of running the plugin on Linux is running Vim inside a
-Tmux session. Please, read |r-plugin-tmux| for details.
+If you start Vim in a terminal emulator, inside of a Tmux session, the plugin
+will split the Tmux window in two and start R in the other pane. This is the
+recommended way of running the plugin on Linux (read |r-plugin-tmux| for
+details). If you either use GVim or Vim not inside a Tmux session the plugin
+will start R in a external terminal emulator. This is useful if you have two
+monitors.
 
 If you run Vim in a terminal emulator, it must be started with the argument
-|--servername|. Please, read the section |r-plugin-bash-setup| to know some
-tips on how to configure Bash.
+|--servername| to enable the 'clientserver' feature (please, read the section
+|r-plugin-bash-setup| to know some tips on how to configure Bash). This is not
+necessary with GVim because it always runs with the 'clientserver' feature
+enabled.
 
 
 ------------------------------------------------------------------------------
 3.4. Plugin installation (instructions for all systems)~
 
 You need to activate plugins and indentation according to 'filetype'. You
-should have at least the following options at the top or at near the very top
+should have at least the following options at the top or near the very top
 of your |vimrc| (but below `set` `runtimepath`, if you have set it):
 >
    set nocompatible
@@ -512,18 +514,22 @@ line currently under the cursor you should type <LocalLeader>d. If you want to
 see what lines are being sourced when sending a selection of lines, you can
 use either <LocalLeader>se or <LocalLeader>sa instead of <LocalLeader>ss.
 
+The command <LocalLeader>o runs in the background the R command `print(line)`,
+where `line` is the line under cursor, and adds the output as commented lines
+to the source code.
+
 If the cursor is over the header of an R chunk with the `child` option (from
 Rnoweb, RMarkdown or RreStructuredText document), and you use one of the
 commands that send a single line of code to R, then the plugin will send to R
 the command to knit the child document.
 
 After the send, sweave and knit commands, Vim will save the current buffer if
-it has any pending changes before performing the tasks.  After
-<LocalLeader>ao, Vim will run "R CMD BATCH --no-restore --no-save" on the
-current file and show the resulting .Rout file in a new tab. Please see
-|vimrplugin_routnotab| if you prefer that the file is open in a new split
-window. Note: The command <LocalLeader>ao, silently writes the current buffer
-to its file if it was modified and deletes the .Rout file if it exists.
+it has any pending changes before performing the tasks. After <LocalLeader>ao,
+Vim will run "R CMD BATCH --no-restore --no-save" on the current file and show
+the resulting .Rout file in a new tab. Please see |vimrplugin_routnotab| if
+you prefer that the file is open in a new split window. Note: The command
+<LocalLeader>ao, silently writes the current buffer to its file if it was
+modified and deletes the .Rout file if it exists.
 
 R syntax uses " <- " to assign values to variables which is inconvenient to
 type. In insert mode, typing a single underscore, "_", will write " <- ",
@@ -815,9 +821,12 @@ file:
 
    # Options enable mouse support in Tmux
    set -g terminal-overrides 'xterm*:smcup@:rmcup@'
+   # For Tmux < 2.1
    set -g mode-mouse on
    set -g mouse-select-pane on
    set -g mouse-resize-pane on
+   # For Tmux >= 2.1
+   set -g mouse on
 
    # Act more like vim:
    set-window-option -g mode-keys vi
@@ -999,16 +1008,16 @@ operator. See: https://github.com/jcfaria/Vim-R-plugin/issues/94
 ------------------------------------------------------------------------------
 5.4. Wrong message that "R is busy" (Windows only)~
 
-On Windows, when code is sent from Vim to R Console, the vimcom library
-sets the value of the internal variable `r_is_busy` to 1. The value is set
-back to 0 when any code is successfully evaluated. If you send invalid code to
-R, there will be no successful evaluation of code and, thus, the value of
-`r_is_busy` will remain set to 1. If you then try to update the Object
-Browser, see the R documentation for any function, or do other tasks that
-require the hidden evaluation of code by R, the vimcom library will
-refuse to do the tasks to avoid any risk of corrupting R's memory. It will
-tell Vim that "R is busy" and Vim will display this message. Everything should
-work as expected again after any valid code is executed in the R Console.
+On Windows, when code is sent from Vim to R Console, the vimcom library sets
+the value of the internal variable `r_is_busy` to 1. The value is set back to
+0 when any code is successfully evaluated. If you send invalid code to R,
+there will be no successful evaluation of code and the value of `r_is_busy`
+will remain set to 1. If you then try to update the Object Browser, see the R
+documentation for any function, or do other tasks that require the hidden
+evaluation of code by R, the vimcom library will refuse to do the tasks to
+avoid any risk of corrupting R's memory. It will tell Vim that "R is busy" and
+Vim will display this message. Everything should work as expected again after
+any valid code is executed in the R Console.
 
 The vimcom library is started with the state `busy`.
 
@@ -1101,7 +1110,7 @@ VIMINSTANCEID, and VIMRPLUGIN_SECRET. The first one is the path used by the R
 package vimcom to save temporary files used by the Vim-R-plugin to: perform
 omnicompletion, show R documentation in a Vim buffer, and update the Object
 Browser. The two last ones are used by the Vim-R-plugin and by vimcom to know
-that the connections are valid. If you use Vim to start R, but then closes
+that the connections are valid. If you use Vim to start R, but then close
 Vim, some variables will become outdated. Additionally, the Vim-R-plugin sets
 the value of its internal variable SendCmdToR from SendCmdToR_fake to the
 appropriate value when R is successfully started. It is possible to set the
@@ -1161,6 +1170,7 @@ is running:
 |vimrplugin_term_cmd|          Complete command to open an external terminal
 |vimrplugin_sleeptime|         Delay while sending commands in MS Windows
 |vimrplugin_save_win_pos|      Save positions of R and GVim windows
+|vimrplugin_set_home_env|      Set the value of $HOME for R
 |vimrplugin_arrange_windows|   Restore positions of R and GVim windows
 |vimrplugin_assign|            Convert '_' into ' <- '
 |vimrplugin_assign_map|        Choose what to convert into ' <- '
@@ -1260,6 +1270,7 @@ The last argument must be the one which precedes the command to be executed.
 ------------------------------------------------------------------------------
 						  *vimrplugin_sleeptime*
 						  *vimrplugin_save_win_pos*
+						  *vimrplugin_set_home_env*
 						  *vimrplugin_arrange_windows*
 6.2. Options specific to Windows~
 
@@ -1271,7 +1282,7 @@ example show how to adjust the value of sleeptime in your |vimrc|:
    let vimrplugin_sleeptime = 30
 <
 By default, the Vim-R-plugin will save the positions of R Console and GVim
-windows when you quits R with the <LocalLeader>rq command, and will restore
+windows when you quit R with the <LocalLeader>rq command, and it will restore
 the positions of the windows when you start R. If you do not like this
 behavior, you can put in your |vimrc|:
 >
@@ -1283,8 +1294,15 @@ their state when you have quited R for the last time, you should arrange them
 in the way you want, quit R, change in your |vimrc| only the value of
 vimrplugin_save_win_pos and, finally, quit Vim.
 
-Note: the option vimrplugin_Rterm was disabled because the C code to send
-strings from Vim to Windows PowerShell is not working.
+The plugin sets `$HOME` as the Windows register value for "Personal" "Shell
+Folders" which is the same value set by R. However, if you have set `$HOME`
+yourself with the intention of changing the default value of `$HOME` assumed
+by R, you will want to put in your |vimrc|:
+>
+   let vimrplugin_set_home_env = 0
+<
+Note: the old option vimrplugin_Rterm was deprecated because the C code to
+send strings from Vim to Windows PowerShell is not working.
 
 
 ------------------------------------------------------------------------------
@@ -1322,7 +1340,15 @@ To completely disable this feature, put in your |vimrc|:
 <
 If you need to type many object names with underscores, you may want to change
 the value vimrplugin_assign to 2. Then, you will have to type two `_` to get
-them converted into `<-`.
+them converted into `<-`. Alternatively, if the value of vimrplugin_assign is
+3, the plugin will run the following command in each buffer containing R code
+(R, Rnoweb, Rhelp, Rrst, and Rmd):
+>
+   iabb <buffer> _ <-
+<
+That is, the underscore will be replaced with the assign operator only if it
+is preceded by a space and followed by a non-word character.
+
 
 ------------------------------------------------------------------------------
 						   *vimrplugin_objbr_place*
@@ -1400,8 +1426,8 @@ it works, please, read the subsection 6.5.2 below.
 ------------------------------------------------------------------------------
 6.5.2. Details and other options:~
 
-The plugin key bindings will remain active in the documentation buffer, and,
-thus, you will be able to send commands to R as you do while editing an R
+The plugin key bindings will remain active in the documentation buffer
+allowing you to send commands to R as you would do do while editing an R
 script. You can, for example, use <LocalLeader>rh to jump to another R help
 document.
 
@@ -1662,7 +1688,7 @@ this behavior. Examples:
    let vimrplugin_latexcmd = 'latexmk -pdf -pdflatex="xelatex %O -synctex=1 %S"'
 <
 By default, vimrplugin_latexmk is 0 on Windows and 1 on other systems.
-If you want to pass arguments do the `Sweave()` function, set the value of the
+If you want to pass arguments to the `Sweave()` function, set the value of the
 vimrplugin_sweaveargs variable.
 
 If the value of `vimrplugin_texerr` is `1`, a summary of LaTeX errors
@@ -2148,7 +2174,7 @@ can type |:map| to see the complete list of current mappings, and below is the
 list of the names for custom key bindings (the prefix RE means "echo";
 RD, "cursor down"; RED, both "echo" and "down"):
 
-   Star/Close R~
+   Start/Close R~
    RStart
    RCustomStart
    RClose
@@ -2282,7 +2308,7 @@ later version.
 
 The Vim-R-plugin is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 details.
 
 A copy of the GNU General Public License is available at
@@ -2553,9 +2579,9 @@ develop a better algorithm in the future.
 9.10. Highlight chunk header as R code~
 
 By default, Vim will highlight chunk headers of RMarkdown and
-RreStructuredText with a single color. When the code is processed by knitr,
-chunk headers should contain valid R code and, thus, you may want to highlight
-them as such. You can do this by putting in your |vimrc|:
+RreStructuredText with a single color. Chunk headers should contain valid R
+code when the code is processed by knitr, so you may want to highlight them as
+such. You can do this by putting in your |vimrc|:
 >
    let rrst_syn_hl_chunk = 1
    let rmd_syn_hl_chunk = 1
@@ -2586,13 +2612,7 @@ Vim breaks the R code automatically put in your |vimrc|:
 
 If you want 256 colors support in Vim, install the package ncurses-term. Then
 put in your `~/.bashrc` the lines suggested at |r-plugin-bash-setup|.
-Finally, put in your |vimrc|:
->
-   if &term =~ "xterm" || &term =~ "256" || $DISPLAY != ""
-       set t_Co=256
-   endif
-   colorscheme your_preferred_color_scheme
-<
+
 You have to search the internet for color schemes supporting 256 colors,
 download and copy them to ~/.vim/colors. You may use the command
 |:colorscheme| to try them one by one before setting your preference in your
@@ -2738,11 +2758,6 @@ please read this document from the beginning.
    " schemes that supports 256 colors in the terminal emulator. Then,
    " uncomment the code below to set you color scheme:
    "colorscheme not_defined
-
-   " Use 256 colors even if in a terminal emulator:
-   if &term =~ "xterm" || &term =~ "256" || $DISPLAY != ""
-       set t_Co=256
-   endif
 <
 
 							    *r-plugin-R-setup*
@@ -2763,25 +2778,30 @@ please read this document from the beginning.
 <
 
 							 *r-plugin-bash-setup*
-   ~/.bashrc for Vim (Unix):~
+   ~/.bashrc (Linux, Mac OS X, and other Unix systems):~
 >
-   # Change the TERM environment variable (to get 256 colors) and make Vim
-   # connecting to X Server even if running in a terminal emulator (many of
-   # the plugin features depend on this).
+   # Change the TERM environment variable (to get 256 colors) even if you are
+   # accessing your system through ssh and using either Tmux or GNU Screen:
+   if [ "$TERM" = "xterm" ] || [ "$TERM" = "xterm-256color" ]
+   then
+       export TERM=xterm-256color
+       export HAS_256_COLORS=yes
+   fi
+   if [ "$TERM" = "screen" ] && [ "$HAS_256_COLORS" = "yes" ]
+   then
+       export TERM=screen-256color
+   fi
+
+   # Make Vim connect to X Server even if the gui is not running (many of the
+   # plugin features depend on this).
    if [ "x$DISPLAY" != "x" ]
    then
-       if [ "screen" = "$TERM" ]
-       then
-           export TERM=screen-256color
-       else
-           export TERM=xterm-256color
-       fi
        alias vim='vim --servername VIM'
    fi
 <
 
 
-Finally, if you want to use vi key bindings in Bash:
+Finally, if you want to use vi key bindings in Bash or other shell:
 
    ~/.inputrc~
 >
@@ -2829,6 +2849,14 @@ put in your |vimrc|:
 ==============================================================================
 							       *r-plugin-news*
 10. News~
+
+1.2.8 (2015-12-11)
+
+ * New opton (Windows only): vimrplugin_set_home_env.
+
+1.2.7 (2015-12-11)
+
+ * Fix incompatibility with Tmux 2.1.
 
 1.2.6 (2015-06-12)
 

@@ -64,7 +64,6 @@ let C = function("vaxe#util#Config")
 
 " misc options
 let g:vaxe_haxe_version        = C('g:vaxe_haxe_version', 3)
-let g:vaxe_cache_server        = C('g:vaxe_cache_server', 0)
 let g:vaxe_logging             = C('g:vaxe_logging', 0)
 let g:vaxe_trace_absolute_path = C('g:vaxe_trace_absolute_path', 1)
 
@@ -85,6 +84,7 @@ let g:vaxe_completeopt_menuone
             \= C('g:vaxe_completeopt_menuone', 1)
 
 " cache server options
+let g:vaxe_cache_server           = C('g:vaxe_cache_server', 0)
 let g:vaxe_cache_server_port      = C('g:vaxe_cache_server_port', 6878)
 let g:vaxe_cache_server_autostart = C('g:vaxe_cache_server_autostart', 1)
 

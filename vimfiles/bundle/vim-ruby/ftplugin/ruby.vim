@@ -44,7 +44,7 @@ endif
 setlocal formatoptions-=t formatoptions+=croql
 
 setlocal include=^\\s*\\<\\(load\\>\\\|require\\>\\\|autoload\\s*:\\=[\"']\\=\\h\\w*[\"']\\=,\\)
-setlocal includeexpr=substitute(substitute(v:fname,'::','/','g'),'$','.rb','')
+setlocal includeexpr=substitute(substitute(v:fname,'::','/','g'),'\%(\.rb\)\=$','.rb','')
 setlocal suffixesadd=.rb
 
 if exists("&ofu") && has("ruby")
@@ -102,7 +102,7 @@ endfunction
 
 if !exists('b:ruby_version') && !exists('g:ruby_path') && isdirectory(expand('%:p:h'))
   let s:version_file = findfile('.ruby-version', '.;')
-  if !empty(s:version_file)
+  if !empty(s:version_file) && filereadable(s:version_file)
     let b:ruby_version = get(readfile(s:version_file, '', 1), '')
     if !has_key(g:ruby_version_paths, b:ruby_version)
       let g:ruby_version_paths[b:ruby_version] = s:query_path(fnamemodify(s:version_file, ':p:h'))
@@ -136,7 +136,7 @@ if exists('s:ruby_paths') && stridx(&l:tags, join(map(copy(s:ruby_paths),'v:val.
   let &l:tags = &tags . ',' . join(map(copy(s:ruby_paths),'v:val."/tags"'),',')
 endif
 
-if has("gui_win32") && !exists("b:browsefilter")
+if (has("gui_win32") || has("gui_gtk")) && !exists("b:browsefilter")
   let b:browsefilter = "Ruby Source Files (*.rb)\t*.rb\n" .
                      \ "All Files (*.*)\t*.*\n"
 endif
@@ -207,16 +207,16 @@ if !exists("g:no_plugin_maps") && !exists("g:no_ruby_maps")
   call s:map('c', '', '<C-R><C-W> <Plug><cword>')
   call s:map('c', '', '<C-R><C-F> <Plug><cfile>')
 
-  nmap <buffer><script><expr> <SID>tagzv &foldopen =~# 'tag' ? 'zv' : ''
-  call s:map('n', '<silent>', '<C-]>         <SID>c:tag <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', 'g<C-]>       <SID>:tjump <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', 'g]         <SID>:tselect <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', '<C-W>]       <SID>c:stag <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', '<C-W><C-]>   <SID>c:stag <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', '<C-W>g<C-]> <SID>:stjump <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', '<C-W>g]   <SID>:stselect <Plug><cword><CR><SID>tagzv')
-  call s:map('n', '<silent>', '<C-W>}       <SID>c:ptag <Plug><cword><CR>')
-  call s:map('n', '<silent>', '<C-W>g}     <SID>:ptjump <Plug><cword><CR>')
+  cmap <buffer><script><expr> <SID>tagzv &foldopen =~# 'tag' ? '<Bar>norm! zv' : ''
+  call s:map('n', '<silent>', '<C-]>       <SID>:exe  v:count1."tag <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', 'g<C-]>      <SID>:exe         "tjump <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', 'g]          <SID>:exe       "tselect <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', '<C-W>]      <SID>:exe v:count1."stag <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', '<C-W><C-]>  <SID>:exe v:count1."stag <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', '<C-W>g<C-]> <SID>:exe        "stjump <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', '<C-W>g]     <SID>:exe      "stselect <Plug><cword>"<SID>tagzv<CR>')
+  call s:map('n', '<silent>', '<C-W>}      <SID>:exe v:count1."ptag <Plug><cword>"<CR>')
+  call s:map('n', '<silent>', '<C-W>g}     <SID>:exe        "ptjump <Plug><cword>"<CR>')
 
   call s:map('n', '<silent>', 'gf           <SID>c:find <Plug><cfile><CR>')
   call s:map('n', '<silent>', '<C-W>f      <SID>c:sfind <Plug><cfile><CR>')
@@ -359,7 +359,7 @@ function! RubyCursorFile() abort
   endtry
   let pre = matchstr(strpart(getline('.'), 0, col('.')-1), '.*\f\@<!')
   let post = matchstr(strpart(getline('.'), col('.')), '\f\@!.*')
-  let ext = getline('.') =~# '^\s*\%(require\|autoload\)\>' ? '.rb' : ''
+  let ext = getline('.') =~# '^\s*\%(require\%(_relative\)\=\|autoload\)\>' && cfile !~# '\.rb$' ? '.rb' : ''
   if s:synname() ==# 'rubyConstant'
     let cfile = substitute(cfile,'\.\w\+[?!=]\=$','','')
     let cfile = substitute(cfile,'::','/','g')
@@ -367,7 +367,7 @@ function! RubyCursorFile() abort
     let cfile = substitute(cfile,'\(\l\|\d\)\(\u\)','\1_\2', 'g')
     return tolower(cfile) . '.rb'
   elseif getline('.') =~# '^\s*require_relative\s*\(["'']\).*\1\s*$'
-    let cfile = expand('%:p:h') . '/' . matchstr(getline('.'),'\(["'']\)\zs.\{-\}\ze\1') . '.rb'
+    let cfile = expand('%:p:h') . '/' . matchstr(getline('.'),'\(["'']\)\zs.\{-\}\ze\1') . ext
   elseif getline('.') =~# '^\s*\%(require[( ]\|load[( ]\|autoload[( ]:\w\+,\)\s*\%(::\)\=File\.expand_path(\(["'']\)\.\./.*\1,\s*__FILE__)\s*$'
     let target = matchstr(getline('.'),'\(["'']\)\.\.\zs/.\{-\}\ze\1')
     let cfile = expand('%:p:h') . target . ext

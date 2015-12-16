@@ -1,5 +1,5 @@
-Haskell Syntax/Indentation
-==========================
+Syntax Highlighting and Indentation for Haskell and Cabal
+=========================================================
 
 I was unhappy with the Haskell scripts that are
 shipped with vim, therefore I decided to make my
@@ -23,7 +23,7 @@ I recommend using [Pathogen][] for installation. Simply clone
 this repo into your `~/.vim/bundle` directory and you are ready to go.
 
     cd ~/.vim/bundle
-    git clone https://github.com/raichoo/haskell-vim.git
+    git clone https://github.com/neovimhaskell/haskell-vim.git
 
 Be sure that the following lines are in your
 `.vimrc`
@@ -95,10 +95,6 @@ To configure indentation in `haskell-vim` you can use the following variables to
         executable name
         >>main-is:             Main.hs
 
-
-[Pathogen]: https://github.com/tpope/vim-pathogen
-[idris-vim]: https://github.com/idris-hackers/idris-vim
-
 ### Plugin Support
 
 #### Haskell
@@ -108,13 +104,13 @@ To configure indentation in `haskell-vim` you can use the following variables to
 * `HaskellAddModuleComment`: Adds a module comment block to the top of your haskell file
 
         {-|
-        Module      : 
-        Description : 
-        Copyright   : 
-        License     : 
-        Maintainer  : 
-        Stability   : 
-        Portability : 
+        Module      :
+        Description :
+        Copyright   :
+        License     :
+        Maintainer  :
+        Stability   :
+        Portability :
         -}
 
 #### Cabal
@@ -148,3 +144,6 @@ To configure indentation in `haskell-vim` you can use the following variables to
           description:
           default:      False
           manual:       True
+
+[Pathogen]: https://github.com/tpope/vim-pathogen
+[idris-vim]: https://github.com/idris-hackers/idris-vim

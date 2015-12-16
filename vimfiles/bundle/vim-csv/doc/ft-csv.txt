@@ -242,6 +242,9 @@ Will left-align the first column, center align the second column, decimal
 align the third column and all following columns right align. (Note: decimal
 aligning might slow down Vim and additionally, if the value is no decimal
 number it will be right aligned).
+If you change the alignment parameter, you need to use the "!" attribute, the
+next time you run the |:ArrangeCol| command, otherwise for performance
+reasons, it won't be considered.
 
 Note, arranging the columns can be very slow on large files or many columns (see
 |csv-slow| on how to increase performance for this command). For large files,
@@ -298,8 +301,8 @@ will then delete all columns that match the pattern: >
 <
 will delete all columns where the pattern "foobar" matches.
 
-                                                                *:CSVInitCSV*
-3.8 InitCSV							*InitCSV*
+                                                                *:CSVInit*
+3.8 CSVInit
 -----------
 Reinitialize the Plugin. Use this, if you have changed the configuration
 of the plugin (see |csv-configuration| ).
@@ -912,8 +915,8 @@ See also |csv-aggregate-functions|
 You can let Vim output the 10 maximum/minimum values of a column using the
 `:CSVMaxCol` command >
 
-    :[range]MaxCol [nr] [/format/]
-    :[range]MinCol [nr] [/format/]
+    :[range]MaxCol [nr][distinct] [/format/]
+    :[range]MinCol [nr][distinct] [/format/]
 
 This outputs the result of the column <nr> within the range given. If no range
 is given, this will calculate the max value of the whole column. If <nr> is not
@@ -937,6 +940,8 @@ uses the default thousands separator and ',' as the decimal separator and >
     :MaxCol 2 / :./
 
 uses the Space as thousands separator and the '.' as decimal separator.
+
+If [distinct] is given, only returns the number of distinct values.
 
 Note, if you Vim is compiled without floating point number format (|+float|),
 Vim will only aggregate the integer part and therefore won't use the 'y'
@@ -1591,8 +1596,25 @@ Index;Value1;Value2~
   https://github.com/chrisbra/csv.vim/issues/60, thanks!)
 - Make |UnArrangeColumn_CSV| strip leading and trailing whitespace (reported
   by SuperFluffy at https://github.com/chrisbra/csv.vim/issues/62, thanks!)
+- Do not sort headerlines (reported by jungle-booke at https://github.com/chrisbra/csv.vim/issues/63,
+  thanks!)
+- Do not error out in |:ArrangeCol| command, if line does not have that many
+  columns (reported by SuperFluffy at https://github.com/chrisbra/csv.vim/issues/64, thanks)
+- Use |OptionSet|autocommand to adjust window for |CSV_Header| command
+- when doing |:ArrangeCol| with bang attribute, unarrange first, so that if
+  the alignment changed, it will be adjusted accordingly
+- Allow distinct keyword for |MaxCol_CSV| and |MinCol_CSV| command (reported
+  by jungle-boogie at https://github.com/chrisbra/csv.vim/issues/67, thanks!)
+- When left-aligning columns, don't add trailing whitespace (reported by
+  jjaderberg at https://github.com/chrisbra/csv.vim/issues/66, thanks!)
+- Do not remove highlighting when calling ":CSVTabularize" (reported by
+   hyiltiz at https://github.com/chrisbra/csv.vim/issues/70, thanks!)
+- Make |:ArrangeCol| respect given headerlines
+- when checking Header/comment lines at beginning of file, make sure to escape
+  the comment pattern correctly.
 
 0.31 Jan 15, 2015 {{{1
+- supports for Vim 7.3 dropped
 - fix that H on the very first cell, results in an endless loop
   (https://github.com/chrisbra/csv.vim/issues/31, reported by lahvak, thanks!)
 - fix that count for |AddColumn| did not work (according to the documentation)

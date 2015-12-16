@@ -132,12 +132,14 @@ List of the contributors in alphabetical order:
 
 - `Andrea Riciputi <https://github.com/mrrech>`_
 - Anton Butanaev
+- `Antony Lee <https://github.com/anntzer>`_
 - Caleb Adamantine
 - `David Briscoe <https://github.com/idbrii>`_
 - `Elizabeth Myers <https://github.com/Elizafox>`_
 - `Ihor Gorobets <https://github.com/iho>`_
 - `Jeroen Ruigrok van der Werven <https://github.com/ashemedai>`_
 - `John Eikenberry <https://github.com/eikenb>`_
+- `Joongi Kim <https://github.com/achimnol>`_
 - `Marc Weber <https://github.com/MarcWeber>`_
 - `Pedro Algarvio <https://github.com/s0undt3ch>`_
 - `Victor Salgado <https://github.com/mcsalgado>`_

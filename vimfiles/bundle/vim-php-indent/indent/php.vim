@@ -3,8 +3,8 @@
 " Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
 " URL:		http://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2015 January 23rd
-" Version:	1.58
+" Last Change:	2015 September 8th
+" Version:	1.60
 "
 "
 "	Type :help php-indent for available options
@@ -40,6 +40,11 @@
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
 "
+" Changes: 1.60         - Multi-line indenting could get wrong whenever started
+"                         on a commented line. (issue #44)
+"
+" Changes: 1.59		- Add support for optional spaces before and double
+"                         quotes around (Here|Now)Document identifiers (issue #40)
 "
 " Changes: 1.58		- Check shiftwidth() instead of 'shiftwidth' (will use
 "			  the 'tabstop' value if 'shiftwidth' is 0)
@@ -501,7 +506,7 @@ let s:endline= '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
     " - a "}" not followed by a "{"
     " - a goto's label
 
-let s:terminated = '\%(\%(;\%(\s*\%(?>\|}\)\)\=\|<<<''\=\a\w*''\=$\|^\s*}\|^\s*'.s:PHP_validVariable.':\)'.s:endline.'\)\|^[^''"`]*[''"`]$'
+let s:terminated = '\%(\%(;\%(\s*\%(?>\|}\)\)\=\|<<<\s*[''"]\=\a\w*[''"]\=$\|^\s*}\|^\s*'.s:PHP_validVariable.':\)'.s:endline.'\)\|^[^''"`]*[''"`]$'
 let s:PHP_startindenttag = '<?\%(.*?>\)\@!\|<script[^>]*>\%(.*<\/script>\)\@!'
 
 
@@ -581,7 +586,7 @@ function! GetLastRealCodeLNum(startline) " {{{
 	    " Manage "here document" tags
 	elseif lastline =~? '^\a\w*;\=$' && lastline !~? s:notPhpHereDoc
 	    " match the end of a heredoc
-	    let tofind=substitute( lastline, '\(\a\w*\);\=', '<<<''\\=\1''\\=$', '')
+	    let tofind=substitute( lastline, '\(\a\w*\);\=', '<<<\\s*[''"]\\=\1[''"]\\=$', '')
 	    while getline(lnum) !~? tofind && lnum > 1
 		let lnum = lnum - 1
 	    endwhile
@@ -888,6 +893,7 @@ function! GetPhpIndent()
 
     if !b:InPHPcode_checked " {{{ One time check
 	let b:InPHPcode_checked = 1
+	let b:UserIsTypingComment = 0
 
 	let synname = ""
 	if cline !~ '<?.*?>'
@@ -901,7 +907,6 @@ function! GetPhpIndent()
 	    if synname == "SpecStringEntrails"
 		" the user has done something ugly *stay calm*
 		let b:InPHPcode = -1 " thumb down
-		let b:UserIsTypingComment = 0
 		" All hope is lost at this point, nothing will be indented
 		" further on.
 		let b:InPHPcode_tofind = ""
@@ -911,8 +916,9 @@ function! GetPhpIndent()
 
 		if synname =~# '^php\%(Doc\)\?Comment'
 		    let b:UserIsTypingComment = 1
-		else
-		    let b:UserIsTypingComment = 0
+		    " UserIsTypingComment needs to be checked every time
+		    " because we can't reliably detect when it ends.
+		    let b:InPHPcode_checked = 0
 		endif
 
 		if synname =~? '^javaScript'
@@ -922,19 +928,17 @@ function! GetPhpIndent()
 	    else
 		"We are inside an "HereDoc"
 		let b:InPHPcode = 0
-		let b:UserIsTypingComment = 0
 
 		let lnum = v:lnum - 1
-		while getline(lnum) !~? '<<<''\=\a\w*''\=$' && lnum > 1
+		while getline(lnum) !~? '<<<\s*[''"]\=\a\w*[''"]\=$' && lnum > 1
 		    let lnum = lnum - 1
 		endwhile
 
-		let b:InPHPcode_tofind = substitute( getline(lnum), '^.*<<<''\=\(\a\w*\)''\=$', '^\\s*\1;\\=$', '')
+		let b:InPHPcode_tofind = substitute( getline(lnum), '^.*<<<\s*[''"]\=\(\a\w*\)[''"]\=$', '^\\s*\1;\\=$', '')
 	    endif
 	else
 	    " IslinePHP returned "" => we are not in PHP or Javascript
 	    let b:InPHPcode = 0
-	    let b:UserIsTypingComment = 0
 	    " Then we have to find a php start tag...
 	    let b:InPHPcode_tofind = s:PHP_startindenttag
 	endif
@@ -1018,9 +1022,9 @@ function! GetPhpIndent()
 	    let b:InPHPcode_tofind = substitute( last_line, '^.*\([''"`]\).*$', '^[^\1]*\1[;,]$', '')
 	    " DEBUG call DebugPrintReturn( 'mls dcl, to find:' . b:InPHPcode_tofind)
 	    " Was last line the start of a HereDoc ?
-	elseif last_line =~? '<<<''\=\a\w*''\=$'
+	elseif last_line =~? '<<<\s*[''"]\=\a\w*[''"]\=$'
 	    let b:InPHPcode = 0
-	    let b:InPHPcode_tofind = substitute( last_line, '^.*<<<''\=\(\a\w*\)''\=$', '^\\s*\1;\\=$', '')
+	    let b:InPHPcode_tofind = substitute( last_line, '^.*<<<\s*[''"]\=\(\a\w*\)[''"]\=$', '^\\s*\1;\\=$', '')
 
 	    " Skip /* \n+ */ comments except when the user is currently
 	    " writing them or when it is a comment (ie: not a code put in comment)

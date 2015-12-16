@@ -61,6 +61,17 @@ comment
 0o567 // octal
 0o5689 // broken octal
 
+1_000_000                // underscore separated million
+1_000_0000_              // broken underscore separated number
+1_000_0000.              // broken underscore separated float
+1_000_000.000_000_1      // just over one million
+1_18181888_2.1.1         // broken underscore padded double
+1_18181888_2.1           // valid according to swift repl
+1_0_0                    // valid 100
+1_0_000.2                // valid 10000.2
+1_____0.2________20___2  // also valid 10.2202
+4__3.2_33_33             // valid 43.233
+
 // Operators
 ~
 !
@@ -155,7 +166,7 @@ enum Card : Int {
 struct foo : bar {
     switch (foo) {
     case foo:
-      foo
+        foo
     case bar:
     default:
         stuff
@@ -236,23 +247,24 @@ override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {}
 lazy var foo : String
 
 #if foo
-    bar
+bar
 #elseif baz
-    qux
+qux
 #else
-    quix
+quix
 #endif
 
 client.host = "example.com"
 client.pathPrefix = "/foo/"
 
+@available(*, unavailable, renamed="bar", introduced=1.0, deprecated=2.2, message="hi")
 func foo () {
-  override func loadView() {
-    super.loadView()
-    if foo {
-      foobar
+    override func loadView() {
+        super.loadView()
+        if foo {
+            foobar
+        }
     }
-  }
 }
 
 let foo = CGRectMake(0, (5 - 2),
@@ -261,8 +273,30 @@ let foo = CGRectMake(0, (5 - 2),
 
 
 let dict = [
-  "foo": "Bar",
-  "nest": [
-    "fadsf",
-  ],
+    "foo": "Bar",
+    "nest": [
+        "fadsf",
+    ]
 ]
+
+if #available(OSX 10.10.3, *) {
+    // Use APIs OS X 10.10.3 and onwards
+}
+if #available(watchOS 2, iOS 9.0, OSX 10.11, *) {
+    // APIs available to watchOS 2.0, iOS 9.0, OSX 10.11 and onwards
+}
+
+// Tests backslashes in strings
+"\\".uppercaseString()
+"foo \(1 + 1)"
+string.rangeOfString("^/Date\\(")
+
+public var `extension`: String?
+
+/**
+This is the comment body
+
+- parameter first: The first parameter
+
+- returns: Some value
+*/

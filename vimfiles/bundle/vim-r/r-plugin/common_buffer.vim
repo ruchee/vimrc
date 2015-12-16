@@ -25,6 +25,9 @@
 
 " Set completion with CTRL-X CTRL-O to autoloaded function.
 if exists('&ofu')
+    if &filetype == "rnoweb" || &filetype == "rrst" || &filetype == "rmd"
+        let b:rplugin_nonr_omnifunc = &omnifunc
+    endif
     if &filetype == "r" || &filetype == "rnoweb" || &filetype == "rdoc" || &filetype == "rhelp" || &filetype == "rrst" || &filetype == "rmd"
         setlocal omnifunc=rcomplete#CompleteR
     endif
@@ -59,3 +62,6 @@ if exists("*RCheckLibList")
     autocmd BufEnter <buffer> call RCheckLibList()
 endif
 
+if g:vimrplugin_assign == 3
+    iabb <buffer> _ <-
+endif

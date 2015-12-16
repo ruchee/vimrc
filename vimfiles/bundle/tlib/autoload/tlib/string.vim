@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    116
+" @Revision:    122
 
 
 " :def: function! tlib#string#RemoveBackslashes(text, ?chars=' ')
@@ -148,3 +148,19 @@ function! s:CountHelper() "{{{3
     let s:count += 1
 endf
 
+
+function! tlib#string#SplitCommaList(text, ...) abort "{{{3
+    let sep = a:0 >= 1 ? a:1 : ',\s*'
+    let parts = split(a:text, '\\\@<!\zs'. sep)
+    let parts = map(parts, 'substitute(v:val, ''\\\(.\)'', ''\1'', ''g'')')
+    return parts
+endf
+
+
+function! tlib#string#Input(...) abort "{{{3
+    TVarArg ['text', ''], ['completion', '']
+    call inputsave()
+    let rv = call(function('input'), a:000)
+    call inputrestore()
+    return rv
+endf

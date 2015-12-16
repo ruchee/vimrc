@@ -18,15 +18,15 @@ disabled/enabled easily.
 * Go to symbol/declaration with `:GoDef`
 * Look up documentation with `:GoDoc` inside Vim or open it in browser
 * Automatically import packages via `:GoImport` or plug it into autosave
-* Compile your package with `:GoBuild`, install it with `:GoInstall`
+* Compile your package with `:GoBuild`, install it with `:GoInstall` or test
+  them with `:GoTest` (also supports running single tests via `:GoTestFunc`)
 * Quickly execute your current file/files with `:GoRun`
-* Run `:GoTest` and see any errors in the quickfix window
 * Automatic `GOPATH` detection based on the directory structure (i.e. `gb`
   projects, `godep` vendored projects)
 * Change or display `GOPATH` with `:GoPath`
 * Create a coverage profile and display annotated source code in browser to see
   which functions are covered with `:GoCoverage`
-* Call `gometalinter`, which is a tool that invokes all possible linters
+* Call `gometalinter` with `:GoMetaLinter`, which invokes all possible linters
   (golint, vet, errcheck, deadcode, etc..) and shows the warnings/errors
 * Lint your code with `:GoLint`
 * Run your code through `:GoVet` to catch static errors
@@ -41,13 +41,16 @@ disabled/enabled easily.
   your custom vim function.
 * Tagbar support to show tags of the source code in a sidebar with `gotags`
 * Custom vim text objects such as `a function` or `inner function`
+* All commands support collecting and displaying errors in Vim's location
+  list.
 
 ## Install
 
-Vim-go follows the standard runtime path structure, so I highly recommend to use
-a common and well known plugin manager to install vim-go. Do not use vim-go with
-other Go oriented vim plugins. For Pathogen just clone the repo. For other plugin managers
-add the appropriate lines and execute the plugin's install command.
+Vim-go follows the standard runtime path structure, so I highly recommend to
+use a common and well known plugin manager to install vim-go. Do not use vim-go
+with other Go oriented vim plugins. For Pathogen just clone the repo. For other
+plugin managers add the appropriate lines and execute the plugin's install
+command.
 
 *  [Pathogen](https://github.com/tpope/vim-pathogen)
   * `git clone https://github.com/fatih/vim-go.git ~/.vim/bundle/vim-go`
@@ -62,8 +65,9 @@ Please be sure all necessary binaries are installed (such as `gocode`, `godef`,
 `goimports`, etc.). You can easily install them with the included
 `:GoInstallBinaries` command. If invoked, all necessary binaries will be
 automatically downloaded and installed to your `$GOBIN` environment (if not set
-it will use `$GOPATH/bin`). Note that this command requires `git` for fetching the individual Go
-packages.
+it will use `$GOPATH/bin`). Note that this command requires `git` for fetching
+the individual Go packages. Additionally, use `:GoUpdateBinaries` to update the
+installed binaries.
 
 ### Optional
 
@@ -199,6 +203,28 @@ let g:go_bin_path = expand("~/.gotools")
 let g:go_bin_path = "/home/fatih/.mypath"      "or give absolute path
 ```
 
+### Location list navigation
+
+All commands support collecting and displaying errors in Vim's location
+  list.
+
+Quickly navigate through these location lists with `:lne` for next error and `:lp` 
+for previous.  You can also bind these to keys, for example:
+
+```vim
+map <C-n> :lne<CR>
+map <C-m> :lp<CR>
+```
+
+
+### Using with Syntastic
+Sometimes when using both `vim-go` and `syntastic` Vim will start lagging while saving and opening
+files. The following fixes this:
+
+```vim
+let g:syntastic_go_checkers = ['golint', 'govet', 'errcheck']
+let g:syntastic_mode_map = { 'mode': 'active', 'passive_filetypes': ['go'] }
+```
 
 ## More info
 

@@ -8,6 +8,9 @@ setl lispwords+=define-values,opt-lambda,case-lambda,syntax-rules,with-syntax,sy
 setl lispwords+=define-signature,unit,unit/sig,compund-unit/sig,define-values/invoke-unit/sig
 setl lispwords+=define-opt/c
 
+" Racket OOP
+setl lispwords+=class,define/public,define/private
+
 " kanren
 setl lispwords+=fresh,run,run*,project,conde,condu
 

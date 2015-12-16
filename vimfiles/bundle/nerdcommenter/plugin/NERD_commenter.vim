@@ -179,7 +179,7 @@ let s:delimiterMap = {
     \ 'gitrebase': { 'left': '#' },
     \ 'gnuplot': { 'left': '#' },
     \ 'go': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
-    \ 'groovy': { 'left': '//' },
+    \ 'groovy': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'gsp': { 'left': '<%--', 'right': '--%>', 'leftAlt': '<!--','rightAlt': '-->'},
     \ 'gtkrc': { 'left': '#' },
     \ 'haskell': { 'left': '{-','right': '-}', 'leftAlt': '--' },
@@ -228,7 +228,7 @@ let s:delimiterMap = {
     \ 'lprolog': { 'left': '%' },
     \ 'lscript': { 'left': "'" },
     \ 'lss': { 'left': '#' },
-    \ 'lua': { 'left': '--', 'leftAlt': '--[[', 'rightAlt': '--]]' },
+    \ 'lua': { 'left': '--', 'leftAlt': '--[[', 'rightAlt': ']]' },
     \ 'lynx': { 'left': '#' },
     \ 'lytex': { 'left': '%' },
     \ 'mail': { 'left': '> ' },
@@ -251,7 +251,6 @@ let s:delimiterMap = {
     \ 'modula2': { 'left': '(*', 'right': '*)' },
     \ 'modula3': { 'left': '(*', 'right': '*)' },
     \ 'monk': { 'left': ';' },
-    \ 'moon': { 'left': '--' },
     \ 'mush': { 'left': '#' },
     \ 'mustache': { 'left': '{{!', 'right': '}}' },
     \ 'named': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -304,11 +303,10 @@ let s:delimiterMap = {
     \ 'psf': { 'left': '#' },
     \ 'ptcap': { 'left': '#' },
     \ 'puppet': { 'left': '#' },
-    \ 'python': { 'left': '#' },
+    \ 'python': { 'left': '# ', 'leftAlt': '#' },
     \ 'radiance': { 'left': '#' },
     \ 'ratpoison': { 'left': '#' },
     \ 'r': { 'left': '#' },
-    \ 'racket': { 'left': ';', 'leftAlt': '#|', 'rightAlt': '|#' },
     \ 'rc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'rebol': { 'left': ';' },
     \ 'registry': { 'left': ';' },
@@ -325,7 +323,7 @@ let s:delimiterMap = {
     \ 'sather': { 'left': '--' },
     \ 'scala': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'scons': { 'left': '#' },
-    \ 'scheme': { 'left': ';' },
+    \ 'scheme': { 'left': ';', 'leftAlt': '#|', 'rightAlt': '|#' },
     \ 'scilab': { 'left': '//' },
     \ 'scsh': { 'left': ';' },
     \ 'scss': { 'left': '/*', 'right': '*/', 'leftAlt': '//' },
@@ -407,6 +405,8 @@ let s:delimiterMap = {
     \ 'xquery': { 'left': '(:', 'right': ':)' },
     \ 'z8a': { 'left': ';' }
     \ }
+
+let g:NERDDelimiterMap = s:delimiterMap
 
 if exists("g:NERDCustomDelimiters")
     call extend(s:delimiterMap, g:NERDCustomDelimiters)

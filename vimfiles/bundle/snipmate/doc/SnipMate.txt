@@ -158,7 +158,8 @@ g:snipMate.override
                                 file they were in. When this option is enabled
                                 (set to 1), the snippet originating in the
                                 last loaded file is kept, similar to how Vim
-                                maps and other settings work.
+                                maps and other settings work. Note: Load order
+                                is determined by 'runtimepath'.
 
 g:snipMate['no_match_completion_feedkeys_chars']
                                 A string inserted when no match for a trigger
@@ -251,6 +252,9 @@ overridden on a per-snippet basis by defining the snippet with a bang (!): >
     snippet! trigger optional description
         expanded text
         more expanded text
+
+Two bangs will remove the trigger entirely from SnipMate's lookup. In this
+case any snippet text is unused.
 
 Note: Hard tabs in the expansion text are required. When the snippet is
 expanded in the text and 'expandtab' is set, each tab will be replaced with

@@ -4,6 +4,7 @@ let g:rplugin_sumatra_path = ""
 let g:rplugin_python_initialized = 0
 
 call RSetDefaultValue("g:vimrplugin_sleeptime", 100)
+call RSetDefaultValue("g:vimrplugin_set_home_env", 1)
 
 " Avoid invalid values defined by the user
 exe "let s:sleeptimestr = " . '"' . g:vimrplugin_sleeptime . '"'
@@ -127,26 +128,30 @@ function StartR_Windows()
         return
     endif
 
-    " R and Vim use different values for the $HOME variable.
-    let saved_home = $HOME
-    let prs = system('reg.exe QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal"')
-    if len(prs) > 0
-        let g:rdebug_reg_personal = prs
-        let prs = substitute(prs, '.*REG_SZ\s*', '', '')
-        let prs = substitute(prs, '\n', '', 'g')
-        let prs = substitute(prs, '\s*$', '', 'g')
-        let $HOME = prs
-    endif
-
     let rcmd = g:rplugin_Rgui
     if g:vimrplugin_Rterm
         let rcmd = substitute(rcmd, "Rgui", "Rterm", "")
     endif
     let rcmd = '"' . rcmd . '" ' . g:vimrplugin_r_args
 
+    " R and Vim use different values for the $HOME variable.
+    if g:vimrplugin_set_home_env
+        let saved_home = $HOME
+        let prs = system('reg.exe QUERY "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" /v "Personal"')
+        if len(prs) > 0
+            let g:rdebug_reg_personal = prs
+            let prs = substitute(prs, '.*REG_SZ\s*', '', '')
+            let prs = substitute(prs, '\n', '', 'g')
+            let prs = substitute(prs, '\s*$', '', 'g')
+            let $HOME = prs
+        endif
+    endif
+
     silent exe "!start " . rcmd
 
-    let $HOME = saved_home
+    if g:vimrplugin_set_home_env
+        let $HOME = saved_home
+    endif
 
     let g:SendCmdToR = function('SendCmdToR_Windows')
     if WaitVimComStart()

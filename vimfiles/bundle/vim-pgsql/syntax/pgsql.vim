@@ -62,7 +62,7 @@ syn keyword pgsqlSpecial	 false null true
 " Strings (single- and double-quote)
 syn region pgsqlString		 start=+"+  skip=+\\\\\|\\"+  end=+"+
 syn region pgsqlString		 start=+'+  skip=+\\\\\|\\'+  end=+'+
-syn region pgsqlString		 start=+\$\z(\w*\)\$+  end=+\$\z1\$+
+syn match pgsqlString		 "\$\w*\$"
 " }}}
 
 " Section: Numbers {{{2

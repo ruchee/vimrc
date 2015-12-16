@@ -1,1 +1,1 @@
-au! BufRead,BufNewFile OMakefile,OMakeroot set ft=omake
+au! BufRead,BufNewFile OMakefile,OMakeroot,*.om,OMakeroot.in set ft=omake

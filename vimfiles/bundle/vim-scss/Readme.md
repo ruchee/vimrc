@@ -25,6 +25,10 @@ Afterwards, run `:PluginInstall` in Vim.
 
 Usually no configuration is necessary.
 
+### CSS3
+
+For highlighting CSS elements, this plugin relies on `css.vim` that comes bundled with Vim. Unfortunately, it's support for CSS3 is only rudimentary. To avoid highlighting issues I recommend to install the [vim-css3-syntax](https://github.com/hail2u/vim-css3-syntax) plugin.
+
 ### Filetype
 
 In some cases you might want to change the filetype from `scss` to `scss.css`, for example, if you want to use [SnipMate](https://github.com/garbas/vim-snipmate)'s CSS snippets within your SCSS files. In this case, add the following line to your `~/.vimrc` file:

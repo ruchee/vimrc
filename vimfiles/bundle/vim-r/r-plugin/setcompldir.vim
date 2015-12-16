@@ -49,6 +49,8 @@ if exists("g:vimrplugin_compldir")
     let g:rplugin_compldir = expand(g:vimrplugin_compldir)
 elseif (has("win32") || has("win64")) && $AppData != "" && isdirectory($AppData)
     let g:rplugin_compldir = $AppData . "\\Vim-R-plugin"
+elseif $XDG_CACHE_HOME != "" && isdirectory($XDG_CACHE_HOME)
+    let g:rplugin_compldir = $XDG_CACHE_HOME . "/Vim-R-plugin"
 elseif isdirectory(expand("~/.cache"))
     let g:rplugin_compldir = expand("~/.cache/Vim-R-plugin")
 elseif isdirectory(expand("~/Library/Caches"))
