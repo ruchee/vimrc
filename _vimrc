@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-12-16 18:45:44
+" -----------------    Date: 2015-12-29 22:58:17
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -219,8 +219,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,slim,jade,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,ls,slim,jade,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,ls,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -381,6 +381,7 @@ au FileType ruby       call AddRubyDict()
 au FileType javascript call AddJavaScriptDict()
 au FileType coffee     call AddJavaScriptDict()
 au FileType typescript call AddJavaScriptDict()
+au FileType ls         call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
 au FileType scss       call AddCSSDict()
 au FileType less       call AddCSSDict()
@@ -875,6 +876,8 @@ func! Compile_Run_Code()
         exec '!coffee -c %:t && node %:r.js'
     elseif &filetype == 'typescript'
         exec '!tsc %:t && node %:r.js'
+    elseif &filetype == 'ls'
+        exec '!lsc -c %:t && node %:r.js'
     elseif &filetype == 'r'
         exec '!Rscript %:t'
     elseif &filetype == 'sh'
