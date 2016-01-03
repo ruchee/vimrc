@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2015-12-29 22:58:17
+" -----------------    Date: 2016-01-02 15:41:15
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -58,6 +58,8 @@
 " \cu                        --取消注释               [NERD_commenter]
 "
 " \php                       --一键切换到PHP语法高亮
+" \ruby                      --一键切换到Ruby语法高亮
+" \eruby                     --一键切换到eRuby语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
 " \html                      --一键切换到HTML语法高亮
@@ -540,6 +542,7 @@ let g:snipMate.scope_aliases['jinja.twig']      = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango.twig'] = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
 let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
+let g:snipMate.scope_aliases['ruby']            = 'ruby,rails'
 let g:snipMate.scope_aliases['eruby']           = 'html,eruby'
 let g:snipMate.scope_aliases['jst']             = 'html,jst'
 let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
@@ -737,6 +740,14 @@ nmap <leader>ev <esc>:e $MYVIMRC<cr>
 " \php                一键切换到PHP语法高亮
 imap <leader>php <esc>:se ft=php<cr>li
 nmap <leader>php <esc>:se ft=php<cr>
+
+" \ruby                一键切换到Ruby语法高亮
+imap <leader>ruby <esc>:se ft=ruby<cr>li
+nmap <leader>ruby <esc>:se ft=ruby<cr>
+
+" \eruby                一键切换到eRuby语法高亮
+imap <leader>eruby <esc>:se ft=eruby<cr>li
+nmap <leader>eruby <esc>:se ft=eruby<cr>
 
 " \js                 一键切换到JavaScript语法高亮
 imap <leader>js <esc>:se ft=javascript<cr>li

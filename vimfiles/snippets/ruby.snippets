@@ -371,10 +371,16 @@ snippet ev      执行代码
 	eval ${0}
 snippet iev     实例作用域执行代码
 	instance_eval ${0}
+snippet iex     实例作用域执行代码，并传入外围作用域的变量
+	instance_exec(${1}) ${0}
 snippet mev     模块作用域执行代码
 	module_eval ${0}
+snippet mex     模块作用域执行代码，并传入外围作用域的变量
+	module_exec(${1}) ${0}
 snippet cev     类作用域执行代码
 	class_eval ${0}
+snippet cex     类作用域执行代码，并传入外围作用域的变量
+	class_exec(${1}) ${0}
 snippet ivg     读取实例变量
 	instance_variable_get ${0}
 snippet ivs     设置实例变量
