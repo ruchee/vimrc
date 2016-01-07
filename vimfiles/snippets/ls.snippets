@@ -1,0 +1,49 @@
+snippet /       单行注释
+	# ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	#----------------------------------------------------------------------${0}
+snippet ///     多行正则 [可分多行，可加注释]
+	//${0}//
+snippet str     """ .. """
+	"""${0}"""
+snippet u       使用特性
+	"use ${1}"${0}
+snippet us      严格模式
+	"use strict"${0}
+# 模块
+# 类
+# 函数
+snippet f       函数定义 [无参数]
+	${1:f_name} = -> ${0}
+snippet f.      函数定义 [带参数]
+	${1:f_name} = (${2}) -> ${0}
+snippet k       柯里化 [无参数]
+	${1:f_name} = --> ${0}
+snippet k.      柯里化 [带参数]
+	${1:f_name} = (${2}) --> ${0}
+# 流程控制
+snippet foo     for .. of
+	for ${1} of ${0}
+# 异常处理
+# 常用函数
+# 单个关键字
+snippet n       new
+	new ${0}
+snippet i       it
+	it${0}
+snippet p       输出
+	console.log${0}
+# DOM相关
+# 其他
+snippet <       { .. }
+	{ ${0} }
+snippet <.      <[ .. ]>
+	<[ ${0} ]>
+snippet |       |>
+	|> ${0}
+snippet |.      <|
+	<| ${0}
+snippet .       \
+	\\${0}
