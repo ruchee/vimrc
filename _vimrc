@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-02 15:41:15
+" -----------------    Date: 2016-01-07 19:01:07
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -221,8 +221,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,ls,slim,jade,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,coffee,ls,slim,jade,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -879,6 +879,8 @@ func! Compile_Run_Code()
         exec '!julia %:t'
     elseif &filetype == 'dart'
         exec '!dart %:t'
+    elseif &filetype == 'elm'
+        exec '!elm-make %:t'
     elseif &filetype == 'haxe'
         exec '!haxe -main %:r --interp'
     elseif &filetype == 'javascript'

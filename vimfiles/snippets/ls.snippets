@@ -24,6 +24,14 @@ snippet k       柯里化 [无参数]
 snippet k.      柯里化 [带参数]
 	${1:f_name} = (${2}) --> ${0}
 # 流程控制
+snippet if      if
+	if ${0}
+snippet th      then
+	then ${0}
+snippet elif    else if
+	else if ${0}
+snippet el      else
+	else${0}
 snippet foo     for .. of
 	for ${1} of ${0}
 # 异常处理
@@ -31,6 +39,8 @@ snippet foo     for .. of
 # 单个关键字
 snippet n       new
 	new ${0}
+snippet t       this
+	this${0}
 snippet i       it
 	it${0}
 snippet p       输出
