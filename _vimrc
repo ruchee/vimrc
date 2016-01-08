@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-07 19:01:07
+" -----------------    Date: 2016-01-08 11:05:03
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -880,7 +880,7 @@ func! Compile_Run_Code()
     elseif &filetype == 'dart'
         exec '!dart %:t'
     elseif &filetype == 'elm'
-        exec '!elm-make %:t'
+        exec '!elm make %:t'
     elseif &filetype == 'haxe'
         exec '!haxe -main %:r --interp'
     elseif &filetype == 'javascript'

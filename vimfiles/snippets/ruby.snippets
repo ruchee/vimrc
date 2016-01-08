@@ -174,11 +174,13 @@ snippet do.     do [有参数]
 snippet be      代码块
 	begin
 	  ${0}
+	rescue => e
 	end
 snippet ra      抛出异常
 	raise ${0}
 snippet rs      捕获异常
-	rescue ${0}
+	rescue => ${1:e}
+	  ${0}
 snippet es      善后处理
 	ensure
 	  ${0}

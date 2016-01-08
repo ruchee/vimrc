@@ -1,32 +1,32 @@
 # 控制器
-snippet .bfa    先执行指定方法
+snippet _bfa    先执行指定方法
 	before_action :${1}, only: [${0}]
-snippet .rst    响应请求
+snippet _rst    响应请求
 	respond_to ${0}
-snippet .rdt    转向
+snippet _rdt    转向
 	redirect_to ${0}
-snippet .par    安全获取参数
+snippet _par    安全获取参数
 	params.require(:${1}).permit(${0})
 # 模型
-snippet .hso    一对一
+snippet _hso    一对一
 	has_one :${0}
-snippet .hsm    一对多
+snippet _hsm    一对多
 	has_many :${0}
-snippet .blt    多对一
+snippet _blt    多对一
 	belongs_to :${0}
-snippet .va     数据验证
+snippet _va     数据验证
 	validates :${0}
 # 测试
-snippet .as     断言
+snippet _as     断言
 	assert ${0}
-snippet .ase    相等性测试
+snippet _ase    相等性测试
 	assert_equal ${0}
-snippet .asr    响应测试
+snippet _asr    响应测试
 	assert_response ${0}
-snippet .ass    包含测试
+snippet _ass    包含测试
 	assert_select ${0}
-snippet .asd    差异测试
+snippet _asd    差异测试
 	assert_difference ${0}
 # 配置
-snippet .res    资源路由
+snippet _res    资源路由
 	resources :${0}
