@@ -16,13 +16,39 @@ snippet us      严格模式
 # 类
 # 函数
 snippet f       函数定义 [无参数]
-	${1:f_name} = -> ${0}
+	${1:f_name} = ->${0}
 snippet f.      函数定义 [带参数]
-	${1:f_name} = (${2}) -> ${0}
+	${1:f_name} = (${2}) ->${0}
+snippet nf      函数定义 [无参数] [不自动返回]
+	${1:f_name} = !->${0}
+snippet nf.     函数定义 [带参数] [不自动返回]
+	${1:f_name} = (${2}) !->${0}
+snippet ff      匿名函数 [无参数]
+	->${0}
+snippet ff.     匿名函数 [带参数]
+	(${1}) ->${0}
+snippet nff     匿名函数 [无参数] [不自动返回]
+	!->${0}
+snippet nff.    匿名函数 [带参数] [不自动返回]
+	(${1}) !->${0}
 snippet k       柯里化 [无参数]
-	${1:f_name} = --> ${0}
+	${1:f_name} = -->${0}
 snippet k.      柯里化 [带参数]
-	${1:f_name} = (${2}) --> ${0}
+	${1:f_name} = (${2}) -->${0}
+snippet nk      柯里化 [无参数] [不自动返回]
+	${1:f_name} = !-->${0}
+snippet nk.     柯里化 [带参数] [不自动返回]
+	${1:f_name} = (${2}) !-->${0}
+snippet do      闭包 [不换行]
+	do -> ${0}
+snippet do.     闭包 [换行]
+	do ->
+	  ${0}
+snippet ndo     闭包 [不换行] [不自动返回]
+	do !-> ${0}
+snippet ndo.    闭包 [换行] [不自动返回]
+	do !->
+	  ${0}
 # 流程控制
 snippet if      if
 	if ${0}
@@ -37,15 +63,79 @@ snippet foo     for .. of
 # 异常处理
 # 常用函数
 # 单个关键字
-snippet n       new
-	new ${0}
 snippet t       this
 	this${0}
+snippet n       new
+	new ${0}
+snippet v       var
+	var ${0}
 snippet i       it
 	it${0}
-snippet p       输出
+snippet tp      类型检查
+	typeof ${0}
+snippet co      继续
+	continue${0}
+snippet br      中断
+	break${0}
+snippet re      返回
+	return ${0}
+snippet de      删除
+	delete ${0}
+snippet ev      执行代码
+	eval${0}
+snippet ct      构造器
+	constructor${0}
+snippet pt      原型
+	prototype${0}
+snippet ins     实例
+	instanceof ${0}
+snippet udf     未定义
+	undefined${0}
+snippet arg     全局参数数组
+	arguments${0}
+snippet len     获取字符串长度
+	length${0}
+snippet p       输出 [带空格]
+	console.log ${0}
+snippet pp      输出 [不带空格]
 	console.log${0}
+snippet dw      文本打印
+	document.writeln${0}
+snippet al      alert
+	alert${0}
+snippet r       正则 / .. /
+	/${0}/
+snippet _f      当前脚本文件路径
+	__filename${0}
+snippet _d      当前脚本目录路径
+	__dirname${0}
 # DOM相关
+snippet gbyi    根据id取单个元素
+	getElementById ${0}
+snippet gbyn    根据name取多个元素
+	getElementsByName ${0}
+snippet gbyc    根据class取多个元素
+	getElementsByClassName ${0}
+snippet gbyt    根据标签名取多个元素
+	getElementsByTagName ${0}
+snippet ga      取属性值
+	getAttribute${0}
+snippet sa      设置属性
+	setAttribute${0}
+snippet win     Window对象
+	window${0}
+snippet doc     文档对象
+	document${0}
+snippet loc     位置对象
+	location${0}
+snippet nav     浏览器对象
+	navigator${0}
+snippet scr     屏幕对象
+	screen${0}
+snippet his     历史记录对象
+	history${0}
+snippet pie     可列举性
+	propertyIsEnumerable${0}
 # 其他
 snippet <       { .. }
 	{ ${0} }
@@ -55,5 +145,5 @@ snippet |       |>
 	|> ${0}
 snippet |.      <|
 	<| ${0}
-snippet .       \
-	\\${0}
+snippet .       :=
+	:= ${0}
