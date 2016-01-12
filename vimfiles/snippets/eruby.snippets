@@ -30,11 +30,11 @@ snippet fmf     建立表单
 	form_for ${0}
 snippet fmt     建立表单，但不绑定Model实例
 	form_tag ${0}
-snippet imt     图片
+snippet it      图片
 	image_tag(${0})
 snippet lb      标签
 	label :${0}
-snippet but     按钮
+snippet bt      按钮
 	button_to ${0}
 snippet txf     输入框
 	text_field :${0}
@@ -45,9 +45,9 @@ snippet sb      提交按钮
 snippet lit     链接
 	link_to '${1}'${0}
 # 辅助方法
-snippet smf     将\n替换为<br>
+snippet sf      将\n替换为<br>
 	simple_format${0}
-snippet nutc    将数字以价格形式显示
+snippet ntc     将数字以价格形式显示
 	number_to_currency(${0})
 snippet plu     自动呈现单复数
 	pluralize${0}
@@ -58,6 +58,8 @@ snippet yi      yield
 	yield${0}
 snippet |       | ... |
 	|${0}|
+snippet >       { .. }
+	{ ${0} }
 snippet <       执行代码
 	<% ${0} %>
 snippet .       执行代码后输出

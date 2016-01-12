@@ -5,14 +5,18 @@ snippet _rst    响应请求
 	respond_to ${0}
 snippet _rdt    转向
 	redirect_to ${0}
+snippet _pa     参数数组
+	params[:${0}]
 snippet _par    安全获取参数
 	params.require(:${1}).permit(${0})
+snippet _re     渲染模版
+	render ${0}
 # 模型
-snippet _hso    一对一
+snippet _ho     一对一
 	has_one :${0}
-snippet _hsm    一对多
+snippet _hm     一对多
 	has_many :${0}
-snippet _blt    多对一
+snippet _bt     多对一
 	belongs_to :${0}
 snippet _va     数据验证
 	validates :${0}
