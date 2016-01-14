@@ -1,10 +1,10 @@
 # 控制器
 snippet _bfa    在路由执行前执行
-	before_action :${1}, only: [${0}]
+	before_action :${0}
 snippet _afa    在路由执行后执行
-	after_action :${1}, only: [${0}]
+	after_action :${0}
 snippet _ara    环绕路由执行
-	around_action :${1}, only: [${0}]
+	around_action :${0}
 snippet _rsf    自定义异常出错页面
 	rescue_from ${1}, with: :${0}
 snippet _rst    响应请求
@@ -15,6 +15,8 @@ snippet _pa     参数数组
 	params[:${0}]
 snippet _par    安全获取参数
 	params.require(:${1}).permit(${0})
+snippet _la     指定布局
+	layout '${0}'
 snippet _re     渲染模版
 	render ${0}
 # 模型
@@ -26,6 +28,26 @@ snippet _bt     多对一
 	belongs_to :${0}
 snippet _va     数据验证
 	validates :${0}
+snippet _vap    非空验证
+	validates_presence_of :${0}
+snippet _val    长度验证
+	validates_length_of :${0}
+snippet _van    数字验证
+	validates_numericality_of :${0}
+snippet _vau    唯一验证
+	validates_uniqueness_of :${0}
+snippet _vaf    格式验证
+	validates_format_of :${0}
+snippet _vai    确保是某些值
+	validates_inclusion_of :${0}
+snippet _vae    确保不是某些值
+	validates_exclusion_of :${0}
+snippet _aln    是否允许为nil
+	allow_nil: ${0}
+snippet _alb    是否允许为空
+	allow_blank: ${0}
+snippet _msg    设定验证失败时的错误信息
+	message: ${0}
 # 测试
 snippet _as     断言
 	assert ${0}

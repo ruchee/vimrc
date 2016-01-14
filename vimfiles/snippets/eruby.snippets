@@ -1,3 +1,5 @@
+snippet /       单行注释
+	<%# ${0} %>
 # 流程控制
 snippet if      if
 	<% if ${1} %>
@@ -17,14 +19,18 @@ snippet fe      each .. do
 	<% ${1}.each do |${2}| %>
 	  ${0}
 	<% end %>
+snippet end     end
+	<% end %>${0}
 snippet fm      表单
 	<%= form_for ${1} do |${2}| %>
 	  ${0}
 	<% end %>
-snippet end     结束标签
-	<% end %>${0}
 snippet re      复用模板
 	<%= render ${0} %>
+snippet cf      填充局部模版块
+	<%= content_for :${1} do %>
+	  ${0}
+	<% end %>
 # 表单
 snippet fmf     建立表单
 	form_for ${0}
@@ -51,14 +57,29 @@ snippet ntc     将数字以价格形式显示
 	number_to_currency(${0})
 snippet plu     自动呈现单复数
 	pluralize${0}
-snippet fl      显示提示信息
+# 重要变量
+snippet _c      控制器名
+	controller.controller_name${0}
+snippet _a      方法名
+	controller.action_name${0}
+snippet _coo    cookies
+	cookies[:${0}]
+snippet _ses    session
+	session[:${0}]
+snippet _fla    flash
 	flash[:${0}]
+snippet _par    params
+	params[:${0}]
+snippet _req    request
+	request[:${0}]
+snippet _res    response
+	response[:${0}]
 # 其他
 snippet yi      yield
 	yield${0}
 snippet |       | ... |
 	|${0}|
-snippet >       { .. }
+snippet <<      { .. }
 	{ ${0} }
 snippet <       执行代码
 	<% ${0} %>
