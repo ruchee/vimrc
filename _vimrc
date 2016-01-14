@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-08 11:05:03
+" -----------------    Date: 2016-01-14 15:13:18
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -46,7 +46,7 @@
 " \gd                        --打开Git文件对比模式    [Normal模式可用] [竖直]
 " \gs                        --打开Git文件对比模式    [Normal模式可用] [水平]
 "
-" \ig                        --显示/关闭对齐线        [Normal模式可用]
+" \il                        --显示/关闭对齐线        [Normal模式可用]
 " \bb                        --按=号对齐代码          [Normal模式可用]
 " \bn                        --自定义对齐             [Normal模式可用]
 " \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
@@ -557,12 +557,15 @@ let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
-" Indent_guides       显示对齐线
-let g:indent_guides_enable_on_vim_startup = 0  " 默认关闭
-let g:indent_guides_guide_size            = 1  " 指定对齐线的尺寸
+" indentLine          显示对齐线
+let g:indentLine_enabled    = 0                " 默认关闭
+let g:indentLine_char       = '┆'             " 设置对齐线字符
+let g:indentLine_color_term = 239              " 设置非GUI线条颜色
+let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
 
 " AirLine             彩色状态栏
-let g:airline_theme = 'badwolf'                " 设置主题
+let g:airline_theme           = 'badwolf'      " 设置主题
+let g:airline_powerline_fonts = 0              " 关闭自定义字体
 
 " Promptline          终端辅助工具
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
@@ -673,6 +676,9 @@ nmap <leader>bn :Tab /
 
 " \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree插件]
 nmap <leader>nt :NERDTree<cr>
+
+" \il                 显示/关闭对齐线 [indentLine插件]
+nmap <leader>il :IndentLinesToggle<cr>
 
 " \tl                 打开/关闭Tags窗口，在右侧栏显示 [Tagbar插件]
 nmap <leader>tl :TagbarToggle<cr><c-w><c-l>
