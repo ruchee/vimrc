@@ -36,16 +36,30 @@ snippet fmf     建立表单
 	form_for ${0}
 snippet fmt     建立表单，但不绑定Model实例
 	form_tag ${0}
-snippet it      图片
+snippet imt     图片
 	image_tag(${0})
 snippet lb      标签
 	label :${0}
 snippet bt      按钮
 	button_to ${0}
+snippet rb      单选按钮
+	radio_button ${0}
+snippet cb      多选按钮
+	check_box ${0}
 snippet txf     输入框
 	text_field :${0}
 snippet txa     文本框
 	text_area :${0}
+snippet ff      文件上传控件
+	file_field ${0}
+snippet se      下拉框
+	select ${0}
+snippet sed     日期下拉框
+	select_date ${0}
+snippet sedt    日期时间下拉框
+	select_datetime ${0}
+snippet hf      隐藏成员
+	hidden_field ${0}
 snippet sb      提交按钮
 	submit '${0}'
 snippet lit     链接
@@ -57,6 +71,8 @@ snippet ntc     将数字以价格形式显示
 	number_to_currency(${0})
 snippet plu     自动呈现单复数
 	pluralize${0}
+snippet ct      生成HTML标签
+	content_tag${0}
 # 重要变量
 snippet _c      控制器名
 	controller.controller_name${0}
