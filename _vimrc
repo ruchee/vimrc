@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-14 15:13:18
+" -----------------    Date: 2016-01-17 22:00:43
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -589,7 +589,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = {
             \'mode': 'active',
-            \'passive_filetypes': ['groovy', 'kotlin', 'ceylon', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
+            \'passive_filetypes': ['groovy', 'kotlin', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
             \}                                 " 指定不需要开启检查的语言
 " 自定义编译器和编译参数
 if g:isWIN
