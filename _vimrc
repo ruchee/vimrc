@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-17 22:00:43
+" -----------------    Date: 2016-01-25 09:58:41
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -618,6 +618,14 @@ let g:php_cs_fixer_config = 'default'          " 使用默认配置
 let g:php_cs_fixer_php_path = 'php'            " 指定PHP可执行文件的路径
 let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
 let g:php_cs_fixer_dry_run = 0                 " 只提示需要格式化的位置，不执行格式化 [0为不开启]
+
+" vim-ruby                                       Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
+if g:isMAC
+    let g:rubycomplete_buffer_loading = 1
+    let g:rubycomplete_classes_in_global = 1
+    let g:rubycomplete_rails = 1
+    let g:rubycomplete_load_gemfile = 1
+endif
 
 
 " ======= 自定义快捷键 ======= "
