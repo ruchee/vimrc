@@ -48,7 +48,7 @@ syntax keyword typescriptQEvents         contained focusin focusout keydown keyp
 syntax keyword typescriptQEvents         contained click dblclick hover mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup
 syntax keyword typescriptQManipulation   contained clone
 syntax keyword typescriptQManipulation   contained unwrap wrap wrapAll wrapInner
-syntax keyword typescriptQManipulation   contained append appendTo html preprend prependTo text
+syntax keyword typescriptQManipulation   contained append appendTo html prepend prependTo text
 syntax keyword typescriptQManipulation   contained after before insertAfter insertBefore
 syntax keyword typescriptQManipulation   contained detach empty remove
 syntax keyword typescriptQManipulation   contained replaceAll replaceWith
@@ -65,6 +65,7 @@ syntax keyword typescriptQTraversing     contained children closest find next ne
 " syntax region  typescriptString                start=/'/  skip=/\\\\\|\\'\|\\\n/  end=/'\|$/ contains=typescriptASCII,@jSelectors
 
 syntax cluster cssSelectors              contains=cssId,cssClass,cssOperators,cssBasicFilters,cssContentFilters,cssVisibility,cssChildFilters,cssForms,cssFormFilters
+syntax cluster typescriptNoReserved      add=@cssSelectors
 syntax match   cssId                     contained containedin=typescriptString /#[0-9A-Za-z_\-]\+/
 syntax match   cssClass                  contained containedin=typescriptString /\.[0-9A-Za-z_\-]\+/
 syntax match   cssOperators              contained containedin=typescriptString /*\|>\|+\|-\|\~/

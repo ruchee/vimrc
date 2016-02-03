@@ -48,7 +48,7 @@ syntax keyword lsQEvents         contained focusin focusout keydown keypress key
 syntax keyword lsQEvents         contained click dblclick hover mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup
 syntax keyword lsQManipulation   contained clone
 syntax keyword lsQManipulation   contained unwrap wrap wrapAll wrapInner
-syntax keyword lsQManipulation   contained append appendTo html preprend prependTo text
+syntax keyword lsQManipulation   contained append appendTo html prepend prependTo text
 syntax keyword lsQManipulation   contained after before insertAfter insertBefore
 syntax keyword lsQManipulation   contained detach empty remove
 syntax keyword lsQManipulation   contained replaceAll replaceWith
@@ -65,6 +65,7 @@ syntax keyword lsQTraversing     contained children closest find next nextAll ne
 " syntax region  lsString                start=/'/  skip=/\\\\\|\\'\|\\\n/  end=/'\|$/ contains=lsASCII,@jSelectors
 
 syntax cluster cssSelectors              contains=cssId,cssClass,cssOperators,cssBasicFilters,cssContentFilters,cssVisibility,cssChildFilters,cssForms,cssFormFilters
+syntax cluster lsNoReserved      add=@cssSelectors
 syntax match   cssId                     contained containedin=lsString /#[0-9A-Za-z_\-]\+/
 syntax match   cssClass                  contained containedin=lsString /\.[0-9A-Za-z_\-]\+/
 syntax match   cssOperators              contained containedin=lsString /*\|>\|+\|-\|\~/

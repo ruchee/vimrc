@@ -8,6 +8,7 @@ Features:
 * Ensures signs are always as up to date as possible (but without running more than necessary).
 * Quick jumping between blocks of changed lines ("hunks").
 * Stage/revert/preview individual hunks.
+* Handles line endings correctly, even with repos that do CRLF conversion.
 * Optional line highlighting.
 * Fully customisable (signs, sign column, line highlights, mappings, extra git-diff arguments, etc).
 * Can be toggled on/off.
@@ -37,8 +38,6 @@ In the screenshot above you can see:
 
 Before installation, please check your Vim supports signs by running `:echo has('signs')`.  `1` means you're all set; `0` means you need to install a Vim with signs support.  If you're compiling Vim yourself you need the 'big' or 'huge' feature set.  [MacVim][] supports signs.
 
-Your vim `shell` option needs to point to a POSIX-compatible shell.  For example if you use Fish, add `set shell=/bin/bash` to your vimrc.
-
 If you don't have a preferred installation method, I recommend installing [pathogen.vim][pathogen], and then simply copy and paste:
 
 ```
@@ -56,9 +55,13 @@ Add `Plugin 'airblade/vim-gitgutter'` to your `~/.vimrc` and then:
 If you are on Windows you may find the command prompt pops up briefly every time vim-gitgutter runs.  You can avoid this by installing both [vim-misc](https://github.com/xolox/vim-misc) and [vim-shell](https://github.com/xolox/vim-shell).  If you have those two plugins but don't want vim-gitgutter to use them, you can opt out with `let g:gitgutter_avoid_cmd_prompt_on_windows = 0` in your `~/.vimrc`.
 
 
-### Usage
+### Getting started
 
-You don't have to do anything: it just works.
+When you make a change to a file tracked by git, the diff markers should appear automatically.  The delay is governed by vim's `updatetime` option; the default value is 4 seconds but I suggest reducing it to around 250ms (add `set updatetime=250` to your vimrc).
+
+You can jump between hunks with `[c` and `]c`.  You can preview, stage, and revert hunks with `<leader>hp`, `<leader>hs`, and `<leader>hr` respectively.
+
+You cannot currently unstage a staged hunk.
 
 
 #### Activation
@@ -176,7 +179,6 @@ You can customise:
 * Line highlights
 * Extra arguments for `git diff`
 * Key mappings
-* Whether or not to escape `grep` (default to no)
 * Whether or not vim-gitgutter is on initially (defaults to on)
 * Whether or not signs are shown (defaults to yes)
 * Whether or not line highlighting is on initially (defaults to off)
@@ -260,12 +262,12 @@ let g:gitgutter_map_keys = 0
 See above for configuring maps for hunk-jumping and staging/reverting.
 
 
-#### Whether or not to escape `grep`
+#### Use a custom `grep` command
 
-If you have `grep` aliased to something which changes its output, for example `grep --color=auto -H`, you will need to tell vim-gitgutter to use raw grep:
+If you use an alternative to grep, you can tell vim-gitgutter to use it here. It only needs to support extended POSIX regex.
 
 ```viml
-let g:gitgutter_escape_grep = 1
+let g:gitgutter_grep_command = 'grep --color=never -e'
 ```
 
 #### To turn off vim-gitgutter by default

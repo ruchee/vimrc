@@ -48,7 +48,7 @@ syntax keyword coffeeQEvents         contained focusin focusout keydown keypress
 syntax keyword coffeeQEvents         contained click dblclick hover mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup
 syntax keyword coffeeQManipulation   contained clone
 syntax keyword coffeeQManipulation   contained unwrap wrap wrapAll wrapInner
-syntax keyword coffeeQManipulation   contained append appendTo html preprend prependTo text
+syntax keyword coffeeQManipulation   contained append appendTo html prepend prependTo text
 syntax keyword coffeeQManipulation   contained after before insertAfter insertBefore
 syntax keyword coffeeQManipulation   contained detach empty remove
 syntax keyword coffeeQManipulation   contained replaceAll replaceWith
@@ -65,6 +65,7 @@ syntax keyword coffeeQTraversing     contained children closest find next nextAl
 " syntax region  coffeeString                start=/'/  skip=/\\\\\|\\'\|\\\n/  end=/'\|$/ contains=coffeeASCII,@jSelectors
 
 syntax cluster cssSelectors              contains=cssId,cssClass,cssOperators,cssBasicFilters,cssContentFilters,cssVisibility,cssChildFilters,cssForms,cssFormFilters
+syntax cluster coffeeNoReserved      add=@cssSelectors
 syntax match   cssId                     contained containedin=coffeeString /#[0-9A-Za-z_\-]\+/
 syntax match   cssClass                  contained containedin=coffeeString /\.[0-9A-Za-z_\-]\+/
 syntax match   cssOperators              contained containedin=coffeeString /*\|>\|+\|-\|\~/

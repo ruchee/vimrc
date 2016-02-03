@@ -48,7 +48,7 @@ syntax keyword javascriptQEvents         contained focusin focusout keydown keyp
 syntax keyword javascriptQEvents         contained click dblclick hover mousedown mouseenter mouseleave mousemove mouseout mouseover mouseup
 syntax keyword javascriptQManipulation   contained clone
 syntax keyword javascriptQManipulation   contained unwrap wrap wrapAll wrapInner
-syntax keyword javascriptQManipulation   contained append appendTo html preprend prependTo text
+syntax keyword javascriptQManipulation   contained append appendTo html prepend prependTo text
 syntax keyword javascriptQManipulation   contained after before insertAfter insertBefore
 syntax keyword javascriptQManipulation   contained detach empty remove
 syntax keyword javascriptQManipulation   contained replaceAll replaceWith
@@ -64,16 +64,17 @@ syntax keyword javascriptQTraversing     contained children closest find next ne
 " syntax region  javascriptString                start=/"/  skip=/\\\\\|\\"\|\\\n/  end=/"\|$/ contains=javascriptASCII,@jSelectors
 " syntax region  javascriptString                start=/'/  skip=/\\\\\|\\'\|\\\n/  end=/'\|$/ contains=javascriptASCII,@jSelectors
 
-syntax cluster cssSelectors              contains=cssId,cssClass,cssOperators,cssBasicFilters,cssContentFilters,cssVisibility,cssChildFilters,cssForms,cssFormFilters
-syntax match   cssId                     contained containedin=javascriptString /#[0-9A-Za-z_\-]\+/
-syntax match   cssClass                  contained containedin=javascriptString /\.[0-9A-Za-z_\-]\+/
-syntax match   cssOperators              contained containedin=javascriptString /*\|>\|+\|-\|\~/
-syntax match   cssBasicFilters           contained containedin=javascriptString /:\(animated\|eq\|even\|first\|focus\|gt\|header\|last\|lang\|lt\|not\|odd\|root\|target\)/
-syntax match   cssChildFilters           contained containedin=javascriptString /:\(first\|last\|nth\|only\|nth-last\)-child/
-syntax match   cssChildFilters           contained containedin=javascriptString /:\(first\|last\|nth\|only\|nth-last\)-of-type/
-syntax match   cssContentFilters         contained containedin=javascriptString /:\(contains\|empty\|has\|parent\)/
-syntax match   cssForms                  contained containedin=javascriptString /:\(button\|checkbox\|checked\|disabled\|enabled\|file\|image\|input\|password\|radio\|reset\|selected\|submit\|text\)/
-syntax match   cssVisibility             contained containedin=javascriptString /:\(hidden\|visible\)/
+" syntax cluster cssSelectors              contains=cssId,cssClass,cssOperators,cssBasicFilters,cssContentFilters,cssVisibility,cssChildFilters,cssForms,cssFormFilters
+" syntax cluster javascriptNoReserved      add=@cssSelectors
+" syntax match   cssId                     contained containedin=javascriptString /#[0-9A-Za-z_\-]\+/
+" syntax match   cssClass                  contained containedin=javascriptString /\.[0-9A-Za-z_\-]\+/
+" syntax match   cssOperators              contained containedin=javascriptString /*\|>\|+\|-\|\~/
+" syntax match   cssBasicFilters           contained containedin=javascriptString /:\(animated\|eq\|even\|first\|focus\|gt\|header\|last\|lang\|lt\|not\|odd\|root\|target\)/
+" syntax match   cssChildFilters           contained containedin=javascriptString /:\(first\|last\|nth\|only\|nth-last\)-child/
+" syntax match   cssChildFilters           contained containedin=javascriptString /:\(first\|last\|nth\|only\|nth-last\)-of-type/
+" syntax match   cssContentFilters         contained containedin=javascriptString /:\(contains\|empty\|has\|parent\)/
+" syntax match   cssForms                  contained containedin=javascriptString /:\(button\|checkbox\|checked\|disabled\|enabled\|file\|image\|input\|password\|radio\|reset\|selected\|submit\|text\)/
+" syntax match   cssVisibility             contained containedin=javascriptString /:\(hidden\|visible\)/
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already
@@ -108,15 +109,15 @@ if version >= 508 || !exists("did_jquery_javascript_syntax_inits")
   HiLink javascriptQTraversing     PreProc
   HiLink javascriptQUtilities      PreProc
 
-  HiLink cssId                     Identifier
-  HiLink cssClass                  Constant
-  HiLink cssOperators              Special
-  HiLink cssBasicFilters           Statement
-  HiLink cssContentFilters         Statement
-  HiLink cssVisibility             Statement
-  HiLink cssChildFilters           Statement
-  HiLink cssForms                  Statement
-  HiLink cssFormFilters            Statement
+  " HiLink cssId                     Identifier
+  " HiLink cssClass                  Constant
+  " HiLink cssOperators              Special
+  " HiLink cssBasicFilters           Statement
+  " HiLink cssContentFilters         Statement
+  " HiLink cssVisibility             Statement
+  " HiLink cssChildFilters           Statement
+  " HiLink cssForms                  Statement
+  " HiLink cssFormFilters            Statement
 
 
   delcommand HiLink

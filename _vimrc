@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-01-25 11:41:37
+" -----------------    Date: 2016-02-03 11:29:39
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -45,6 +45,7 @@
 " \gi                        --开启或关闭GitGutter    [Normal模式可用]
 " \gd                        --打开Git文件对比模式    [Normal模式可用] [竖直]
 " \gs                        --打开Git文件对比模式    [Normal模式可用] [水平]
+" \gl                        --查看Git提交日志        [Normal模式可用]
 "
 " \il                        --显示/关闭对齐线        [Normal模式可用]
 " \bb                        --按=号对齐代码          [Normal模式可用]
@@ -705,6 +706,9 @@ nmap <leader>gd :Gdiff<cr>
 
 " \gs                 打开Git文件对比模式 [水平] [GitGutter插件]
 nmap <leader>gs :Gsdiff<cr>
+
+" \gl                 查看Git提交日志 [gitv插件]
+nmap <leader>gl :Gitv<cr>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>

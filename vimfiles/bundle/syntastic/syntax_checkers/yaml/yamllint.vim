@@ -1,8 +1,7 @@
 "============================================================================
-"File:        stylelint.vim
-"Description: Syntax checking plugin for syntastic.vim using `stylelint`
-"             (https://github.com/stylelint/stylelint).
-"Maintainer:  Tim Carry <tim at pixelastic dot com>
+"File:        yamllint.vim
+"Description: YAML files linting for syntastic.vim
+"Maintainer:  Adrien Vergé
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -11,37 +10,43 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_css_stylelint_checker')
+if exists('g:loaded_syntastic_yaml_yamllint_checker')
     finish
 endif
-let g:loaded_syntastic_css_stylelint_checker = 1
+let g:loaded_syntastic_yaml_yamllint_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:args_after = {
-    \ 'css':  '-f json',
-    \ 'scss': '-f json -s scss' }
+function! SyntaxCheckers_yaml_yamllint_GetLocList() dict
+    let makeprg = self.makeprgBuild({ 'args_after': '-f parsable' })
 
-function! SyntaxCheckers_css_stylelint_GetLocList() dict
-    let makeprg = self.makeprgBuild({ 'args_after': get(s:args_after, self.getFiletype(), '') })
+    let errorformat =
+        \ '%f:%l:%c: [%trror] %m,' .
+        \ '%f:%l:%c: [%tarning] %m'
 
-    let errorformat = '%t:%f:%l:%c:%m'
+    let env = syntastic#util#isRunningWindows() ? {} : { 'TERM': 'dumb' }
 
-    return SyntasticMake({
+    let loclist = SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'subtype': 'Style',
-        \ 'preprocess': 'stylelint',
-        \ 'returns': [0, 1, 2] })
+        \ 'env': env,
+        \ 'returns': [0, 1] })
+
+    for e in loclist
+        if e['type'] ==? 'W'
+            let e['subtype'] = 'Style'
+        endif
+    endfor
+
+    return loclist
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'css',
-    \ 'name': 'stylelint'})
+    \ 'filetype': 'yaml',
+    \ 'name': 'yamllint' })
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
 " vim: set sw=4 sts=4 et fdm=marker:
-
