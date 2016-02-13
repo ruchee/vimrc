@@ -6,9 +6,14 @@ let foo = 5 // another comment
 
 /* this is also a comment */
 
+// If statements so the indented comments are valid
+if foo {
     /* this is an indented comment */
+}
 
+if foo {
     /* this is a multi level indented comment /* you know */ */
+}
 
 // comments check splelling
 
@@ -37,7 +42,9 @@ comment
 
 // MARK: this is a marker
 
+if foo {
     // this is a indented comment
+}
 
 5 // int
 
@@ -198,7 +205,7 @@ struct ArgumentList {
     var arguments: String[]
 
     init(argv: UnsafePointer<CString>,
-         count: CInt)
+        count: CInt)
     {
         foo
     }
@@ -224,9 +231,9 @@ func simpleDescription() -> String {
 
 let library = [
     Movie(name: "foo bar",
-          dfasdfsdfdirector: "someone",
-          foo: "bar",
-          bazzzer: "qux")
+        dfasdfsdfdirector: "someone",
+        foo: "bar",
+        bazzzer: "qux")
 ]
 
 
@@ -241,7 +248,7 @@ class MainViewController: UIViewController, UITableViewDataSource {}
 
 @IBAction func changePostFilter(sender: UISegmentedControl) {}
 override func prepareForSegue(segue: UIStoryboardSegue,
-                              sender: AnyObject) {}
+   sender: AnyObject) {}
 override func prepareForSegue(segue: UIStoryboardSegue!, sender: AnyObject!) {}
 override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {}
 lazy var foo : String
@@ -268,8 +275,7 @@ func foo () {
 }
 
 let foo = CGRectMake(0, (5 - 2),
-                     100,
-                     200)
+    100, 200)
 
 
 let dict = [
@@ -297,6 +303,45 @@ public var `extension`: String?
 This is the comment body
 
 - parameter first: The first parameter
+- Parameter first: The first parameter
 
 - returns: Some value
 */
+
+public let fareEstimate: FareEstimate //= (nil, nil) // comment should be highlighted as comment
+
+// optionalFrom should be highlighted the same way
+// Operator should also be highlighted
+key = map.optionalFrom("string") ?? []
+key = map.optionalFrom("string")
+thing = map.optionalFrom("string") ?? .Fallback
+
+// This should not break all highlighting
+print("Copying \(NSProcessInfo().environment["SCRIPT_INPUT_FILE_\(index)"]!)")
+// Neither should this
+return addressParts.count == 2 ? addressParts[1] : "\(addressParts[1]), \(addressParts[2])"
+
+// This is multiline garbage
+"foo
+bar
+baz"
+
+guard let path = NSBundle.mainBundle().pathForResource(imageName, ofType: "png"),
+let data = NSData(contentsOfFile: path),
+let data = NSData(contentsOfFile: path) else
+{
+}
+
+UIView.animateWithDuration(duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .CurveEaseInOut, animations: {
+    view.backgroundColor = UIColor.redColor()
+}) { finished in
+    print("indent?")
+}
+
+// Indent last line should hold
+self.init(className: "Item", dictionary: [
+    "identifier": item.identifier,
+    "title": item.title,
+    "link": item.link,
+    "date": item.date,
+    "summary": item.summary])
