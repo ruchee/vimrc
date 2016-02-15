@@ -1,5 +1,6 @@
 /vim74
 /*.vim
+/vimfiles/init.vim
 
 Thumbs.db
 .DS_Store
