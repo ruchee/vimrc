@@ -25,6 +25,25 @@ snippet moex    顶层导出
 	module.exports = ${1};${0}
 snippet df      AMD模块定义
 	define(${0});
+# 类相关 [ES6新增]
+snippet cl      类定义
+	class ${1} {
+	    ${0}
+	}
+snippet cle     类继承
+	class ${1} extends ${2} {
+	    ${0}
+	}
+snippet fc      构造方法
+	constructor (${1}) {
+	    ${0}
+	}
+snippet cf      普通方法
+	${1} (${2}) {
+	    ${0}
+	}
+snippet _pt     指定原型
+	__proto__${0}
 # 函数、流程控制
 snippet f       常规函数
 	function ${1:f_name} (${2}) {
@@ -42,6 +61,8 @@ snippet ff      匿名函数
 	function (${1}) {${0}}
 snippet ff6     匿名函数 [ES6语法]
 	(${1}) => {${0}}
+snippet fff     更简洁的匿名函数 [ES6语法]
+	${1} => ${0}
 snippet of      对象中的方法
 	${1:f_name}: function (${2}) {
 	    ${0}
@@ -216,6 +237,10 @@ snippet t       this
 	this${0}
 snippet s       self
 	self${0}
+snippet su      super
+	super${0};
+snippet st      static
+	static ${0}
 snippet nu      null
 	null${0}
 snippet r       / .. /
@@ -224,6 +249,8 @@ snippet <       { .. }
 	{ ${0} }
 snippet ?       三元运算符
 	${1} ? ${2} : ${0};
+snippet {       ${ .. }
+	${${0}
 snippet .       模拟块级作用域 [匿名函数立即调用]
 	(function () {
 	    ${0}

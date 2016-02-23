@@ -143,7 +143,7 @@ snippet el      else
 snippet t       then
 	then ${0}
 snippet fo      for .. in
-	for ${1} in ${2}
+	for ${1} in ${2} do
 	  ${0}
 	end
 snippet fe      foreach [部分模块所特有，譬如IO]
@@ -209,6 +209,8 @@ snippet st      step [可指定步进值]
 	step(${0})
 snippet e       each
 	each ${0}
+snippet ei      each_index
+	each_index ${0}
 snippet ewi     each_with_index
 	each_with_index ${0}
 snippet wi      with_index
@@ -479,6 +481,8 @@ snippet arr     数组
 snippet reg     正则表达式
 	Regexp${0}
 # 其他
+snippet pry     添加Pry断点调试
+	binding.pry${0}
 snippet s       self
 	self${0}
 snippet c       class
