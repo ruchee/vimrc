@@ -14,12 +14,14 @@ snippet with    with
 snippet list    list
 	{{#list ${1}}}${0}{{/list}}
 snippet each    each
-	{{#each ${1}}}${0}{{/each}}
+	{{#each ${1} as |${2}|}}${0}{{/each}}
 snippet log     log
 	{{log ${0}}}
 # 单个关键字
 snippet t       this
 	this${0}
+snippet yi      yield
+	yield${0}
 # 其他
 snippet <       {{{ .. }}}
 	{{{${0}}}}
