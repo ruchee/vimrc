@@ -38,6 +38,12 @@ snippet fc      构造函数 [无参数]
 	constructor: ->${0}
 snippet fc.     构造函数 [有参数]
 	constructor: (${1}) ->${0}
+snippet cf      方法 [无参数]
+	${1}: ->
+	  ${0}
+snippet cf.     方法 [有参数]
+	${1}: (${2}) ->
+	  ${0}
 snippet su      调用父类方法
 	super${0}
 snippet n       new
@@ -51,13 +57,13 @@ snippet ff      匿名函数 [无参数]
 	->${0}
 snippet ff.     匿名函数 [带参数]
 	(${1}) ->${0}
-snippet pf      胖箭头函数 [无参数]
+snippet pf      胖箭头函数 [维持原始this] [无参数]
 	=>${0}
-snippet pf.     胖箭头函数 [带参数]
+snippet pf.     胖箭头函数 [维持原始this] [带参数]
 	(${1}) =>${0}
-snippet do      do [无参数]
+snippet do      do [应对迭代中返回匿名函数] [无参数]
 	do ->${0}
-snippet do.     do [带参数]
+snippet do.     do [应对迭代中返回匿名函数] [带参数]
 	do (${1}) ->${0}
 # 流程控制
 snippet if      if [同一行]
@@ -158,6 +164,8 @@ snippet al      alert
 	alert ${0}
 snippet r       正则 / .. /
 	/${0}/
+snippet rr      多行正则 [可分多行，可加注释]
+	///${0}///
 snippet _f      当前脚本文件路径
 	__filename${0}
 snippet _d      当前脚本目录路径
