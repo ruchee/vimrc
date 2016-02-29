@@ -14,14 +14,22 @@ snippet with    with
 snippet list    list
 	{{#list ${1}}}${0}{{/list}}
 snippet e       each [short for Ember]
-	{{#each ${1} as |${2}|}}${0}{{/each}}
+	{{#each ${1} as |${2}|}}
+	    ${0}
+	{{/each}}
 snippet each    each
-	{{#each ${1}}}${0}{{/each}}
+	{{#each ${1}}}
+	    ${0}
+	{{/each}}
 snippet log     log
 	{{log ${0}}}
 # 辅助方法
-snippet lit     链接
-	{{#link-to "${1}"}}${0}{{/link-to}}
+snippet lit     链接样式一
+	{{link-to '${1}'}}
+snippet lit.    链接样式二
+	{{#link-to '${1}'}}${0}{{/link-to}}
+snippet par     局部模版
+	{{partial '${0}'}}
 # 单个关键字
 snippet t       this
 	this${0}

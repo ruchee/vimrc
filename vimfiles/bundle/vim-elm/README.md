@@ -1,6 +1,6 @@
-# elm-vim [![Release](https://img.shields.io/github/release/elmcast/elm-vim.svg?style=flat-square)](https://github.com/elmcast/elm-vim/releases)
+# elm-vim
 
-Elm [elm-lang](http://elm-lang.org) support for Vim.
+[Elm](http://elm-lang.org) support for Vim.
 
 ## Compatibility
 
@@ -11,7 +11,8 @@ This plugin requires the error reporting features from Elm Platform 0.15.1 or ab
 * Improved Syntax highlighting, including backtick operators, booleans, chars, triple quotes, string escapes, and tuple functions
 * Improved Indentation
 * Commands and mappings for interfacing with the elm platform
-* Auto-complete
+* Auto-complete and Doc strings
+* Code formatting
 
 Check out this [ElmCast video](https://vimeo.com/132107269) for more detail.
 
@@ -37,7 +38,13 @@ Please be sure all necessary binaries are installed (such as `elm-make`, `elm-do
 
 You may also want to install `elm-test` with `npm install -g elm-test` if you want to run unit tests from within vim.
 
-You may also want to install `elm-oracle` with `npm install -g elm-oracle` if you want to query docs and types from within vim.
+## Completion and Docs
+
+In order to have completion for all functions inside packages in your `elm-package.json`, you must have `elm-oracle` on your path. Install it with `npm install -g elm-oracle`.
+
+## Format Source
+
+To auto format your elm source code, you must have `elm-format` on your path. Install it from the [github page](https://github.com/avh4/elm-format)
 
 ## Usage
 
@@ -60,6 +67,8 @@ additional settings needed. All usages and commands are listed in
 * `:ElmShowDocs` queries elm-oracle, then echos the type and docs for the word under the cursor.
 
 * `:ElmBrowseDocs` queries elm-oracle, then opens docs web page for the word under the cursor.
+*
+* `:ElmFormat` formats the current buffer with elm-format.
 
 ## Mappings
 
@@ -86,6 +95,7 @@ let g:elm_make_output_file = "elm.js"
 let g:elm_make_show_warnings = 0
 let g:elm_browser_command = ""
 let g:elm_detailed_complete = 0
+let g:elm_format_autosave = 0
 ```
 
 ## Indentation
