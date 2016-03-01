@@ -24,12 +24,16 @@ snippet each    each
 snippet log     log
 	{{log ${0}}}
 # 辅助方法
-snippet lit     链接样式一
-	{{link-to '${1}'}}
-snippet lit.    链接样式二
-	{{#link-to '${1}'}}${0}{{/link-to}}
 snippet par     局部模版
 	{{partial '${0}'}}
+snippet act     调用控制器方法
+	{{action '${0}'}}
+snippet lit     链接样式一
+	{{link-to ${0}}}
+snippet lit.    链接样式二
+	{{#link-to '${1}'}}${0}{{/link-to}}
+snippet inp     表单输入框
+	{{input value=${0}}}
 # 单个关键字
 snippet t       this
 	this${0}
