@@ -16,9 +16,15 @@ snippet vrq     导入包到变量
 snippet im      导入模块 [ES6新增]
 	import ${1};${0}
 snippet imf     从 .. 导入模块 [ES6新增]
-	import ${1} from ${2};${0}
+	import ${1} from '${2}';${0}
+snippet im<     从 .. 导入模块 [带选项] [ES6新增]
+	import { ${1} } from '${2}';${0}
+snippet im<as   从 .. 导入模块 [带别名] [ES6新增]
+	import { ${1} as ${2} } from '${3}';${0}
 snippet mo      模块
 	module${0}
+snippet exp     导出
+	export ${0}
 snippet ex      按层次导出
 	exports.${1} = ${2};${0}
 snippet moex    顶层导出
