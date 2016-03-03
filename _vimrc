@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-02-03 11:29:39
+" -----------------    Date: 2016-03-03 16:06:11
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -370,6 +370,7 @@ au FileType css,scss,less  set iskeyword+=#
 au FileType css,scss,less  set iskeyword+=-
 au FileType nginx          set iskeyword-=/
 au FileType nginx          set iskeyword-=.
+au FileType nginx          set iskeyword-=:
 
 
 " 针对部分语言添加字典补全

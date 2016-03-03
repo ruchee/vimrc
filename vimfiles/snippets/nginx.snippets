@@ -7,20 +7,24 @@ snippet ev      工作模式
 	events {
 	    ${0}
 	}
-snippet http    HTTP服务器
+snippet ht      HTTP服务器
 	http {
 	    ${0}
 	}
-snippet https   HTTPS服务器
+snippet hs      HTTPS服务器
 	https {
 	    ${0}
 	}
-snippet ser     虚拟服务器
+snippet se      虚拟服务器
 	server {
 	    ${0}
 	}
-snippet loc     匹配URL
+snippet lo      路由匹配
 	location ${1} {
+	    ${0}
+	}
+snippet m       变量映射
+	map ${1} {
 	    ${0}
 	}
 # 常用指令
@@ -32,7 +36,7 @@ snippet kt      超时时间
 	keepalive_timeout ${1:80};${0}
 snippet dt      默认类型
 	default_type ${1:application/octet-stream};${0}
-snippet lis     监听指定端口
+snippet li      监听指定端口
 	listen ${1};${0}
 snippet s       设置变量
 	set $${1};${0}
@@ -42,9 +46,50 @@ snippet al      路由别名
 	alias ${1};${0}
 snippet re      返回数据或状态码
 	return ${1};${0}
+snippet pp      反向代理
+	proxy_pass ${0};
+snippet def     默认值
+	default ${0};
 # 流程控制
 # 输入输出
 snippet e       输出信息
-	echo ${1};${0}
+	echo ${0};
+snippet ebb     在响应前输出
+	echo_before_body ${0};
+snippet eab     在响应后输出
+	echo_after_body ${0};
 snippet ee      内部跳转
-	echo_exec ${1};${0}
+	echo_exec ${0};
+snippet el      子请求
+	echo_location ${0};
+# 内建变量
+snippet _u      解码后的请求URL [不包含请求参数]
+	$uri${0}
+snippet _ru     未解码的请求URL [包含请求参数]
+	$request_uri${0}
+snippet _rm     主请求的请求方法 [子请求取不到自己真实的请求方法]
+	$request_method${0}
+snippet _erm    请求方法 [可适用于子请求]
+	$echo_request_method${0}
+snippet _a      未解码的请求参数
+	$arg_${0}
+snippet _c      Cookie
+	$cookie_${0}
+snippet _h      请求头
+	$http_${0}
+snippet _sh     响应头
+	$sent_http_${0}
+# 辅助方法
+snippet suu     URL解码
+	set_unescape_uri $${0};
+snippet slua    根据Lua代码执行的结果设置变量值
+	set_by_lua ${0};
+snippet rlua    用Lua代码来写rewrite
+	rewrite_by_lua ${0};
+snippet alua    在Access阶段的末尾执行Lua代码
+	access_by_lua ${0};
+snippet clua    内嵌Lua代码
+	content_by_lua ${0};
+# 其他
+snippet {       ${ .. }
+	${${0}
