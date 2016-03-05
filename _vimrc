@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-03 16:06:11
+" -----------------    Date: 2016-03-05 14:49:21
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -552,6 +552,7 @@ let g:snipMate.scope_aliases['handlebars']      = 'html,mustache'
 let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
+let g:snipMate.scope_aliases['html']            = 'blaze,html'
 
 " NERDTree            树形文件浏览器
 let g:NERDTreeShowHidden = 1                   " 显示隐藏文件

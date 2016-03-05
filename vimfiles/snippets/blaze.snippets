@@ -1,0 +1,27 @@
+# 模版标签
+snippet btpl    template
+	<template name="${1}">
+	    ${0}
+	</template>
+# 流程控制
+snippet bb      通用结构
+	{{#${1:} ${2}}}
+	    ${0}
+	{{/$1}}
+snippet bif     if
+	{{#if ${1}}}
+	    ${0}
+	{{/if}}
+snippet beach   each
+	{{#each ${1}}}
+	    ${0}
+	{{/each}}
+snippet bwith   width
+	{{#with ${1}}}
+	    ${0}
+	{{/with}}
+# 其他
+snippet b.      {{..}}
+	{{${0}}}
+snippet b>      {{> ..}}
+	{{> ${0}}}
