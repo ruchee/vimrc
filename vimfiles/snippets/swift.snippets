@@ -1,0 +1,54 @@
+snippet #       可执行标识
+	#!/usr/bin/env swift
+	${0}
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	//----------------------------------------------------------------------${0}
+# 包含指令
+# 模块、类
+# 方法
+# 流程控制
+snippet if      if
+	if ${1} {
+	    ${0}
+	}
+snippet elif    else if
+	else if ${1} {
+	    ${0}
+	}
+snippet el      else
+	else {
+	    ${0}
+	}
+snippet fo      for
+	for ${1} {
+	    ${0}
+	}
+snippet fi      for .. in
+	for ${1} in ${2} {
+	    ${0}
+	}
+snippet wh      while
+	while ${1} {
+	    ${0}
+	}
+snippet rep     repeat .. while
+	repeat {
+	    ${0}
+	} while ${1}
+# 异常处理
+# 单个关键字
+snippet v       定义变量
+	var ${0}
+snippet l       定义常量
+	let ${0}
+# 特殊常量
+# 输入输出
+snippet p       输出
+	print(${0})
+# 其他
+snippet (       字符串内插
+	\(${0}
