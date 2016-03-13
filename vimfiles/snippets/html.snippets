@@ -1,20 +1,22 @@
 snippet doctype 文档声明
 	<!DOCTYPE HTML>
 	${0}
-snippet ie      针对IE的处理
+snippet ie      IE兼容模式
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">${0}
+snippet ifie    针对IE的处理
 	<!--[if lt IE ${1:9}]>${0}
 	<![endif]-->
 snippet !       HTML注释
 	<!-- ${0} -->
 snippet html
-	<html${1}>
+	<html lang="${1:zh-CN}">
 	    ${0}
 	</html>
 snippet all
 	<!DOCTYPE HTML>
-	<html>
+	<html lang="${1:zh-CN}">
 	    <head>
-	        <title>${1}</title>
+	        <title>${2}</title>
 	    </head>
 	    <body>
 		    ${0}
@@ -43,7 +45,7 @@ snippet script  内部脚本
 snippet link    外部样式表
 	<link rel="stylesheet" href="${1}"${0}>
 snippet style   内部样式表
-	<style type="text/css">
+	<style>
 	    ${0}
 	</style>
 snippet import  链接外部样式表
