@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-05 14:49:21
+" -----------------    Date: 2016-03-15 16:28:54
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -590,10 +590,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 
 " Syntastic           语法检查
 let g:syntastic_check_on_open = 1              " 默认开启
-let g:syntastic_mode_map      = {
-            \'mode': 'active',
-            \'passive_filetypes': ['groovy', 'kotlin', 'scala', 'clojure', 'lisp', 'eruby', 'slim', 'jade', 'scss', 'less', 'css', 'html', 'xhtml']
-            \}                                 " 指定不需要开启检查的语言
+let g:syntastic_mode_map      = { 'mode': 'active', 'passive_filetypes': ['xhtml'] }
 " 自定义编译器和编译参数
 if g:isWIN
     let g:syntastic_c_compiler = 'gcc'
@@ -610,7 +607,7 @@ let g:syntastic_perl_checkers = ['perl']
 let g:syntastic_enable_perl_checker = 1
 let g:syntastic_python_python_exec = 'python3'
 " 自定义指定后缀的文件不开启语法检查
-au BufRead,BufNewFile *.min.js,*.jsx,*.html exec ':SyntasticToggleMode'
+au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,requirejs,underscore,backbone,angularjs,angularui,angularuirouter,react,flux,handlebars'
