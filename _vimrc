@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-15 16:28:54
+" -----------------    Date: 2016-03-15 17:28:51
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -343,6 +343,7 @@ endif
 au FileType scheme,racket,newlisp,lisp,clojure :inoremap ' '
 au FileType scheme,racket,newlisp,lisp,clojure :inoremap ` `
 au FileType scheme,racket,newlisp,lisp,clojure :inoremap * **<esc>i
+au FileType css,scss,less :inoremap : : ;<esc>i
 
 function ClosePair(char)
     if getline('.')[col('.') - 1] == a:char
