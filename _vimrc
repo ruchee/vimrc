@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-15 17:28:51
+" -----------------    Date: 2016-03-21 09:33:49
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -513,7 +513,7 @@ let g:bufExplorerSortBy = 'name'               " 按文件名排序
 " TagBar              tags标签浏览器
 let g:tagbar_sort = 0                          " 关闭排序     [也就是按标签本身在文件中的位置排序]
 let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局关于行号的默认配置]
-let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
+let g:tagbar_autopreview = 0                   " 关闭自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
