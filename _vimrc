@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-23 11:08:50
+" -----------------    Date: 2016-03-23 15:32:34
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -562,7 +562,7 @@ let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
 " indentLine          显示对齐线
-let g:indentLine_enabled    = 1                " 默认开启
+let g:indentLine_enabled    = 0                " 默认关闭
 let g:indentLine_char       = '┆'             " 设置对齐线字符
 let g:indentLine_color_term = 239              " 设置非GUI线条颜色
 let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
