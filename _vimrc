@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-21 09:33:49
+" -----------------    Date: 2016-03-23 11:08:50
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -513,7 +513,7 @@ let g:bufExplorerSortBy = 'name'               " 按文件名排序
 " TagBar              tags标签浏览器
 let g:tagbar_sort = 0                          " 关闭排序     [也就是按标签本身在文件中的位置排序]
 let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局关于行号的默认配置]
-let g:tagbar_autopreview = 0                   " 关闭自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
+let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
 
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
@@ -562,7 +562,7 @@ let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
 " indentLine          显示对齐线
-let g:indentLine_enabled    = 0                " 默认关闭
+let g:indentLine_enabled    = 1                " 默认开启
 let g:indentLine_char       = '┆'             " 设置对齐线字符
 let g:indentLine_color_term = 239              " 设置非GUI线条颜色
 let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
