@@ -48,6 +48,10 @@ snippet _alb    是否允许为空
 	allow_blank: ${0}
 snippet _msg    设定验证失败时的错误信息
 	message: ${0}
+snippet _pre    必须有值
+	presence: true${0}
+snippet _uni    必须唯一
+	uniqueness: true${0}
 # 测试
 snippet _as     断言
 	assert ${0}
