@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-23 15:32:34
+" -----------------    Date: 2016-03-25 13:11:57
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -591,7 +591,7 @@ let g:gitgutter_sign_modified_removed = '->'   " 自定义既修改又删除指�
 
 " Syntastic           语法检查
 let g:syntastic_check_on_open = 1              " 默认开启
-let g:syntastic_mode_map      = { 'mode': 'active', 'passive_filetypes': ['xhtml'] }
+let g:syntastic_mode_map      = { 'mode': 'active', 'passive_filetypes': ['html', 'xhtml'] }
 " 自定义编译器和编译参数
 if g:isWIN
     let g:syntastic_c_compiler = 'gcc'
