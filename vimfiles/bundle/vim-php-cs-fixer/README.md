@@ -1,6 +1,11 @@
 Vim-php-cs-fixer
 ================
 
+[![](https://img.shields.io/travis/stephpy/vim-php-cs-fixer.svg)](https://travis-ci.org/stephpy/vim-php-cs-fixer)
+[![](https://img.shields.io/github/issues/stephpy/vim-php-cs-fixer.svg)](https://github.com/stephpy/vim-php-cs-fixer/issues)
+[![](https://img.shields.io/badge/doc-%3Ah%20vim--php--cs--fixer-blue.svg)](doc/vim-php-cs-fixer.txt)
+[![](https://img.shields.io/badge/license-MIT-blue.svg)](doc/vim-php-cs-fixer.txt)
+
 Integrate [php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer).
 
 This plugin will execute the `php-cs-fixer` command on the directory or file (depends on which command you call). See options to know how to customize that.
@@ -12,6 +17,7 @@ This plugin will execute the `php-cs-fixer` command on the directory or file (de
 " let g:php_cs_fixer_path = "~/php-cs-fixer.phar" " define the path to the php-cs-fixer.phar
 let g:php_cs_fixer_level = "symfony"              " which level ?
 let g:php_cs_fixer_config = "default"             " configuration
+"let g:php_cs_fixer_config_file = '.php_cs'       " configuration file
 let g:php_cs_fixer_php_path = "php"               " Path to PHP
 " If you want to define specific fixers:
 "let g:php_cs_fixer_fixers_list = "linefeed,short_tag,indentation"

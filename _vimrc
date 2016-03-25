@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-25 13:11:57
+" -----------------    Date: 2016-03-25 22:57:36
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -443,8 +443,10 @@ endfunction
 function AddPHPDict()
     if g:isWIN
         set dict+=$VIM/vimfiles/dict/php.txt
+        set dict+=$VIM/vimfiles/dict/wordpress/*.txt
     else
         set dict+=~/.vim/dict/php.txt
+        set dict+=~/.vim/dict/wordpress/*.txt
     endif
     set complete+=k
 endfunction

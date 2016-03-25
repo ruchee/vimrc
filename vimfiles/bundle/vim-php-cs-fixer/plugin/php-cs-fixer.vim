@@ -24,6 +24,10 @@ end
 if exists('g:php_cs_fixer_config')
     let g:php_cs_fixer_command = g:php_cs_fixer_command.' --config='.g:php_cs_fixer_config
 endif
+
+if exists('g:php_cs_fixer_config_file') && filereadable(g:php_cs_fixer_config_file)
+    let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config-file=' . g:php_cs_fixer_config_file
+endif
 "}}}
 
 
@@ -56,23 +60,42 @@ fun! PhpCsFixerFix(path, dry_run)
       exec 'edit!'
     endif
 
-    if v:shell_error
+    let fix_num = 0
+    let errors_report = 0
+    let error_num = 0
+    for line in split(s:output, '\n')
+        if match(line, 'Files that were not fixed due to errors reported during linting before fixing:') != -1
+            let errors_report = 1
+        endif
+
+        if match(line, '^\s\+\d\+)') != -1
+            if errors_report == 0
+                let fix_num = fix_num + 1
+            else
+                let error_num = error_num + 1
+            endif
+        endif
+    endfor
+
+    if !(v:shell_error == 0 || v:shell_error == 8 || (v:shell_error == 1 && fix_num > 0))
         echohl Error | echo s:output | echohl None
     else
-        let s:nbLines = len(split(s:output, '\n'))
 
         if g:php_cs_fixer_verbose == 1
             echohl Title | echo s:output | echohl None
         else
-            if s:nbLines > 0
-                echohl Title | echo s:nbLines." file(s) modified(s)" | echohl None
+            if fix_num > 0
+                echohl Title | echo fix_num." file(s) modified(s)" | echohl None
             else
                 echohl Title | echo "There is no cs to fix" | echohl None
+            endif
+            if error_num > 0
+                echohl Error | echo error_num." error(s)" | echohl None
             endif
         endif
 
         " if there is no cs to fix, we have not to ask for remove dry run
-        if a:dry_run == 1 && s:nbLines > 0
+        if a:dry_run == 1 && fix_num > 0
             let l:confirmed = confirm("Do you want to launch command without dry-run option ?", "&Yes\n&No", 2)
             if l:confirmed == 1
                 call PhpCsFixerFix(a:path, 0)
