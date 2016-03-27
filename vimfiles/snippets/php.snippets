@@ -73,7 +73,7 @@ snippet f       函数定义
 	    ${0}
 	}
 snippet f.      用于接口的方法声明
-	function ${1:f_name} ()${2};${0}
+	function ${1:f_name} (${2})${3};${0}
 snippet ff      匿名函数（不换行）
 	function (${1})${2} {${0}}
 snippet ffu     带use子句的匿名函数
@@ -435,6 +435,10 @@ snippet pa      引用父类属性和方法
 	parent::${0}
 snippet clo     对象克隆
 	clone ${0}
+snippet ext     类继承
+	extends${0}
+snippet imp     类实现
+	implements${0}
 snippet gl      全局变量
 	global ${0}
 snippet st      静态属性/延迟绑定
@@ -451,6 +455,8 @@ snippet re      返回
 	return ${0};
 snippet yi      yield [PHP 5.5新增]
 	yield ${0};
+snippet as      断言
+	assert(${0});
 snippet ex      结束
 	exit(${0});
 snippet ev      执行代码
