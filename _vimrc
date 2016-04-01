@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-03-25 22:57:36
+" -----------------    Date: 2016-04-01 16:00:09
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -851,6 +851,8 @@ func! Compile_Run_Code()
         exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
     elseif &filetype == 'scala'
         exec '!scala %:t'
+    elseif &filetype == 'clojure'
+        exec '!lein exec %:t'
     elseif &filetype == 'cs'
         if g:isWIN
             exec '!csc %:t && %:r.exe'
