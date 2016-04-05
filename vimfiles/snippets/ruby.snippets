@@ -73,6 +73,10 @@ snippet ds.     self方法定义 [带参数]
 	def self.${1} (${2})
 	  ${0}
 	end
+snippet dsi     当模块被包含时调用
+	def self.included (klass)
+	  ${0}
+	end
 snippet dd      单行方法定义 [不带参数]
 	def ${1};${0} end
 snippet dd.     单行方法定义 [带参数]
@@ -303,6 +307,10 @@ snippet inm     实例方法
 	instance_methods${0}
 snippet inv     实例变量
 	instance_variables${0}
+snippet sic     单件类
+	singleton_class${0}
+snippet sim     单件方法
+	singleton_methods${0}
 snippet invd?   判断实例变量是否已定义
 	instance_variable_defined? ${0}
 snippet ino?    是否是类本身的实例 [可用==代替]
@@ -419,6 +427,8 @@ snippet en      返回字符串的编码方式
 	encoding${0}
 snippet id      对象ID
 	object_id${0}
+snippet bi      获取绑定（作用域）
+	binding${0}
 snippet g       获取输入
 	gets${0}
 snippet p       输出 [自动换行]
@@ -450,6 +460,10 @@ snippet _en     当前文件编码
 	__ENCODING__${0}
 snippet rv      Ruby版本号
 	RUBY_VERSION${0}
+snippet rp      Ruby运行平台 [x86_64-darwin15 java]
+	RUBY_PLATFORM${0}
+snippet ren     Ruby解释器引擎 [ruby jruby]
+	RUBY_ENGINE${0}
 snippet tb      顶层绑定作用域
 	TOPLEVEL_BINDING${0}
 # 常用模块
