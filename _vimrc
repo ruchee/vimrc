@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-04-01 16:00:09
+" -----------------    Date: 2016-04-08 09:23:16
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -222,8 +222,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set tabstop=2
+au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set shiftwidth=2
+au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -340,9 +340,9 @@ endif
 :inoremap " ""<esc>i
 :inoremap ' ''<esc>i
 :inoremap ` ``<esc>i
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap ' '
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap ` `
-au FileType scheme,racket,newlisp,lisp,clojure :inoremap * **<esc>i
+au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap ' '
+au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap ` `
+au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap * **<esc>i
 au FileType css,scss,less :inoremap : : ;<esc>i
 
 function ClosePair(char)
@@ -869,6 +869,8 @@ func! Compile_Run_Code()
         exec '!escript %:t'
     elseif &filetype == 'elixir'
         exec '!elixir %:t'
+    elseif &filetype == 'lfe'
+        exec '!lfe %:t'
     elseif &filetype == 'scheme' || &filetype == 'racket'
         exec '!racket -fi %:t'
     elseif &filetype == 'newlisp'
