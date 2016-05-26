@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-04-08 09:23:16
+" -----------------    Date: 2016-05-26 16:01:03
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -472,8 +472,10 @@ endfunction
 function AddJavaScriptDict()
     if g:isWIN
         set dict+=$VIM/vimfiles/dict/javascript.txt
+        set dict+=$VIM/vimfiles/dict/javascript_libs/*.txt
     else
         set dict+=~/.vim/dict/javascript.txt
+        set dict+=~/.vim/dict/javascript_libs/*.txt
     endif
     set complete+=k
 endfunction
