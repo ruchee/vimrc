@@ -2069,29 +2069,6 @@ function! s:jump(def, ...) abort
   return ''
 endfunction
 
-function! s:Find(count,cmd,...)
-  let cmd = (a:count==1?'' : a:count) . a:cmd
-  if a:0
-    let i = 1
-    while i < a:0
-      let cmd .= ' ' . s:escarg(a:{i})
-      let i += 1
-    endwhile
-    let file = a:{i}
-    let tail = matchstr(file,'[#!].*$\|:\d*\%(:in\>.*\)\=$')
-    if tail != ""
-      let file = s:sub(file,'[#!].*$|:\d*%(:in>.*)=$','')
-    endif
-    if file != ""
-      let file = s:RailsIncludefind(file)
-    endif
-  else
-    let file = s:cfile()
-    let tail = ""
-  endif
-  return s:find(cmd, file . tail)
-endfunction
-
 function! s:fuzzyglob(arg)
   return s:gsub(s:gsub(a:arg,'[^/.]','[&]*'),'%(/|^)\.@!|\.','&*')
 endfunction
@@ -2789,6 +2766,8 @@ function! s:migrationEdit(cmd,...)
     let offset = local - ts % 86400
     if offset <= -12 * 60 * 60
       let offset += 86400
+    elseif offset >= 12 * 60 * 60
+      let offset -= 86400
     endif
     let template = 'class ' . rails#camelize(matchstr(arg, '[^!]*')) . " < ActiveRecord::Migration\nend"
     return rails#buffer().open_command(a:cmd, strftime('%Y%m%d%H%M%S', ts - offset).'_'.arg, 'migration',
@@ -3190,18 +3169,26 @@ endfunction
 
 function! s:Alternate(cmd,line1,line2,count,...) abort
   if a:0
-    if a:1 =~# '^#\h'
-      return s:jump(a:1[1:-1], s:sub(a:cmd, 'D', 'E'))
+    let cmd = ''
+    let i = 1
+    while i < a:0
+      let cmd .= ' ' . s:escarg(a:{i})
+      let i += 1
+    endwhile
+    let file = a:{i}
+    if file =~# '^#\h'
+      return s:jump(file[1:-1], s:sub(a:cmd, 'D', 'E'))
     elseif a:count && a:cmd !~# 'D'
-      return call('s:Find',[1,a:line1.a:cmd]+a:000)
+      let tail = matchstr(file,'[#!].*$\|:\d*\%(:in\>.*\)\=$')
+      if tail != ""
+        let file = s:sub(file,'[#!].*$|:\d*%(:in>.*)=$','')
+      endif
+      if file != ""
+        let file = s:RailsIncludefind(file)
+      endif
+      return s:find(a:cmd . cmd, file . tail)
     else
-      let cmd = s:editcmdfor((a:count ? a:count : '').a:cmd)
-      let i = 1
-      while i < a:0
-        let cmd .= ' ' . s:escarg(a:{i})
-        let i += 1
-      endwhile
-      let file = a:{i}
+      let cmd = s:editcmdfor((a:count ? a:count : '').a:cmd) . cmd
       return s:edit(cmd, file)
     endif
   elseif a:cmd =~# 'D'
@@ -3701,7 +3688,7 @@ function! s:helpermethods()
   return ""
         \."action_name asset_path asset_url atom_feed audio_path audio_tag audio_url auto_discovery_link_tag "
         \."button_tag button_to "
-        \."cache cache_fragment_name cache_if cache_unless capture cdata_section check_box check_box_tag collection_check_boxes collection_radio_buttons collection_select color_field color_field_tag compute_asset_extname compute_asset_host compute_asset_path concat content_for content_tag content_tag_for controller controller_name controller_path convert_to_model cookies csrf_meta_tag csrf_meta_tags current_cycle cycle "
+        \."cache cache_fragment_name cache_if cache_unless capture cdata_section check_box check_box_tag collection_check_boxes collection_radio_buttons collection_select color_field color_field_tag compute_asset_extname compute_asset_host compute_asset_path concat content_for content_tag content_tag_for controller controller_name controller_path convert_to_model cookies csrf_meta_tag csrf_meta_tags current_cycle cycle action_cable_meta_tag "
         \."date_field date_field_tag date_select datetime_field datetime_field_tag datetime_local_field datetime_local_field_tag datetime_select debug distance_of_time_in_words distance_of_time_in_words_to_now div_for dom_class dom_id "
         \."email_field email_field_tag escape_javascript escape_once excerpt "
         \."favicon_link_tag field_set_tag fields_for file_field file_field_tag flash font_path font_url form_for form_tag "
@@ -4439,8 +4426,11 @@ endfunction
 " Projections {{{1
 
 function! rails#json_parse(string) abort
-  let [null, false, true] = ['', 0, 1]
   let string = type(a:string) == type([]) ? join(a:string, ' ') : a:string
+  if exists('*json_decode')
+    return json_decode(string)
+  endif
+  let [null, false, true] = ['', 0, 1]
   let stripped = substitute(string,'\C"\(\\.\|[^"\\]\)*"','','g')
   if stripped !~# "[^,:{}\\[\\]0-9.\\-+Eaeflnr-u \n\r\t]"
     try
@@ -4564,6 +4554,10 @@ let s:default_projections = {
       \    "affinity": "model",
       \    "template": ["class {camelcase|capitalize|colons}", "end"],
       \    "type": "model"
+      \  },
+      \  "app/serializers/*_serializer.rb": {
+      \    "template": ["class {camelcase|capitalize|colons}Serializer < ActiveModel::Serializer", "end"],
+      \    "type": "serializer"
       \  },
       \  "config/application.rb": {"alternate": "config/routes.rb"},
       \  "config/environment.rb": {"alternate": "config/routes.rb"},
@@ -4941,8 +4935,10 @@ function! s:SetBasePath() abort
   let path += get(g:, 'rails_path', [])
   let path += ['app/models/concerns', 'app/controllers/concerns', 'app/controllers', 'app/helpers', 'app/mailers', 'app/models']
 
+  let true = get(v:, 'true', 1)
   for [key, projection] in items(self.app().projections())
-    if get(projection, 'path', 0) is 1 || get(projection, 'autoload', 0) is 1
+    if get(projection, 'path', 0) is true || get(projection, 'autoload', 0) is true
+          \ || get(projection, 'path', 0) is 1 || get(projection, 'autoload', 0) is 1
       let path += split(key, '*')[0]
     endif
   endfor
