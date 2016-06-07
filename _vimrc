@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-06-01 10:20:56
+" -----------------    Date: 2016-06-07 14:49:01
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -227,7 +227,7 @@ set tabstop=4
 au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set shiftwidth=2
 au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set tabstop=2
 
-" 修正Go语言的部分快捷键 [需要安装 gotags + godef + gocode]
+" 修正Go语言的部分快捷键 [需要安装一堆工具才能正常工作，可在Vim里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>

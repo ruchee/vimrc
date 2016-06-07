@@ -27,8 +27,8 @@ function! go#import#SwitchImport(enabled, localname, path, bang)
     endif
 
     if a:bang == "!"
-        let out = system("go get -u -v ".shellescape(path))
-        if v:shell_error
+        let out = go#util#System("go get -u -v ".shellescape(path))
+        if go#util#ShellError() != 0
             call s:Error("Can't find import: " . path . ":" . out)
         endif
     endif
@@ -165,7 +165,7 @@ function! go#import#SwitchImport(enabled, localname, path, bang)
             call append(appendline, appendstr)
             execute appendline + 1
             if indentstr
-                execute 'normal >>'
+                execute 'normal! >>'
             endif
             let linesdelta += 1
         endif

@@ -1,9 +1,4 @@
-if !exists("g:go_gocode_bin")
-    let g:go_gocode_bin = "gocode"
-endif
-
-
-fu! s:gocodeCurrentBuffer()
+function! s:gocodeCurrentBuffer()
     let buf = getline(1, '$')
     if &encoding != 'utf-8'
         let buf = map(buf, 'iconv(v:val, &encoding, "utf-8")')
@@ -17,49 +12,17 @@ fu! s:gocodeCurrentBuffer()
     call writefile(buf, file)
 
     return file
-endf
+endfunction
 
-if go#vimproc#has_vimproc()
-    let s:vim_system = get(g:, 'gocomplete#system_function', 'vimproc#system2')
-    let s:vim_shell_error = get(g:, 'gocomplete#shell_error_function', 'vimproc#get_last_status')
-else
-    let s:vim_system = get(g:, 'gocomplete#system_function', 'system')
-    let s:vim_shell_error = ''
-endif
-
-fu! s:shell_error()
-    if empty(s:vim_shell_error)
-        return v:shell_error
-    endif
-    return call(s:vim_shell_error, [])
-endf
-
-fu! s:system(str, ...)
-    return call(s:vim_system, [a:str] + a:000)
-endf
-
-fu! s:gocodeShellescape(arg)
-    if go#vimproc#has_vimproc()
-        return vimproc#shellescape(a:arg)
-    endif
-    try
-        let ssl_save = &shellslash
-        set noshellslash
-        return shellescape(a:arg)
-    finally
-        let &shellslash = ssl_save
-    endtry
-endf
-
-fu! s:gocodeCommand(cmd, preargs, args)
+function! s:gocodeCommand(cmd, preargs, args)
     for i in range(0, len(a:args) - 1)
-        let a:args[i] = s:gocodeShellescape(a:args[i])
+        let a:args[i] = go#util#Shellescape(a:args[i])
     endfor
     for i in range(0, len(a:preargs) - 1)
-        let a:preargs[i] = s:gocodeShellescape(a:preargs[i])
+        let a:preargs[i] = go#util#Shellescape(a:preargs[i])
     endfor
 
-    let bin_path = go#path#CheckBinPath(g:go_gocode_bin)
+    let bin_path = go#path#CheckBinPath("gocode")
     if empty(bin_path)
         return
     endif
@@ -69,11 +32,11 @@ fu! s:gocodeCommand(cmd, preargs, args)
     let old_gopath = $GOPATH
     let $GOPATH = go#path#Detect()
 
-    let result = s:system(printf('%s %s %s %s', s:gocodeShellescape(bin_path), join(a:preargs), s:gocodeShellescape(a:cmd), join(a:args)))
+    let result = go#util#System(printf('%s %s %s %s', go#util#Shellescape(bin_path), join(a:preargs), go#util#Shellescape(a:cmd), join(a:args)))
 
     let $GOPATH = old_gopath
 
-    if s:shell_error() != 0
+    if go#util#ShellError() != 0
         return "[\"0\", []]"
     else
         if &encoding != 'utf-8'
@@ -81,37 +44,50 @@ fu! s:gocodeCommand(cmd, preargs, args)
         endif
         return result
     endif
-endf
+endfunction
 
-fu! s:gocodeCurrentBufferOpt(filename)
+function! s:gocodeCurrentBufferOpt(filename)
     return '-in=' . a:filename
-endf
+endfunction
 
-fu! s:gocodeCursor()
-    if &encoding != 'utf-8'
-        let sep = &l:fileformat == 'dos' ? "\r\n" : "\n"
-        let c = col('.')
-        let buf = line('.') == 1 ? "" : (join(getline(1, line('.')-1), sep) . sep)
-        let buf .= c == 1 ? "" : getline('.')[:c-2]
-        return printf('%d', len(iconv(buf, &encoding, "utf-8")))
+let s:optionsEnabled = 0
+function! s:gocodeEnableOptions()
+    if s:optionsEnabled 
+        return
     endif
-    return printf('%d', line2byte(line('.')) + (col('.')-2))
-endf
 
-fu! s:gocodeAutocomplete()
+    let bin_path = go#path#CheckBinPath("gocode")
+    if empty(bin_path)
+        return
+    endif
+
+    let s:optionsEnabled = 1
+
+    call go#util#System(printf('%s set propose-builtins %s', go#util#Shellescape(bin_path), s:toBool(get(g:, 'go_gocode_propose_builtins', 1))))
+    call go#util#System(printf('%s set autobuild %s', go#util#Shellescape(bin_path), s:toBool(get(g:, 'go_gocode_autobuild', 1))))
+endfunction
+
+function! s:toBool(val)
+    if a:val | return 'true ' | else | return 'false' | endif
+endfunction
+
+function! s:gocodeAutocomplete()
+    call s:gocodeEnableOptions()
+
     let filename = s:gocodeCurrentBuffer()
     let result = s:gocodeCommand('autocomplete',
                 \ [s:gocodeCurrentBufferOpt(filename), '-f=vim'],
-                \ [expand('%:p'), s:gocodeCursor()])
+                \ [expand('%:p'), go#util#OffsetCursor()])
     call delete(filename)
     return result
-endf
+endfunction
 
 function! go#complete#GetInfo()
+    let offset = go#util#OffsetCursor()+1
     let filename = s:gocodeCurrentBuffer()
     let result = s:gocodeCommand('autocomplete',
                 \ [s:gocodeCurrentBufferOpt(filename), '-f=godit'],
-                \ [expand('%:p'), s:gocodeCursor()])
+                \ [expand('%:p'), offset])
     call delete(filename)
 
     " first line is: Charcount,,NumberOfCandidates, i.e: 8,,1
@@ -147,9 +123,12 @@ function! go#complete#GetInfo()
     return ""
 endfunction
 
-function! go#complete#Info()
+function! go#complete#Info(auto)
+    " auto is true if we were called by g:go_auto_type_info's autocmd
     let result = go#complete#GetInfo()
     if !empty(result)
+        " if auto, and the result is a PANIC by gocode, hide it
+        if a:auto && result ==# 'PANIC PANIC PANIC' | return | endif
         echo "vim-go: " | echohl Function | echon result | echohl None
     endif
 endfunction
@@ -159,7 +138,7 @@ function! s:trim_bracket(val)
     return a:val
 endfunction
 
-fu! go#complete#Complete(findstart, base)
+function! go#complete#Complete(findstart, base)
     "findstart = 1 when we need to get the text length
     if a:findstart == 1
         execute "silent let g:gocomplete_completions = " . s:gocodeAutocomplete()

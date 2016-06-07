@@ -1,19 +1,21 @@
 function! go#tool#Files()
     if go#util#IsWin()
-        let command = 'go list -f "{{range $f := .GoFiles}}{{$.Dir}}\{{$f}}{{printf \"\n\"}}{{end}}{{range $f := .CgoFiles}}{{$.Dir}}\{{$f}}{{printf \"\n\"}}{{end}}"'
+        let format = '{{range $f := .GoFiles}}{{$.Dir}}\{{$f}}{{printf \"\n\"}}{{end}}{{range $f := .CgoFiles}}{{$.Dir}}\{{$f}}{{printf \"\n\"}}{{end}}'
     else
-        let command = "go list -f '{{range $f := .GoFiles}}{{$.Dir}}/{{$f}}{{printf \"\\n\"}}{{end}}{{range $f := .CgoFiles}}{{$.Dir}}/{{$f}}{{printf \"\\n\"}}{{end}}'"
+        let format = "{{range $f := .GoFiles}}{{$.Dir}}/{{$f}}{{printf \"\\n\"}}{{end}}{{range $f := .CgoFiles}}{{$.Dir}}/{{$f}}{{printf \"\\n\"}}{{end}}"
     endif
+    let command = 'go list -f '.shellescape(format)
     let out = go#tool#ExecuteInDir(command)
     return split(out, '\n')
 endfunction
 
 function! go#tool#Deps()
     if go#util#IsWin()
-        let command = 'go list -f "{{range $f := .Deps}}{{$f}}{{printf \"\n\"}}{{end}}"'
+        let format = '{{range $f := .Deps}}{{$f}}{{printf \"\n\"}}{{end}}'
     else
-        let command = "go list -f $'{{range $f := .Deps}}{{$f}}\n{{end}}'"
+        let format = "{{range $f := .Deps}}{{$f}}\n{{end}}"
     endif
+    let command = 'go list -f '.shellescape(format)
     let out = go#tool#ExecuteInDir(command)
     return split(out, '\n')
 endfunction
@@ -21,18 +23,19 @@ endfunction
 function! go#tool#Imports()
     let imports = {}
     if go#util#IsWin()
-        let command = 'go list -f "{{range $f := .Imports}}{{$f}}{{printf \"\n\"}}{{end}}"'
+        let format = '{{range $f := .Imports}}{{$f}}{{printf \"\n\"}}{{end}}'
     else
-        let command = "go list -f $'{{range $f := .Imports}}{{$f}}\n{{end}}'"
+        let format = "{{range $f := .Imports}}{{$f}}{{printf \"\\n\"}}{{end}}"
     endif
+    let command = 'go list -f '.shellescape(format)
     let out = go#tool#ExecuteInDir(command)
-    if v:shell_error
+    if go#util#ShellError() != 0
         echo out
         return imports
     endif
 
     for package_path in split(out, '\n')
-        let cmd = "go list -f {{.Name}} " . package_path
+        let cmd = "go list -f '{{.Name}}' " . shellescape(package_path)
         let package_name = substitute(go#tool#ExecuteInDir(cmd), '\n$', '', '')
         let imports[package_name] = package_path
     endfor
@@ -51,7 +54,7 @@ function! go#tool#ParseErrors(lines)
             call add(errors, {"text": fatalerrors[1]})
         elseif !empty(tokens)
             " strip endlines of form ^M
-            let out=substitute(tokens[3], '\r$', '', '')
+            let out = substitute(tokens[3], '\r$', '', '')
 
             call add(errors, {
                         \ "filename" : fnamemodify(tokens[1], ':p'),
@@ -114,7 +117,7 @@ function! go#tool#ExecuteInDir(cmd) abort
     let dir = getcwd()
     try
         execute cd . fnameescape(expand("%:p:h"))
-        let out = system(a:cmd)
+        let out = go#util#System(a:cmd)
     finally
         execute cd . fnameescape(dir)
     endtry
@@ -129,7 +132,7 @@ function! go#tool#Exists(importpath)
     let command = "go list ". a:importpath
     let out = go#tool#ExecuteInDir(command)
 
-    if v:shell_error
+    if go#util#ShellError() != 0
         return -1
     endif
 
@@ -144,7 +147,7 @@ function! s:get_browser_command()
     if go_play_browser_command == ''
         if go#util#IsWin()
             let go_play_browser_command = '!start rundll32 url.dll,FileProtocolHandler %URL%'
-        elseif has('mac') || has('macunix') || has('gui_macvim') || system('uname') =~? '^darwin'
+        elseif has('mac') || has('macunix') || has('gui_macvim') || go#util#System('uname') =~? '^darwin'
             let go_play_browser_command = 'open %URL%'
         elseif executable('xdg-open')
             let go_play_browser_command = 'xdg-open %URL%'
@@ -175,7 +178,7 @@ function! go#tool#OpenBrowser(url)
         exec cmd
     else
         let cmd = substitute(cmd, '%URL%', '\=shellescape(a:url)', 'g')
-        call system(cmd)
+        call go#util#System(cmd)
     endif
 endfunction
 

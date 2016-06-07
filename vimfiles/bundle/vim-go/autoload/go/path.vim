@@ -91,7 +91,7 @@ function! go#path#Detect()
         " gb vendor plugin
         " (https://github.com/constabulary/gb/tree/master/cmd/gb-vendor)
         let gb_vendor_root = src_path . "vendor" . go#util#PathSep()
-        if !empty(gb_vendor_root) && !go#path#HasPath(gb_vendor_root)
+        if isdirectory(gb_vendor_root) && !go#path#HasPath(gb_vendor_root)
             let gopath = gb_vendor_root . go#util#PathListSep() . gopath
         endif
 
@@ -138,28 +138,28 @@ endfunction
 function! go#path#CheckBinPath(binpath)
     " remove whitespaces if user applied something like 'goimports   '
     let binpath = substitute(a:binpath, '^\s*\(.\{-}\)\s*$', '\1', '')
-
-    " if it's in PATH just return it
-    if executable(binpath) 
-        return binpath
-    endif
-
-
-    " just get the basename
-    let basename = fnamemodify(binpath, ":t")
+    " save off original path
+    let old_path = $PATH
 
     " check if we have an appropriate bin_path
     let go_bin_path = go#path#BinPath()
-    if empty(go_bin_path)
-        echo "vim-go: could not find '" . basename . "'. Run :GoInstallBinaries to fix it."
-        return ""
+    if !empty(go_bin_path)
+        " append our GOBIN and GOPATH paths and be sure they can be found there...
+        " let us search in our GOBIN and GOPATH paths
+        let $PATH = go_bin_path . go#util#PathListSep() . $PATH
     endif
 
-    " append our GOBIN and GOPATH paths and be sure they can be found there...
-    " let us search in our GOBIN and GOPATH paths
-    let old_path = $PATH
-    let $PATH = $PATH . go#util#PathListSep() .go_bin_path
+    " if it's in PATH just return it
+    if executable(binpath)
+        if v:version == 704 && has('patch235')
+            let binpath = exepath(binpath)
+        endif
+        let $PATH = old_path
+        return binpath
+    endif
 
+    " just get the basename
+    let basename = fnamemodify(binpath, ":t")
     if !executable(basename)
         echo "vim-go: could not find '" . basename . "'. Run :GoInstallBinaries to fix it."
         " restore back!
