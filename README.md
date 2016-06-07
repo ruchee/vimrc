@@ -2,10 +2,6 @@
 
 ----
 
-##### 配置文件的着色版本：`http://wiki.ruchee.com/public/_vimrc.html`
-
-----
-
 ## 本配置文件使用指南
 
 ----
@@ -37,7 +33,7 @@
 
 ----
 
-#### Linux [具体指 Debian、Ubuntu 及其各衍生版，譬如 LinuxMint、Kubuntu、Xubuntu 等]
+#### Linux
 
 1. `sudo apt-get install vim-gtk exuberant-ctags` [其他非 Debian 系的 Linux 请使用其自己的包管理器进行安装]
 2. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件，如果没有则不需要执行删除动作 [使用命令 `rm -rf ~/.vim ~/.vimrc`，请注意备份]
@@ -53,21 +49,17 @@
 1. 启动 Cygwin 安装器，选中 vim、git 为 `Install` 状态，然后开始安装，直至安装完成
 2. 打开 Cygwin 终端，用 Git 下载本项目
 3. 余下各步骤与上述 Linux 下的步骤几乎一样，这儿就不再赘述了
-4. 字体安装这一步，Cygwin 源用的是 Windows 中的字体，所以将字体文件放到 `C:\WINDOWS\Fonts` 下即可
+4. 字体安装这一步，Cygwin 沿用的是 Windows 中的字体，所以将字体文件放到 `C:\WINDOWS\Fonts` 下即可
 
 ----
 
 ### 注意事项
 
-1. `Windows` 下需要的软件：gvim、ctags
-2. `Linux` 下需要的包文件：vim-gtk、exuberant-ctags
-3. `Linux` 下必须使用 GUI 界面，否则 Meta 系按键将失效，可在 .bashrc 文件里面写入这么一行：`alias vim='gvim'`
-4. 配置文件前面部分的 tags、path 路径是我本人开发所用，你可以将其删除，也可以替换成自己的工程路径 [你需要先用 ctags 生成 tags 文件]
-5. 可使用这两条命令使 Linux、Cygwin 以及 Windows 共用同一套配置 [当然，这儿假设你安装的是双系统]：`ln -s your_gvim_path/vimfiles ~/.vim`、`ln -s your_gvim_path/_vimrc ~/.vimrc`
-6. 此仓库包含的 snippets 补全文件只是我自己使用的那一部分，更多补全可上这下载： `https://github.com/ruchee/backup2/tree/master/snippets`
-7. 如出现快捷键不响应的情况，请检查你是否开启了其他软件（比如 `金山词霸` 等），某些软件的快捷键有可能和 Vim 相冲突，只需修改或禁用这些软件的快捷键即可
-8. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 `set relativenumber` 一项，以使用绝对行号
-9. 请尽量使用最新的 `Vim7.4` 版本，`7.4` 更新了一大批语法文件，部分之前需要自己下载语法插件的语言现在已经内建支持
+1. 可使用这两条命令使 Linux、Cygwin 以及 Windows 共用同一套配置 [当然，这儿假设你安装的是双系统]：`ln -s your_gvim_path/vimfiles ~/.vim`、`ln -s your_gvim_path/_vimrc ~/.vimrc`
+2. 此仓库包含的 snippets 补全文件只是我自己使用的那一部分，更多补全可上这下载： `https://github.com/ruchee/backup2/tree/master/snippets`
+3. 如出现快捷键不响应的情况，请检查你是否开启了其他软件（比如 `金山词霸` 等），某些软件的快捷键有可能和 Vim 相冲突，只需修改或禁用这些软件的快捷键即可
+4. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 `set relativenumber` 一项，以使用绝对行号
+5. 请尽量使用最新的 `Vim7.4` 版本，`7.4` 更新了一大批语法文件，部分之前需要自己下载语法插件的语言现在已经内建支持
 
 ----
 
@@ -85,6 +77,4 @@
 
 本配置文件的更新以我本机的实际使用为准，有安装和使用上的疑问，可访问这个地址 [`https://github.com/ruchee/vimrc/issues`] 提交反馈
 
-祝使用愉快，Thanks!
-
-by Ruchee
+祝使用愉快

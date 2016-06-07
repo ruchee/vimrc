@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-06-07 14:49:01
+" -----------------    Date: 2016-06-07 16:03:22
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -13,10 +13,10 @@
 
 " ---------- Meta系按键 ----------
 "
-" Alt  + H                   --光标左移一格           [插入模式] [Linux下可能失效]
-" Alt  + J                   --光标下移一格           [插入模式] [Linux下可能失效]
-" Alt  + K                   --光标上移一格           [插入模式] [Linux下可能失效]
-" Alt  + L                   --光标右移一格           [插入模式] [Linux下可能失效]
+" Alt  + H                   --光标左移一格           [插入模式]
+" Alt  + J                   --光标下移一格           [插入模式]
+" Alt  + K                   --光标上移一格           [插入模式]
+" Alt  + L                   --光标右移一格           [插入模式]
 
 " ---------- Leader系按键 ----------
 "
@@ -231,6 +231,11 @@ au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
+if g:isWIN
+    au FileType go imap <m-p> <c-x><c-o>
+else
+    au FileType go imap p <c-x><c-o>
+endif
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        setlocal ft=c
@@ -661,16 +666,32 @@ imap <c-l> <esc>A
 map <c-l> <c-w><c-l>
 
 " Alt  + H            光标左移一格
-imap <m-h> <left>
+if g:isWIN
+    imap <m-h> <left>
+else
+    imap h <left>
+endif
 
 " Alt  + J            光标下移一格
-imap <m-j> <down>
+if g:isWIN
+    imap <m-j> <down>
+else
+    imap j <down>
+endif
 
 " Alt  + K            光标上移一格
-imap <m-k> <up>
+if g:isWIN
+    imap <m-k> <up>
+else
+    imap k <up>
+endif
 
 " Alt  + L            光标右移一格
-imap <m-l> <right>
+if g:isWIN
+    imap <m-l> <right>
+else
+    imap l <right>
+endif
 
 " \c                  复制至公共剪贴板
 vmap <leader>c "+y
