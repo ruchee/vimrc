@@ -1,7 +1,7 @@
 "============================================================================
-"File:        govet.vim
-"Description: Perform static analysis of Go code with the vet tool
-"Maintainer:  Kamil Kisiel <kamil@kamilkisiel.net>
+"File:        rapper.vim
+"Description: Syntax checking plugin for syntastic
+"Maintainer:  Sebastian Tramp <mail@sebastian.tramp.name>
 "License:     This program is free software. It comes without any warranty,
 "             to the extent permitted by applicable law. You can redistribute
 "             it and/or modify it under the terms of the Do What The Fuck You
@@ -10,37 +10,35 @@
 "
 "============================================================================
 
-if exists('g:loaded_syntastic_go_govet_checker')
+if exists('g:loaded_syntastic_turtle_rapper_checker')
     finish
 endif
-let g:loaded_syntastic_go_govet_checker = 1
+let g:loaded_syntastic_turtle_rapper_checker = 1
 
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_go_govet_GetLocList() dict
-    let makeprg = self.getExecEscaped() . ' vet'
+function! SyntaxCheckers_turtle_rapper_GetHighlightRegex(item)
+    let term = matchstr(a:item['text'], '\mFailed to convert qname \zs\S\+\ze to URI')
+    return term !=# '' ? '\V\<' . escape(term, '\') . '\>' : ''
+endfunction
+
+function! SyntaxCheckers_turtle_rapper_GetLocList() dict
+    let makeprg = self.makeprgBuild({ 'args': '-i guess -q --count' })
 
     let errorformat =
-        \ '%Evet: %.%\+: %f:%l:%c: %m,' .
-        \ '%W%f:%l: %m,' .
-        \ '%-G%.%#'
-
-    " The go compiler needs to either be run with an import path as an
-    " argument or directly from the package directory. Since figuring out
-    " the proper import path is fickle, just cwd to the package.
+        \ 'rapper: %trror - URI file://%f:%l - %m,' .
+        \ 'rapper: %tarning - URI file://%f:%l - %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,
         \ 'errorformat': errorformat,
-        \ 'cwd': expand('%:p:h', 1),
-        \ 'defaults': {'type': 'w'} })
+        \ 'returns': [0, 1] })
 endfunction
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
-    \ 'filetype': 'go',
-    \ 'name': 'govet',
-    \ 'exec': 'go' })
+    \ 'filetype': 'turtle',
+    \ 'name': 'rapper'})
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
