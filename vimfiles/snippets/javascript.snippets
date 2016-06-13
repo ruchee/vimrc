@@ -6,31 +6,31 @@ snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
 # 全局相关
 snippet u       使用特性
-	"use ${1}";${0}
+	"use ${1}"${0}
 snippet us      严格模式
-	"use strict";${0}
+	"use strict"${0}
 snippet rq      导入包
-	require('${1}');${0}
+	require('${1}')${0}
 snippet vrq     导入包到变量
-	var ${1} = require('${2}');${0}
+	var ${1} = require('${2}')${0}
 snippet im      导入模块 [ES6新增]
-	import ${1};${0}
+	import ${1}${0}
 snippet imf     从 .. 导入模块 [ES6新增]
-	import ${1} from '${2}';${0}
+	import ${1} from '${2}'${0}
 snippet im<     从 .. 导入模块 [带选项] [ES6新增]
-	import { ${1} } from '${2}';${0}
+	import { ${1} } from '${2}'${0}
 snippet im<as   从 .. 导入模块 [带别名] [ES6新增]
-	import { ${1} as ${2} } from '${3}';${0}
+	import { ${1} as ${2} } from '${3}'${0}
 snippet mo      模块
 	module${0}
 snippet exp     导出
 	export ${0}
 snippet ex      按层次导出
-	exports.${1} = ${2};${0}
+	exports.${1} = ${2}${0}
 snippet moex    顶层导出
-	module.exports = ${1};${0}
+	module.exports = ${1}${0}
 snippet df      AMD模块定义
-	define(${0});
+	define(${0})
 # 类相关 [ES6新增]
 snippet cl      类定义
 	class ${1} {
@@ -118,7 +118,7 @@ snippet foo6    for .. of [ES6语法]
 	    ${0}
 	}
 snippet fe      forEach
-	forEach(${0});
+	forEach(${0})
 snippet wh      while
 	while (${1}) {
 	    ${0}
@@ -126,7 +126,7 @@ snippet wh      while
 snippet do      do .. while
 	do {
 	    ${0}
-	} while (${1});
+	} while (${1})
 snippet sw      switch
 	switch (${1}) {
 	    ${0}
@@ -138,14 +138,14 @@ snippet def     default
 	default:
 	    ${0}
 snippet l       创建块级作用域 [ES6新增]
-	let ${0};
+	let ${0}
 snippet l.      块级作用域多行模式
 	let (${1}) {
 	    ${0}
 	}
 # 异常处理
 snippet thr     抛出异常
-	throw ${0};
+	throw ${0}
 snippet try     监控代码块
 	try {
 	    ${0}
@@ -160,17 +160,17 @@ snippet fin     善后处理
 	}
 # 单个关键字
 snippet co      继续
-	continue;${0}
+	continue${0}
 snippet br      中断
-	break;${0}
+	break${0}
 snippet re      返回
-	return ${0};
+	return ${0}
 snippet yi      转移执行 [ES6新增]
-	yield ${0};
+	yield ${0}
 snippet con     常量 [ES6新增]
-	const ${0};
+	const ${0}
 snippet de      删除
-	delete ${0};
+	delete ${0}
 snippet ev      执行代码
 	eval(${0})
 snippet ct      构造器
@@ -224,11 +224,11 @@ snippet ca      call
 	call${0}
 # 输出
 snippet p       终端输出
-	console.log(${0});
+	console.log(${0})
 snippet dw      文本打印
-	document.writeln(${0});
+	document.writeln(${0})
 snippet al      弹出框
-	alert(${0});
+	alert(${0})
 # 预定义变量
 snippet _f      当前脚本文件路径
 	__filename${0}
@@ -236,7 +236,7 @@ snippet _d      当前脚本目录路径
 	__dirname${0}
 # 其他
 snippet v       var
-	var ${0};
+	var ${0}
 snippet n       new
 	new ${0}
 snippet t       this
@@ -244,7 +244,7 @@ snippet t       this
 snippet s       self
 	self${0}
 snippet su      super
-	super${0};
+	super${0}
 snippet st      static
 	static ${0}
 snippet nu      null
@@ -254,13 +254,13 @@ snippet r       / .. /
 snippet <       { .. }
 	{ ${0} }
 snippet ?       三元运算符
-	${1} ? ${2} : ${0};
+	${1} ? ${2} : ${0}
 snippet {       ${ .. }
 	${${0}
 snippet .       模拟块级作用域 [匿名函数立即调用]
 	(function () {
 	    ${0}
-	})();
+	})()
 ################
 # DOM相关
 snippet gbyi    根据id取单个元素
