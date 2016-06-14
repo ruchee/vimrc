@@ -13,6 +13,8 @@ snippet rq      导入包
 	require('${1}')${0}
 snippet vrq     导入包到变量
 	var ${1} = require('${2}')${0}
+snippet lrq     导入包到变量
+	let ${1} = require('${2}')${0}
 snippet im      导入模块 [ES6新增]
 	import ${1}${0}
 snippet imf     从 .. 导入模块 [ES6新增]
@@ -23,9 +25,9 @@ snippet im<as   从 .. 导入模块 [带别名] [ES6新增]
 	import { ${1} as ${2} } from '${3}'${0}
 snippet mo      模块
 	module${0}
-snippet exp     导出
+snippet ex      导出
 	export ${0}
-snippet ex      按层次导出
+snippet exp     按层次导出
 	exports.${1} = ${2}${0}
 snippet moex    顶层导出
 	module.exports = ${1}${0}
@@ -55,28 +57,18 @@ snippet f       常规函数
 	function ${1:f_name} (${2}) {
 	    ${0}
 	}
-snippet f6      生成器函数 [ES6语法]
-	function* ${1:f_name} (${2}) {
-	    ${0}
-	}
-snippet f.      单行常规函数
-	function ${1:f_name} (${2}) { ${0} }
-snippet f6.     单行生成器函数 [ES6语法]
-	function* ${1:f_name} (${2}) { ${0} }
-snippet ff      匿名函数
-	function (${1}) {${0}}
-snippet ff6     匿名函数 [ES6语法]
+snippet ff      匿名函数 [ES6语法]
 	(${1}) => {${0}}
 snippet fff     更简洁的匿名函数 [ES6语法]
 	${1} => ${0}
 snippet of      对象中的方法
-	${1:f_name}: function (${2}) {
+	${1:f_name}: (${2}) => {
 	    ${0}
-	},
-snippet of6     对象中的方法 [ES6语法]
+	}
+snippet of.     对象中的方法 [ES6语法]
 	${1:f_name} (${2}) {
 	    ${0}
-	},
+	}
 snippet wi      指定缺省对象
 	with (${1}) {
 	    ${0}
@@ -93,27 +85,15 @@ snippet el      else
 	else {
 	    ${0}
 	}
-snippet fo      for
-	for (var ${1}) {
-	    ${0}
-	}
-snippet fo6     for [ES6语法]
+snippet fo      for [ES6语法]
 	for (let ${1}) {
 	    ${0}
 	}
-snippet fi      for .. in
-	for (var ${1} in ${2}) {
-	    ${0}
-	}
-snippet fi6     for .. in [ES6语法]
+snippet fi      for .. in [ES6语法]
 	for (let ${1} in ${2}) {
 	    ${0}
 	}
-snippet foo     for .. of
-	for (var ${1} of ${2}) {
-	    ${0}
-	}
-snippet foo6    for .. of [ES6语法]
+snippet foo     for .. of [ES6语法]
 	for (let ${1} of ${2}) {
 	    ${0}
 	}
@@ -137,12 +117,6 @@ snippet cs      case
 snippet def     default
 	default:
 	    ${0}
-snippet l       创建块级作用域 [ES6新增]
-	let ${0}
-snippet l.      块级作用域多行模式
-	let (${1}) {
-	    ${0}
-	}
 # 异常处理
 snippet thr     抛出异常
 	throw ${0}
@@ -222,6 +196,17 @@ snippet ap      apply
 	apply${0}
 snippet ca      call
 	call${0}
+# 字符串方法
+snippet in      是否包含
+	includes(${0})
+snippet swi     是否在头部
+	startsWith(${0})
+snippet ewi     是否在尾部
+	endsWith(${0})
+snippet rep     重复N遍
+	repeat(${0})
+snippet tr      去除头尾空白字符
+	trim()${0}
 # 输出
 snippet p       终端输出
 	console.log(${0})
@@ -235,12 +220,14 @@ snippet _f      当前脚本文件路径
 snippet _d      当前脚本目录路径
 	__dirname${0}
 # 其他
-snippet m       map
-	map(${0})
 snippet v       var
 	var ${0}
+snippet l       let
+	let ${0}
 snippet n       new
 	new ${0}
+snippet m       map
+	map(${0})
 snippet t       this
 	this${0}
 snippet s       self
