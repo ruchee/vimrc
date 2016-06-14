@@ -6,9 +6,9 @@ snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
 # 全局相关
 snippet u       使用特性
-	"use ${1}"${0}
+	"use ${1}";${0}
 snippet us      严格模式
-	"use strict"${0}
+	"use strict";${0}
 snippet rq      导入包
 	require('${1}')${0}
 snippet vrq     导入包到变量
@@ -166,7 +166,7 @@ snippet br      中断
 snippet re      返回
 	return ${0}
 snippet yi      转移执行 [ES6新增]
-	yield ${0}
+	yield(${0});
 snippet con     常量 [ES6新增]
 	const ${0}
 snippet de      删除
@@ -235,6 +235,8 @@ snippet _f      当前脚本文件路径
 snippet _d      当前脚本目录路径
 	__dirname${0}
 # 其他
+snippet m       map
+	map(${0})
 snippet v       var
 	var ${0}
 snippet n       new
@@ -257,10 +259,8 @@ snippet ?       三元运算符
 	${1} ? ${2} : ${0}
 snippet {       ${ .. }
 	${${0}
-snippet .       模拟块级作用域 [匿名函数立即调用]
-	(function () {
-	    ${0}
-	})()
+snippet .       =>
+	=> ${0}
 ################
 # DOM相关
 snippet gbyi    根据id取单个元素
