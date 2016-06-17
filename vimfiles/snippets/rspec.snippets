@@ -1,0 +1,28 @@
+snippet r_d     describe
+	describe ${1} do
+	  ${0}
+	end
+snippet r_d.    describe
+	describe '${1}' do
+	  ${0}
+	end
+snippet r_c     context
+	context '${1}' do
+	  ${0}
+	end
+snippet r_i     it
+	it '${1}' do
+	  ${0}
+	end
+snippet r_l     let
+	let(:${1}) { ${0} }
+snippet r_l.    let
+	let(:${1}) do
+	  {
+	    ${0}
+	  }
+	end
+snippet r_s     subject
+	subject(:${1}) { ${0} }
+snippet r_e     expect
+	expect(${1}).to ${0}
