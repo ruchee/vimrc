@@ -1,8 +1,3 @@
-" Vim compiler file
-" Language:     ExUnit
-" Maintainer:   Rein Henrichs <rein.henrichs@gmail.com>
-" URL:          https://github.com/elixir-lang/vim-elixir
-
 if exists("current_compiler")
   finish
 endif
@@ -14,9 +9,15 @@ endif
 
 let s:cpo_save = &cpo
 set cpo-=C
-
 CompilerSet makeprg=mix\ test
-CompilerSet errorformat=%A\ \ %.)\ %m(%.%#),%C\ \ \ \ \ **%m,%C\ \ \ \ \ \ \ %m,%Z\ \ \ \ \ at\ %f:%l,%-G%.%#
+CompilerSet errorformat=
+  \%E\ \ %n)\ %m,
+  \%+G\ \ \ \ \ **\ %m,
+  \%+G\ \ \ \ \ stacktrace:,
+  \%C\ \ \ \ \ %f:%l,
+  \%+G\ \ \ \ \ \ \ (%\\w%\\+)\ %f:%l:\ %m,
+  \%+G\ \ \ \ \ \ \ %f:%l:\ %.%#,
+  \**\ (%\\w%\\+)\ %f:%l:\ %m
 
 let &cpo = s:cpo_save
 unlet s:cpo_save

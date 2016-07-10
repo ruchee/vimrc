@@ -335,6 +335,36 @@ function_call_examples() ->
     'phone number'(),
     case@case().
 
+func_calls() ->
+
+    Func(),
+    Func (),
+
+    Func
+    (),
+
+    Func % comment
+    (),
+
+    a:b, % bad
+
+    mod:Func(),
+    my_mod:my_func(),
+    mod_:func_(),
+
+    1mod:Func(), % bad
+    @mod:Func(), % bad
+    m@d:f@nc(), % good
+    mod : Func(), % good
+
+    mod
+    :
+    Func(),
+
+    mod % comment
+    : % comment
+    Func().
+
 %%% ===========================================================================
 %%% 7.7 If
 %%% ===========================================================================
@@ -540,6 +570,13 @@ just_atoms() ->
 f() ->
     fun func/0,
     fun mod:func/0,
+    fun (A) when A > 0 -> A;
+        (B) when B > 0 -> B
+    end.
+
+f() ->
+    fun Func/0,
+    fun mod:Func/0,
     fun (A) when A > 0 -> A;
         (B) when B > 0 -> B
     end.

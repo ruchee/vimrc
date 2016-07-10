@@ -279,6 +279,8 @@ function! phpcomplete#CompletePHP(findstart, base) " {{{
 			" }}}
 		elseif context =~? 'implements'
 			return phpcomplete#CompleteClassName(a:base, ['i'], current_namespace, imports)
+		elseif context =~? 'instanceof'
+			return phpcomplete#CompleteClassName(a:base, ['c', 'n'], current_namespace, imports)
 		elseif context =~? 'extends\s\+.\+$' && a:base == ''
 			return ['implements']
 		elseif context =~? 'extends'
@@ -871,6 +873,8 @@ function! phpcomplete#CompleteClassName(base, kinds, current_namespace, imports)
 
 	if kinds == ['c', 'i']
 		let filterstr = 'v:val =~? "\\(class\\|interface\\)\\s\\+[a-zA-Z_\\x7f-\\xff][a-zA-Z_0-9\\x7f-\\xff]*\\s*"'
+	elseif kinds == ['c', 'n']
+		let filterstr = 'v:val =~? "\\(class\\|namespace\\)\\s\\+[a-zA-Z_\\x7f-\\xff][a-zA-Z_0-9\\x7f-\\xff]*\\s*"'
 	elseif kinds == ['c']
 		let filterstr = 'v:val =~? "class\\s\\+[a-zA-Z_\\x7f-\\xff][a-zA-Z_0-9\\x7f-\\xff]*\\s*"'
 	elseif kinds == ['i']
@@ -1444,6 +1448,14 @@ function! phpcomplete#GetTaglist(pattern) " {{{
 	endif
 
 	let tags = taglist(a:pattern)
+	for tag in tags
+		for prop in keys(tag)
+			if prop == 'cmd' || prop == 'static' || prop == 'kind' || prop == 'builtin'
+				continue
+			endif
+			let tag[prop] = substitute(tag[prop], '\\\\', '\\', 'g')
+		endfor
+	endfor
 	let s:cache_tags[a:pattern] = tags
 	let has_key = has_key(s:cache_tags, a:pattern)
 	let s:cache_tags_checksum = cache_checksum
@@ -1946,9 +1958,10 @@ function! phpcomplete#GetClassName(start_line, context, current_namespace, impor
 					let sub_methodstack = phpcomplete#GetMethodStack(matchstr(line, '^\s*'.object.'\s*=&\?\s*\s\+\zs.*'))
 					let [classname_candidate, class_candidate_namespace] = phpcomplete#GetCallChainReturnType(
 						\ classname,
-						\ a:current_namespace,
+						\ namespace_for_class,
 						\ a:imports,
 						\ sub_methodstack)
+
 					return (class_candidate_namespace == '\' || class_candidate_namespace == '') ? classname_candidate : class_candidate_namespace.'\'.classname_candidate
 				endif
 			endif
