@@ -17,12 +17,29 @@ snippet cm      编译阶段导出函数
 	-compile(${1:export_all}).${0}
 snippet re
 	-record(${1}, {${2}}).${0}
-# 函数
+# 常用结构
 snippet f       函数定义 [同一行]
 	${1:f_name}(${2}) -> ${0}
 snippet f.      函数定义 [另起一行]
 	${1:f_name}(${2}) ->
 	    ${0}
+snippet rec     接收消息
+	receive
+	    {${1}, ${2}} ->
+	        ${0}
+	end.
+snippet send    发送消息
+	${1} ! {${2:self()}, ${3}}${0}
+snippet sp      派生进程
+	spawn(${1}, ${2}, [${3}]).${0}
 # 单个关键字
+snippet p       输出
+	io:format("${1}").${0}
+snippet s       self()
+	self()${0}
+# 其他
+snippet <       {...} ->
+	{${1}, ${2}} ->
+	    ${0}
 snippet .
 	->${0}
