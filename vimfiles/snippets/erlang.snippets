@@ -23,6 +23,12 @@ snippet f       函数定义 [同一行]
 snippet f.      函数定义 [另起一行]
 	${1:f_name}(${2}) ->
 	    ${0}
+snippet ff      匿名函数 [同一行]
+	fun(${1}) -> ${0} end.
+snippet ff.     匿名函数 [另起一行]
+	fun($1) ->
+	    ${0}
+	end.
 snippet rec     接收消息
 	receive
 	    {${1}, ${2}} ->
