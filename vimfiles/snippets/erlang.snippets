@@ -15,8 +15,10 @@ snippet ex      指定导出函数列表
 	-export([${1}]).${0}
 snippet cm      编译阶段导出函数
 	-compile(${1:export_all}).${0}
-snippet re
+snippet re      记录 [元素个数固定的命名元组]
 	-record(${1}, {${2}}).${0}
+snippet m       映射组 [元素个数不固定的键值对元组]
+	#{${1}}.${0}
 # 常用结构
 snippet f       函数定义 [同一行]
 	${1:f_name}(${2}) -> ${0}
@@ -38,14 +40,24 @@ snippet send    发送消息
 	${1} ! {${2:self()}, ${3}}${0}
 snippet sp      派生进程
 	spawn(${1}, ${2}, [${3}]).${0}
+# 流程控制
+snippet if      if
+	if ${1}
+	    ${0}
+	end
+snippet cs      case
+	case ${1} of
+	    ${0}
+	end
+snippet w       when
+	when ${0}
 # 单个关键字
 snippet p       输出
 	io:format("${1}").${0}
-snippet s       self()
+snippet s       当前进程的进程标识符
 	self()${0}
 # 其他
-snippet <       {...} ->
-	{${1}, ${2}} ->
-	    ${0}
-snippet .
-	->${0}
+snippet <       <-
+	<- ${0}
+snippet >       ->
+	-> ${0}
