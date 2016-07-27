@@ -5,7 +5,9 @@ snippet -       分隔注释
 # 模块指令
 snippet im      导入其他模块的函数
 	-import(${1:m_name}, [${2}]).${0}
-snippet inl
+snippet in      include
+	-include("${1}").${0}
+snippet inl     include_lib
 	-include_lib("${1}").${0}
 snippet df      定义宏
 	-define(${1}, ${2}).${0}
@@ -18,7 +20,7 @@ snippet cm      编译阶段导出函数
 snippet re      记录 [元素个数固定的命名元组]
 	-record(${1}, {${2}}).${0}
 snippet m       映射组 [元素个数不固定的键值对元组]
-	#{${1}}.${0}
+	#{ ${1} }.${0}
 # 常用结构
 snippet f       函数定义 [同一行]
 	${1:f_name}(${2}) -> ${0}
@@ -36,7 +38,7 @@ snippet rec     接收消息
 	    {${1}, ${2}} ->
 	        ${0}
 	end.
-snippet send    发送消息
+snippet se      发送消息
 	${1} ! {${2:self()}, ${3}}${0}
 snippet sp      派生进程
 	spawn(${1}, ${2}, [${3}]).${0}
