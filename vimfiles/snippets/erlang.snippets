@@ -15,10 +15,12 @@ snippet mo      标注模块的名字
 	-module(`Filename()`).${0}
 snippet ex      指定导出函数列表
 	-export([${1}]).${0}
-snippet cm      编译阶段导出函数
+snippet cm      编译选项
 	-compile(${1:export_all}).${0}
 snippet re      记录 [元素个数固定的命名元组]
 	-record(${1}, {${2}}).${0}
+snippet v       指定模块版本号
+	-vsn(${1}).${0}
 snippet m       映射组 [元素个数不固定的键值对元组]
 	#{ ${1} }.${0}
 # 常用结构
@@ -53,6 +55,23 @@ snippet cs      case
 	end
 snippet w       when
 	when ${0}
+# 异常处理
+snippet try     监控代码段
+	try ${1} of
+	    ${0}
+	end
+snippet cat     捕获异常
+	catch
+	    ${0}
+snippet aft     善后处理
+	after
+	    ${0}
+snippet thr     抛出异常
+	throw${0}
+snippet err     抛出错误
+	error${0}
+snippet ext     终止当前进程
+	exit${0}
 # 单个关键字
 snippet p       输出
 	io:format("${1}").${0}
