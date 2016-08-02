@@ -37,8 +37,7 @@ snippet ff.     匿名函数 [另起一行]
 	end.
 snippet rec     接收消息
 	receive
-	    {${1}, ${2}} ->
-	        ${0}
+	    ${0}
 	end.
 snippet be      代码块
 	begin
@@ -47,7 +46,7 @@ snippet be      代码块
 snippet se      发送消息
 	${1} ! {${2:self()}, ${3}}${0}
 snippet sp      派生进程
-	spawn(${1}, ${2}, [${3}]).${0}
+	spawn(${0}).
 # 流程控制
 snippet if      if
 	if ${1}
@@ -68,8 +67,7 @@ snippet cat     捕获异常
 	catch
 	    ${0}
 snippet aft     善后处理
-	after
-	    ${0}
+	after${0}
 snippet thr     抛出异常
 	throw${0}
 snippet err     抛出错误
