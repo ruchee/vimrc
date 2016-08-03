@@ -2,3 +2,25 @@ snippet /       单行注释
 	# ${0}
 snippet -       分隔注释
 	#----------------------------------------------------------------------${0}
+################
+# Symfony常用配置
+snippet im      继承配置
+	imports:
+	    - { resource: ${0}.yml }
+snippet con     控制器
+	_controller: ${0}
+snippet res     资源
+	resource: "${0}"
+snippet tp      类型
+	type: ${0}
+snippet pr      前缀
+	prefix: ${0}
+snippet pa      路径
+	path: ${0}
+snippet pat     匹配模式
+	pattern: ${0}
+snippet def     默认
+	defaults: ${0}
+snippet <       { .. }
+	{ ${0} }
+################

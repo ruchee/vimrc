@@ -68,13 +68,37 @@ snippet _asd    差异测试
 # 配置
 snippet _res    资源路由
 	resources :${0}
+snippet _mem    归属于单个资源的路由
+	member do
+	  ${0}
+	end
+snippet _col    归属于一组资源的路由
+	collection do
+	  ${0}
+	end
+snippet _ns     命名空间
+	namespace :${1} do
+	  ${0}
+	end
 # 常量
-snippet _ed     开发环境
+snippet _dev    开发环境
 	development${0}
-snippet _et     测试环境
+snippet _t      测试环境
 	test${0}
-snippet _ep     生产环境
+snippet _prod   生产环境
 	production${0}
+# 判断运行环境
+snippet _ifd    is development mode ?
+	Rails.env.development?${0}
+snippet _ift    is test mode ?
+	Rails.env.test?${0}
+snippet _ifp    is production mode ?
+	Rails.env.production?${0}
+# 常用辅助方法
+snippet _sk     将一个Hash的键名全部转成Symbol
+	symbolize_keys${0}
+snippet _pk     从数据库取数据时，只取某些字段，并将这些字段值汇集成一个数组
+	pluck(:${0})
 # 常用方法
 snippet _fi     index
 	def index
