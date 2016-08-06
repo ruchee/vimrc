@@ -76,7 +76,11 @@ snippet _col    归属于一组资源的路由
 	collection do
 	  ${0}
 	end
-snippet _ns     命名空间
+snippet _sc     存放在某个子文件夹下的路由，但该子文件夹的名字不出现在URL里面
+	scope module: '${1}' do
+	  ${0}
+	end
+snippet _ns     命名空间（和scope类似，但命名空间的名字会出现在URL里面）
 	namespace :${1} do
 	  ${0}
 	end
