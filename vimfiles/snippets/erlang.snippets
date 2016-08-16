@@ -27,7 +27,7 @@ snippet re      记录 [元素个数固定的命名元组]
 snippet v       指定模块版本号
 	-vsn(${1}).${0}
 snippet m       映射组 [元素个数不固定的键值对元组]
-	#{ ${1} }.${0}
+	#{ ${1} }${0}
 # 常用结构
 snippet f       函数定义 [同一行]
 	${1:f_name}(${2}) -> ${0}
@@ -35,15 +35,15 @@ snippet f.      函数定义 [另起一行]
 	${1:f_name}(${2}) ->
 	    ${0}
 snippet ff      匿名函数 [同一行]
-	fun(${1}) -> ${0} end.
+	fun(${1}) -> ${0} end
 snippet ff.     匿名函数 [另起一行]
 	fun($1) ->
 	    ${0}
-	end.
+	end
 snippet rec     接收消息
 	receive
 	    ${0}
-	end.
+	end
 snippet be      代码块
 	begin
 	    ${0}
@@ -51,7 +51,7 @@ snippet be      代码块
 snippet se      发送消息
 	${1} ! {${2:self()}, ${3}}${0}
 snippet sp      派生进程
-	spawn(${0}).
+	spawn(${0})
 # 流程控制
 snippet if      if
 	if ${1}
@@ -81,7 +81,7 @@ snippet ext     终止当前进程
 	exit${0}
 # 单个关键字
 snippet p       输出
-	io:format("${1}").${0}
+	io:format("${1}")${0}
 snippet s       当前进程的进程标识符
 	self()${0}
 # 其他
