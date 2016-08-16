@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-06-17 11:23:22
+" -----------------    Date: 2016-08-16 11:52:10
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -235,6 +235,7 @@ au BufRead,BufNewFile *.lsp      setlocal ft=newlisp
 au BufRead,BufNewFile *.cl       setlocal ft=lisp
 au BufRead,BufNewFile *.phpt     setlocal ft=php
 au BufRead,BufNewFile *.inc      setlocal ft=php
+au BufRead,BufNewFile *.cson     setlocal ft=coffee
 au BufRead,BufNewFile *.sql      setlocal ft=mysql
 au BufRead,BufNewFile *.tpl      setlocal ft=smarty
 au BufRead,BufNewFile *.txt      setlocal ft=txt
