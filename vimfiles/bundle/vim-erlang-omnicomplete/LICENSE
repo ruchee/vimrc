@@ -1,0 +1,13 @@
+vim-erlang-compiler is released under Vim license (see :help license).
+This is the list of people who have contributed to this plugin:
+
+Copyright (C) 2007      Oscar Hellström <oscar@oscarh.net>
+Copyright (C) 2010      Pawel 'kTT' Salata (http://github.com/kTT)
+Copyright (C) 2010-2012 Ricardo Catalinas Jiménez <jimenezrick@gmail.com>
+Copyright (C) 2011      Eduardo Lopez (http://github.com/tapichu)
+Copyright (C) 2012      Ignas Vyšniauskas (https://github.com/yfyf)
+Copyright (C) 2014      Adam Rutkowski <hq@mtod.org>
+Copyright (C) 2014      Csaba Hoch <csaba.hoch@gmail.com>
+
+vim-erlang-compiler's original source code comes from vimerl
+(https://github.com/jimenezrick/vimerl).

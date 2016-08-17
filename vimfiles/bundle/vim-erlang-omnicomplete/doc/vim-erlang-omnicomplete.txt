@@ -1,0 +1,82 @@
+*vim-erlang-omnicomplete.txt* Erlang autocompletion
+
+CONTENTS                                             *vim-erlang-omnicomplete*
+
+    1. Introduction.....................|vim-erlang-omnicomplete-intro|
+    2. Credits..........................|vim-erlang-omnicomplete-credits|
+    3. Contributing.....................|vim-erlang-omnicomplete-contributing|
+
+==============================================================================
+INTRODUCTION                                   *vim-erlang-omnicomplete-intro*
+
+vim-erlang-omnicomplete is an Erlang autocompletion plugin (or "omni
+completion" in Vim's terminology).
+
+Vim's autocompletion is accessible by hitting |i_CTRL-X_CTRL-O|. After
+installing this plugin, if an Erlang file is edited, these keys will provide
+Erlang autocompletion.
+
+The plugin completes the followings:
+
+1. Local functions. E.g. if a module contains a "myfun" function, then "my" is
+   completed as: >
+
+       +----------+
+       | myfun  f |
+       +----------+
+
+2. Auto-imported BIFs, e.g. "list_to" is completed as: >
+
+       +-----------------------------------------+
+       | list_to_atom(String) -> atom()        f |
+       | list_to_binary(IoList) -> binary()    f |
+       | ...                                     |
+       +-----------------------------------------+
+
+3. Modules, e.g. "gen_" is completed as: >
+
+       +--------------+
+       | gen_event  m |
+       | gen_fsm    m |
+       | ...        m |
+       +--------------+
+
+4. Exported functions from other modules, e.g. "lists:mem" is completed as: >
+
+       +-----------------------------------------+
+       | lists:member(Elem, List) -> boolean() f |
+       +-----------------------------------------+
+
+Type specs and EDoc information are also used when showing completion for
+functions in other modules.
+
+If you use rebar, the plugin will find the rebar.config file corresponding to
+the module being edited, and uses the directories in rebar.config to find the
+possible module and function names. The plugin does not support rebar.script
+files though.
+
+==============================================================================
+CREDITS                                      *vim-erlang-omnicomplete-credits*
+
+Developed by the vim-erlang community. Distributed under Vim's |license|.
+
+vim-erlang-omnicomplete's original source code comes from vimerl
+(https://github.com/jimenezrick/vimerl).
+
+Author:       Oscar Hellström <oscar@oscarh.net>
+Contributors: Pawel 'kTT' Salata (http://github.com/kTT)
+              Ricardo Catalinas Jiménez <jimenezrick@gmail.com>
+              Eduardo Lopez (http://github.com/tapichu)
+              Ignas Vyšniauskas (https://github.com/yfyf)
+              Adam Rutkowski <hq@mtod.org>
+              Csaba Hoch <csaba.hoch@gmail.com>
+License:      Vim License (see |license|)
+
+==============================================================================
+CONTRIBUTING                            *vim-erlang-omnicomplete-contributing*
+
+Bug reports, suggestions and improvements encouraged at the project's GitHub:
+
+    https://github.com/vim-erlang/vim-erlang-omnicomplete
+
+==============================================================================

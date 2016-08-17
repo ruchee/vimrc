@@ -5,6 +5,8 @@
 /vimfiles/init.vim
 /vimfiles/.init.vim-rplugin~
 
+/vimfiles/bundle/YouCompleteMe
+
 Thumbs.db
 .DS_Store
 *.pyc
