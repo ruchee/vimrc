@@ -1,8 +1,16 @@
-" MIT License. Copyright (c) 2013-2015 Bailey Ling.
+" MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
 call airline#init#bootstrap()
 let s:spc = g:airline_symbols.space
+
+function! airline#util#shorten(text, winwidth, minwidth)
+  if winwidth(0) < a:winwidth && len(split(a:text, '\zs')) > a:minwidth
+    return matchstr(a:text, '^.\{'.a:minwidth.'}').'…'
+  else
+    return a:text
+  endif
+endfunction
 
 function! airline#util#wrap(text, minwidth)
   if a:minwidth > 0 && winwidth(0) < a:minwidth
@@ -17,6 +25,12 @@ function! airline#util#append(text, minwidth)
   endif
   let prefix = s:spc == "\ua0" ? s:spc : s:spc.s:spc
   return empty(a:text) ? '' : prefix.g:airline_left_alt_sep.s:spc.a:text
+endfunction
+
+function! airline#util#warning(msg)
+  echohl WarningMsg
+  echomsg "airline: ".a:msg
+  echohl Normal
 endfunction
 
 function! airline#util#prepend(text, minwidth)

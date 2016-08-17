@@ -132,7 +132,7 @@ section: "Commit Limiting".
     -G<regex>         Look for differences whose added or removed line
                       matches the given <regex>.
 
-3.4 Key mappings.
+3.4 Key mappings.                                     *gitv-browser-mappings*
 
 This is a list of key mappings that will work only in the gitv browser window.
 Where appropriate the differences in action is described for the two gitv
@@ -235,6 +235,21 @@ modes.
                           The lines at the top and bottom of the selection
                           must contain refs in the form of tags, remotes or
                           local branches.
+
+    visual      cp        Cherry-Picks the selected commits to the active
+                          branch.
+    normal      cp        same as visual cp
+
+    visual      rb        Reset (mixed) the active branch to the top of the
+                          selected commits
+    normal      rb        same as visual rb
+    visual      rbh       Reset (hard) the active branch to the top of the
+                          selected commits
+    normal      rbh       same as visual rbh
+
+    visual      d         Delete a branch or tag on the selected line. You will
+                          be asked which branch/tag to use.
+    normal      d         same as visual d
 
     normal      <leader>m Merges the first ref found on the current line in to
                           the branch currently pointed to by HEAD. This will

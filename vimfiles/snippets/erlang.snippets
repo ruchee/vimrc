@@ -52,6 +52,20 @@ snippet se      发送消息
 	${1} ! ${0}
 snippet sp      派生进程
 	spawn(${0})
+snippet spl     派生并链接进程
+	spawn_link(${0})
+snippet spm     派生并监视进程
+	spawn_monitor(${0})
+snippet prf     将当前进程转变为系统进程
+	process_flag(trap_exit, true)${0}
+snippet li      将当前进程链接到某指定进程
+	link(${0})
+snippet uli     移除当前进程与某指定进程的链接
+	unlink(${0})
+snippet mon     添加监视
+	monitor(process, ${0})
+snippet dmon    移除监视
+	demonitor(${0})
 # 流程控制
 snippet if      if
 	if ${1}

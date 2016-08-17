@@ -859,7 +859,7 @@ function! s:StageUndo() abort
   let hash = repo.git_chomp('hash-object', '-w', filename)
   if !empty(hash)
     if section ==# 'untracked'
-      call repo.git_chomp_in_tree('clean', '--', filename)
+      call repo.git_chomp_in_tree('clean', '-f', '--', filename)
     elseif section ==# 'unmerged'
       call repo.git_chomp_in_tree('rm', '--', filename)
     elseif section ==# 'unstaged'
@@ -2840,7 +2840,7 @@ function! s:cfile() abort
       elseif getline('.') =~# '^#\trenamed:.* -> '
         let file = '/'.matchstr(getline('.'),' -> \zs.*')
         return [file]
-      elseif getline('.') =~# '^#\t\(\k\| \)\+: *.'
+      elseif getline('.') =~# '^#\t\(\k\| \)\+\p\?: *.'
         let file = '/'.matchstr(getline('.'),': *\zs.\{-\}\ze\%( ([^()[:digit:]]\+)\)\=$')
         return [file]
       elseif getline('.') =~# '^#\t.'

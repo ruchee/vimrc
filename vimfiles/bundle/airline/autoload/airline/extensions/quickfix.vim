@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2015 Bailey Ling.
+" MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
 let g:airline#extensions#quickfix#quickfix_text = 'Quickfix'
@@ -15,6 +15,13 @@ endfunction
 
 function! airline#extensions#quickfix#init(ext)
   call a:ext.add_statusline_func('airline#extensions#quickfix#apply')
+  call a:ext.add_inactive_statusline_func('airline#extensions#quickfix#inactive_qf_window')
+endfunction
+
+function! airline#extensions#quickfix#inactive_qf_window(...)
+  if getbufvar(a:2.bufnr, '&filetype') is# 'qf' && !empty(airline#util#getwinvar(a:2.winnr, 'quickfix_title', ''))
+    call setwinvar(a:2.winnr, 'airline_section_c', '[%{get(w:, "quickfix_title", "")}] %f %m')
+  endif
 endfunction
 
 function! s:get_text()
