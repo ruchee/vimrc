@@ -6,6 +6,7 @@
 /vimfiles/.init.vim-rplugin~
 
 /vimfiles/bundle/YouCompleteMe
+/vimfiles/bundle/YCM-Generator
 
 Thumbs.db
 .DS_Store
