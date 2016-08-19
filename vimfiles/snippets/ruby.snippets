@@ -183,7 +183,7 @@ snippet be      代码块
 snippet ra      抛出异常
 	raise ${0}
 snippet rs      捕获异常
-	rescue => ${1:e}
+	rescue${1} => ${2:e}
 	  ${0}
 snippet es      善后处理
 	ensure
@@ -273,7 +273,7 @@ snippet par     判断条件为真和为假的元素都返回
 	partition${0}
 snippet z       同时取出多个集合的元素
 	zip${0}
-snippet dei     如果...就删除
+snippet dif     如果...就删除
 	delete_if${0}
 # 排序
 snippet so      sort
