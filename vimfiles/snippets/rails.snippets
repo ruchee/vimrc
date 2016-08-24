@@ -54,6 +54,10 @@ snippet _uni    必须唯一
 	uniqueness: true${0}
 snippet _fk     指定外键
 	foreign_key: :${0}
+snippet _bfs    在保存前执行
+	before_save :${0}
+snippet _afs    在保存后执行
+	after_save :${0}
 # 测试
 snippet _as     断言
 	assert ${0}
