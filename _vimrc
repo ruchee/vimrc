@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-08-16 11:52:10
+" -----------------    Date: 2016-08-25 10:17:20
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -386,6 +386,7 @@ au FileType ls         call AddJavaScriptDict()
 au FileType css        call AddCSSDict()
 au FileType scss       call AddCSSDict()
 au FileType less       call AddCSSDict()
+au FileType mysql      call AddMySQLDict()
 
 function AddCDict()
     if g:isWIN
@@ -481,6 +482,15 @@ function AddCSSDict()
         set dict+=$VIM/vimfiles/dict/css.txt
     else
         set dict+=~/.vim/dict/css.txt
+    endif
+    set complete+=k
+endfunction
+
+function AddMySQLDict()
+    if g:isWIN
+        set dict+=$VIM/vimfiles/dict/mysql.txt
+    else
+        set dict+=~/.vim/dict/mysql.txt
     endif
     set complete+=k
 endfunction
