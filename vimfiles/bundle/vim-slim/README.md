@@ -30,26 +30,28 @@ If you are already using pathogen, you can skip to step 3.
         popd
 
 
-Install with vbundle
+Install with Vundle
 --------------------
 
 1. [Install Vundle] into `~/.vim/bundle/`.
 
-[Install Vundle]: https://github.com/gmarik/vundle#quick-start
+[Install Vundle]: https://github.com/gmarik/Vundle.vim#quick-start
 
         mkdir -p ~/.vim/bundle; pushd ~/.vim/bundle; \
-        git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+        git clone https://github.com/gmarik/Vundle.vim.git ~/.vim/bundle/Vundle.vim
         popd
 
 2. Configure your vimrc for Vundle. Here's a bare-minimum vimrc that enables vim-slim :
 
 
     ```vim
-    set rtp+=~/.vim/bundle/vundle/
-    call vundle#rc()
+    set rtp+=~/.vim/bundle/Vundle.vim
+    call vundle#begin()
 
-    Bundle 'slim-template/vim-slim.git'
+    Plugin 'gmarik/Vundle.vim'
+    Plugin 'slim-template/vim-slim.git'
 
+    call vundle#end()
     syntax enable
     filetype plugin indent on
     ```
@@ -57,6 +59,6 @@ Install with vbundle
 If you're adding Vundle to a built-up vimrc, just make sure all these calls
    are in there and that they occur in this order.
 
-3. Open vim and run `:BundleInstall`.
+3. Open vim and run `:PluginInstall`.
 
-To update, open vim and run `:BundleInstall!` (notice the bang!)
+To update, open vim and run `:PluginInstall!` (notice the bang!)
