@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-09-08 16:50:21
+" -----------------    Date: 2016-09-20 09:28:31
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -557,6 +557,7 @@ let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
 let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
 let g:snipMate.scope_aliases['ruby']            = 'ruby,rails,rspec'
 let g:snipMate.scope_aliases['eruby']           = 'html,eruby'
+let g:snipMate.scope_aliases['slim']            = 'ruby,slim'
 let g:snipMate.scope_aliases['jst']             = 'html,jst'
 let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
 let g:snipMate.scope_aliases['handlebars']      = 'html,mustache'
