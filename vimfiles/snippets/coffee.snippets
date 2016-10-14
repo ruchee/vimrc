@@ -21,14 +21,8 @@ snippet vrq     导入包到变量
 	${1} = require '${2}'${0}
 snippet im      导入模块 [ES6新增]
 	import ${0}
-snippet imf     从 .. 导入模块 [ES6新增]
-	import ${1} from ${0}
-snippet mo      模块
-	module${0}
-snippet ex      按层次导出
-	exports.${1} = ${0}
-snippet moex    顶层导出
-	module.exports = ${0}
+snippet ex      导出模块 [ES6新增]
+	export ${0}
 # 类
 snippet cl      类定义
 	class ${0:cl_name}
