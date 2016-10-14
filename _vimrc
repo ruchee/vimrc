@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-10-14 09:13:29
+" -----------------    Date: 2016-10-14 22:04:35
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -212,13 +212,13 @@ else
 endif
 
 
-" 设置通用缩进策略
-set shiftwidth=4
-set tabstop=4
+" 设置通用缩进策略 [两空格缩进]
+set shiftwidth=2
+set tabstop=2
 
 " 对部分语言设置单独的缩进
-au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set shiftwidth=2
-au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set tabstop=2
+" au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set shiftwidth=2
+" au FileType scala,clojure,elixir,eelixir,lfe,scheme,racket,newlisp,lisp,lua,ruby,eruby,julia,dart,elm,coffee,ls,slim,jade,yaml,sh set tabstop=2
 
 " 修正Go语言的部分快捷键 [需要安装一堆工具才能正常工作，可在Vim里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
