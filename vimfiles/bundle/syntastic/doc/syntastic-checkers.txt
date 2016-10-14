@@ -2586,10 +2586,11 @@ The following checkers are available for HTML (filetype "html"):
     1. ESLint...................|syntastic-html-eslint|
     2. gjslint..................|syntastic-html-gjslint|
     3. HTML tidy................|syntastic-html-tidy|
-    4. JSHint...................|syntastic-html-jshint|
-    5. textlint.................|syntastic-html-textlint|
-    6. Validator................|syntastic-html-validator|
-    7. W3.......................|syntastic-html-w3|
+    4. HTMLHint.................|syntastic-html-htmlhint|
+    5. JSHint...................|syntastic-html-jshint|
+    6. textlint.................|syntastic-html-textlint|
+    7. Validator................|syntastic-html-validator|
+    8. W3.......................|syntastic-html-w3|
 
 ------------------------------------------------------------------------------
 1. ESLint                                              *syntastic-html-eslint*
@@ -2679,7 +2680,25 @@ List of additional empty tags, to be added to "--new-empty-tags".
 See also: |syntastic-xhtml-tidy|.
 
 ------------------------------------------------------------------------------
-4. jshint                                              *syntastic-html-jshint*
+4. HTMLHint                                          *syntastic-html-htmlhint*
+
+Name:        HTMLHint
+Maintainer:  LCD 47 <lcd047@gmail.com>
+
+"JSHint" is a static code analysis tool for HTML. See the project's page for
+details:
+
+    http://htmlhint.com/
+
+Syntastic requires "HTMLHint" version 0.9.13 or later.
+
+Checker options~
+
+This checker is initialised using the "makeprgBuild()" function and thus it
+accepts the standard options described at |syntastic-config-makeprg|.
+
+------------------------------------------------------------------------------
+5. jshint                                              *syntastic-html-jshint*
 
 Name:        JSHint
 Maintainer:  LCD 47 <lcd047@gmail.com>
@@ -2725,7 +2744,7 @@ in "JSHint". If that is undesirable, your only other option is to leave
 See also: |syntastic-javascript-jshint|, |syntastic-xhtml-jshint|.
 
 ------------------------------------------------------------------------------
-5. textlint                                          *syntastic-html-textlint*
+6. textlint                                          *syntastic-html-textlint*
 
 Name:        textlint
 Maintainer:  LCD 47 <lcd047@gmail.com>
@@ -2750,7 +2769,7 @@ work:
 See also: |syntastic-markdown-textlint|, |syntastic-text-textlint|.
 
 ------------------------------------------------------------------------------
-6. Validator                                        *syntastic-html-validator*
+7. Validator                                        *syntastic-html-validator*
 
 Name:        validator
 Maintainer:  LCD 47 <lcd047@gmail.com>
@@ -2823,7 +2842,7 @@ You can lookup the meaning of these codes in cURL's manual:
     http://curl.haxx.se/docs/manpage.html#EXIT
 
 ------------------------------------------------------------------------------
-7. W3                                                      *syntastic-html-w3*
+8. W3                                                      *syntastic-html-w3*
 
 Name:        w3
 Maintainer:  Martin Grenfell <martin.grenfell@gmail.com>
@@ -2948,6 +2967,14 @@ you want to include the "checkstyle" jar and all of its dependencies.
 Name:        javac
 Maintainers: Jochen Keil <jochen.keil@gmail.com>
              Dmitry Geurkov <d.geurkov@gmail.com>
+
+Note~
+
+This checker is not suitable for use with large Java projects. The design
+of "javac" makes this checker prone to running into various limitations of
+your shell, Vim, and your Java compiler. You are strongly advised to use
+something like Eclim (http://eclim.org/) instead of syntastic for projects of
+any substantial size or complexity.
 
 Commands~
 
@@ -3147,13 +3174,13 @@ accepts the standard options described at |syntastic-config-makeprg|.
 
 Notes~
 
-Syntastic requires "Flow" version 0.6 or later.
+Syntastic requires "Flow" version 0.18.1 or later.
 
 To use "Flow" with your projects, you must:
 
 a. Install it:
 
-    https://github.com/sindresorhus/flow-bin
+    https://github.com/flowtype/flow-bin
 
 b. Configure your project:
 >
@@ -6183,7 +6210,7 @@ Maintainer:  LCD 47 <lcd047@gmail.com>
 
 "ESLint" is a tool for identifying and reporting on patterns found
 in ECMAScript/JavaScript code. With the "babel-eslint" plugin
-(https://github.com/babel/babel-eslint) "ESLint" can also can also be
+(https://github.com/babel/babel-eslint) "ESLint" can also be
 used to check TypeScript files. See the project's page for details:
 
     https://github.com/nzakas/eslint
