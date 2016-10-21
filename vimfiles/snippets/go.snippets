@@ -12,79 +12,79 @@ snippet im      导入单个包
 	import "${1}"${0}
 snippet im.     导入多个包
 	import (
-	    "${1}"
-		"${2}"${0}
+	  "${1}"
+	  "${2}"${0}
 	)
 # 函数、复合结构
 snippet init    初始化函数 [在main之前执行]
 	func init () {
-	    ${0}
+	  ${0}
 	}
 snippet main    主函数
 	func main () {
-	    ${0}
+	  ${0}
 	}
 snippet f       函数1
 	func ${1:f_name} (${2})${3} {
-	    ${0}
+	  ${0}
 	}
 snippet f.      函数2
 	func (${1}) ${2:f_name} (${3})${4} {
-	    ${0}
+	  ${0}
 	}
 snippet ff      匿名函数
 	func (${1})${2} {${0}}
 snippet str     结构体
 	type ${1:str_name} struct {
-	    ${0}
+	  ${0}
 	}
 snippet <       结构体
 	type ${1:str_name} struct {
-	    ${0}
+	  ${0}
 	}
 snippet int     接口
 	type ${1:int_name} interface {
-	    ${0}
+	  ${0}
 	}
 snippet >       接口
 	type ${1:int_name} interface {
-	    ${0}
+	  ${0}
 	}
 # 流程控制
 snippet if      if
 	if ${1} {
-	    ${0}
+	  ${0}
 	}
 snippet elif    else if
 	else if ${1} {
-	    ${0}
+	  ${0}
 	}
 snippet el      else
 	else {
-	    ${0}
+	  ${0}
 	}
 snippet fo      for
 	for ${1} {
-	    ${0}
+	  ${0}
 	}
 snippet fr      for range
 	for ${1} := range ${2} {
-	    ${0}
+	  ${0}
 	}
 snippet sw      switch
 	switch ${1} {
-	    ${0}
+	  ${0}
 	}
 snippet se      select
 	select {
-	    ${0}
+	  ${0}
 	}
 snippet cs      case
 	case ${1}:
-	    ${0}
+	  ${0}
 snippet def     default
 	default:
-	    ${0}
+	  ${0}
 snippet fa      继续匹配
 	fallthrough${0}
 # 单个关键字
@@ -110,19 +110,19 @@ snippet con     定义常量
 	const ${0}
 snippet con.    定义多个常量
 	const (
-	    ${0}
+	  ${0}
 	)
 snippet v       定义变量
 	var ${0}
 snippet v.      定义多个变量
 	var (
-	    ${0}
+	  ${0}
 	)
 snippet t       定义类型
 	type ${0}
 snippet t.      定义多个类型
 	type (
-	    ${0}
+	  ${0}
 	)
 snippet io      初始置0，自增1
 	iota${0}

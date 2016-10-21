@@ -16,46 +16,46 @@ snippet yi      向外传递数据
 	@yield('${0}')
 snippet se      填充区块
 	@section('${1}')
-	    ${0}
+	  ${0}
 	@stop
 snippet se.     默认内容
 	@section('${1}')
-	    ${0}
+	  ${0}
 	@show
 # 流程控制
 snippet if      if
 	@if (${1})
-	    ${0}
+	  ${0}
 	@endif
 snippet elif    elseif
 	@elseif (${1})
-	    ${0}
+	  ${0}
 snippet el      else
 	@else
-	    ${0}
+	  ${0}
 snippet ul      unless [与if相反]
 	@unless (${1})
-	    ${0}
+	  ${0}
 	@endunless
 snippet fo      for
 	@for (${1})
-	    ${0}
+	  ${0}
 	@endfor
 snippet fel     forelse
 	@forelse (${1})
-	    ${2}
+	  ${2}
 	@empty
-	    ${0}
+	  ${0}
 	@endforelse
 snippet e       each
 	@each(${0})
 snippet fe      foreach
 	@foreach (${1})
-	    ${0}
+	  ${0}
 	@endforeach
 snippet wh      while
 	@while (${1})
-	    ${0}
+	  ${0}
 	@endwhile
 # 辅助函数
 snippet lit     生成链接

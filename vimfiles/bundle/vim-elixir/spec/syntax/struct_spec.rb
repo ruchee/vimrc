@@ -1,17 +1,17 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
-describe "Struct syntax" do
-  it "without defaults" do
-    <<-EOF
+describe 'Struct syntax' do
+  it 'without defaults' do
+    expect(<<~EOF).to include_elixir_syntax('elixirAtom', ':name')
       defstruct [:name, :age]
     EOF
-   .should include_elixir_syntax('elixirAtom', ':name')
   end
 
-  it "with defaults" do
-    <<-EOF
+  it 'with defaults' do
+    expect(<<~EOF).to include_elixir_syntax('elixirAtom', 'name:')
       defstruct name: "john", age: 27
     EOF
-    .should include_elixir_syntax('elixirAtom', 'name:')
   end
 end

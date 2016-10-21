@@ -38,38 +38,38 @@ snippet us      引用命名空间
 	using namespace ${1:std};${0}
 snippet na      命名空间
 	namespace ${1:na_name} {
-	    ${0}
+	  ${0}
 	}
 snippet cl      类定义
 	class ${1:cl_name} {
-	    ${0}
+	  ${0}
 	};
 snippet cle     类继承
 	class ${1:ch_name} : ${2:public} ${3:pa_name} {
-	    ${0}
+	  ${0}
 	};
 snippet fc      构造函数
 	${1:f_name} (${2})${3} {
-	    ${0}
+	  ${0}
 	}
 snippet fd      析构函数
 	~${1:f_name} () {
-	    ${0}
+	  ${0}
 	}
 snippet fop     操作符重载函数
 	${1:void} operator${2:=} (${3})${4} {
-	    ${0}
+	  ${0}
 	}
 # 函数
 snippet main    主函数
 	int main (int argc, char* argv[]) {
-	    ${0}
+	  ${0}
 
-	    return 0;
+	  return 0;
 	}
 snippet f       函数定义
 	${1:void} ${2:f_name} (${3})${4} {
-	    ${0}
+	  ${0}
 	}
 snippet ff      函数声明
 	${1:void} ${2:f_name} (${3});${0}
@@ -78,15 +78,15 @@ snippet la      匿名函数
 # 复合类型
 snippet str     结构体定义
 	struct ${1:str_name} {
-	    ${0}
+	  ${0}
 	};
 snippet uni     共用体
 	union ${1:uni_name} {
-	    ${0}
+	  ${0}
 	};
 snippet enu     枚举定义
 	enum ${1:enu_name} {
-	    ${0}
+	  ${0}
 	};
 snippet ss      紧凑型结构体
 	struct ${1:str_name} {${2} };${0}
@@ -98,65 +98,65 @@ snippet tp      类型定义
 	typedef ${0}
 snippet tps     定义结构体类型
 	typedef struct ${1:} {
-	    ${0}
+	  ${0}
 	} $1;
 snippet tpu     定义共用体类型
 	typedef union ${1:} {
-	    ${0}
+	  ${0}
 	} $1;
 snippet tpe     定义枚举类型
 	typedef enum ${1:} {
-	    ${0}
+	  ${0}
 	} $1;
 # 流程控制
 snippet if      if
 	if (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet elif    else if
 	else if (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet el      else
 	else {
-	    ${0}
+	  ${0}
 	}
 snippet fo      for
 	for (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet wh      while
 	while (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet do      do-while
 	do {
-	    ${0}
+	  ${0}
 	} while (${1});
 snippet sw      switch
 	switch (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet cs      case
 	case ${1}:
-	    ${0}
+	  ${0}
 snippet def     default
 	default:
-	    ${0}
+	  ${0}
 # 异常处理
 snippet thr     抛出异常
 	throw ${0};
 snippet try     捕获异常
 	try {
-	    ${0}
+	  ${0}
 	}
 snippet cat     处理异常
 	catch (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet fin     善后处理
 	finally {
-	    ${0}
+	  ${0}
 	}
 # 类型转换
 snippet sc      静态转换
@@ -202,17 +202,17 @@ snippet pu      公共 [不换行]
 	public${0}
 snippet pu.     公共 [换行]
 	public:
-	    ${0}
+	  ${0}
 snippet po      保护 [不换行]
 	protected${0}
 snippet po.     保护 [换行]
 	protected:
-	    ${0}
+	  ${0}
 snippet pr      私有 [不换行]
 	private${0}
 snippet pr.     私有 [换行]
 	private:
-	    ${0}
+	  ${0}
 snippet fr      友元
 	friend ${0}
 snippet vi      虚函数

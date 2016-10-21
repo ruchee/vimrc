@@ -19,102 +19,102 @@ snippet im      导入包
 # 类、接口、模板
 snippet cl      类定义
 	class ${1:cl_name} {
-	    ${0}
+	  ${0}
 	}
 snippet int     接口定义
 	interface ${1:int_name} {
-	    ${0}
+	  ${0}
 	}
 snippet te      模板定义
 	template ${1:te_name} (${2}) {
-	    ${0}
+	  ${0}
 	}
 snippet tec     类模板
 	class ${1:te_name} (${2}) {
-	    ${0}
+	  ${0}
 	}
 snippet tef     函数模板
 	${1:te_name} (${2}) (${3}) {
-	    ${0}
+	  ${0}
 	}
 # 函数、数据结构
 snippet main    主函数
 	int main (string[] args) {
-	    ${0}
+	  ${0}
 
-		return 0;
+	  return 0;
 	}
 snippet f       函数定义
 	${1:void} ${2:f_name} (${3}) {
-	    ${0}
+	  ${0}
 	}
 snippet fc      构造函数
 	this (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet str     结构体定义
 	struct ${1:str_name} {
-	    ${0}
+	  ${0}
 	}
 # 流程控制
 snippet if      if
 	if (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet elif    else if
 	else if (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet el      else
 	else {
-	    ${0}
+	  ${0}
 	}
 snippet fo      for
 	for (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet fe      foreach
 	foreach (${1}; ${2}) {
-	    ${0}
+	  ${0}
 	}
 snippet wh      while
 	while (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet do      do-while
 	do {
-	    ${0}
+	  ${0}
 	} while (${1});
 snippet sw      switch
 	switch (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet cs      case
 	case ${1}:
-	    ${0}
+	  ${0}
 snippet def     default
 	default:
-	    ${0}
+	  ${0}
 snippet ver     指定特定版本
 	version (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet uni     单元测试
 	unittest {
-	    ${0}
+	  ${0}
 	}
 # 异常处理
 snippet try     监控代码块
 	try {
-	    ${0}
+	  ${0}
 	}
 snippet cat     捕获异常
 	catch (${1}) {
-	    ${0}
+	  ${0}
 	}
 snippet fin     善后处理
 	finally {
-	    ${0}
+	  ${0}
 	}
 # 单个关键字
 snippet pu      公共
