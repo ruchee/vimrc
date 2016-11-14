@@ -1,6 +1,8 @@
 " MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
+scriptencoding utf-8
+
 let g:airline_statusline_funcrefs = get(g:, 'airline_statusline_funcrefs', [])
 
 let s:sections = ['a','b','c','gutter','x','y','z', 'error', 'warning']
@@ -64,6 +66,8 @@ function! airline#switch_theme(name)
 
   let w:airline_lastmode = ''
   call airline#load_theme()
+
+  silent doautocmd User AirlineAfterTheme
 
   " this is required to prevent clobbering the startup info message, i don't know why...
   call airline#check_mode(winnr())
@@ -186,7 +190,7 @@ function! airline#check_mode(winnr)
   let mode_string = join(l:mode)
   if get(w:, 'airline_lastmode', '') != mode_string
     call airline#highlighter#highlight_modified_inactive(context.bufnr)
-    call airline#highlighter#highlight(l:mode)
+    call airline#highlighter#highlight(l:mode, context.bufnr)
     let w:airline_lastmode = mode_string
   endif
 

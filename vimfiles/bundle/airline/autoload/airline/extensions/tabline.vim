@@ -1,6 +1,8 @@
 " MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
+scriptencoding utf-8
+
 let s:formatter = get(g:, 'airline#extensions#tabline#formatter', 'default')
 let s:show_buffers = get(g:, 'airline#extensions#tabline#show_buffers', 1)
 let s:show_tabs = get(g:, 'airline#extensions#tabline#show_tabs', 1)
@@ -155,6 +157,7 @@ endfunction
 function! airline#extensions#tabline#new_builder()
   let builder_context = {
         \ 'active'        : 1,
+        \ 'tabline'       : 1,
         \ 'right_sep'     : get(g:, 'airline#extensions#tabline#right_sep'    , g:airline_right_sep),
         \ 'right_alt_sep' : get(g:, 'airline#extensions#tabline#right_alt_sep', g:airline_right_alt_sep),
         \ }

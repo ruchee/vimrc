@@ -1,6 +1,8 @@
 " MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
+scriptencoding utf-8
+
 let s:is_win32term = (has('win32') || has('win64')) && !has('gui_running') && (empty($CONEMUBUILD) || &term !=? 'xterm')
 
 let s:separators = {}
@@ -106,8 +108,11 @@ function! airline#highlighter#load_theme()
   for winnr in filter(range(1, winnr('$')), 'v:val != winnr()')
     call airline#highlighter#highlight_modified_inactive(winbufnr(winnr))
   endfor
-  call airline#highlighter#highlight(['inactive'])
-  call airline#highlighter#highlight(['normal'])
+  if getbufvar( bufnr('%'), '&modified'  )
+    call airline#highlighter#highlight(['normal', 'modified'])
+  else
+    call airline#highlighter#highlight(['normal'])
+  endif
 endfunction
 
 function! airline#highlighter#add_separator(from, to, inverse)
@@ -133,7 +138,8 @@ function! airline#highlighter#highlight_modified_inactive(bufnr)
   endif
 endfunction
 
-function! airline#highlighter#highlight(modes)
+function! airline#highlighter#highlight(modes, ...)
+  let bufnr = a:0 ? a:1 : ''
   let p = g:airline#themes#{g:airline_theme}#palette
 
   " draw the base mode, followed by any overrides
@@ -144,7 +150,11 @@ function! airline#highlighter#highlight(modes)
       let dict = g:airline#themes#{g:airline_theme}#palette[mode]
       for kvp in items(dict)
         let mode_colors = kvp[1]
-        call airline#highlighter#exec(kvp[0].suffix, mode_colors)
+        let name = kvp[0]
+        if name is# 'airline_c' && !empty(bufnr) && suffix is# '_inactive'
+          let name = 'airline_c'.bufnr
+        endif
+        call airline#highlighter#exec(name.suffix, mode_colors)
 
         for accent in keys(s:accents)
           if !has_key(p.accents, accent)
@@ -162,7 +172,7 @@ function! airline#highlighter#highlight(modes)
           else
             call add(colors, get(p.accents[accent], 4, ''))
           endif
-          call airline#highlighter#exec(kvp[0].suffix.'_'.accent, colors)
+          call airline#highlighter#exec(name.suffix.'_'.accent, colors)
         endfor
       endfor
 

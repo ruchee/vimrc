@@ -22,11 +22,12 @@ Libraries
 * [Flux](https://facebook.github.io/flux/)
 * [RequireJS](http://requirejs.org/)
 * [Sugar.js](http://sugarjs.com/)
-* [Jasmine](http://pivotal.github.io/jasmine/)
+* [Jasmine](https://jasmine.github.io/)
 * [Chai](http://chaijs.com/)
 * [Handlebars](http://handlebarsjs.com/)
 * [Ramda](http://ramdajs.com/)
 * [Vue](https://vuejs.org/)
+* [d3](https://d3js.org/)
 
 File Types
 ----------
@@ -72,6 +73,7 @@ Support libs id:
 * Handlebars: handlebars
 * Ramda: ramda
 * Vue.js: vue
+* d3.js: d3
 
 Default lib set is: `jquery,underscore,backbone`
 
@@ -107,6 +109,7 @@ Changes
 
 ### Version 0.6
 * Add Vue.js
+* Add d3.js
 
 ### Version 0.5
 * Add Ramda

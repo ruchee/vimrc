@@ -168,6 +168,7 @@ Airline comes with some user-defined autocommands.
 
 |AirlineAfterInit|     after plugin is initialized, but before the statusline
                     is replaced
+|AirlineAfterTheme|   after theme of the statusline has been changed
 |AirlineToggledOn|    after airline is activated and replaced the statusline
 |AirlineToggledOff|   after airline is deactivated and the statusline is
                     restored to the original
@@ -322,9 +323,16 @@ vim-bufferline <https://github.com/bling/vim-bufferline>
   let g:airline#extensions#bufferline#overwrite_variables = 1
 <
 -------------------------------------                       *airline-branch*
+
+vim-airline will display the branch-indicator together with the branch name in
+the statusline, if one of the following plugins is installed:
+
 fugitive.vim <https://github.com/tpope/vim-fugitive>
 lawrencium   <https://bitbucket.org/ludovicchabant/vim-lawrencium>
 vcscommand   <http://www.vim.org/scripts/script.php?script_id=90>
+
+If a file is edited, that is not yet in the repository, the
+notexists symbol will be displayed after the branch name.
 
 * enable/disable fugitive/lawrencium integration >
   let g:airline#extensions#branch#enabled = 1
@@ -365,6 +373,10 @@ syntastic <https://github.com/scrooloose/syntastic>
 
 * enable/disable syntastic integration >
   let g:airline#extensions#syntastic#enabled = 1
+
+  Note: The recommendation from syntastic to modify the statusline directly
+  does not apply, if you use vim-airline, since it will take care for you of
+  adjusting the statusline.
 <
 -------------------------------------                       *airline-tagbar*
 tagbar <https://github.com/majutsushi/tagbar>
@@ -482,6 +494,9 @@ eclim <https://eclim.org>
   " trailing: trailing whitespace
   " mixed-indent-file: different indentation in different lines
   let g:airline#extensions#whitespace#checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file' ]
+
+  " this can also be configured for an individual buffer
+  let b:airline_whitespace_checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file' ]
 <
 * configure the maximum number of lines where whitespace checking is enabled. >
   let g:airline#extensions#whitespace#max_lines = 20000
@@ -832,10 +847,18 @@ colors instead of the section's default foreground color.
 
 The following accents are defined by default. Themes can define their variants
 of the colors, but defaults will be provided if missing. >
-  bold, italic, red, green, blue, yellow, orange, purple
+  bold, italic, red, green, blue, yellow, orange, purple, none
 <
 The defaults configure the mode and line number parts to be bold, and the
 readonly part to be red.
+
+"none" is special. This can be used, to remove a bold accent from an existing
+theme. For example, usually the mode part of the statusline is usually defined
+to be bold. However, it can be hard to remove an existing bold accent from the
+default configuration. Therefore, you can use the none accent to remove
+existing accents, so if you put >
+    call airline#parts#define_accent('mode', 'none')
+the mode section will be set to non-bold font style.
 
 -------------------------------------                     *airline-sections*
 Once a part is defined, you can use helper functions to generate the

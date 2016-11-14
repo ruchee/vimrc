@@ -59,7 +59,7 @@ class Buffer
   end
 
   def edit_file(content)
-    File.open(@file, 'w') { |f| f.write content } if content
+    File.write(@file, content) if content
 
     @vim.edit @file
   end
@@ -167,4 +167,8 @@ end
 
 RSpec.configure do |config|
   config.order = :random
+
+  # Run a single spec by adding the `focus: true` option
+  config.filter_run_including focus: true
+  config.run_all_when_everything_filtered = true
 end

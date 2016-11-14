@@ -1,6 +1,8 @@
 " MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
+scriptencoding utf-8
+
 if !get(g:, 'loaded_signify', 0) && !get(g:, 'loaded_gitgutter', 0) && !get(g:, 'loaded_changes', 0) && !get(g:, 'loaded_quickfixsigns', 0)
   finish
 endif
@@ -70,6 +72,7 @@ function! airline#extensions#hunks#get_hunks()
     \ get(b:,  'airline_changenr', 0) == changenr() &&
     \ winwidth(0) == get(s:, 'airline_winwidth', 0) &&
     \ get(b:, 'source_func', '') isnot# 's:get_hunks_signify' &&
+    \ get(b:, 'source_func', '') isnot# 's:get_hunks_gitgutter' &&
     \ get(b:, 'source_func', '') isnot# 's:get_hunks_empty'
     return b:airline_hunks
   endif
