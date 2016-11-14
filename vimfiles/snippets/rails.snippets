@@ -28,6 +28,8 @@ snippet _bt     多对一
 	belongs_to :${0}
 snippet _va     数据验证
 	validates :${0}
+snippet _vaa    需要同时验证关联的模型
+	validates_associated :${0}
 snippet _vap    非空验证
 	validates_presence_of :${0}
 snippet _val    长度验证
@@ -42,6 +44,12 @@ snippet _vai    确保是某些值
 	validates_inclusion_of :${0}
 snippet _vae    确保不是某些值
 	validates_exclusion_of :${0}
+snippet _len    指定长度
+	length: { ${0} }
+snippet _min    最小长度
+	minimum: ${0}
+snippet _max    最大长度
+	maximum: ${0}
 snippet _aln    是否允许为nil
 	allow_nil: ${0}
 snippet _alb    是否允许为空
@@ -52,6 +60,18 @@ snippet _pre    必须有值
 	presence: true${0}
 snippet _uni    必须唯一
 	uniqueness: true${0}
+snippet _cs     是否大小写敏感
+	case_sensitive: false${0}
+snippet _acc    需要接受
+	acceptance: true${0}
+snippet _conf   需要对应的确认字段value一致
+	confirmation: true${0}
+snippet _in     必须包含xxx
+	inclusion: { in: ${0} }
+snippet _ex     必须不包含xxx
+	exclusion: { in: ${0} }
+snippet _num    只能是数值
+	numericality: ${0}
 snippet _fk     指定外键
 	foreign_key: :${0}
 snippet _bfs    在保存前执行
@@ -111,6 +131,10 @@ snippet _db     添加调试断点
 	debugger${0}
 snippet _auth   验证密码
 	authenticate${0}
+snippet _err    模型验证错误
+	errors${0}
+snippet _efm    模型验证错误信息
+	errors.full_messages${0}
 # 常用变量
 snippet ses     SESSION
 	session${0}
