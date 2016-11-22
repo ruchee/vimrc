@@ -90,6 +90,27 @@ snippet _req    request
 	request[:${0}]
 snippet _res    response
 	response[:${0}]
+# 判断运行环境
+snippet env     运行环境
+	Rails.env${0}
+snippet ifd     开发环境 [单行]
+	if Rails.env.development?${0}
+snippet ifd.    开发环境 [多行]
+	<% if Rails.env.development? %>
+	  ${0}
+	<% end %>
+snippet ift     测试环境 [单行]
+	if Rails.env.test?${0}
+snippet ift.    测试环境 [多行]
+	<% if Rails.env.test? %>
+	  ${0}
+	<% end %>
+snippet ifp     生产环境 [单行]
+	if Rails.env.production?${0}
+snippet ifp.    生产环境 [多行]
+	<% if Rails.env.production? %>
+	  ${0}
+	<% end %>
 # 其他
 snippet yi      yield
 	yield${0}

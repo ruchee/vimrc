@@ -116,12 +116,26 @@ snippet _t      测试环境
 snippet _prod   生产环境
 	production${0}
 # 判断运行环境
-snippet _ifd    is development mode ?
-	Rails.env.development?${0}
-snippet _ift    is test mode ?
-	Rails.env.test?${0}
-snippet _ifp    is production mode ?
-	Rails.env.production?${0}
+snippet _env    运行环境
+	Rails.env${0}
+snippet _ifd    开发环境 [单行]
+	if Rails.env.development?${0}
+snippet _ifd.   开发环境 [多行]
+	if Rails.env.development?
+	  ${0}
+	end
+snippet _ift    测试环境 [单行]
+	if Rails.env.test?${0}
+snippet _ift.   测试环境 [多行]
+	if Rails.env.test?
+	  ${0}
+	end
+snippet _ifp    生产环境 [单行]
+	if Rails.env.production?${0}
+snippet _ifp.   生产环境 [多行]
+	if Rails.env.production?
+	  ${0}
+	end
 # 常用辅助方法
 snippet _sk     将一个Hash的键名全部转成Symbol
 	symbolize_keys${0}
