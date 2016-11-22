@@ -76,7 +76,7 @@ auto-generated name.
 
 Another case where pseudo-tags appear is in C++ implementation files. Since
 classes are usually defined in a header file but the member methods and
-variables in the implementation file the class itself won't generate a tag
+variables are in the implementation file the class itself won't generate a tag
 in that file.
 
 Since pseudo-tags don't really exist they cannot be jumped to from the Tagbar
@@ -481,6 +481,18 @@ Example:
         let g:tagbar_sort = 0
 <
 
+                                                   *g:tagbar_case_insensitive*
+g:tagbar_case_insensitive~
+Default: 0
+
+If this option is set a case-insensitive comparison is used when the tags
+are sorted according to their name. If it is unset a case-sensitive
+comparison is used.
+
+Example:
+>
+        let g:tagbar_case_insensitive = 1
+<
                                                             *g:tagbar_compact*
 g:tagbar_compact~
 Default: 0
@@ -707,6 +719,18 @@ default statusline:
             return colour . '[' . sort . '] ' . flagstr . fname
         endfunction
         let g:tagbar_status_func = 'TagbarStatusFunc'
+<
+
+                                                           *g:tagbar_silent*
+g:tagbar_silent~
+Default: 0
+
+By default if the cursor is over a tag in the tagbar window, information
+about the tag is echoed out. Set this option to disable that behavior.
+
+Example:
+>
+        let g:tagbar_silent = 1
 <
 
 ------------------------------------------------------------------------------
