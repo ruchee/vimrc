@@ -164,6 +164,12 @@ function! gitgutter#utility#highlight_name_for_change(text) abort
   endif
 endfunction
 
+" Dedups list in-place.
+" Assumes list has no empty entries.
+function! gitgutter#utility#dedup(list)
+  return filter(sort(a:list), 'index(a:list, v:val, v:key + 1) == -1')
+endfunction
+
 function! gitgutter#utility#strip_trailing_new_line(line) abort
   return substitute(a:line, '\n$', '', '')
 endfunction
@@ -184,16 +190,23 @@ endfunction
 
 function! gitgutter#utility#use_known_shell() abort
   if has('unix')
-    let s:shell = &shell
-    let s:shellcmdflag = &shellcmdflag
-    set shell=/bin/sh
-    set shellcmdflag=-c
+    if &shell !=# 'sh'
+      let s:shell = &shell
+      let s:shellcmdflag = &shellcmdflag
+      let s:shellredir = &shellredir
+      let &shell = 'sh'
+      set shellcmdflag=-c
+      set shellredir=>%s\ 2>&1
+    endif
   endif
 endfunction
 
 function! gitgutter#utility#restore_shell() abort
   if has('unix')
-    let &shell = s:shell
-    let &shellcmdflag = s:shellcmdflag
+    if exists('s:shell')
+      let &shell = s:shell
+      let &shellcmdflag = s:shellcmdflag
+      let &shellredir = s:shellredir
+    endif
   endif
 endfunction

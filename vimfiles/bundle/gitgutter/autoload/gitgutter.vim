@@ -3,7 +3,7 @@ let s:nomodeline = (v:version > 703 || (v:version == 703 && has('patch442'))) ? 
 " Primary functions {{{
 
 function! gitgutter#all() abort
-  for buffer_id in tabpagebuflist()
+  for buffer_id in gitgutter#utility#dedup(tabpagebuflist())
     let file = expand('#' . buffer_id . ':p')
     if !empty(file)
       call gitgutter#process_buffer(buffer_id, 0)
@@ -69,7 +69,7 @@ function! gitgutter#disable() abort
     call extend(buflist, tabpagebuflist(i + 1))
   endfor
 
-  for buffer_id in buflist
+  for buffer_id in gitgutter#utility#dedup(buflist)
     let file = expand('#' . buffer_id . ':p')
     if !empty(file)
       call gitgutter#utility#set_buffer(buffer_id)
@@ -212,7 +212,7 @@ function! gitgutter#undo_hunk() abort
       let wl = winline()
       silent edit
       let offset = wl - winline()
-      execute "normal ".offset."\<C-Y>"
+      execute "normal! ".offset."\<C-Y>"
     endif
 
     silent! call repeat#set("\<Plug>GitGutterUndoHunk", -1)<CR>
@@ -236,7 +236,7 @@ function! gitgutter#preview_hunk() abort
 
       silent! wincmd P
       if !&previewwindow
-        execute 'bo ' . &previewheight . ' new'
+        noautocmd execute 'bo' &previewheight 'new'
         set previewwindow
       endif
 
@@ -244,7 +244,7 @@ function! gitgutter#preview_hunk() abort
       execute "%delete_"
       call append(0, split(diff_for_hunk, "\n"))
 
-      wincmd p
+      noautocmd wincmd p
     endif
   endif
   call gitgutter#utility#restore_shell()
