@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-06 16:41:29
+" -----------------    Date: 2016-12-06 17:26:00
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -439,10 +439,16 @@ endfunction
 function AddPHPDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/php.txt
-    set dict+=$VIM/vimfiles/dict/wordpress/*.txt
+    set dict+=$VIM/vimfiles/dict/wordpress/classes.txt
+    set dict+=$VIM/vimfiles/dict/wordpress/functions.txt
+    set dict+=$VIM/vimfiles/dict/wordpress/action-hooks.txt
+    set dict+=$VIM/vimfiles/dict/wordpress/filter-hooks.txt
   else
     set dict+=~/.vim/dict/php.txt
-    set dict+=~/.vim/dict/wordpress/*.txt
+    set dict+=~/.vim/dict/wordpress/classes.txt
+    set dict+=~/.vim/dict/wordpress/functions.txt
+    set dict+=~/.vim/dict/wordpress/action-hooks.txt
+    set dict+=~/.vim/dict/wordpress/filter-hooks.txt
   endif
   set complete+=k
 endfunction
@@ -468,10 +474,12 @@ endfunction
 function AddJavaScriptDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/javascript.txt
-    set dict+=$VIM/vimfiles/dict/javascript_libs/*.txt
+    set dict+=$VIM/vimfiles/dict/javascript_libs/react.txt
+    set dict+=$VIM/vimfiles/dict/javascript_libs/redux.txt
   else
     set dict+=~/.vim/dict/javascript.txt
-    set dict+=~/.vim/dict/javascript_libs/*.txt
+    set dict+=~/.vim/dict/javascript_libs/react.txt
+    set dict+=~/.vim/dict/javascript_libs/redux.txt
   endif
   set complete+=k
 endfunction
