@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-11-02 10:46:06
+" -----------------    Date: 2016-12-06 16:41:29
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -191,24 +191,24 @@
 
 " 判断操作系统类型
 if(has('win32') || has('win64'))
-    let g:isWIN = 1
-    let g:isMAC = 0
+  let g:isWIN = 1
+  let g:isMAC = 0
 else
-    if system('uname') =~ 'Darwin'
-        let g:isWIN = 0
-        let g:isMAC = 1
-    else
-        let g:isWIN = 0
-        let g:isMAC = 0
-    endif
+  if system('uname') =~ 'Darwin'
+    let g:isWIN = 0
+    let g:isMAC = 1
+  else
+    let g:isWIN = 0
+    let g:isMAC = 0
+  endif
 endif
 
 
 " 判断是否处于GUI界面
 if has('gui_running')
-    let g:isGUI = 1
+  let g:isGUI = 1
 else
-    let g:isGUI = 0
+  let g:isGUI = 0
 endif
 
 
@@ -249,14 +249,14 @@ au BufRead,BufNewFile *.ini      setlocal ft=dosini
 
 " 设置着色模式和字体
 if g:isWIN
-    colorscheme molokai
-    set guifont=Monaco:h11
+  colorscheme molokai
+  set guifont=Monaco:h11
 elseif g:isMAC
-    colorscheme molokai
-    set guifont=Monaco:h14
+  colorscheme molokai
+  set guifont=Monaco:h14
 else
-    colorscheme molokai
-    set guifont=Monaco\ 11
+  colorscheme molokai
+  set guifont=Monaco\ 11
 endif
 
 
@@ -299,29 +299,29 @@ set fileencodings=utf-8,gbk,cp936,latin-1
 set fileformat=unix
 set fileformats=unix,mac,dos
 if g:isWIN
-    source $VIMRUNTIME/delmenu.vim
-    source $VIMRUNTIME/menu.vim
-    language messages zh_CN.utf-8
+  source $VIMRUNTIME/delmenu.vim
+  source $VIMRUNTIME/menu.vim
+  language messages zh_CN.utf-8
 endif
 
 
 " 使用GUI界面时的设置
 if g:isGUI
-    " 启动时自动最大化窗口
-    if g:isWIN
-        au GUIEnter * simalt ~x
-    endif
-    "winpos 20 20            " 指定窗口出现的位置，坐标原点在屏幕左上角
-    "set lines=20 columns=90 " 指定窗口大小，lines为高度，columns为宽度
-    set guioptions+=c        " 使用字符提示框
-    set guioptions-=m        " 隐藏菜单栏
-    set guioptions-=T        " 隐藏工具栏
-    set guioptions-=L        " 隐藏左侧滚动条
-    set guioptions-=r        " 隐藏右侧滚动条
-    set guioptions-=b        " 隐藏底部滚动条
-    set showtabline=0        " 隐藏Tab栏
-    set cursorline           " 高亮突出当前行
-    " set cursorcolumn       " 高亮突出当前列
+  " 启动时自动最大化窗口
+  if g:isWIN
+    au GUIEnter * simalt ~x
+  endif
+  "winpos 20 20              " 指定窗口出现的位置，坐标原点在屏幕左上角
+  "set lines=20 columns=90   " 指定窗口大小，lines为高度，columns为宽度
+  set guioptions+=c          " 使用字符提示框
+  set guioptions-=m          " 隐藏菜单栏
+  set guioptions-=T          " 隐藏工具栏
+  set guioptions-=L          " 隐藏左侧滚动条
+  set guioptions-=r          " 隐藏右侧滚动条
+  set guioptions-=b          " 隐藏底部滚动条
+  set showtabline=0          " 隐藏Tab栏
+  set cursorline             " 高亮突出当前行
+  " set cursorcolumn         " 高亮突出当前列
 endif
 
 
@@ -341,11 +341,11 @@ au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap ` `
 au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap * **<esc>i
 
 function ClosePair(char)
-    if getline('.')[col('.') - 1] == a:char
-        return '\<Right>'
-    else
-        return a:char
-    endif
+  if getline('.')[col('.') - 1] == a:char
+    return '\<Right>'
+  else
+    return a:char
+  endif
 endf
 
 
@@ -388,110 +388,110 @@ au FileType less       call AddCSSDict()
 au FileType mysql      call AddMySQLDict()
 
 function AddCDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/c.txt
-    else
-        set dict+=~/.vim/dict/c.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/c.txt
+  else
+    set dict+=~/.vim/dict/c.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddCPPDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/c.txt
-        set dict+=$VIM/vimfiles/dict/cpp-stdlib.txt
-        set dict+=$VIM/vimfiles/dict/cpp-boost.txt
-    else
-        set dict+=~/.vim/dict/c.txt
-        set dict+=~/.vim/dict/cpp-stdlib.txt
-        set dict+=~/.vim/dict/cpp-boost.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/c.txt
+    set dict+=$VIM/vimfiles/dict/cpp-stdlib.txt
+    set dict+=$VIM/vimfiles/dict/cpp-boost.txt
+  else
+    set dict+=~/.vim/dict/c.txt
+    set dict+=~/.vim/dict/cpp-stdlib.txt
+    set dict+=~/.vim/dict/cpp-boost.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddJavaDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/java.txt
-    else
-        set dict+=~/.vim/dict/java.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/java.txt
+  else
+    set dict+=~/.vim/dict/java.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddLuaDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/lua.txt
-    else
-        set dict+=~/.vim/dict/lua.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/lua.txt
+  else
+    set dict+=~/.vim/dict/lua.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddPerlDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/perl.txt
-    else
-        set dict+=~/.vim/dict/perl.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/perl.txt
+  else
+    set dict+=~/.vim/dict/perl.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddPHPDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/php.txt
-        set dict+=$VIM/vimfiles/dict/wordpress/*.txt
-    else
-        set dict+=~/.vim/dict/php.txt
-        set dict+=~/.vim/dict/wordpress/*.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/php.txt
+    set dict+=$VIM/vimfiles/dict/wordpress/*.txt
+  else
+    set dict+=~/.vim/dict/php.txt
+    set dict+=~/.vim/dict/wordpress/*.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddPythonDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/python.txt
-    else
-        set dict+=~/.vim/dict/python.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/python.txt
+  else
+    set dict+=~/.vim/dict/python.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddRubyDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/ruby.txt
-    else
-        set dict+=~/.vim/dict/ruby.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/ruby.txt
+  else
+    set dict+=~/.vim/dict/ruby.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddJavaScriptDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/javascript.txt
-        set dict+=$VIM/vimfiles/dict/javascript_libs/*.txt
-    else
-        set dict+=~/.vim/dict/javascript.txt
-        set dict+=~/.vim/dict/javascript_libs/*.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/javascript.txt
+    set dict+=$VIM/vimfiles/dict/javascript_libs/*.txt
+  else
+    set dict+=~/.vim/dict/javascript.txt
+    set dict+=~/.vim/dict/javascript_libs/*.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddCSSDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/css.txt
-    else
-        set dict+=~/.vim/dict/css.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/css.txt
+  else
+    set dict+=~/.vim/dict/css.txt
+  endif
+  set complete+=k
 endfunction
 
 function AddMySQLDict()
-    if g:isWIN
-        set dict+=$VIM/vimfiles/dict/mysql.txt
-    else
-        set dict+=~/.vim/dict/mysql.txt
-    endif
-    set complete+=k
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/mysql.txt
+  else
+    set dict+=~/.vim/dict/mysql.txt
+  endif
+  set complete+=k
 endfunction
 
 
@@ -527,9 +527,9 @@ let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光�
 " snipMate            Tab智能补全
 let g:snips_author = 'Ruchee'
 if g:isWIN
-    let g:snippets_dir = $VIM.'/snippets/'
+  let g:snippets_dir = $VIM.'/snippets/'
 else
-    let g:snippets_dir = '~/.vim/snippets/'
+  let g:snippets_dir = '~/.vim/snippets/'
 endif
 let g:snipMate                                  = {}
 " 不使用插件自带的默认继承
@@ -574,7 +574,7 @@ let NERDSpaceDelims = 1                        " 自动添加前置空格
 
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
-let g:indentLine_char       = '┆'             " 设置对齐线字符
+let g:indentLine_char       = '┆'              " 设置对齐线字符
 let g:indentLine_color_term = 239              " 设置非GUI线条颜色
 let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
 
@@ -585,11 +585,11 @@ let g:airline_powerline_fonts = 0              " 关闭自定义字体
 " Promptline          终端辅助工具
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
 let g:promptline_preset = {
-            \'a'    : [ '\u' ],
-            \'b'    : [ '\W' ],
-            \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
-            \'warn' : [ promptline#slices#last_exit_code() ]
-            \}                                 " 自定义命令行显示
+      \'a'    : [ '\u' ],
+      \'b'    : [ '\W' ],
+      \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
+      \'warn' : [ promptline#slices#last_exit_code() ]
+      \}                                       " 自定义命令行显示
 
 " GitGutter           Git辅助插件
 let g:gitgutter_enabled               = 0      " 默认不开启
@@ -605,11 +605,11 @@ let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = { 'mode': 'active', 'passive_filetypes': ['html', 'xhtml'] }
 " 自定义编译器和编译参数
 if g:isWIN
-    let g:syntastic_c_compiler = 'gcc'
-    let g:syntastic_cpp_compiler = 'g++'
+  let g:syntastic_c_compiler = 'gcc'
+  let g:syntastic_cpp_compiler = 'g++'
 else
-    let g:syntastic_c_compiler = 'clang'
-    let g:syntastic_cpp_compiler = 'clang++'
+  let g:syntastic_c_compiler = 'clang'
+  let g:syntastic_cpp_compiler = 'clang++'
 endif
 let g:syntastic_c_compiler_options = '-std=c11 -Wall'
 let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
@@ -634,10 +634,10 @@ let g:php_cs_fixer_dry_run = 0                 " 只提示需要格式化的位�
 
 " vim-ruby                                       Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
 if g:isMAC
-    let g:rubycomplete_buffer_loading = 1
-    let g:rubycomplete_classes_in_global = 1
-    let g:rubycomplete_rails = 1
-    let g:rubycomplete_load_gemfile = 1
+  let g:rubycomplete_buffer_loading = 1
+  let g:rubycomplete_classes_in_global = 1
+  let g:rubycomplete_rails = 1
+  let g:rubycomplete_load_gemfile = 1
 endif
 
 
@@ -722,17 +722,17 @@ vmap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 
 " \rt                 一键替换全部Tab为空格
 func! RemoveTabs()
-    if &shiftwidth == 2
-        exec '%s/	/  /g'
-    elseif &shiftwidth == 4
-        exec '%s/	/    /g'
-    elseif &shiftwidth == 6
-        exec '%s/	/      /g'
-    elseif &shiftwidth == 8
-        exec '%s/	/        /g'
-    else
-        exec '%s/	/ /g'
-    end
+  if &shiftwidth == 2
+    exec '%s/	/  /g'
+  elseif &shiftwidth == 4
+    exec '%s/	/    /g'
+  elseif &shiftwidth == 6
+    exec '%s/	/      /g'
+  elseif &shiftwidth == 8
+    exec '%s/	/        /g'
+  else
+    exec '%s/	/ /g'
+  end
 endfunc
 
 imap <leader>rt <esc>:call RemoveTabs()<cr>
@@ -784,140 +784,140 @@ nmap <leader>html <esc>:se ft=html<cr>
 
 " 编译并运行
 func! Compile_Run_Code()
-    exec 'w'
-    if &filetype == 'c'
-        if g:isWIN
-            exec '!gcc -Wall -std=c11 -o %:r %:t && %:r.exe'
-        else
-            exec '!clang -Wall -std=c11 -o %:r %:t && ./%:r'
-        endif
-    elseif &filetype == 'cpp'
-        if g:isWIN
-            exec '!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe'
-        else
-            exec '!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r'
-        endif
-    elseif &filetype == 'objc'
-        if g:isMAC
-            exec '!clang -fobjc-arc -framework Foundation %:t -o %:r && ./%:r'
-        endif
-    elseif &filetype == 'swift'
-        if g:isMAC
-            exec '!swift %:t'
-        endif
-    elseif &filetype == 'd'
-        if g:isWIN
-            exec '!dmd -wi %:t && del %:r.obj && %:r.exe'
-        else
-            exec '!dmd -wi %:t && rm %:r.o && ./%:r'
-        endif
-    elseif &filetype == 'rust'
-        if g:isWIN
-            exec '!rustc %:t && %:r.exe'
-        else
-            exec '!rustc %:t && ./%:r'
-        endif
-    elseif &filetype == 'go'
-        if g:isWIN
-            exec '!go build %:t && %:r.exe'
-        else
-            exec '!go build %:t && ./%:r'
-        endif
-    elseif &filetype == 'nim'
-        if g:isWIN
-            exec '!nim c %:t && %:r.exe'
-        else
-            exec '!nim c %:t && ./%:r'
-        endif
-    elseif &filetype == 'crystal'
-        if g:isWIN
-            exec '!crystal build %:t && %:r.exe'
-        else
-            exec '!crystal build %:t && ./%:r'
-        endif
-    elseif &filetype == 'vala'
-        if g:isWIN
-            exec '!valac %:t && %:r.exe'
-        else
-            exec '!valac %:t && ./%:r'
-        endif
-    elseif &filetype == 'java'
-        exec '!javac %:t && java %:r'
-    elseif &filetype == 'groovy'
-        exec '!groovy %:t'
-    elseif &filetype == 'kotlin'
-        exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
-    elseif &filetype == 'scala'
-        exec '!scala %:t'
-    elseif &filetype == 'clojure'
-        exec '!lein exec %:t'
-    elseif &filetype == 'cs'
-        if g:isWIN
-            exec '!csc %:t && %:r.exe'
-        else
-            exec '!mcs %:t && mono %:r.exe'
-        endif
-    elseif &filetype == 'fsharp'
-        if g:isWIN
-            exec '!fsc %:t && %:r.exe'
-        else
-            exec '!fsharpc %:t && mono %:r.exe'
-        endif
-    elseif &filetype == 'erlang'
-        exec '!escript %:t'
-    elseif &filetype == 'elixir'
-        exec '!elixir %:t'
-    elseif &filetype == 'lfe'
-        exec '!lfe %:t'
-    elseif &filetype == 'scheme' || &filetype == 'racket'
-        exec '!racket -fi %:t'
-    elseif &filetype == 'newlisp'
-        exec '!newlisp %:t'
-    elseif &filetype == 'lisp'
-        exec '!sbcl --load %:t'
-    elseif &filetype == 'ocaml'
-        if g:isWIN
-            exec '!ocamlc -o %:r.exe %:t && %:r.exe'
-        else
-            exec '!ocamlc -o %:r %:t && ./%:r'
-        endif
-    elseif &filetype == 'haskell'
-        if g:isWIN
-            exec '!ghc -o %:r %:t && %:r.exe'
-        else
-            exec '!ghc -o %:r %:t && ./%:r'
-        endif
-    elseif &filetype == 'lua'
-        exec '!lua %:t'
-    elseif &filetype == 'perl'
-        exec '!perl %:t'
-    elseif &filetype == 'php'
-        exec '!php %:t'
-    elseif &filetype == 'python'
-        exec '!python3 %:t'
-    elseif &filetype == 'ruby'
-        exec '!ruby %:t'
-    elseif &filetype == 'julia'
-        exec '!julia %:t'
-    elseif &filetype == 'dart'
-        exec '!dart %:t'
-    elseif &filetype == 'elm'
-        exec '!elm make %:t'
-    elseif &filetype == 'haxe'
-        exec '!haxe -main %:r --interp'
-    elseif &filetype == 'javascript'
-        exec '!node %:t'
-    elseif &filetype == 'coffee'
-        exec '!coffee -c %:t && node %:r.js'
-    elseif &filetype == 'typescript'
-        exec '!tsc %:t && node %:r.js'
-    elseif &filetype == 'ls'
-        exec '!lsc -c %:t && node %:r.js'
-    elseif &filetype == 'r'
-        exec '!Rscript %:t'
-    elseif &filetype == 'sh'
-        exec '!bash %:t'
+  exec 'w'
+  if &filetype == 'c'
+    if g:isWIN
+      exec '!gcc -Wall -std=c11 -o %:r %:t && %:r.exe'
+    else
+      exec '!clang -Wall -std=c11 -o %:r %:t && ./%:r'
     endif
+  elseif &filetype == 'cpp'
+    if g:isWIN
+      exec '!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe'
+    else
+      exec '!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r'
+    endif
+  elseif &filetype == 'objc'
+    if g:isMAC
+      exec '!clang -fobjc-arc -framework Foundation %:t -o %:r && ./%:r'
+    endif
+  elseif &filetype == 'swift'
+    if g:isMAC
+      exec '!swift %:t'
+    endif
+  elseif &filetype == 'd'
+    if g:isWIN
+      exec '!dmd -wi %:t && del %:r.obj && %:r.exe'
+    else
+      exec '!dmd -wi %:t && rm %:r.o && ./%:r'
+    endif
+  elseif &filetype == 'rust'
+    if g:isWIN
+      exec '!rustc %:t && %:r.exe'
+    else
+      exec '!rustc %:t && ./%:r'
+    endif
+  elseif &filetype == 'go'
+    if g:isWIN
+      exec '!go build %:t && %:r.exe'
+    else
+      exec '!go build %:t && ./%:r'
+    endif
+  elseif &filetype == 'nim'
+    if g:isWIN
+      exec '!nim c %:t && %:r.exe'
+    else
+      exec '!nim c %:t && ./%:r'
+    endif
+  elseif &filetype == 'crystal'
+    if g:isWIN
+      exec '!crystal build %:t && %:r.exe'
+    else
+      exec '!crystal build %:t && ./%:r'
+    endif
+  elseif &filetype == 'vala'
+    if g:isWIN
+      exec '!valac %:t && %:r.exe'
+    else
+      exec '!valac %:t && ./%:r'
+    endif
+  elseif &filetype == 'java'
+    exec '!javac %:t && java %:r'
+  elseif &filetype == 'groovy'
+    exec '!groovy %:t'
+  elseif &filetype == 'kotlin'
+    exec '!kotlinc %:t -include-runtime -d %:r.jar && kotlin %:r.jar'
+  elseif &filetype == 'scala'
+    exec '!scala %:t'
+  elseif &filetype == 'clojure'
+    exec '!lein exec %:t'
+  elseif &filetype == 'cs'
+    if g:isWIN
+      exec '!csc %:t && %:r.exe'
+    else
+      exec '!mcs %:t && mono %:r.exe'
+    endif
+  elseif &filetype == 'fsharp'
+    if g:isWIN
+      exec '!fsc %:t && %:r.exe'
+    else
+      exec '!fsharpc %:t && mono %:r.exe'
+    endif
+  elseif &filetype == 'erlang'
+    exec '!escript %:t'
+  elseif &filetype == 'elixir'
+    exec '!elixir %:t'
+  elseif &filetype == 'lfe'
+    exec '!lfe %:t'
+  elseif &filetype == 'scheme' || &filetype == 'racket'
+    exec '!racket -fi %:t'
+  elseif &filetype == 'newlisp'
+    exec '!newlisp %:t'
+  elseif &filetype == 'lisp'
+    exec '!sbcl --load %:t'
+  elseif &filetype == 'ocaml'
+    if g:isWIN
+      exec '!ocamlc -o %:r.exe %:t && %:r.exe'
+    else
+      exec '!ocamlc -o %:r %:t && ./%:r'
+    endif
+  elseif &filetype == 'haskell'
+    if g:isWIN
+      exec '!ghc -o %:r %:t && %:r.exe'
+    else
+      exec '!ghc -o %:r %:t && ./%:r'
+    endif
+  elseif &filetype == 'lua'
+    exec '!lua %:t'
+  elseif &filetype == 'perl'
+    exec '!perl %:t'
+  elseif &filetype == 'php'
+    exec '!php %:t'
+  elseif &filetype == 'python'
+    exec '!python3 %:t'
+  elseif &filetype == 'ruby'
+    exec '!ruby %:t'
+  elseif &filetype == 'julia'
+    exec '!julia %:t'
+  elseif &filetype == 'dart'
+    exec '!dart %:t'
+  elseif &filetype == 'elm'
+    exec '!elm make %:t'
+  elseif &filetype == 'haxe'
+    exec '!haxe -main %:r --interp'
+  elseif &filetype == 'javascript'
+    exec '!node %:t'
+  elseif &filetype == 'coffee'
+    exec '!coffee -c %:t && node %:r.js'
+  elseif &filetype == 'typescript'
+    exec '!tsc %:t && node %:r.js'
+  elseif &filetype == 'ls'
+    exec '!lsc -c %:t && node %:r.js'
+  elseif &filetype == 'r'
+    exec '!Rscript %:t'
+  elseif &filetype == 'sh'
+    exec '!bash %:t'
+  endif
 endfunc
 
 " \rr        一键保存、编译、运行
@@ -935,13 +935,13 @@ let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,
 
 let blog = {}
 if g:isWIN
-    let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-    let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-    let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+  let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
+  let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
+  let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
 else
-    let blog.path          = '~/mysite/wiki/'
-    let blog.path_html     = '~/mysite/html/'
-    let blog.template_path = '~/mysite/templates/'
+  let blog.path          = '~/mysite/wiki/'
+  let blog.path_html     = '~/mysite/html/'
+  let blog.template_path = '~/mysite/templates/'
 endif
 let blog.template_default  = 'site'
 let blog.template_ext      = '.html'
@@ -952,11 +952,11 @@ let g:vimwiki_list         = [blog]
 " ======= 加载自定义工程配置文件 ======= "
 
 if g:isWIN
-    if filereadable($VIM.'/_self.vim')
-        source $VIM/_self.vim
-    end
+  if filereadable($VIM.'/_self.vim')
+    source $VIM/_self.vim
+  end
 else
-    if filereadable($HOME.'/.self.vim')
-        source $HOME/.self.vim
-    end
+  if filereadable($HOME.'/.self.vim')
+    source $HOME/.self.vim
+  end
 end
