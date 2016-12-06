@@ -2,9 +2,9 @@
 " General:
 " File:			typescript.vim
 " Maintainer:	Jason Cheatham
-" Last Change: 	2014-03-14
+" Last Change: 	2016-04-17
 " Description:
-"		Stub to use JavaScript indenter for TypeScript.
+"	Stub to use JavaScript indenter for TypeScript.
 
 " Only load one indent script per buffer
 if exists('b:did_indent')
@@ -19,5 +19,3 @@ endif
 if g:js_indent_typescript
 	runtime! indent/javascript.vim
 endif
-
-" vim:set fdm=marker fdl=0 ts=4:

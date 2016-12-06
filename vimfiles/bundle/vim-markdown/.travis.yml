@@ -1,12 +1,19 @@
 language: vim
+
+os:
+  - linux
+  - osx
+
 env:
   - TEST=package
   - TEST=latest
 
 before_script: |
   if [ "$TEST" = "package" ]; then
-    sudo apt-get -y update
-    sudo apt-get -y install vim
+    if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+      sudo apt-get -y update
+      sudo apt-get -y install vim
+    fi
   else
     cd ..
     git clone --depth 1 https://github.com/vim/vim
@@ -17,6 +24,9 @@ before_script: |
     export PATH="/usr/local/bin:$PATH"
     cd "$TRAVIS_BUILD_DIR"
   fi
+  sudo pip install virtualenv
+  stty cols 80
 
-script: |
-  make test
+script:
+  - make test
+  - make doc
