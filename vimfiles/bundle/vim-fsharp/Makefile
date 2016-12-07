@@ -3,13 +3,15 @@
 bin_d  = $(abspath ftplugin/bin)
 
 # Installation paths.
-#dest_root = $(HOME)/.vim/bundle/fsharpbinding-vim/
+#dest_root = $(HOME)/.vim/bundle/vim-fsharp/
 #dest_bin  = $(dest_root)/ftplugin/bin/
 
 ac_exe     = $(bin_d)/fsautocomplete.exe
 ac_archive = fsautocomplete.zip
-ac_version = 0.23.0
+ac_version = 0.30.0
 ac_url     = https://github.com/fsharp/FSharp.AutoComplete/releases/download/$(ac_version)/$(ac_archive)
+
+git_url    = https://github.com/fsharp/FsAutoComplete.git
 
 # ----------------------------------------------------------------------------
 
@@ -32,5 +34,15 @@ $(bin_d)     :; mkdir -p $(bin_d)
 
 clean :
 	rm -rf $(bin_d)
+	rm -rf FsAutoComplete
+
+git :
+	rm -rf FsAutoComplete
+	rm -rf $(bin_d)
+	git clone $(git_url)
+	./FsAutoComplete/build.sh BuildRelease
+	mkdir $(bin_d)
+	cp FsAutoComplete/src/FsAutoComplete/bin/Release/* $(bin_d)
+
 
 .PHONY: fsautocomplete

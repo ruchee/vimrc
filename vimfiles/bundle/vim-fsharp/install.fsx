@@ -10,7 +10,7 @@ let homeVimPath =
     if Environment.OSVersion.Platform = PlatformID.Unix || Environment.OSVersion.Platform = PlatformID.MacOSX then
         Environment.GetEnvironmentVariable("HOME") @@ ".vim"
     else Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%") @@ "vimfiles"
-        
+
 let vimInstallDir = homeVimPath @@ "bundle/fsharpbinding-vim"
 
 let vimBinDir = __SOURCE_DIRECTORY__ @@ "ftplugin/bin"
@@ -21,7 +21,7 @@ let ftdetectDir = __SOURCE_DIRECTORY__ @@ "ftdetect"
 let syntaxCheckersDir = __SOURCE_DIRECTORY__ @@ "syntax_checkers"
 
 let acArchive = "fsautocomplete.zip"
-let acVersion = "0.23.0"
+let acVersion = "0.30.0"
 
 Target "FSharp.AutoComplete" (fun _ ->
   CreateDir vimBinDir

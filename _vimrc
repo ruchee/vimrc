@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-06 17:26:00
+" -----------------    Date: 2016-12-07 18:18:55
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -613,20 +613,21 @@ let g:syntastic_check_on_open = 1              " 默认开启
 let g:syntastic_mode_map      = { 'mode': 'active', 'passive_filetypes': ['html', 'xhtml'] }
 " 自定义编译器和编译参数
 if g:isWIN
-  let g:syntastic_c_compiler = 'gcc'
+  let g:syntastic_c_compiler   = 'gcc'
   let g:syntastic_cpp_compiler = 'g++'
 else
-  let g:syntastic_c_compiler = 'clang'
+  let g:syntastic_c_compiler   = 'clang'
   let g:syntastic_cpp_compiler = 'clang++'
 endif
-let g:syntastic_c_compiler_options = '-std=c11 -Wall'
-let g:syntastic_cpp_compiler_options = '-std=c++14 -Wall'
-let g:syntastic_elixir_checkers = ['elixir']
+let g:syntastic_c_compiler_options    = '-Wall -std=c11'
+let g:syntastic_cpp_compiler_options  = '-Wall -std=c++14'
+let g:syntastic_rust_checkers         = ['rustc']
+let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_enable_elixir_checker = 1
-let g:syntastic_perl_checkers = ['perl']
-let g:syntastic_enable_perl_checker = 1
-let g:syntastic_python_python_exec = 'python3'
-let g:syntastic_javascript_checkers = ['eslint']
+let g:syntastic_perl_checkers         = ['perl']
+let g:syntastic_enable_perl_checker   = 1
+let g:syntastic_python_python_exec    = 'python3'
+let g:syntastic_javascript_checkers   = ['eslint']
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 

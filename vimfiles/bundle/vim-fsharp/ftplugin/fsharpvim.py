@@ -6,6 +6,7 @@ import unittest
 import json
 import threading
 import hidewin
+import vim
 
 class G:
     fsac = None
@@ -65,8 +66,12 @@ class FSAutoComplete:
         hidewin.addopt(opts)
         try:
             self.p = Popen(command, **opts)
-        except WindowsError:
-            self.p = Popen(command[1:], **opts)
+        except OSError:
+            try:
+                self.p = Popen(command[1:], **opts)
+            except OSError as error:
+                msg = "Error encountered while trying to execute %s: %s" % (command[1:], error)
+                raise OSError(msg)
 
         self.debug = debug
         self.switch_to_json()
@@ -86,6 +91,7 @@ class FSAutoComplete:
     def __log(self, msg):
         if self.debug:
             self.logfile.write(msg)
+            self.logfile.flush()
 
     def send(self, txt):
         if self.debug:
@@ -103,6 +109,7 @@ class FSAutoComplete:
 
             if self.debug:
                 self.logfile2.write("::work read: %s" % data)
+                self.logfile2.flush()
 
             parsed = json.loads(data)
             if parsed['Kind'] == "completion":
@@ -132,8 +139,7 @@ class FSAutoComplete:
         self.send("project \"%s\"\n" % path.abspath(fn))
 
     def parse(self, fn, full, lines):
-        fulltext = "full" if full else ""
-        self.send("parse \"%s\" %s\n" % (fn, fulltext))
+        self.send("parse \"%s\"\n" % (fn))
         for line in lines:
             self.send(line + "\n")
         self.send("<<EOF>>\n")
@@ -151,7 +157,7 @@ class FSAutoComplete:
     def complete(self, fn, line, column, base):
         self.__log('complete: base = %s\n' % base)
 
-        msg = self.completion.send('completion "%s" %d %d\n' % (fn, line, column))
+        msg = self.completion.send('completion "%s" \"%s\" %d %d filter=%s\n' % (fn, self._current_line(), line, column, base))
 
         self.__log('msg received %s\n' % msg)
 
@@ -166,7 +172,7 @@ class FSAutoComplete:
         return msg
 
     def finddecl(self, fn, line, column):
-        msg = self._finddecl.send('finddecl "%s" %d %d\n' % (fn, line, column))
+        msg = self._finddecl.send('finddecl "%s" \"%s\" %d %d\n' % (fn, self._current_line(), line, column))
         if msg != None:
             return str(msg['File']), (int(str(msg['Line'])), int(str(msg['Column'])))
         else:
@@ -186,6 +192,9 @@ class FSAutoComplete:
 
         return msg
 
+    def _current_line(self):
+        return vim.current.line.replace("\"", "\\\"")
+
     def errors_current(self):
         msg = self._errors.read()
         if msg == None:
@@ -193,16 +202,31 @@ class FSAutoComplete:
         else:
             return msg
 
+    def _vim_encode(self, s):
+        return s.encode(vim.eval("&encoding"))
+
     def tooltip(self, fn, line, column):
-        msg = self._tooltip.send('tooltip "%s" %d %d 500\n' % (fn, line, column))
-        if msg != None:
-            return str(msg)
-        else:
+        msg = self._tooltip.send('tooltip "%s" \"%s\" %d %d 500\n' % (fn, self._current_line(), line, column))
+        if msg == None:
             return ""
+        output = ""
+        for ols in msg:
+            for ol in ols:
+                output = output + self._vim_encode(ol['Signature']) + "\n"
+        return output
+
 
     def helptext(self, candidate):
         msg = self._helptext.send('helptext %s\n' % candidate)
-        msg = str(msg['Text'])
+        if msg == None:
+            return ""
+
+        output = ""
+        for ols in msg['Overloads']:
+            for ol in ols:
+                output = output + self._vim_encode(ol['Signature']) + "\n"
+
+        msg = output 
 
         if "\'" in msg and "\"" in msg:
             msg = msg.replace("\"", "") #HACK: dictionary parsing in vim gets weird if both ' and " get printed in the same string
