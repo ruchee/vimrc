@@ -1,4 +1,8 @@
 # 代码重用
+snippet na      命名空间
+	namespace ${1} {
+	  ${0}
+	}
 snippet int     接口定义
 	interface ${1:int_name} {
 	  ${0}
@@ -11,6 +15,10 @@ snippet cli     类实现接口
 	class ${1:cl_name} implements ${2:int_name} {
 	  ${0}
 	}
+snippet ab      抽象类
+	abstract ${0}
+snippet dec     声明
+	declare ${0}
 # 关键字
 snippet pu      公用
 	public ${0}
