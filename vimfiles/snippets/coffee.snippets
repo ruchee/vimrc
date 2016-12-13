@@ -21,6 +21,10 @@ snippet vrq     导入包到变量
 	${1} = require '${2}'${0}
 snippet im      导入模块 [ES6新增]
 	import ${0}
+snippet imf     从 .. 导入模块 [ES6新增]
+	import ${1} from '${2}'${0}
+snippet im<     从 .. 导入模块 [ES6新增]
+	import { ${1} } from '${2}'${0}
 snippet ex      导出模块 [ES6新增]
 	export ${0}
 # 类
@@ -83,6 +87,8 @@ snippet fo      for
 	for ${0}
 snippet fi      for .. in [针对array]
 	for ${1} in ${0}
+snippet fof     for .. from [针对可迭代对象]
+	for ${1} from ${0}
 snippet foo     for .. of [针对object]
 	for ${1} of ${0}
 snippet fooo    for .. of [不包含继承来的属性]
