@@ -91,6 +91,7 @@ function! s:test(...)
       let start = reltime()
       for n in range(len(tests))
         if len(index) > 0 && n != index | continue | endif
+        if has_key(tests[n], 'ignore') && tests[n].ignore | continue | endif
         let query = tests[n].query
         let options = has_key(tests[n], 'options') ? tests[n].options : {}
         let result = tests[n].result
@@ -537,7 +538,11 @@ finish
         },
         {
           'query': "form.search-form._wide>input.-query-string+input:s.-btn_large|bem",
-          'result': "<form class=\"search-form search-form_wide\" action=\"\">\n\t<input class=\"search-form-query-string\" type=\"\">\n\t<input class=\"search-form-btn_large\" type=\"submit\" value=\"\">\n</form>\n",
+          'result': "<form class=\"search-form search-form_wide\" action=\"\">\n\t<input class=\"search-form__query-string\" type=\"\">\n\t<input class=\"search-form__btn search-form__btn_large\" type=\"submit\" value=\"\">\n</form>\n",
+        },
+        {
+          'query': "form>fieldset>legend+(label>input[type=\"checkbox\"])*3",
+          'result': "<form action=\"\">\n\t<fieldset>\n\t\t<legend></legend>\n\t\t<label for=\"\"><input type=\"checkbox\"></label>\n\t\t<label for=\"\"><input type=\"checkbox\"></label>\n\t\t<label for=\"\"><input type=\"checkbox\"></label>\n\t</fieldset>\n</form>\n",
         },
       ],
     },
@@ -546,7 +551,7 @@ finish
       'tests': [
         {
           'query': "<div>\n\t<span>$$$$\\<c-y>j$$$$</span>\n</div>",
-          'result': "<div>\n\t<span/>\n</div>",
+          'result': "<div>\n\t<span />\n</div>",
         },
         {
           'query': "<div>\n\t<span$$$$\\<c-y>j$$$$/>\n</div>",
@@ -692,7 +697,7 @@ finish
         },
         {
           'query': "{-bdrs20$$$$}",
-          'result': "{-webkit-border-radius: 20px;\n-moz-border-radius: 20px;\nborder-radius: 20px;}",
+          'result': "{-webkit-border-radius: 20px;\n-moz-border-radius: 20px;\n-o-border-radius: 20px;\n-ms-border-radius: 20px;\nborder-radius: 20px;}",
         },
         {
           'query': "{lg(top,#fff,#000)$$$$}",
@@ -980,7 +985,7 @@ finish
         },
         {
           'query': "{-bdrs20$$$$}",
-          'result': "{-webkit-border-radius: 20px;\n-moz-border-radius: 20px;\nborder-radius: 20px;}",
+          'result': "{-webkit-border-radius: 20px;\n-moz-border-radius: 20px;\n-o-border-radius: 20px;\n-ms-border-radius: 20px;\nborder-radius: 20px;}",
         },
         {
           'query': "{lg(top,#fff,#000)$$$$}",

@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-07 18:18:55
+" -----------------    Date: 2016-12-13 11:10:59
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -628,6 +628,7 @@ let g:syntastic_perl_checkers         = ['perl']
 let g:syntastic_enable_perl_checker   = 1
 let g:syntastic_python_python_exec    = 'python3'
 let g:syntastic_javascript_checkers   = ['eslint']
+let g:syntastic_typescript_checkers   = ['eslint']
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 

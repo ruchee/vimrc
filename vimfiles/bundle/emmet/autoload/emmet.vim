@@ -49,7 +49,8 @@ function! emmet#getIndentation(...) abort
   elseif has_key(s:emmet_settings.variables, 'indentation')
     let indent = s:emmet_settings.variables.indentation
   else
-    let indent = (&l:expandtab || &l:tabstop !=# &l:shiftwidth) ? repeat(' ', &l:shiftwidth) : "\t"
+    let sw = exists('*shiftwidth') ? shiftwidth() : &l:shiftwidth
+    let indent = (&l:expandtab || &l:tabstop !=# sw) ? repeat(' ', sw) : "\t"
   endif
   return indent
 endfunction
@@ -101,8 +102,7 @@ endfunction
 function! emmet#parseIntoTree(abbr, type) abort
   let abbr = a:abbr
   let type = a:type
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#parseIntoTree(abbr, type)
+  return emmet#lang#{emmet#lang#type(type)}#parseIntoTree(abbr, type)
 endfunction
 
 function! emmet#expandAbbrIntelligent(feedkey) abort
@@ -176,7 +176,7 @@ function! emmet#mergeConfig(lhs, rhs) abort
 endfunction
 
 function! emmet#newNode() abort
-  return { 'name': '', 'attr': {}, 'child': [], 'snippet': '', 'basevalue': 0, 'basedirect': 1, 'multiplier': 1, 'parent': {}, 'value': '', 'pos': 0, 'important': 0, 'attrs_order': ['id', 'class'] }
+  return { 'name': '', 'attr': {}, 'child': [], 'snippet': '', 'basevalue': 0, 'basedirect': 1, 'multiplier': 1, 'parent': {}, 'value': '', 'pos': 0, 'important': 0, 'attrs_order': ['id', 'class'], 'block': 0, 'empty': 0 }
 endfunction
 
 function! s:itemno(itemno, current) abort
@@ -232,7 +232,7 @@ function! emmet#toString(...) abort
   let dollar_expr = emmet#getResource(type, 'dollar_expr', 1)
   let itemno = 0
   let str = ''
-  let rtype = emmet#lang#exists(type) ? type : 'html'
+  let rtype = emmet#lang#type(type)
   while itemno < current.multiplier
     if len(current.name)
       if current.multiplier ==# 1
@@ -374,26 +374,26 @@ function! emmet#getFileType(...) abort
   let type = ''
 
   if has_key(s:emmet_settings, &filetype)
-    let types = [&filetype]
+    let type = &filetype
   else
     let types = split(&filetype, '\.')
-  endif
-  for part in types
-    if emmet#lang#exists(part)
-      let type = part
-      break
-    endif
-    let base = emmet#getBaseType(part)
-    if base !=# ''
-      if flg
-        let type = &filetype
-      else
-        let type = base
+    for part in types
+      if emmet#lang#exists(part)
+        let type = part
+        break
       endif
-      unlet base
-      break
-    endif
-  endfor
+      let base = emmet#getBaseType(part)
+      if base !=# ''
+        if flg
+          let type = &filetype
+        else
+          let type = base
+        endif
+        unlet base
+        break
+      endif
+    endfor
+  endif
   if type ==# 'html'
     let pos = emmet#util#getcurpos()
     let type = synIDattr(synID(pos[1], pos[2], 1), 'name')
@@ -507,7 +507,7 @@ endfunction
 
 function! emmet#expandAbbr(mode, abbr) range abort
   let type = emmet#getFileType()
-  let rtype = emmet#getFileType(1)
+  let rtype = emmet#lang#type(emmet#getFileType(1))
   let indent = emmet#getIndentation(type)
   let expand = ''
   let line = ''
@@ -543,7 +543,7 @@ function! emmet#expandAbbr(mode, abbr) range abort
       let items = emmet#parseIntoTree(query, type).child
       let itemno = 0
       for item in items
-        let inner = emmet#toString(item, rtype, 0, filters, 0, indent)
+        let inner = emmet#toString(item, type, 0, filters, 0, indent)
         let inner = substitute(inner, '\$#', '$line'.(itemno*(a:lastline - a:firstline + 1)/len(items)+1).'$', 'g')
         let expand .= inner
         let itemno = itemno + 1
@@ -613,7 +613,7 @@ function! emmet#expandAbbr(mode, abbr) range abort
         let items = emmet#parseIntoTree(leader, type).child
       endif
       for item in items
-        let expand .= emmet#toString(item, rtype, 0, filters, 0, '')
+        let expand .= emmet#toString(item, type, 0, filters, 0, '')
       endfor
       if emmet#useFilter(filters, 'e')
         let expand = substitute(expand, '&', '\&amp;', 'g')
@@ -658,9 +658,9 @@ function! emmet#expandAbbr(mode, abbr) range abort
       let filters = split(matchstr(str, s:filtermx)[1:], '\s*,\s*')
       let str = substitute(str, s:filtermx, '', '')
     endif
-    let items = emmet#parseIntoTree(str, rtype).child
+    let items = emmet#parseIntoTree(str, type).child
     for item in items
-      let expand .= emmet#toString(item, rtype, 0, filters, 0, indent)
+      let expand .= emmet#toString(item, type, 0, filters, 0, indent)
     endfor
     if emmet#useFilter(filters, 'e')
       let expand = substitute(expand, '&', '\&amp;', 'g')
@@ -786,48 +786,41 @@ endfunction
 
 function! emmet#moveNextPrevItem(flag) abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#moveNextPrevItem(a:flag)
+  return emmet#lang#{emmet#lang#type(type)}#moveNextPrevItem(a:flag)
 endfunction
 
 function! emmet#moveNextPrev(flag) abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#moveNextPrev(a:flag)
+  return emmet#lang#{emmet#lang#type(type)}#moveNextPrev(a:flag)
 endfunction
 
 function! emmet#imageSize() abort
   let orgpos = emmet#util#getcurpos()
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  call emmet#lang#{rtype}#imageSize()
+  call emmet#lang#{emmet#lang#type(type)}#imageSize()
   silent! call setpos('.', orgpos)
   return ''
 endfunction
 
 function! emmet#encodeImage() abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#encodeImage()
+  return emmet#lang#{emmet#lang#type(type)}#encodeImage()
 endfunction
 
 function! emmet#toggleComment() abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  call emmet#lang#{rtype}#toggleComment()
+  call emmet#lang#{emmet#lang#type(type)}#toggleComment()
   return ''
 endfunction
 
 function! emmet#balanceTag(flag) range abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#balanceTag(a:flag)
+  return emmet#lang#{emmet#lang#type(type)}#balanceTag(a:flag)
 endfunction
 
 function! emmet#splitJoinTag() abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  return emmet#lang#{rtype}#splitJoinTag()
+  return emmet#lang#{emmet#lang#type(type)}#splitJoinTag()
 endfunction
 
 function! emmet#mergeLines() range abort
@@ -839,8 +832,7 @@ endfunction
 
 function! emmet#removeTag() abort
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
-  call emmet#lang#{rtype}#removeTag()
+  call emmet#lang#{emmet#lang#type(type)}#removeTag()
   return ''
 endfunction
 
@@ -861,7 +853,7 @@ function! emmet#anchorizeURL(flag) abort
   let title = matchstr(content, mx)
 
   let type = emmet#getFileType()
-  let rtype = emmet#lang#exists(type) ? type : 'html'
+  let rtype = emmet#lang#type(type)
   if &filetype ==# 'markdown'
     let expand = printf('[%s](%s)', substitute(title, '[\[\]]', '\\&', 'g'), url)
   elseif a:flag ==# 0
@@ -1832,9 +1824,13 @@ let s:emmet_settings = {
 \        },
 \        'empty_elements': 'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command',
 \        'block_elements': 'address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6',
-\        'inline_elements': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var',
+\        'inline_elements': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,small,span,strike,strong,sub,sup,textarea,tt,u,var',
 \        'empty_element_suffix': g:emmet_html5 ? '>' : ' />',
 \        'indent_blockelement': 0,
+\    },
+\    'elm': {
+\        'indentation': '    ',
+\        'extends': 'html',
 \    },
 \    'htmldjango': {
 \        'extends': 'html',
@@ -1891,6 +1887,9 @@ let s:emmet_settings = {
 \                    ."\tbody\n\t\t${child}|",
 \        },
 \    },
+\    'pug': {
+\        'extends': 'jade',
+\    },
 \    'xsl': {
 \        'extends': 'html',
 \        'default_attributes': {
@@ -1931,7 +1930,8 @@ let s:emmet_settings = {
 \    },
 \    'jsx': {
 \        'extends': 'html',
-\        'attribute_name': {'class': 'className'},
+\        'attribute_name': {'class': 'className', 'for': 'htmlFor'},
+\        'empty_element_suffix': ' />',
 \    },
 \    'xslt': {
 \        'extends': 'xsl',
