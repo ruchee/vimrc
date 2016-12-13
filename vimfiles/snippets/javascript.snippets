@@ -52,15 +52,15 @@ snippet _pt     指定原型
 	__proto__${0}
 # 函数、流程控制
 snippet f       常规函数
-	function ${1:f_name} (${2}) {
+	function ${1:f_name} (${2})${3} {
 	  ${0}
 	}
 snippet f5      匿名函数 [ES5语法]
-	function (${1}) {${0}}
+	function (${1})${2} {${0}}
 snippet ff      匿名函数 [ES6语法]
-	(${1}) => {${0}}
-snippet fff     更简洁的匿名函数 [ES6语法]
 	${1} => ${0}
+snippet fff     匿名函数（带括号） [ES6语法]
+	(${1}) => ${0}
 snippet of      对象中的方法
 	${1:f_name}: (${2}) => {
 	  ${0}
@@ -176,7 +176,7 @@ snippet pie     可列举性
 snippet len     获取字符串长度
 	length${0}
 snippet imp     实现
-	implements${0}
+	implements ${0}
 # 常用函数
 snippet ts      转换为字符串
 	toString(${1})${0}
