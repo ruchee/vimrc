@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-13 11:10:59
+" -----------------    Date: 2016-12-13 23:34:42
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -621,6 +621,7 @@ else
 endif
 let g:syntastic_c_compiler_options    = '-Wall -std=c11'
 let g:syntastic_cpp_compiler_options  = '-Wall -std=c++14'
+let g:syntastic_swift_checkers        = ['swiftpm', 'swiftlint']
 let g:syntastic_rust_checkers         = ['rustc']
 let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_enable_elixir_checker = 1
