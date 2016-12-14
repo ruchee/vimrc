@@ -9,7 +9,15 @@ snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
 # 包含指令
 # 模块、类
-# 方法
+# 函数/方法
+snippet f       函数
+	func ${1} (${2}) {
+	  ${0}
+	}
+snippet f.      函数 [带返回值]
+	func ${1} (${2}) -> ${3} {
+	  ${0}
+	}
 # 流程控制
 snippet if      if
 	if ${1} {
@@ -39,13 +47,38 @@ snippet rep     repeat .. while
 	repeat {
 	  ${0}
 	} while ${1}
+snippet do      repeat .. while [特意设个别名，用起来方便]
+	repeat {
+	  ${0}
+	} while ${1}
+snippet sw      switch
+	switch ${1} {
+	${0}
+	}
+snippet cs      case
+	case ${1}:
+	  ${0}
+snippet def     default
+	default:
+	  ${0}
 # 异常处理
 # 单个关键字
 snippet v       定义变量
 	var ${0}
 snippet l       定义常量
 	let ${0}
+snippet re      返回
+	return ${0}
 # 特殊常量
+# 数据类型
+snippet _s      String
+	String${0}
+snippet _i      Int
+	Int${0}
+snippet _f      Float
+	Float${0}
+snippet _d      Double
+	Double${0}
 # 输入输出
 snippet p       输出
 	print(${0})
