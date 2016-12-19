@@ -14,7 +14,11 @@ if (!run_once)
    " Utility variable that stores the directory that this script resides in
    "Load the first time a haxe file is opened
    let s:plugin_path = escape(expand('<sfile>:p:h') . '/../python/', '\')
-   exe 'pyfile '.s:plugin_path.'/vaxe.py'
+   if has("python3")
+      exe 'py3file '.s:plugin_path.'/vaxe.py'
+   elseif has("python")
+      exe 'pyfile '.s:plugin_path.'/vaxe.py'
+   endif
 
    " load special configuration for vim-airline if it exists
    if (exists("g:loaded_airline") && g:vaxe_enable_airline_defaults )

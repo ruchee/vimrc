@@ -4,6 +4,12 @@ endif
 
 let g:loaded_vaxe_plugin = 1
 
+if has("python3")
+    let g:vaxepy = ":python3 "
+elseif has("python")
+    let g:vaxepy = ":python "
+endif
+
 command -nargs=? -complete=file DefaultHxml call vaxe#DefaultHxml(<q-args>)
 command -nargs=? -complete=file ProjectHxml call vaxe#ProjectHxml(<q-args>)
 command VaxeToggleLogging let g:vaxe_logging = !g:vaxe_logging
@@ -69,7 +75,7 @@ let g:vaxe_trace_absolute_path = C('g:vaxe_trace_absolute_path', 1)
 
 " completion options
 let g:vaxe_completion_require_autowrite
-            \=C('g:vaxe_require_completion_autowrite', 1)
+            \=C('g:vaxe_completion_require_autowrite', 1)
 let g:vaxe_completion_disable_optimizations
             \= C('g:vaxe_completion_disable_optimizations', 1)
 let g:vaxe_completion_alter_signature
@@ -145,3 +151,5 @@ if (g:vaxe_enable_acp_defaults)
 
     call add(g:acp_behavior['haxe'] , vaxe_entry)
 endif
+
+

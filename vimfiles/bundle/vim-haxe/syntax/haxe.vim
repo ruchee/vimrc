@@ -171,12 +171,15 @@ syn match haxeCompilerMeta "@:\(
     \\|initPackage
     \\|internal
     \\|isVar
+    \\|jsRequire
     \\|keep
     \\|keepInit
     \\|keepSub
+    \\|luaRequire
     \\|macro
     \\|meta
     \\|multiType
+    \\|multiReturn
     \\|native
     \\|nativeGen
     \\|noCompletion
@@ -202,6 +205,7 @@ syn match haxeCompilerMeta "@:\(
     \\|rtti
     \\|runtime
     \\|runtimeValue
+    \\|selfCall
     \\|setter
     \\|sound
     \\|struct

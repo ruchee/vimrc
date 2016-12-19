@@ -1,4 +1,4 @@
-let unsuppmrted_msg = 'Unsupported platform, send a note to the maintainer about adding support'
+let unsupported_msg = 'Unsupported platform, send a note to the maintainer about adding support'
 
 function! vaxe#SetWorkingDir()
     exe 'cd "'.g:vaxe_working_directory.'"'
@@ -150,7 +150,7 @@ endfunction
 " A function suitable for omnifunc
 function! vaxe#HaxeComplete(findstart, base)
     " ERROR: no python
-    if !has("python")
+    if !has("python") && !has("python3")
         echoerr 'Vaxe requires python for completions'
         return []
     endif
@@ -543,7 +543,7 @@ function! vaxe#JumpToDefinition()
     let complete_output = s:RawCompletion(b:vaxe_hxml, extra)
     " execute the python completion script in autoload/vaxe.py
     call vaxe#Log(complete_output)
-    py locations('complete_output','output')
+    exec g:vaxe_py . "locations('complete_output','output')"
     let output_str = join(output, '\n')
     lexpr(output_str)
 endfunction
@@ -625,17 +625,20 @@ function! s:FormatDisplayCompletion(base)
     " quick and dirty check for error
     let tag = complete_output[1:4]
     if tag != "type" && tag != "list" && tag != "pos>"
-        let error = complete_output[:len(complete_output)-2]
-        cgete error
-        return s:ShowCompletionError( "Compiler error: ", error)
+       let error = complete_output[:len(complete_output)-2]
+       if type(error) != type("")
+          return s:ShowCompletionError("Compiler error: ",  "No valid output was received from completion request")
+       endif
+       cgete error
+       return s:ShowCompletionError( "Compiler error: ", error)
     endif
     let output = []
     call vaxe#Log('compiler output: ' . complete_output)
 
     " execute the python completion script in autoload/vaxe.py
-    py complete('complete_output','output'
+    execute g:vaxepy . "complete('complete_output','output'
                 \, 'a:base', 'g:vaxe_completion_alter_signature'
-                \, 'g:vaxe_completion_collapse_overload')
+                \, 'g:vaxe_completion_collapse_overload')"
 
     call vaxe#Log("display elements: " . len(output))
     for o in output

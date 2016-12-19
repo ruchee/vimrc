@@ -1,4 +1,10 @@
-import vim, re, HTMLParser
+import vim, re
+
+try:
+    import HTMLParser
+except:
+    from html.parser import HTMLParser
+
 import xml.etree.ElementTree as ET
 import json
 
@@ -55,7 +61,7 @@ def complete(complete_output_var, output_var, base_var , alter_var, collapse_var
             return {  'word': word, 'info': info, 'kind': kind
                     ,'menu': menu, 'abbr': abbr, 'dup':1 }
 
-        completes = map(fieldxml2completion, fields)
+        completes = [fieldxml2completion(f) for f in fields]
     elif len(types) > 0: # function type completion
         otype = types[0].text.strip()
         h = HTMLParser.HTMLParser()
@@ -87,7 +93,6 @@ def complete(complete_output_var, output_var, base_var , alter_var, collapse_var
         for c in completes:
             if dict_complete[c['abbr']] > 1:
                 c['menu'] = "@:overload " + c['menu']
-
     vim.command("let " + output_var + " = " + json.dumps(completes))
 
 # simple script to grab lists of locations from display-mode completions
@@ -107,7 +112,7 @@ def alter_signature(sig):
     paren = 0
     last_string = ''
     final_expr = ''
-    for i in xrange(len(sig)):
+    for i in range(len(sig)):
         c = sig[i]
         if c == "(":
             paren += 1
