@@ -1079,6 +1079,14 @@ function! vimwiki#base#nested_syntax(filetype, start, end, textSnipHl) abort "{{
   else
     unlet b:current_syntax
   endif
+
+  " Fix issue #236: tell Vimwiki to think in maths when encountering maths
+  " blocks like {{$ }}$. Here, we don't want the tex highlight group, but the
+  " group for tex math.
+  if a:textSnipHl ==# 'VimwikiMath'
+    let group='texMathZoneGroup'
+  endif
+
   execute 'syntax region textSnip'.ft.
         \ ' matchgroup='.a:textSnipHl.
         \ ' start="'.a:start.'" end="'.a:end.'"'.
@@ -1994,7 +2002,7 @@ endfunction "}}}
 " vimwiki#base#detect_nested_syntax
 function! vimwiki#base#detect_nested_syntax() "{{{
   let last_word = '\v.*<(\w+)\s*$'
-  let lines = map(filter(getline(1, "$"), 'v:val =~ "{{{" && v:val =~ last_word'), 
+  let lines = map(filter(getline(1, "$"), 'v:val =~ "\\%({{{\\|```\\)" && v:val =~ last_word'),
         \ 'substitute(v:val, last_word, "\\=submatch(1)", "")')
   let dict = {}
   for elem in lines
