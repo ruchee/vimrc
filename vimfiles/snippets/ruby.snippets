@@ -64,7 +64,7 @@ snippet d       方法定义 [不带参数]
 	  ${0}
 	end
 snippet d.      方法定义 [带参数]
-	def ${1} (${2})
+	def ${1}(${2})
 	  ${0}
 	end
 snippet ds      self方法定义 [不带参数]
@@ -72,17 +72,17 @@ snippet ds      self方法定义 [不带参数]
 	  ${0}
 	end
 snippet ds.     self方法定义 [带参数]
-	def self.${1} (${2})
+	def self.${1}(${2})
 	  ${0}
 	end
 snippet dsi     当模块被包含时调用
-	def self.included (klass)
+	def self.included(klass)
 	  ${0}
 	end
 snippet dd      单行方法定义 [不带参数]
 	def ${1};${0} end
 snippet dd.     单行方法定义 [带参数]
-	def ${1} (${2});${0} end
+	def ${1}(${2});${0} end
 snippet ud      销毁方法
 	undef ${0}
 snippet di      构造方法 [不带参数]
@@ -90,7 +90,7 @@ snippet di      构造方法 [不带参数]
 	  ${0}
 	end
 snippet di.     构造方法 [带参数]
-	def initialize (${1})
+	def initialize(${1})
 	  ${0}
 	end
 snippet dic     执行拷贝操作后自动调用 [不带参数]
@@ -98,15 +98,15 @@ snippet dic     执行拷贝操作后自动调用 [不带参数]
 	  ${0}
 	end
 snippet dic.    执行拷贝操作后自动调用 [带参数]
-	def initialize_copy (${1})
+	def initialize_copy(${1})
 	  ${0}
 	end
 snippet dmm     幽灵方法 [针对方法]
-	def method_missing (${1})
+	def method_missing(${1})
 	  ${0}
 	end
 snippet dcm     幽灵方法 [针对常量]
-	def const_missing (${1})
+	def const_missing(${1})
 	  ${0}
 	end
 snippet rf      改善打开类操作 [Ruby 2.0新增]
