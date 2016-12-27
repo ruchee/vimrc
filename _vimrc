@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-13 23:34:42
+" -----------------    Date: 2016-12-27 15:21:40
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -226,25 +226,27 @@ au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
 
 " 根据后缀名指定文件类型
-au BufRead,BufNewFile *.h        setlocal ft=c
-au BufRead,BufNewFile *.i        setlocal ft=c
-au BufRead,BufNewFile *.m        setlocal ft=objc
-au BufRead,BufNewFile *.di       setlocal ft=d
-au BufRead,BufNewFile *.ss       setlocal ft=scheme
-au BufRead,BufNewFile *.lsp      setlocal ft=newlisp
-au BufRead,BufNewFile *.cl       setlocal ft=lisp
-au BufRead,BufNewFile *.phpt     setlocal ft=php
-au BufRead,BufNewFile *.inc      setlocal ft=php
-au BufRead,BufNewFile *.cson     setlocal ft=coffee
-au BufRead,BufNewFile *.sql      setlocal ft=mysql
-au BufRead,BufNewFile *.tpl      setlocal ft=smarty
-au BufRead,BufNewFile *.txt      setlocal ft=txt
-au BufRead,BufNewFile *.log      setlocal ft=conf
-au BufRead,BufNewFile hosts      setlocal ft=conf
-au BufRead,BufNewFile *.conf     setlocal ft=dosini
-au BufRead,BufNewFile http*.conf setlocal ft=apache
-au BufRead,BufNewFile nginx.conf setlocal ft=nginx
-au BufRead,BufNewFile *.ini      setlocal ft=dosini
+au BufRead,BufNewFile *.h        set ft=c
+au BufRead,BufNewFile *.i        set ft=c
+au BufRead,BufNewFile *.m        set ft=objc
+au BufRead,BufNewFile *.di       set ft=d
+au BufRead,BufNewFile *.ss       set ft=scheme
+au BufRead,BufNewFile *.lsp      set ft=newlisp
+au BufRead,BufNewFile *.cl       set ft=lisp
+au BufRead,BufNewFile *.phpt     set ft=php
+au BufRead,BufNewFile *.inc      set ft=php
+au BufRead,BufNewFile *.cson     set ft=coffee
+au BufRead,BufNewFile *.sql      set ft=mysql
+au BufRead,BufNewFile *.tpl      set ft=smarty
+au BufRead,BufNewFile *.txt      set ft=txt
+au BufRead,BufNewFile *.log      set ft=conf
+au BufRead,BufNewFile hosts      set ft=conf
+au BufRead,BufNewFile *.conf     set ft=dosini
+au BufRead,BufNewFile http*.conf set ft=apache
+au BufRead,BufNewFile *.ini      set ft=dosini
+
+au BufRead,BufNewFile */etc/openresty/* set ft=nginx
+au BufRead,BufNewFile */usr/local/openresty/conf/* set ft=nginx
 
 
 " 设置着色模式和字体
