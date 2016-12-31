@@ -1,36 +1,23 @@
 ![Vim Ruchee](https://raw.github.com/ruchee/vimrc/master/macvim.jpg "Vim Ruchee")
 
 ----
-
-##### 配置文件的着色版本：`http://www.ruchee.com/public/_vimrc.html`
-
------
-
-## 本配置文件使用指南
-
-----
-
-### 使用方法
-
 #### MacOS
 
-1. 首先安装 brew 包管理器，如果已经安装则此步可跳过：`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+1. 安装 brew 包管理器，如果已安装则此步可跳过：`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 2. `brew install macvim ctags git`
-3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件，如果没有则不需要执行删除动作 [使用命令 `rm -rf ~/.vim ~/.vimrc`，请注意备份]
-4. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，取代已删文件的位置，然后将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [命令为 `git clone https://github.com/ruchee/vimrc.git`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]（也可以点击本页面的 Download ZIP 按钮下载）
-5. 使用任意文本编辑器打开 .vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
-6. 将 vim 命令指定为使用 macvim [命令为 `cd /usr/local/bin && ln -s mvim vim`]
+3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
+4. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc` ]
+5. 指定使用 macvim [ 命令为 `cd /usr/local/bin && ln -s mvim vim` ]
 
 ----
 
 #### Linux
 
-1. `sudo apt-get install vim-gtk exuberant-ctags` [其他非 Debian 系的 Linux 请使用其自己的包管理器进行安装]
-2. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件，如果没有则不需要执行删除动作 [使用命令 `rm -rf ~/.vim ~/.vimrc`，请注意备份]
-3. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，取代已删文件的位置，然后将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [命令为 `git clone https://github.com/ruchee/vimrc.git`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]（也可以点击本页面的 Download ZIP 按钮下载）
+1. `sudo apt-get install vim-gtk exuberant-ctags` [ 其他非 Debian/Ubuntu 系的 Linux 请使用系统对应的包管理器进行安装 ]
+2. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
+3. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]
 4. 可上 [https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true](https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true) 下载 Monaco 字体，下载后使用命令 `mv monaco.ttf ~/.fonts` 将其丢到 ~/.fonts 目录即可
-5. 使用任意文本编辑器打开 .vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
-6. 如此这般就配置好了，尽情享受编码的乐趣吧，使用说明全部集中在 .vimrc 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
+5. 如此这般就配置好了，尽情享受编码的乐趣吧，使用说明全部集中在 .vimrc 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
 
 ----
 
@@ -38,13 +25,12 @@
 
 1. 访问 [http://www.vim.org/download.php#pc](http://www.vim.org/download.php#pc) 下载最新的 gVim（如果无法访问该网站，请自行使用科学上网方法）
 2. 安装 gVim 到任意目录，这儿为方便讲解，我假定你安装到了 D:\Apps\Vim
-3. 将 D:\Apps\Vim\vim80 加入 path 环境变量 [不知何为环境变量者，请求助于搜索引擎]
-4. 删除 Vim 安装目录下的 vimfiles 目录以及 _vimrc 文件 [如果你自己修改过配置，请注意备份]
-5. 使用 Git 下载本项目，然后将本项目的子目录拷贝到 Vim 安装目录下，取代已删文件的位置 [命令为 `git clone https://github.com/ruchee/vimrc.git`]（也可以点击本页面的 Download ZIP 按钮下载）
+3. 将 D:\Apps\Vim\vim80 加入 path 环境变量 [ 不知何为环境变量者，请求助于搜索引擎 ]
+4. 删除 Vim 安装目录下的 vimfiles 目录以及 _vimrc 文件 [ 如果你自己修改过配置，请注意备份 ]
+5. 使用 Git 下载本项目，然后将本项目的子目录拷贝到 Vim 安装目录下，取代已删文件的位置 [ 命令为 `git clone https://github.com/ruchee/vimrc.git` ]（也可以点击本页面的 Download ZIP 按钮下载）
 6. 访问 [http://ctags.sourceforge.net](http://ctags.sourceforge.net) 下载最新的 ctags，将 ctags.exe 复制到 `D:\Apps\Vim\vim80` 目录
 7. 推荐安装 Monaco 字体，本配置默认使用该字体，可上 [https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true](https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true) 下载，下载后丢到 C:\WINDOWS\Fonts 目录即可
-8. 使用任意文本编辑器打开 _vimrc，将名字、邮箱、网址等全部替换为你自己的信息，如遇路径不同也全部替换为你本机的实际路径
-9. 然后。。。然后就大功告成了，接下只需学习如何使用而已，使用说明全部集中在了 _vimrc 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
+8. 然后。。。然后就大功告成了，接下只需学习如何使用而已，使用说明全部集中在了 _vimrc 文件的头部，配置的后半部分全是各插件的具体配置项，初学无需理会
 
 ----
 
@@ -59,10 +45,10 @@
 
 ### 注意事项
 
-1. 可使用这两条命令使 Linux、Cygwin 以及 Windows 共用同一套配置 [当然，这儿假设你安装的是双系统]：`ln -s your_gvim_path/vimfiles ~/.vim`、`ln -s your_gvim_path/_vimrc ~/.vimrc`
+1. 可使用这两条命令使 Linux、Cygwin 以及 Windows 共用同一套配置 [ 当然，这儿假设你安装的是双系统 ]：`ln -s your_gvim_path/vimfiles ~/.vim`、`ln -s your_gvim_path/_vimrc ~/.vimrc`
 2. 如出现快捷键不响应的情况，请检查你是否开启了其他软件（比如 金山词霸 等），某些软件的快捷键有可能和 Vim 相冲突，只需修改或禁用这些软件的快捷键即可
 3. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 set relativenumber 一项，以使用绝对行号
-4. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能无法使用
+4. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
 
 ----
 
@@ -78,6 +64,6 @@
 
 ----
 
-本配置文件的更新以我本机的实际使用为准，有安装和使用上的疑问，可访问这个地址 [`https://github.com/ruchee/vimrc/issues`] 提交反馈
+本配置文件的更新以我本机的实际使用情况为准
 
 祝使用愉快
