@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-31 13:34:06
+" -----------------    Date: 2016-12-31 15:16:55
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -247,8 +247,8 @@ au BufRead,BufNewFile *.conf     set ft=dosini
 au BufRead,BufNewFile http*.conf set ft=apache
 au BufRead,BufNewFile *.ini      set ft=dosini
 
-au BufRead,BufNewFile */etc/openresty/* set ft=nginx
-au BufRead,BufNewFile */usr/local/openresty/conf/* set ft=nginx
+au BufRead,BufNewFile */nginx/**/*.conf set ft=nginx
+au BufRead,BufNewFile */openresty/**/*.conf set ft=nginx
 
 
 " 设置着色模式和字体
