@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-31 15:16:55
+" -----------------    Date: 2016-12-31 20:30:50
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -88,9 +88,12 @@
 "
 " #                          --向前搜索当前光标所在字符
 " *                          --向后搜索当前光标所在字符
-" ?                          --向前搜索     [已用eregex插件替换为PCRE风格的搜索]
-" /                          --向后搜索     [已用eregex插件替换为PCRE风格的搜索]
-" :%s/xx/yy/g                --正则搜索替换 [Vim风格]
+" ?                          --向前搜索
+" /                          --向后搜索
+" :%s/xx/yy/g                --正则搜索替换
+"
+" ??                         --向前搜索     [PCRE风格] [由eregex插件提供]
+" //                         --向后搜索     [PCRE风格] [由eregex插件提供]
 " :%S/xx/yy/g                --正则搜索替换 [PCRE风格] [由eregex插件提供]
 "
 " Ctrl + P                   --在当前工程目录搜索文件 [Normal模式] [ctrlp插件] [此插件功能颇多，具体可查看其文档]
@@ -583,6 +586,10 @@ let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
 
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
+
+" eregex              PCRE风格的搜索
+let g:eregex_forward_delim  = '//'             " 指定正向搜索按键
+let g:eregex_backward_delim = '??'             " 指定反向搜索按键
 
 " ctrlp               文件搜索
 let g:ctrlp_map = '<c-p>'                      " 指定触发按键

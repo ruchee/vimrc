@@ -35,6 +35,9 @@ syn match    fsharpComment "//.*$" contains=fsharpTodo,@Spell
 syn region   fsharpDocComment start="///" end="$" contains=fsharpTodo,fsharpXml,@Spell keepend oneline
 syn region   fsharpXml matchgroup=fsharpXmlDoc start="<[^>]\+>" end="</[^>]\+>" contained
 
+" Double-backtick identifiers
+syn region   fsharpDoubleBacktick start="``" end="``"  keepend oneline
+
 
 " symbol names
 syn match fsharpSymbol "\%(let\|use\|mutable\|rec\|and\)\@<=!\=\s\+\zs\w\+\ze\s*[^=:]*[=:]"
