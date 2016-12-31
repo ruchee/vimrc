@@ -45,13 +45,39 @@ if !exists('g:Gitv_PromptToDeleteMergeBranch')
     let g:Gitv_PromptToDeleteMergeBranch = 0
 endif
 
+if !exists('g:Gitv_CustomMappings')
+    let g:Gitv_CustomMappings = {}
+endif
+
+if !exists('g:Gitv_DisableShellEscape')
+    let g:Gitv_DisableShellEscape = 0
+endif
+
+if !exists('g:Gitv_DoNotMapCtrlKey')
+    let g:Gitv_DoNotMapCtrlKey = 0
+endif
+
+if !exists('g:Gitv_PreviewOptions')
+    let g:Gitv_PreviewOptions = ''
+endif
+
+if !exists('g:Gitv_QuietBisect')
+    let g:Gitv_QuietBisect = 0
+endif
+
+" create a temporary file for working
+let s:workingFile = tempname()
+
 "this counts up each time gitv is opened to ensure a unique file name
 let g:Gitv_InstanceCounter = 0
 
 let s:localUncommitedMsg = 'Local uncommitted changes, not checked in to index.'
 let s:localCommitedMsg   = 'Local changes checked in to index but not committed.'
 
-command! -nargs=* -range -bang -complete=custom,s:CompleteGitv Gitv call s:OpenGitv(shellescape(<q-args>), <bang>0, <line1>, <line2>)
+let s:pendingRebaseMsg = 'View pending rebase instructions'
+let s:rebaseMsg = 'Edit rebase todo'
+
+command! -nargs=* -range -bang -complete=custom,s:CompleteGitv Gitv call s:OpenGitv(s:EscapeGitvArgs(<q-args>), <bang>0, <line1>, <line2>)
 cabbrev gitv <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'Gitv' : 'gitv')<CR>
 
 "Public API:"{{{
@@ -158,11 +184,58 @@ fu! s:RunCommandRelativeToGitRepo(command) abort "{{{
     return [result, a:command]
 endfu "}}} }}}
 "Open And Update Gitv:"{{{
-fu! s:OpenGitv(extraArgs, fileMode, rangeStart, rangeEnd) "{{{
+fu! s:SanitizeReservedArgs(extraArgs) "{{{
     let sanitizedArgs = a:extraArgs
     if sanitizedArgs[0] =~ "[\"']" && sanitizedArgs[:-1] =~ "[\"']"
         let sanitizedArgs = sanitizedArgs[1:-2]
     endif
+    " store bisect
+    if match(sanitizedArgs, ' --bisect') >= 0
+        let sanitizedArgs = substitute(sanitizedArgs, ' --bisect', '', 'g')
+        if s:BisectHasStarted()
+            let b:Bisecting = 1
+        endif
+    endif
+    " store files
+    let selectedFiles = []
+    let splitArgs = split(sanitizedArgs, ' ')
+    let index = len(splitArgs)
+    while index
+        let index -= 1
+        if !empty(glob(splitArgs[index]))
+            let selectedFiles += [fnamemodify(splitArgs[index], ':p')]
+        else
+            break
+        endif
+    endwhile
+    return [join(splitArgs[0:-len(selectedFiles) - 1], ' '), join(selectedFiles, ' ')]
+endfu "}}}
+fu! s:ReapplyReservedArgs(extraArgs, filePath) "{{{
+    let options = a:extraArgs[0]
+    if exists('b:Bisecting')
+        if a:filePath != '' && !s:IsBisectingFile(a:filePath)
+            echoerr "No longer bisecting file."
+            let b:Bisecting = 0
+        else
+            let options .= " --bisect"
+            let options = s:FilterArgs(options, ['--all', '--first-parent'])
+        endif
+    endif
+    return [options, a:extraArgs[1]]
+endfu "}}}
+fu! s:EscapeGitvArgs(extraArgs) "{{{
+    " TODO: test whether shellescape is really needed on windows.
+    if g:Gitv_DisableShellEscape == 0
+        return shellescape(a:extraArgs)
+    else
+        return a:extraArgs
+    fi
+endfu "}}}
+fu! s:OpenGitv(extraArgs, fileMode, rangeStart, rangeEnd) "{{{
+    if !exists('s:fugitiveSid')
+        let s:fugitiveSid = s:GetFugitiveSid()
+    endif
+    let sanitizedArgs = s:SanitizeReservedArgs(a:extraArgs)
     let g:Gitv_InstanceCounter += 1
     if !s:IsCompatible() "this outputs specific errors
         return
@@ -191,20 +264,27 @@ fu! s:CompleteGitv(arglead, cmdline, pos) "{{{
                 \ . "\n--branches\n--cherry-mark\n--cherry-pick\n--committer="
                 \ . "\n--date-order\n--dense\n--exclude=\n--first-parent"
                 \ . "\n--fixed-strings\n--follow\n--glob\n--grep-reflog"
-                \ . "\n--grep=\n--max-age=\n--max-count=\n--merges\n--min-age="
-                \ . "\n--min-parents=\n--not\n--pickaxe-all\n--pickaxe-regex"
-                \ . "\n--regexp-ignore-case\n--remotes\n--remove-empty\n--since="
-                \ . "\n--skip\n--tags\n--topo-order\n--until=\n--use-mailmap"
+                \ . "\n--grep=\n--max-age=\n--max-count=\n--merges\n--no-merges"
+                \ . "\n--min-age=\n--min-parents=\n--not\n--pickaxe-all"
+                \ . "\n--pickaxe-regex\n--regexp-ignore-case\n--remotes"
+                \ . "\n--remove-empty\n--since=\n--skip\n--tags\n--topo-order"
+                \ . "\n--until=\n--use-mailmap"
     else
+        if match(a:arglead, '\/$') >= 0
+            let paths = "\n".globpath(a:arglead, '*')
+        else
+            let paths = "\n".globpath(a:arglead.'*', '')
+        endif
+
         let refs = fugitive#buffer().repo().git_chomp('rev-parse', '--symbolic', '--branches', '--tags', '--remotes')
         let refs .= "\nHEAD\nFETCH_HEAD\nORIG_HEAD"
 
         " Complete ref names preceded by a ^ or anything followed by 2-3 dots
         let prefix = matchstr( a:arglead, '\v^(\^|.*\.\.\.?)' )
         if prefix == ''
-            return refs
+            return refs.paths
         else
-            return substitute( refs, "\\v(^|\n)\\zs", prefix, 'g' )
+            return substitute( refs, "\\v(^|\n)\\zs", prefix, 'g' ).paths
         endif
 endf "}}}
 fu! s:OpenBrowserMode(extraArgs) "{{{
@@ -221,6 +301,7 @@ fu! s:OpenBrowserMode(extraArgs) "{{{
         return 0
     endif
     call s:SetupBufferCommands(0)
+    let b:rebaseInstructions = {}
     "open the first commit
     if g:Gitv_OpenPreviewOnLaunch
         silent call s:OpenGitvCommit("Gedit", 0)
@@ -260,29 +341,41 @@ fu! s:LoadGitv(direction, reload, commitCount, extraArgs, filePath, range) "{{{
     echom "Loaded up to " . a:commitCount . " commits."
     return 1
 endf "}}}
+fu! s:FilterArgs(args, sanitize) "{{{
+    let newArgs = a:args
+    for arg in a:sanitize
+        let newArgs = substitute(newArgs, ' ' . arg, '', 'g')
+    endfor
+    return newArgs
+endf "}}}
 fu! s:ToggleArg(args, toggle) "{{{
-    if matchstr(a:args, a:toggle) == ''
-      let NewArgs = a:args . ' ' . a:toggle
+    if matchstr(a:args[0], a:toggle) == ''
+      let NewArgs = a:args[0] . ' ' . a:toggle
     else
-      let NewArgs = substitute(a:args, ' ' . a:toggle, '', '')
+      let NewArgs = substitute(a:args[0], ' ' . a:toggle, '', '')
     endif
     let b:Gitv_ExtraArgs = NewArgs
-    return NewArgs
+    return [NewArgs, a:args[1]]
 endf "}}}
 fu! s:ConstructAndExecuteCmd(direction, commitCount, extraArgs, filePath, range) "{{{
     if a:range == [] "no range, setup and execute the command
+        let extraArgs = s:ReapplyReservedArgs(a:extraArgs, a:filePath)
         let cmd  = "log " 
-        let cmd .= " --no-color --decorate=full --pretty=format:\"%d %s__SEP__%ar__SEP__%an__SEP__[%h]\" --graph -"
+        let cmd .= " --no-color --decorate=full --pretty=format:\"%d__START__ %s__SEP__%ar__SEP__%an__SEP__[%h]\" --graph -"
         let cmd .= a:commitCount
-        let cmd .= " " . a:extraArgs
+        let cmd .= " " . extraArgs[0]
         if a:filePath != ''
             let cmd .= ' -- ' . a:filePath
+        elseif extraArgs[1] != ''
+            let cmd .= ' -- ' . extraArgs[1]
         endif
+        let g:cmd = cmd
         silent let res = Gitv_OpenGitCommand(cmd, a:direction)
         return res
     else "range applies, setup a trivial buffer and then modify it with custom logic
         let cmd = "--version" "arbitrary command intended to setup the buffer
                               "and act as a check everything is ok
+        let g:cmd = cmd
         silent let res = Gitv_OpenGitCommand(cmd, a:direction)
         if !res | return res | endif
         silent let res = s:ConstructRangeBuffer(a:commitCount, a:extraArgs, a:filePath, a:range)
@@ -296,7 +389,8 @@ fu! s:ConstructRangeBuffer(commitCount, extraArgs, filePath, range) "{{{
     %delete
 
     "necessary as order is important; can't just iterate over keys(slices)
-    let hashCmd       = "log " . a:extraArgs
+    let extraArgs = s:ReapplyReservedArgs(a:extraArgs, a:filePath)
+    let hashCmd       = "log " . extraArgs[0]
     let hashCmd      .= " --no-color --pretty=format:%H -".a:commitCount." -- " . a:filePath
     let [result, cmd] = s:RunGitCommand(hashCmd, 0)
     let hashes        = split(result, '\n')
@@ -329,7 +423,7 @@ fu! s:GetFileSlices(range, filePath, commitCount, extraArgs) "{{{
     let range     = a:range[0] . ',' . a:range[1]
     let range     = substitute(range, "'", "'\\\\''", 'g') "force unix style escaping even on windows
     let git       = fugitive#buffer().repo().git_command()
-    let sliceCmd  = "for hash in `".git." log " . a:extraArgs
+    let sliceCmd  = "for hash in `".git." log " . a:extraArgs[0]
     let sliceCmd .= " --no-color --pretty=format:%H -".a:commitCount." -- " . a:filePath . '`; '
     let sliceCmd .= "do "
     let sliceCmd .= 'echo "****${hash}"; '
@@ -377,10 +471,13 @@ fu! s:CompareFileAtCommits(slices, c1sha, c2sha) "{{{
 endfu "}}}
 fu! s:GetFinalOutputForHashes(hashes) "{{{
     if len(a:hashes) > 0
+        let extraArgs = s:ReapplyReservedArgs(['', ''])
         let git       = fugitive#buffer().repo().git_command()
         let cmd       = 'for hash in ' . join(a:hashes, " ") . '; '
         let cmd      .= "do "
-        let cmd      .= git.' log --no-color --decorate=full --pretty=format:"%d %s__SEP__%ar__SEP__%an__SEP__[%h]%n" --graph -1 ${hash}; '
+        let cmd      .= git.' log'
+        let cmd      .= extraArgs[0]
+        let cmd      .=' --no-color --decorate=full --pretty=format:"%d__START__ %s__SEP__%ar__SEP__%an__SEP__[%h]%n" --graph -1 ${hash}; '
         let cmd      .= 'done'
         let finalCmd  = "bash -c " . shellescape(cmd)
 
@@ -410,14 +507,51 @@ fu! s:SetupBuffer(commitCount, extraArgs, filePath, range) "{{{
     silent %s/refs\/tags\//t:/ge
     silent %s/refs\/remotes\//r:/ge
     silent %s/refs\/heads\///ge
-    silent %call s:Align("__SEP__", a:filePath)
-    silent %s/\s\+$//e
     call s:AddLoadMore()
     call s:AddLocalNodes(a:filePath)
     call s:AddFileModeSpecific(a:filePath, a:range, a:commitCount)
+    call s:AddRebaseMessage(a:filePath)
+
+    " run any autocmds the user may have defined to hook in here
+    silent doautocmd User GitvSetupBuffer
+
+    silent call s:InsertRebaseInstructions()
+    silent %call s:Align("__SEP__", a:filePath)
+    silent %s/\s\+$//e
     silent setlocal nomodifiable
     silent setlocal readonly
     silent setlocal cursorline
+endf "}}}
+fu! s:InsertRebaseInstructions() "{{{
+    if s:RebaseHasInstructions()
+        for key in keys(b:rebaseInstructions)
+            let search = '__START__\ze.*\['.key.'\]$'
+            let replace = ' ['.b:rebaseInstructions[key].instruction
+            if exists('b:rebaseInstructions[key].cmd')
+                let replace .= 'x'
+            endif
+            let replace .= ']'
+            exec '%s/'.search.'/'.replace
+        endfor
+    endif
+    %s/__START__//
+endf "}}}
+fu! s:CleanupRebasePreview() "{{{
+    if &syntax == 'gitrebase'
+        bdelete
+    endif
+endf "}}}
+fu! s:AddRebaseMessage(filePath) "{{{
+    if a:filePath != ''
+        return
+    endif
+    if s:RebaseHasInstructions()
+        call append(0, '= '.s:pendingRebaseMsg)
+    elseif s:RebaseHasStarted()
+        call append(0, '= '.s:rebaseMsg)
+    else
+        call s:MoveIntoPreviewAndExecute('call s:CleanupRebasePreview()', 0)
+    endif
 endf "}}}
 fu! s:AddLocalNodes(filePath) "{{{
     let suffix = a:filePath == '' ? '' : ' -- '.a:filePath
@@ -463,77 +597,502 @@ fu! s:AddFileModeSpecific(filePath, range, commitCount) "{{{
         endif
     endif
 endfu "}}}
-fu! s:SetupMappings() "{{{
-    "operations
-    nnoremap <buffer> <silent> <cr> :call <SID>OpenGitvCommit("Gedit", 0)<cr>
-    nnoremap <buffer> <silent> <LeftMouse> <LeftMouse>:call <SID>OpenGitvCommit("Gedit", 0)<cr>
-    nnoremap <buffer> <silent> o :call <SID>OpenGitvCommit("Gsplit", 0)<cr>
-    nnoremap <buffer> <silent> O :call <SID>OpenGitvCommit("Gtabedit", 0)<cr>
-    nnoremap <buffer> <silent> s :call <SID>OpenGitvCommit("Gvsplit", 0)<cr>
+"Mapping: "{{{
+fu! s:SetDefaultMappings() "{{{
+    " creates the script-scoped dictionary of mapping descriptors
+    " the dictionary will optionally include ctrl based commands
+    " sets s:defaultMappings to the dictionary
+    let s:defaultMappings = {}
 
-    nnoremap <buffer> <silent> <Plug>(gitv-previous-commit) :<C-U>call <SID>JumpToCommit(0)<cr>
-    nnoremap <buffer> <silent> <Plug>(gitv-next-commit) :<C-U>call <SID>JumpToCommit(1)<cr>
-    "fuzzyfinder style key mappings
-    nnoremap <buffer> <silent> <Plug>(gitv-split) :call <SID>OpenGitvCommit("Gsplit", 0)<cr>
-    nnoremap <buffer> <silent> <Plug>(gitv-vsplit) :call <SID>OpenGitvCommit("Gvsplit", 0)<cr>
-    nnoremap <buffer> <silent> <Plug>(gitv-tabedit) :call <SID>OpenGitvCommit("Gtabedit", 0)<cr>
-    "force opening the fugitive buffer for the commit
-    nnoremap <buffer> <silent> <Plug>(gitv-edit) :call <SID>OpenGitvCommit("Gedit", 1)<cr>
-    if(!exists("g:Gitv_DoNotMapCtrlKey"))
-        nmap <buffer> <silent> <C-n> <Plug>(gitv-previous-commit)
-        nmap <buffer> <silent> <C-p> <Plug>(gitv-next-commit)
-        nmap <buffer> <silent> <c-j> <Plug>(gitv-split)
-        nmap <buffer> <silent> <c-k> <Plug>(gitv-vsplit)
-        nmap <buffer> <silent> <c-l> <Plug>(gitv-tabedit)
-        nmap <buffer> <silent> <c-cr> <Plug>(gitv-edit)
-    endif
-    "for the terminal
-    nnoremap <buffer> <silent> i :call <SID>OpenGitvCommit("Gedit", 1)<cr>
+    " convenience
+    let s:defaultMappings.quit = {
+        \'cmd': ':<C-U>call <SID>CloseGitv()<cr>', 'bindings': 'q'
+    \}
+    let s:defaultMappings.update = {
+        \'cmd': ':<C-U>call <SID>LoadGitv("", 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, <SID>GetRelativeFilePath(), <SID>GetRange())<cr>',
+        \'bindings': 'u'
+    \}
+    let s:defaultMappings.toggleAll = {
+        \'cmd': ':<C-U>call <SID>LoadGitv("", 0, b:Gitv_CommitCount, <SID>ToggleArg(b:Gitv_ExtraArgs, "--all"), <SID>GetRelativeFilePath(), <SID>GetRange())<cr>',
+        \'bindings': 'a'
+    \}
 
-    nnoremap <buffer> <silent> q :call <SID>CloseGitv()<cr>
-    nnoremap <buffer> <silent> u :call <SID>LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, <SID>GetRelativeFilePath(), <SID>GetRange())<cr>
-    nnoremap <buffer> <silent> a :call <SID>LoadGitv('', 0, b:Gitv_CommitCount, <SID>ToggleArg(b:Gitv_ExtraArgs, '--all'), <SID>GetRelativeFilePath(), <SID>GetRange())<cr>
-    nnoremap <buffer> <silent> co :call <SID>CheckOutGitvCommit()<cr>
+    " movement
+    let s:defaultMappings.nextBranch = {
+        \'cmd': ':call <SID>JumpToBranch(0)<cr>',
+        \'bindings': 'x'
+    \}
+    let s:defaultMappings.prevBranch = {
+        \'cmd': ':call <SID>JumpToBranch(1)<cr>',
+        \'bindings': 'X'
+    \}
+    let s:defaultMappings.nextRef = {
+        \'cmd': ':call <SID>JumpToRef(0)<cr>',
+        \'bindings': 'r'
+    \}
+    let s:defaultMappings.prevRef = {
+        \'cmd': ':call <SID>JumpToRef(1)<cr>',
+        \'bindings': 'R'
+    \}
+    let s:defaultMappings.head = {
+        \'cmd': ':<C-U>call <SID>JumpToHead()<cr>',
+        \'bindings': 'P'
+    \}
+    let s:defaultMappings.parent = {
+        \'cmd': ':call <SID>JumpToParent()<cr>',
+        \'bindings': 'p'
+    \}
+    let s:defaultMappings.toggleWindow = {
+        \'cmd': ':<C-U>call <SID>SwitchBetweenWindows()<cr>',
+        \'bindings': 'gw'
+    \}
 
-    nnoremap <buffer> <silent> D :call <SID>DiffGitvCommit()<cr>
-    vnoremap <buffer> <silent> D :call <SID>DiffGitvCommit()<cr>
+    " viewing commits
+    let s:defaultMappings.editCommit = {
+        \'cmd': ':<C-U>call <SID>OpenGitvCommit("Gedit", 0)<cr>',
+        \'bindings': [
+            \'<cr>', { 'keys': '<LeftMouse>', 'prefix': '<LeftMouse>' }
+        \],
+    \}
+    " <Plug>(gitv-*) are fuzzyfinder style keymappings
+    let s:defaultMappings.splitCommit = {
+        \'cmd': ':<C-U>call <SID>OpenGitvCommit("Gsplit", 0)<cr>',
+        \'bindings': 'o',
+        \'permanentBindings': '<Plug>(gitv-split)'
+    \}
+    let s:defaultMappings.tabeCommit = {
+        \'cmd': ':<C-U>call <SID>OpenGitvCommit("Gtabedit", 0)<cr>',
+        \'bindings': 'O' ,
+        \'permanentBindings': '<Plug>(gitv-tabedit)'
+    \}
+    let s:defaultMappings.vsplitCommit = {
+        \'cmd': ':<C-U>call <SID>OpenGitvCommit("Gvsplit", 0)<cr>',
+        \'bindings': 's',
+        \'permanentBindings': '<Plug>(gitv-vsplit)'
+    \}
+    let s:defaultMappings.previousCommit = {
+        \'cmd': ':<C-U>call <SID>JumpToCommit(0)<cr>',
+        \'preventCustomBindings': 1,
+        \'bindings': '<Plug>(gitv-previous-commit)'
+    \}
+    let s:defaultMappings.nextCommit = {
+        \'cmd': ':<C-U>call <SID>JumpToCommit(1)<cr>',
+        \'preventCustomBindings': 1,
+        \'bindings': '<Plug>(gitv-next-commit)'
+    \}
+    " force opening the fugitive buffer for the commit
+    let s:defaultMappings.editCommitDetails = {
+        \'cmd': ':<C-U>call <SID>OpenGitvCommit("Gedit", 1)<cr>',
+        \'bindings': 'i',
+        \'permanentBindings': '<Plug>(gitv-edit)'
+    \}
+    let s:defaultMappings.diff = {
+        \'cmd': ':<C-U>call <SID>DiffGitvCommit()<cr>',
+        \'bindings': 'D'
+    \}
+    let s:defaultMappings.vdiff = {
+        \'mapCmd': 'vnoremap',
+        \'cmd': ':call <SID>DiffGitvCommit()<cr>',
+        \'bindings': 'D'
+    \}
+    let s:defaultMappings.stat = {
+        \'cmd': ':<C-U>call <SID>StatGitvCommit()<cr>',
+        \'bindings': 'S'
+    \}
+    let s:defaultMappings.vstat = {
+        \'mapCmd': 'vnoremap',
+        \'cmd': ':<C-U>call <SID>StatGitvCommit()<cr>',
+        \'bindings': 'S'
+    \}
 
-    nnoremap <buffer> <silent> S :call <SID>StatGitvCommit()<cr>
-    vnoremap <buffer> <silent> S :call <SID>StatGitvCommit()<cr>
+    " general git commands
+    let s:defaultMappings.checkout = {
+        \'cmd': ':<C-U>call <SID>CheckOutGitvCommit()<cr>', 'bindings': 'co'
+    \}
+    let s:defaultMappings.merge = {
+        \'cmd': ':<C-U>call <SID>MergeToCurrent()<cr>', 'bindings': '<leader>m'
+    \}
+    let s:defaultMappings.vmerge = {
+        \'mapCmd': 'vnoremap',
+        \'cmd': ':call <SID>MergeBranches()<cr>',
+        \'bindings': 'm'
+    \}
+    let s:defaultMappings.cherryPick = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>CherryPick()<cr>',
+        \'bindings': 'cp'
+    \}
+    let s:defaultMappings.vcherryPick = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>CherryPick()<cr>',
+        \'bindings': 'cp'
+    \}
+    let s:defaultMappings.reset = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>ResetBranch("--mixed")<cr>',
+        \'bindings': 'rb'
+    \}
+    let s:defaultMappings.vreset = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>ResetBranch("--mixed")<cr>',
+        \'bindings': 'rb'
+    \}
+    let s:defaultMappings.resetSoft = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>ResetBranch("--soft")<cr>',
+        \'bindings': 'rbs'
+    \}
+    let s:defaultMappings.vresetSoft = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>ResetBranch("--soft")<cr>',
+        \'bindings': 'rbs'
+    \}
+    let s:defaultMappings.resetHard = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>ResetBranch("--hard")<cr>',
+        \'bindings': 'rbh'
+    \}
+    let s:defaultMappings.vresetHard = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>ResetBranch("--hard")<cr>',
+        \'bindings': 'rbh'
+    \}
+    let s:defaultMappings.revert = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>Revert()<cr>',
+        \'bindings': 'rev'
+    \}
+    let s:defaultMappings.vrevert = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>Revert()<cr>',
+        \'bindings': 'rev'
+    \}
+    let s:defaultMappings.delete = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>DeleteRef()<cr>',
+        \'bindings': 'd'
+    \}
+    let s:defaultMappings.vdelete = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>DeleteRef()<cr>',
+        \'bindings': 'd'
+    \}
 
-    vnoremap <buffer> <silent> m :call <SID>MergeBranches()<cr>
-    nnoremap <buffer> <silent> <leader>m :call <SID>MergeToCurrent()<cr>
+    " rebasing
+    let s:defaultMappings.rebase = {
+        \'cmd': ':<C-U>call <SID>Rebase()<cr>',
+        \'bindings': 'grr'
+    \}
+    let s:defaultMappings.vrebase = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>Rebase()<cr>',
+        \'bindings': 'grr'
+    \}
+    let s:defaultMappings.rebasePick = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("p")<cr>',
+        \'bindings': 'grP'
+    \}
+    let s:defaultMappings.vrebasePick = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("p")<cr>',
+        \'bindings': 'grP'
+    \}
+    let s:defaultMappings.rebaseReword = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("r")<cr>',
+        \'bindings': 'grR'
+    \}
+    let s:defaultMappings.vrebaseReword = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("r")<cr>',
+        \'bindings': 'grR'
+    \}
+    let s:defaultMappings.rebaseMarkEdit = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("e")<cr>',
+        \'bindings': 'grE'
+    \}
+    let s:defaultMappings.vrebaseMarkEdit = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("e")<cr>',
+        \'bindings': 'grE'
+    \}
+    let s:defaultMappings.rebaseSquash = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("s")<cr>',
+        \'bindings': 'grS'
+    \}
+    let s:defaultMappings.vrebaseSquash = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("s")<cr>',
+        \'bindings': 'grS'
+    \}
+    let s:defaultMappings.rebaseFixup = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("f")<cr>',
+        \'bindings': 'grF'
+    \}
+    let s:defaultMappings.vrebaseFixup = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("f")<cr>',
+        \'bindings': 'grF'
+    \}
+    let s:defaultMappings.rebaseExec = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("x")<cr>',
+        \'bindings': 'grX'
+    \}
+    let s:defaultMappings.vrebaseExec = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("x")<cr>',
+        \'bindings': 'grX'
+    \}
+    let s:defaultMappings.rebaseDrop = {
+        \'cmd': ':<C-U>call <SID>RebaseSetInstruction("d")<cr>',
+        \'bindings': 'grD'
+    \}
+    let s:defaultMappings.vrebaseDrop = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseSetInstruction("d")<cr>',
+        \'bindings': 'grD'
+    \}
+    let s:defaultMappings.rebaseToggle = {
+        \'cmd': ':<C-U>call <SID>RebaseToggle()<cr>',
+        \'bindings': 'grs'
+    \}
+    let s:defaultMappings.vrebaseToggle = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>RebaseToggle()<cr>',
+        \'bindings': 'grs'
+    \}
+    let s:defaultMappings.rebaseSkip = {
+        \'cmd': ':call <SID>RebaseSkip()<cr>',
+        \'bindings': 'grn'
+    \}
+    let s:defaultMappings.rebaseContinue = {
+        \'cmd': ':<C-U>call <SID>RebaseContinue()<cr>',
+        \'bindings': 'grc'
+    \}
 
-    nmap <buffer> <silent> cp :call <SID>CherryPick()<cr>
-    vmap <buffer> <silent> cp :call <SID>CherryPick()<cr>
+    " bisecting
+    let s:defaultMappings.bisectStart = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>BisectStart("n")<cr>',
+        \'bindings': 'gbs'
+    \}
+    let s:defaultMappings.vbisectStart = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>BisectStart("v")<cr>',
+        \'bindings': 'gbs'
+    \}
+    let s:defaultMappings.bisectGood = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':call <SID>BisectGoodBad("good")<cr>',
+        \'bindings': 'gbg'
+    \}
+    let s:defaultMappings.vbisectGood = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>BisectGoodBad("good")<cr>',
+        \'bindings': 'gbg'
+    \}
+    let s:defaultMappings.bisectBad = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':call <SID>BisectGoodBad("bad")<cr>',
+        \'bindings': 'gbb'
+    \}
+    let s:defaultMappings.vbisectBad = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>BisectGoodBad("bad")<cr>',
+        \'bindings': 'gbb'
+    \}
+    let s:defaultMappings.bisectSkip = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':call <SID>BisectSkip("n")<cr>',
+        \'bindings': 'gbn'
+    \}
+    let s:defaultMappings.vbisectSkip = {
+        \'mapCmd': 'vmap',
+        \'cmd': ':call <SID>BisectSkip("v")<cr>',
+        \'bindings': 'gbn'
+    \}
+    let s:defaultMappings.bisectReset = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>BisectReset()<cr>',
+        \'bindings': 'gbr'
+    \}
+    let s:defaultMappings.bisectLog = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>BisectLog()<cr>',
+        \'bindings': 'gbl'
+    \}
+    let s:defaultMappings.bisectReplay = {
+        \'mapCmd': 'nmap',
+        \'cmd': ':<C-U>call <SID>BisectReplay()<cr>',
+        \'bindings': 'gbp'
+    \}
 
-    nmap <buffer> <silent> rb :call <SID>ResetBranch('--mixed')<cr>
-    vmap <buffer> <silent> rb :call <SID>ResetBranch('--mixed')<cr>
-    nmap <buffer> <silent> rbh :call <SID>ResetBranch('--hard')<cr>
-    vmap <buffer> <silent> rbh :call <SID>ResetBranch('--hard')<cr>
-
-    nmap <buffer> <silent> d :call <SID>DeleteRef()<cr>
-    vmap <buffer> <silent> d :call <SID>DeleteRef()<cr>
-
-    "movement
-    nnoremap <buffer> <silent> x :call <SID>JumpToBranch(0)<cr>
-    nnoremap <buffer> <silent> X :call <SID>JumpToBranch(1)<cr>
-    nnoremap <buffer> <silent> r :call <SID>JumpToRef(0)<cr>
-    nnoremap <buffer> <silent> R :call <SID>JumpToRef(1)<cr>
-    nnoremap <buffer> <silent> P :call <SID>JumpToHead()<cr>
-    nnoremap <buffer> <silent> p :<c-u>call <SID>JumpToParent()<cr>
-
-    "misc
-    nnoremap <buffer> git :Git<space>
+    " misc
+    let s:defaultMappings.git = {
+        \'mapOpts': '<buffer>',
+        \'cmd': ':Git<space>',
+        \'bindings': 'git'
+    \}
     " yank the commit hash
     if has('mac') || !has('unix') || has('xterm_clipboard')
-        nnoremap <buffer> <silent> yc m'$F[w"+yw`'
+        let s:defaultMappings.yank = {
+            \'cmd': "m'$F[w\"+yw`'",
+            \'bindings': 'yc'
+        \}
     else
-        nnoremap <buffer> <silent> yc m'$F[wyw`'
+        let s:defaultMappings.yank = {
+            \'cmd': "m'$F[wyw`'",
+            \'bindings': 'yc'
+        \}
+    endif
+
+    " bindings which use ctrl
+    if g:Gitv_DoNotMapCtrlKey != 1
+        let s:defaultMappings.ctrlPreviousCommit = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-previous-commit)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<C-n>'
+        \}
+        let s:defaultMappings.ctrlNextCommit = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-next-commit)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<C-p>'
+        \}
+        let s:defaultMappings.ctrlEdit = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-edit)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<c-cr>'
+        \}
+        let s:defaultMappings.ctrlSplit = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-split)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<c-j>'
+        \}
+        let s:defaultMappings.ctrlVsplit = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-vsplit)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<c-k>'
+        \}
+        let s:defaultMappings.ctrlTabe = {
+            \'mapCmd': 'nmap',
+            \'cmd': '<Plug>(gitv-tabedit)',
+            \'preventCustomBindings': 1,
+            \'bindings': '<c-l>'
+        \}
     endif
 endf "}}}
+fu! s:NormalCmd(mapId, mappings) "{{{
+    let bindings = s:GetBindings(a:mapId, a:mappings)
+    exec 'normal '.bindings[0].keys
+endfu "}}}
+fu! s:TransformBindings(bindings) "{{{
+    " a:bindings can be a string or list of (in)complete binding descriptors
+    " a list of complete binding descriptors will be returned
+    " a complete binding object is a binding object with all possible fields
+    if type(a:bindings) != 3 " list
+        let bindings = [a:bindings]
+    else
+        let bindings = a:bindings
+    endif
+    let newBindings = []
+    for binding in bindings
+        let newBinding = binding
+        if type(newBinding) != 4 " dictionary
+            let newBinding = { 'keys': newBinding }
+        endif
+        if !exists('newBinding.prefix')
+            let newBinding.prefix = ''
+        endif
+        call add(newBindings, newBinding)
+    endfor
+    return newBindings
+endf "}}}
+fu! s:GetBindings(mapId, mappings) "{{{
+    " returns a list of complete binding objects based on customs/defaults
+    " does not return custom bindings for descriptors with preventCustomBindings
+    " always includes permanentBindings for an object
+    let defaults = a:mappings[a:mapId]
+    if exists('defaults.permanentBindings')
+        let permanentBindings = s:TransformBindings(defaults.permanentBindings)
+    else
+        let permanentBindings = []
+    endif
+    if !exists('g:Gitv_CustomMappings[a:mapId]')
+        let bindings = defaults.bindings
+    else
+        if exists('defaults.preventCustomBindings')
+            let bindings = defaults.bindings
+        else
+            let bindings = g:Gitv_CustomMappings[a:mapId]
+        endif
+    endif
+    return s:TransformBindings(bindings) + permanentBindings
+endf "}}}
+fu! s:GetMapCmd(mapId, mappings) "{{{
+    " gets the map command from the dictionary of defaults
+    " if it does not exist, returns 'nnoremap'
+    let defaults = a:mappings[a:mapId]
+    if !exists('defaults.mapCmd')
+        return 'nnoremap'
+    endif
+    return defaults.mapCmd
+endf "}}}
+fu! s:GetMapOpts(mapId, mappings) "{{{
+    " gets the map options from the dictionary of defaults
+    " if it does not exist, returns '<buffer> <silent>'
+    let defaults = a:mappings[a:mapId]
+    if !exists('defaults.mapOpts')
+        return '<buffer> <silent>'
+    endif
+    return defaults.mapOpts
+endf "}}}
+fu! s:ApplyMapping(descriptor) "{{{
+    " executes a map descriptor to apply the mappings
+    let prefix = a:descriptor.mapCmd . ' ' . a:descriptor.mapOpts . ' '
+    let suffix = a:descriptor.cmd
+    for binding in a:descriptor.bindings
+        let cmd = prefix . binding.prefix . binding.keys . ' ' . suffix
+        exec cmd
+    endfor
+endf "}}}
+fu! s:GetMapDescriptor(mapId, mappings) "{{{
+    " builds a complete map descriptor
+    " a complete map descriptor has all possible fields
+    if !exists('a:mappings[a:mapId]')
+        return 0
+    endif
+    let descriptor={
+        \'mapCmd': s:GetMapCmd(a:mapId, a:mappings),
+        \'mapOpts': s:GetMapOpts(a:mapId, a:mappings),
+        \'cmd': a:mappings[a:mapId].cmd,
+        \'bindings': s:GetBindings(a:mapId, a:mappings)
+    \}
+    return descriptor
+endf "}}}
+fu! s:SetupMapping(mapId, mappings) "{{{
+    " sets up a single mapping using defaults or custom descriptors
+    let mapping = s:GetMapDescriptor(a:mapId, a:mappings)
+    if type(mapping) != 4 " dictionary
+        echoerr "Invalid mapping: ".a:mapId
+    else
+        call s:ApplyMapping(mapping)
+    endif
+endf "}}}
+fu! s:SetupBackgroundMapping(mapId, binding) "{{{
+endf "}}}
+fu! s:SetupMappings() "{{{
+    call s:SetDefaultMappings()
+    "operations
+    for mapId in keys(s:defaultMappings)
+        call s:SetupMapping(mapId, s:defaultMappings)
+    endfor
+endf "}}} }}}
 fu! s:SetupBufferCommands(fileMode) "{{{
-    silent command! -buffer -nargs=* -complete=customlist,s:fugitive_GitComplete Git call <sid>MoveIntoPreviewAndExecute("unsilent Git <args>",1)|normal u
+    exec 'silent command! -buffer -nargs=* -complete=customlist,<SNR>'.s:fugitiveSid.'_GitComplete Git call <sid>MoveIntoPreviewAndExecute("unsilent Git <args>",1)| call <sid>NormalCmd("update", s:defaultMappings)'
 endfu "}}}
 fu! s:ResizeWindow(fileMode) "{{{
     if a:fileMode "window height determined by &previewheight
@@ -561,17 +1120,6 @@ fu! s:ResizeWindow(fileMode) "{{{
     endif
 endf "}}} }}}
 "Utilities:"{{{
-fu! s:GetGitvSha(lineNumber) "{{{
-    let l = getline(a:lineNumber)
-    let sha = matchstr(l, "\\[\\zs[0-9a-f]\\{7}\\ze\\]$")
-    return sha
-endf "}}}
-fu! s:GetGitvRefs(line) "{{{
-    let l = getline(a:line)
-    let refstr = matchstr(l, "^\\(\\(|\\|\\/\\|\\\\\\|\\*\\)\\s\\?\\)*\\s\\+(\\zs.\\{-}\\ze)")
-    let refs = split(refstr, ', ')
-    return refs
-endf "}}}
 fu! s:GetParentSha(sha, parentNum) "{{{
     if a:parentNum < 1
         return
@@ -720,9 +1268,25 @@ fu! s:RecordBufferExecAndWipe(cmd, wipe) "{{{
         endif
     endif
 endfu "}}}
+fu! s:SwitchBetweenWindows() "{{{
+    let currentType = &filetype
+    if currentType == 'gitv'
+        if s:IsFileMode()
+            return
+        endif
+        let targetType = 'git'
+    else
+        let targetType = 'gitv'
+    endif
+    let winnum = -1
+    windo exec 'if &filetype == targetType | let winnum = winnr() | endif'
+    if winnum != -1
+        execute winnum.'wincmd w'
+    endif
+endfu "}}}
 fu! s:MoveIntoPreviewAndExecute(cmd, tryToOpenNewWin) "{{{
     if winnr("$") == 1 "is the only window
-        call s:AttemptToCreateAPreviewWindow(a:tryToOpenNewWin, a:cmd)
+        call s:AttemptToCreateAPreviewWindow(a:tryToOpenNewWin, a:cmd, 0)
         return
     endif
     let horiz      = s:IsHorizontal()
@@ -736,7 +1300,7 @@ fu! s:MoveIntoPreviewAndExecute(cmd, tryToOpenNewWin) "{{{
     endif
 
     if currentWin == winnr() "haven't moved anywhere
-        call s:AttemptToCreateAPreviewWindow(a:tryToOpenNewWin, a:cmd)
+        call s:AttemptToCreateAPreviewWindow(a:tryToOpenNewWin, a:cmd, 1)
         return
     endif
 
@@ -747,11 +1311,11 @@ fu! s:MoveIntoPreviewAndExecute(cmd, tryToOpenNewWin) "{{{
         wincmd h
     endif
 endfu "}}}
-fu! s:AttemptToCreateAPreviewWindow(shouldAttempt, cmd) "{{{
+fu! s:AttemptToCreateAPreviewWindow(shouldAttempt, cmd, shouldWarn) "{{{
     if a:shouldAttempt
         call s:CreateNewPreviewWindow()
         call s:MoveIntoPreviewAndExecute(a:cmd, 0)
-    else
+    elseif a:shouldWarn
         echoerr "No preview window detected."
     endif
 endfu "}}}
@@ -822,40 +1386,59 @@ fu! s:OpenRelativeFilePath(sha, geditForm) "{{{
 endf "}}} }}}
 "Mapped Functions:"{{{
 "Operations: "{{{
+fu! s:GetCommitMsg() "{{{
+    return fugitive#buffer().repo().tree().'/.git/COMMIT_EDITMSG'
+endf "}}}
 fu! s:OpenGitvCommit(geditForm, forceOpenFugitive) "{{{
-    if getline('.') == "-- Load More --"
+    let bindingsCmd = 'call s:MoveIntoPreviewAndExecute("call s:SetupMapping('."'".'toggleWindow'."'".', s:defaultMappings)", 0)'
+    let line = getline('.')
+    if line == "-- Load More --"
         call s:LoadGitv('', 1, b:Gitv_CommitCount+g:Gitv_CommitStep, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
         return
     endif
-    if s:IsFileMode() && getline('.') =~ "^-- \\[.*\\] --$"
+    if s:IsFileMode() && line =~ "^-- \\[.*\\] --$"
         call s:OpenWorkingCopy(a:geditForm)
         return
     endif
-    if getline('.') =~ s:localUncommitedMsg.'$'
+    if line =~ s:pendingRebaseMsg.'$' || line =~ s:rebaseMsg.'$'
+        call s:RebaseEdit()
+        return
+    endif
+    if line =~ s:localUncommitedMsg.'$'
         call s:OpenWorkingDiff(a:geditForm, 0)
+        exec bindingsCmd
         return
     endif
-    if getline('.') =~ s:localCommitedMsg.'$'
+    if line =~ s:localCommitedMsg.'$'
         call s:OpenWorkingDiff(a:geditForm, 1)
+        exec bindingsCmd
         return
     endif
-    if s:IsFileMode() && getline('.') =~ '^-- /.*/$'
-        if s:EditRange(matchstr(getline('.'), '^-- /\zs.*\ze/$'))
-            normal u
+    if s:IsFileMode() && line =~ '^-- /.*/$'
+        if s:EditRange(matchstr(line, '^-- /\zs.*\ze/$'))
+            call s:NormalCmd('update', s:defaultMappings)
         endif
         return
     endif
-    let sha = s:GetGitvSha(line('.'))
+    let sha = gitv#util#line#sha(line('.'))
     if sha == ""
         return
     endif
     if s:IsFileMode() && !a:forceOpenFugitive
         call s:OpenRelativeFilePath(sha, a:geditForm)
     else
-        let cmd = a:geditForm . " " . sha
-        let cmd = 'call s:RecordBufferExecAndWipe("'.cmd.'", '.(a:geditForm=='Gedit').')'
+        let opts = g:Gitv_PreviewOptions
+        if opts == ''
+            let cmd = a:geditForm . " " . sha
+            let cmd = 'call s:RecordBufferExecAndWipe("'.cmd.'", '.(a:geditForm=='Gedit').')'
+        else
+            let winCmd = a:geditForm[1:] == 'edit' ? '' : a:geditForm[1:]
+            let cmd = 'call Gitv_OpenGitCommand(\"show '.opts.' --no-color '.sha.'\", \"'.winCmd.'\")'
+            let cmd = 'call s:RecordBufferExecAndWipe("'.cmd.'", '.(winCmd=='').')'
+        endif
         call s:MoveIntoPreviewAndExecute(cmd, 1)
         call s:MoveIntoPreviewAndExecute('setlocal fdm=syntax', 0)
+        exec bindingsCmd
     endif
 endf
 fu! s:OpenWorkingCopy(geditForm)
@@ -898,9 +1481,587 @@ fu! s:EditRange(rangeDelimiter)
     call s:SetRange(idx, value)
     return 1
 endfu "}}}
+" Rebase: "{{{
+fu! s:RebaseHasInstructions() "{{{
+    return exists('b:rebaseInstructions') && len(keys(b:rebaseInstructions)) > 0
+endf "}}}
+fu! s:RebaseClearInstructions() "{{{
+    let b:rebaseInstructions = {}
+endf "}}}
+fu! s:RebaseSetInstruction(instruction) range "{{{
+    if s:IsFileMode()
+        return
+    endif
+    if s:RebaseHasStarted()
+        echo "Rebase already in progress."
+        return
+    endif
+    if a:instruction == 'x'
+        let cmd = input('Please enter a command to execute for each commit: ')
+        if cmd == ''
+            echo 'Not marking any commits for exec.'
+            return
+        endif
+    endif
+    let ncommits = 0
+    for line in range(a:firstline, a:lastline)
+        let sha = gitv#util#line#sha(line)
+        if sha == ''
+            continue
+        endif
+        let ncommits += 1
+        if a:instruction == 'p' || a:instruction == 'pick' || a:instruction == ''
+            if !exists('b:rebaseInstructions[sha]')
+                continue
+            endif
+            call remove(b:rebaseInstructions, sha)
+        else
+            if exists('cmd')
+                if !exists('b:rebaseInstructions[sha]')
+                    let b:rebaseInstructions[sha] = { 'instruction': 'p' }
+                endif
+                let b:rebaseInstructions[sha].cmd = cmd
+            else
+                let b:rebaseInstructions[sha] = { 'instruction': a:instruction }
+            endif
+        endif
+    endfor
+    if ncommits < 1
+        echo "No commits marked."
+        return
+    elseif ncommits > 1
+        let prettyCommit = ncommits .' commits'
+    else
+        let prettyCommit = gitv#util#line#sha('.')
+    endif
+    call s:RebaseUpdateView()
+    if exists('cmd')
+        redraw
+        echo cmd 'will be executed after' prettyCommit.'.'
+    else
+        echo prettyCommit.' marked with "'.a:instruction.'".'
+    endif
+endf "}}}
+fu! s:RebaseHasStarted() "{{{
+    return !empty(glob(fugitive#buffer().repo().tree().'/.git/rebase-merge'))
+endf "}}}
+fu! s:RebaseGetRefs(line) "{{{
+    let sha = gitv#util#line#sha(a:line)
+    if sha == ""
+        return []
+    endif
+    return gitv#util#line#refs(a:line) + [sha]
+endf "}}}
+fu! s:RebaseGetChoice(refs, purpose) "{{{
+    let msg = "Choose destination to rebase ".a:purpose.":"
+    let choice = confirm(msg, s:GetConfirmString(a:refs, "Cancel"))
+    if choice == 0 || choice > len(a:refs)
+        return ''
+    endif
+    let choice = a:refs[choice - 1]
+    let choice = substitute(choice, "^t:", "", "")
+    let choice = substitute(choice, "^r:", "", "")
+    return choice
+endf "}}}
+fu! s:RebaseGetRange(first, last, fromPlaceholder, ontoPlaceholder) "{{{
+    " will attempt to grab a reference from a range of lines
+    " if the range is 0, will only grab one reference and use a placeholder for the other
+    " at least one placeholder must be given
+    " the placeholder can be an empty string
+    " for no placeholder, use a number
+    if a:first != a:last
+        let msg = 'Rebase from top or bottom?'
+        let choice = confirm(msg, "&top\n&bottom\n&cancel")
+        if choice == 0 || choice == 3
+            return []
+        endif
+    else
+        let choice = 1
+    endif
+    if choice == 1
+        let from = a:first
+        let onto = a:last
+    else
+        let from = a:last
+        let onto = a:first
+    endif
+
+    " get refs
+    if a:first != a:last || type(a:fromPlaceholder) != 1 " string
+        let from = s:RebaseGetRefs(from)
+        if !len(from)
+            return []
+        endif
+    endif
+    if a:first != a:last || type(a:ontoPlaceholder) != 1
+        let onto = s:RebaseGetRefs(onto)
+        if !len(onto)
+            return []
+        endif
+    endif
+
+    " set placeholder
+    if a:first == a:last
+        if type(a:fromPlaceholder) == 1
+            let from = a:fromPlaceholder
+        elseif type(a:ontoPlaceholder) == 1
+            let onto = a:ontoPlaceholder
+        else
+            echoerr 'A default must be given.'
+            return []
+        endif
+    endif
+
+    " get choices
+    if a:first != a:last || type(a:fromPlaceholder) != 1
+        let from = s:RebaseGetChoice(from, 'from')
+        if from == ''
+            return []
+        endif
+    endif
+    if a:first != a:last || type(a:ontoPlaceholder) != 1
+        let onto = s:RebaseGetChoice(onto, 'onto')
+        if onto == ''
+            return []
+        endif
+    endif
+
+    return [from, onto]
+endf "}}}
+fu! s:Rebase() range "{{{
+    if s:IsFileMode()
+        return
+    endif
+    if exists('b:Bisecting') || s:BisectHasStarted()
+        echo "Cannot rebase in bisect mode."
+        return
+    endif
+    if s:RebaseHasStarted()
+        echoerr "Rebase already in progress."
+        return
+    endif
+    let choice = s:RebaseGetRange(a:firstline, a:lastline, 'HEAD', 0)
+    if !len(choice)
+        redraw
+        echo "Not rebasing."
+        return
+    endif
+    let result = s:RunGitCommand('rebase '.choice[0].' '.choice[1], 0)[0]
+    let hasError = v:shell_error
+    call s:RebaseUpdateView()
+    if hasError
+        redraw
+        echoerr split(result, '\n')[0]
+    endif
+endf "}}}
+fu! s:SetRebaseEditor() "{{{
+    " override the default editor used for interactive rebasing
+    if  s:RebaseHasInstructions()
+        " replace default instructions with stored instructions
+        let $GIT_SEQUENCE_EDITOR='function gitv_edit() {'
+        for sha in keys(b:rebaseInstructions)
+            let instruction = b:rebaseInstructions[sha].instruction
+            let $GIT_SEQUENCE_EDITOR .= ' SHA_'.sha.'='.instruction.';'
+            if exists('b:rebaseInstructions[sha].cmd')
+                let cmd = b:rebaseInstructions[sha].cmd
+                let $GIT_SEQUENCE_EDITOR .= ' CMD_'.sha.'='.shellescape(cmd).';'
+            endif
+        endfor
+        let $GIT_SEQUENCE_EDITOR .= 'while read line; do
+                    \ if [[ $line == "" ]]; then break; fi;
+                    \ sha=${line:5:7};
+                    \ key=SHA_$sha;
+                    \ if [[ ${!key} != "" ]]; then
+                    \ cmd=CMD_$sha;
+                    \ echo ${!key} ${line:5};
+                    \ if [[ ${!cmd} != "" ]]; then
+                    \ echo x ${!cmd};
+                    \ fi;
+                    \ else
+                    \ echo $line;
+                    \ fi;
+                    \ done < $1 > '.s:workingFile.';
+                    \ mv '.s:workingFile.' $1;
+                    \ }; gitv_edit'
+    else
+        " change pick to edit
+        let $GIT_SEQUENCE_EDITOR='function gitv_edit() {
+                    \ echo "" > '.s:workingFile.';
+                    \ while read line; do
+                    \ if [[ "${line:0:4}" == "pick" ]]; then
+                    \ echo "edit ${line:5}";
+                    \ else
+                    \ echo $line;
+                    \ fi;
+                    \ done < $1 > '.s:workingFile.';
+                    \ mv '.s:workingFile.' $1;
+                    \ }; gitv_edit'
+    endif
+endf "}}}
+fu! s:RebaseUpdateView() "{{{
+    " attempt to move out of the rebase/commit/preview window and update
+    wincmd j
+    wincmd h
+    wincmd j
+    if &ft == 'gitv'
+        call s:NormalCmd('update', s:defaultMappings)
+    endif
+endf "}}}
+fu! s:RebaseToggle() range "{{{
+    if s:IsFileMode()
+        return
+    endif
+    if exists('b:Bisecting') || s:BisectHasStarted()
+        echo "Cannot rebase in bisect mode."
+        return
+    endif
+    if s:RebaseHasStarted()
+        echo 'Abort current rebase? (y/n) '
+        if nr2char(getchar()) == 'y'
+            call s:RunGitCommand('rebase --abort', 0)
+            call s:RebaseUpdateView()
+        endif
+        return
+    endif
+    let choice = s:RebaseGetRange(a:firstline, a:lastline, 0, '')
+    if !len(choice)
+        redraw
+        echo "Not rebasing."
+        return
+    endif
+    call s:SetRebaseEditor()
+    let cmd = 'rebase --preserve-merges --interactive '.choice[0]
+    if s:RebaseHasInstructions()
+        " we don't know what the instructions are, treat it like a continue
+        call s:RebaseContinueSetup()
+        " only jump to the commit before this
+        let cmd .= '^'
+    else
+        " jump to two commits before so we can stop and edit
+        let cmd .= '~2'
+    endif
+    let cmd .= ' '.choice[1]
+    let result=s:RunGitCommand(cmd, 0)[0]
+    let result = split(result, '\n')[0]
+    let hasError = v:shell_error
+    let hasInstructions = s:RebaseHasInstructions()
+    call s:RebaseClearInstructions()
+    call s:RebaseUpdateView()
+    let $GIT_SEQUENCE_EDITOR=""
+    if hasError && !hasInstructions
+        echoerr result
+        return
+    elseif !hasError && hasInstructions
+        echo result
+    endif
+    if hasInstructions
+        call s:RebaseContinueCleanup()
+    else
+        call s:RebaseEdit()
+    endif
+endf "}}}
+fu! s:RebaseSkip() "{{{
+    if !s:RebaseHasStarted()
+        return
+    endif
+    for i in range(0, v:count)
+        let result = split(s:RunGitCommand('rebase --skip', 0)[0], '\n')[0]
+        let hasError = v:shell_error
+        if i == v:count || hasError
+            call s:RebaseUpdateView()
+        endif
+        if hasError
+            echoerr result
+            return
+        else
+            echo result
+        endif
+    endfor
+endf "}}}
+fu! s:GetRebaseMode() "{{{
+    let output = readfile(s:GetRebaseDone())
+    let length = len(output)
+    if length < 1
+        return ''
+    endif
+    return output[length - 1][0]
+endf "}}}
+fu! s:RebaseContinueSetup() "{{{
+    " override the commit editor in a way that lets us take over rebase
+    let $GIT_EDITOR='exit 1'
+endf "}}}
+fu! s:RebaseContinue() "{{{
+    if !s:RebaseHasStarted()
+        return
+    endif
+    call s:RebaseContinueSetup()
+    let result = s:RunGitCommand('rebase --continue', 0)[0]
+    " we expect an error because of what we did with exit
+    if !v:shell_error
+        echo split(result, '\n')[0]
+    endif
+    call s:RebaseUpdateView()
+    call s:RebaseContinueCleanup()
+endf "}}}
+fu! s:RebaseContinueCleanup() "{{{
+    let $GIT_EDITOR=""
+    if !s:RebaseHasStarted()
+        return
+    endif
+    let mode = s:GetRebaseMode()
+    if mode == 's'
+        " errors with squash cause us to fall through to the next commit
+        " the desired commit message is still in place when we fall through
+        call writefile([], s:workingFile)
+        call writefile(readfile(s:GetCommitMsg()), s:workingFile)
+        let result = s:RunGitCommand('reset --soft HEAD~1', 0)[0]
+        if v:shell_error
+            echoerr split(result, '\n')[0]
+            return
+        endif
+    endif
+    if mode == 'r' || mode == 's'
+        if mode == 'r'
+            Gcommit --amend
+        else
+            Gcommit
+        endif
+        if &ft == 'gitcommit'
+            if mode == 's'
+                call writefile(readfile(s:workingFile), s:GetCommitMsg())
+            endif
+        endif
+    endif
+endf "}}}
+fu! s:GetRebaseHeadname() "{{{
+    return fugitive#buffer().repo().tree().'/.git/rebase-merge/head-name'
+endf "}}}
+fu! s:GetRebaseDone() "{{{
+    return fugitive#buffer().repo().tree().'/.git/rebase-merge/done'
+endf "}}}
+fu! s:GetRebaseTodo() "{{{
+    return fugitive#buffer().repo().tree().'/.git/rebase-merge/git-rebase-todo'
+endf "}}}
+fu! s:RebaseViewInstructions() "{{{
+    exec 'edit' s:workingFile
+    if expand('%') == s:workingFile
+        set syntax=gitrebase
+        set nomodifiable
+    endif
+endf "}}}
+fu! s:RebaseEditTodo() "{{{
+    exec 'edit' s:GetRebaseTodo()
+    if &ft == 'gitrebase'
+        silent setlocal modifiable
+        silent setlocal noreadonly
+        silent setlocal buftype=nofile
+        silent setlocal nobuflisted
+        silent setlocal noswapfile
+        silent setlocal bufhidden=wipe
+    endif
+endf "}}
+fu! s:RebaseEdit() "{{{
+    if s:RebaseHasInstructions()
+        " rebase should not be started, but we have set instructions to view
+        let output = []
+        for key in keys(b:rebaseInstructions)
+            let line = b:rebaseInstructions[key].instruction.' '.key
+            if exists('b:rebaseInstructions[key].cmd')
+                let line .= ' '.b:rebaseInstructions[key].cmd
+            endif
+            call add(output, line)
+        endfor
+        call writefile(output, s:workingFile)
+        call s:MoveIntoPreviewAndExecute('call s:RebaseViewInstructions()', 1)
+    endif
+    if !s:RebaseHasStarted()
+        return
+    endif
+    let todo = s:GetRebaseTodo()
+    if empty(glob(todo))
+        echoerr 'No interactive rebase in progress.'
+        return
+    endif
+    call s:MoveIntoPreviewAndExecute('call s:RebaseEditTodo()', 1)
+    wincmd l
+endf "}}} }}}
+"Bisect: "{{{
+fu! s:IsBisectingFile(filePath) "{{{
+    let path = fugitive#buffer().repo().tree().'/.git/BISECT_NAMES'
+    if empty(glob(path))
+        return 0
+    endif
+    return readfile(path) == [" '".a:filePath."'"]
+endf "}}}
+fu! s:BisectHasStarted() "{{{
+    call s:RunGitCommand('bisect log', 0)
+    return !v:shell_error
+endf "}}}
+fu! s:BisectStart(mode) range "{{{
+    if s:RebaseHasInstructions() || s:RebaseHasStarted()
+        echo "Cannot bisect in rebase mode."
+        return
+    endif
+    if exists('b:Bisecting')
+        if g:Gitv_QuietBisect == 0
+            echom 'Bisect disabled'
+        endif
+        unlet! b:Bisecting
+    elseif !s:BisectHasStarted()
+        let cmd = 'bisect start'
+        if s:IsFileMode()
+            let cmd .= ' '.b:Gitv_FileModeRelPath
+        endif
+        let result = s:RunGitCommand(cmd, 0)[0]
+        if v:shell_error
+            echoerr split(result, '\n')[0]
+            return
+        endif
+        if a:mode == 'v'
+            call s:RunGitCommand('bisect bad ' . gitv#util#line#sha(a:firstline), 0)[0]
+            if a:firstline != a:lastline
+                call s:RunGitCommand('bisect good ' . gitv#util#line#sha(a:lastline), 0)[0]
+            endif
+        endif
+        let b:Bisecting = 1
+        if g:Gitv_QuietBisect == 0
+            echom 'Bisect started'
+        endif
+    else
+        if s:IsFileMode() && !s:IsBisectingFile(b:Gitv_FileModeRelPath)
+            echoerr "Not bisecting the current file, cannot enable."
+            return
+        endif
+        let b:Bisecting = 1
+        if g:Gitv_QuietBisect == 0
+            echom 'Bisect enabled'
+        endif
+    endif
+    call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
+endf "}}}
+fu! s:BisectReset() "{{{
+    if exists('b:Bisecting')
+        unlet! b:Bisecting
+    endif
+    if s:BisectHasStarted()
+        call s:RunGitCommand('bisect reset', 0)
+        if g:Gitv_QuietBisect == 0
+            echom 'Bisect stopped'
+        endif
+    else
+        if g:Gitv_QuietBisect == 0
+            echom 'Bisect disabled'
+        endif
+    endif
+    call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
+endf "}}}
+fu! s:BisectGoodBad(goodbad) range "{{{
+    let goodbad = a:goodbad . ' '
+    if exists('b:Bisecting') && s:BisectHasStarted()
+        let result = ''
+        if a:firstline == a:lastline
+            let ref = gitv#util#line#sha('.')
+            let result = s:RunGitCommand('bisect ' . goodbad . ref, 0)[0]
+            if v:shell_error
+                echoerr split(result, '\n')[0]
+                return
+            endif
+            if g:Gitv_QuietBisect == 0
+                echom ref . ' marked as ' . a:goodbad
+            endif
+        else
+            let refs2 = gitv#util#line#sha(a:firstline)
+            let refs1 = gitv#util#line#sha(a:lastline)
+            let refs = refs1 . "^.." . refs2
+            let cmd = 'log --pretty=format:%h '
+            let reflist = split(s:RunGitCommand(cmd . refs, 0)[0], '\n')
+            if v:shell_error
+                echoerr reflist[0]
+                return
+            endif
+            let errors = 0
+            for ref in reflist
+                let result = s:RunGitCommand('bisect ' . goodbad . ref, 0)[0]
+                if v:shell_error
+                    echoerr split(result, '\n')[0]
+                    errors += 1
+                endif
+            endfor
+            if g:Gitv_QuietBisect == 0
+                echom refs . ' commits marked as ' . a:goodbad
+            endif
+            if errors == len(reflist)
+                return
+            endif
+        endif
+        call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
+    endif
+endf "}}}
+fu! s:BisectSkip(mode) range "{{{
+    if exists('b:Bisecting') && s:BisectHasStarted()
+        if a:mode == 'n' && v:count
+            let loops = abs(v:count)
+            let loop = 0
+            let errors = 0
+            while loop < loops
+                let result = s:RunGitCommand('bisect skip', 0)[0]
+                if v:shell_error
+                    echoerr split(result, '\n')[0]
+                    let errors += 1
+                endif
+                let loop += 1
+            endwhile
+            if g:Gitv_QuietBisect == 0
+                echom loop - errors . ' commits skipped'
+            endif
+            if errors == loops
+                return
+            endif
+        else "visual mode or no range
+            let cmd = 'bisect skip '
+            let refs = gitv#util#line#sha(a:lastline)
+            if a:firstline != a:lastline
+                let refs2 = gitv#util#line#sha(a:firstline)
+                let refs .= "^.." . refs2
+            endif
+            let result = s:RunGitCommand('bisect skip ' . refs, 0)[0]
+            if v:shell_error
+                echoerr split(result, '\n')[0]
+                return
+            else
+                if g:Gitv_QuietBisect == 0
+                    echom refs . 'skipped'
+                endif
+            endif
+        endif
+        call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
+    endif
+endf "}}}
+fu! s:BisectLog() "{{{
+    if !s:BisectHasStarted()
+        return
+    endif
+    let fname = input('Enter a filename to save the log to: ', '', 'file')
+    let result = split(s:RunGitCommand('bisect log', 0)[0], '\n')
+    if v:shell_error
+        echoerr result[0]
+        return
+    endif
+    call writefile(result, fname)
+endf "}}}
+fu! s:BisectReplay() "{{{
+    let fname = input('Enter a filename to replay: ', '', 'file')
+    let result = s:RunGitCommand('bisect replay ' . fname, 0)[0]
+    if v:shell_error
+        echoerr split(result, '\n')[0]
+        return
+    endif
+    let b:Bisecting = 1
+    call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
+endf "}}} }}}
 fu! s:CheckOutGitvCommit() "{{{
-    let allrefs = s:GetGitvRefs('.')
-    let sha = s:GetGitvSha(line('.'))
+    let allrefs = gitv#util#line#refs('.')
+    let sha = gitv#util#line#sha(line('.'))
     if sha == ""
         return
     endif
@@ -946,8 +2107,8 @@ fu! s:DiffGitvCommit() range "{{{
         echom "Diffing is not possible in browser mode."
         return
     endif
-    let shafirst = s:GetGitvSha(a:firstline)
-    let shalast  = s:GetGitvSha(a:lastline)
+    let shafirst = gitv#util#line#sha(a:firstline)
+    let shalast  = gitv#util#line#sha(a:lastline)
     if shafirst == "" || shalast == ""
         return
     endif
@@ -961,8 +2122,8 @@ fu! s:MergeBranches() range "{{{
         echom 'Already up to date.'
         return
     endif
-    let refs = s:GetGitvRefs(a:firstline)
-    let refs += s:GetGitvRefs(a:lastline)
+    let refs = gitv#util#line#refs(a:firstline)
+    let refs += gitv#util#line#refs(a:lastline)
     call filter(refs, 'v:val !=? "HEAD"')
     if len(refs) < 2
         echom 'Not enough refs found to perform a merge.'
@@ -1005,7 +2166,7 @@ fu! s:PerformMerge(target, mergeBranch, ff) abort
     endif
 endfu
 fu! s:MergeToCurrent()
-    let refs = s:GetGitvRefs(".")
+    let refs = gitv#util#line#refs(".")
     call filter(refs, 'v:val !=? "HEAD"')
     if len(refs) < 1
         echoerr 'No ref found to perform a merge.'
@@ -1022,8 +2183,8 @@ fu! s:MergeToCurrent()
     call s:PerformMerge("HEAD", target, ff)
 endfu "}}}
 fu! s:CherryPick() range "{{{
-    let refs2 = s:GetGitvSha(a:firstline)
-    let refs1 = s:GetGitvSha(a:lastline)
+    let refs2 = gitv#util#line#sha(a:firstline)
+    let refs1 = gitv#util#line#sha(a:lastline)
     if refs1 == refs2
         let refs = refs1
     else
@@ -1034,13 +2195,39 @@ fu! s:CherryPick() range "{{{
     exec 'Git cherry-pick ' . refs
 endfu "}}}
 fu! s:ResetBranch(mode) range "{{{
-    let ref = s:GetGitvSha(a:firstline)
+    let ref = gitv#util#line#sha(a:firstline)
 
     echom "Reset " . a:mode . " to " . ref
     exec 'Git reset ' . a:mode . " " . ref
 endfu "}}}
+fu! s:Revert() range "{{{
+    let refs2 = gitv#util#line#sha(a:firstline)
+    let refs1 = gitv#util#line#sha(a:lastline)
+    let refs = refs1
+    if refs1 != refs2
+        let refs = refs1 . "^.." . refs2
+    endif
+
+    let mergearg = ''
+    let mergerefs = split(s:RunGitCommand('show ' . refs, 0)[0], '\n')
+    let mergerefs = split(matchstr(mergerefs, '^Merge:'))[1:]
+    if len(mergerefs) > 0
+        if refs1 != refs2
+            throw 'Cannot revert a range with a merge commit.'
+            return
+        endif
+        let mergearg = '-m 1'
+    endif
+    let cmd = 'revert --no-commit ' . mergearg . ' ' . refs
+    let result = s:RunGitCommand(cmd, 0)[0]
+    if result != ''
+        throw split(result, '\n')[0]
+        return
+    endif
+    exec 'Gcommit'
+endfu "}}}
 fu! s:DeleteRef() range "{{{
-    let refs = s:GetGitvRefs(a:firstline)
+    let refs = gitv#util#line#refs(a:firstline)
     call filter(refs, 'v:val !=? "HEAD"')
     let choice = confirm("Choose branch to delete:", s:GetConfirmString(refs, "Cancel"))
     if choice == 0
@@ -1066,8 +2253,8 @@ fu! s:DeleteRef() range "{{{
     exec 'Git ' . command . " -d " . choice
 endfu "}}}
 fu! s:StatGitvCommit() range "{{{
-    let shafirst = s:GetGitvSha(a:firstline)
-    let shalast  = s:GetGitvSha(a:lastline)
+    let shafirst = gitv#util#line#sha(a:firstline)
+    let shalast  = gitv#util#line#sha(a:lastline)
     if shafirst == "" || shalast == ""
         return
     endif
@@ -1123,7 +2310,7 @@ fu! s:JumpToCommit(backwards) "{{{
     call s:OpenGitvCommit("Gedit", 0)
 endf "}}}
 fu! s:JumpToParent() "{{{
-    let sha = s:GetGitvSha(line('.'))
+    let sha = gitv#util#line#sha(line('.'))
     if sha == ""
         return
     endif
@@ -1147,6 +2334,15 @@ if exists("*strwidth") "{{{
 else
   fu! s:StringWidth(string)
     return len(split(a:string,'\zs'))
+  endfu
+end "}}}
+if exists("*strdisplaywidth") "{{{
+  fu! s:StringDisplayWidth(string)
+    return strdisplaywidth(a:string)
+  endfu
+else
+  fu! s:StringDisplayWidth(string)
+    return s:StrWidth(a:string,'\zs')
   endfu
 end "}}}
 fu! s:Align(seperator, filePath) range "{{{
@@ -1182,12 +2378,26 @@ fu! s:TruncateLines(lines, filePath) "{{{
     "truncates the commit subject for any line > &columns
     call map(a:lines, "s:TruncateHelp(v:val, a:filePath)")
 endfu "}}}
+fu! s:TruncateWideString(string, target) "{{{
+    if !exists('*strdisplaywidth')
+        return a:string
+    endif
+    let newString = a:string
+    while strdisplaywidth(newString) > a:target
+        let newString = newString[0:-2]
+    endwhile
+    while strdisplaywidth(newString) < a:target
+        let newString .= ' '
+    endwhile
+    return newString
+endfu "}}}
 fu! s:TruncateHelp(line, filePath) "{{{
     let length = s:StringWidth(join(a:line))
+    let displayLength = s:StringDisplayWidth(join(a:line))
     let maxWidth = s:IsHorizontal() ? &columns : &columns/2
     let maxWidth = a:filePath != '' ? winwidth(0) : maxWidth
-    if length > maxWidth
-        let delta = length - maxWidth
+    if displayLength > maxWidth
+        let delta = displayLength - maxWidth
         "offset = 3 for the elipsis and 1 for truncation
         let offset = 3 + 1
         if a:line[0][-(delta + offset + 1):] =~ "^\\s\\+$"
@@ -1195,7 +2405,12 @@ fu! s:TruncateHelp(line, filePath) "{{{
         else
             let extension = "..."
         endif
-        let a:line[0] = a:line[0][:-(delta + offset)] . extension
+        if length > maxWidth
+            let a:line[0] = a:line[0][:-(delta + offset)]
+        endif
+        let target = maxWidth - offset - s:StringWidth(join(a:line[1:-1]))
+        let a:line[0] = s:TruncateWideString(a:line[0], target)
+        let a:line[0] =  a:line[0] . extension
     endif
     return a:line
 endfu "}}}
@@ -1218,23 +2433,17 @@ fu! s:MaxLengths(colls) "{{{
     return lengths
 endfu "}}} }}}
 "Fugitive Functions: "{{{
-"These functions are lifted directly from fugitive and modified only to work with gitv.
-function! s:fugitive_sub(str,pat,rep) abort "{{{
-  return substitute(a:str,'\v\C'.a:pat,a:rep,'')
-endfunction "}}}
-function! s:fugitive_GitComplete(A,L,P) abort "{{{
-  if !exists('s:exec_path')
-    let s:exec_path = s:fugitive_sub(system(g:fugitive_git_executable.' --exec-path'),'\n$','')
-  endif
-  let cmds = map(split(glob(s:exec_path.'/git-*'),"\n"),'s:fugitive_sub(v:val[strlen(s:exec_path)+5 : -1],"\\.exe$","")')
-  if a:L =~ ' [[:alnum:]-]\+ '
-    return fugitive#buffer().repo().superglob(a:A)
-  elseif a:A == ''
-    return cmds
-  else
-    return filter(cmds,'v:val[0 : strlen(a:A)-1] ==# a:A')
-  endif
-endfunction "}}} }}}
+fu! s:GetFugitiveSid() "{{{
+    redir => scriptnames
+    silent! scriptnames
+    redir END
+    for script in split(l:scriptnames, "\n")
+        if l:script =~ 'fugitive'
+            return str2nr(split(l:script, ":")[0])
+        endif
+    endfor
+    throw 'Unable to find fugitive'
+endfu "}}} }}}
 
 let &cpo = s:savecpo
 unlet s:savecpo

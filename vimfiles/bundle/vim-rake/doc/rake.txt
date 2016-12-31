@@ -1,0 +1,87 @@
+*rake.txt*  It's like rails.vim without the rails
+
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+INTRODUCTION                                    *rake*
+
+This plugin is designed to let you use your favorite rails.vim commands in a
+plain old Ruby project.
+
+Projects are detected by searching for a Rakefile up the directory hierarchy.
+Projects without a Rakefile will also be detected if they sit inside the gem
+path, making this plugin ideal for "gem open" or "bundle open".
+
+COMMANDS                                        *rake-commands*
+
+                                                *rake-:Rake*
+:Rake [task]            Invoke |:make| followed by |:cwindow| with rake as the
+                        'makeprg'.  Uses `bin/rake` if available.
+
+                                                *rake-:Cd* *rake-:Rcd*
+:Cd [directory]         |:cd| relative to the project.
+
+                                                *rake-:Lcd* *rake-:Rlcd*
+:Lcd [directory]        |:lcd| relative to the project.
+
+                                                *rake-:A* *rake-:R*
+:A [file]               With no argument, edits the "alternate" file (the test
+                        for an implementation file and vice versa).  With an
+                        argument, edit that file, relative to the Gem's root.
+
+                                                *rake-:AS* *rake-:RS*
+:AS [file]              Like |:A|, but horizontally split.
+
+                                                *rake-:AV* *rake-:RV*
+:AV [file]              Like |:A|, but vertically split.
+
+                                                *rake-:AT* *rake-:RT*
+:AT [file]              Like |:A|, but use a new tab.
+
+                                                *rake-:AD* *rake-:RD*
+:AD {file}              Like |:A|, but :read the file in.
+
+                                                *rake-:Elib* *rake-:Rlib*
+:Elib [file]            Edit a Ruby file under lib/, or Gemfile if no argument
+                        is given.  Variants exist for :Slib (|:split|), :Vlib
+                        (|:vsplit|), :Tlib (|:tabedit|), and :Dlib (|:read|).
+
+                                                *rake-:Etest* *rake-:Rtest*
+:Etest [file]           Edit a test file under test/ or a spec file under
+                        spec/.  Defaults to the test helper or spec helper.
+                        Has the same variants as |:Elib|.
+
+                                                *rake-:Espec* *rake-:Rspec*
+:Espec [file]           Edit a spec file under spec/ or a test file under
+                        test/.  Defaults to the spec helper or test helper.
+                        Has the same variants as |:Elib|.  The only difference
+                        between this command and |:Etest| is which gets
+                        precedence when both files exist.
+
+                                                *rake-:Etask* *rake-:Rtask*
+:Etask [file]           Edit a .rake file under rakelib/, or Rakefile if no
+                        argument is given.  Has the same variants as |:Elib|.
+
+                                                *rake-:Ctags* *rake-:Rtags*
+:Ctags                  Removed without replacement.
+
+                                                *g:rake_legacy*
+Set g:rake_legacy to 1 to enable the old, legacy R command variants.  This
+option will eventually be removed.
+
+                                                *rake-ruby-c-extensions*
+This plugin supports Ruby C extension files usually located under ext/.
+For those C files 'path' is enhanced with correct Ruby include directory.
+With this you can use |i_CTRL-X_CTRL-I| completion and |[i|, |[d| families of
+mappings and commands on all the macros and functions provided by ruby.h
+header file.
+
+ABOUT                                           *rake-about*
+
+Grab the latest version or report a bug on GitHub:
+
+http://github.com/tpope/vim-rake
+
+ vim:tw=78:et:ft=help:norl:

@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-27 15:21:40
+" -----------------    Date: 2016-12-31 13:34:06
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -88,8 +88,10 @@
 "
 " #                          --向前搜索当前光标所在字符
 " *                          --向后搜索当前光标所在字符
-" ?                          --向前搜索
-" /                          --向后搜索
+" ?                          --向前搜索     [已用eregex插件替换为PCRE风格的搜索]
+" /                          --向后搜索     [已用eregex插件替换为PCRE风格的搜索]
+" :%s/xx/yy/g                --正则搜索替换 [Vim风格]
+" :%S/xx/yy/g                --正则搜索替换 [PCRE风格] [由eregex插件提供]
 "
 " Ctrl + P                   --在当前工程目录搜索文件 [Normal模式] [ctrlp插件] [此插件功能颇多，具体可查看其文档]
 "
@@ -582,6 +584,11 @@ let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
+" ctrlp               文件搜索
+let g:ctrlp_map = '<c-p>'                      " 指定触发按键
+let g:ctrlp_cmd = 'CtrlPMixed'                 " 指定默认触发的搜索模式
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']  " 忽略.gitignore指定的文件
+
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
 let g:indentLine_char       = '┆'              " 设置对齐线字符
@@ -635,23 +642,23 @@ let g:syntastic_typescript_checkers   = ['eslint']
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
-" javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux'
-
-" php-cs-fixer                                   格式化PHP代码
+" php-cs-fixer        格式化PHP代码
 let g:php_cs_fixer_level = 'symfony'           " 使用Symfony推荐的代码风格
 let g:php_cs_fixer_config = 'default'          " 使用默认配置
 let g:php_cs_fixer_php_path = 'php'            " 指定PHP可执行文件的路径
 let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
 let g:php_cs_fixer_dry_run = 0                 " 只提示需要格式化的位置，不执行格式化 [0为不开启]
 
-" vim-ruby                                       Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
+" vim-ruby            Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
 if g:isMAC
   let g:rubycomplete_buffer_loading = 1
   let g:rubycomplete_classes_in_global = 1
   let g:rubycomplete_rails = 1
   let g:rubycomplete_load_gemfile = 1
 endif
+
+" javascript-libraries-syntax                    指定需要高亮的JS库
+let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux'
 
 
 " ======= 自定义快捷键 ======= "

@@ -1,10 +1,14 @@
 ## 1.11 - Unplanned
 
+FEATURES:
+
+* Add new `g:go_updatetime` setting to change the default updatetime (which was hardcoded previously) [gh-1055]
+* Add new `g:go_template_use_pkg` setting to enable to use cwd as package name instead of basic template file [gh-1124]
+
 IMPROVEMENTS:
 
 * Add `statusline` support for `:GoMetaLinter` [gh-1120]
-* Add new `g:go_updatetime` setting to change the default updatetime (which was hardcoded previously) [gh-1055]
-* Quickfix and Location lists contain now a descriptive title [gh-1004]
+* Quickfix and Location lists contain now a descriptive title (requires at least Vim `7.4.2200`)[gh-1004]
 
 BUG FIXES:
 
@@ -13,6 +17,14 @@ BUG FIXES:
 * Fix a race condition where a quickfix window was not closed if a job has succeeded [gh-1123]
 * Do not expand coverage arguments for non job execution of `:GoCoverage` [gh-1127]
 * `:GoCoverage` doesn't mess up custom syntax anymore [gh-1128]
+* Disable autoformat for `asm` files as they might be non Go ASM format [gh-1141]
+* Fix indentation broken when using a action with a minus sign like `{{-` [gh-1143]
+* Fix breaking Neovim change of passing less arguments to callbacks [gh-1145]
+* Fix `guru` commands if custom build tags were set [gh-1136]
+* Fix referencing a non defined variable for async commands when bang (!) was used
+* Fix `:GoDef` failing for a modified buffer if `hidden` was not set [gh-1132]
+* Fix `:GoDefStack` to allow popping from jump list when buffer is modified [gh-1133]
+* Improve internal defining of functions and referencing them for async operations [gh-1155]
 
 
 ## 1.10 (November 24, 2016)

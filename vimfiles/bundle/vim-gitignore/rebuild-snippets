@@ -1,0 +1,119 @@
+#!/bin/bash
+#
+# Copyright 2015 gisphm <phmfk@hotmail.com>
+# Author: gisphm <phmfk@hotmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+################################################
+# Rebuilding script for updating snippets from #
+# https://github.com/github/gitignore          #
+################################################
+
+build_dir="build"
+repo_dir_name="github-gitignore"
+repo_dir="$build_dir/$repo_dir_name"
+snipmate_dir="snippets/gitignore"
+neosnippets_dir="neosnippets/gitignore"
+ultisnips_dir="UltiSnips/gitignore"
+list_file="List.md"
+
+echo "*** Rebuilding started ***"
+
+# Preparing {{{
+[[ -d "$build_dir" ]] && rm -rf $build_dir
+mkdir $build_dir
+echo "$build_dir directory created"
+
+echo "cloning gitignore from github"
+git clone --quiet --depth 1 https://github.com/github/gitignore.git $repo_dir
+
+# }}}
+
+# Building {{{
+
+echo "removing old snippets directory if it exists"
+[[ -d "$ultisnips_dir" ]] && rm -rf $ultisnips_dir
+[[ -d "$snipmate_dir" ]] && rm -rf $snipmate_dir
+[[ -d "$neosnippets_dir" ]] && rm -rf $neosnippets_dir
+[[ -f "$list_file" ]] && rm $list_file
+
+echo "creating new snippets from gitignore files"
+mkdir -p $snipmate_dir
+mkdir -p $neosnippets_dir
+mkdir -p $ultisnips_dir
+
+generate_snippets() {
+    local source_dir=$1
+    local snippets_dir=$2
+    local snippets_ext=$3
+    local snippets_tab=$4
+    for file in $source_dir/*.gitignore ; do
+        local new_snippets_name="`basename "$file" .gitignore`"
+        local new_snippets_file=$snippets_dir/$new_snippets_name.$snippets_ext
+        if [[ $snippets_dir = $ultisnips_dir ]]; then
+            echo "priority -50" > $new_snippets_file
+            echo "" >> $new_snippets_file
+            echo "snippet $new_snippets_name \"$new_snippets_name Gitignore Template\"" >> $new_snippets_file
+        else
+            echo "snippet $new_snippets_name Gitignore Template" > $new_snippets_file
+        fi
+        if [[ $snippets_ext = "snip" ]]; then
+            echo "abbr    $new_snippets_name" >> $new_snippets_file
+        fi
+        echo "$snippets_tab### $new_snippets_name ###" >> $new_snippets_file
+        while read -r line ; do
+            echo -e "$snippets_tab$line" >> $new_snippets_file
+        done < $file
+        if [[ $snippets_dir = $ultisnips_dir ]]; then
+            echo -e "$snippets_tab\$0" >> $new_snippets_file
+            echo "endsnippet" >> $new_snippets_file
+        else
+            echo -e "$snippets_tab\${0}" >> $new_snippets_file
+        fi
+    done
+}
+
+generate_list() {
+    local snippets_dir=$1
+    echo -e "# Snippets List" > $list_file
+    echo -e "\`\`\`" >> $list_file
+    for file in $snippets_dir/*.snip; do
+        local snippets_name="`basename "$file" .snip`"
+        echo "$snippets_name" >> $list_file
+    done
+    echo -e "\`\`\`" >> $list_file
+}
+
+generate_snippets $repo_dir $neosnippets_dir "snip" "        "
+generate_snippets $repo_dir/Global $neosnippets_dir "snip" "        "
+echo "neosnippets-snippets is successfully created"
+generate_list $neosnippets_dir
+generate_snippets $repo_dir $snipmate_dir "snippets" "        "
+generate_snippets $repo_dir/Global $snipmate_dir "snippets" "        "
+echo "snipmate-snippets is successfully created"
+generate_snippets $repo_dir $ultisnips_dir "snippets" ""
+generate_snippets $repo_dir/Global $ultisnips_dir "snippets" ""
+echo "ultisnips-snippets is successfully created"
+
+
+# }}}
+
+# Clearing {{{
+
+rm -rf build
+echo "$build_dir directory removed"
+
+# }}}
+
+echo "*** Rebuilding completed ***"

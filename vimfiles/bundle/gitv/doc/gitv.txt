@@ -108,6 +108,9 @@ Without any arguments gitv behaves just like gitk and git log without
 arguments. It will display the commit history for the currently checked out
 branch.
 
+Gitv will also accept and autocomplete filenames. Only filenames at the end of
+the command are supported, as in 'git log'.
+
 Here are some particularly useful examples of arguments that could be
 passed to :Gitv. For more info see 'git help log' and in particular the
 section: "Commit Limiting".
@@ -115,6 +118,8 @@ section: "Commit Limiting".
     Flag              Description ~
 
     --all             View repository history for all refs.
+
+    --bisect          If a bisect is started, show only the remaining commits.
 
     <since>..<until>  Show only commits between the named two commits. When
                       either <since> or <until> is omitted, it defaults to
@@ -178,9 +183,12 @@ modes.
     normal      s         The same as <cr> but opens in a new |vsplit|.
                 <c-k>
 
+    normal      gw         Switch between the preview window and browser.
+
     normal      i         This performs the same thing as <cr> in browser mode.
                 <c-cr>    In file mode it opens the commit details rather than
-                          the focused file.
+                          the focused file. (NOTE: many terminal emulators do
+                          not support <c-cr>).
 
     normal      q         Quits gitv. In browser mode this will close the entire
                           tab. In file mode this closes only the |preview-window|.
@@ -247,6 +255,12 @@ modes.
                           selected commits
     normal      rbh       same as visual rbh
 
+    normal      rev       Revert the commit. If the commit is a merge, selects
+                          the first parent for reverting to.
+
+    visual      rev       Same as rev, but revert a range of commits. If a
+                          merge is within the range, fails by necessity.
+
     visual      d         Delete a branch or tag on the selected line. You will
                           be asked which branch/tag to use.
     normal      d         same as visual d
@@ -287,6 +301,99 @@ around a repository history in the browser window.
     normal      p       Jumps the cursor to the commit which is the parent of
                         current line.  When on a merge commit, a |count|
                         may be used to choose a parent other than the first.
+
+Here is a list of mapping for rebasing.
+
+    Mode        Map     Description~
+
+    normal      grr     Rebase the current HEAD onto the ref or commit under
+                        the cursor. A choice will be given of multiple refs.
+
+    normal      grR     Mark the commit under the line for reword.
+
+    normal      grE     Mark the commit under the line for edit.
+
+    normal      grS     Mark the commit under the line for squash.
+
+    normal      grF     Mark the commit under the line for fixup.
+
+    normal      grX     Mark the commit under the line for exec. A command must
+                        be entered to be executed. The command will be
+                        executed after performing an instruction on the
+                        commit. By default, the commit will be picked.
+
+    normal      grD     Mark the commit under the line for dropping.
+
+    normal      grP     Mark the commit under the line for picking. Since this
+                        is the default instruction, if every commit is marked
+                        for picking, no commits will be considered marked.
+                        This also removes exec commands from marking commits
+                        with grX.
+
+    normal      grs     Start or stop an interactive rebase. If starting the
+                        rebase, it begins at the commit before the commit
+                        under the cursor in edit mode. This is a limitation of
+                        interactive rebasing. Interactive rebasing is only
+                        available in browser mode. Merge commits are
+                        preserved. If any commits have been marked for an
+                        instruction, automatically runs the interactive
+                        rebase. If no commits have been marked for
+                        instructions, opens the rebase todo list for editing.
+
+    normal      grn     Go to the next commit in the current rebase (skip).
+                        Accepts a count.
+
+    normal      grc     Continue through the rebase until input is needed.
+
+    visual      grR,    Same as normal mode, but marks every commit.
+                grE,
+                grS,
+                grF,
+                grX,
+                grD,
+                grP
+
+    visual      grs,    Same as normal mode, but will attempt to rebase from
+                grr     a ref at the top or bottom to the other end of the
+                        selection.
+
+Here is a list of mappings for bisecting.
+
+    Mode        Map     Description~
+
+    normal      gbs     Begin the bisecting process. If the bisecting process
+                        has been started elsewhere, merely enables bisect mode.
+                        If the bisecting process has already been enabled,
+                        disables bisecting mode.
+                        Works in both modes.
+                        Mnemonic- git bisect start/git bisect stop.
+
+    visual      gbs     Same as normal mode, but if the bisecting process has
+                        not yet been started, marks the first commit selected
+                        as bad and the last commit selected as good.
+
+    normal      gbg     Mark the commit under the cursor as good.
+
+    visual      gbg     Mark selected commits as good.
+
+    normal      gbb     Mark the commit under the cursor as bad.
+
+    visual      gbb     Mark selected commits as bad.
+
+    normal      gbn     Skip the commit under the cursor. Accepts a count. If
+                        a count is given, ignores the commit under the cursor
+                        and starts at the currently checked out commit.
+                        Mnemonic- git bisect next.
+
+    visual      gbn     Skip the selected range of commits.
+
+    normal      gbr     End the bisect process. Mnemonic- git bisect reset.
+
+    normal      gbl     Save the current bisect history to a file. Edit the log
+                        file to correct mistakes and replay later.
+                        Mnemonic- git bisect log.
+
+    normal      gbp     Replay a saved log file.
 
 3.5 Commands
 
@@ -338,7 +445,8 @@ Selecting a commit by pressing <cr> on it will show the file as it was in that
 commit with all lines not in the range folded away. This allows you to quickly
 and easily move from commit to commit viewing the evolution of the range of
 lines. Pressing <c-cr> will show you the commit details so that you can see
-any other changes it may have made.
+any other changes it may have made. (NOTE: many terminal emulators do not
+support <c-cr>).
 
 The range that Git looks at is specified by the first and last line in the
 range passed to :Gitv. These lines are escaped appropriately and passed to Git
@@ -449,7 +557,7 @@ and rarely wish to delete branches, set this to 0. The default is 0.
     let g:Gitv_PromptToDeleteMergeBranch = 0
 <
 
-4.9 Do not map the control key.
+4.9 Do not map the control key
 
 If this is set then no mappings that use the control key will be created. The
 control key mappings are all alternatives and so can be disabled without
@@ -457,6 +565,97 @@ losing functionality. The default is to create the mappings.
 >
     let g:Gitv_DoNotMapCtrlKey = 1
 >
+
+4.9 Do not log bisect actions
+
+If this is set then no bisect mappings will log their actions. This will
+prevent the need to press enter after every bisect action, but could cause
+confusion. Errors will still be shown.
+>
+    let g:Gitv_QuietBisect = 1
+
+4.10 Custom key mappings                       *gitv-custom-browser-mappings*
+
+Set custom key mappings which will overwrite the defaults. The following would
+result in bindings equivalent to the defaults.
+>
+    let g:Gitv_CustomMappings = {
+      \'quit': 'q',
+      \'update': 'u',
+      \'toggleAll': 'a',
+      \'nextBranch': 'x',
+      \'prevBranch': 'X',
+      \'nextRef': 'r',
+      \'prevRef': 'R',
+      \'editCommit': [
+        \'<cr>', { 'keys': '<LeftMouse>', 'prefix', '<LeftMouse>' }
+      \],
+      \'splitCommit': 'o',
+      \'tabeCommit': 'O',
+      \'let': 's',
+      \'editCommitDetails': 'i',
+      \'diff': 'D',
+      \'vdiff': 'D',
+      \'stat': 'S',
+      \'vstat': 'S',
+      \'checkout': 'co',
+      \'merge': '<leader>m',
+      \'vmerge': 'm',
+      \'cherryPick': 'cp',
+      \'vcherryPick': 'cp',
+      \'reset': 'rb',
+      \'vreset': 'rb',
+      \'resetHard': 'rbh',
+      \'vresetHard': 'rbh',
+      \'revert': 'rev',
+      \'vrevert': 'rev',
+      \'delete': 'd',
+      \'vdelete': 'd',
+      \'rebase': 'grr',
+      \'vrebase': 'grr',
+      \'rebasePick': 'grP',
+      \'vrebasePick': 'grP',
+      \'rebaseReword': 'grR',
+      \'vrebaseReword': 'grR',
+      \'rebaseMarkEdit': 'grF',
+      \'vrebaseMarkEdit': 'grF',
+      \'rebaseSquash': 'grF',
+      \'vrebaseSquash': 'grF',
+      \'rebaseFixup': 'grF',
+      \'vrebaseFixup': 'grF',
+      \'rebaseExec': 'grF',
+      \'vrebaseExec': 'grF',
+      \'rebaseDrop': 'grF',
+      \'vrebaseDrop': 'grF',
+      \'rebaseToggle': 'grs',
+      \'vrebaseToggle': 'grs',
+      \'rebaseSkip': 'grn',
+      \'rebaseContinue': 'grc',
+      \'rebaseEdit': 'gre',
+      \'bisectStart': 'gbs',
+      \'vbisectStart': 'gbs',
+      \'bisectGood': 'gbg',
+      \'vbisectGood': 'gbg',
+      \'bisectBad': 'gbb',
+      \'vbisectBad': 'gbb',
+      \'bisectSkip': 'gbn',
+      \'vbisectSkip': 'gbn',
+      \'bisectReset': 'gbr',
+      \'bisectLog': 'gbl',
+      \'bisectReplay': 'gbp',
+      \'head': 'P',
+      \'parent': 'p',
+      \'git': 'git',
+      \'yank': 'yc'
+    \}
+<
+4.11 Change The Behaviour Of The Preview Window
+
+Set custom options for the preview window. These options are passed directly
+to |git-show|.
+>
+    let g:Gitv_PreviewOptions = '--name-only'
+<
 
 ==============================================================================
 5. Changelog                                                *gitv-changelog*
@@ -520,8 +719,18 @@ I highly recommend adding to your vimrc:
 This stops Vim from redrawing the screen during complex operations and results
 in much smoother looking plugins.
 
+6.2 API
 
-6.2 Bugs, issues, features and contributing.
+You can grab the current line's hash programatically with
+>
+    gitv#util#line#sha(line('.'))
+<
+You can grab the ref with
+>
+    gitv#util#line#refs('.')
+<
+
+6.3 Bugs, issues, features and contributing.
 
 There are no known bugs. Hopefully there are not too many unknown. Please see
 below to help.

@@ -1,0 +1,24 @@
+snippet OCaml Gitignore Template
+abbr    OCaml
+        ### OCaml ###
+        *.annot
+        *.cmo
+        *.cma
+        *.cmi
+        *.a
+        *.o
+        *.cmx
+        *.cmxs
+        *.cmxa
+        
+        # ocamlbuild working directory
+        _build/
+        
+        # ocamlbuild targets
+        *.byte
+        *.native
+        
+        # oasis generated files
+        setup.data
+        setup.log
+        ${0}
