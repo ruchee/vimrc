@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2016-12-31 20:30:50
+" -----------------    Date: 2017-01-03 11:25:32
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -222,8 +222,8 @@ set shiftwidth=2
 set tabstop=2
 
 " 对部分语言设置单独的缩进 [四空格缩进]
-" au FileType c,cpp,java,cs set shiftwidth=4
-" au FileType c,cpp,java,cs set tabstop=4
+au FileType python set shiftwidth=4
+au FileType python set tabstop=4
 
 " 修正Go语言的部分快捷键 [需要安装一堆工具才能正常工作，可在Vim里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
