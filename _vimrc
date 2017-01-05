@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-03 11:25:32
+" -----------------    Date: 2017-01-05 11:51:39
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -368,6 +368,7 @@ au FileType perl,php       set iskeyword-=$
 au FileType perl,php       set iskeyword-=-
 au FileType ruby           set iskeyword+=!
 au FileType ruby           set iskeyword+=?
+au FileType eruby          set iskeyword-=.
 au FileType css,scss,less  set iskeyword+=.
 au FileType css,scss,less  set iskeyword+=#
 au FileType css,scss,less  set iskeyword+=-
@@ -742,29 +743,13 @@ imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 nmap <leader>rb :let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 vmap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 
-" \rm                 一键去除字符
+" \rm                 一键去除特殊字符
 imap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 nmap <leader>rm :%s/<c-v><c-m>//g<cr>
 vmap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 
 " \rt                 一键替换全部Tab为空格
-func! RemoveTabs()
-  if &shiftwidth == 2
-    exec '%s/	/  /g'
-  elseif &shiftwidth == 4
-    exec '%s/	/    /g'
-  elseif &shiftwidth == 6
-    exec '%s/	/      /g'
-  elseif &shiftwidth == 8
-    exec '%s/	/        /g'
-  else
-    exec '%s/	/ /g'
-  end
-endfunc
-
-imap <leader>rt <esc>:call RemoveTabs()<cr>
-nmap <leader>rt :call RemoveTabs()<cr>
-vmap <leader>rt <esc>:call RemoveTabs()<cr>
+nmap <leader>rt <esc>:retab<cr>
 
 " \ra                 一键清理当前代码文件
 nmap <leader>ra <esc>\rt<esc>\rb<esc>gg=G<esc>gg<esc>
