@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-05 11:51:39
+" -----------------    Date: 2017-01-05 16:58:41
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -97,6 +97,7 @@
 " :%S/xx/yy/g                --正则搜索替换 [PCRE风格] [由eregex插件提供]
 "
 " Ctrl + P                   --在当前工程目录搜索文件 [Normal模式] [ctrlp插件] [此插件功能颇多，具体可查看其文档]
+" \ss                        --在当前所在目录搜索单词 [Normal模式] [ack插件]
 "
 " ---------- 跳转命令 ----------
 "
@@ -541,12 +542,7 @@ let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局�
 let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
 
 " snipMate            Tab智能补全
-let g:snips_author = 'Ruchee'
-if g:isWIN
-  let g:snippets_dir = $VIM.'/snippets/'
-else
-  let g:snippets_dir = '~/.vim/snippets/'
-endif
+let g:snips_author                              = 'Ruchee'
 let g:snipMate                                  = {}
 " 不使用插件自带的默认继承
 let g:snipMate.no_default_aliases               = 1
@@ -584,6 +580,17 @@ let g:snipMate.scope_aliases['html']            = 'blaze,html'
 
 " NERDTree            树形文件浏览器
 let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
+let g:NERDTreeIndicatorMapCustom = {
+      \ 'Modified'  : '✹',
+      \ 'Staged'    : '✚',
+      \ 'Untracked' : '✭',
+      \ 'Renamed'   : '➜',
+      \ 'Unmerged'  : '═',
+      \ 'Deleted'   : '✖',
+      \ 'Dirty'     : '✗',
+      \ 'Clean'     : '✔︎',
+      \ 'Unknown'   : '?'
+      \ }                                      " 为 NERDTree-Git-Plugin 设定各个状态对应的符号
 
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
@@ -594,8 +601,20 @@ let g:eregex_backward_delim = '??'             " 指定反向搜索按键
 
 " ctrlp               文件搜索
 let g:ctrlp_map = '<c-p>'                      " 指定触发按键
-let g:ctrlp_cmd = 'CtrlPMixed'                 " 指定默认触发的搜索模式
-let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']  " 忽略.gitignore指定的文件
+let g:ctrlp_cmd = 'CtrlP'                      " 指定默认触发的搜索模式
+let g:ctrlp_use_caching   = 0                  " 不使用缓存
+" 指定自定义的忽略文件列表
+let g:ctrlp_custom_ignore = 'node_modules/\|bower_components/\|tmp/\|cache/\|git/\|svn/\|DS_Store'
+let g:ctrlp_user_command  = {
+      \ 'types': {
+      \ 1: ['.git', 'cd %s && git ls-files -co --exclude-standard'],
+      \ },
+      \ 'fallback': 'find %s -type f',
+      \ 'ignore': 1
+      \ }                                      " 特定项目使用 types 中指定的命令，非特定项目使用 fallback 中的命令，且启用自定义的忽略文件列表
+
+" ack                 单词搜索                   需要配合 the_silver_searcher 使用
+let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
@@ -737,6 +756,9 @@ nmap <leader>gs :Gsdiff<cr>
 
 " \gl                 查看Git提交日志 [gitv插件]
 nmap <leader>gl :Gitv<cr>
+
+" \ss                 搜索当前光标下的单词 [ack插件]
+nmap <leader>ss :Ack! '\b<c-r><c-w>\b'<cr>
 
 " \rb                 一键去除所有尾部空白
 imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
