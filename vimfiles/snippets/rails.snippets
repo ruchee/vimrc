@@ -139,7 +139,7 @@ snippet _ifp.   生产环境 [多行]
 # 常用辅助方法
 snippet _sk     将一个Hash的键名全部转成Symbol
 	symbolize_keys${0}
-snippet _pk     从数据库取数据时，只取某些字段，并将这些字段值汇集成一个数组
+snippet _pk     从数据库取数据时，只取某些字段，并将这些字段值汇集成一个数组 [Rails5.0 开始支持普通数组]
 	pluck(:${0})
 snippet _db     添加调试断点
 	debugger${0}
