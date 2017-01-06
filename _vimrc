@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-05 16:58:41
+" -----------------    Date: 2017-01-05 22:30:03
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -331,30 +331,6 @@ if g:isGUI
   set cursorline             " 高亮突出当前行
   " set cursorcolumn         " 高亮突出当前列
 endif
-
-
-" ======= 引号 && 括号自动匹配 ======= "
-
-:inoremap ( ()<esc>i
-:inoremap ) <c-r>=ClosePair(')')<cr>
-:inoremap { {}<esc>i
-:inoremap } <c-r>=ClosePair('}')<cr>
-:inoremap [ []<esc>i
-:inoremap ] <c-r>=ClosePair(']')<cr>
-:inoremap " ""<esc>i
-:inoremap ' ''<esc>i
-:inoremap ` ``<esc>i
-au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap ' '
-au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap ` `
-au FileType scheme,racket,newlisp,lisp,clojure,lfe :inoremap * **<esc>i
-
-function ClosePair(char)
-  if getline('.')[col('.') - 1] == a:char
-    return '\<Right>'
-  else
-    return a:char
-  endif
-endf
 
 
 " 加载pathogen插件管理器
