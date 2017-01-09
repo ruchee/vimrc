@@ -1,0 +1,23 @@
+Fix some bug by othree.
+
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1397
+
+A plugin for editing xml. I used xml.vim (http://www.vim.org/scripts/script.php?script_id=301)
+The script does retain most of the functionality of the original xml.vim 
+ - closing tags while you type
+ - optional adding attributes
+ - and more
+ - % matches end or begin tag
+it adds:
+ - fold tags, comments and Cdata 
+ - add start tag
+ - add end tags
+ - add  tag around a visual blok or a tag,
+ - join 2 adjacent same tags
+ - delete tag
+ - delete tag section
+ - change a tag 
+ - visual mode  (blocks, listitems
+The documentation will be created once the script is loaded e.g edit a xml file.
+Read the help documentation by typing from within vim  :help xml-plugin
+
