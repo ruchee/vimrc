@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-05 22:30:03
+" -----------------    Date: 2017-01-11 14:00:22
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -346,6 +346,7 @@ au FileType perl,php       set iskeyword-=-
 au FileType ruby           set iskeyword+=!
 au FileType ruby           set iskeyword+=?
 au FileType eruby          set iskeyword-=.
+au FileType typescript     set iskeyword-=.
 au FileType css,scss,less  set iskeyword+=.
 au FileType css,scss,less  set iskeyword+=#
 au FileType css,scss,less  set iskeyword+=-

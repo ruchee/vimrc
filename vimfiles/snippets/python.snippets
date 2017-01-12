@@ -30,38 +30,38 @@ snippet u       Unicode字符串
 # 类、函数定义
 snippet cl      类定义 [不带括号]
 	class ${1:cl_name}:
-	  ${0}
+	    ${0}
 snippet cl.     类定义 [带括号]
 	class ${1:cl_name}(${2}):
-	  ${0}
+	    ${0}
 snippet d       函数定义 [不带self]
 	def ${1:f_name}(${2}):
-	  ${0}
+	    ${0}
 snippet ds      方法定义 [带self]
 	def ${1:f_name}(self${2}):
-	  ${0}
+	    ${0}
 snippet di      初始化方法
 	def __init__(self${1}):
-	  ${0}
+	    ${0}
 snippet dd      析构方法
 	def __del__(self${1}):
-	  ${0}
+	    ${0}
 # 流程控制
 snippet if      if
 	if ${1}:
-	  ${0}
+	    ${0}
 snippet elif    elif
 	elif ${1}:
-	  ${0}
+	    ${0}
 snippet el      else
 	else:
-	  ${0}
+	    ${0}
 snippet fo      for .. in
 	for ${1} in ${2}:
-	  ${0}
+	    ${0}
 snippet wh      while
 	while ${1}:
-	  ${0}
+	    ${0}
 # 异常处理
 snippet ra      抛出异常
 	raise ${0}
@@ -69,13 +69,13 @@ snippet as      设置断言
 	assert ${0}
 snippet try     捕获异常
 	try:
-	  ${0}
+	    ${0}
 snippet exp     处理异常
 	except ${1}:
-	  ${0}
+	    ${0}
 snippet fin     善后处理
 	finally:
-	  ${0}
+	    ${0}
 # 单个关键字
 snippet la      匿名函数
 	lambda ${0}
@@ -105,4 +105,4 @@ snippet _       __xxx__
 	__${1:init}__${0}
 snippet ifm     作为独立程序运行
 	if __name__ == '__main__':
-	  ${0}
+	    ${0}
