@@ -31,6 +31,10 @@ snippet cf      填充局部模版块
 	<%= content_for :${1} do %>
 	  ${0}
 	<% end %>
+snippet ifcf    判断是否存在局部模版块
+	<% if content_for? :${1} %>
+	  ${0}
+	<% end %>
 snippet cache   缓存数据
 	<% cache(${1}) do %>
 	  ${0}
