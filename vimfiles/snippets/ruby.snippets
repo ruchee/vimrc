@@ -138,6 +138,10 @@ snippet if      if
 	if ${1}
 	  ${0}
 	end
+snippet ifblg?  如果有传递代码块
+	if block_given?
+	  ${0}
+	end
 snippet ul      uless [与if相反]
 	unless ${0}
 snippet elif    elsif
