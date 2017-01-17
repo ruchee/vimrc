@@ -1,0 +1,2 @@
+unit package UndeclaredSubTest;
+foo();

@@ -29,6 +29,8 @@ $foo.state
 $foo.die
 @p = $x [[+]]= 6, 7;
 
+say .key * .value with @foo.first({ .value >= 3 });
+
 @foo Z @bar
 is (1 R[R[R-]] 2), 1, 'R[R[R-]] works';
 
@@ -70,10 +72,12 @@ sub process-pod-dir($dir, :&sorted-by = &[cmp], :$sparse) { }
 
 use Foo::Xbar; # not a cross-operator
 
+tokenizer($str);
+
 Zfoobar.new;
 Rcmp
 
-S|
+S|sdfsdf|sdfsdf|
 
 proto sub infix:«>»(Any, Any) returns Bool:D is assoc<chain>
 multi sub infix:«>»(Int:D, Int:D)
@@ -88,6 +92,8 @@ v5.2.*
 v1.2+
 v1.2.0.0.0.0.0
 v1
+
+@foo.map { $^a.key => $^a.value }
 
 [1,2] xx 3;
 
@@ -130,6 +136,9 @@ isa_ok(regex {oo}, Regex);
 isa_ok(rx (o), Regex)
 my @delims = < ^ ° ! " § $ % @ € & / = ? ` * + ~ ; , . | >;
 
+$foo.regex()
+$foo .= substr(4);
+
 my $foo ~~ /foobar/;
 $foo /= 4;
 $foo // $bar;
@@ -145,6 +154,8 @@ $foo ~~ m/sd$/
 $foo ~~ s/sd$/foo$bar/
 $foo ~~ s{sdfsdf}
 $foo ~~ tr/dsf/sdf/
+
+sub next {}
 
 $<bar>
 Order::Same
@@ -171,6 +182,8 @@ NaN
 100_000
 1.2e7_000
 1.2e-7
+
+my @args = <-a -e -b -v>;
 
 token foo {
     <* < foo bar > >
@@ -254,6 +267,8 @@ for ('/foo/bar/baz/' ~~ m/^ $<dirname>=(.* '/'+)? $<basename>=(<-[\/]>+) '/'* $ 
     %count{$0}++ if / ^ \s+ (\w+) \s+ '=>' /;   ## extract key
 };
 throws_like "my Int a = 10;", X::Syntax::Malformed, message => / sigilless /;
+
+$foo ~~ S/foo/bar/;
 
 my()
 BEGIN()

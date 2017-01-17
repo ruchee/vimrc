@@ -66,17 +66,11 @@ set cpo&vim
 syn match p6Identifier display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)"
 
 let s:keywords = {
- \ "p6DeclareRoutine": [
- \   "macro sub submethod method multi proto only category unit",
- \ ],
- \ "p6Module": [
- \   "module class role package enum grammar slang subset",
- \ ],
  \ "p6Include": [
- \   "use require",
+ \   "use require unit",
  \ ],
  \ "p6Conditional": [
- \   "if else elsif unless",
+ \   "if else elsif unless with orwith without",
  \ ],
  \ "p6VarStorage": [
  \   "let my our state temp has constant",
@@ -85,8 +79,8 @@ let s:keywords = {
  \   "for loop repeat while until gather given",
  \ ],
  \ "p6FlowControl": [
- \   "take do when next last redo return contend maybe defer start",
- \   "default exit make continue break goto leave async lift",
+ \   "take do when next last redo return return-rw contend maybe defer",
+ \   "start default exit make continue break goto leave async lift",
  \ ],
  \ "p6ClosureTrait": [
  \   "BEGIN CHECK INIT START FIRST ENTER LEAVE KEEP",
@@ -116,7 +110,7 @@ let s:types = [
  \ "Object Any Junction Whatever Capture Match",
  \ "Signature Proxy Matcher Package Module Class",
  \ "Grammar Scalar Array Hash KeyHash KeySet KeyBag",
- \ "Pair List Seq Range Set Bag Mapping Void Undef",
+ \ "Pair List Seq Range Set Bag Map Mapping Void Undef",
  \ "Failure Exception Code Block Routine Sub Macro",
  \ "Method Submethod Regex Str Blob Char Byte Parcel",
  \ "Codepoint Grapheme StrPos StrLen Version Num",
@@ -142,7 +136,7 @@ let s:alpha_metaops_or = join(s:temp, "\\|")
 " than matches/regions, which would prevent these words from matching as
 " autoquoted strings before "=>" or "p5=>".
 syn match p6KeywordStart display "\%(\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!\)\@=[A-Za-z_\xC0-\xFF0-9]\@1<!\%([A-Za-z_\xC0-\xFF][-']\)\@2<!"
-    \ nextgroup=p6Attention,p6DeclareRoutine,p6Module,p6Variable,p6Include,p6Conditional,p6VarStorage,p6Repeat,p6FlowControl,p6ClosureTrait,p6Exception,p6Number,p6Pragma,p6Type,p6Operator,p6Identifier
+    \ nextgroup=p6Attention,p6Variable,p6Include,p6Conditional,p6VarStorage,p6Repeat,p6FlowControl,p6ClosureTrait,p6Exception,p6Number,p6Pragma,p6Type,p6Operator,p6Identifier
 
 for [group, words] in items(s:keywords)
     let s:words_space = join(words, " ")
@@ -156,6 +150,10 @@ let s:temp = split(s:words_space)
 let s:words = join(s:temp, "\\|")
 exec "syn match p6Type display \"\\%(". s:words . "\\)\\%([A-Za-z_\\xC0-\\xFF0-9]\\|[-'][A-Za-z_\\xC0-\\xFF]\\)\\@!\" contained"
 unlet s:keywords s:types s:words_space s:temp s:words
+
+syn match p6PreDeclare display "[.^]\@1<!\<\%(multi\|proto\|only\)\>" nextgroup=p6Declare,p6Identifier skipwhite skipempty
+syn match p6Declare display "[.^]\@1<!\<\%(macro\|sub\|submethod\|method\|category\|module\|class\|role\|package\|enum\|grammar\|slang\|subset\)\>" nextgroup=p6Identifier skipwhite skipempty
+syn match p6DeclareRegex display "[.^]\@1<!\<\%(regex\|rule\|token\)\>" nextgroup=p6RegexName skipwhite skipempty
 
 syn match p6TypeConstraint  display "\%([.^]\|^\s*\)\@<!\a\@=\%(does\|as\|but\|trusts\|of\|returns\|handles\|where\|augment\|supersede\)\>"
 syn match p6TypeConstraint  display "\%([.^]\|^\s*\)\@<![A-Za-z_\xC0-\xFF0-9]\@1<!\%([A-Za-z_\xC0-\xFF][-']\)\@2<!is\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!" skipwhite skipempty nextgroup=p6Property
@@ -186,7 +184,7 @@ syn match p6ReduceOp display "\%(^\|\s\|(\)\@1<=!*\%([RSXZ\[]\)*[&RSXZ]\?\[\+(\?
 syn match p6SetOp    display "R\?(\%([-^.+|&]\|[<>][=+]\?\|cont\|elem\))"
 
 " Reverse, cross, and zip metaoperators
-exec "syn match p6RSXZOp display \"[RSXZ]:\\@!\\%(\\a\\@=\\%(". s:alpha_metaops_or . "\\)\\>\\|[[:alnum:]]\\@!\\%([.,]\\|[^[,.[:space:]]\\)\\+\\|\\s\\@=\\|$\\)\""
+exec "syn match p6RSXZOp display \"[RSXZ]:\\@!\\%(\\a\\@=\\%(". s:alpha_metaops_or . "\\)\\>\\|[[:alnum:]]\\@!\\%([.,]\\|[^[,.[:alnum:][:space:]]\\)\\+\\|\\s\\@=\\|$\\)\""
 
 syn match p6BlockLabel display "^\s*\zs\h\w*\s*::\@!\_s\@="
 
@@ -360,12 +358,12 @@ syn region p6Adverb
 " * Followed by [-=] (e.g. <--, <=, <==, <->)
 syn region p6StringAngle
     \ matchgroup=p6Quote
-    \ start="\%(\<\%(enum\|for\|any\|all\|none\)\>\s*(\?\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
-    \ start="\%(\s\|[<+~=!]\)\@<!<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
-    \ start="[<+~=!]\@1<!<\%(\s\|<\|=>\|[-=]\{1,2}\)\@!"
-    \ start="\%(^\s*\)\@<=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
+    \ start="\%(\<\%(enum\|for\|any\|all\|none\)\>\s*(\?\s*\)\@<=<\%(<\|=>\|\%([=-]\{1,2}>\|[=-]\{2}\)\)\@!"
+    \ start="\%(\s\|[<+~=!]\)\@<!<\%(<\|=>\|\%([=-]\{1,2}>\|[=-]\{2}\)\)\@!"
+    \ start="[<+~=!]\@1<!<\%(\s\|<\|=>\|\%([=-]\{1,2}>\|[=-]\{2}\)\)\@!"
+    \ start="\%(^\s*\)\@<=<\%(<\|=>\|\%([=-]\{1,2}>\|[=-]\{2}\)\)\@!"
     \ start="[<+~=!]\@1<!<\%(\s*$\)\@="
-    \ start="\%((\s*\|=\s\+\)\@<=<\%(<\|=>\|[-=]\{1,2}>\@!\)\@!"
+    \ start="\%((\s*\|=\s\+\)\@<=<\%(<\|=>\|\%([=-]\{1,2}>\|[=-]\{2}\)\)\@!"
     \ start="<\%(\s*>\)\@="
     \ skip="\\\@1<!\\>"
     \ end=">"
@@ -448,11 +446,12 @@ syn region p6StringDQ
 
 " Q// and friends
 
-syn match p6QuoteQStart display "\%(:\|\%(sub\|role\)\s\)\@5<![Qq]\@=" nextgroup=p6QuoteQ,p6QuoteQ_q,p6QuoteQ_qww,p6QuoteQ_qq,p6QuoteQ_qto,p6QuoteQ_qqto,p6Identifier
+syn match p6QuoteQStart display "\%(:\|\%(sub\|role\)\s\)\@5<![Qq]\@=" nextgroup=p6QuoteQ,p6QuoteQ_q,p6QuoteQ_qww,p6QuoteQ_qq,p6QuoteQ_to,p6QuoteQ_qto,p6QuoteQ_qqto,p6Identifier
 syn match p6QuoteQ      display "Q\%(qq\|ww\|[abcfhpsqvwx]\)\?[A-Za-z(]\@!" nextgroup=p6PairsQ skipwhite skipempty contained
 syn match p6QuoteQ_q    display "q[abcfhpsvwx]\?[A-Za-z(]\@!" nextgroup=p6PairsQ_q skipwhite skipempty contained
 syn match p6QuoteQ_qww  display "qww[A-Za-z(]\@!" nextgroup=p6PairsQ_qww skipwhite skipempty contained
 syn match p6QuoteQ_qq   display "qq[pwx]\?[A-Za-z(]\@!" nextgroup=p6PairsQ_qq skipwhite skipempty contained
+syn match p6QuoteQ_to   display "Qto[A-Za-z(]\@!" nextgroup=p6StringQ_to skipwhite skipempty contained
 syn match p6QuoteQ_qto  display "qto[A-Za-z(]\@!" nextgroup=p6StringQ_qto skipwhite skipempty contained
 syn match p6QuoteQ_qqto display "qqto[A-Za-z(]\@!" nextgroup=p6StringQ_qqto skipwhite skipempty contained
 syn match p6QuoteQ_qto  display "q\_s*\%(\%(\_s*:!\?\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\%(([^)]*)\)\?\)*:\%(to\|heredoc\)\%(\_s*:!\?\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\%(([^)]*)\)\?\)*(\@!\)\@=" nextgroup=p6PairsQ_qto skipwhite skipempty contained
@@ -492,10 +491,11 @@ let s:bracketing_delims = [
 let s:all_delims = s:plain_delims + s:bracketing_delims
 
 for [name, start_delim, end_delim, end_group, skip] in s:all_delims
-    exec "syn region p6StringQ matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=".end_group." contained"
+    exec "syn region p6StringQ matchgroup=p6Quote start=\"".start_delim."\" end=\"".end_delim."\" contained"
     exec "syn region p6StringQ_q matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6Interp_q,".end_group." contained"
     exec "syn region p6StringQ_qww matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6Interp_q,p6StringSQ,p6StringDQ".end_group." contained"
     exec "syn region p6StringQ_qq matchgroup=p6Quote start=\"".start_delim."\" skip=\"".skip."\" end=\"".end_delim."\" contains=@p6Interp_qq,".end_group." contained"
+    exec "syn region p6StringQ_to matchgroup=p6Quote start=\"".start_delim."\\z([^".end_delim."]\\+\\)".end_delim."\" end=\"^\\s*\\z1$\" contained"
     exec "syn region p6StringQ_qto matchgroup=p6Quote start=\"".start_delim."\\z([^".end_delim."]\\+\\)".end_delim."\" skip=\"".skip."\" end=\"^\\s*\\z1$\" contains=@p6Interp_q,".end_group." contained"
     exec "syn region p6StringQ_qqto matchgroup=p6Quote start=\"".start_delim."\\z(\[^".end_delim."]\\+\\)".end_delim."\" skip=\"".skip."\" end=\"^\\s*\\z1$\" contains=@p6Interp_qq,".end_group." contained"
 
@@ -511,7 +511,6 @@ syn match p6Key display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Z
 
 " Regexes and grammars
 
-syn match p6DeclareRegex display "\%(regex\|rule\|token\)" nextgroup=p6RegexName skipwhite skipempty
 syn match p6RegexName    display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\?" nextgroup=p6RegexBlockCrap skipwhite skipempty contained
 syn match p6RegexBlockCrap "[^{]*" nextgroup=p6RegexBlock skipwhite skipempty transparent contained
 
@@ -714,7 +713,7 @@ syn match p6VarNum       display "\$\d\+"
 syn match p6Variable     display "self"
 syn match p6Variable     display "[@$%&]\?[@&$%]\$*\%(::\|\%(\%([.^*?=!~]\|:\@1<!::\@!\)[A-Za-z_\xC0-\xFF]\)\|[A-Za-z_\xC0-\xFF]\)\@=" nextgroup=p6Twigil,p6VarName,p6PackageScope
 syn match p6VarName      display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)" nextgroup=p6PostHyperOp contained
-syn match p6Close        display "[\])]" nextgroup=p6PostHyperOp
+syn match p6Close        display "[\])]" transparent nextgroup=p6PostHyperOp
 syn match p6PostHyperOp  display "\%(»\|>>\)" contained
 syn match p6Twigil       display "\%([.^*?=!~]\|:\@1<!::\@!\)[A-Za-z_\xC0-\xFF]\@=" nextgroup=p6PackageScope,p6VarName contained
 syn match p6PackageScope display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\?::" nextgroup=p6PackageScope,p6VarName contained
@@ -722,7 +721,7 @@ syn match p6PackageScope display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\
 " Perl 6 regex regions
 
 syn match p6MatchStart_m    display "\.\@1<!\<\%(mm\?\|rx\)\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!" skipwhite skipempty nextgroup=p6MatchAdverbs_m
-syn match p6MatchStart_s    display "\.\@1<!\<s\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!" skipwhite skipempty nextgroup=p6MatchAdverbs_s
+syn match p6MatchStart_s    display "\.\@1<!\<[sS]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!" skipwhite skipempty nextgroup=p6MatchAdverbs_s
 syn match p6MatchStart_tr   display "\.\@1<!\<tr\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\)\@!" skipwhite skipempty nextgroup=p6MatchAdverbs_tr
 syn match p6MatchAdverbs_m  "\%(\_s*:!\?\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\%(([^)]*)\)\?\)*" contained transparent skipwhite skipempty nextgroup=p6Match
 syn match p6MatchAdverbs_s  "\%(\_s*:!\?\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\%(([^)]*)\)\?\)*" contained transparent skipwhite skipempty nextgroup=p6Substitution
@@ -1098,10 +1097,10 @@ syn region p6BracketComment
 syn match p6Shebang display "\%^#!.*"
 
 " => and p5=> autoquoting
-syn match p6StringP5Auto display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\s\+p5=>"
-syn match p6StringAuto   display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\%(p5\)\@2<![RSXZ]\@1<!=>"
-syn match p6StringAuto   display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\s\+=>"
-syn match p6StringAuto   display "\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)p5\ze=>"
+syn match p6StringP5Auto display "\.\@1<!\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\s\+p5=>"
+syn match p6StringAuto   display "\.\@1<!\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\%(p5\)\@2<![RSXZ]\@1<!=>"
+syn match p6StringAuto   display "\.\@1<!\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\ze\s\+=>"
+syn match p6StringAuto   display "\.\@1<!\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)p5\ze=>"
 
 " Pod
 
@@ -1757,6 +1756,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6StringQ_q        p6String
     HiLink p6StringQ_qww      p6String
     HiLink p6StringQ_qq       p6String
+    HiLink p6StringQ_to       p6String
     HiLink p6StringQ_qto      p6String
     HiLink p6StringQ_qqto     p6String
     HiLink p6RxStringSQ       p6String
@@ -1794,6 +1794,7 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6QuoteQ_q         p6Quote
     HiLink p6QuoteQ_qww       p6Quote
     HiLink p6QuoteQ_qq        p6Quote
+    HiLink p6QuoteQ_to        p6Quote
     HiLink p6QuoteQ_qto       p6Quote
     HiLink p6QuoteQ_qqto      p6Quote
     HiLink p6QuoteQ_PIR       p6Quote
@@ -1873,8 +1874,8 @@ if version >= 508 || !exists("did_perl6_syntax_inits")
     HiLink p6String         String
     HiLink p6Repeat         Repeat
     HiLink p6Pragma         Keyword
-    HiLink p6Module         Keyword
-    HiLink p6DeclareRoutine Keyword
+    HiLink p6PreDeclare     Keyword
+    HiLink p6Declare        Keyword
     HiLink p6DeclareRegex   Keyword
     HiLink p6VarStorage     Special
     HiLink p6FlowControl    Special
@@ -1949,7 +1950,7 @@ endif
 if exists("perl6_fold") || exists("perl6_extended_all")
     setl foldmethod=syntax
     syn region p6BlockFold
-        \ start="^\z(\s*\)\%(my\|our\|augment\|multi\|proto\|only\)\?\s*\%(\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\s\+\)\?\<\%(CATCH\|try\|ENTER\|LEAVE\|CHECK\|INIT\|BEGIN\|END\|KEEP\|UNDO\|PRE\|POST\|module\|package\|enum\|subset\|class\|sub\%(method\)\?\|multi\|method\|slang\|grammar\|regex\|token\|rule\)\>[^{]\+{\%(\s+\|#.*\)\?$"
+        \ start="^\z(\s*\)\%(my\|our\|augment\|multi\|proto\|only\)\?\s*\%(\%([A-Za-z_\xC0-\xFF]\%([A-Za-z_\xC0-\xFF0-9]\|[-'][A-Za-z_\xC0-\xFF]\@=\)*\)\s\+\)\?\<\%(CATCH\|try\|ENTER\|LEAVE\|CHECK\|INIT\|BEGIN\|END\|KEEP\|UNDO\|PRE\|POST\|module\|package\|enum\|subset\|class\|sub\%(method\)\?\|multi\|method\|slang\|grammar\|regex\|token\|rule\)\>[^{]\+\%({\s*\%(#.*\)\?\)\?$"
         \ end="^\z1}"
         \ transparent fold keepend extend
 endif

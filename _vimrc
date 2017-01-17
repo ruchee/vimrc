@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-11 14:00:22
+" -----------------    Date: 2017-01-17 11:50:36
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -632,17 +632,19 @@ else
   let g:syntastic_c_compiler   = 'clang'
   let g:syntastic_cpp_compiler = 'clang++'
 endif
-let g:syntastic_c_compiler_options    = '-Wall -std=c11'
-let g:syntastic_cpp_compiler_options  = '-Wall -std=c++14'
-let g:syntastic_swift_checkers        = ['swiftpm', 'swiftlint']
-let g:syntastic_rust_checkers         = ['rustc']
-let g:syntastic_elixir_checkers       = ['elixir']
-let g:syntastic_enable_elixir_checker = 1
-let g:syntastic_perl_checkers         = ['perl']
-let g:syntastic_enable_perl_checker   = 1
-let g:syntastic_python_python_exec    = 'python3'
-let g:syntastic_javascript_checkers   = ['eslint']
-let g:syntastic_typescript_checkers   = ['eslint']
+let g:syntastic_c_compiler_options         = '-Wall -std=c11'
+let g:syntastic_cpp_compiler_options       = '-Wall -std=c++14'
+let g:syntastic_swift_checkers             = ['swiftpm', 'swiftlint']
+let g:syntastic_rust_checkers              = ['rustc']
+let g:syntastic_elixir_checkers            = ['elixir']
+let g:syntastic_enable_elixir_checker      = 1
+let g:syntastic_perl_checkers              = ['perl']
+let g:syntastic_enable_perl_checker        = 1
+let g:syntastic_perl6_checkers             = [ 'perl6latest']
+let g:syntastic_enable_perl6latest_checker = 1
+let g:syntastic_python_python_exec         = 'python3'
+let g:syntastic_javascript_checkers        = ['eslint']
+let g:syntastic_typescript_checkers        = ['eslint']
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
@@ -902,6 +904,8 @@ func! Compile_Run_Code()
     exec '!lua %:t'
   elseif &filetype == 'perl'
     exec '!perl %:t'
+  elseif &filetype == 'perl6'
+    exec '!perl6 %:t'
   elseif &filetype == 'php'
     exec '!php %:t'
   elseif &filetype == 'python'
