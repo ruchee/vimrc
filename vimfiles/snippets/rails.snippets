@@ -79,16 +79,26 @@ snippet _bfs    在保存前执行
 snippet _afs    在保存后执行
 	after_save :${0}
 # 测试
+snippet _test   测试区块
+	test '${1}' do
+	  ${0}
+	end
 snippet _as     断言
 	assert ${0}
 snippet _ase    相等性测试
 	assert_equal ${0}
+snippet _asne   不等性测试
+	assert_not_equal ${0}
 snippet _asr    响应测试
 	assert_response ${0}
 snippet _ass    包含测试
 	assert_select ${0}
 snippet _asd    差异测试
 	assert_difference ${0}
+snippet _v?     合法？
+	valid?${0}
+snippet _iv?    不合法？
+	invalid?${0}
 # 配置
 snippet _res    资源路由
 	resources :${0}
