@@ -1,20 +1,39 @@
 # 流程控制
 snippet if      if
-	<% if ${1} %>
+	<% if ${1} do %>
 	  ${0}
 	<% end %>
 snippet el      else
 	<% else %>
 	  ${0}
-snippet fo      for .. in
-	<% for ${1} in ${2} %>
+snippet fo      for
+	<% for ${1} <- ${2} do %>
 	  ${0}
 	<% end %>
 snippet end     结束标签
 	<% end %>${0}
 snippet re      复用模板
-	<%= render ${0} %>
-# 工具方法
+	<%= render "${1}"${0} %>
+# 表单
+snippet fmf     建立表单
+	<%= form_for ${1}, fn f -> %>
+	  ${0}
+	<% end %>
+snippet lb      标签
+	label f, :${0}
+snippet txi     文本输入框
+	text_input f, :${0}
+snippet nbi     数值输入框
+	number_input f, :${0}
+snippet ert     错误信息
+	error_tag f, :${0}
+snippet sb      提交按钮
+	submit "${0}"
+snippet lit     链接
+	link "${1}", to: ${0}
+# 重要变量
+# 判断运行环境
+# 辅助方法
 snippet sp      静态资源路径
 	static_path(@${1:conn}, "${2}")
 snippet gf      获取Flash消息

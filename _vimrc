@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-17 11:50:36
+" -----------------    Date: 2017-01-21 16:18:38
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -535,6 +535,7 @@ let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
 let g:snipMate.scope_aliases['javascript']      = 'js_vue,js_angular,js_react,javascript'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
 let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
+let g:snipMate.scope_aliases['elixir']          = 'elixir,phoenix'
 let g:snipMate.scope_aliases['eelixir']         = 'html,eelixir'
 let g:snipMate.scope_aliases['smarty']          = 'html,smarty'
 let g:snipMate.scope_aliases['blade']           = 'html,blade'
