@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-01-21 16:18:38
+" -----------------    Date: 2017-02-03 22:53:07
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -596,7 +596,7 @@ let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
-let g:indentLine_char       = '┆'              " 设置对齐线字符
+let g:indentLine_char       = '┆'             " 设置对齐线字符
 let g:indentLine_color_term = 239              " 设置非GUI线条颜色
 let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
 
@@ -641,7 +641,7 @@ let g:syntastic_elixir_checkers            = ['elixir']
 let g:syntastic_enable_elixir_checker      = 1
 let g:syntastic_perl_checkers              = ['perl']
 let g:syntastic_enable_perl_checker        = 1
-let g:syntastic_perl6_checkers             = [ 'perl6latest']
+let g:syntastic_perl6_checkers             = ['perl6latest']
 let g:syntastic_enable_perl6latest_checker = 1
 let g:syntastic_python_python_exec         = 'python3'
 let g:syntastic_javascript_checkers        = ['eslint']
