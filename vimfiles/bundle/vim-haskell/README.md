@@ -43,16 +43,34 @@ Copy content into your `~/.vim` directory.
 To enable the features you would like to use, just add the according line to your
 `.vimrc`.
 
-* `let g:haskell_enable_quantification = 1` to enable highlighting of `forall`
-* `let g:haskell_enable_recursivedo = 1` to enable highlighting of `mdo` and `rec`
-* `let g:haskell_enable_arrowsyntax = 1` to enable highlighting of `proc`
-* `let g:haskell_enable_pattern_synonyms = 1` to enable highlighting of `pattern`
-* `let g:haskell_enable_typeroles = 1` to enable highlighting of type roles
-* `let g:haskell_enable_static_pointers = 1` to enable highlighting of `static`
+```viml
+let g:haskell_enable_quantification = 1   " to enable highlighting of `forall`
+let g:haskell_enable_recursivedo = 1      " to enable highlighting of `mdo` and `rec`
+let g:haskell_enable_arrowsyntax = 1      " to enable highlighting of `proc`
+let g:haskell_enable_pattern_synonyms = 1 " to enable highlighting of `pattern`
+let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
+let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
+let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
+```
+
+### Highlighting
+
+`haskell-vim` has an opinionated highlighting. If you do not like that you can switch to
+a more traditional mode by setting `g:haskell_classic_highlighting` to `1`.
+
+Disabling Template Haskell and Quasiquoting syntax is possible by setting
+`g:haskell_disable_TH` to `1`.
 
 ### Indentation
 
 To configure indentation in `haskell-vim` you can use the following variables to change indentation depth, just add the according line to your `.vimrc`.
+
+If you dislike how indentation works you can disable it by setting `g:haskell_indent_disable` to
+`1`.
+
+Additionally you can use the
+[vim-hindent](https://github.com/alx741/vim-hindent) plugin to achieve automatic
+indentation using *hindent*.
 
 #### Haskell
 
@@ -88,6 +106,20 @@ To configure indentation in `haskell-vim` you can use the following variables to
         let x = 1
         >in x
 
+* `let g:haskell_indent_guard = 2`
+
+        f x y
+        >>|
+
+`haskell-vim` also supports an alterative style for `case` indentation.
+
+* `let g:haskell_indent_case_alternative = 1`
+
+        f xs ys = case xs of
+        >>[]     -> ...
+        >>(y:ys) -> ...
+
+
 #### Cabal
 
 *  `let g:cabal_indent_section = 2` (limited to max. 4 spaces)
@@ -95,55 +127,6 @@ To configure indentation in `haskell-vim` you can use the following variables to
         executable name
         >>main-is:             Main.hs
 
-### Plugin Support
-
-#### Haskell
-
-`haskell-vim` comes with some helpful functionality for working with Haskell
-
-* `HaskellAddModuleComment`: Adds a module comment block to the top of your haskell file
-
-        {-|
-        Module      :
-        Description :
-        Copyright   :
-        License     :
-        Maintainer  :
-        Stability   :
-        Portability :
-        -}
-
-#### Cabal
-
-`haskell-vim` comes with a few helpful commands for working with Cabal
-
-* `CabalAddExecutable`: Adds a new executable section to the end of your cabal file. Prompts you for executable filename and source file.
-
-        executable name
-          -- ghc-options:
-          main-is:             Main.hs
-          -- other-modules:
-          -- other-extensions:
-          build-depends:       base
-          -- hs-source-dirs:
-          default-language:    Haskell2010
-
-* `CabalAddLibrary`: Adds a new library section to the end of your cabal file.
-
-        library
-          -- ghc-options:
-          -- other-modules:
-          -- other-extensions:
-          build-depends:       base
-          -- hs-source-dirs:
-          default-language:    Haskell2010
-
-* `CabalAddFlag`: Adds a new flag section to the end of your cabal file. Prompts you for flag name.
-
-        flag name
-          description:
-          default:      False
-          manual:       True
 
 [Pathogen]: https://github.com/tpope/vim-pathogen
 [idris-vim]: https://github.com/idris-hackers/idris-vim

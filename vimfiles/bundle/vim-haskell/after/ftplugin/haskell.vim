@@ -1,3 +1,2 @@
-setlocal comments=s1fl:{-,mb:-,ex:-},:--
-setlocal formatoptions-=cro formatoptions+=j
+setlocal comments=s1fl:{-,mb:\ \ ,ex:-},:--
 setlocal iskeyword+='
