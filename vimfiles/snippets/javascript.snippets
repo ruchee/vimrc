@@ -15,6 +15,8 @@ snippet vrq     导入包到变量
 	var ${1} = require('${2}')${0}
 snippet lrq     导入包到变量
 	let ${1} = require('${2}')${0}
+snippet irq     导入包
+	import ${1} = require('${2}')${0}
 snippet im      导入模块 [ES6新增]
 	import ${0}
 snippet imf     从 .. 导入模块 [ES6新增]
@@ -44,10 +46,14 @@ snippet fc      构造方法
 	constructor(${1}) {
 	  ${0}
 	}
+snippet ffc     单行空构造方法
+	constructor(${0}) {}
 snippet cf      普通方法
 	${1}(${2})${3} {
 	  ${0}
 	}
+snippet cfd     方法声明
+	${1}(${2})${0}
 snippet _pt     指定原型
 	__proto__${0}
 # 函数、流程控制
@@ -57,16 +63,12 @@ snippet f       常规函数
 	}
 snippet f5      匿名函数 [ES5语法]
 	function(${1})${2} {${0}}
-snippet ff      匿名函数 [ES6语法]
-	${1} => ${0}
-snippet fff     匿名函数（带括号） [ES6语法]
+snippet ff      匿名函数（带括号） [ES6语法]
 	(${1}) => ${0}
+snippet fff     匿名函数 [ES6语法]
+	${1} => ${0}
 snippet of      对象中的方法
 	${1:f_name}: (${2}) => {
-	  ${0}
-	}
-snippet of.     对象中的方法 [ES6语法]
-	${1:f_name}(${2}) {
 	  ${0}
 	}
 snippet wi      指定缺省对象
@@ -145,13 +147,17 @@ snippet con     常量 [ES6新增]
 	const ${0}
 snippet de      删除
 	delete ${0}
+snippet as      异步执行
+	async ${0}
+snippet aw      等待结果
+	await ${0}
 snippet ev      执行代码
 	eval(${0})
 snippet ct      构造器
 	constructor${0}
 snippet pt      原型
 	prototype${0}
-snippet tp      类型
+snippet to      类型
 	typeof ${0}
 snippet ins     实例
 	instanceof ${0}
@@ -250,8 +256,6 @@ snippet ?       三元运算符
 	${1} ? ${2} : ${0}
 snippet {       ${ .. }
 	${${0}
-snippet .       =>
-	=> ${0}
 ################
 # DOM相关
 snippet gbyi    根据id取单个元素
