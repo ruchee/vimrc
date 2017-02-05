@@ -7,14 +7,20 @@ snippet int     接口定义
 	interface ${1} {
 	  ${0}
 	}
-snippet inte    接口继承接口
+snippet inte    接口扩展
 	interface ${1} extends ${2} {
 	  ${0}
 	}
-snippet cli     类实现接口
+snippet cli     实现接口
 	class ${1} implements ${2} {
 	  ${0}
 	}
+snippet sf      函数签名
+	(${1}): ${0}
+snippet si      索引签名
+	[${1}]: ${0}
+snippet fd      方法声明
+	${1}(${2}): ${0}
 # 关键字
 snippet dec     声明
 	declare ${0}
