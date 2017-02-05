@@ -58,7 +58,7 @@ snippet _pt     指定原型
 	__proto__${0}
 # 函数、流程控制
 snippet f       常规函数
-	function ${1:f_name}(${2})${3} {
+	function ${1}(${2})${3} {
 	  ${0}
 	}
 snippet f5      匿名函数 [ES5语法]
@@ -68,7 +68,7 @@ snippet ff      匿名函数（带括号） [ES6语法]
 snippet fff     匿名函数 [ES6语法]
 	${1} => ${0}
 snippet of      对象中的方法
-	${1:f_name}: (${2}) => {
+	${1}: (${2}) => {
 	  ${0}
 	}
 snippet wi      指定缺省对象

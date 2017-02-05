@@ -4,22 +4,22 @@ snippet na      命名空间
 	  ${0}
 	}
 snippet int     接口定义
-	interface ${1:int_name} {
+	interface ${1} {
 	  ${0}
 	}
 snippet inte    接口继承接口
-	interface ${1:int_name} extends ${2:int_name} {
+	interface ${1} extends ${2} {
 	  ${0}
 	}
 snippet cli     类实现接口
-	class ${1:cl_name} implements ${2:int_name} {
+	class ${1} implements ${2} {
 	  ${0}
 	}
-snippet ab      抽象类
-	abstract ${0}
+# 关键字
 snippet dec     声明
 	declare ${0}
-# 关键字
+snippet ab      抽象
+	abstract ${0}
 snippet pu      公用
 	public ${0}
 snippet po      保护
@@ -32,9 +32,11 @@ snippet ko      索引
 	keyof ${0}
 snippet tp      类型
 	type ${0}
+snippet ro      只读
+	readonly ${0}
+# 数据类型
 snippet e       枚举
 	enum ${1} { ${0} }
-# 数据类型
 snippet _b      布尔型
 	boolean${0}
 snippet _n      数值型
@@ -47,6 +49,11 @@ snippet _a      任意类型
 	any${0}
 snippet _ne     永不存在的值的类型
 	never${0}
+# 特殊结构
+snippet _A      Array
+	Array<${0}>
+snippet _RA     ReadonlyArray
+	ReadonlyArray<${0}>
 # 其它
 snippet .       <>
 	<${0}>
