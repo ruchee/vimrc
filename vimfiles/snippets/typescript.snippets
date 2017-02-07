@@ -1,4 +1,6 @@
 # 代码重用
+snippet ref     引用其他源文件
+	/// <reference path='${1}.ts' />${0}
 snippet na      命名空间
 	namespace ${1} {
 	  ${0}
@@ -32,8 +34,6 @@ snippet po      保护
 	protected ${0}
 snippet pr      私有
 	private ${0}
-snippet st      静态
-	static ${0}
 snippet ko      索引
 	keyof ${0}
 snippet tp      类型
