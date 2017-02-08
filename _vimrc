@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-02-03 22:53:07
+" -----------------    Date: 2017-02-08 10:19:31
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -251,9 +251,12 @@ au BufRead,BufNewFile *.conf     set ft=dosini
 au BufRead,BufNewFile http*.conf set ft=apache
 au BufRead,BufNewFile *.ini      set ft=dosini
 
-au BufRead,BufNewFile */nginx/**/*.conf set ft=nginx
+au BufRead,BufNewFile */nginx/**/*.conf     set ft=nginx
 au BufRead,BufNewFile */openresty/**/*.conf set ft=nginx
 
+au BufRead,BufNewFile *.yml.bak     set ft=yaml
+au BufRead,BufNewFile *.yml.default set ft=yaml
+au BufRead,BufNewFile *.yml.example set ft=yaml
 
 " 设置着色模式和字体
 if g:isWIN
