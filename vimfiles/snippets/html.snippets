@@ -30,28 +30,42 @@ snippet head    头部
 snippet title   标题
 	<title>${0}</title>
 snippet meta    页面信息
-	<meta charset="utf-8"${0}>
+	<meta charset="utf-8">${0}
+snippet vp      移动端视口设定
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">${0}
+snippet icon    指定网站小图标
+	<link rel="shortcut icon" href="${1}"${0}>
 # 主体信息
 snippet body    主体
 	<body${1}>
 	  ${0}
 	</body>
-snippet script. 外部脚本
-	<script src="${1}"${0}></script>
 snippet script  内部脚本
 	<script>
 	  ${0}
 	</script>
-snippet link    外部样式表
-	<link rel="stylesheet" href="${1}"${0}>
+snippet script. 外部脚本
+	<script src="${1}"${0}></script>
+snippet js      内部脚本
+	<script>
+	  ${0}
+	</script>
+snippet js.     外部脚本
+	<script src="${1}"${0}></script>
 snippet style   内部样式表
 	<style>
 	  ${0}
 	</style>
+snippet link    外部样式表
+	<link rel="stylesheet" href="${1}"${0}>
+snippet css     内部样式表
+	<style>
+	  ${0}
+	</style>
+snippet css.    外部样式表
+	<link rel="stylesheet" href="${1}"${0}>
 snippet import  链接外部样式表
 	@import url("${0}")
-snippet icon    指定网站小图标
-	<link rel="shortcut icon" href="${1}"${0}>
 # 重量级标签
 snippet span    组合行内元素
 	<span${1}>${0}</span>
@@ -63,6 +77,14 @@ snippet div     内容块
 	<div${1}>${0}</div>
 snippet div.    内容块 [换行]
 	<div${1}>
+	  ${0}
+	</div>
+snippet divc    Bootstrap容器
+	<div class="container">
+	  ${0}
+	</div>
+snippet divcf   Bootstrap容器
+	<div class="container-fluid">
 	  ${0}
 	</div>
 snippet table   表格
