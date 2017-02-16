@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-02-08 10:19:31
+" -----------------    Date: 2017-02-15 21:50:42
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -936,6 +936,10 @@ func! Compile_Run_Code()
     exec '!Rscript %:t'
   elseif &filetype == 'sh'
     exec '!bash %:t'
+  elseif &filetype == 'scss'
+    exec '!scss %:t > %:r.css'
+  elseif &filetype == 'less'
+    exec '!lessc %:t > %:r.css'
   endif
 endfunc
 
