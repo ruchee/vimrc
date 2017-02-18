@@ -80,6 +80,31 @@ snippet _bfs    在保存前执行
 	before_save :${0}
 snippet _afs    在保存后执行
 	after_save :${0}
+# 迁移
+snippet _fch    change方法
+	def change
+	  ${0}
+	end
+snippet _fup    up方法
+	def up
+	  ${0}
+	end
+snippet _fdw    down方法
+	def down
+	  ${0}
+	end
+snippet _rev    可逆数据库变更
+	reversible do |${1}|
+	  ${0}
+	end
+snippet _crt    创建数据库
+	create_table :${1} do |t|
+	  ${0}
+	end
+snippet _cht    改变数据库
+	change_table :${1} do |t|
+	  ${0}
+	end
 # 测试
 snippet _test   测试区块
 	test '${1}' do
