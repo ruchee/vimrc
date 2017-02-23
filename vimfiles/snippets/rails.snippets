@@ -76,6 +76,8 @@ snippet _num    只能是数值
 	numericality: ${0}
 snippet _fk     指定外键
 	foreign_key: :${0}
+snippet _bfv    在验证之前执行
+	before_validation :${0}
 snippet _bfs    在保存前执行
 	before_save :${0}
 snippet _afs    在保存后执行
