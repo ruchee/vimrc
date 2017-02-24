@@ -76,18 +76,26 @@ snippet _num    只能是数值
 	numericality: ${0}
 snippet _fk     指定外键
 	foreign_key: :${0}
-snippet _bfv    在验证之前执行
+snippet _bfv    在验证前执行
 	before_validation :${0}
-snippet _afv    在验证之后执行
+snippet _afv    在验证后执行
 	after_validation :${0}
-snippet _bfc    在创建之前执行
+snippet _bfc    在创建前执行
 	before_create :${0}
-snippet _afc    在创建之后执行
+snippet _afc    在创建后执行
 	after_create :${0}
+snippet _bfu    在更新前执行
+	before_update :${0}
+snippet _afu    在更新后执行
+	after_update :${0}
 snippet _bfs    在保存前执行
 	before_save :${0}
 snippet _afs    在保存后执行
 	after_save :${0}
+snippet _bfd    在删除前执行
+	before_destroy :${0}
+snippet _afd    在删除后执行
+	after_destroy :${0}
 # 迁移
 snippet _fch    change方法
 	def change
