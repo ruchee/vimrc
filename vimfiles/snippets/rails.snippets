@@ -78,6 +78,12 @@ snippet _fk     指定外键
 	foreign_key: :${0}
 snippet _bfv    在验证之前执行
 	before_validation :${0}
+snippet _afv    在验证之后执行
+	after_validation :${0}
+snippet _bfc    在创建之前执行
+	before_create :${0}
+snippet _afc    在创建之后执行
+	after_create :${0}
 snippet _bfs    在保存前执行
 	before_save :${0}
 snippet _afs    在保存后执行
