@@ -381,6 +381,17 @@ snippet isr     是否是资源
 	is_resource(${0})
 snippet isc     是否是合法的可调用结构
 	is_callable(${0})
+#### 类型转换 #####
+snippet bv      to boolean type
+	boolval(${0})
+snippet iv      to integer type
+	intval(${0})
+snippet fv      to float type
+	floatval(${0})
+snippet dv      to double type
+	doubleval(${0})
+snippet sv      to string type
+	strval(${0})
 #### 出错处理 #####
 snippet elog    写出错日志
 	error_log(${0})
