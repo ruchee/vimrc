@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-02-27 15:43:09
+" -----------------    Date: 2017-02-27 23:08:03
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -884,7 +884,9 @@ func! Compile_Run_Code()
     exec '!elixir %:t'
   elseif &filetype == 'lfe'
     exec '!lfe %:t'
-  elseif &filetype == 'scheme' || &filetype == 'racket'
+  elseif &filetype == 'scheme'
+    exec '!chez %:t'
+  elseif &filetype == 'racket'
     exec '!racket -fi %:t'
   elseif &filetype == 'newlisp'
     exec '!newlisp %:t'
