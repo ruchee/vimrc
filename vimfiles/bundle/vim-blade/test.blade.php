@@ -1,166 +1,171 @@
-/* Regular PHP */
-echo('foo')         // shouldn't be highlighted
-<?php if ($bar->foo == $foo) return false; ?>
+<?php if($foo='bar' ) { $something() } ?>
+Hello, {{ $name }}.
 
-/* Regular HTML */
-<html>
-</html>
+The current UNIX timestamp is {{ time() }}.
 
-/* Echos */
-{!! $name !!}
-{{ $name }}
-{{{ $name }}}
-@{!! $name !!}      // should be treated as regular php
+Hello, @{{ name }}.
 
-/* Structures */
+{{ isset($name) ? $name : 'Default' }}
+
+Hello, {!! $name !!}.
+
+@if ($foo == 'bar') @endif
+
+@if (count($records) === 1)
+    I have one record!
+@elseif (count($records) > 1)
+    I have multiple records!
 @else
-@empty
-@endfor
-@endforeach
+    I don't have any records!
 @endif
-@endpush
-@endsection
+
+@unless (Auth::check())
+    You are not signed in.
 @endunless
-@endwhile
-@overwrite
-@show
-@stop
 
-/* Structures (with conditions) */
-@append('foo')
-@choice('language.line', 1)
-@each(['foo', 'bar'])
-@if ($bar == ($foo*2))
-    {{ $bar }}
-@elseif ($bar == ($foo*3))
-    {{ $bar * 2 }}
-@else
-    'foo'
-@endif
-@extends('layouts.default')
-@for($i = 0; $i < 10; $i++)
-    the value is {{ $i }}
+@for ($i = 0; $i < 10; $i++)
+    The current value is {{ $i }}
+@endfor
+
+@foreach ($users as $user)
+    <p>This is user {{ $user->id }}</p>
+    @break
+    @continue
 @endforeach
-@forelse($users as $user)
+
+@forelse ($users as $user)
     <li>{{ $user->name }}</li>
 @empty
     <p>No users</p>
 @endforelse
-@include('something')
-@lang('language.line')
-@push('foo')
-    <h1>{{ $foo }}</h1>
-@endpush
-@section('nav')
-    <h1>Home</h1>
-@endsection
-@stack('content')
-@unless(1 == 2)
-    {{ $foo }}
-@endunless
-@while(true == false)
-    {{ $foo }}
+
+@while (true)
+    <p>I'm looping forever.</p>
 @endwhile
-@yield('content')
 
-/* Comments */
-{{-- comments on one line --}}
-{{-- comments
-     on 
-     many
-     lines --}}
-{{-- structures shouldn't escape @if($insideComments == true) --}}
-@yield('section') {{-- comments after structure are valid --}}
-{{ $comments->finished() }}
+@can('update-post', $post)
+    <!-- current user can update the post -->
+@elsecan('delete-post', $post)
+    <!-- current user can delete the post -->
+@else
+    <!-- current user can't update or delete the post -->
+@endcan
 
-/* Edge Cases */
-// try a multiline include
-@include('admin.misc.sort-header', [
-    'column' => 'name',
-])
+@cannot('view-post')
+    <!-- current user cannot view the post -->
+@elsecannot('publish-post')
+    <!-- current user cannot publish the post -->
+@endcannot
 
-// inside html
 <div>
-    @if ($foo == $bar)
-        {{ $foo }}
-    @endif
+    @include('shared.errors')
+    <form>
+        <!-- Form Contents -->
+    </form>
 </div>
 
-// keywords inside of comments
+@each('view.name', $jobs, 'job')
+
+{{-- This comment will not be present in the rendered HTML --}}
+
 {{--
-List from http://www.php.net/manual/en/reserved.keywords.php
-__halt_compiler()
-abstract
-and
-array()
-as
-break
-callable
-case
-catch
-class
-clone
-const
-continue
-declare
-default
-die()
-do
-echo
-else
-elseif
-empty()
-enddeclare
-endfor
-endforeach
-endif
-endswitch
-endwhile
-eval()
-exit()
-extends
-final
-finally
-for
-foreach
-function
-global
-goto
-if
-implements
-include
-include_once
-instanceof
-insteadof
-interface
-isset()
-list()
-namespace
-new
-or
-print
-private
-protected
-public
-require
-require_once
-return
-static
-switch
-throw
-trait
-try
-unset()
-use
-var
-while
-xor
-yield
-__DIR__
-__FILE__
-__FUNCTION__
-__LINE__
-__METHOD__
-__NAMESPACE__
-__TRAIT__
---}
+    This comment spans
+    multiple lines
+    @yield('dont highlight')
+--}}
+
+{{-- todo fixme xxx note TODO FIXME XXX NOTE --}}
+
+@inject('metrics', 'App\Services\MetricsService')
+
+@push('scripts')
+    <script src="/example.js"></script>
+@endpush
+
+<head>
+    <!-- Head Contents -->
+    <title>
+        @hasSection('title')
+            Test - @yield('title')
+        @else
+            Test
+        @endif
+    </title>
+
+    @stack('scripts')
+</head>
+
+@prepend('scripts')
+    <script src="{{ mix('/js/manifest.js') }}"></script>
+    <script src="{{ mix('/js/vendor.js') }}"></script>
+@endprepend
+
+<div>
+    @section('sidebar')
+        This is the master sidebar.
+    @show
+
+    @yield('content')
+</div>
+
+@section('title', 'Page Title')
+
+@section('sidebar')
+    @parent
+    <p>This is appended to the master sidebar.</p>
+@endsection
+
+<input name="example" {{ old('example') ? 'checked' : '' }} />
+
+<?php
+    $collection = collect([
+        'foo' => [
+            'bar',
+            'baz',
+        ]
+    ])
+?>
+
+@include('pages.home', [
+    'foo' => [
+        'bar',
+        'baz',
+    ]
+])
+
+{{
+    sprintf(
+        'This %s a multiline echo statement',
+        $foo
+    )
+}}
+
+@cache
+    A custom Blade directive
+    @datetime($var)
+    @namespaced::directive($var)
+@endcache
+
+@php($var = 'Hello World')
+@unset($var)
+
+@php
+    $environment = isset($env) ? $env : 'testing';
+@endphp
+
+do_not_highlight@php.net
+
+@verbatim
+    <p class="highlighted">@if(true) {{ $notHighlighted }} @endif</p>
+    <!-- highlighted -->
+    <?php /* also highlighted */ ?>
+@endverbatim
+
+@lang('messages.welcome')
+@choice('messages.items', 3)
+
+@component('app')
+    @slot('title')
+        Title goes here
+    @endslot
+@endcomponent

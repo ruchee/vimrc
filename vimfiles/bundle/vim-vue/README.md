@@ -1,7 +1,7 @@
 # vim-vue
 
 Vim syntax highlighting for [Vue
-components](http://vuejs.org/guide/application.html#Single_File_Components).
+components](https://vuejs.org/v2/guide/single-file-components.html).
 
 This was initially forked from
 [darthmall/vim-vue](https://github.com/darthmall/vim-vue). I already have an
@@ -12,7 +12,22 @@ new version instead of a PR.
 
 ### Install with [Vundle](https://github.com/VundleVim/Vundle.vim)
 
-`Plugin 'posva/vim-vue'`
+```viml
+Plugin 'posva/vim-vue'
+```
+
+### Install with [Pathogen](https://github.com/tpope/vim-pathogen)
+
+```bash
+cd ~/.vim/bundle && \
+git clone https://github.com/posva/vim-vue.git
+```
+
+### Install without a plugin manager (Vim 8)
+
+```bash
+git clone https://github.com/posva/vim-vue.git ~/.vim/pack/plugins/start
+```
 
 ### Integration with [Syntastic](https://github.com/scrooloose/syntastic)
 

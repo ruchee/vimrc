@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-02-15 21:50:42
+" -----------------    Date: 2017-02-27 15:43:09
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -653,11 +653,9 @@ let g:syntastic_typescript_checkers        = ['eslint']
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
 " php-cs-fixer        格式化PHP代码
-let g:php_cs_fixer_level = 'symfony'           " 使用Symfony推荐的代码风格
-let g:php_cs_fixer_config = 'default'          " 使用默认配置
+let g:php_cs_fixer_rules = '@PSR2'             " 指定使用的格式化规则
 let g:php_cs_fixer_php_path = 'php'            " 指定PHP可执行文件的路径
 let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
-let g:php_cs_fixer_dry_run = 0                 " 只提示需要格式化的位置，不执行格式化 [0为不开启]
 
 " vim-ruby            Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
 if g:isMAC
@@ -668,7 +666,7 @@ if g:isMAC
 endif
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux'
+let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux,d3'
 
 
 " ======= 自定义快捷键 ======= "

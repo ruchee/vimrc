@@ -41,117 +41,117 @@ snippet dfo     判断常量是否有定义，无定义则退出并输出错误�
 	defined('${1}') or exit('${0}');
 # 接口、类、方法
 snippet int     接口定义
-	interface ${1:int_name} {
+	interface ${1} {
 	  ${0}
 	}
 snippet tra     内含模块定义 [用于实现Mixin，相当于类，但不能实例化，借鉴自Ruby] [PHP 5.4新增]
-	trait ${1:tra_name} {
+	trait ${1} {
 	  ${0}
 	}
 snippet cl      类定义
-	class ${1:cl_name} {
+	class ${1} {
 	  ${0}
 	}
 snippet cle     带继承的类定义
-	class ${1:cl_name} extends ${2:pa_name} {
+	class ${1} extends ${2} {
 	  ${0}
 	}
 snippet cli     实现接口的类定义
-	class ${1:cl_name} implements ${2:int_name} {
+	class ${1} implements ${2} {
 	  ${0}
 	}
 snippet clei    先继承后实现接口的类定义
-	class ${1:cl_name} extends ${2:pa_name} implements ${3:int_name} {
+	class ${1} extends ${2} implements ${3} {
 	  ${0}
 	}
 snippet clee    继承异常类
-	class ${1:cl_name} extends Exception {
+	class ${1} extends Exception {
 	  ${0}
 	}
 snippet f       函数定义
-	function ${1:f_name} (${2})${3} {
+	function ${1}(${2})${3} {
 	  ${0}
 	}
 snippet f.      用于接口的方法声明
-	function ${1:f_name} (${2})${3};${0}
+	function ${1}(${2})${3};${0}
 snippet ff      匿名函数（不换行）
 	function (${1})${2} {${0}}
 snippet ffu     带use子句的匿名函数
 	function (${1})${2} use (${3}) {${0}};
 snippet abf     用于声明抽象方法
-	abstract function ${1:f_name} (${2})${3};${0}
+	abstract function ${1}(${2})${3};${0}
 snippet prs     private static属性
 	private static ${0}
 snippet pus     public static方法
 	public static ${0}
 snippet fc      构造方法
-	function __construct (${1}) {
+	function __construct(${1}) {
 	  ${0}
 	}
 snippet pfc     public构造函数
-	public function __construct (${1}) {
+	public function __construct(${1}) {
 	  ${0}
 	}
 snippet pac     调用父类构造方法
 	parent::__construct(${1});${0}
 snippet fd      析构方法
-	function __destruct () {
+	function __destruct() {
 	  ${0}
 	}
 snippet fcl     克隆方法
-	function __clone () {
+	function __clone() {
 	  ${0}
 	}
 snippet fts     将类当作字符串打印
-	function __toString () {
+	function __toString() {
 	  ${0}
 	}
 snippet fau     自动加载
-	function __autoload (${1}) {
+	function __autoload(${1}) {
 	  ${0}
 	}
 snippet fsl     __sleep()：执行serialize()时触发
-	function __sleep () {
+	function __sleep() {
 	  ${0}
 	}
 snippet fwa     __wakeup()：执行unserialize()时触发
-	function __wakeup () {
+	function __wakeup() {
 	  ${0}
 	}
 snippet fge     __get()：访问未定义的属性时触发
-	function __get (${1}) {
+	function __get(${1}) {
 	  ${0}
 	}
 snippet fse     __set()：给未定义的属性赋值时触发
-	function __set (${1}) {
+	function __set(${1}) {
 	  ${0}
 	}
 snippet fca     __call()：调用未定义的方法时触发
-	function __call (${1}) {
+	function __call(${1}) {
 	  ${0}
 	}
 snippet fcas    __callStatic()：静态方法，静态调用未定义的方法时触发
-	function __callStatic (${1}) {
+	function __callStatic(${1}) {
 	  ${0}
 	}
 snippet fis     __isset()：对未定义的属性调用isset()时触发
-	function __isset (${1}) {
+	function __isset(${1}) {
 	  ${0}
 	}
 snippet fus     __unset()：对未定义的属性调用unset()时触发
-	function __unset (${1}) {
+	function __unset(${1}) {
 	  ${0}
 	}
 snippet fiv     __invoke()：尝试以调用函数的方式调用对象时触发
-	function __invoke (${1}) {
+	function __invoke(${1}) {
 	  ${0}
 	}
 snippet fss     __set_state()：静态方法，执行var_export()时触发
-	function __set_state (${1}) {
+	function __set_state(${1}) {
 	  ${0}
 	}
 snippet fde     __debuginfo()：执行var_dump()时触发
-	function __debuginfo () {
+	function __debuginfo() {
 	  ${0}
 	}
 # 流程控制

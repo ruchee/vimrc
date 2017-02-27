@@ -1,0 +1,49 @@
+language: php
+
+sudo: false
+
+php:
+  - 7.0
+  - 7.1
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 5.3
+    - php: 5.4
+    - php: 5.5
+    - php: 5.6
+    - php: hhvm
+      sudo: required
+      dist: trusty
+      group: edge
+  allow_failures:
+    - php: 7.0
+    - php: 7.1
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+env:
+  - PATH="$HOME/.composer/vendor/bin:$HOME/vim/bin:$PATH"
+
+install:
+  - composer self-update --no-progress --no-ansi --no-interaction --profile
+  - composer global require "friendsofphp/php-cs-fixer"
+
+before_script:
+  - git clone https://github.com/vim/vim --depth 1 /tmp/vim && cd /tmp/vim && ./configure --prefix=$HOME/vim --with-features=huge && make && make install && cd -
+  - git clone https://github.com/thinca/vim-themis --branch v1.5.2.1 --single-branch --depth 1 /tmp/vim-themis
+
+script:
+  - echo $PATH
+  - composer --version
+  - php-cs-fixer --version
+  - vim --cmd version --cmd quit
+  - /tmp/vim-themis/bin/themis tests/ -r --reporter dot
+
+notifications:
+  email: false
+
+# vim:fdl=0:sts=2:sw=2:ts=2

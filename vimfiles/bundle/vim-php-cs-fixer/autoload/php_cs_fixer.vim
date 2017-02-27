@@ -1,37 +1,53 @@
 "=============================================================================
-" File: php-cs-fixer.vim
+" File: autoload/php_cs_fixer.vim
 " Author: Stéphane PY
 
-if exists("g:vim_php_cs_fixer") || &cp
-    finish
-endif
-let g:vim_php_cs_fixer = 1
-
 " Global options definition."{{{
-let g:php_cs_fixer_path = get(g:, 'php_cs_fixer_path', '~/php-cs-fixer.phar')
-let g:php_cs_fixer_level = get(g:, 'php_cs_fixer_level', 'symfony')
+let g:php_cs_fixer_path = get(g:, 'php_cs_fixer_path', '')
 let g:php_cs_fixer_php_path = get(g:, 'php_cs_fixer_php_path', 'php')
-let g:php_cs_fixer_enable_default_mapping = get(g:, 'php_cs_fixer_enable_default_mapping', '1')
-let g:php_cs_fixer_dry_run = get(g:, 'php_cs_fixer_dry_run', 0)
-let g:php_cs_fixer_verbose = get(g:, 'php_cs_fixer_verbose', 0)
 
-if executable('php-cs-fixer')
-  let g:php_cs_fixer_command = 'php-cs-fixer fix'
-else
+if exists('g:php_cs_fixer_path') && g:php_cs_fixer_path != ""
   let g:php_cs_fixer_command = g:php_cs_fixer_php_path.' '.g:php_cs_fixer_path.' fix'
+  let g:php_cs_fixer_version_command = g:php_cs_fixer_php_path.' '.g:php_cs_fixer_path.' --version'
+else
+  if executable('php-cs-fixer')
+    let g:php_cs_fixer_command = 'php-cs-fixer fix'
+    let g:php_cs_fixer_version_command = 'php-cs-fixer --version'
+  else
+    echoerr('php-cs-fixer not found and g:php_cs_fixer_path not set')
+    finish
+  end
 end
 
-if exists('g:php_cs_fixer_config')
-    let g:php_cs_fixer_command = g:php_cs_fixer_command.' --config='.g:php_cs_fixer_config
+" Check the php-cs-fixer version
+let g:php_cs_fixer_version = system(g:php_cs_fixer_version_command . " | sed -e 's/[^0-9.]*\\([0-9.]*\\).*/\\1/'")
+
+if g:php_cs_fixer_version >= 2
+    let g:php_cs_fixer_rules = get(g:, 'php_cs_fixer_rules', '@PSR2')
+else
+    let g:php_cs_fixer_level = get(g:, 'php_cs_fixer_level', 'symfony')
+endif
+
+if g:php_cs_fixer_version == 1
+	if exists('g:php_cs_fixer_config')
+    	let g:php_cs_fixer_command = g:php_cs_fixer_command.' --config='.g:php_cs_fixer_config
+	endif
 endif
 
 if exists('g:php_cs_fixer_config_file') && filereadable(g:php_cs_fixer_config_file)
-    let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config-file=' . g:php_cs_fixer_config_file
+    if g:php_cs_fixer_version == 1
+        let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config-file=' . g:php_cs_fixer_config_file
+    else
+        let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config=' . g:php_cs_fixer_config_file
+    endif
+endif
+
+if exists('g:php_cs_fixer_cache')
+    let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --cache-file=' . g:php_cs_fixer_cache
 endif
 "}}}
 
-
-fun! PhpCsFixerFix(path, dry_run)
+fun! php_cs_fixer#fix(path, dry_run)
 
     if !executable('php-cs-fixer')
       if !filereadable(expand(g:php_cs_fixer_path))
@@ -46,13 +62,18 @@ fun! PhpCsFixerFix(path, dry_run)
         let command = command.' --dry-run'
     endif
 
-    if exists('g:php_cs_fixer_level') && g:php_cs_fixer_level != 'all'
-        let command = command.' --level='.g:php_cs_fixer_level
-    endif
-
-    if exists('g:php_cs_fixer_fixers_list')
-        let command = command.' --fixers='.g:php_cs_fixer_fixers_list
-    endif
+    if g:php_cs_fixer_version >= 2
+        if exists('g:php_cs_fixer_rules') && g:php_cs_fixer_rules != '@PSR2'
+            let command = command.' --rules='.g:php_cs_fixer_rules
+        endif
+    else
+		if exists('g:php_cs_fixer_level') && g:php_cs_fixer_level != 'all'
+        	let command = command.' --level='.g:php_cs_fixer_level
+    	endif
+        if exists('g:php_cs_fixer_fixers_list')
+            let command = command.' --fixers='.g:php_cs_fixer_fixers_list
+        endif
+	endif
 
     let s:output = system(command)
 
@@ -103,18 +124,3 @@ fun! PhpCsFixerFix(path, dry_run)
         endif
     endif
 endfun
-
-fun! PhpCsFixerFixDirectory()
-    call PhpCsFixerFix(expand('%:p:h'), g:php_cs_fixer_dry_run)
-endfun
-
-fun! PhpCsFixerFixFile()
-    call PhpCsFixerFix(expand('%:p'), g:php_cs_fixer_dry_run)
-endfun
-
-if(g:php_cs_fixer_enable_default_mapping == 1)
-    nnoremap <silent><leader>pcd :call PhpCsFixerFixDirectory()<CR>
-    nnoremap <silent><leader>pcf :call PhpCsFixerFixFile()<CR>
-endif
-
-" vim: foldmethod=marker

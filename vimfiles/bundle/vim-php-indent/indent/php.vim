@@ -3,8 +3,8 @@
 " Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
 " URL:		http://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2015 September 8th
-" Version:	1.60
+" Last Change:	2016 October 2nd
+" Version:	1.61
 "
 "
 "	Type :help php-indent for available options
@@ -39,6 +39,10 @@
 "
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
+"
+"
+" Changes: 1.61         - Prevent multi-line strings declaration from breaking
+"                         indentation. (issue #47)
 "
 " Changes: 1.60         - Multi-line indenting could get wrong whenever started
 "                         on a commented line. (issue #44)
@@ -498,7 +502,12 @@ let s:PHP_validVariable = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
 let s:notPhpHereDoc = '\%(break\|return\|continue\|exit\|die\|else\)'
 let s:blockstart = '\%(\%(\%(}\s*\)\=else\%(\s\+\)\=\)\=if\>\|\%(}\s*\)\?else\>\|do\>\|while\>\|switch\>\|case\>\|default\>\|for\%(each\)\=\>\|declare\>\|class\>\|trait\>\|use\>\|interface\>\|abstract\>\|final\>\|try\>\|\%(}\s*\)\=catch\>\|\%(}\s*\)\=finally\>\)'
 let s:functionDecl = '\<function\>\%(\s\+'.s:PHP_validVariable.'\)\=\s*(.*'
-let s:endline= '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
+let s:endline = '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
+" Unstated line?
+" - an "else" at the end of line
+" - a  s:blockstart (if while etc...) followed by anything but a ";" at
+"	the end of line
+let s:unstated = '\%(^\s*'.s:blockstart.'.*)\|\%(//.*\)\@<!\<e'.'lse\>\)'.s:endline
 
 " Terminated line?
     " - a line terminated by a ";" optionally followed by a "?>" or "}"
@@ -506,7 +515,7 @@ let s:endline= '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
     " - a "}" not followed by a "{"
     " - a goto's label
 
-let s:terminated = '\%(\%(;\%(\s*\%(?>\|}\)\)\=\|<<<\s*[''"]\=\a\w*[''"]\=$\|^\s*}\|^\s*'.s:PHP_validVariable.':\)'.s:endline.'\)\|^[^''"`]*[''"`]$'
+let s:terminated = '\%(\%(;\%(\s*\%(?>\|}\)\)\=\|<<<\s*[''"]\=\a\w*[''"]\=$\|^\s*}\|^\s*'.s:PHP_validVariable.':\)'.s:endline.'\)'
 let s:PHP_startindenttag = '<?\%(.*?>\)\@!\|<script[^>]*>\%(.*<\/script>\)\@!'
 
 
@@ -592,11 +601,36 @@ function! GetLastRealCodeLNum(startline) " {{{
 	    endwhile
 	elseif lastline =~ '^[^''"`]*[''"`][;,]'.s:endline
 	    " match multiline strings
-	    let tofind=substitute( lastline, '^.*\([''"`]\)[;,].*$', '^[^\1]\\+[\1]$', '')
-	    " DEBUG call DebugPrintReturn( 'mls end, to find:' . tofind)
-	    while getline(lnum) !~? tofind && lnum > 1
-		let lnum = lnum - 1
+
+	    let tofind=substitute( lastline, '^.*\([''"`]\)[;,].*$', '^[^\1]\\+[\1]$\\|^[^\1]\\+[=([]\\s*[\1]', '')
+	    " DEBUG call DebugPrintReturn( 'mls end, to find:' . tofind . "   lnum" . lnum)
+	    let trylnum = lnum
+	    while getline(trylnum) !~? tofind && trylnum > 1
+		let trylnum = trylnum - 1
 	    endwhile
+
+	    " DEBUG call DebugPrintReturn('trylnum ' . trylnum)
+	    if trylnum == 1
+		" we have failed... let things be.
+		break
+	    else
+		" we have found the start of this awful multiline horror
+		if lastline =~ ';'.s:endline
+		    " the last line finished the declaration so we must find a
+		    " similar line
+		    while getline(trylnum) !~? s:terminated && getline(trylnum) !~? '{'.s:endline && trylnum > 1
+			let trylnum = prevnonblank(trylnum - 1)
+		    endwhile
+
+		    " DEBUG call DebugPrintReturn('trylnum bis ' . trylnum)
+
+		    if trylnum == 1
+			" we have failed... let things be.
+			break
+		    end
+		end
+		let lnum = trylnum
+	    end
 	else
 	    " if none of these were true then we are done
 	    break
@@ -1116,6 +1150,7 @@ function! GetPhpIndent()
 
     " Find an executable php code line above the current line.
     let lnum = GetLastRealCodeLNum(v:lnum - 1)
+	" DEBUG call DebugPrintReturn(1121 . "last php line: " . lnum)
 
     " last line
     let last_line = getline(lnum)
@@ -1187,11 +1222,8 @@ function! GetPhpIndent()
 
     let terminated = s:terminated
 
-    let unstated   = '\%(^\s*'.s:blockstart.'.*)\|\%(//.*\)\@<!\<e'.'lse\>\)'.endline
-    " What is an unstated line?
-    " - an "else" at the end of line
-    " - a  s:blockstart (if while etc...) followed by anything but a ";" at
-    "	the end of line
+    let unstated  = s:unstated
+    
 
     " if the current line is an 'else' starting line
     if ind != b:PHP_default_indenting && cline =~# '^\s*else\%(if\)\=\>'

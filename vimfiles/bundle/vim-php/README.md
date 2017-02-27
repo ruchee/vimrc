@@ -45,8 +45,10 @@ augroup END
 
 <center>![Overriding Highlighting](http://i.imgur.com/eAlB1eb.png)</center>
 
-Updating
---------
+Developing
+----------
+
+When you install `php.vim` using your preferred installation method, all the files needed are already in place.
 
 The project comes with a Dockerfile which can be used to rebuild the syntax file.
 

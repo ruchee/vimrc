@@ -6,31 +6,11 @@ improved indentation.
 
 ## Installation
 
-### Install with [Vundle](https://github.com/gmarik/vundle)
-
-Add to vimrc:
-
-    Plugin 'pangloss/vim-javascript'
-
-And install it:
-
-    :so ~/.vimrc
-    :PluginInstall
-
-### Install with [vim-plug](https://github.com/junegunn/vim-plug)
-
-Add to vimrc:
-
-    Plug 'pangloss/vim-javascript'
-
-And install it:
-
-    :so ~/.vimrc
-    :PlugInstall
-
 ### Install with [pathogen](https://github.com/tpope/vim-pathogen)
 
       git clone https://github.com/pangloss/vim-javascript.git ~/.vim/bundle/vim-javascript
+
+alternatively, use a package manager like [vim-plug](https://github.com/junegunn/vim-plug)
 
 
 ## Configuration Variables
@@ -83,38 +63,46 @@ global vim option, we do not set it ourselves.
 
 ## Concealing Characters
 
-You can customize concealing characters by defining one or more of the following
+You can customize concealing characters, if your font provides the character you want, by defining one or more of the following
 variables:
 
-    let g:javascript_conceal_function       = "ƒ"
-    let g:javascript_conceal_null           = "ø"
-    let g:javascript_conceal_this           = "@"
-    let g:javascript_conceal_return         = "⇚"
-    let g:javascript_conceal_undefined      = "¿"
-    let g:javascript_conceal_NaN            = "ℕ"
-    let g:javascript_conceal_prototype      = "¶"
-    let g:javascript_conceal_static         = "•"
-    let g:javascript_conceal_super          = "Ω"
-    let g:javascript_conceal_arrow_function = "⇒"
+    let g:javascript_conceal_function             = "ƒ"
+    let g:javascript_conceal_null                 = "ø"
+    let g:javascript_conceal_this                 = "@"
+    let g:javascript_conceal_return               = "⇚"
+    let g:javascript_conceal_undefined            = "¿"
+    let g:javascript_conceal_NaN                  = "ℕ"
+    let g:javascript_conceal_prototype            = "¶"
+    let g:javascript_conceal_static               = "•"
+    let g:javascript_conceal_super                = "Ω"
+    let g:javascript_conceal_arrow_function       = "⇒"
+    let g:javascript_conceal_noarg_arrow_function = "🞅"
+    let g:javascript_conceal_underscore_arrow_function = "🞅"
+
+
+You can enable concealing within VIM with:
+
+    set conceallevel=1
+
+OR if you wish to toggle concealing you may wish to bind a command such as the following which will map `<LEADER>l` (leader is usually the `\` key) to toggling conceal mode:
+
+    map <leader>l :exec &conceallevel ? "set conceallevel=0" : "set conceallevel=1"<CR>
+
 
 ## Indentation Specific
 
 * `:h cino-:`
+* `:h cino-star`
+* `:h 'indentkeys'`
 
 ## Contributing
 
-This project uses the [git
-flow](http://nvie.com/posts/a-successful-git-branching-model/) model for
-development. There's [a handy git module for git
-flow](//github.com/nvie/gitflow). If you'd like to be added as a contributor,
-the price of admission is 1 pull request. Please follow the general code style
+Please follow the general code style
 guides (read the code) and in your pull request explain the reason for the
-proposed change and how it is valuable.
+proposed change and how it is valuable. All p.r.'s will be reviewed by a
+maintainer(s) then, hopefully, merged.
 
-
-## Bug Reports
-
-Report a bug on [GitHub Issues](https://github.com/pangloss/vim-javascript/issues).
+Thank you!
 
 
 ## License

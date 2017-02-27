@@ -1,62 +1,95 @@
-" Language:     Blade
-" Author:       Barry Deeney <sitemaster16@gmail.com>
-" Version:      0.1
-" Description:  BLADE indent file based on HTML indentation...
+" Vim indent file
+" Language:     Blade (Laravel)
+" Maintainer:   Jason Walton <jwalton512@gmail.com>
 
-" Check if this file has already been loaded
-if exists("b:did_indent")
-	finish
+if exists('b:did_indent')
+    finish
 endif
 
-" Include HTML
 runtime! indent/html.vim
+let s:htmlindent = &indentexpr
+
+unlet! b:did_indent
 runtime! indent/php.vim
-silent! unlet b:did_indent
+let s:phpindent = &indentexpr
 
-" What function do we need to use to detect indentation?
-setlocal indentexpr=BladeIndent()
-
-" What keys would trigger indentation?
-setlocal indentkeys=o,O,<Return>,<>>,{,},!^F,0{,0},0),:,!^F,o,O,e,*<Return>,=?>,=<?,=*/
-
-" THE MAIN INDENT FUNCTION. Return the amount of indent for v:lnum.
-func! BladeIndent()
-	" What is the current line?
-	let current_line = v:lnum
-
-	" What is the current text?
-	let current_text = tolower(getline(current_line))
-
-	" What was the last non blank line?
-	let previous_line = prevnonblank(current_line)
-
-	" What was the last non blank text?
-	let previous_text = tolower(getline(previous_line))
-
-	" How large are indents??
-	let indent_size = &sw
-
-	" Check if we have a PHPIndent value...
-	let indent = GetPhpIndent()
-
-	" check if we have indent
-	if indent == -1
-		" Check if we have BLADE
-		if current_text =~ '^\s*@' || previous_text =~ '^\s*@'
-			" We need to add to the indent
-			return indent_size * indent(previous_text)
-		endif
-
-		" Check if we have HTML
-		if current_text =~ '^\s*<' || previous_text =~ '^\s*<'
-			" We now give the honors to HtmlIndent()
-			let indent = HtmlIndent()
-		endif
-	endif
-
-	" Give the indent back!
-	return indent
-endfunc
-
-" Make sure we store that flag!
 let b:did_indent = 1
+
+" Doesn't include 'foreach' and 'forelse' because these already get matched by 'for'.
+let s:directives_start = 'if\|else\|unless\|for\|while\|empty\|push\|section\|can\|hasSection\|verbatim\|php\|' .
+            \ 'component\|slot\|prepend'
+let s:directives_end = 'else\|end\|empty\|show\|stop\|append\|overwrite'
+
+if exists('g:blade_custom_directives_pairs')
+    let s:directives_start .= '\|' . join(keys(g:blade_custom_directives_pairs), '\|')
+    let s:directives_end .= '\|' . join(values(g:blade_custom_directives_pairs), '\|')
+endif
+
+setlocal autoindent
+setlocal indentexpr=GetBladeIndent()
+exe 'setlocal indentkeys=o,O,<>>,!^F,0=}},0=!!},=@' . substitute(s:directives_end, '\\|', ',=@', 'g')
+
+" Only define the function once.
+if exists('*GetBladeIndent')
+    finish
+endif
+
+function! s:IsStartingDelimiter(lnum)
+    let line = getline(a:lnum)
+    return line =~# '\%(\w\|@\)\@<!@\%(' . s:directives_start . '\)\%(.*@end\|.*@stop\)\@!'
+                \ || line =~# '{{\%(.*}}\)\@!'
+                \ || line =~# '{!!\%(.*!!}\)\@!'
+                \ || line =~# '<?\%(.*?>\)\@!'
+endfunction
+
+function! GetBladeIndent()
+    let lnum = prevnonblank(v:lnum - 1)
+    if lnum == 0
+        return 0
+    endif
+
+    let line = getline(lnum)
+    let cline = getline(v:lnum)
+    let indent = indent(lnum)
+
+    " 1. Check for special directives
+    " @section is a single-line directive if it has a second argument.
+    " @php is a single-line directive if it is followed by parentheses.
+    if (line =~# '@section\%(.*@end\)\@!' && line !~# '@section\s*([^,]*)')
+                \ || line =~# '@php\s*('
+        return indent
+    endif
+
+    " 2. When the current line is an ending delimiter: decrease indentation
+    "    if the previous line wasn't a starting delimiter.
+    if cline =~# '^\s*@\%(' . s:directives_end . '\)'
+                \ || cline =~# '\%(<?.*\)\@<!?>'
+                \ || cline =~# '\%({{.*\)\@<!}}'
+                \ || cline =~# '\%({!!.*\)\@<!!!}'
+        return s:IsStartingDelimiter(lnum) ? indent : indent - &sw
+    endif
+
+    " 3. Increase indentation if the line contains a starting delimiter.
+    if s:IsStartingDelimiter(lnum)
+        return indent + &sw
+    endif
+
+    " 4. External indent scripts (PHP and HTML)
+    execute 'let indent = ' . s:htmlindent
+
+    if exists('*GetBladeIndentCustom')
+        let indent = GetBladeIndentCustom()
+    elseif line !~# '^\s*\%(#\|//\)\|\*/\s*$' && (
+                \ searchpair('@include\%(If\)\?\s*(', '', ')', 'bWr') ||
+                \ searchpair('{!!', '', '!!}', 'bWr') ||
+                \ searchpair('{{', '', '}}', 'bWr') ||
+                \ searchpair('<?', '', '?>', 'bWr') ||
+                \ searchpair('@php\s*(\@!', '', '@endphp', 'bWr') )
+        " Only use PHP's indent if the region spans multiple lines
+        if !s:IsStartingDelimiter(v:lnum)
+            execute 'let indent = ' . s:phpindent
+        endif
+    endif
+
+    return indent
+endfunction
