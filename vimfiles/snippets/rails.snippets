@@ -24,8 +24,14 @@ snippet _ho     一对一
 	has_one :${0}
 snippet _hm     一对多
 	has_many :${0}
-snippet _bt     多对一
+snippet _bt     归属于
 	belongs_to :${0}
+snippet _mm     多对多（不借用多余的模型，但需要手动创建一个关联表，表名形如 posts_users，按模型名称的字典顺序决定哪个名字在前，哪个名字在后[不需要主键]）
+	has_and_belongs_to_many :${0}
+snippet _thr    通过其他模型来关联
+	through: :${0}
+snippet _pol    多态关联
+	polymorphic: true${0}
 snippet _va     数据验证
 	validates :${0}
 snippet _vaa    需要同时验证关联的模型
@@ -76,6 +82,8 @@ snippet _num    只能是数值
 	numericality: ${0}
 snippet _fk     指定外键
 	foreign_key: :${0}
+snippet _cn     自定义关联模型的类名
+	class_name: '${0}'
 snippet _bfv    在验证前执行
 	before_validation :${0}
 snippet _afv    在验证后执行
@@ -109,18 +117,24 @@ snippet _fdw    down方法
 	def down
 	  ${0}
 	end
-snippet _rev    可逆数据库变更
+snippet _rev    可逆数据表变更
 	reversible do |${1}|
 	  ${0}
 	end
-snippet _crt    创建数据库
+snippet _crt    创建数据表
 	create_table :${1} do |t|
 	  ${0}
 	end
-snippet _cht    改变数据库
+snippet _cht    改变数据表
 	change_table :${1} do |t|
 	  ${0}
 	end
+snippet _crjt   创建联结表
+	create_join_table :${1}, :${2} do |t|
+	  ${0}
+	end
+snippet _ref    关联类型
+	references${0}
 # 测试
 snippet _test   测试区块
 	test '${1}' do
