@@ -119,11 +119,10 @@ syntax keyword typescriptLabel case default async readonly
 syntax keyword typescriptStatement return with
 
 syntax keyword typescriptGlobalObjects Array Boolean Date Function Infinity Math Number NaN Object Packages RegExp String Symbol netscape
-syntax keyword typescriptGlobalObjects ReadonlyArray
 
 syntax keyword typescriptExceptions try catch throw finally Error EvalError RangeError ReferenceError SyntaxError TypeError URIError
 
-syntax keyword typescriptReserved constructor declare as interface module abstract enum int short export interface static byte extends long super char final native synchronized class float package throws goto private transient debugger implements protected volatile double import public type namespace from get set
+syntax keyword typescriptReserved constructor declare as interface module abstract enum int short export interface static byte extends long super char final native synchronized class float package throws goto private transient debugger implements protected volatile double import public type namespace from get set keyof
 "}}}
 "" typescript/DOM/HTML/CSS specified things"{{{
 
