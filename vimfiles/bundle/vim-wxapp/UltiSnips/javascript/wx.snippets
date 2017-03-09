@@ -1,0 +1,445 @@
+snippet App "create App instance" b
+App({
+	onLaunch: function () {
+	},
+	onShow: function () {
+	},
+	onHide: function () {
+	}
+})
+endsnippet
+
+snippet Page "create Page instance" b
+Page({
+	data:{
+	},
+	onLoad: function(options){
+	}
+})
+endsnippet
+
+snippet wx.request "send https request" b
+wx.request({
+	url: "${1:/}",
+	method: "${2:POST}",
+	success: function(res) {
+		let ${3:data} = res.data
+	},
+	fail: function(e) {
+		${4}
+	}
+})
+endsnippet
+
+snippet wx.uploadFile "upload file" b
+wx.uploadFile({
+	url: "${1:/}",
+	filePath: ${2:tempFilePath},
+	name: "${3:name}", // name of file in formData
+	formdata: {},
+	success: function(res) {
+		let ${4:str} = res.data
+	}
+})
+endsnippet
+
+snippet wx.downloadFile "download file" b
+wx.downloadFile({
+	url: "${1:/}",
+	type: "${2:image/audio/video}",
+	success: function(res) {
+		let ${3:path} = res.tempFilePath
+	}
+})
+endsnippet
+
+snippet wx.connectSocket "connect socket" b
+wx.connectSocket({
+	url: "${1:/}",
+})
+endsnippet
+
+snippet wx.sendSocketMessage "send socket message" b
+wx.sendSocketMessage({
+	data: "${1:string}"
+})
+endsnippet
+
+snippet wx.onSocketMessage "on socket message" b
+wx.onSocketMessage(function(res) {
+	var ${1:s} = res.data
+})
+endsnippet
+
+snippet wx.onSocketError "on socket error" b
+wx.onSocketError(function(res){
+	${1}
+})
+endsnippet
+
+snippet wx.closeSocket "close socket" b
+wx.closeSocket()
+endsnippet
+
+snippet wx.chooseImage "choose image" b
+wx.chooseImage({
+	count: ${1: 1}, // 默认9
+	sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+	sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+	success: function (res) {
+		// 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
+		let tempFilePaths = res.tempFilePaths
+	}
+})
+endsnippet
+
+snippet wx.previewImage "preview image" b
+wx.previewImage({
+	current: '', // 当前显示图片的http链接
+	urls: [] // 需要预览的图片http链接列表
+})
+endsnippet
+
+snippet wx.getImageInfo "get iamge info" b
+wx.getImageInfo({
+	src: ${1:tempFilePath},
+	success: function (res) {
+		let ${2:w} = res.width
+		let ${3:h} = res.height
+	}
+})
+endsnippet
+
+snippet wx.startRecord "start record" b
+wx.startRecord({
+	success: function(res) {
+		var tempFilePath = res.tempFilePath
+	}
+})
+endsnippet
+
+snippet wx.playVoice "play voice" b
+wx.playVoice({
+	filePath: '${1:tempFilePath}',
+	complete: function() {
+	}
+})
+endsnippet
+
+snippet wx.getBackgroundAudioPlayerState "background audio player state" b
+wx.getBackgroundAudioPlayerState({
+		success: function(res) {
+				var status = res.status
+				var dataUrl = res.dataUrl
+				var currentPosition = res.currentPosition
+				var duration = res.duration
+				var downloadPercent = res.downloadPercent
+		}
+})
+endsnippet
+
+snippet wx.playBackgroundAudio "play background audio" b
+wx.playBackgroundAudio({
+	dataUrl: ${1},
+	title: ${2},
+	coverImgUrl: ${3}
+})
+endsnippet
+
+snippet wx.seekBackgroundAudio "seek background audio" w
+wx.seekBackgroundAudio({
+	position: ${1:percent}
+})
+endsnippet
+
+snippet wx.createAudioContext "audio context" b
+wx.createAudioContext(${1:audioId})
+endsnippet
+
+snippet wx.saveFile "save file" w
+wx.saveFile({
+	tempFilePath: ${1:tempFilePath},
+	success: function(res) {
+		let ${1:savedPath} = res.savedFilePath
+	}
+})
+endsnippet
+
+snippet wx.getSavedFileList "saved file list" b
+wx.getSavedFileList({
+	success: function(res) {
+		let ${1:fileList} = res.fileList
+	}
+})
+endsnippet
+
+snippet wx.getSavedFileInfo "get saved file info" b
+wx.getSavedFileInfo({
+	filePath: ${1:savedPath},
+	success: function(res) {
+		let size = res.size
+		let createTime = res.createTime
+	}
+})
+endsnippet
+
+snippet wx.removeSavedFile "remove saved file" b
+wx.removeSavedFile({
+	filePath: ${1:savedPath},
+	success: function(res) {
+	}
+})
+endsnippet
+
+snippet wx.openDocument "open document" b
+wx.openDocument({
+	filePath: ${1:filePath},
+	success: function(res) {
+	}
+})
+endsnippet
+
+snippet wx.chooseVideo "choose video" b
+wx.chooseVideo({
+	sourceType: ['album','camera'],
+	maxDuration: ${1:60},
+	camera: ['front','back'],
+	success: function(res) {
+		that.setData({
+			src: res.tempFilePath
+		})
+	}
+})
+endsnippet
+
+snippet wx.createVideoContext "create video context" b
+wx.createVideoContext(${1:videoId})
+endsnippet
+
+snippet wx.setStorage "set storage" b
+wx.setStorage({
+	key: ${1:key}
+	data: ${2:value}
+})
+endsnippet
+
+snippet wx.setStorageSync "set storage sync" w
+wx.setStorageSync('${1:key}',${2:value})
+endsnippet
+
+snippet wx.getStorage "get storage" w
+wx.getStorage({
+	key: '${1:key}',
+	success: function(res) {
+		console.log(res.data)
+	} 
+})
+endsnippet
+
+snippet wx.getStorageSync "get storage sync" b
+var value = wx.getStorageSync('${1:key}')
+endsnippet
+
+snippet wx.removeStorage "remove storage" b
+wx.removeStorage({
+	key: ${1:key},
+	success: function(res) {
+		${2}
+	} 
+})
+endsnippet
+
+snippet wx.getLocation "get location" b
+wx.getLocation({
+	type: 'wgs84', // or 'gcj02' for open location
+	success: function(res) {
+		// latitude longitude speed accuracy
+	}
+})
+endsnippet
+
+snippet wx.chooseLocation "choose location" b
+wx.chooseLocation({
+	success: function(res) {
+		let name = res.name
+		let address = res.address
+		let latitude = res.latitude
+		let longitude = res.longitude
+	}
+})
+endsnippet
+
+snippet wx.openLocation "open location" b
+wx.openLocation({
+	latitude: latitude,
+	longitude: logitude,
+	scale: 1
+})
+endsnippet
+
+snippet wx.createMapContext "create map context" w
+let ${1:content} = wx.createMapContext(${1:mapId})
+endsnippet
+
+snippet wx.getNetworkType "network type" b
+wx.getNetworkType({
+	success: function(res) {
+		var networkType = res.networkType // 返回网络类型2g，3g，4g，wifi
+	}
+})
+endsnippet
+
+snippet wx.getSystemInfo "system info" b
+wx.getSystemInfo({
+	success: function(res) {
+		//model pixelRatio windowWidth windowHeight language version platform
+	}
+})
+endsnippet
+
+snippet wx.getSystemInfoSync "system info sync" b
+try {
+	let res = wx.getSystemInfoSync()
+	console.log(res.model)
+	console.log(res.pixelRatio)
+	console.log(res.windowWidth)
+	console.log(res.windowHeight)
+	console.log(res.language)
+	console.log(res.version)
+	console.log(res.platform)
+} catch (e) {
+	// Do something when catch error
+}
+endsnippet
+
+snippet wx.onAccelerometerChange "accelerometer change" b
+wx.onAccelerometerChange(function(res) {
+	console.log(res.x)
+	console.log(res.y)
+	console.log(res.z)
+})
+endsnippet
+
+snippet wx.makePhoneCall "make phone call" b
+wx.makePhoneCall({
+	phoneNumber: ${1:phoneNumber}
+})
+endsnippet
+
+snippet wx.scanCode "scan code" b
+wx.scanCode({
+	success: (res) => {
+		console.log(res.path)
+	}
+})
+endsnippet
+
+snippet wx.onCompassChange "compass change" b
+wx.onCompassChange(function (res) {
+	console.log(res.direction)
+})
+endsnippet
+
+snippet wx.setNavigationBarTitle "navigation bar title" b
+wx.setNavigationBarTitle({
+	title: '${1:title}'
+})
+endsnippet
+
+snippet wx.navigateTo "navigateTo" b
+wx.navigateTo({
+	url: '${1:url}'
+})
+endsnippet
+
+snippet wx.redirectTo "redirectTo" b
+wx.redirectTo({
+	url: '${1:url}'
+})
+endsnippet
+
+snippet wx.createAnimation "createAnimation" b
+var animation = wx.createAnimation({
+	duration: 1000,
+	timingFunction: "ease",
+	delay: 0
+})
+endsnippet
+
+snippet wx.showToast "show toast" b
+wx.showToast({
+	title: '${1:title}',
+	icon: '${2:success}',
+	duration: ${3:2000}
+})
+endsnippet
+
+snippet wx.showModal "show modal" b
+wx.showModal({
+	title: '${1}',
+	content: '${2}',
+	success: function(res) {
+		if (res.confirm) {
+			${3}
+		}
+	}
+})
+endsnippet
+
+snippet wx.showActionSheet "show action sheet" b
+wx.showActionSheet({
+	itemList: [${1}],
+	success: function(res) {
+		let ${2:idx} = res.tapIndex
+	},
+	fail: function(res) {
+		//on cancel
+	}
+})
+endsnippet
+
+snippet wx.login "login" b
+wx.login({
+	success: function(res) {
+		if (res.code) {
+			//发起网络请求
+			wx.request({
+				url: 'https://test.com/onLogin',
+				data: {
+					code: res.code
+				}
+			})
+		} else {
+			console.log('获取用户登录态失败！' + res.errMsg)
+		}
+	}
+})
+endsnippet
+
+snippet wx.getUserInfo "getUserInfo" b
+wx.getUserInfo({
+	success: function(res) {
+		var userInfo = res.userInfo
+		var nickName = userInfo.nickName
+		var avatarUrl = userInfo.avatarUrl
+		var gender = userInfo.gender //性别 0：未知、1：男、2：女 
+		var province = userInfo.province
+		var city = userInfo.city
+		var country = userInfo.country
+	}
+})
+endsnippet
+
+snippet wx.requestPayment "requestPayment" b
+wx.requestPayment({
+	'timeStamp': Math.floor(Date.now()/1000),
+	'nonceStr': uid(10),
+	'package': '', // 统一下单接口返回的 prepay_id 参数值，提交格式如：prepay_id=*
+	'signType': 'MD5',
+	'paySign': '', // https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=4_3&t=1474644083999
+	'success':function(res){
+	},
+	'fail':function(res){
+	}
+})
+endsnippet

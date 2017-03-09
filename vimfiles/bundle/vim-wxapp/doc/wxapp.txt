@@ -1,0 +1,202 @@
+*wxapp.txt*		微信小程序开发 vim 插件
+
+                                                      ,--.~
+,--.   ,--.,--.  ,--.,--,--. ,---.  ,---.   ,--.  ,--.`--',--,--,--.~
+|  |.'.|  | \  `'  /' ,-.  || .-. || .-. |   \  `'  / ,--.|        |~
+|   .'.   | /  /.  \\ '-'  || '-' '| '-' '.--.\    /  |  ||  |  |  |~
+'--'   '--''--'  '--'`--`--'|  |-' |  |-' '--' `--'   `--'`--`--`--'~
+                            `--'   `--'~
+
+
+Author		: Qiming Zhao <chemzqm@gmail.com>
+Version		: 0.1.1
+Last Change	: Sep 27, 2016
+
+License : MIT license {{{
+
+  Copyright (c) 2016 chemzqm@gmail.com
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+}}}
+
+==============================================================================
+CONTENTS				*wxapp-contents*
+
+INTRODUCTION		|wxapp-introduction|
+INSTALLATION		|wxapp-installation|
+REQUIREMENT		|wxapp-requirement|
+COMPLETE		|wxapp-complete|
+RECOMMENDS		|wxapp-recommends|
+INTERFACE		|wxapp-interface|
+  COMMANDS			|wxapp-commands|
+  MAPPING			|wxapp-mappings|
+  FUNCTIONS			|wxapp-functions|
+CHANGELOG		|wxapp-changelog|
+
+==============================================================================
+INTRODUCTION				*wxapp-introduction*
+
+Wxapp.vim 专为微信小程序开发的插件，它提供以下主要功能：
+
+1. wxml 和 wxss 文件类型检测、语法高亮、缩进支持
+2. wxml, wxss 以及 javascript 单词列表方便补全, 参考
+    https://chemzqm.me/vim-dictionary
+3. 启动，刷新和重建项目的开发者工具快捷命令
+4. wxml 和 javscript 的 |Ultisnips| 插件 snippets
+5. wxml 和 wxss 的 |Neomake| 插件 maker 进行语法检测
+6. omnicomplete 智能补全支持
+
+自动刷新开发者工具需要让开发者工具保持后台运行，一个解决办法是修改开发者工具源
+码并添加全局快捷键，详细使用方式请参考 https://chemzqm.me/vim-wxapp-reload
+
+
+==============================================================================
+INSTALLATION				*wxapp-installation*
+
+以下分别是使用 |NeoBundle| |Vundle| |Plug| 安装的命令：
+
+>
+	NeoBundle 'chemzqm/wxapp.vim'
+	Plugin 'chemzqm/wxapp.vim'
+	Plug 'chemzqm/wxapp.vim'
+
+==============================================================================
+REQUIREMENT				*wxapp-requirement*
+
+如果需要文档块补全功能，需要首先安装|Ultisnips|
+
+https://github.com/SirVer/ultisnips
+
+如果需要 wxml 和 wxss 语法检测支持，需要安装|Neomake|
+
+https://github.com/neomake/neomake
+
+插件提供的刷新、重建微信web开发者工具使用 mac 独有的 applescript，在其它系统无
+法正常使用。
+
+==============================================================================
+COMPLETE				*wxapp-complete*
+
+针对 wxml 和  wxss 的智能补全会在 vim 启动后自动配置，无需其它操作，针对
+javscript 的智能补全需要将 `tern/wxapp.js` 文件引入 tern 所在目录的 `plugin`
+文件夹下，然后配置 `.tern-project` 文件启用。
+
+==============================================================================
+RECOMMENDS				*wxapp-recommends*
+
+http://www.vim.org/scripts/script.php?script_id=1397
+
+xml.vim 辅助编辑 xml 文件，包含自动添加匹配标签、快速修改/删除标签等功能。
+
+https://github.com/mattn/emmet-vim
+
+|emmet| 主要功能是辅助开发者快速生成 xml，针对 wxml 可以使用如下配置：
+>
+      let g:user_emmet_settings = {
+      \ 'wxss': {
+      \   'extends': 'css',
+      \ },
+      \ 'wxml': {
+      \   'extends': 'html',
+      \   'aliases': {
+      \     'div': 'view',
+      \     'span': 'text',
+      \   },
+      \  'default_attributes': {
+      \     'block': [{'wx:for-items': '{{list}}','wx:for-item': '{{item}}'}],
+      \     'navigator': [{'url': '', 'redirect': 'false'}],
+      \     'scroll-view': [{'bindscroll': ''}],
+      \     'swiper': [{'autoplay': 'false', 'current': '0'}],
+      \     'icon': [{'type': 'success', 'size': '23'}],
+      \     'progress': [{'precent': '0'}],
+      \     'button': [{'size': 'default'}],
+      \     'checkbox-group': [{'bindchange': ''}],
+      \     'checkbox': [{'value': '', 'checked': ''}],
+      \     'form': [{'bindsubmit': ''}],
+      \     'input': [{'type': 'text'}],
+      \     'label': [{'for': ''}],
+      \     'picker': [{'bindchange': ''}],
+      \     'radio-group': [{'bindchange': ''}],
+      \     'radio': [{'checked': ''}],
+      \     'switch': [{'checked': ''}],
+      \     'slider': [{'value': ''}],
+      \     'action-sheet': [{'bindchange': ''}],
+      \     'modal': [{'title': ''}],
+      \     'loading': [{'bindchange': ''}],
+      \     'toast': [{'duration': '1500'}],
+      \     'audio': [{'src': ''}],
+      \     'video': [{'src': ''}],
+      \     'image': [{'src': '', 'mode': 'scaleToFill'}],
+      \   }
+      \ },
+      \}
+>
+>
+==============================================================================
+INTERFACE				*wxapp-interface*
+
+本插件提供了几个接口来方便开发者在 vim 中进行一些快捷操作。
+
+------------------------------------------------------------------------------
+COMMANDS 				*wxapp-commands*
+
+:Wxgen	[folder]	{name}	*:Wxgen*
+
+	快速生成并打开一个页面所需的 `wxml` `wxss` 以及 `javascript` 文件，例如 >
+
+	:Wxgen component product
+	
+<	component 目录下生成 product 目录以及相关的三个文件并打开，如果命令只
+	有一个参数则在当前目录下生成。
+
+------------------------------------------------------------------------------
+MAPPING 				*wxapp-mappings*
+
+------------------------------------------------------------------------------
+FUNCTIONS 				*wxapp-functions*
+
+wxapp#start()				*wxapp#start*
+
+启动微信 web 开发者工具
+
+wxapp#reload() 				*wxapp#reload*
+
+让微信 web 开发者工具刷新当前页面
+
+wxapp#rebuild()				*wxapp#rebuild*
+
+让微信 web 开发者工具重建当前项目
+
+wxapp#generate(folder, name)		*wxapp#generate*
+
+在 folder 下生成名称为 name 的 Page 目录以及相关文件
+
+==============================================================================
+CHANGELOG				 *wxapp-changelog*
+
+0.1.0	Sep 27, 2016
+	- 添加文档
+
+0.1.1	Sep 28, 2016
+	- 添加 omnicomplete 支持
+
+==============================================================================
+
+vim:tw=78:ts=8:sts=8:noet:ft=help:noet:fen:fdm=marker:

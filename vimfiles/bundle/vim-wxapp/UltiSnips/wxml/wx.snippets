@@ -1,0 +1,181 @@
+snippet import "wxapp import" b
+<import src="${1:./header.wxml}" />
+endsnippet
+
+snippet include "wxapp import" b
+<include src="${1:./header.wxml}" />
+endsnippet
+
+snippet template "wxapp define template" b
+<template name="${1:name}">
+</template>
+endsnippet
+
+snippet template-is "wxapp use template" b
+<template is="${1:name}" data="{{${2:...data}}}"/>
+endsnippet
+
+snippet view "wxapp view" b
+<view class="${1}">
+  ${2}
+</view>
+endsnippet
+
+snippet navigator "wxapp navigator" b
+<navigator url="${1}" ${2:redirect} hover-class="navigator-hover">${3}</navigator>
+endsnippet
+
+snippet scroll "wxapp vertical scroll view" b
+<scroll-view bindscroll="${1:scroll}" scroll-top="{{${2:scrollTop}}}">
+</scroll-view>
+endsnippet
+
+snippet hscroll "wxapp horizon hscroll" b
+<scroll-view scroll-x="true">
+</scroll-view>
+endsnippet
+
+snippet swiper "wxapp swiper view" b
+<swiper indicator-dots="{{indicatorDots}}"
+  autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}">
+  <block wx:for="{{imgUrls}}">
+    <swiper-item>
+      <image src="{{item}}" class="slide-image" width="355" height="150"/>
+    </swiper-item>
+  </block>
+</swiper>
+endsnippet
+
+snippet block "wxapp block" b
+<block wx:for="{{${1:list}}}">
+  <view data-id="{{item.id}}">
+  </view>
+</block>
+endsnippet
+
+snippet icon "wxapp icon" b
+<icon type="${1:success}" size="${2:23}"/>
+endsnippet
+
+snippet text "wxapp text" b
+<text>{{${1:text}}}</text>
+endsnippet
+
+snippet progress "wxapp progress" b
+<progress percent="20" show-info active stroke-width="12" color="pink"/>
+endsnippet
+
+snippet button "wxapp button" b
+<button type="default" size="${1:default}">${2:text}</button>
+endsnippet
+
+snippet checkbox "wxapp checkbox group" b
+<checkbox-group bindchange="checkboxChange">
+  <label class="checkbox" wx:for="{{items}}">
+    <checkbox value="{{item.name}}" checked="{{item.checked}}"/>{{item.value}}
+  </label>
+</checkbox-group>
+endsnippet
+
+snippet form "wxapp form" b
+<form bindsubmit="formSubmit" bindreset="formReset">
+  <view class="section section_gap">
+    <view class="section__title">checkbox</view>
+  </view>
+  <view class="btn-area">
+    <button formType="submit">Submit</button>
+    <button formType="reset">Reset</button>
+  </view>
+</form>
+endsnippet
+
+snippet input "wxapp input" b
+<input type="${1:text}" placeholder="${2}" bindinput="${3:oninput}"/>
+endsnippet
+
+snippet label "wxapp label" b
+<label for="${1:id}">
+</label>
+endsnippet
+
+snippet picker "wxapp picker" b
+<picker mode="${1:picker}" bindchange="${2:onpickerchange}">
+</picker>
+endsnippet
+
+snippet radiogroup "wxapp radio group" b
+<radio-group bindchange="${1:onradiochange}">
+</radio-group>
+endsnippet
+
+snippet radio "wxapp radio" b
+<radio value="${1:{{item.name}}}" checked="${2:{{item.checked}}}"/>
+endsnippet
+
+snippet slider "wxapp slider" b
+<slider bindchange="slider1change" left-icon="cancel" right-icon="success_no_circle"/>
+endsnippet
+
+snippet switch "wxapp switch" b
+<switch ${1:checked} bindchange="${1:onchange}"/>
+endsnippet
+
+snippet actionsheet "wxapp action sheet" b
+<action-sheet hidden="{{actionSheetHidden}}" bindchange="actionSheetChange">
+  <block wx:for="{{actionSheetItems}}">
+    <action-sheet-item class="item" bindtap="bindItemTap" data-name="{{item}}">{{item}}</action-sheet-item>
+  </block>
+  <action-sheet-cancel class="cancel">取消</action-sheet-cancel>
+</action-sheet>
+endsnippet
+
+snippet modal "wxapp modal" b
+<modal class="modal" hidden="{{${1:modalHidden}}}" no-cancel bindconfirm="${2:modalConfirm}">
+  <view>${3}</view>
+</modal>
+endsnippet
+
+snippet toast "wxapp toast" b
+<toast hidden="{{${1:toastHidden}}}" duration="3000" bindchange="${2:toastChange}">
+  ${3:content}
+</toast>
+endsnippet
+
+snippet loading "wxapp loading" b
+<loading hidden="{{${1:loadingHidden}}}" bindchange="${2:loadingChange}">
+  加载中...
+</loading>
+endsnippet
+
+snippet audio "wxapp audio" b
+<audio poster="{{poster}}" name="{{name}}" author="{{author}}" src="{{src}}" action="{{action}}" controls loop></audio>
+endsnippet
+
+snippet image "wxapp image" b
+<image style="${1}" mode="${2:scaleToFill}" src="{{${3:src}}}"></image>
+endsnippet
+
+snippet video "wxapp video" b
+<video src="{{${1:src}}}"></video>
+endsnippet
+
+snippet map "wxapp map" b
+<map longitude="{{${1:longitude}}}" latitude="{{${2:latitude}}} style="${3}"></map>
+endsnippet
+
+snippet canvas "wxapp canvas" b
+<canvas style="${1}" canvas-id="${2:canvas}"></canvas>
+endsnippet
+
+snippet contact "wxapp contact button" b
+<contact-button 
+	type="${1:default-light}"
+	size="${2:20}"
+	session-from="${3:wxapp}"
+>
+</contact-button>
+endsnippet
+
+snippet textarea "wxapp textarea" b
+<textarea bindblur="bindTextAreaBlur" auto-height placeholder="自动变高" />
+endsnippet

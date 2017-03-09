@@ -1,0 +1,377 @@
+{
+  "!name": "wxapp",
+  "!define": {
+  },
+  "wx": {
+    "request": {
+      "!type": "fn({url: string, data: object, header: object, method: string, dataType: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-request.html",
+      "!doc": "发起https请求。一个微信小程序，同时只能有5个网络请求连接。"
+    },
+    "uploadFile": {
+      "!type": "fn({url: string, filePath: string, name: string, header: object, formData: object, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-file.html#wxuploadfileobject",
+      "!doc": "将本地资源上传到开发者服务器"
+    },
+    "downloadFile": {
+      "!type": "fn({url: string, header: object, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-file.html#wxdownloadfileobject",
+      "!doc": "下载文件资源到本地"
+    },
+    "connectSocket": {
+      "!type": "fn({url: string, data: object, header: object, method: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html",
+      "!doc": "下载文件资源到本地"
+    },
+    "onSocketOpen": {
+      "!type": "fn(callback: fn(res: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html#wxconnectsocketobject",
+      "!doc": "监听WebSocket连接打开事件。"
+    },
+    "onSocketError": {
+      "!type": "fn(callback: fn(res: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html?#wxonsocketerrorcallback",
+      "!doc": "监听WebSocket错误。"
+    },
+    "sendSocketMessage": {
+      "!type": "fn({data: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html#wxsendsocketmessageobject",
+      "!doc": "通过 WebSocket 连接发送数据，需要先 wx.connectSocket，并在 wx.onSocketOpen 回调之后才能发送。"
+    },
+    "onSocketMessage": {
+      "!type": "fn(callback: fn(res: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html#wxsendsocketmessageobject",
+      "!doc": "监听WebSocket接受到服务器的消息事件。"
+    },
+    "closeSocket": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html#wxclosesocket",
+      "!doc": "关闭WebSocket连接"
+    },
+    "onSocketClose": {
+      "!type": "fn(callback: fn())",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/network-socket.html?#wxonsocketclosecallback",
+      "!doc": "监听WebSocket关闭。"
+    },
+    "chooseImage": {
+      "!type": "fn({count: number, sizeType: array, sourceType: array, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-picture.html#wxchooseimageobject",
+      "!doc": "从本地相册选择图片或使用相机拍照。"
+    },
+    "previewImage": {
+      "!type": "fn({urls: array, current: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-picture.html?#wxpreviewimageobject",
+      "!doc": "从本地相册选择图片或使用相机拍照。"
+    },
+    "getImageInfo": {
+      "!type": "fn({src: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-picture.html?#wxgetimageinfoobject",
+      "!doc": "获取图片信息 height width path"
+    },
+    "startRecord": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-record.html?#wxstartrecordobject",
+      "!doc": "开始录音。当主动调用wx.stopRecord，或者录音超过1分钟时自动结束录音，返回录音文件的临时文件路径"
+    },
+    "stopRecord": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-record.html?#wxstoprecord",
+      "!doc": "主动调用停止录音。"
+    },
+    "playVoice": {
+      "!type": "fn({filePath: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-voice.html#wxplayvoiceobject",
+      "!doc": "开始播放语音，同时只允许一个语音文件正在播放，如果前一个语音文件还没播放完，将中断前一个语音播放"
+    },
+    "pauseVoice": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-voice.html#wxpausevoice",
+      "!doc": "暂停正在播放的语音。再次调用wx.playVoice播放同一个文件时，会从暂停处开始播放。"
+    },
+    "stopVoice": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-voice.html#wxstopvoice",
+      "!doc": "结束播放语音。"
+    },
+    "getBackgroundAudioPlayerState": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html?#wxgetbackgroundaudioplayerstateobject",
+      "!doc": "获取音乐播放状态。"
+    },
+    "playBackgroundAudio": {
+      "!type": "fn({dataUrl: string, title: string, coverImgUrl: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html#wxplaybackgroundaudioobject",
+      "!doc": "使用后台播放器播放音乐，对于微信客户端来说，只能同时有一个后台音乐在播放。当用户离开小程序后，音乐将暂停播放；当用户点击“显示在聊天顶部”时，音乐不会暂停播放；当用户在其他小程序占用了音乐播放器，原有小程序内的音乐将停止播放"
+    },
+    "pauseBackgroundAudio": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html?#wxpausebackgroundaudio",
+      "!doc": "暂停播放音乐。"
+    },
+    "seekBackgroundAudio": {
+      "!type": "fn(position: number)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html#wxseekbackgroundaudioobject",
+      "!doc": "控制音乐播放进度。"
+    },
+    "stopBackgroundAudio": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html?#wxstopbackgroundaudio",
+      "!doc": "停止播放音乐。"
+    },
+    "onBackgroundAudioPlay": {
+      "!type": "fn(callback: fn())",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html#wxonbackgroundaudioplaycallback",
+      "!doc": "监听音乐播放。"
+    },
+    "onBackgroundAudioPause": {
+      "!type": "fn(callback: fn())",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html#wxonbackgroundaudiopausecallback",
+      "!doc": "监听音乐暂停。"
+    },
+    "onBackgroundAudioStop": {
+      "!type": "fn(callback: fn())",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-background-audio.html#wxonbackgroundaudiostopcallback",
+      "!doc": "监听音乐停止。"
+    },
+    "chooseVideo": {
+      "!type": "fn({tempFilePath: string, maxDuration: number, camera: string, success: fn(res: object)}), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/media-video.html",
+      "!doc": "拍摄视频或从手机相册中选视频，返回视频的临时文件路径。 tempFilePath duration size height width"
+    },
+    "createAudioContext": {
+      "!type": "fn(audioId: string)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-video.html#wxcreatevideocontextvideoid",
+      "!doc": "创建并返回 video 上下文 videoContext 对象"
+    },
+    "saveFile": {
+      "!type": "fn({tempFilePath: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/file.html",
+      "!doc": "保存文件到本地。"
+    },
+    "getSavedFileList": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/file.html#wxgetsavedfilelistobject",
+      "!doc": "获取本地已保存的文件列表"
+    },
+    "getSavedFileInfo": {
+      "!type": "fn({filePath: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/file.html#wxgetsavedfileinfoobject",
+      "!doc": "获取本地文件的文件信息 size createTime"
+    },
+    "removeSavedFile": {
+      "!type": "fn({filePath: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/file.html#wxremovesavedfileobject",
+      "!doc": "删除本地存储的文件"
+    },
+    "openDocument": {
+      "!type": "fn({filePath: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/file.html#wxopendocumentobject",
+      "!doc": "新开页面打开文档，支持格式：doc, xls, ppt, pdf, docx, xlsx, pptx"
+    },
+    "setStorage": {
+      "!type": "fn({key: string, data: mixed, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxsetstorageobject",
+      "!doc": "将数据存储在本地缓存中指定的 key 中，会覆盖掉原来该 key 对应的内容，这是一个异步接口。"
+    },
+    "setStorageSync": {
+      "!type": "fn(key: string, data: string|object)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html?#wxsetstoragesynckeyvalue",
+      "!doc": "将 data 存储在本地缓存中指定的 key 中，会覆盖掉原来该 key 对应的内容，这是一个同步接口。"
+    },
+    "getStorage": {
+      "!type": "fn({key: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxgetstorageobject",
+      "!doc": "从本地缓存中异步获取指定 key 对应的内容。"
+    },
+    "getStorageSync": {
+      "!type": "fn(key: string)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxgetstoragesynckey",
+      "!doc": "从本地缓存中同步获取指定 key 对应的内容。"
+    },
+    "getStorageInfo": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxgetstorageinfoobject",
+      "!doc": "异步获取当前storage的相关信息 keys currentSize limitSize"
+    },
+    "getStorageInfoSync": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxgetstorageinfosync",
+      "!doc": "同步获取当前storage的相关信息"
+    },
+    "removeStorage": {
+      "!type": "fn({key: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxremovestorageobject",
+      "!doc": "从本地缓存中异步移除指定 key 。"
+    },
+    "removeStorageSync": {
+      "!type": "fn(key: string)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxremovestoragesynckey",
+      "!doc": "从本地缓存中同步移除指定 key 。"
+    },
+    "clearStorage": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxclearstorage",
+      "!doc": "清理本地数据缓存。"
+    },
+    "clearStorageSync": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/data.html#wxclearstoragesync",
+      "!doc": "同步清理本地数据缓存"
+    },
+    "getLocation": {
+      "!type": "fn({type: string, success: fn()})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/location.html",
+      "!doc": "获取当前的地理位置、速度。"
+    },
+    "chooseLocation": {
+      "!type": "fn({cancel: fn(res: object), success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/location.html#wxchooselocationobject",
+      "!doc": "打开地图选择位置"
+    },
+    "openLocation": {
+      "!type": "fn({latitude: number, longitude: number, scale: number, name: string, address: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/location.html#wxopenlocationobject",
+      "!doc": "使用微信内置地图查看位置"
+    },
+    "createMapContext": {
+      "!type": "fn({mapId: string})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-map.html#wxcreatemapcontextmapid",
+      "!doc": "创建并返回 map 上下文 mapContext 对象"
+    },
+    "getSystemInfoSync": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/systeminfo.html#wxgetsysteminfosync",
+      "!doc": "获取系统信息同步接口 model pixelRatio windowWidth windowHeight language version platform"
+    },
+    "getSystemInfo": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/device.html#wxgetsysteminfoobject",
+      "!doc": "获取系统信息。"
+    },
+    "getNetworkType": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/device.html?#wxgetnetworktypeobject",
+      "!doc": "获取网络类型。"
+    },
+    "onAccelerometerChange": {
+      "!type": "fn(callback: fn(obj: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/device.html#wxonaccelerometerchangecallback",
+      "!doc": "监听重力感应数据，频率：5次/秒"
+    },
+    "onCompassChange": {
+      "!type": "fn(callback: fn(res: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/device.html#wxoncompasschangecallback",
+      "!doc": "监听罗盘数据，频率：5次/秒 direction"
+    },
+    "makePhoneCall": {
+      "!type": "fn({phoneNumber: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/phonecall.html#wxmakephonecallobject",
+      "!doc": "打电话"
+    },
+    "showToast": {
+      "!type": "fn({title: string, icon: string, duration: number, mask: boolean, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-react.html#wxshowtoastobject",
+      "!doc": "显示消息提示框"
+    },
+    "hideToast": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-react.html#wxhidetoast",
+      "!doc": "隐藏消息提示框"
+    },
+    "showModal": {
+      "!type": "fn({title: string, content: string, showCancel: boolean, cancelText: string, cancelColor: string, confirmText: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-react.html#wxshowmodalobject",
+      "!doc": "显示模态弹窗 res.confirm"
+    },
+    "showActionSheet": {
+      "!type": "fn({itemList: array, itemColor: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-react.html#wxshowactionsheetobject",
+      "!doc": "显示操作菜单"
+    },
+    "setNavigationBarTitle": {
+      "!type": "fn({title: string})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui.html#wxsetnavigationbartitleobject",
+      "!doc": "动态设置当前页面的标题。"
+    },
+    "showNavigationBarLoading": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui.html#wxshownavigationbarloading",
+      "!doc": "在当前页面显示导航条加载动画。"
+    },
+    "hideNavigationBarLoading": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui.html#wxhidenavigationbarloading",
+      "!doc": "隐藏导航条加载动画。"
+    },
+    "navigateTo": {
+      "!type": "fn({url: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxnavigatetoobject",
+      "!doc": "保留当前页面，跳转到应用内的某个页面。"
+    },
+    "redirectTo": {
+      "!type": "fn({url: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxnavigatetoobject",
+      "!doc": "关闭当前页面，跳转到应用内的某个页面。"
+    },
+    "switchTab": {
+      "!type": "fn({url: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxswitchtabobject",
+      "!doc": "跳转到 tabBar 页面，并关闭其他所有非 tabBar 页面"
+    },
+    "navigateBack": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-navigate.html#wxnavigatebackobject",
+      "!doc": "关闭当前页面，回退前一页面。"
+    },
+    "createAnimation": {
+      "!type": "fn({duration: number, timingFunction: string, delay: number, transformOrigin: string})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-animation.html",
+      "!doc": "创建一个动画实例animation。调用实例的方法来描述动画。最后通过动画实例的export方法导出动画数据传递给组件的animation属性。"
+    },
+    "createCanvasContext": {
+      "!type": "fn(canvasId: string)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/canvas/create-canvas-context.html",
+      "!doc": "创建 canvas 绘图上下文（指定 canvasId"
+    },
+    "canvasToTempFilePath": {
+      "!type": "fn({canvasId: string, success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/canvas/temp-file.html",
+      "!doc": "把当前画布的内容导出生成图片，并返回文件路径"
+    },
+    "stopPullDownRefresh": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/pulldown.html#wxstoppulldownrefresh",
+      "!doc": "停止当前页面下拉刷新。"
+    },
+    "hideKeyboard": {
+      "!type": "fn()",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/ui-other.html",
+      "!doc": "收起键盘"
+    },
+    "login": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-login.html",
+      "!doc": "调用接口获取登录凭证（code）进而换取用户登录态信息。"
+    },
+    "getUserInfo": {
+      "!type": "fn({success: fn(res: object), fail: fn(res: object)})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/open.html#wxgetuserinfoobject",
+      "!doc": "获取用户信息，需要先调用 wx.login 接口"
+    },
+    "checkSession": {
+      "!type": "fn(success: fn(res: object), fail: fn(res: object))",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-login.html#wxchecksessionobject",
+      "!doc": "检查登录态是否过期"
+    },
+    "requestPayment": {
+      "!type": "fn({timeStamp: number, nonceStr: string, package: string, signType: string, paySign: string})",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-pay.html#wxrequestpaymentobject",
+      "!doc": "发起微信支付。"
+    },
+    "createVideoContext": {
+      "!type": "fn(vidoeId: string)",
+      "!url": "https://mp.weixin.qq.com/debug/wxadoc/dev/api/api-video.html#wxcreatevideocontextvideoid",
+      "!doc": "创建并返回 video 上下文 videoContext 对象"
+    }
+  }
+}

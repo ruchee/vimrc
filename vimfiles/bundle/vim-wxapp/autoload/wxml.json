@@ -1,0 +1,98 @@
+{
+  "common": ["id", "class", "style", "hidden", "data-", "bindtap", "catchtap"],
+  "tags": {
+    "view": [],
+    "import": ["src"],
+    "template": ["is", "data", "name"],
+    "block": ["wx:for", "wx:for", "wx:for-items", "wx:for-item", "wx:if", "wx:elif", "wx:else"],
+    "scroll-view": ["scroll-x", "scroll-y", "upper-threshold", "lower-threshold", "scroll-top", "scroll-left", "scroll-into-view", "bindscrolltoupper", "bindscrolltolower", "bindscroll"],
+    "swiper": ["indicator-dots", "autoplay", "current", "interval", "duration", "bindchange"],
+    "swiper-item": [],
+    "icon": ["type", "size", "color"],
+    "text": ["selectable"],
+    "progress": ["percent", "show-info", "stroke-width", "color", "active"],
+    "button": ["size", "type", "plain", "disabled", "loading", "form-type", "hover-class"],
+    "checkbox-group": ["bindchange"],
+    "checkbox": ["value", "disabled", "checked"],
+    "form": ["report-submit", "bindsubmit", "bindreset"],
+    "input": ["value", "type", "password", "placeholder", "disabled", "maxlength", "auto-focus", "focus", "bindchange", "bindinput", "bindfocus", "bindblur", "bindkeydown", "bindkeyup"],
+    "label": ["for"],
+    "picker": ["mode", "range", "value", "bindchange", "start", "end", "fields"],
+    "radio-group": ["bindchange"],
+    "radio": ["value", "checked", "disabled"],
+    "slider": ["min", "max", "step", "disabled", "value", "show-value", "bindchange"],
+    "switch": ["checked", "type", "bindchange"],
+    "action-sheet": ["bindchange"],
+    "action-sheet-item": [],
+    "action-sheet-cancel": [],
+    "navigator": ["url", "redirect", "hover-class"],
+    "audio": ["action", "src", "loop", "controls", "poster", "name", "author", "binderror", "bindplay", "bindpause", "bindratechange", "bindtimeupdate", "bindended"],
+    "map": ["longitude", "latitude", "scale", "markers", "covers", "polyline", "circles", "controls", "include-points", "show-location", "bindmarkertap", "bindcontroltap", "bindregionchange"],
+    "canvas": ["canvas-id", "binderror", "disable-scroll"],
+    "image": ["src", "mode"],
+    "contact-button": []
+  },
+  "attrs": {
+    "data": "{{}}",
+    "canvas-id": ["id"],
+    "fields": ["year", "month", "day"],
+    "percent": [0.1],
+    "stroke-width": [6],
+    "step": [1],
+    "show-info": [true, false],
+    "show-value": [true, false],
+    "active": [true, false],
+    "scroll-x": [true, false],
+    "scroll-y": [true, false],
+    "checked": [true, false],
+    "disabled": [true, false],
+    "upper-threshold": [50],
+    "lower-threshold": [50],
+    "scroll-top": [0],
+    "scroll-left": [0],
+    "scroll-into-view": ["id"],
+    "indicator-dots": [true, false],
+    "autoplay": [true, false],
+    "loop": [true, false],
+    "password": [true, false],
+    "plain": [true, false],
+    "loading": [true, false],
+    "redirect": [true, false],
+    "hover-class": ["navigator-hover", "button-hover"],
+    "controls": [true, false],
+    "current": [0],
+    "interval": [5000],
+    "duration": [1000],
+    "action": ["method", "data"],
+    "color": []
+  },
+  "icon": {
+    "type": ["success", "info", "warn", "waiting", "safe_success", "safe_warn",
+      "success_circle", "success_no_circle", "waiting_circle", "circle", "download",
+      "info_circle", "cancel", "search", "clear"],
+    "size": [23]
+  },
+  "button": {
+    "size": ["default", "mini"],
+    "type": ["primary", "default", "warn"],
+    "form-type": ["submit", "reset"]
+  },
+  "image": {
+    "mode": ["scaleToFill", "aspectFit", "aspectFill", "widthFix", "top", "bottom", "center", "left", "right"]
+  },
+  "switch": {
+    "type": ["switch", "checkbox"]
+  },
+  "form": {
+    "report-submit": [true, false]
+  },
+  "input": {
+    "type": ["text", "number", "idcard", "digit", "time", "date"],
+    "max-length": [140],
+    "auto-focus": [true, false],
+    "focus": [true, false]
+  },
+  "picker": {
+    "mode": ["selector", "time", "date"]
+  }
+}
