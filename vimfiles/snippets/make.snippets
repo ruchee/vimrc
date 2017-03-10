@@ -6,23 +6,18 @@ snippet cl      清除
 	clean:
 		${1}
 # 常见工程编译模版
-snippet gtk2    编译GTK+2.0程序
-	GTK_FLAGS = $(shell pkg-config --cflags --libs gtk+-2.0)
+snippet sdl     编译 SDL2 程序
+	SDL_FLAGS = $(shell pkg-config --cflags --libs sdl2)
 
 	all:
-		gcc -Wall -std=c11 -o app *.c ${GTK_FLAGS}
-snippet gtk3    编译GTK+3.0程序
+		gcc -Wall -std=c11 -o app *.c ${SDL_FLAGS}
+snippet gtk     编译 GTK+3 程序
 	GTK_FLAGS = $(shell pkg-config --cflags --libs gtk+-3.0)
 
 	all:
 		gcc -Wall -std=c11 -o app *.c ${GTK_FLAGS}
-snippet gtkmm2  编译GTKmm2.0程序
-	GTK_FLAGS = $(shell pkg-config --cflags --libs gtkmm-2.0)
+snippet gtkmm   编译 GTKmm3 程序
+	GTKMM_FLAGS = $(shell pkg-config --cflags --libs gtkmm-3.0)
 
 	all:
-		g++ -Wall -std=c++14 -o app *.cpp ${GTK_FLAGS}
-snippet gtkmm3  编译GTKmm3.0程序
-	GTK_FLAGS = $(shell pkg-config --cflags --libs gtkmm-3.0)
-
-	all:
-		g++ -Wall -std=c++14 -o app *.cpp ${GTK_FLAGS}
+		g++ -Wall -std=c++14 -o app *.cpp ${GTKMM_FLAGS}
