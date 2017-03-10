@@ -6,17 +6,22 @@ snippet cl      清除
 	clean:
 		${1}
 # 常见工程编译模版
-snippet sdl     编译 SDL2 程序
+snippet sdl     编译 SDL 程序
 	SDL_FLAGS = $(shell pkg-config --cflags --libs sdl2)
 
 	all:
 		gcc -Wall -std=c11 -o app *.c ${SDL_FLAGS}
-snippet gtk     编译 GTK+3 程序
+snippet opengl  编译 OpenGL 程序
+	OPENGL_FLAGS = $(shell pkg-config --cflags --libs glew glfw3)
+
+	all:
+		g++ -Wall -std=c++14 -o app *.cpp -framework OpenGL -framework Cocoa ${OPENGL_FLAGS}
+snippet gtk     编译 GTK+ 程序
 	GTK_FLAGS = $(shell pkg-config --cflags --libs gtk+-3.0)
 
 	all:
 		gcc -Wall -std=c11 -o app *.c ${GTK_FLAGS}
-snippet gtkmm   编译 GTKmm3 程序
+snippet gtkmm   编译 GTKmm 程序
 	GTKMM_FLAGS = $(shell pkg-config --cflags --libs gtkmm-3.0)
 
 	all:
