@@ -1,0 +1,27 @@
+# 代码复用
+snippet w_im      引入WXML文件
+	<import src="${0}.wxml" />
+snippet w_in      包含WXML文件 [相当于整个复制，但template区块的代码除外]
+	<include src="${0}.wxml" />
+# 基础结构
+snippet w_v       view
+	<view${1}>${0}</view>
+snippet w_b       block
+	<block${1}>${0}</block>
+snippet w_t       template
+	<template${1}>${0}</template>
+# 流程控制
+snippet w_fo      for
+	wx:for="{{${0}}}" wx:for-index="idx" wx:for-item="item" wx:key="*this"
+snippet w_if      if
+	wx:if="{{${0}}}"
+snippet w_elif    elif
+	wx:elif="{{${0}}}"
+snippet w_el      else
+	wx:else="{{${0}}}"
+# 事件
+snippet w_bt      绑定事件
+	bindtap="${0}"
+# 其他
+snippet w         输出变量
+	{{${0}}}

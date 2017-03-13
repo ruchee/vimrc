@@ -1,0 +1,101 @@
+# 基础框架
+snippet w_a       注册程序
+	App({
+	  ${0}
+	})
+snippet w_p       注册页面
+	Page({
+	  ${0}
+	})
+# 程序回调
+snippet w_al      程序初始化
+	onLaunch: function() {
+	  ${0}
+	},
+snippet w_as      程序显示
+	onShow: function() {
+	  ${0}
+	},
+snippet w_ah      程序隐藏
+	onHide: function() {
+	  ${0}
+	},
+snippet w_ae      程序错误
+	onError: function() {
+	  ${0}
+	},
+# 页面回调
+snippet w_pl      页面加载
+	onLoad: function() {
+	  ${0}
+	},
+snippet w_pr      页面初次渲染完成
+	onReady: function() {
+	  ${0}
+	},
+snippet w_ps      页面显示
+	onShow: function() {
+	  ${0}
+	},
+snippet w_ph      页面隐藏
+	onHide: function() {
+	  ${0}
+	},
+snippet w_pu      页面卸载
+	onUnload: function() {
+	  ${0}
+	},
+snippet w_ppdr    下拉动作
+	onPullDownRefresh: function() {
+	  ${0}
+	},
+snippet w_prb     上拉触底
+	onReachBottom: function() {
+	  ${0}
+	},
+snippet w_psam    点击分享
+	onShareAppMessage: function() {
+	  ${0}
+	},
+# 数据交互
+snippet w_ga      获取程序实例
+	let ${1} = getApp()${0}
+snippet w_gp      获取当前页面栈的实例
+	let ${1} = getCurrentPages()${0}
+snippet w_sd      修改视图数据
+	this.setData(${0})
+# 其他
+snippet w_app     App
+	App({
+	  onLaunch: function() {
+	    ${0}
+	  },
+	  onShow: function() {
+	  },
+	  onHide: function() {
+	  },
+	  onError: function() {
+	  }
+	})
+snippet w_page    Page
+	Page({
+	  data: {
+	    ${0}
+	  },
+	  onLoad: function() {
+	  },
+	  onReady: function() {
+	  },
+	  onShow: function() {
+	  },
+	  onHide: function() {
+	  },
+	  onUnload: function() {
+	  },
+	  onPullDownRefresh: function() {
+	  },
+	  onReachBottom: function() {
+	  },
+	  onShareAppMessage: function () {
+	  }
+	})

@@ -1,7 +1,7 @@
 ![Vim Ruchee](https://raw.github.com/ruchee/vimrc/master/macvim.jpg "Vim Ruchee")
 
 ----
-#### MacOS
+#### macOS
 
 1. 安装 brew 包管理器，如果已安装则此步可跳过：`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 2. `brew install macvim ctags git`

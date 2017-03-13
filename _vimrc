@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-09 15:53:50
+" -----------------    Date: 2017-03-13 16:44:15
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -465,10 +465,12 @@ function AddJavaScriptDict()
     set dict+=$VIM/vimfiles/dict/javascript.txt
     set dict+=$VIM/vimfiles/dict/javascript_libs/react.txt
     set dict+=$VIM/vimfiles/dict/javascript_libs/redux.txt
+    set dict+=$VIM/vimfiles/bundle/vim-wxapp/dict/js.dict
   else
     set dict+=~/.vim/dict/javascript.txt
     set dict+=~/.vim/dict/javascript_libs/react.txt
     set dict+=~/.vim/dict/javascript_libs/redux.txt
+    set dict+=~/.vim/bundle/vim-wxapp/dict/js.dict
   endif
   set complete+=k
 endfunction
@@ -535,7 +537,7 @@ let g:snipMate.scope_aliases                    = {}
 let g:snipMate.scope_aliases['c']               = 'cpp'
 let g:snipMate.scope_aliases['objc']            = 'cpp,objc'
 let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
-let g:snipMate.scope_aliases['javascript']      = 'js_vue,js_angular,js_react,javascript'
+let g:snipMate.scope_aliases['javascript']      = 'js_vue,js_angular,js_react,js_wxapp,javascript'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
 let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
 let g:snipMate.scope_aliases['elixir']          = 'elixir,phoenix'
@@ -558,6 +560,9 @@ let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
 let g:snipMate.scope_aliases['html']            = 'blaze,html'
+" For 微信小程序
+let g:snipMate.scope_aliases['wxml']            = 'html,wxml'
+let g:snipMate.scope_aliases['wxss']            = 'css,wxss'
 
 " NERDTree            树形文件浏览器
 let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
@@ -724,7 +729,7 @@ nmap <leader>tl :TagbarToggle<cr><c-w><c-l>
 " \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
 nmap <leader>fe :FencView<cr>
 
-" \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件 ]
+" \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件]
 nmap <leader>mp :!rm ~/backup/.promptline<cr><esc>:PromptlineSnapshot ~/backup/.promptline airline<cr>
 
 " \gi                 开启或关闭GitGutter [GitGutter插件]
