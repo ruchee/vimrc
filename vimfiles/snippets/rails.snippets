@@ -275,3 +275,11 @@ snippet _crud   CRUD方法组
 	
 	def destroy
 	end
+snippet _bm     测量模版片段的执行时间
+	<% benchmark '${1}' do %>
+	  ${0}
+	<% end %>
+snippet _bm2    测量模版片段的执行时间
+	benchmark '${1}' do
+	  ${0}
+	end

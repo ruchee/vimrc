@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-13 16:44:15
+" -----------------    Date: 2017-03-14 16:11:36
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -254,9 +254,11 @@ au BufRead,BufNewFile *.ini      set ft=dosini
 au BufRead,BufNewFile */nginx/**/*.conf     set ft=nginx
 au BufRead,BufNewFile */openresty/**/*.conf set ft=nginx
 
-au BufRead,BufNewFile *.yml.bak     set ft=yaml
-au BufRead,BufNewFile *.yml.default set ft=yaml
-au BufRead,BufNewFile *.yml.example set ft=yaml
+au BufRead,BufNewFile *.yml.bak      set ft=yaml
+au BufRead,BufNewFile *.yml.default  set ft=yaml
+au BufRead,BufNewFile *.yml.example  set ft=yaml
+
+au BufRead,BufNewFile CMakeLists.txt set ft=cmake
 
 " 设置着色模式和字体
 if g:isWIN
