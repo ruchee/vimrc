@@ -39,6 +39,10 @@ snippet cache   缓存数据
 	<% cache(${1}) do %>
 	  ${0}
 	<% end %>
+snippet bm      测量模版片段的执行时间
+	<% benchmark '${1}' do %>
+	  ${0}
+	<% end %>
 # 表单
 snippet fmf     建立表单
 	form_for ${0}
