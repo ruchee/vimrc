@@ -1,7 +1,64 @@
-## 1.11 - Unplanned
+## unplanned
 
 FEATURES:
 
+* New `:GoAddTags` and `:GoRemoveTags` command based on the tool
+  [gomodifytags](https://github.com/fatih/gomodifytags). This fixes many old
+  bugs that were due prior regexp based implementation. For the usage please
+  read the docs and checkout the demo at:
+  https://github.com/fatih/vim-go/pull/1204 [gh-1204]
+* Add new `errl` snippet that expands to [gh-1185]:
+
+```
+if err != nil {
+	log.Fatal(err)
+}
+```
+* New `:GoBuildTags` command to change build tags for tools such as `guru`,
+  `gorename`, etc ... There is also a new setting called `g:go_build_tags`
+  [gh-1232]
+
+IMPROVEMENTS:
+
+* Lowercase `<Leader>` in mappings examples for consistent documentation across the README [gh-1192]
+* All of files should be written in utf-8 if the file will be passed to external command. [gh-1184]
+* `:GoAddTags` is now able to add options to existing tags with the syntax
+  `:GoAddTags key,option`, i.e: `:GoAddTags json,omitempty` [gh-985]
+* Document 'noshowmode' requirement for echo_go_info [gh-1197]
+* Improve godoc view for vertical splits [gh-1195]
+* Set GOPATH for both possible go guru execution paths (sync and async) [gh-1193]
+
+BUG FIXES:
+
+* Honor `g:go_echo_command_info` when dispatching builds in neovim [gh-1176]
+* Fix `:GoBuild` error in neovim due to invalid jobcontrol handler function
+  signatures (`s:on_stdout`, `s:on_stderr`)[gh-1176]
+* Update statusline before and after `go#jobcontrol#Spawn` command is executed [gh-1176]
+* Correctly report the value of the 'g:go_guru_tags' variable [gh-1177]
+* Ensure no trailing `:` exist in GOPATH detection if initial GOPATH is not set [gh-1194]
+* Fix `:GoAddTags` to allow modifying existing comments [gh-984]
+* Fix `:GoAddTags` to work with nested structs [gh-990]
+* Fix `:GoAddTags` adding tags twice for existing tags [gh-1064]
+* Fix `:GoAddTags` not working for fiels of types `interface{}` [gh-1091]
+* Fix `:GoAddTags` not working for fields with one line comments [gh-1181]
+* Fix `:GoAddTags` not working if any field comment would contain `{}` [gh-1189]
+* Respect go_fmt_options when running goimports [gh-1211]
+* Set the filename in the location-list when there is an error with :GoFmt [gh-1199]
+
+BACKWARDS INCOMPATIBILITIES:
+
+* The command `:GoGuruTags` is removed in favour of the new command
+  `:GoBuildTags`. This command will be used now not just for `guru`, also for
+  all new commands such as `guru` [gh-1232]
+* The setting `g:go_guru_tags` is removed in favour of the new setting
+  `g:go_build_tags` [gh-1232]
+
+
+## 1.11 - (January 9, 2017)
+
+FEATURES:
+
+* Travis test integration has been added. Now any file that is added as `<name>_test.vim` will be automatically tested in for every Pull Request (just like how we add tests to Go with `_test.go`). Going forward this will tremendously increase the stability and decrease the maintenance burden of vim-go. [gh-1157]
 * Add new `g:go_updatetime` setting to change the default updatetime (which was hardcoded previously) [gh-1055]
 * Add new `g:go_template_use_pkg` setting to enable to use cwd as package name instead of basic template file [gh-1124]
 
@@ -9,6 +66,8 @@ IMPROVEMENTS:
 
 * Add `statusline` support for `:GoMetaLinter` [gh-1120]
 * Quickfix and Location lists contain now a descriptive title (requires at least Vim `7.4.2200`)[gh-1004]
+* Check `go env GOPATH` as well for `:GoInstallBinaries` as Go has now a default path for GOPATH ("~/go")starting with 1.8 [gh-1152]
+* `:GoDocBrowser` now also works on import paths [gh-1174]
 
 BUG FIXES:
 
@@ -25,6 +84,21 @@ BUG FIXES:
 * Fix `:GoDef` failing for a modified buffer if `hidden` was not set [gh-1132]
 * Fix `:GoDefStack` to allow popping from jump list when buffer is modified [gh-1133]
 * Improve internal defining of functions and referencing them for async operations [gh-1155]
+* Fix `:GoMetaLinter` failing if `go_metalinter_command` is set. [gh-1160]
+* Fix `:GoMetaLinter`'s `go_metalinter_deadline` setting for async mode [gh-1146]
+
+BACKWARDS INCOMPATIBILITIES:
+
+* The following syntax options are now disabled by default. If you're using them be sure to set them in your .vimrc [gh-1167]
+
+```viml
+g:go_highlight_array_whitespace_error
+g:go_highlight_chan_whitespace_error
+g:go_highlight_extra_types
+g:go_highlight_space_tab_error
+g:go_highlight_trailing_whitespace_error
+```
+
 
 
 ## 1.10 (November 24, 2016)
@@ -37,7 +111,7 @@ FEATURES:
   you have at least Vim 8.0.0087. Backwards compatible with Vim 7.4.x.
   If you see any problems, please open an issue.
 
-* We have now a [logo for vim-go](https://github.com/fatih/vim-go/blob/master/assets/vim-go.png)! Thanks to @egonelbre for his work on this. 
+* We have now a [logo for vim-go](https://github.com/fatih/vim-go/blob/master/assets/vim-go.png)! Thanks to @egonelbre for his work on this.
 * `:GoBuild`, `:GoTest`, `:GoTestCompile`, `:GoInstall` commands are now fully
   async. Async means it doesn't block your UI anymore. If the command finished
   it echoes the status. For a better experience use the statusline information
@@ -52,7 +126,7 @@ FEATURES:
   `:GoMetaLinterAutoSaveToggle` (temporary) or add `let
   g:go_metalinter_autosave = 1` (persistent) to your virmc).
 
-* All `guru` commands run asynchronously if Vim 8.0 is being used. Current 
+* All `guru` commands run asynchronously if Vim 8.0 is being used. Current
   Commands:
 	* GoImplements
 	* GoWhicherrs
@@ -68,7 +142,7 @@ FEATURES:
   auto sameids mode. In this mode it constantly evaluates the identifier under the
   cursor whenever it's in hold position and then calls :GoSameIds. As a
   reminder, to enable auto info either call `:GoSameIdsAutoToggle`(temporary)
-  or add `let g:go_auto_sameids = 1` (persistent) to your vimrc. 
+  or add `let g:go_auto_sameids = 1` (persistent) to your vimrc.
 
 * `:GoInfo` is now non blocking and works in async mode if `guru` is used in
   `g:go_info_mode`. This makes it useful especially for autoinfo mode. In this
@@ -178,7 +252,7 @@ FEATURES:
 * The snippet expansion `json` is now much more smarter. It pre populates the placeholder according to the first word and it also applies `snake_case` or `camelCase` conversion. Together with `:GoAddTags` it gives `vim-go` users flexible ways of populating a field tag. Checkout the demo to see it in action: https://twitter.com/fatih/status/754477622042689536 [gh-927]
 * New **`:GoSameIds`** command. When called highlights all same identifiers in the current file. Can be also enabled to highlight identifiers automatically (with `:GoSameIdsAutoToggle` or `g:go_auto_sameids`). Checkout the demo to see it in action: https://twitter.com/fatih/status/753673709278339072. [gh-936]
 * New **`:GoWhicherrs`** command. It shows all possible values of the selected error variable. [gh-948]
-* Add new `errp` snippet to expand an `if err != nil { panic() }` clause [gh-926] 
+* Add new `errp` snippet to expand an `if err != nil { panic() }` clause [gh-926]
 * If you open a new buffer with a Go filename it get automatically populated based on the directory. If there are no Go files a simple main package is created, otherwise the file will include the package declaration line based on the package in the current directory. Checkout the demo to see it in action: https://twitter.com/fatih/status/748333086643994624. This is enabled by default. Can be disabled with `let g:go_template_autocreate = 0`. You can use your own template with `let g:go_template_file = "foo.go"` and putting the file under the `templates/` folder. [gh-918]
 * Added new toggle commands to enable/disable feature that run for your
   automatic. For example if you have `let g:go_auto_type_info = 1` enabled, you
@@ -328,4 +402,3 @@ BACKWARDS INCOMPATIBILITIES:
 ## Previous releases
 
 Previous changelogs can be found here: https://github.com/fatih/vim-go/releases
-

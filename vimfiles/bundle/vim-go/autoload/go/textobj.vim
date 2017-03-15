@@ -20,7 +20,7 @@ function! go#textobj#Function(mode) abort
   if &modified
     " Write current unsaved buffer to a temp file and use the modified content
     let l:tmpname = tempname()
-    call writefile(getline(1, '$'), l:tmpname)
+    call writefile(go#util#GetLines(), l:tmpname)
     let fname = l:tmpname
   endif
 
@@ -67,7 +67,7 @@ function! go#textobj#Function(mode) abort
     normal! v
     call cursor(info.rbrace.line, info.rbrace.col)
     return
-  endif 
+  endif
 
   " rest is inner mode, a:mode == 'i'
 
@@ -107,7 +107,7 @@ function! go#textobj#FunctionJump(mode, direction) abort
   if &modified
     " Write current unsaved buffer to a temp file and use the modified content
     let l:tmpname = tempname()
-    call writefile(getline(1, '$'), l:tmpname)
+    call writefile(go#util#GetLines(), l:tmpname)
     let fname = l:tmpname
   endif
 

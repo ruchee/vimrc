@@ -32,8 +32,11 @@ function! go#cmd#Build(bang, ...) abort
           \})
     return
   elseif has('nvim')
+    if get(g:, 'go_echo_command_info', 1)
+      call go#util#EchoProgress("building dispatched ...")
+    endif
+
     " if we have nvim, call it asynchronously and return early ;)
-    call go#util#EchoProgress("building dispatched ...")
     call go#jobcontrol#Spawn(a:bang, "build", args)
     return
   endif
@@ -70,6 +73,28 @@ function! go#cmd#Build(bang, ...) abort
 
   let &makeprg = default_makeprg
   let $GOPATH = old_gopath
+endfunction
+
+
+" BuildTags sets or shows the current build tags used for tools
+function! go#cmd#BuildTags(bang, ...) abort
+  if a:0
+    if a:0 == 1 && a:1 == '""'
+      unlet g:go_build_tags
+      call go#util#EchoSuccess("build tags are cleared")
+    else
+      let g:go_build_tags = a:1
+      call go#util#EchoSuccess("build tags are changed to: ". a:1)
+    endif
+
+    return
+  endif
+
+  if !exists('g:go_build_tags')
+    call go#util#EchoSuccess("build tags are not set")
+  else
+    call go#util#EchoSuccess("current build tags: ". g:go_build_tags)
+  endif
 endfunction
 
 
@@ -370,7 +395,7 @@ function! go#cmd#Generate(bang, ...) abort
 
   let errors = go#list#Get(l:listtype)
   call go#list#Window(l:listtype, len(errors))
-  if !empty(errors) 
+  if !empty(errors)
     if !a:bang
       call go#list#JumpToFirst(l:listtype)
     endif
