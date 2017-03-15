@@ -1,5 +1,5 @@
 *airline.txt*  Lean and mean status/tabline that's light as air
-*airline*
+*airline* *vim-airline*
                    _                       _      _ _                        ~
             __   _(_)_ __ ___         __ _(_)_ __| (_)_ __   ___             ~
             \ \ / / | '_ ` _ \ _____ / _` | | '__| | | '_ \ / _ \            ~
@@ -102,9 +102,12 @@ values):
     endif
   endfunction
 <
-* enable/disable automatic population of the `g:airline_symbols` dictionary
-  with powerline symbols. >
-  let g:airline_powerline_fonts=0
+* By default, airline will use unicode symbols if your encoding matches
+  utf-8. If you want the powerline symbols set this variable: >
+  let g:airline_powerline_fonts = 1
+<
+  If you want to use plain ascii symbols, set this variable: >
+  let g:airline_symbols_ascii = 1
 <
 * define the set of text to display for each mode.  >
   let g:airline_mode_map = {} " see source for the defaults
@@ -145,7 +148,6 @@ values):
  >
   let g:airline_skip_empty_sections = 1
 <
-
 ==============================================================================
 COMMANDS                                                  *airline-commands*
 
@@ -301,6 +303,12 @@ configuration values that you can use.
   Try setting this to zero, if you notice bleeding color artifacts >
   let airline#extensions#default#section_use_groupitems = 1
 <
+* configure the fileformat output
+  By default, it will display something like 'utf-8[unix]', however, you can
+  skip displaying it, if the output matches a configured string. To do so,
+  set >
+  let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
+<
 -------------------------------------                     *airline-quickfix*
 The quickfix extension is a simple built-in extension which determines
 whether the buffer is a quickfix or location list buffer, and adjusts the
@@ -415,6 +423,12 @@ quickfixsigns <https://github.com/tomtom/quickfixsigns_vim>
 * set hunk count symbols. >
   let g:airline#extensions#hunks#hunk_symbols = ['+', '~', '-']
 <
+-------------------------------------                     *airline-vimagit*
+vimagit <https://github.com/jreybert/vimagit>
+
+* enable/disable vimagit integration >
+  let g:airline#extensions#vimagit#enabled = 1
+<
 -------------------------------------                        *airline-ctrlp*
 ctrlp <https://github.com/kien/ctrlp.vim>
 
@@ -451,7 +465,7 @@ eclim <https://eclim.org>
   " the default value matches filetypes typically used for documentation
   " such as markdown and help files.
   let g:airline#extensions#wordcount#filetypes = ...
-  (default: markdown,rst,org,help,text)
+  (default: markdown,rst,org,help,text,tex,mail)
 
 * defines the name of a formatter for word count will be displayed: >
   " The default will try to guess LC_NUMERIC and format number accordingly
@@ -467,10 +481,17 @@ eclim <https://eclim.org>
         \ wordcount()['words'] > 100 ? 'okay' : 'not enough')
   endfunction
   let g:airline#extensions#wordline#formatter = 'foo'
+
+* defines how to display the wordcount statistics: >
+  let g:airline#extensions#wordcount#format = '%d words'
 <
 -------------------------------------                   *airline-whitespace*
 * enable/disable detection of whitespace errors. >
   let g:airline#extensions#whitespace#enabled = 1
+<
+* disable detection of whitespace errors. >
+  " useful to call for particular file types (e.g., in "ftplugin/*")
+  silent! call airline#extensions#whitespace#disable()
 <
 * customize the type of mixed indent checking to perform. >
   " must be all spaces or all tabs before the first non-whitespace character
@@ -566,8 +587,8 @@ with the middle mouse button to delete that buffer.
 
 * enable/disable displaying tab type (far right) >
   let g:airline#extensions#tabline#show_tab_type = 1
-  
-  Note: The tab-type will only be displayed in tab-mode, 
+
+  Note: The tab-type will only be displayed in tab-mode,
   if there are no splits shown. (See: g:airline#extensions#tabline#show_splits)
 
 * rename label for buffers (default: 'buffers') (c)
@@ -602,12 +623,27 @@ with the middle mouse button to delete that buffer.
   Use |gt| for switching tabs.
   In tabmode, those mappings will switch to the specified tab.
 
+* change the display format of the buffer index >
+  let g:airline#extensions#tabline#buffer_idx_format = {
+        \ '0': '0 ',
+        \ '1': '1 ',
+        \ '2': '2 ',
+        \ '3': '3 ',
+        \ '4': '4 ',
+        \ '5': '5 ',
+        \ '6': '6 ',
+        \ '7': '7 ',
+        \ '8': '8 ',
+        \ '9': '9 '
+        \}
+<
+
 * defines the name of a formatter for how buffer names are displayed. (c)
   let g:airline#extensions#tabline#formatter = 'default'
 
   " here is how you can define a 'foo' formatter:
   " create a file in the dir autoload/airline/extensions/tabline/formatters/
-  " called foo.vim
+  " called foo.vim >
   function! airline#extensions#tabline#formatters#foo#format(bufnr, buffers)
     return fnamemodify(bufname(a:bufnr), ':t')
   endfunction
@@ -678,6 +714,10 @@ Note: Enabling this extension will modify 'showtabline' and 'guioptions'.
    won't update airline on |:badd| commands) >
   let airline#extensions#tabline#disable_refresh = 0
 
+* preserve windows when closing a buffer from the bufferline (default: 0) >
+
+  let airline#extensions#tabline#middle_click_preserves_windows = 1
+<
 -------------------------------------                     *airline-tmuxline*
 tmuxline <https://github.com/edkolev/tmuxline.vim>
 
@@ -726,6 +766,18 @@ vim-capslock <https://github.com/tpope/vim-capslock>
 
 * enable/disable vim-capslock integration >
   let g:airline#extensions#capslock#enabled = 1
+
+-------------------------------------                     *airline-xkblayout*
+vim-xkblayout
+
+* enable/disable vim-xkblayout extension >
+  let g:airline#extensions#xkblayout#enabled = 1
+
+* define path to the backend switcher library
+  Linux (Install https://github.com/ierton/xkb-switch):
+   let g:XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
+  macOS (Install https://github.com/vovkasm/input-source-switcher):
+   let g:XkbSwitchLib = '/usr/local/lib/libInputSourceSwitcher.dylib'
 
 -------------------------------------                   *airline-windowswap*
 vim-windowswap <https://github.com/wesQ3/vim-windowswap>

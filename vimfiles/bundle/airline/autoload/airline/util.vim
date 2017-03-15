@@ -82,7 +82,7 @@ endif
 " available. This way we avoid overwriting v:shell_error, which might
 " potentially disrupt other plugins.
 if has('nvim')
-  function! s:system_job_handler(job_id, data, event)
+  function! s:system_job_handler(job_id, data, event) dict
     if a:event == 'stdout'
       let self.buf .=  join(a:data)
     endif
@@ -97,10 +97,7 @@ if has('nvim')
     if l:id < 1
       return system(a:cmd)
     endif
-    let l:ret_code = jobwait([l:id])
-    if l:ret_code != [0]
-      return system(a:cmd)
-    endif
+    call jobwait([l:id])
     return l:config.buf
   endfunction
 else

@@ -655,3 +655,147 @@ version: "1.16"
   MD5 checksum: 3c4125a28ff1860accd254846651c251
 version: "1.17"
 
+  - tlib#input#List: #ReduceFilter: make sure the regexp is valid
+  - TTimeCommand -> Ttimecommand
+  - tlib#eval#Extend: mode argument for expand() compatibility
+  - tlib#input#List: Key handlers can have additional arguments
+  - tlib#qfl#AgentWithSelected: Set world
+  - prototype.UseInputListScratch: Run tlib_UseInputListScratch hook earlier
+  - tlib#qfl#AgentWithSelected: typo
+  - tlib#arg#GetOpts: type conversion (comma-separated lists etc.)
+  - tlib#arg: validators
+  - NEW tlib#date#IsDate()
+  - tlib#balloon#Remove: Unset &ballooneval, &balloonexpr
+  - NEW tlib#balloon#Expand()
+  - NEW tlib#date#Format()
+  - FIX tlib#date#Shift(..., "+Xm") for months
+  - NEW tlib#trace#Backtrace()
+  - NEW tlib#type#Is(), tlib#type#Are(), tlib#type#Has(), tlib#type#Have()
+  - NEW :Tlibassert
+  MD5 checksum: 3c4125a28ff1860accd254846651c251
+version: "1.17"
+
+  - tlib#input#List: #ReduceFilter: make sure the regexp is valid
+  - TTimeCommand -> Ttimecommand
+  - tlib#eval#Extend: mode argument for expand() compatibility
+  - tlib#input#List: Key handlers can have additional arguments
+  - tlib#qfl#AgentWithSelected: Set world
+  - prototype.UseInputListScratch: Run tlib_UseInputListScratch hook earlier
+  - tlib#qfl#AgentWithSelected: typo
+  - tlib#arg#GetOpts: type conversion (comma-separated lists etc.)
+  - tlib#arg: validators
+  - NEW tlib#date#IsDate()
+  - tlib#balloon#Remove: Unset &ballooneval, &balloonexpr
+  - NEW tlib#balloon#Expand()
+  - NEW tlib#date#Format()
+  - FIX tlib#date#Shift(..., "+Xm") for months
+  - NEW tlib#trace#Backtrace()
+  - NEW tlib#type#Is(), tlib#type#Are(), tlib#type#Has(), tlib#type#Have()
+  - NEW :Tlibassert
+  MD5 checksum: 3c4125a28ff1860accd254846651c251
+version: "1.17"
+
+  - tlib#input#List: #ReduceFilter: make sure the regexp is valid
+  - TTimeCommand -> Ttimecommand
+  - tlib#eval#Extend: mode argument for expand() compatibility
+  - tlib#input#List: Key handlers can have additional arguments
+  - tlib#qfl#AgentWithSelected: Set world
+  - prototype.UseInputListScratch: Run tlib_UseInputListScratch hook earlier
+  - tlib#qfl#AgentWithSelected: typo
+  - tlib#arg#GetOpts: type conversion (comma-separated lists etc.)
+  - tlib#arg: validators
+  - NEW tlib#date#IsDate()
+  - tlib#balloon#Remove: Unset &ballooneval, &balloonexpr
+  - NEW tlib#balloon#Expand()
+  - NEW tlib#date#Format()
+  - FIX tlib#date#Shift(..., "+Xm") for months
+  - NEW tlib#trace#Backtrace()
+  - NEW tlib#type#Is(), tlib#type#Are(), tlib#type#Has(), tlib#type#Have()
+  - NEW :Tlibassert
+  MD5 checksum: 3c4125a28ff1860accd254846651c251
+version: "1.17"
+
+  - tlib#arg: Completion for comma-separated lists
+  - Use "silent cd"
+  - NEW tlib#type#DefSchema(); FIX tlib#type#Has()
+  - tlib#cache#Value(): minor change
+  - tlib#date#IsDate() also checks whether the date is valid
+  - ! tlib#sys#Open(): escape special chars only once
+  - tlib#trace#Print: Allow for strings
+  - :Tlibtrace, :Tlibtraceset, :Tlibassert remove `-bar`
+  - NEW :Tlibtype (type/schema assertions); tlib#type#Is() also accepts schemas as "types"
+  - tlib#dir#CD(): Use haslocaldir()
+  - tlib#qfl#AgentGotoQFE: Don't use wincmd w
+  - NEW tlib#string#Input()
+  - FIX g:tlib#sys#system_rx; add OpenOffice exensions to g:tlib#sys#special_suffixes
+  - NEW tlib#selection#GetSelection()
+  - tlib#date#Shift(): Fix "Xm", ++specs
+  - tlib#trace#Set: FIX Properly handly "-label"
+  MD5 checksum: c3a1fe7d3cd86becbd3f7b0ba7ae9cd8
+version: "1.19"
+
+version: "1.20"
+  - tlib#arg: Completion for comma-separated lists
+  - Use "silent cd"
+  - NEW tlib#type#DefSchema(); FIX tlib#type#Has()
+  - tlib#cache#Value(): minor change
+  - tlib#date#IsDate() also checks whether the date is valid
+  - ! tlib#sys#Open(): escape special chars only once
+  - tlib#trace#Print: Allow for strings
+  - :Tlibtrace, :Tlibtraceset, :Tlibassert remove `-bar`
+  - NEW :Tlibtype (type/schema assertions); tlib#type#Is() also accepts schemas as "types"
+  - tlib#dir#CD(): Use haslocaldir()
+  - tlib#qfl#AgentGotoQFE: Don't use wincmd w
+  - NEW tlib#string#Input()
+  - FIX g:tlib#sys#system_rx; add OpenOffice exensions to g:tlib#sys#special_suffixes
+  - NEW tlib#selection#GetSelection()
+  - tlib#date#Shift(): Fix "Xm", ++specs
+  - tlib#trace#Set: FIX Properly handly "-label"
+  MD5 checksum: c919e0782931a8c628c6996903f989d3
+
+  - tlib#date#Shift(): Support for business days 'Nb'
+  - tlib#list#Uniq: Properly handle empty strings
+  - tlib#trace: Use g:tlib#trace#printer and tlib#trace#Printer_{printer}
+  - tlib#dictionary#Rev: Optional argument `opts = {}`; properly handle empty values etc.
+  - NEW g:tlib#trace#hl
+  - NEW spec/dictionary.vim
+  - tlib#agent#CompleteAgentNames: case insensitive
+  - tlib#arg#CComplete: --[no-]debug option
+  - tlib#date#Format: use localtime() if no arg is provided
+  - NEW tlib#file#IsAbsolute
+  - NEW tlib#notify#PrintError()
+  - tlib#trace#Print: FIX s/exec/call/
+  - tlib#type#Is() match full type name
+  - NEW tlib#string#MatchAll()
+  - Tlibtraceset, tlib#trace#Set(): If no `+` or `-` is prepended, assume `+`.
+  - tlib#list#Input: fix highlighting for filenames
+  - tlib#input#ListW: use world.CloseScratch(1)
+  - tlib#agent#ViewFile: Ignore errors in :exec back
+  - NEW tlib#agent#EditFileInWindow()
+  - :Tlibtraceset uses tlib#arg#GetOpts(), i.e. you can set the log file more easily
+  MD5 checksum: 20a48e225f32b9f58808096a5377af04
+version: "1.22"
+
+  - tlib#date#Shift(): Support for business days 'Nb'
+  - tlib#list#Uniq: Properly handle empty strings
+  - tlib#trace: Use g:tlib#trace#printer and tlib#trace#Printer_{printer}
+  - tlib#dictionary#Rev: Optional argument `opts = {}`; properly handle empty values etc.
+  - NEW g:tlib#trace#hl
+  - NEW spec/dictionary.vim
+  - tlib#agent#CompleteAgentNames: case insensitive
+  - tlib#arg#CComplete: --[no-]debug option
+  - tlib#date#Format: use localtime() if no arg is provided
+  - NEW tlib#file#IsAbsolute
+  - NEW tlib#notify#PrintError()
+  - tlib#trace#Print: FIX s/exec/call/
+  - tlib#type#Is() match full type name
+  - NEW tlib#string#MatchAll()
+  - Tlibtraceset, tlib#trace#Set(): If no `+` or `-` is prepended, assume `+`.
+  - tlib#list#Input: fix highlighting for filenames
+  - tlib#input#ListW: use world.CloseScratch(1)
+  - tlib#agent#ViewFile: Ignore errors in :exec back
+  - NEW tlib#agent#EditFileInWindow()
+  - :Tlibtraceset uses tlib#arg#GetOpts(), i.e. you can set the log file more easily
+  MD5 checksum: 20a48e225f32b9f58808096a5377af04
+version: "1.22"
+

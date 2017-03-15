@@ -1,10 +1,16 @@
-# nginx syntax files for Vim.
+# nginx-contrib-vim
 
-*NOTE*: As of Dec. 2013, these scripts are maintained in the "contrib" directory of the Nginx source:
+It's a clone of https://github.com/nginx/nginx/tree/master/contrib/vim.
 
-* http://hg.nginx.org/nginx/rev/f38043bd15f5
+Then it's easier to use via [Vundle](https://github.com/VundleVim/Vundle.vim):
 
-You can see the original vim.org version here: 
+    Plugin 'moskytw/nginx-contrib-vim'
+    
+Have fun. :)
 
-* http://www.vim.org/scripts/script.php?script_id=1886
+References
+----------
+
+<http://hg.nginx.org/nginx/file/tip/src/core/ngx_conf_file.c#l502>  
+<http://man.openbsd.org/OpenBSD-5.5/nginx.conf.5>
 

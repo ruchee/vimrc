@@ -13,7 +13,7 @@
 
 #### Linux
 
-1. `sudo apt-get install vim-gtk exuberant-ctags` [ 其他非 Debian/Ubuntu 系的 Linux 请使用系统对应的包管理器进行安装 ]
+1. `sudo apt-get install vim-gtk exuberant-ctags git` [ 其他非 Debian/Ubuntu 系的 Linux 请使用系统对应的包管理器进行安装 ]
 2. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
 3. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc`]
 4. 可上 [https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true](https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true) 下载 Monaco 字体，下载后使用命令 `mv monaco.ttf ~/.fonts` 将其丢到 ~/.fonts 目录即可

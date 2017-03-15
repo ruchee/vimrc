@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-09-19.
-" @Last Change: 2015-04-07.
-" @Revision:    0.3.19
+" @Last Change: 2016-06-28.
+" @Revision:    2.3.19
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -99,6 +99,14 @@ function! tlib#notify#TrimMessage(message) "{{{3
         return a:message
     endif
 endfunction
+
+
+function! tlib#notify#PrintError() abort "{{{3
+    echohl ErrorMsg
+    echom v:exception
+    echom v:throwpoint
+    echohl NONE
+endf
 
 
 let &cpo = s:save_cpo

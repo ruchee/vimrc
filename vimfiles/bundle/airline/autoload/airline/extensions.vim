@@ -183,6 +183,12 @@ function! airline#extensions#load()
     call add(loaded_ext, 'hunks')
   endif
 
+  if get(g:, 'airline#extensions#vimagit#enabled', 1)
+        \ && (exists('g:loaded_magit'))
+    call airline#extensions#vimagit#init(s:ext)
+    call add(loaded_ext, 'vimagit')
+  endif
+
   if get(g:, 'airline#extensions#tagbar#enabled', 1)
         \ && exists(':TagbarToggle')
     call airline#extensions#tagbar#init(s:ext)
@@ -282,6 +288,11 @@ function! airline#extensions#load()
   if (get(g:, 'airline#extensions#capslock#enabled', 1) && exists('*CapsLockStatusline'))
     call airline#extensions#capslock#init(s:ext)
     call add(loaded_ext, 'capslock')
+  endif
+
+  if (get(g:, 'airline#extensions#xkblayout#enabled', 1) && exists('g:XkbSwitchLib'))
+    call airline#extensions#xkblayout#init(s:ext)
+    call add(loaded_ext, 'xkblayout')
   endif
 
   if (get(g:, 'airline#extensions#windowswap#enabled', 1) && get(g:, 'loaded_windowswap', 0))

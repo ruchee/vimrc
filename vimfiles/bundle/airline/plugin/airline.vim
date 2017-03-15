@@ -53,6 +53,7 @@ endfunction
 
 function! s:on_colorscheme_changed()
   call s:init()
+  unlet! g:airline#highlighter#normal_fg_hi
   let g:airline_gui_mode = airline#init#gui_mode()
   if !s:theme_in_vimrc
     call airline#switch_matching_theme()
@@ -91,6 +92,9 @@ function! s:airline_toggle()
       autocmd GUIEnter,ColorScheme * call <sid>on_colorscheme_changed()
       autocmd SessionLoadPost,VimEnter,WinEnter,BufWinEnter,FileType,BufUnload *
             \ call <sid>on_window_changed()
+      if exists('#CompleteDone')
+        autocmd CompleteDone * call <sid>on_window_changed()
+      endif
 
       autocmd VimResized * unlet! w:airline_lastmode | :call <sid>airline_refresh()
       autocmd TabEnter * :unlet! w:airline_lastmode | let w:airline_active=1

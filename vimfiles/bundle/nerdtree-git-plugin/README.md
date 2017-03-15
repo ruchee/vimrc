@@ -10,6 +10,12 @@ The original project [git-nerdtree](https://github.com/Xuyuanp/git-nerdtree) wil
 
 ## Installation
 
+For Pathogen
+
+`git clone https://github.com/Xuyuanp/nerdtree-git-plugin.git ~/.vim/bundle/nerdtree-git-plugin`
+
+Now reload the `vim`
+
 For Vundle
 
 `Plugin 'scrooloose/nerdtree'`
@@ -27,7 +33,6 @@ For Plug
 `Plug 'scrooloose/nerdtree'`
 
 `Plug 'Xuyuanp/nerdtree-git-plugin'`
-
 
 ## FAQ
 
@@ -54,9 +59,14 @@ Use this variable to change symbols.
 	    \ "Deleted"   : "✖",
 	    \ "Dirty"     : "✗",
 	    \ "Clean"     : "✔︎",
+        \ 'Ignored'   : '☒',
 	    \ "Unknown"   : "?"
 	    \ }
 	 ```
+
+> How to show `ignored` status?
+
+`let g:NERDTreeShowIgnoredStatus = 1` (a heavy feature may cost much more time)
 
 ## Credits
 

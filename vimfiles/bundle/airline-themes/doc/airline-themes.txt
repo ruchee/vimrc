@@ -25,8 +25,12 @@ FEATURES                                              *airline-themes-list*
 
 Currently this repository contains the following themes:
 
+    * alduin
+    * aurora
+    * badcat
     * badwolf
-    * base16
+    * base16 (|airline-theme-base16|)
+    * base16_shell (|airline-theme-base16_shell|)
     * base16_3024
     * base16_apathy
     * base16_ashes
@@ -56,9 +60,11 @@ Currently this repository contains the following themes:
     * base16_mocha
     * base16_monokai
     * base16_ocean
+    * base16_oceanicnext
     * base16_paraiso
     * base16_pop
     * base16_railscasts
+    * base16_seti
     * base16_shapeshifter
     * base16_solarized
     * base16_summerfruit
@@ -67,12 +73,14 @@ Currently this repository contains the following themes:
     * base16color
     * behelit
     * bubblegum
+    * cobalt2
     * cool
     * dark
     * distinguished
     * durant
     * hybrid
     * hybridline
+    * jay
     * jellybeans
     * kalisi
     * kolor
@@ -83,10 +91,14 @@ Currently this repository contains the following themes:
     * molokai
     * monochrome
     * murmur
+    * onedark (|airline-theme-onedark|)
     * papercolor
     * powerlineish
+    * qwq
     * raven
+    * ravenpower
     * serene
+    * sierra
     * silver
     * simple
     * sol
@@ -95,6 +107,7 @@ Currently this repository contains the following themes:
     * tomorrow
     * ubaryd
     * understated
+    * vice
     * wombat
     * xtermlight
     * zenburn
@@ -102,7 +115,14 @@ Currently this repository contains the following themes:
 ==============================================================================
 NAME                                         *airline-themes-configuration*
 
-                                                  |airline-theme-solarized|
+						    *g:airline_theme*
+
+To define a theme to be used by vim-airline you can set the variable
+g:airline_theme in your |.vimrc|  like this: >
+
+    :let g:airline_theme='dark'
+<
+                                                  *airline-theme-solarized*
 *g:solarized_base16*
 
 Base16 has a Solarized theme with the usual colors, but mapped in the
@@ -121,6 +141,72 @@ Turns the outer-most section of the statusline Solarized green, making it
 look more like classic powerline in normal mode. To enable it:
 >
     let g:airline_solarized_normal_green = 1
+<
+
+*g:airline_solarized_dark_inactive_border*
+
+Changes inactive window panes to have a dark bottom border instead
+of light by default. To enable it:
+>
+    let g:airline_solarized_dark_inactive_border = 1
+<
+                                                    *airline-theme-base16*
+Base16 is a popular theme from Chris Kempson
+(https://github.com/chriskempson/base16-vim)
+
+The default theme is base16, all other base16-themes have been generated and
+might not support all options.
+
+*g:airline_base16_improved_contrast*
+
+Improves the contrast for the inactive statusline. To enable it: >
+
+    let g:airline_base16_improved_contrast = 1
+<
+
+*airline#themes#base16#constant*
+
+Uses a predefined colorpalette for defining the colors, instead of guessing
+the values from other highlight groups. To enable it: >
+
+    let g:airline#themes#base16#constant = 1
+<
+                                                  *airline-theme-base16-shell*
+
+base16_shell theme for vim-airline matches your active Base16 Shell theme.
+
+It should be used in combination with Base16 Shell, which sets the correct
+colors in the terminal: (https://github.com/chriskempson/base16-shell). The
+colors used in this theme are within the 21 term colors set by Base16 Shell.
+The theme supports 2 options described below.
+
+*g:airline_base16_oceanicnext*
+
+Allow 256 color use of the base16_oceanicnext theme. Without this setting
+base16_oceanicnext may look incorrect in 256 color mode. To enable it: >
+
+    let base16colorspace = 256
+
+*g:airline_base16_solarized*
+
+Adjusts the colors to match base16_solarized shell theme. You may also try to
+use it with other Base16 Shell themes. To enable it: >
+
+    let g:airline_base16_solarized = 1
+<
+                                                       *airline-theme-onedark*
+
+*g:onedark_termcolors*
+
+Set to 256 for 256-color mode (the default), or 16 for 16-color mode.
+Has no effect if using true/24-bit color. To enable 16-color mode: >
+
+    let g:onedark_termcolors = 16
+<
+
+16-color mode is intended to be used with specific terminal colors as
+described in the installation notes for the joshdick/onedark.vim colorscheme:
+(https://github.com/joshdick/onedark.vim#installation)
 
 ==============================================================================
 CONTRIBUTIONS                                *airline-themes-contributions*

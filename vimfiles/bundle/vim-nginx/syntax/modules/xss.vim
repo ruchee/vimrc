@@ -1,0 +1,8 @@
+" XSS Module <https://github.com/openresty/xss-nginx-module>
+" Native support for cross-site scripting (XSS) in an nginx.
+syn keyword ngxDirectiveThirdParty xss_get
+syn keyword ngxDirectiveThirdParty xss_callback_arg
+syn keyword ngxDirectiveThirdParty xss_override_status
+syn keyword ngxDirectiveThirdParty xss_check_status
+syn keyword ngxDirectiveThirdParty xss_input_types
+

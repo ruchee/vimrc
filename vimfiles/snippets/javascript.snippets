@@ -18,15 +18,19 @@ snippet lrq     导入包到变量
 snippet irq     导入包
 	import ${1} = require('${2}')${0}
 snippet im      导入模块 [ES6新增]
-	import ${0}
+	import '${0}'
 snippet imf     从 .. 导入模块 [ES6新增]
 	import ${1} from '${2}'${0}
 snippet im<     从 .. 导入模块 [ES6新增]
 	import { ${1} } from '${2}'${0}
+snippet imf<    从 .. 导入模块 [ES6新增]
+	import ${1}, { ${2} } from '${3}'${0}
 snippet mo      模块
 	module${0}
 snippet ex      导出
 	export ${0}
+snippet exd     导出默认模块
+	export default ${0}
 snippet exp     按层次导出
 	exports.${1} = ${2}${0}
 snippet moex    顶层导出
@@ -65,11 +69,7 @@ snippet ff      匿名函数 [箭头函数，无自己的this]（带括号） [E
 	(${1}) => ${0}
 snippet fff     匿名函数 [箭头函数，无自己的this] [ES6语法]
 	${1} => ${0}
-snippet of      对象中的方法 [箭头函数，无自己的this] [ES6语法]
-	${1}: (${2}) => {
-	  ${0}
-	},
-snippet of5     [ES5语法]
+snippet of      对象中的方法
 	${1}: function(${2}) {
 	  ${0}
 	},

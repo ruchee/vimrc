@@ -38,6 +38,10 @@ if !exists('g:NERDTreeUpdateOnCursorHold')
     let g:NERDTreeUpdateOnCursorHold = 1
 endif
 
+if !exists('g:NERDTreeShowIgnoredStatus')
+    let g:NERDTreeShowIgnoredStatus = 0
+endif
+
 if !exists('s:NERDTreeIndicatorMap')
     let s:NERDTreeIndicatorMap = {
                 \ 'Modified'  : '✹',
@@ -48,6 +52,7 @@ if !exists('s:NERDTreeIndicatorMap')
                 \ 'Deleted'   : '✖',
                 \ 'Dirty'     : '✗',
                 \ 'Clean'     : '✔︎',
+                \ 'Ignored'   : '☒',
                 \ 'Unknown'   : '?'
                 \ }
 endif
@@ -74,6 +79,9 @@ function! g:NERDTreeGitStatusRefresh()
 
     let l:root = b:NERDTree.root.path.str()
     let l:gitcmd = 'git -c color.status=false status -s'
+    if g:NERDTreeShowIgnoredStatus
+        let l:gitcmd = l:gitcmd . ' --ignored'
+    endif
     if exists('g:NERDTreeGitStatusIgnoreSubmodules')
         let l:gitcmd = l:gitcmd . ' --ignore-submodules'
         if g:NERDTreeGitStatusIgnoreSubmodules ==# 'all' || g:NERDTreeGitStatusIgnoreSubmodules ==# 'dirty' || g:NERDTreeGitStatusIgnoreSubmodules ==# 'untracked'
@@ -105,7 +113,13 @@ function! g:NERDTreeGitStatusRefresh()
         let l:statusKey = s:NERDTreeGetFileGitStatusKey(l:statusLine[0], l:statusLine[1])
         let b:NERDTreeCachedGitFileStatus[fnameescape(l:pathStr)] = l:statusKey
 
-        call s:NERDTreeCacheDirtyDir(l:pathStr)
+        if l:statusKey == 'Ignored'
+            if isdirectory(l:pathStr)
+                let b:NERDTreeCachedGitDirtyDir[fnameescape(l:pathStr)] = l:statusKey
+            endif
+        else
+            call s:NERDTreeCacheDirtyDir(l:pathStr)
+        endif
     endfor
 endfunction
 
@@ -192,6 +206,8 @@ function! s:NERDTreeGetFileGitStatusKey(us, them)
         return 'Unmerged'
     elseif a:them ==# 'D'
         return 'Deleted'
+    elseif a:us ==# '!'
+        return 'Ignored'
     else
         return 'Unknown'
     endif
@@ -311,6 +327,7 @@ function! s:AddHighlighting()
                 \ 'NERDTreeGitStatusStaged'      : s:NERDTreeGetIndicator('Staged'),
                 \ 'NERDTreeGitStatusUntracked'   : s:NERDTreeGetIndicator('Untracked'),
                 \ 'NERDTreeGitStatusRenamed'     : s:NERDTreeGetIndicator('Renamed'),
+                \ 'NERDTreeGitStatusIgnored'     : s:NERDTreeGetIndicator('Ignored'),
                 \ 'NERDTreeGitStatusDirDirty'    : s:NERDTreeGetIndicator('Dirty'),
                 \ 'NERDTreeGitStatusDirClean'    : s:NERDTreeGetIndicator('Clean')
                 \ }
@@ -326,6 +343,8 @@ function! s:AddHighlighting()
     hi def link NERDTreeGitStatusUntracked Comment
     hi def link NERDTreeGitStatusDirDirty Tag
     hi def link NERDTreeGitStatusDirClean DiffAdd
+    " TODO: use diff color
+    hi def link NERDTreeGitStatusIgnored DiffAdd
 endfunction
 
 function! s:SetupListeners()

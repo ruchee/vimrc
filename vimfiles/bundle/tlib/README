@@ -13,8 +13,21 @@ http://vimsomnia.blogspot.com/2010/11/selecting-items-from-list-with-tlibs.html
 
 
 -----------------------------------------------------------------------
+Install~
 
-Status:  Works for me (there may be some minor quirks)
+Edit the vba file and type: >
+
+    :so %
+
+See :help vimball for details. If you have difficulties, please make 
+sure, you have the current version of vimball (vimscript #1502) 
+installed.
+
+
+
+
+
+License: GPLv3 or later
 Install: See http://github.com/tomtom/vimtlib/blob/master/INSTALL.TXT
 See http://github.com/tomtom for related plugins.
 

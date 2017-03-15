@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-14 16:11:36
+" -----------------    Date: 2017-03-15 15:46:35
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -26,6 +26,7 @@
 " \ww                        --打开Vimwiki主页
 " \wa                        --一键编译所有Vimwiki源文件
 " \nt                        --打开/关闭NERDTree文件树窗口
+" \ut                        --打开/关闭Undotree文档编辑历史窗口
 " \tl                        --打开/关闭Tags窗口
 "
 " \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
@@ -567,7 +568,8 @@ let g:snipMate.scope_aliases['wxml']            = 'html,wxml'
 let g:snipMate.scope_aliases['wxss']            = 'css,wxss'
 
 " NERDTree            树形文件浏览器
-let g:NERDTreeShowHidden = 1                   " 显示隐藏文件
+let g:NERDTreeShowHidden         = 1           " 显示隐藏文件   [NERDTree]
+let g:NERDTreeShowIgnoredStatus  = 1           " 显示被忽略图标 [NERDTree-Git-Plugin]
 let g:NERDTreeIndicatorMapCustom = {
       \ 'Modified'  : '✹',
       \ 'Staged'    : '✚',
@@ -721,6 +723,9 @@ nmap <leader>bn :Tab /
 
 " \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree插件]
 nmap <leader>nt :NERDTree<cr>
+
+" \ut                 打开/关闭文档编辑历史窗口，在左侧栏显示 [Undotree插件]
+nmap <leader>ut :UndotreeToggle<cr>
 
 " \il                 显示/关闭对齐线 [indentLine插件]
 nmap <leader>il :IndentLinesToggle<cr>

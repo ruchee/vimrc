@@ -15,6 +15,13 @@ If you use a plugin manager you can put the whole directory into your `~/.vim/bu
 To apply customization, apply the variable definitions to your `.vimrc` file.
 
 **Change Character Color**
+
+indentLine will overwrite 'conceal' color with grey by default. If you want to highlight conceal color with your colorscheme, disable by:
+```
+let g:indentLine_setColors = 0
+```
+
+Or you can customize conceal color by: 
 ```
 " Vim
 let g:indentLine_color_term = 239
@@ -37,12 +44,26 @@ where `'c'` can be any ASCII character. You can also use one of `¦`, `┆`, or 
 
 **Change Conceal Behaviour**
 
-Vim 7.3 has a new feature `conceal` [Documentation](http://vimdoc.sourceforge.net/htmldoc/version7.html#new-conceal) to automatically hide a stretch of text based on syntax highlighting.
+This plugin enables the Vim `conceal` feature which automatically hides stretches of text based on syntax highlighting. This setting will apply to all syntax items.
+
+For example, users utilizing the built in json.vim syntax file will no longer see quotation marks in their JSON files.
+
+indentLine will overwrite your "concealcursor" and "conceallevel" with default value:
 
 ```
-let g:indentLine_concealcursor = 'vc' (default 'inc')
-let g:indentLine_conceallevel = 0 (default 2)
+let g:indentLine_concealcursor = 'inc'
+let g:indentLine_conceallevel = 2
 ```
+
+You can customize these settings, but the plugin will not function if `conceallevel` is not set to 1 or 2.
+
+If you want to keep your conceal settting, put this line to your vim dotfile:
+```
+let g:indentLine_setConceal = 0
+```
+
+See the [VIM Reference Manual](http://vimdoc.sourceforge.net/htmldoc/version7.html#new-conceal) for more information on the `conceal` feature.
+
 
 **Disable by default**
 ```
@@ -88,3 +109,6 @@ If you think this script is helpful, follow the [GitHub repository][repository],
 ![Screenshot](http://i.imgur.com/tLYkb79.png)
 
 ![Screenshot](http://i.imgur.com/07Atrrs.png)
+
+## License
+MIT

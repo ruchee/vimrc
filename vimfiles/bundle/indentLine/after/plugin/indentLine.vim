@@ -21,6 +21,7 @@ let g:indentLine_bufNameExclude = get(g:,'indentLine_bufNameExclude',[])
 let g:indentLine_showFirstIndentLevel = get(g:,'indentLine_showFirstIndentLevel',0)
 let g:indentLine_maxLines = get(g:,'indentLine_maxLines',3000)
 let g:indentLine_setColors = get(g:,'indentLine_setColors',1)
+let g:indentLine_setConceal = get(g:,'indentLine_setConceal',1)
 let g:indentLine_faster = get(g:,'indentLine_faster',0)
 let g:indentLine_leadingSpaceChar = get(g:,'indentLine_leadingSpaceChar',(&encoding ==# "utf-8" && &term isnot# "linux" ? '˰' : '.'))
 let g:indentLine_leadingSpaceEnabled = get(g:,'indentLine_leadingSpaceEnabled',0)
@@ -67,6 +68,9 @@ endfunction
 
 "{{{1 function! s:SetConcealOption()
 function! s:SetConcealOption()
+    if ! g:indentLine_setConceal
+        return
+    endif
     if ! exists("b:indentLine_ConcealOptionSet")
         let b:indentLine_ConcealOptionSet = 1
         let &l:concealcursor = exists("g:indentLine_concealcursor") ? g:indentLine_concealcursor : "inc"
@@ -195,11 +199,15 @@ endfunction
 augroup indentLine
     autocmd!
     autocmd BufWinEnter * call <SID>Setup()
-    autocmd User * if exists("b:indentLine_enabled") || exists("b:indentLine_leadingSpaceEnabled") |
-                \ call <SID>Setup() | endif
+    autocmd User * if exists("b:indentLine_enabled") && b:indentLine_enabled ||
+                    \ exists("b:indentLine_leadingSpaceEnabled") && b:indentLine_leadingSpaceEnabled |
+                    \ call <SID>Setup() |
+                    \ endif
+
     autocmd BufRead,BufNewFile,ColorScheme,Syntax * call <SID>InitColor()
     autocmd BufUnload * let b:indentLine_enabled = 0 | let b:indentLine_leadingSpaceEnabled = 0
-    autocmd SourcePre $VIMRUNTIME/syntax/nosyntax.vim doautoall indentLine BufUnload
+    autocmd SourcePre $VIMRUNTIME/syntax/nosyntax.vim doautocmd indentLine BufUnload
+    autocmd FileChangedShellPost * doautocmd indentLine BufUnload | call <SID>Setup()
 augroup END
 
 "{{{1 commands

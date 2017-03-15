@@ -193,29 +193,44 @@ fu! s:SanitizeReservedArgs(extraArgs) "{{{
     if match(sanitizedArgs, ' --bisect') >= 0
         let sanitizedArgs = substitute(sanitizedArgs, ' --bisect', '', 'g')
         if s:BisectHasStarted()
-            let b:Bisecting = 1
+            let b:Gitv_Bisecting = 1
         endif
     endif
     " store files
     let selectedFiles = []
     let splitArgs = split(sanitizedArgs, ' ')
     let index = len(splitArgs)
+    let root = fugitive#buffer().repo().tree().'/'
     while index
         let index -= 1
-        if !empty(glob(splitArgs[index]))
-            let selectedFiles += [fnamemodify(splitArgs[index], ':p')]
+        let path = splitArgs[index]
+        if !empty(globpath('.', path))
+            " transform the path relative to the git directory
+            let path = fnamemodify(path, ':p')
+            let splitPath = split(path, root)
+            if splitPath[0] == path
+                echoerr "Not in git repo:" path
+                break
+            endif
+            " join the relroot back in case we split more than one off
+            let path = join(splitPath, root)
+            let selectedFiles += [path]
         else
             break
         endif
     endwhile
+    let selectedFiles = sort(selectedFiles)
     return [join(splitArgs[0:-len(selectedFiles) - 1], ' '), join(selectedFiles, ' ')]
 endfu "}}}
-fu! s:ReapplyReservedArgs(extraArgs, filePath) "{{{
+fu! s:ReapplyReservedArgs(extraArgs) "{{{
     let options = a:extraArgs[0]
-    if exists('b:Bisecting')
-        if a:filePath != '' && !s:IsBisectingFile(a:filePath)
-            echoerr "No longer bisecting file."
-            let b:Bisecting = 0
+    if s:RebaseIsEnabled()
+        return [options, '']
+    endif
+    if s:BisectIsEnabled()
+        if !s:IsBisectingCurrentFiles()
+            echoerr "Not bisecting specified files."
+            let b:Gitv_Bisecting = 0
         else
             let options .= " --bisect"
             let options = s:FilterArgs(options, ['--all', '--first-parent'])
@@ -273,7 +288,7 @@ fu! s:CompleteGitv(arglead, cmdline, pos) "{{{
         if match(a:arglead, '\/$') >= 0
             let paths = "\n".globpath(a:arglead, '*')
         else
-            let paths = "\n".globpath(a:arglead.'*', '')
+            let paths = "\n".glob(a:arglead.'*')
         endif
 
         let refs = fugitive#buffer().repo().git_chomp('rev-parse', '--symbolic', '--branches', '--tags', '--remotes')
@@ -301,7 +316,7 @@ fu! s:OpenBrowserMode(extraArgs) "{{{
         return 0
     endif
     call s:SetupBufferCommands(0)
-    let b:rebaseInstructions = {}
+    let b:Gitv_RebaseInstructions = {}
     "open the first commit
     if g:Gitv_OpenPreviewOnLaunch
         silent call s:OpenGitvCommit("Gedit", 0)
@@ -324,6 +339,9 @@ fu! s:OpenFileMode(extraArgs, rangeStart, rangeEnd) "{{{
     call s:SetupBufferCommands(1)
 endf "}}}
 fu! s:LoadGitv(direction, reload, commitCount, extraArgs, filePath, range) "{{{
+    call s:RebaseUpdate()
+    call s:BisectUpdate()
+
     if a:reload
         let jumpTo = line('.') "this is for repositioning the cursor after reload
     endif
@@ -344,7 +362,7 @@ endf "}}}
 fu! s:FilterArgs(args, sanitize) "{{{
     let newArgs = a:args
     for arg in a:sanitize
-        let newArgs = substitute(newArgs, ' ' . arg, '', 'g')
+        let newArgs = substitute(newArgs, '\( \|^\)' . arg, '', 'g')
     endfor
     return newArgs
 endf "}}}
@@ -352,14 +370,14 @@ fu! s:ToggleArg(args, toggle) "{{{
     if matchstr(a:args[0], a:toggle) == ''
       let NewArgs = a:args[0] . ' ' . a:toggle
     else
-      let NewArgs = substitute(a:args[0], ' ' . a:toggle, '', '')
+      let NewArgs = substitute(a:args[0], '\( \|^\)' . a:toggle, '', '')
     endif
-    let b:Gitv_ExtraArgs = NewArgs
+    let b:Gitv_ExtraArgs = [NewArgs, a:args[1]]
     return [NewArgs, a:args[1]]
 endf "}}}
 fu! s:ConstructAndExecuteCmd(direction, commitCount, extraArgs, filePath, range) "{{{
     if a:range == [] "no range, setup and execute the command
-        let extraArgs = s:ReapplyReservedArgs(a:extraArgs, a:filePath)
+        let extraArgs = s:ReapplyReservedArgs(a:extraArgs)
         let cmd  = "log " 
         let cmd .= " --no-color --decorate=full --pretty=format:\"%d__START__ %s__SEP__%ar__SEP__%an__SEP__[%h]\" --graph -"
         let cmd .= a:commitCount
@@ -389,7 +407,7 @@ fu! s:ConstructRangeBuffer(commitCount, extraArgs, filePath, range) "{{{
     %delete
 
     "necessary as order is important; can't just iterate over keys(slices)
-    let extraArgs = s:ReapplyReservedArgs(a:extraArgs, a:filePath)
+    let extraArgs = s:ReapplyReservedArgs(a:extraArgs)
     let hashCmd       = "log " . extraArgs[0]
     let hashCmd      .= " --no-color --pretty=format:%H -".a:commitCount." -- " . a:filePath
     let [result, cmd] = s:RunGitCommand(hashCmd, 0)
@@ -524,10 +542,10 @@ fu! s:SetupBuffer(commitCount, extraArgs, filePath, range) "{{{
 endf "}}}
 fu! s:InsertRebaseInstructions() "{{{
     if s:RebaseHasInstructions()
-        for key in keys(b:rebaseInstructions)
+        for key in keys(b:Gitv_RebaseInstructions)
             let search = '__START__\ze.*\['.key.'\]$'
-            let replace = ' ['.b:rebaseInstructions[key].instruction
-            if exists('b:rebaseInstructions[key].cmd')
+            let replace = ' ['.b:Gitv_RebaseInstructions[key].instruction
+            if exists('b:Gitv_RebaseInstructions[key].cmd')
                 let replace .= 'x'
             endif
             let replace .= ']'
@@ -547,7 +565,7 @@ fu! s:AddRebaseMessage(filePath) "{{{
     endif
     if s:RebaseHasInstructions()
         call append(0, '= '.s:pendingRebaseMsg)
-    elseif s:RebaseHasStarted()
+    elseif s:RebaseIsEnabled()
         call append(0, '= '.s:rebaseMsg)
     else
         call s:MoveIntoPreviewAndExecute('call s:CleanupRebasePreview()', 0)
@@ -851,6 +869,10 @@ fu! s:SetDefaultMappings() "{{{
         \'cmd': ':call <SID>RebaseSetInstruction("d")<cr>',
         \'bindings': 'grD'
     \}
+    let s:defaultMappings.rebaseAbort = {
+        \'cmd': ':<C-U>call <SID>RebaseAbort()<cr>',
+        \'bindings': 'gra'
+    \}
     let s:defaultMappings.rebaseToggle = {
         \'cmd': ':<C-U>call <SID>RebaseToggle()<cr>',
         \'bindings': 'grs'
@@ -1000,14 +1022,16 @@ fu! s:TransformBindings(bindings) "{{{
     endif
     let newBindings = []
     for binding in bindings
-        let newBinding = binding
-        if type(newBinding) != 4 " dictionary
-            let newBinding = { 'keys': newBinding }
+        if type(binding) != 4 " dictionary
+            let newBinding = { 'keys': binding }
+        else
+            let newBinding = binding
         endif
         if !exists('newBinding.prefix')
             let newBinding.prefix = ''
         endif
         call add(newBindings, newBinding)
+        unlet binding
     endfor
     return newBindings
 endf "}}}
@@ -1483,16 +1507,20 @@ fu! s:EditRange(rangeDelimiter)
 endfu "}}}
 " Rebase: "{{{
 fu! s:RebaseHasInstructions() "{{{
-    return exists('b:rebaseInstructions') && len(keys(b:rebaseInstructions)) > 0
+    return exists('b:Gitv_RebaseInstructions') && len(keys(b:Gitv_RebaseInstructions)) > 0
 endf "}}}
 fu! s:RebaseClearInstructions() "{{{
-    let b:rebaseInstructions = {}
+    let b:Gitv_RebaseInstructions = {}
 endf "}}}
 fu! s:RebaseSetInstruction(instruction) range "{{{
     if s:IsFileMode()
         return
     endif
-    if s:RebaseHasStarted()
+    if s:BisectHasStarted()
+        echo "Cannot set rebase instructions in bisect mode."
+        return
+    endif
+    if s:RebaseIsEnabled()
         echo "Rebase already in progress."
         return
     endif
@@ -1511,18 +1539,18 @@ fu! s:RebaseSetInstruction(instruction) range "{{{
         endif
         let ncommits += 1
         if a:instruction == 'p' || a:instruction == 'pick' || a:instruction == ''
-            if !exists('b:rebaseInstructions[sha]')
+            if !exists('b:Gitv_RebaseInstructions[sha]')
                 continue
             endif
-            call remove(b:rebaseInstructions, sha)
+            call remove(b:Gitv_RebaseInstructions, sha)
         else
             if exists('cmd')
-                if !exists('b:rebaseInstructions[sha]')
-                    let b:rebaseInstructions[sha] = { 'instruction': 'p' }
+                if !exists('b:Gitv_RebaseInstructions[sha]')
+                    let b:Gitv_RebaseInstructions[sha] = { 'instruction': 'p' }
                 endif
-                let b:rebaseInstructions[sha].cmd = cmd
+                let b:Gitv_RebaseInstructions[sha].cmd = cmd
             else
-                let b:rebaseInstructions[sha] = { 'instruction': a:instruction }
+                let b:Gitv_RebaseInstructions[sha] = { 'instruction': a:instruction }
             endif
         endif
     endfor
@@ -1588,24 +1616,30 @@ fu! s:RebaseGetRange(first, last, fromPlaceholder, ontoPlaceholder) "{{{
 
     " get refs
     if a:first != a:last || type(a:fromPlaceholder) != 1 " string
-        let from = s:RebaseGetRefs(from)
-        if !len(from)
+        let fromRefs = s:RebaseGetRefs(from)
+        if !len(fromRefs)
             return []
         endif
+    else
+        let fromRefs = from
     endif
     if a:first != a:last || type(a:ontoPlaceholder) != 1
-        let onto = s:RebaseGetRefs(onto)
+        let ontoRefs = s:RebaseGetRefs(onto)
         if !len(onto)
             return []
         endif
+    else
+        let ontoRefs = onto
     endif
 
     " set placeholder
     if a:first == a:last
         if type(a:fromPlaceholder) == 1
-            let from = a:fromPlaceholder
+            unlet fromRefs
+            let fromRefs = a:fromPlaceholder
         elseif type(a:ontoPlaceholder) == 1
-            let onto = a:ontoPlaceholder
+            unlet ontoRefs
+            let ontoRefs = a:ontoPlaceholder
         else
             echoerr 'A default must be given.'
             return []
@@ -1614,25 +1648,29 @@ fu! s:RebaseGetRange(first, last, fromPlaceholder, ontoPlaceholder) "{{{
 
     " get choices
     if a:first != a:last || type(a:fromPlaceholder) != 1
-        let from = s:RebaseGetChoice(from, 'from')
-        if from == ''
+        let fromChoice = s:RebaseGetChoice(fromRefs, 'from')
+        if fromChoice == ''
             return []
         endif
+    else
+        let fromChoice = fromRefs
     endif
     if a:first != a:last || type(a:ontoPlaceholder) != 1
-        let onto = s:RebaseGetChoice(onto, 'onto')
-        if onto == ''
+        let ontoChoice = s:RebaseGetChoice(onto, 'onto')
+        if ontoChoice == ''
             return []
         endif
+    else
+        let ontoChoice = ontoRefs
     endif
 
-    return [from, onto]
+    return [fromChoice, ontoChoice]
 endf "}}}
 fu! s:Rebase() range "{{{
     if s:IsFileMode()
         return
     endif
-    if exists('b:Bisecting') || s:BisectHasStarted()
+    if s:BisectIsEnabled() || s:BisectHasStarted()
         echo "Cannot rebase in bisect mode."
         return
     endif
@@ -1659,12 +1697,13 @@ fu! s:SetRebaseEditor() "{{{
     if  s:RebaseHasInstructions()
         " replace default instructions with stored instructions
         let $GIT_SEQUENCE_EDITOR='function gitv_edit() {'
-        for sha in keys(b:rebaseInstructions)
-            let instruction = b:rebaseInstructions[sha].instruction
-            let $GIT_SEQUENCE_EDITOR .= ' SHA_'.sha.'='.instruction.';'
-            if exists('b:rebaseInstructions[sha].cmd')
-                let cmd = b:rebaseInstructions[sha].cmd
-                let $GIT_SEQUENCE_EDITOR .= ' CMD_'.sha.'='.shellescape(cmd).';'
+        for sha in keys(b:Gitv_RebaseInstructions)
+            let short = sha[0:6]
+            let instruction = b:Gitv_RebaseInstructions[sha].instruction
+            let $GIT_SEQUENCE_EDITOR .= ' SHA_'.short.'='.instruction.';'
+            if exists('b:Gitv_RebaseInstructions[sha].cmd')
+                let cmd = b:Gitv_RebaseInstructions[sha].cmd
+                let $GIT_SEQUENCE_EDITOR .= ' CMD_'.short.'='.shellescape(cmd).';'
             endif
         endfor
         let $GIT_SEQUENCE_EDITOR .= 'while read line; do
@@ -1707,20 +1746,44 @@ fu! s:RebaseUpdateView() "{{{
         call s:NormalCmd('update', s:defaultMappings)
     endif
 endf "}}}
-fu! s:RebaseToggle() range "{{{
-    if s:IsFileMode()
-        return
-    endif
-    if exists('b:Bisecting') || s:BisectHasStarted()
-        echo "Cannot rebase in bisect mode."
-        return
-    endif
+fu! s:RebaseAbort() "{{{
     if s:RebaseHasStarted()
         echo 'Abort current rebase? (y/n) '
         if nr2char(getchar()) == 'y'
             call s:RunGitCommand('rebase --abort', 0)
             call s:RebaseUpdateView()
         endif
+        return
+    else
+        echo 'Rebase not in progress.'
+    endif
+endf "}}}
+fu! s:RebaseUpdate() "{{{
+    if s:RebaseHasInstructions() && (s:BisectIsEnabled() || s:RebaseHasStarted() || s:BisectHasStarted())
+        echoerr "Mode changed elsewhere, dropping rebase instructions."
+        let b:Gitv_RebaseInstructions = {}
+    endif
+    if !s:RebaseHasStarted() && s:RebaseIsEnabled()
+        let b:Gitv_Rebasing = 0
+    endif
+endf "}}}
+fu! s:RebaseIsEnabled() "{{{
+    return exists('b:Gitv_Rebasing') && b:Gitv_Rebasing == 1
+endf "}}}
+fu! s:RebaseToggle() range "{{{
+    if s:IsFileMode()
+        return
+    endif
+    if s:RebaseIsEnabled()
+        let b:Gitv_Rebasing = 0
+        call s:RebaseUpdateView()
+        return
+    elseif s:RebaseHasStarted()
+        let b:Gitv_Rebasing = 1
+        call s:RebaseUpdateView()
+        return
+    elseif s:BisectIsEnabled() || s:BisectHasStarted()
+        echoerr "Cannot rebase in bisect mode."
         return
     endif
     let choice = s:RebaseGetRange(a:firstline, a:lastline, 0, '')
@@ -1729,6 +1792,7 @@ fu! s:RebaseToggle() range "{{{
         echo "Not rebasing."
         return
     endif
+    let b:Gitv_Rebasing = 1
     call s:SetRebaseEditor()
     let cmd = 'rebase --preserve-merges --interactive '.choice[0]
     if s:RebaseHasInstructions()
@@ -1761,7 +1825,7 @@ fu! s:RebaseToggle() range "{{{
     endif
 endf "}}}
 fu! s:RebaseSkip() "{{{
-    if !s:RebaseHasStarted()
+    if !s:RebaseIsEnabled()
         return
     endif
     for i in range(0, v:count)
@@ -1791,7 +1855,7 @@ fu! s:RebaseContinueSetup() "{{{
     let $GIT_EDITOR='exit 1'
 endf "}}}
 fu! s:RebaseContinue() "{{{
-    if !s:RebaseHasStarted()
+    if !s:RebaseIsEnabled()
         return
     endif
     call s:RebaseContinueSetup()
@@ -1805,7 +1869,7 @@ fu! s:RebaseContinue() "{{{
 endf "}}}
 fu! s:RebaseContinueCleanup() "{{{
     let $GIT_EDITOR=""
-    if !s:RebaseHasStarted()
+    if !s:RebaseIsEnabled()
         return
     endif
     let mode = s:GetRebaseMode()
@@ -1826,6 +1890,7 @@ fu! s:RebaseContinueCleanup() "{{{
         else
             Gcommit
         endif
+        set modifiable
         if &ft == 'gitcommit'
             if mode == 's'
                 call writefile(readfile(s:workingFile), s:GetCommitMsg())
@@ -1845,8 +1910,8 @@ endf "}}}
 fu! s:RebaseViewInstructions() "{{{
     exec 'edit' s:workingFile
     if expand('%') == s:workingFile
-        set syntax=gitrebase
-        set nomodifiable
+        silent setlocal syntax=gitrebase
+        silent setlocal nomodifiable
     endif
 endf "}}}
 fu! s:RebaseEditTodo() "{{{
@@ -1854,7 +1919,7 @@ fu! s:RebaseEditTodo() "{{{
     if &ft == 'gitrebase'
         silent setlocal modifiable
         silent setlocal noreadonly
-        silent setlocal buftype=nofile
+        silent setlocal buftype
         silent setlocal nobuflisted
         silent setlocal noswapfile
         silent setlocal bufhidden=wipe
@@ -1864,10 +1929,10 @@ fu! s:RebaseEdit() "{{{
     if s:RebaseHasInstructions()
         " rebase should not be started, but we have set instructions to view
         let output = []
-        for key in keys(b:rebaseInstructions)
-            let line = b:rebaseInstructions[key].instruction.' '.key
-            if exists('b:rebaseInstructions[key].cmd')
-                let line .= ' '.b:rebaseInstructions[key].cmd
+        for key in keys(b:Gitv_RebaseInstructions)
+            let line = b:Gitv_RebaseInstructions[key].instruction.' '.key
+            if exists('b:Gitv_RebaseInstructions[key].cmd')
+                let line .= ' '.b:Gitv_RebaseInstructions[key].cmd
             endif
             call add(output, line)
         endfor
@@ -1886,12 +1951,34 @@ fu! s:RebaseEdit() "{{{
     wincmd l
 endf "}}} }}}
 "Bisect: "{{{
-fu! s:IsBisectingFile(filePath) "{{{
+fu! s:IsBisectingFiles(filePaths) "{{{
     let path = fugitive#buffer().repo().tree().'/.git/BISECT_NAMES'
     if empty(glob(path))
         return 0
     endif
-    return readfile(path) == [" '".a:filePath."'"]
+    let paths = ''
+    for filePath in a:filePaths
+        let paths .= " '".filePath."'"
+    endfor
+    return join(readfile(path), ' ') == paths
+endf "}}}
+fu! s:IsBisectingCurrentFiles() "{{{
+    if s:IsFileMode() && !s:IsBisectingFiles([b:Gitv_FileModeRelPath])
+        return 0
+    endif
+    if b:Gitv_ExtraArgs[1] != '' && !s:IsBisectingFiles(split(b:Gitv_ExtraArgs[1], ' '))
+        return 0
+    endif
+    return 1
+endf "}}}
+fu! s:BisectUpdate() "{{{
+    if s:BisectIsEnabled() && !s:BisectHasStarted()
+        echoerr "Mode changed elsewhere, dropping bisect."
+        let b:Gitv_Bisecting = 0
+    endif
+endf "}}}
+fu! s:BisectIsEnabled() "{{{
+    return exists('b:Gitv_Bisecting') && b:Gitv_Bisecting == 1
 endf "}}}
 fu! s:BisectHasStarted() "{{{
     call s:RunGitCommand('bisect log', 0)
@@ -1902,14 +1989,17 @@ fu! s:BisectStart(mode) range "{{{
         echo "Cannot bisect in rebase mode."
         return
     endif
-    if exists('b:Bisecting')
+    if s:BisectIsEnabled()
         if g:Gitv_QuietBisect == 0
             echom 'Bisect disabled'
         endif
-        unlet! b:Bisecting
+        let b:Gitv_Bisecting = 0
+        return
     elseif !s:BisectHasStarted()
         let cmd = 'bisect start'
-        if s:IsFileMode()
+        if b:Gitv_ExtraArgs[1] != ''
+            let cmd .= join(b:Gitv_ExtraArgs, ' ')
+        elseif s:IsFileMode()
             let cmd .= ' '.b:Gitv_FileModeRelPath
         endif
         let result = s:RunGitCommand(cmd, 0)[0]
@@ -1923,16 +2013,16 @@ fu! s:BisectStart(mode) range "{{{
                 call s:RunGitCommand('bisect good ' . gitv#util#line#sha(a:lastline), 0)[0]
             endif
         endif
-        let b:Bisecting = 1
+        let b:Gitv_Bisecting = 1
         if g:Gitv_QuietBisect == 0
             echom 'Bisect started'
         endif
     else
-        if s:IsFileMode() && !s:IsBisectingFile(b:Gitv_FileModeRelPath)
-            echoerr "Not bisecting the current file, cannot enable."
+        if !s:IsBisectingCurrentFiles()
+            echoerr "Not bisecting the current files, cannot enable."
             return
         endif
-        let b:Bisecting = 1
+        let b:Gitv_Bisecting = 1
         if g:Gitv_QuietBisect == 0
             echom 'Bisect enabled'
         endif
@@ -1940,8 +2030,8 @@ fu! s:BisectStart(mode) range "{{{
     call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
 endf "}}}
 fu! s:BisectReset() "{{{
-    if exists('b:Bisecting')
-        unlet! b:Bisecting
+    if s:BisectIsEnabled()
+        let b:Gitv_Bisecting = 0
     endif
     if s:BisectHasStarted()
         call s:RunGitCommand('bisect reset', 0)
@@ -1957,7 +2047,7 @@ fu! s:BisectReset() "{{{
 endf "}}}
 fu! s:BisectGoodBad(goodbad) range "{{{
     let goodbad = a:goodbad . ' '
-    if exists('b:Bisecting') && s:BisectHasStarted()
+    if s:BisectIsEnabled() && s:BisectHasStarted()
         let result = ''
         if a:firstline == a:lastline
             let ref = gitv#util#line#sha('.')
@@ -1998,7 +2088,7 @@ fu! s:BisectGoodBad(goodbad) range "{{{
     endif
 endf "}}}
 fu! s:BisectSkip(mode) range "{{{
-    if exists('b:Bisecting') && s:BisectHasStarted()
+    if s:BisectIsEnabled() && s:BisectHasStarted()
         if a:mode == 'n' && v:count
             let loops = abs(v:count)
             let loop = 0
@@ -2056,7 +2146,7 @@ fu! s:BisectReplay() "{{{
         echoerr split(result, '\n')[0]
         return
     endif
-    let b:Bisecting = 1
+    let b:Gitv_Bisecting = 1
     call s:LoadGitv('', 1, b:Gitv_CommitCount, b:Gitv_ExtraArgs, s:GetRelativeFilePath(), s:GetRange())
 endf "}}} }}}
 fu! s:CheckOutGitvCommit() "{{{

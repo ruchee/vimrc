@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    122
+" @Revision:    142
 
 
 " :def: function! tlib#string#RemoveBackslashes(text, ?chars=' ')
@@ -22,6 +22,12 @@ function! tlib#string#Chomp(string, ...) "{{{3
 endf
 
 
+" Format a template string. Placeholders have the format "%{NAME}". A 
+" "%" can be inserted as "%%".
+"
+" Examples:
+"   echo tlib#string#Format("foo %{bar} foo", {'bar': 123})
+"   => foo 123 foo
 function! tlib#string#Format(template, dict) "{{{3
     let parts = split(a:template, '\ze%\({.\{-}}\|.\)')
     let out = []
@@ -164,3 +170,25 @@ function! tlib#string#Input(...) abort "{{{3
     call inputrestore()
     return rv
 endf
+
+
+" :display: tlib#string#MatchAll(string, sep_regexp, ?item_regexp='') abort
+function! tlib#string#MatchAll(string, regexp, ...) abort "{{{3
+    let eregexp = a:0 >= 1 ? a:1 : ''
+    Tlibtrace 'tlib', a:string, a:regexp, eregexp
+    let ms = []
+    if a:regexp =~ '\\ze'
+        let regexp1 = substitute(a:regexp, '\\ze.*$', '', '')
+    else
+        let regexp1 = a:regexp
+    endif
+    for m in split(a:string, '\ze'. regexp1)
+        let m1 = matchstr(m, !empty(eregexp) ? eregexp : a:regexp)
+        Tlibtrace 'tlib', m, m1
+        if !empty(m1)
+            call add(ms, m1)
+        endif
+    endfor
+    return ms
+endf
+

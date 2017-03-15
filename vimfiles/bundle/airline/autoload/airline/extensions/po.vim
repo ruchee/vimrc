@@ -27,7 +27,9 @@ if s:has_async
     else
       let b:airline_po_stats = ''
     endif
-    call remove(s:jobs, self.file)
+    if has_key(s:jobs, self.file)
+      call remove(s:jobs, self.file)
+    endif
     call s:shorten()
   endfunction
 
@@ -77,6 +79,7 @@ function! airline#extensions#po#stats()
     endif
     try
       let b:airline_po_stats = '['. split(airline_po_stats, '\n')[0]. ']'
+      let b:airline_po_stats = substitute(b:airline_po_stats, ' \(message\|translation\)s*\.*', '', 'g')
     catch
       let b:airline_po_stats = ''
     endtry

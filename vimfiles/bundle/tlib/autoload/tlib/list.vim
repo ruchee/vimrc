@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-06-30.
-" @Last Change: 2015-10-21.
-" @Revision:    61
+" @Last Change: 2016-03-22.
+" @Revision:    68
 
 
 """ List related functions {{{1
@@ -146,11 +146,17 @@ function! tlib#list#Uniq(list, ...) "{{{3
         call filter(a:list, 'type(v:val) == 0 || !empty(v:val)')
     endif
     " CREDITS: Based on syntastic#util#unique(list) by scrooloose
+    let emptystring = 0
     let seen = {}
     let uniques = []
     if empty(get_value)
         for e in a:list
-            if !has_key(seen, e)
+            if e == ''
+                if !emptystring
+                    let emptystring = 1
+                    call add(uniques, e)
+                endif
+            elseif !has_key(seen, e)
                 let seen[e] = 1
                 call add(uniques, e)
             endif
@@ -159,11 +165,16 @@ function! tlib#list#Uniq(list, ...) "{{{3
     else
         for e in a:list
             let v = eval(printf(get_value, string(e)))
-            if !has_key(seen, v)
+            if v == ''
+                if !emptystring
+                    let emptystring = 1
+                    call add(uniques, v)
+                endif
+            elseif !has_key(seen, v)
                 let seen[v] = 1
-                call add(uniques, e)
+                call add(uniques, v)
             endif
-            unlet e
+            unlet e v
         endfor
     endif
     return uniques

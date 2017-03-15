@@ -159,7 +159,7 @@ let s:delimiterMap = {
     \ 'eiffel': { 'left': '--' },
     \ 'elf': { 'left': "'" },
     \ 'elixir': { 'left': '#' },
-    \ 'elm': { 'left': '--' },
+    \ 'elm': { 'left': '--', 'leftAlt': '{--', 'rightAlt': '--}' },
     \ 'elmfilt': { 'left': '#' },
     \ 'ember-script': { 'left': '#' },
     \ 'emblem': { 'left': '/' },
@@ -193,6 +193,7 @@ let s:delimiterMap = {
     \ 'gentoo-package-use': { 'left': '#' },
     \ 'gitcommit': { 'left': '#' },
     \ 'gitconfig': { 'left': ';' },
+    \ 'gitignore': { 'left': '#' },
     \ 'gitrebase': { 'left': '#' },
     \ 'gnuplot': { 'left': '#' },
     \ 'go': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -231,6 +232,7 @@ let s:delimiterMap = {
     \ 'javacc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'javascript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'javascript.jquery': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'javascript.jsx': { 'left': '{/*', 'right': '*/}' },
     \ 'jess': { 'left': ';' },
     \ 'jgraph': { 'left': '(*', 'right': '*)' },
     \ 'jinja': { 'left': '<!--','right': '-->', 'leftAlt': '{#', 'rightAlt': '#}' },
@@ -270,6 +272,7 @@ let s:delimiterMap = {
     \ 'master': { 'left': '$' },
     \ 'matlab': { 'left': '%', 'leftAlt': '%{', 'rightAlt': '%}' },
     \ 'mel': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'meson': { 'left': '#' },
     \ 'mib': { 'left': '--' },
     \ 'mips': { 'left': '#'},
     \ 'mirah': {'left': '#'},
@@ -622,7 +625,7 @@ function s:AppendCommentToLine()
 
     "stick the delimiters down at the end of the line. We have to format the
     "comment with spaces as appropriate
-    execute ":normal! " . insOrApp . (isLineEmpty ? '' : ' ') . left . right 
+    execute ":normal! " . insOrApp . (isLineEmpty ? '' : ' ') . left . right
 
     " if there is a right delimiter then we gotta move the cursor left
     " by the length of the right delimiter so we insert between the delimiters
@@ -1395,7 +1398,7 @@ function s:RemoveDelimiters(left, right, line)
 
         "if the user has specified that there is a space before the right delimiter
         "then check for the space and remove it if it is there
-        if delimsSpaced && strpart(line, rightIndx-s:lenSpaceStr, s:lenSpaceStr) == s:spaceStr && s:Multipart()
+        if delimsSpaced && strpart(line, rightIndx-s:lenSpaceStr, s:lenSpaceStr) == s:spaceStr && (s:Multipart() || s:AltMultipart())
             let line = strpart(line, 0, rightIndx-s:lenSpaceStr) . strpart(line, rightIndx)
         endif
     endif
@@ -1417,7 +1420,7 @@ function s:SetupStateBeforeLineComment(topLine, bottomLine)
     let state = {'foldmethod' : &foldmethod,
                 \'ignorecase' : &ignorecase}
 
-    " Vim's foldmethods are evaluated every time we use 'setline', which can 
+    " Vim's foldmethods are evaluated every time we use 'setline', which can
     " make commenting wide ranges of lines VERY slow. We'll change it to
     " manual, do the commenting stuff and recover it later. To avoid slowing
     " down commenting few lines, we avoid doing this for ranges smaller than
@@ -1622,7 +1625,7 @@ function s:UncommentLinesSexy(topline, bottomline)
         let theLine = s:SwapOuterPlaceHoldersForMultiPartDelims(theLine)
         call setline(bottomline, theLine)
     endif
-    
+
     " remove trailing whitespaces for first and last line
     if g:NERDTrimTrailingWhitespace == 1
         let theLine = getline(a:bottomline)

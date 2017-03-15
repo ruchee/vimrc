@@ -1,8 +1,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     https://github.com/tomtom
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2015-12-04
-" @Revision:    41
+" @Last Change: 2017-02-22
+" @Revision:    42
 
 
 " Enable tracing via |:Tlibassert|.

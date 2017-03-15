@@ -21,6 +21,10 @@ snippet fe      each .. do
 	<% end %>
 snippet end     end
 	<% end %>${0}
+snippet do      do .. end
+	<% ${1} do %>
+	  ${0}
+	<% end %>
 snippet fm      表单
 	<%= form_for ${1} do |${2}| %>
 	  ${0}
@@ -37,6 +41,10 @@ snippet ifcf    判断是否存在局部模版块
 	<% end %>
 snippet cache   缓存数据
 	<% cache(${1}) do %>
+	  ${0}
+	<% end %>
+snippet cap     模版片段暂存进变量
+	<% ${1} = capture do %>
 	  ${0}
 	<% end %>
 snippet bm      测量模版片段的执行时间
@@ -126,6 +134,8 @@ snippet ifp.    生产环境 [多行]
 # 其他
 snippet yi      yield
 	yield${0}
+snippet {       #{ .. }
+	#{${0}
 snippet |       | ... |
 	|${0}|
 snippet <<      { .. }

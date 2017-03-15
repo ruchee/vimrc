@@ -1,7 +1,7 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2015-12-12.
-" @Revision:    59
+" @Last Change: 2017-02-22.
+" @Revision:    61
 
 
 if !exists('g:tlib#sys#special_protocols')
@@ -185,10 +185,7 @@ function! tlib#sys#Open(filename) abort "{{{3
     Tlibtrace 'tlib', a:filename
     if !empty(g:tlib#sys#system_browser) && tlib#sys#IsSpecial(a:filename)
         try
-            let cmd = printf(g:tlib#sys#system_browser, a:filename)
-            " let cmd = printf(g:tlib#sys#system_browser, escape(a:filename, ' %#!'))
-            Tlibtrace 'tlib', cmd
-            exec cmd
+            call tlib#sys#OpenWithSystemViewer(a:filename)
             return 1
         catch
             echohl ErrorMsg
@@ -197,6 +194,15 @@ function! tlib#sys#Open(filename) abort "{{{3
         endtry
     endif
     return 0
+endf
+
+
+" Open filename with the default system viewer.
+function! tlib#sys#OpenWithSystemViewer(filename) abort "{{{3
+    let cmd = printf(g:tlib#sys#system_browser, a:filename)
+    " let cmd = printf(g:tlib#sys#system_browser, escape(a:filename, ' %#!'))
+    Tlibtrace 'tlib', cmd
+    exec cmd
 endf
 
 
