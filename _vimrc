@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-15 15:46:35
+" -----------------    Date: 2017-03-16 20:44:29
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -260,6 +260,7 @@ au BufRead,BufNewFile *.yml.default  set ft=yaml
 au BufRead,BufNewFile *.yml.example  set ft=yaml
 
 au BufRead,BufNewFile CMakeLists.txt set ft=cmake
+
 
 " 设置着色模式和字体
 if g:isWIN
