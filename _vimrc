@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-16 20:44:29
+" -----------------    Date: 2017-03-22 16:59:50
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -560,6 +560,7 @@ let g:snipMate.scope_aliases['slim']            = 'ruby,slim'
 let g:snipMate.scope_aliases['jst']             = 'html,jst'
 let g:snipMate.scope_aliases['mustache']        = 'html,mustache'
 let g:snipMate.scope_aliases['handlebars']      = 'html,mustache'
+let g:snipMate.scope_aliases['vue']             = 'html,vue'
 let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
@@ -659,6 +660,7 @@ let g:syntastic_enable_perl6latest_checker   = 1
 let g:syntastic_python_python_exec           = 'python3'
 let g:syntastic_javascript_checkers          = ['eslint']
 let g:syntastic_typescript_checkers          = ['eslint']
+let g:syntastic_elm_checkers                 = ['elm_make']
 let g:syntastic_enable_racket_racket_checker = 1
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'

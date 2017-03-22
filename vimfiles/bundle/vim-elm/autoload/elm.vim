@@ -1,158 +1,237 @@
-fun! s:elmOracle(...)
-	let project = finddir("elm-stuff/..", ".;")
-	if len(project) == 0
-		echoerr "`elm-stuff` not found! run `elm-package install` for autocomplete."
+let s:errors = []
+
+function! s:elmOracle(...) abort
+	let l:project = finddir('elm-stuff/..', '.;')
+	if len(l:project) == 0
+		echoerr '`elm-stuff` not found! run `elm-package install` for autocomplete.'
 		return []
 	endif
 
-	let filename = expand("%:p")
+	let l:filename = expand('%:p')
 
 	if a:0 == 0
-		let oldiskeyword = &iskeyword
-                " Some non obvious values used in 'iskeyword':
-                "    @     = all alpha
-                "    48-57 = numbers 0 to 9
-                "    @-@   = character @
-                "    124   = |
+		let l:oldiskeyword = &iskeyword
+		" Some non obvious values used in 'iskeyword':
+		"    @     = all alpha
+		"    48-57 = numbers 0 to 9
+		"    @-@   = character @
+		"    124   = |
 		setlocal iskeyword=@,48-57,@-@,_,-,~,!,#,$,%,&,*,+,=,<,>,/,?,.,\\,124,^
-		let word = expand('<cword>')
-		let &iskeyword = oldiskeyword
+		let l:word = expand('<cword>')
+		let &iskeyword = l:oldiskeyword
 	else
-		let word = a:1
+		let l:word = a:1
 	endif
 
-	let infos = system("cd " . shellescape(project) . " && elm-oracle " . shellescape(filename) . " " . shellescape(word))
+	let l:infos = elm#Oracle(l:filename, l:word)
 	if v:shell_error != 0
-		elm#util#EchoError("elm-oracle failed:\n\n", infos)
+		call elm#util#EchoError("elm-oracle failed:\n\n", l:infos)
 		return []
 	endif
 
-	let d = split(infos, '\n')
-	if len(d) > 0
-		return elm#util#DecodeJSON(d[0])
+	let l:d = split(l:infos, '\n')
+	if len(l:d) > 0
+		return elm#util#DecodeJSON(l:d[0])
 	endif
 
 	return []
 endf
 
 " Vim command to format Elm files with elm-format
-fun! elm#Format()
+function! elm#Format() abort
 	" check for elm-format
-	if elm#util#CheckBin("elm-format", "https://github.com/avh4/elm-format") == ""
+	if elm#util#CheckBin('elm-format', 'https://github.com/avh4/elm-format') ==# ''
 		return
 	endif
 
-	" save cursor position and many other things
-	let l:curw=winsaveview()
+	" save cursor position, folds and many other things
+    let l:curw = {}
+    try
+      mkview!
+    catch
+      let l:curw = winsaveview()
+    endtry
+
+    " save our undo file to be restored after we are done.
+    let l:tmpundofile = tempname()
+    exe 'wundo! ' . l:tmpundofile
 
 	" write current unsaved buffer to a temporary file
-	let l:tmpname = tempname() . ".elm"
+	let l:tmpname = tempname() . '.elm'
 	call writefile(getline(1, '$'), l:tmpname)
 
 	" call elm-format on the temporary file
-	let out = system("elm-format " . l:tmpname . " --output " . l:tmpname)
+	let l:out = system('elm-format ' . l:tmpname . ' --output ' . l:tmpname)
 
 	" if there is no error
 	if v:shell_error == 0
 		try | silent undojoin | catch | endtry
 
 		" replace current file with temp file, then reload buffer
-		let old_fileformat = &fileformat
+		let l:old_fileformat = &fileformat
 		call rename(l:tmpname, expand('%'))
 		silent edit!
-		let &fileformat = old_fileformat
+		let &fileformat = l:old_fileformat
 		let &syntax = &syntax
-	else
-		call elm#util#EchoError("elm-format:", out)
+	elseif g:elm_format_fail_silently == 0
+		call elm#util#EchoLater('EchoError', 'elm-format:', l:out)
 	endif
 
-	" restore our cursor/windows positions
-	call winrestview(l:curw)
+    " save our undo history
+    silent! exe 'rundo ' . l:tmpundofile
+    call delete(l:tmpundofile)
+
+	" restore our cursor/windows positions, folds, etc..
+    if empty(l:curw)
+      silent! loadview
+    else
+      call winrestview(l:curw)
+    endif
 endf
 
 " Query elm-oracle and echo the type and docs for the word under the cursor.
-fun! elm#ShowDocs()
+function! elm#ShowDocs() abort
 	" check for the elm-oracle binary
-	if elm#util#CheckBin("elm-oracle", "https://github.com/elmcast/elm-oracle") == ""
+	if elm#util#CheckBin('elm-oracle', 'https://github.com/elmcast/elm-oracle') ==# ''
 		return
 	endif
 
-	let response = s:elmOracle()
+	let l:response = s:elmOracle()
 
-	if len(response) > 0
-		let info = response[0]
-		redraws! | echohl Identifier | echon info.fullName | echohl None | echon " : " | echohl Function | echon info.signature | echohl None | echon "\n\n" . info.comment
+	if len(l:response) > 0
+		let l:info = l:response[0]
+		redraws! | echohl Identifier | echon l:info.fullName | echohl None | echon ' : ' | echohl Function | echon l:info.signature | echohl None | echon "\n\n" . l:info.comment
 	else
-		call elm#util#Echo("elm-oracle:", "...no match found")
+		call elm#util#Echo('elm-oracle:', '...no match found')
 	endif
 endf
 
 " Query elm-oracle and open the docs for the word under the cursor.
-fun! elm#BrowseDocs()
+function! elm#BrowseDocs() abort
 	" check for the elm-oracle binary
-	if elm#util#CheckBin("elm-oracle", "https://github.com/elmcast/elm-oracle") == ""
+	if elm#util#CheckBin('elm-oracle', 'https://github.com/elmcast/elm-oracle') ==# ''
 		return
 	endif
 
-	let response = s:elmOracle()
+	let l:response = s:elmOracle()
 
-	if len(response) > 0
-		let info = response[0]
-		call elm#util#OpenBrowser(info.href)
+	if len(l:response) > 0
+		let l:info = l:response[0]
+		call elm#util#OpenBrowser(l:info.href)
 	else
-		call elm#util#Echo("elm-oracle:", "...no match found")
+		call elm#util#Echo('elm-oracle:', '...no match found')
 	endif
 endf
 
-" Make the given file, or the current file if none is given.
-fun! elm#Make(...)
-	" check for elm-make
-	if elm#util#CheckBin("elm-make", "http://elm-lang.org/install") == ""
-		return
-	endif
 
-	call elm#util#Echo("elm-make:", "building...")
+function! elm#Syntastic(input) abort
+	let l:fixes = []
 
-	let filename = (a:0 == 0) ? expand("%") : a:1
-	let reports = system("elm-make --report=json " . shellescape(filename) . " --output=" . shellescape(g:elm_make_output_file))
+	let l:bin = 'elm-make'
+	let l:format = '--report=json'
+	let l:input = shellescape(a:input)
+	let l:output = '--output=' . shellescape(syntastic#util#DevNull())
+	let l:command = l:bin . ' ' . l:format  . ' ' . l:input . ' ' . l:output
+	let l:reports = s:ExecuteInRoot(l:command)
 
+	for l:report in split(l:reports, '\n')
+		if l:report[0] ==# '['
+            for l:error in elm#util#DecodeJSON(l:report)
+                if g:elm_syntastic_show_warnings == 0 && l:error.type ==? 'warning'
+                else
+                    if a:input == l:error.file
+                        call add(s:errors, l:error)
+                        call add(l:fixes, {'filename': l:error.file,
+                                    \'valid': 1,
+                                    \'bufnr': bufnr('%'),
+                                    \'type': (l:error.type ==? 'error') ? 'E' : 'W',
+                                    \'lnum': l:error.region.start.line,
+                                    \'col': l:error.region.start.column,
+                                    \'text': l:error.overview})
+                    endif
+                endif
+            endfor
+        endif
+	endfor
+
+	return l:fixes
+endf
+
+function! elm#Build(input, output, show_warnings) abort
 	let s:errors = []
-	let fixes = []
-	let rawlines = []
+	let l:fixes = []
+	let l:rawlines = []
 
-	" Parse reports into errors and raw lines of text.
-	" Save error reports for use with ErrorDetails.
-	for report in split(reports, '\n')
-		if report[0] == '['
-			for error in elm#util#DecodeJSON(report)
-				" Filter out warnings if user only wants to see errors.
-				if g:elm_make_show_warnings == 0 && error.type == "warning"
+	let l:bin = 'elm-make'
+	let l:format = '--report=json'
+	let l:input = shellescape(a:input)
+	let l:output = '--output=' . shellescape(a:output)
+	let l:command = l:bin . ' ' . l:format  . ' ' . l:input . ' ' . l:output
+	let l:reports = s:ExecuteInRoot(l:command)
+
+	for l:report in split(l:reports, '\n')
+		if l:report[0] ==# '['
+			for l:error in elm#util#DecodeJSON(l:report)
+				if a:show_warnings == 0 && l:error.type ==? 'warning'
 				else
-					call add(s:errors, error)
-					call add(fixes, {"filename": error.file,
-								\"type": (error.type == "error") ? 'E' : 'W',
-								\"lnum": error.region.start.line,
-								\"col": error.region.start.column,
-								\"text": error.overview})
+					call add(s:errors, l:error)
+					call add(l:fixes, {'filename': l:error.file,
+								\'valid': 1,
+								\'type': (l:error.type ==? 'error') ? 'E' : 'W',
+								\'lnum': l:error.region.start.line,
+								\'col': l:error.region.start.column,
+								\'text': l:error.overview})
 				endif
 			endfor
 		else
-			call add(rawlines, report)
+			call add(l:rawlines, l:report)
 		endif
 	endfor
 
-	" Echo messages and add fixes to the quickfix window.
-	if len(fixes) > 0
-		call elm#util#EchoWarning("", "found " . len(fixes) . " errors")
+	let l:details = join(l:rawlines, "\n")
+	let l:lines = split(l:details, "\n")
+	if !empty(l:lines)
+		let l:overview = l:lines[0]
+	else
+		let l:overview = ''
+	endif
 
-		call setqflist(fixes, 'r')
+	if l:details ==# '' || l:details =~? '^Successfully.*'
+	else
+		call add(s:errors, {'overview': l:details, 'details': l:details})
+		call add(l:fixes, {'filename': expand('%', 1),
+					\'valid': 1,
+					\'type': 'E',
+					\'lnum': 0,
+					\'col': 0,
+					\'text': l:overview})
+	endif
+
+	return l:fixes
+endf
+
+" Make the given file, or the current file if none is given.
+function! elm#Make(...) abort
+	if elm#util#CheckBin('elm-make', 'http://elm-lang.org/install') ==# ''
+		return
+	endif
+
+	call elm#util#Echo('elm-make:', 'building...')
+
+	let l:input = (a:0 == 0) ? expand('%:p') : a:1
+	let l:fixes = elm#Build(l:input, g:elm_make_output_file, g:elm_make_show_warnings)
+
+	if len(l:fixes) > 0
+		call elm#util#EchoWarning('', 'found ' . len(l:fixes) . ' errors')
+
+		call setqflist(l:fixes, 'r')
 		cwindow
 
-		if get(g:, "elm_jump_to_error", 1)
-			cc 1
+		if get(g:, 'elm_jump_to_error', 1)
+			ll 1
 		endif
 	else
-		call elm#util#EchoSuccess("", join(rawlines, "\n"))
+		call elm#util#EchoSuccess('', 'Sucessfully compiled')
 
 		call setqflist([])
 		cwindow
@@ -160,88 +239,140 @@ fun! elm#Make(...)
 endf
 
 " Show the detail of the current error in the quickfix window.
-fun! elm#ErrorDetail()
-	if !empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") ==# "quickfix"'))
-		exec ":copen"
-		let linenr = line(".")
-		exec ":wincmd p"
+function! elm#ErrorDetail() abort
+	if !empty(filter(tabpagebuflist(), 'getbufvar(v:val, "&buftype") ==? "quickfix"'))
+		exec ':copen'
+		let l:linenr = line('.')
+		exec ':wincmd p'
 		if len(s:errors) > 0
-			let detail = s:errors[linenr-1].details
-			if detail == ""
-				let detail = s:errors[linenr-1].overview
+			let l:detail = s:errors[l:linenr-1].details
+			if l:detail ==# ''
+				let l:detail = s:errors[l:linenr-1].overview
 			endif
-			echo detail
+			echo l:detail
 		endif
 	endif
 endf
 
-" Test the given file, or the current file with 'Test' added if none is given.
-fun! elm#Test(...)
-	" check for elm-test
-	if elm#util#CheckBin("elm-test", "https://github.com/rtfeldman/node-elm-test") == ""
-		return
-	endif
-
-	let l:file = (a:0 == 0) ? "Test" . expand("%") : a:1
-	echo system("elm-test " . shellescape(l:file))
-endf
-
 " Open the elm repl in a subprocess.
-fun! elm#Repl()
+function! elm#Repl() abort
 	" check for the elm-repl binary
-	if elm#util#CheckBin("elm-repl", "http://elm-lang.org/install") == ""
+	if elm#util#CheckBin('elm-repl', 'http://elm-lang.org/install') ==# ''
 		return
 	endif
 
 	if has('nvim')
-		call termopen("elm-repl")
+		term('elm-repl')
 	else
 		!elm-repl
 	endif
 endf
 
-let s:fullComplete = ""
+function! elm#Oracle(filepath, word) abort
+	let l:bin = 'elm-oracle'
+	let l:filepath = shellescape(a:filepath)
+	let l:word = shellescape(a:word)
+	let l:command = l:bin . ' ' . l:filepath . ' ' . l:word
+	return s:ExecuteInRoot(l:command)
+endfunction
+
+let s:fullComplete = ''
 
 " Complete the current token using elm-oracle
-fun! elm#Complete(findstart, base)
+function! elm#Complete(findstart, base) abort
+" a:base is unused, but the callback function for completion expects 2 arguments
 	if a:findstart
-		let line = getline('.')
+		let l:line = getline('.')
 
-		let idx = col('.') - 1
-		let start = 0
-		while idx > 0 && line[idx - 1] =~ '[a-zA-Z0-9_\.]'
-			if line[idx - 1] == "." && start == 0
-				let start = idx
+		let l:idx = col('.') - 1
+		let l:start = 0
+		while l:idx > 0 && l:line[l:idx - 1] =~# '[a-zA-Z0-9_\.]'
+			if l:line[l:idx - 1] ==# '.' && l:start == 0
+				let l:start = l:idx
 			endif
-			let idx -= 1
+			let l:idx -= 1
 		endwhile
 
-		if start == 0
-			let start = idx
+		if l:start == 0
+			let l:start = l:idx
 		endif
 
-		let s:fullComplete = line[idx : col('.')-2]
+		let s:fullComplete = l:line[l:idx : col('.')-2]
 
-		return start
+		return l:start
 	else
 		" check for the elm-oracle binary
-		if elm#util#CheckBin("elm-oracle", "https://github.com/elmcast/elm-oracle") == ""
+		if elm#util#CheckBin('elm-oracle', 'https://github.com/elmcast/elm-oracle') ==# ''
 			return []
 		endif
 
-		let res = []
-		let response = s:elmOracle(s:fullComplete)
+		let l:res = []
+		let l:response = s:elmOracle(s:fullComplete)
 
-		let detailed = get(g:, 'elm_detailed_complete', 0)
+		let l:detailed = get(g:, 'elm_detailed_complete', 0)
 
-		for r in response
-			let menu = ''
-			if detailed
-				let menu = ': ' . r.signature
+		for l:r in l:response
+			let l:menu = ''
+			if l:detailed
+				let l:menu = ': ' . l:r.signature
 			endif
-			call add(res, {'word': r.name, 'menu': menu})
+			call add(l:res, {'word': l:r.name, 'menu': l:menu})
 		endfor
 
-		return res
+		return l:res
 	endif
 endf
+
+" If the current buffer contains a consoleRunner, run elm-test with it.
+" Otherwise run elm-test in the root of your project which deafults to
+" running 'elm-test tests/TestRunner'.
+function! elm#Test() abort
+	if elm#util#CheckBin('elm-test', 'https://github.com/rtfeldman/node-elm-test') ==# ''
+		return
+	endif
+
+	if match(getline(1, '$'), 'consoleRunner') < 0
+		let l:out = s:ExecuteInRoot('elm-test')
+		call elm#util#EchoSuccess('elm-test', l:out)
+	else
+		let l:filepath = shellescape(expand('%:p'))
+		let l:out = s:ExecuteInRoot('elm-test ' . l:filepath)
+		call elm#util#EchoSuccess('elm-test', l:out)
+	endif
+endf
+
+" Returns the closest parent with an elm-package.json file.
+function! elm#FindRootDirectory() abort
+	let l:elm_root = getbufvar('%', 'elmRoot')
+	if empty(l:elm_root)
+		let l:current_file = expand('%:p')
+		let l:dir_current_file = fnameescape(fnamemodify(l:current_file, ':h'))
+		let l:match = findfile('elm-package.json', l:dir_current_file . ';')
+		if empty(l:match)
+			let l:elm_root = ''
+		else
+			let l:elm_root = fnamemodify(l:match, ':p:h')
+		endif
+
+		if !empty(l:elm_root)
+			call setbufvar('%', 'elmRoot', l:elm_root)
+		endif
+	endif
+	return l:elm_root
+endfunction
+
+" Executes a command in the project directory.
+function! s:ExecuteInRoot(cmd) abort
+	let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+	let l:current_dir = getcwd()
+	let l:root_dir = elm#FindRootDirectory()
+
+	try
+		execute l:cd . fnameescape(l:root_dir)
+		let l:out = system(a:cmd)
+	finally
+		execute l:cd . fnameescape(l:current_dir)
+	endtry
+
+	return l:out
+endfunction

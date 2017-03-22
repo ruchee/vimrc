@@ -18,10 +18,6 @@ setlocal commentstring=#=%s=#
 setlocal cinoptions+=#1
 setlocal define="^\s*macro\>"
 
-" Comment the following line if you don't want operators to be
-" syntax-highlightened
-let g:julia_highlight_operators = 1
-
 let b:julia_vim_loaded = 1
 
 let b:undo_ftplugin = "setlocal include< suffixesadd< comments< commentstring<"
@@ -34,7 +30,7 @@ if exists("loaded_matchit")
 
   " note: begin_keywords must contain all blocks in order
   " for nested-structures-skipping to work properly
-  let b:julia_begin_keywords = '\%(\.\s*\)\@<!\<\%(\%(staged\)\?function\|macro\|begin\|type\|immutable\|let\|do\|\%(bare\)\?module\|quote\|if\|for\|while\|try\)\>'
+  let b:julia_begin_keywords = '\%(\.\s*\)\@<!\<\%(\%(staged\)\?function\|macro\|begin\|mutable\s\+struct\|\%(mutable\s\+\)\@<!struct\|\%(abstract\|primitive\)\s\+type\|\%(\(abstract\|primitive\)\s\+\)\@<!type\|immutable\|let\|do\|\%(bare\)\?module\|quote\|if\|for\|while\|try\)\>'
   let s:macro_regex = '@\%(#\@!\S\)\+\s\+'
   let s:nomacro = '\%(' . s:macro_regex . '\)\@<!'
   let s:yesmacro = s:nomacro . '\%('. s:macro_regex . '\)\+'
@@ -66,7 +62,7 @@ if exists("loaded_matchit")
     elseif attr == 'juliaException'
       return b:julia_begin_keywordsm . ':\<\%(catch\|finally\)\>:' . b:julia_end_keywords
     endif
-    return ''
+    return '\<\>:\<\>'
   endfunction
 
   let b:match_words = 'JuliaGetMatchWords()'
@@ -75,7 +71,7 @@ if exists("loaded_matchit")
   " the 'end' keyword when it is used as a range rather than as
   " the end of a block
   let b:match_skip = 'synIDattr(synID(line("."),col("."),1),"name") =~ '
-        \ . '"\\<julia\\%(ComprehensionFor\\|RangeEnd\\|QuotedBlockKeyword\\|InQuote\\|Comment[LM]\\|\\%([bv]\\|ip\\|MIME\\|Tri\\|Shell\\)\\?String\\|RegEx\\)\\>"'
+        \ . '"\\<julia\\%(Comprehension\\%(For\\|If\\)\\|RangeEnd\\|SymbolS\\?\\|Comment[LM]\\|\\%([bv]\\|ip\\|MIME\\|Shell\|Doc\\)\\?String\\|RegEx\\)\\>"'
 
   let b:undo_ftplugin = b:undo_ftplugin
         \ . " | unlet! b:match_words b:match_skip b:match_ignorecase"

@@ -5,7 +5,7 @@
 ``` bash
 cd ~/.vim
 mkdir -p bundle && cd bundle
-git clone git://github.com/JuliaLang/julia-vim.git
+git clone git://github.com/JuliaEditorSupport/julia-vim.git
 ```
 
 ### Using [vundle]
@@ -13,7 +13,7 @@ git clone git://github.com/JuliaLang/julia-vim.git
 Add a new plugin line to your `.vimrc`:
 
 ``` vim
-Plugin 'JuliaLang/julia-vim'
+Plugin 'JuliaEditorSupport/julia-vim'
 ```
 
 Run `vim` and update your bundles:
@@ -22,15 +22,33 @@ Run `vim` and update your bundles:
 :PluginInstall!
 ```
 
+### Using [vim-plug]
+
+Add a new plugin line to your `.vimrc`:
+
+``` vim
+Plug 'JuliaEditorSupport/julia-vim'
+```
+
+**Note:** do *not* use the on-demand loading feature of vim-plug.
+Most of the plugin is loaded on-demand anyway.
+
+Run `vim` and update your bundles:
+
+``` vim
+:PlugInstall
+```
+
 [pathogen]: https://github.com/tpope/vim-pathogen
 [vundle]: https://github.com/gmarik/vundle
+[vim-plug]: https://github.com/junegunn/vim-plug
 
 ### Manually
 
 Copy (or symlink) the contents of this repository into the vim application support directory:
 
 ``` bash
-git clone git://github.com/JuliaLang/julia-vim.git
+git clone git://github.com/JuliaEditorSupport/julia-vim.git
 cd julia-vim
 mkdir -p ~/.vim
 cp -R * ~/.vim
@@ -174,17 +192,17 @@ distributed with ViM but must be explicitly enabled, e.g. adding this to your `.
 runtime macros/matchit.vim
 ```
 
-Or you can use the code at [https://github.com/edsono/matchit] and install it as a plug-in.
-
 The default mappings use `]]`, `][`, `[[`, `[]`, `]j`, `]J`, `[j`, and `[J` for the movements
 and `aj`, `ij` for the selections. These can be disabled collectively by setting `g:julia_blocks` to `0`,
 or they can be remapped and/or disabled individually by defining a `g:julia_blocks_mapping` variable.
 See the documentation for details.
 
+Note that this feature requires Vim version 7.4 or higher.
+
 ## Changing syntax highlighting depending on the Julia version
 
 The pluign supports syntax highlighting different versions of Julia. By default, the highlighting scheme assumes
-the latest stable release of Julia (currently, version 0.4), but the previous one and the latest version under
+the latest stable release of Julia (currently, version 0.5), but the previous one and the latest version under
 development are also supported. You can set a global default in your `.vimrc`, e.g. if you follow Julia's master
 you can use:
 
@@ -192,15 +210,15 @@ you can use:
 let g:default_julia_version = "devel"
 ```
 
-or if you are still using Julia 0.3 you can use:
+or if you are still using Julia 0.4 you can use:
 
 ```
-let g:default_julia_versoin = "0.3"
+let g:default_julia_version = "0.4"
 ```
 
 You can also switch version for a particular buffer, by using the `julia#set_syntax_version()` function, e.g.
 by typing in Vim:
 
 ```
-:call julia#set_syntax_version("0.3")
+:call julia#set_syntax_version("0.4")
 ```
