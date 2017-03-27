@@ -1,147 +1,367 @@
-Python syntax highlighting script for Vim
-=========================================
+|logo| Python-mode, Python in VIM
+#################################
+
+.. image:: https://travis-ci.org/klen/python-mode.png?branch=develop
+    :target: https://travis-ci.org/klen/python-mode
+
+-----
+
+*The project needs contributors*
+
+** Python-mode Slack Channel is here: https://python-mode.herokuapp.com/ **
+
+-----
+
+|
+| Src:  https://github.com/klen/python-mode
+| Homepage: https://klen.github.io/python-mode/
+| Docs: https://github.com/klen/python-mode/blob/develop/doc/pymode.txt
+|
+
+Python-mode is a vim plugin that helps you to create python code very quickly
+by utilizing libraries including
+`pylint`_, `rope`_, pydoc_, `pyflakes`_, `pep8`_, `autopep8`_,
+`pep257`_ and `mccabe`_
+for features like static analysis, refactoring, folding, completion,
+documentation, and more.
+
+The plugin contains all you need to develop python applications in Vim.
+
+There is no need to install `pylint`_, `rope`_
+or any other `Python Libraries`_ on your system.
+
+- Support Python version 2.6+ and 3.2+
+- Syntax highlighting
+- Virtualenv support
+- Run python code (``<leader>r``)
+- Add/remove breakpoints (``<leader>b``)
+- Improved Python indentation
+- Python folding
+- Python motions and operators (``]]``, ``3[[``, ``]]M``, ``vaC``, ``viM``,
+  ``daC``, ``ciM``, ...)
+- Code checking  (pylint_, pyflakes_, pylama_, ...) that can be run
+  simultaneously (``:PymodeLint``)
+- Autofix PEP8 errors (``:PymodeLintAuto``)
+- Search in python documentation (``K``)
+- Code refactoring <rope refactoring library> (rope_)
+- Strong code completion (rope_)
+- Go to definition (``<C-c>g`` for `:RopeGotoDefinition`)
+- And more, more ...
+
+See (very old) screencast here: http://www.youtube.com/watch?v=67OZNp9Z0CQ
+(sorry for quality, this is my first screencast) Another old presentation here:
+http://www.youtube.com/watch?v=YhqsjUUHj6g
+
+**To read python-mode documentation in Vim, see** ``:help pymode``
+
 
 .. contents::
 
-About
------
 
-Enhanced version of the original Python syntax highlighting script. Based on
-``python.vim`` from Vim 6.1 distribution by Neil Schemenauer (nas at python dot
-ca). Check also `python.vim page on vim.org
-<http://www.vim.org/scripts/script.php?script_id=790>`_.
+Requirements
+============
 
-Please use the following channels for reporting bugs, offering suggestions or
-feedback:
+- VIM >= 7.3 (mostly features needed `+python` or `+python3` support)
+  (also ``--with-features=big`` if you want ``g:pymode_lint_signs``)
 
-- python.vim issue tracker: https://github.com/hdima/python-syntax/issues
-- Email: Dmitry Vasiliev (dima at hlabs.org)
-- Send a message or follow me for updates on Twitter: `@hdima
-  <https://twitter.com/hdima>`__
-
-Features
---------
-
-Changes from the original ``python.vim`` are:
-
-- Added support for Python 3 syntax highlighting
-- Added ``:Python2Syntax`` and ``:Python3Syntax`` commands which allow to
-  switch between Python 2 and Python 3 syntaxes respectively without
-  reloads/restarts
-- Updated strings highlighting
-- Enhanced special symbols highlighting inside strings
-- Enhanced highlighting of numeric constants
-- Added optional highlighting for %-formatting inside strings
-- Added highlighting for magic comments: source code encoding and #!
-  (executable) strings
-- Added highlighting for new exceptions and builtins
-- Added highlighting for doctests
-- Added highlighting for new ``@decorator`` syntax introduced in Python 2.4a2
-- Added highlighting for the following errors:
-
-  - invalid symbols in source file
-  - mixing spaces and tabs
-  - invalid numeric constants
-  - invalid %-formatting inside strings
-  - invalid variable names
-  - trailing spaces (triggered by the ``python_highlight_space_errors`` option)
-
-Some of these features was later backported into the original ``python.vim``.
 
 How to install
---------------
+==============
 
-The easiest installation method is to place `syntax/python.vim
-<https://github.com/hdima/python-syntax/blob/master/syntax/python.vim>`_ script
-into your ``~/.vim/syntax/`` directory.
+Using pathogen (recommended)
+----------------------------
+::
 
-You can also use `Pathogen <https://github.com/tpope/vim-pathogen>`_ or `Vundle
-<https://github.com/gmarik/vundle>`_ plugin managers in which case you can
-install the whole `python.vim repository
-<https://github.com/hdima/python-syntax>`_ into the corresponding plugins
-directory.
+    % cd ~/.vim
+    % mkdir -p bundle && cd bundle
+    % git clone https://github.com/klen/python-mode.git
 
-Script options
---------------
+- Enable `pathogen <https://github.com/tpope/vim-pathogen>`_
+  in your ``~/.vimrc``: ::
 
-There are two commands to enable or disable an option:
+    " Pathogen load
+    filetype off
 
-``:let OPTION_NAME = 1``
-  Enable option
-``:let OPTION_NAME = 0``
-  Disable option
+    call pathogen#infect()
+    call pathogen#helptags()
 
-For example to enable all syntax highlighting features you can place the
-following command in your ``~/.vimrc`` script::
+    filetype plugin indent on
+    syntax on
 
-  let python_highlight_all = 1
 
-Option and commands to select Python version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Manually
+--------
+::
 
-``python_version_2``
-  Enable highlighting for Python 2 (Python 3 highlighting is enabled by
-  default). Also can be set as a local to buffer ``b:python_version_2``
-  variable.
+    % git clone https://github.com/klen/python-mode.git
+    % cd python-mode
+    % cp -R * ~/.vim
 
-The following local to buffer commands can be used to switch between two
-highlighting modes:
+Then rebuild **helptags** in vim::
 
-``:Python2Syntax``
-  Switch to Python 2 highlighting mode
-``:Python3Syntax``
-  Switch to Python 3 highlighting mode
+    :helptags ~/.vim/doc/
 
-Options used by the script
-~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``python_highlight_builtins``
-  Highlight builtin functions and objects
-``python_highlight_builtin_objs``
-  Highlight builtin objects only
-``python_highlight_builtin_funcs``
-  Highlight builtin functions only
-``python_highlight_exceptions``
-  Highlight standard exceptions
-``python_highlight_string_formatting``
-  Highlight ``%`` string formatting
-``python_highlight_string_format``
-  Highlight syntax of ``str.format`` syntax
-``python_highlight_string_templates``
-  Highlight syntax of ``string.Template``
-``python_highlight_indent_errors``
-  Highlight indentation errors
-``python_highlight_space_errors``
-  Highlight trailing spaces
-``python_highlight_doctests``
-  Highlight doc-tests
-``python_print_as_function``
-  Highlight ``print`` statement as function for Python 2
-``python_highlight_file_headers_as_comments``
-  Highlight shebang and coding headers as comments
-``python_highlight_all``
-  Enable all the options above. *NOTE: This option don't override any
-  previously set options*
-``python_slow_sync``
-  Can be set to 0 for slow machines
+.. note:: **filetype-plugin**  (``:help filetype-plugin-on``) and
+   **filetype-indent** (``:help filetype-indent-on``)
+   must be enabled to use python-mode.
 
-Contributors
-------------
 
-List of the contributors in alphabetical order:
+Debian packages
+---------------
+|Repository URL: https://klen.github.io/python-mode/deb/
 
-- `Andrea Riciputi <https://github.com/mrrech>`_
-- Anton Butanaev
-- `Antony Lee <https://github.com/anntzer>`_
-- Caleb Adamantine
-- `David Briscoe <https://github.com/idbrii>`_
-- `Elizabeth Myers <https://github.com/Elizafox>`_
-- `Ihor Gorobets <https://github.com/iho>`_
-- `Jeroen Ruigrok van der Werven <https://github.com/ashemedai>`_
-- `John Eikenberry <https://github.com/eikenb>`_
-- `Joongi Kim <https://github.com/achimnol>`_
-- `Marc Weber <https://github.com/MarcWeber>`_
-- `Pedro Algarvio <https://github.com/s0undt3ch>`_
-- `Victor Salgado <https://github.com/mcsalgado>`_
-- `Will Gray <https://github.com/graywh>`_
-- `Yuri Habrusiev <https://github.com/yuriihabrusiev>`_
+Install with commands:
+
+::
+
+     add-apt-repository https://klen.github.io/python-mode/deb main
+     apt-get update
+     apt-get install vim-python-mode
+
+If you are getting the message: "The following signatures couldn't be verified because the public key is not available": ::
+
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B5DF65307000E266
+
+`vim-python-mode` using `vim-addons`, so after installation just enable
+`python-mode` with command: ::
+
+    vim-addons install python-mode
+
+
+Troubleshooting
+===============
+
+If your python-mode doesn't work:
+
+1. Load Vim with only python-mode enabled (use `debug.vim` from pymode): ::
+
+    vim -u <path_to_pymode>/debug.vim
+
+And try to repeat your case. If no error occurs, seems like problem isn't in the
+plugin.
+
+2. Type `:PymodeTroubleshooting`
+
+And fix any warnings or copy the output and send it to me. (For example, by
+creating a `new github issue <https://github.com/klen/python-mode/issues/new>`_
+if one does not already exist for the problem).
+
+
+Customization
+=============
+
+You can override the default key bindings by redefining them in your `.vimrc`, for example: ::
+
+    " Override go-to.definition key shortcut to Ctrl-]
+    let g:pymode_rope_goto_definition_bind = "<C-]>"
+
+    " Override run current python file key shortcut to Ctrl-Shift-e
+    let g:pymode_run_bind = "<C-S-e>"
+
+    " Override view python doc key shortcut to Ctrl-Shift-d
+    let g:pymode_doc_bind = "<C-S-d>"
+
+
+Frequent Problems
+=================
+
+Read this section before opening an issue on the tracker.
+
+Python 3 Syntax
+---------------
+
+By default python-mode uses python 2 syntax checking. To enable python 3
+syntax checking (e.g. for async) add::
+
+    let g:pymode_python = 'python3'
+
+To your vimrc or exrc file
+
+
+Documentation
+=============
+
+Documentation is available in your vim ``:help pymode``
+
+
+Bugtracker
+===========
+
+If you have any suggestions, bug reports or
+annoyances please report them to the issue tracker
+at https://github.com/klen/python-mode/issues
+
+
+Contributing
+============
+
+* Kirill Klenov (horneds@gmail.com)
+* Bryce Guinta (https://github.com/brycepg)
+
+Also see the `AUTHORS` file.
+
+Development of python-mode happens at github:
+https://github.com/klen/python-mode
+
+Please make a pull request to `development` branch and add yourself to
+`AUTHORS`.
+
+Source Links
+===================
+- `doc/pymode.txt
+  <https://github.com/klen/python-mode/blob/develop/doc/pymode.txt>`__
+  -- ``:help pymode``
+- `plugin/pymode.vim
+  <https://github.com/klen/python-mode/blob/develop/plugin/pymode.vim>`__
+  -- python-mode VIM plugin
+- `syntax/python.vim
+  <https://github.com/klen/python-mode/blob/develop/syntax/python.vim>`__
+  -- python-mode ``python.vim`` VIM syntax
+- `syntax/pyrex.vim
+  <https://github.com/klen/python-mode/blob/develop/syntax/pyrex.vim>`__
+  -- ``pyrex.vim`` VIM syntax (pyrex, Cython)
+- `t/
+  <https://github.com/klen/python-mode/tree/develop/t>`__
+  -- ``*.vim`` more python-mode VIM configuration
+- `pymode/
+  <https://github.com/klen/python-mode/tree/develop/pymode>`__
+  -- ``*.py`` -- python-mode Python module
+- `pymode/libs/
+  <https://github.com/klen/python-mode/tree/develop/pymode/libs>`__
+  -- ``*.py`` -- `Python Libraries <#python-libraries>`__
+
+
+Python Libraries
+------------------
+Vendored Python modules are located
+mostly in
+`pymode/libs/ <https://github.com/klen/python-mode/tree/develop/pymode/libs>`__.
+
+
+======
+rope
+======
+| PyPI: https://pypi.python.org/pypi/rope
+| Src: https://github.com/python-rope/rope
+| Docs: https://github.com/python-rope/rope/blob/master/docs/overview.rst
+| Docs: https://github.com/python-rope/rope/blob/master/docs/library.rst
+
+========================
+ropemode
+========================
+| PyPI: https://pypi.python.org/pypi/ropemode
+| Src: https://github.com/python-rope/ropemode
+
+=========
+ropevim
+=========
+| PyPI: https://pypi.python.org/pypi/ropevim
+| Src: https://github.com/python-rope/ropevim
+| Docs: https://github.com/python-rope/ropevim/blob/master/doc/ropevim.txt
+
+=======
+pylama
+=======
+| PyPI: https://pypi.python.org/pypi/pylama
+| Src: https://github.com/klen/pylama
+
+========
+pylint
+========
+| PyPI: https://pypi.python.org/pypi/pylint
+| Src: https://bitbucket.org/logilab/pylint
+| Homepage: http://www.pylint.org/
+| Docs: http://docs.pylint.org/
+| Docs: http://docs.pylint.org/message-control.html
+| Docs: http://docs.pylint.org/faq.html#message-control
+| ErrCodes: http://pylint-messages.wikidot.com/all-codes
+| ErrCodes: http://pylint-messages.wikidot.com/all-messages
+
+==========
+pyflakes
+==========
+| PyPI: https://pypi.python.org/pypi/pyflakes
+| Src: https://github.com/pyflakes/pyflakes
+| ErrCodes: https://flake8.readthedocs.org/en/latest/warnings.html
+
+======
+pep8
+======
+| PyPI: https://pypi.python.org/pypi/pep8
+| Src: http://github.com/jcrocholl/pep8
+| PEP 8: http://www.python.org/dev/peps/pep-0008/
+| PEP 8: http://legacy.python.org/dev/peps/pep-0008/
+| Docs: https://pep8.readthedocs.org/en/latest/
+| Docs: https://pep8.readthedocs.org/en/latest/intro.html#configuration
+| ErrCodes: https://pep8.readthedocs.org/en/latest/intro.html#error-codes
+
+=========
+autopep8
+=========
+| PyPI: https://pypi.python.org/pypi/autopep8
+| Src: https://github.com/hhatto/autopep8
+
+=======
+pep257
+=======
+| PyPI: https://pypi.python.org/pypi/pep257
+| Src: http://github.com/GreenSteam/pep257
+| Docs: https://pep257.readthedocs.org/en/latest/
+| PEP 257: http://www.python.org/dev/peps/pep-0257/
+| ErrCodes: https://pep257.readthedocs.org/en/latest/error_codes.html
+
+=======
+mccabe
+=======
+| PyPI: https://pypi.python.org/pypi/mccabe
+| Src: https://github.com/flintwork/mccabe
+| Docs: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+
+
+Vim Libraries
+---------------
+Vendored Vim modules are located mostly in ``t/``.
+
+======================
+Python syntax for vim
+======================
+| Src: http://www.hlabs.spb.ru/vim/python.vim
+
+
+=====================
+PEP8 VIM indentation
+=====================
+| Src: http://github.com/hynek/vim-python-pep8-indent
+
+
+
+Copyright
+=========
+
+Copyright © 2013-2015 Kirill Klenov (klen_)
+
+License
+=======
+
+Licensed under a `GNU lesser general public license`_.
+
+If you like this plugin, I would very appreciated if you kindly send me a postcard :)
+My address is here: "Russia, 143500, MO, Istra, pos. Severny 8-3" to "Kirill Klenov".
+**Thanks for support!**
+
+.. _GNU lesser general public license: http://www.gnu.org/copyleft/lesser.html
+.. _klen: https://klen.github.com/
+.. _pydoc: http://docs.python.org/library/pydoc.html
+.. _pathogen: https://github.com/tpope/vim-pathogen
+.. _rope_: https://pypi.python.org/pypi/rope
+.. _pylama_: https://github.com/klen/pylama
+.. _pylint_: https://bitbucket.org/logilab/pylint
+.. _pyflakes_: https://pypi.python.org/pypi/pyflakes
+.. _autopep8_: https://github.com/hhatto/autopep8
+.. _pep257_: http://github.com/GreenSteam/pep257
+.. _mccabe_: https://github.com/flintwork/mccabe
+.. _pythonvim: http://www.hlabs.spb.ru/vim/python.vim
+.. _pep8_: http://github.com/jcrocholl/pep8
+.. _pep8indent: http://github.com/hynek/vim-python-pep8-indent
+.. |logo| image:: https://raw.github.com/klen/python-mode/develop/logo.png

@@ -1,6 +1,3 @@
---- complete-dict - Created by Ryan Kulla using Python 2.6 on Ubuntu Linux 9.04 on July 23rd 2009 ---
-
---- Python Keywords (These were manually inputted) ---
 and
 del
 for
@@ -31,7 +28,6 @@ finally
 in
 print
 
---- string type attributes and methods. (These were manually inputted). Only works with quotes not objects. eg 'foo'.startswith(  ---
 .__add__
 .__class__
 .__contains__
@@ -93717,5 +93713,4 @@ formatter.Formatter(
 formatter.__all__
 formatter.get_bool_opt(
 formatter.get_style_by_name(
-
---- from pygments.formatter import * ---
+- from pygments.formatter import * ---

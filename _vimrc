@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-27 15:14:13
+" -----------------    Date: 2017-03-27 17:46:15
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -507,19 +507,23 @@ endfunction
 " 开启部分语法高亮的非默认特性
 let g:cpp_class_scope_highlight           = 1  " 高亮C++ class scope
 let g:cpp_experimental_template_highlight = 1  " 高亮C++ template functions
+
 let g:go_auto_type_info                   = 0  " 关闭Go语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
 let g:go_def_mapping_enabled              = 0  " 关闭Go语言对gd的绑定
 let g:go_highlight_operators              = 1  " 开启Go语言操作符高亮
 let g:go_highlight_functions              = 1  " 开启Go语言函数名高亮
 let g:go_highlight_methods                = 1  " 开启Go语言方法名高亮
 let g:go_highlight_structs                = 1  " 开启Go语言结构体名高亮
+
 let g:haskell_enable_quantification       = 1  " 开启Haskell高亮 forall
 let g:haskell_enable_recursivedo          = 1  " 开启Haskell高亮 mdo and rec
 let g:haskell_enable_arrowsyntax          = 1  " 开启Haskell高亮 proc
 let g:haskell_enable_pattern_synonyms     = 1  " 开启Haskell高亮 pattern
 let g:haskell_enable_typeroles            = 1  " 开启Haskell高亮 type roles
 let g:haskell_enable_static_pointers      = 1  " 开启Haskell高亮 static
-let g:python_highlight_all                = 1  " 开启Python的所有高亮
+
+let g:pymode_python                       = 'python'  " 使用 Python2 语法检查 [Python-Mode]
+let g:pymode_rope_goto_definition_bind    = '<C-]>'   " 自定义跳转快捷键      [Python-Mode]
 
 " 设置部分语言插件的特性
 let g:smarty_left_delimiter  = '{{'            " 设置Smarty标签左界定符

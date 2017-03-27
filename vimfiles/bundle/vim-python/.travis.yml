@@ -1,0 +1,6 @@
+language: ruby
+python: "2.7"
+rvm:
+  - 1.9.3
+script:
+  - make travis
