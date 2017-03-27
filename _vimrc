@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-22 16:59:50
+" -----------------    Date: 2017-03-27 15:14:13
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -363,22 +363,19 @@ au FileType nginx          set iskeyword-=:
 
 
 " 针对部分语言添加字典补全
-au FileType c          call AddCDict()
-au FileType cpp        call AddCPPDict()
-au FileType java       call AddJavaDict()
-au FileType lua        call AddLuaDict()
-au FileType perl       call AddPerlDict()
-au FileType php        call AddPHPDict()
-au FileType python     call AddPythonDict()
-au FileType ruby       call AddRubyDict()
-au FileType javascript call AddJavaScriptDict()
-au FileType coffee     call AddJavaScriptDict()
-au FileType typescript call AddJavaScriptDict()
-au FileType ls         call AddJavaScriptDict()
-au FileType css        call AddCSSDict()
-au FileType scss       call AddCSSDict()
-au FileType less       call AddCSSDict()
-au FileType mysql      call AddMySQLDict()
+au FileType c      call AddCDict()
+au FileType cpp    call AddCPPDict()
+au FileType java   call AddJavaDict()
+au FileType lua    call AddLuaDict()
+au FileType perl   call AddPerlDict()
+au FileType php    call AddPHPDict()
+au FileType python call AddPythonDict()
+au FileType ruby   call AddRubyDict()
+au FileType mysql  call AddMySQLDict()
+au FileType css,scss,less call AddCSSDict()
+au FileType javascript,coffee,typescript,ls call AddJavaScriptDict()
+au FileType html.twig,jinja.twig,htmldjango.twig call AddHTMLDict()
+au FileType html,xhtml,eelixir,smarty,blade,volt,htmldjango,jinja,eruby,jst,mustache,handlebars,vue,jsx call AddHTMLDict()
 
 function AddCDict()
   if g:isWIN
@@ -464,6 +461,24 @@ function AddRubyDict()
   set complete+=k
 endfunction
 
+function AddMySQLDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/mysql.txt
+  else
+    set dict+=~/.vim/dict/mysql.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddCSSDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/css.txt
+  else
+    set dict+=~/.vim/dict/css.txt
+  endif
+  set complete+=k
+endfunction
+
 function AddJavaScriptDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/javascript.txt
@@ -479,20 +494,11 @@ function AddJavaScriptDict()
   set complete+=k
 endfunction
 
-function AddCSSDict()
+function AddHTMLDict()
   if g:isWIN
-    set dict+=$VIM/vimfiles/dict/css.txt
+    set dict+=$VIM/vimfiles/dict/html.txt
   else
-    set dict+=~/.vim/dict/css.txt
-  endif
-  set complete+=k
-endfunction
-
-function AddMySQLDict()
-  if g:isWIN
-    set dict+=$VIM/vimfiles/dict/mysql.txt
-  else
-    set dict+=~/.vim/dict/mysql.txt
+    set dict+=~/.vim/dict/html.txt
   endif
   set complete+=k
 endfunction
