@@ -1,9 +1,0 @@
-createStore
-
-dispatch
-
-getState
-
-replaceReducer
-
-subscribe

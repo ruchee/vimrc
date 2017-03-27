@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-27 17:46:15
+" -----------------    Date: 2017-03-27 23:34:33
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -374,8 +374,7 @@ au FileType ruby   call AddRubyDict()
 au FileType mysql  call AddMySQLDict()
 au FileType css,scss,less call AddCSSDict()
 au FileType javascript,coffee,typescript,ls call AddJavaScriptDict()
-au FileType html.twig,jinja.twig,htmldjango.twig call AddHTMLDict()
-au FileType html,xhtml,eelixir,smarty,blade,volt,htmldjango,jinja,eruby,jst,mustache,handlebars,vue,jsx call AddHTMLDict()
+au FileType html,eelixir,blade,htmldjango,eruby,jst,mustache,handlebars,vue,jsx call AddHTMLDict()
 
 function AddCDict()
   if g:isWIN
@@ -390,11 +389,9 @@ function AddCPPDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/c.txt
     set dict+=$VIM/vimfiles/dict/cpp-stdlib.txt
-    set dict+=$VIM/vimfiles/dict/cpp-boost.txt
   else
     set dict+=~/.vim/dict/c.txt
     set dict+=~/.vim/dict/cpp-stdlib.txt
-    set dict+=~/.vim/dict/cpp-boost.txt
   endif
   set complete+=k
 endfunction
@@ -429,16 +426,8 @@ endfunction
 function AddPHPDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/php.txt
-    set dict+=$VIM/vimfiles/dict/wordpress/classes.txt
-    set dict+=$VIM/vimfiles/dict/wordpress/functions.txt
-    set dict+=$VIM/vimfiles/dict/wordpress/action-hooks.txt
-    set dict+=$VIM/vimfiles/dict/wordpress/filter-hooks.txt
   else
     set dict+=~/.vim/dict/php.txt
-    set dict+=~/.vim/dict/wordpress/classes.txt
-    set dict+=~/.vim/dict/wordpress/functions.txt
-    set dict+=~/.vim/dict/wordpress/action-hooks.txt
-    set dict+=~/.vim/dict/wordpress/filter-hooks.txt
   endif
   set complete+=k
 endfunction
@@ -482,14 +471,8 @@ endfunction
 function AddJavaScriptDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/javascript.txt
-    set dict+=$VIM/vimfiles/dict/javascript_libs/react.txt
-    set dict+=$VIM/vimfiles/dict/javascript_libs/redux.txt
-    set dict+=$VIM/vimfiles/bundle/vim-wxapp/dict/js.dict
   else
     set dict+=~/.vim/dict/javascript.txt
-    set dict+=~/.vim/dict/javascript_libs/react.txt
-    set dict+=~/.vim/dict/javascript_libs/redux.txt
-    set dict+=~/.vim/bundle/vim-wxapp/dict/js.dict
   endif
   set complete+=k
 endfunction
