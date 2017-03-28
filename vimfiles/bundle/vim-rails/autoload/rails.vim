@@ -502,16 +502,22 @@ function! s:Complete_environments(...)
   return s:completion_filter(rails#app().environments(),a:0 ? a:1 : "")
 endfunction
 
-function! s:warn(str)
+function! s:warn(str) abort
   echohl WarningMsg
   echomsg a:str
   echohl None
   " Sometimes required to flush output
   echo ""
   let v:warningmsg = a:str
+  return ''
 endfunction
 
-function! s:error(str)
+function! s:deprecate(old, new, ...) abort
+  call s:warn(a:old . ' is deprecated in favor of ' . a:new)
+  return a:0 ? a:1 : ''
+endfunction
+
+function! s:error(str) abort
   echohl ErrorMsg
   echomsg a:str
   echohl None
@@ -999,7 +1005,7 @@ function! s:BufCommands()
   command! -buffer -bar -nargs=+ Rnavcommand :call s:Navcommand(<bang>0,<f-args>)
   command! -buffer -bar -nargs=* -bang Rabbrev :call s:Abbrev(<bang>0,<f-args>)
   command! -buffer -bar -nargs=? -bang -count -complete=customlist,rails#complete_rake Rake    :call s:Rake(<bang>0,!<count> && <line1> ? -1 : <count>,<q-args>)
-  command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rpreview :call s:Preview(<bang>0,<line1>,<q-args>)
+  command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rpreview :exe s:deprecate(':Rpreview', ':Preview')|call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rbrowse :call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Preview :call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_environments   Rlog     :call s:Log(<bang>0,<q-args>)
@@ -1013,7 +1019,7 @@ function! s:BufCommands()
   let ext = expand("%:e")
   if RailsFilePath() =~ '\<app/views/'
     " TODO: complete controller names with trailing slashes here
-    command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Rextract :<line1>,<line2>call s:Extract(<bang>0,<f-args>)
+    command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Rextract :exe s:deprecate(':Rextract', ':Extract', '<line1>,<line2>Extract<bang> '.<q-args>)
     command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Extract  :<line1>,<line2>call s:Extract(<bang>0,<f-args>)
   elseif rails#buffer().name() =~# '^app/helpers/.*\.rb$'
     command! -buffer -bar -bang -nargs=1 -range Rextract :<line1>,<line2>call s:RubyExtract(<bang>0, 'app/helpers', [], s:sub(<f-args>, '_helper$|Helper$|$', '_helper'))
@@ -1041,15 +1047,17 @@ function! s:Log(bang,arg)
   endif
 endfunction
 
-function! rails#new_app_command(bang,...) abort
-  if !a:0 || a:1 !=# 'new'
+function! rails#command(bang, count, arg) abort
+  if exists('b:rails_root')
+    return s:Rails(a:bang, a:count, a:arg)
+  elseif a:arg !~# '^new\>'
     return 'echoerr '.string('Usage: rails new <path>')
   endif
 
-  let args = copy(a:000)
+  let arg = a:arg
 
-  if &shellpipe !~# 'tee' && index(args, '--skip') < 0 && index(args, '--force') < 0
-    let args += ['--skip']
+  if &shellpipe !~# 'tee' && arg !~# ' --\%(skip\|force\)\>'
+    let arg .= ' --skip'
   endif
 
   let temp = tempname()
@@ -1059,23 +1067,27 @@ function! rails#new_app_command(bang,...) abort
     else
       let pipe = &shellpipe . ' ' . temp
     endif
-    exe '!rails' join(map(copy(args),'s:rquote(v:val)'),' ') pipe
+    exe '!rails' arg pipe
+    let error = v:shell_error
   catch /^Vim:Interrupt/
   endtry
 
-  if isdirectory(expand(args[1]))
+  let dir = matchstr(arg, ' ["'']\=\zs[^- "''][^ "'']\+')
+  if isdirectory(dir)
     let old_errorformat = &l:errorformat
     let chdir = exists("*haslocaldir") && haslocaldir() ? 'lchdir' : 'chdir'
     let cwd = getcwd()
     try
-      exe chdir s:fnameescape(expand(args[1]))
+      exe chdir s:fnameescape(dir)
       let &l:errorformat = s:efm_generate
       exe 'cgetfile' temp
-      return 'cfirst'
+      return 'copen|cfirst'
     finally
       let &l:errorformat = old_errorformat
       exe chdir s:fnameescape(cwd)
     endtry
+  elseif exists('error') && !error && !empty(dir)
+    call s:warn("Couldn't find app directory")
   endif
   return ''
 endfunction
@@ -1396,8 +1408,6 @@ function! s:readable_default_rake_task(...) dict abort
     endif
     if empty(test)
       return '--tasks'
-    elseif test =~# '^test\>' && self.app().has('rails5')
-      return 'test TEST='.s:rquote(with_line)
     elseif test =~# '^test\>'
       let opts = ''
       if test ==# self.name()
@@ -1406,7 +1416,9 @@ function! s:readable_default_rake_task(...) dict abort
           let opts = ' TESTOPTS=-n'.method
         endif
       endif
-      if test =~# '^test/\%(unit\|models\|jobs\)\>'
+      if self.app().has('rails5')
+        return 'test TEST='.s:rquote(test).opts
+      elseif test =~# '^test/\%(unit\|models\|jobs\)\>'
         return 'test:units TEST='.s:rquote(test).opts
       elseif test =~# '^test/\%(functional\|controllers\)\>'
         return 'test:functionals TEST='.s:rquote(test).opts
@@ -1629,16 +1641,15 @@ endfunction
 " Script Wrappers {{{1
 
 function! s:BufScriptWrappers()
-  command! -buffer -bang -bar -nargs=? -complete=customlist,s:Complete_script   Rscript       :execute 'Rails<bang>' empty(<q-args>) ? 'console' : <q-args>
+  command! -buffer -bang -bar -nargs=? -complete=customlist,s:Complete_script   Rscript       :execute s:deprecate(':Rscript', ':Rails', 'Rails<bang>' empty(<q-args>) ? 'console' : <q-args>)
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_environments Console   :Rails<bang> console <args>
-  command! -buffer -bang -bar -nargs=? -count -complete=customlist,s:Complete_script Rails    :execute s:Rails(<bang>0, !<count> && <line1> ? -1 : <count>, <q-args>)
-  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Rgenerate     :execute rails#app().generator_command(<bang>0,'generate',<f-args>)
+  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Rgenerate     :execute s:deprecate(':Rgenerate', ':Generate', rails#app().generator_command(<bang>0,'generate',<f-args>))
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Generate      :execute rails#app().generator_command(<bang>0,'generate',<f-args>)
-  command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Rdestroy      :execute rails#app().generator_command(1,'destroy',<f-args>)
+  command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Rdestroy      :execute s:deprecate(':Rdestroy', ':Destroy', rails#app().generator_command(1,'destroy',<f-args>))
   command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Destroy       :execute rails#app().generator_command(1,'destroy',<f-args>)
-  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Rserver       :execute rails#app().server_command(<bang>0, 1, <q-args>)
+  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Rserver       :execute s:deprecate(':Rserver', ':Server', rails#app().server_command(<bang>0, 1, <q-args>))
   command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Server        :execute rails#app().server_command(0, <bang>0, <q-args>)
-  command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Rrunner       :execute rails#buffer().runner_command(<bang>0, <count>?<line1>:0, <q-args>)
+  command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Rrunner       :execute s:deprecate(':Rrunner', ':Runner', rails#buffer().runner_command(<bang>0, <count>?<line1>:0, <q-args>))
   command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Runner        :execute rails#buffer().runner_command(<bang>0, <count>?<line1>:0, <q-args>)
   command! -buffer       -nargs=1 -range=0 -complete=customlist,s:Complete_ruby Rp            :execute rails#app().output_command(<count>==<line2>?<count>:-1, 'p begin '.<q-args>.' end')
   command! -buffer       -nargs=1 -range=0 -complete=customlist,s:Complete_ruby Rpp           :execute rails#app().output_command(<count>==<line2>?<count>:-1, 'require %{pp}; pp begin '.<q-args>.' end')
@@ -1669,9 +1680,7 @@ endfunction
 function! s:Rails(bang, count, arg) abort
   if !empty(a:arg)
     let str = a:arg
-  elseif rails#buffer().type_name('spec', 'cucumber')
-    return rails#buffer().runner_command(a:bang, a:count, '')
-  elseif rails#buffer().type_name('test') && !rails#app().has('rails5')
+  elseif rails#buffer().type_name('test', 'spec', 'cucumber') && !rails#app().has('rails5')
     return rails#buffer().runner_command(a:bang, a:count, '')
   elseif rails#buffer().name() =~# '^\%(app\|config\|db\|lib\|log\|README\|Rakefile\|test\|spec\|features\)'
     let str = rails#buffer().default_rake_task(a:count)
@@ -1692,6 +1701,8 @@ function! s:Rails(bang, count, arg) abort
       if exists('rake') && !rails#app().has('rails5')
         let &l:makeprg = rails#app().rake_command()
       else
+        let str = s:gsub(str, '<TEST\w*\=', '')
+        let str = s:gsub(str, '<CONTROLLER\=', '-c ')
         let &l:makeprg = rails#app().prepare_rails_command('$*')
       endif
       let &l:errorformat .= ',chdir '.escape(rails#app().path(), ',')

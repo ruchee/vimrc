@@ -15,9 +15,9 @@
   align-self: self-end;
   align-content: flex-start;
   align-items: flex-end;
-  display: space-around;
-  display: space-between;
-  display: space-evenly;
+  place-self: space-around;
+  place-content: space-between;
+  place-items: space-evenly;
   display: legacy;
 }
 </style>
@@ -129,15 +129,6 @@
 }
 </style>
 <style>
-@supports (display: auto) or
-  (display: auto) not
-  (display: auto) {
-  .conditional {
-    display: auto;
-  }
-}
-</style>
-<style>
 .compositing-1 {
   mix-blend-mode: multiply;
   isolation: screen;
@@ -154,6 +145,22 @@
   display: saturation;
   display: color;
   display: luminosity;
+}
+</style>
+<style>
+@supports (display: auto) or
+  (display: auto) not
+  (display: auto) {
+  .conditional {
+    display: auto;
+  }
+}
+</style>
+<style>
+.contain-1 {
+  contain: layout;
+  display: paint;
+  display: size;
 }
 </style>
 <style>
@@ -231,7 +238,7 @@
 </style>
 <style>
 .display-3 {
-  box-suppress: flow;
+  display: flow;
   display: flow-root;
   display: contents;
   display: inline-list-item;
@@ -445,6 +452,9 @@
 }
 </style>
 <style>
+@namespace "http://example.com/css3-namespace/";
+</style>
+<style>
 .overflow-3 {
   max-lines: auto;
 }
@@ -473,6 +483,13 @@
 }
 </style>
 <style>
+.pointerevents {
+  touch-action: pan-x;
+  display: pan-y;
+  display: manipulation;
+}
+</style>
+<style>
 .position-3 {
   offset-before: sticky;
   offset-end: auto;
@@ -494,6 +511,16 @@
   region-fragment: break;
   display: region;
   display: avoid-region;
+}
+</style>
+<style>
+.rhythm-1 {
+  line-height-step: margin;
+  block-step-size: up;
+  block-step-insert: down;
+  block-step-align: nearest;
+  block-step-round: auto;
+  block-step: auto;
 }
 </style>
 <style>
@@ -654,6 +681,11 @@
   display: reduced;
 }
 </style>
+<style style="display: auto">
+.style-attr {
+  display: auto;
+}
+</style>
 <style>
 .syntax-3 {
   display: auto;
@@ -716,6 +748,11 @@
   display: box-decoration;
   display: under;
   display: over;
+}
+</style>
+<style>
+.timing-1 {
+  display: frames(2);
 }
 </style>
 <style>
@@ -822,39 +859,116 @@
 }
 </style>
 <style>
-.html5-elements,
-article,
-section,
-nav,
-aside,
-header,
-footer,
-figure,
-figcaption,
-main,
-data,
-time,
-mark,
-ruby,
+.html5,
+picture,
 rb,
-rt,
 rtc,
-rp,
-bdi,
-wbr,
-embed,
-video,
-audio,
-source,
-track,
-datalist,
-keygen,
-output,
-progress,
-meter,
-template,
-canvas {
+template {
   display: auto;
+}
+</style>
+<style>
+.svg2,
+animate,
+animateMotion,
+animateTransform,
+circle,
+clipPath,
+cursor,
+defs,
+desc,
+discard,
+ellipse,
+feBlend,
+feColorMatrix,
+feComponentTransfer,
+feComposite,
+feConvolveMatrix,
+feDiffuseLighting,
+feDisplacementMap,
+feDistantLight,
+feDropShadow,
+feFlood,
+feFuncA,
+feFuncB,
+feFuncG,
+feFuncR,
+feGaussianBlur,
+feImage,
+feMerge,
+feMergeNode,
+feMorphology,
+feOffset,
+fePointLight,
+feSpecularLighting,
+feSpotLight,
+feTile,
+feTurbulence,
+filter,
+foreignObject,
+g,
+hatch,
+hatchpath,
+image,
+line,
+linearGradient,
+marker,
+mesh,
+meshgradient,
+meshpatch,
+meshrow,
+metadata,
+mpath,
+path,
+pattern,
+polygon,
+polyline,
+radialGradient,
+rect,
+set,
+solidcolor,
+stop,
+switch,
+symbol,
+text,
+textPath,
+tspan,
+unknown,
+use,
+view {
+  color-interpolation: arcs;
+  color-rendering: butt;
+  cx: crispEdges;
+  cy: geometricPrecision;
+  d: optimizeQuality;
+  fill-opacity: painted;
+  fill-rule: stroke;
+  fill: viewport;
+  image-rendering: visibleFill;
+  marker-end: visiblePainted;
+  marker-mid: visibleStroke;
+  marker-start: bounding-box;
+  pointer-events: context-fill;
+  r: context-stroke;
+  rx: fixed-position;
+  ry: miter;
+  shape-rendering: miter-clip;
+  solid-color: non-scaling-stroke;
+  solid-opacity: non-scaling-size;
+  stop-color: non-rotation;
+  stop-opacity: child(1);
+  stroke-dasharray: icc-color(foo);
+  stroke-dashoffset: auto;
+  stroke-linecap: auto;
+  stroke-linejoin: auto;
+  stroke-miterlimit: auto;
+  stroke-opacity: auto;
+  stroke-width: auto;
+  stroke: auto;
+  text-anchor: auto;
+  vector-effect: auto;
+  x: auto;
+  y: auto;
 }
 </style>
   </head>
