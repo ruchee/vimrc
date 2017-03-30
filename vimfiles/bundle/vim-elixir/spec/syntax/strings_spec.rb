@@ -55,5 +55,55 @@ describe 'String syntax' do
       end
       EOF
     end
+
+    it 'correctly terminates heredocs with no spaces at the start of the line' do
+      expect(<<~'EOF'.gsub(/^\s+/, '')).to include_elixir_syntax('elixirAtom', ':bar')
+      """
+      foo
+      """
+      :bar
+      EOF
+
+      expect(<<~'EOF'.gsub(/^\s+/, '')).to include_elixir_syntax('elixirAtom', ':bar')
+      '''
+      foo
+      '''
+      :bar
+      EOF
+    end
+
+    it 'interpolation with a tuple' do
+      str = <<~'EOF'
+      "Failed sending tasks #{inspect {:unexpected_status_code, s}}"
+      EOF
+      expect(str).not_to include_elixir_syntax('elixirInterpolationDelimiter', '}}"$')
+      expect(str).to include_elixir_syntax('elixirInterpolationDelimiter', '}"$')
+    end
+
+    it 'interpolation with a tuple' do
+      str = <<~'EOF'
+      "Failed sending tasks #{inspect %{unexpected_status_code: s}}"
+      EOF
+      expect(str).not_to include_elixir_syntax('elixirInterpolationDelimiter', '}}"$')
+      expect(str).to include_elixir_syntax('elixirInterpolationDelimiter', '}"$')
+    end
+
+    it 'interpolation with a struct' do
+      str = <<~'EOF'
+      "Failed sending tasks #{inspect %ResponseStruct{unexpected_status_code: s}}"
+      EOF
+      expect(str).not_to include_elixir_syntax('elixirInterpolationDelimiter', '}}"$')
+      expect(str).to include_elixir_syntax('elixirInterpolationDelimiter', '}"$')
+    end
+
+    it 'strings with embedded braces' do
+      str = <<~EOF
+      x = [
+        {:text, "asd {"},
+        {:text, "qwe"},
+      ]
+      EOF
+      expect(str).to include_elixir_syntax('elixirString', '{"}')
+    end
   end
 end

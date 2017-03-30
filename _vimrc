@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-29 17:39:44
+" -----------------    Date: 2017-03-30 17:57:23
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -367,6 +367,7 @@ au FileType nginx          set iskeyword-=:
 au FileType c      call AddCDict()
 au FileType cpp    call AddCPPDict()
 au FileType java   call AddJavaDict()
+au FileType elixir call AddElixirDict()
 au FileType lua    call AddLuaDict()
 au FileType perl   call AddPerlDict()
 au FileType php    call AddPHPDict()
@@ -402,6 +403,15 @@ function AddJavaDict()
     set dict+=$VIM/vimfiles/dict/java.txt
   else
     set dict+=~/.vim/dict/java.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddElixirDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/elixir.txt
+  else
+    set dict+=~/.vim/dict/elixir.txt
   endif
   set complete+=k
 endfunction
@@ -652,6 +662,7 @@ let g:syntastic_enable_perl_checker          = 1
 let g:syntastic_perl6_checkers               = ['perl6latest']
 let g:syntastic_enable_perl6latest_checker   = 1
 let g:syntastic_python_python_exec           = 'python3'
+let g:syntastic_eruby_ruby_quiet_messages    = {'regex': 'possibly useless use of a variable in void context'}
 let g:syntastic_javascript_checkers          = ['eslint']
 let g:syntastic_typescript_checkers          = ['eslint']
 let g:syntastic_elm_checkers                 = ['elm_make']
