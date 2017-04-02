@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-03-30 17:57:23
+" -----------------    Date: 2017-04-02 12:51:55
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -516,8 +516,9 @@ let g:haskell_enable_pattern_synonyms     = 1  " 开启Haskell高亮 pattern
 let g:haskell_enable_typeroles            = 1  " 开启Haskell高亮 type roles
 let g:haskell_enable_static_pointers      = 1  " 开启Haskell高亮 static
 
-let g:pymode_python                       = 'python'  " 使用 Python2 语法检查 [Python-Mode]
-let g:pymode_rope_goto_definition_bind    = '<C-]>'   " 自定义跳转快捷键      [Python-Mode]
+let g:pymode_python                       = 'python'  " 使用 Python2 语法检查      [Python-Mode]
+let g:pymode_rope_goto_definition_bind    = '<C-]>'   " 自定义跳转快捷键           [Python-Mode]
+let g:pymode_options_colorcolumn          = 0         " 关闭右侧的单行字符长度标尺 [Python-Mode]
 
 " 设置部分语言插件的特性
 let g:smarty_left_delimiter  = '{{'            " 设置Smarty标签左界定符
