@@ -100,9 +100,23 @@ log(Format, Data) ->
     end.
 
 %%------------------------------------------------------------------------------
+%% @doc Print the given error reason in a Vim-friendly and human-friendly way.
+%% @end
+%%------------------------------------------------------------------------------
+-spec file_error(string(), term()) -> error.
+file_error(File, Reason) ->
+    Reason2 = file:format_error(Reason),
+    io:format(user, "~s: ~s~n", [File, Reason2]),
+    error.
+
+%%------------------------------------------------------------------------------
 %% @doc Log the given error.
 %% @end
 %%------------------------------------------------------------------------------
+-spec log_error(io:format()) -> ok.
+log_error(Format) ->
+    io:format(standard_error, Format, []).
+
 -spec log_error(io:format(), [term()]) -> ok.
 log_error(Format, Data) ->
     io:format(standard_error, Format, Data).
@@ -127,9 +141,11 @@ run(Target) ->
                 filename:absname(BaseDir)
         end,
 
-    process_rebar_configs(AbsDir),
-    code:add_patha(absname(AbsDir, "ebin")),
-    code:add_patha(absname(filename:dirname(AbsDir), "ebin")),
+    {BuildSystem, Files} = guess_build_system(AbsDir),
+    %% TODO Where does {result, _} and error come from?
+    {opts, _} = load_build_files(BuildSystem, AbsDir, Files),
+    % code:add_patha(absname(AbsDir, "ebin")),
+    % code:add_patha(absname(filename:dirname(AbsDir), "ebin")),
     run2(Target).
 
 
@@ -175,46 +191,167 @@ run2({list_functions, Mod}) ->
     ok.
 
 %%------------------------------------------------------------------------------
-%% @doc Find, read and apply the rebar config files appropriate for the given
-%% path.
-%%
-%% This function traverses the directory tree upward until it finds
-%% the root directory. It finds all rebar.config files along the way and applies
-%% all of them (e.g. the dependency directory in all of them is added to the
-%% code path). It returns the options in the first rebar.config file (e.g. the
-%% one that is the closest to the file to be compiled).
+%% @doc Check for some known files and try to guess what build system is being
+%% used.
 %% @end
 %%------------------------------------------------------------------------------
--spec process_rebar_configs(string()) -> ok | error.
-process_rebar_configs(AbsDir) ->
-    ConfigFileName = filename:join(AbsDir, "rebar.config"),
+-spec guess_build_system(string()) -> {atom(), string()}.
+guess_build_system(Path) ->
+    % The order is important, at least Makefile needs to come last since a lot
+    % of projects include a Makefile along any other build system.
+    BuildSystems = [
+                    {rebar3, [
+                              "rebar.lock"
+                             ]
+                    },
+                    {rebar, [
+                             "rebar.config",
+                             "rebar.config.script"
+                            ]
+                    },
+                    {makefile, [
+                            "Makefile"
+                           ]
+                    }
+                   ],
+    guess_build_system(Path, BuildSystems).
 
-    Res =
-        case filelib:is_file(ConfigFileName) of
-            true ->
-                case file:consult(ConfigFileName) of
-                    {ok, ConfigTerms} ->
-                        log("rebar.config read: ~s~n", [ConfigFileName]),
-                        process_rebar_config(AbsDir, ConfigTerms);
-                    {error, Reason} ->
-                        log_error("rebar.config consult unsuccessful: ~p: ~p~n",
-                                  [ConfigFileName, Reason]),
-                        error
-                end;
-            false ->
-                ok
-        end,
+guess_build_system(_Path, []) ->
+    log("Unknown build system"),
+    {unknown_build_system, []};
+guess_build_system(Path, [{BuildSystem, Files}|Rest]) ->
+    log("Try build system: ~p~n", [BuildSystem]),
+    case find_files(Path, Files) of
+        [] -> guess_build_system(Path, Rest);
+        FoundFiles when is_list(FoundFiles) -> {BuildSystem, FoundFiles}
+    end.
 
-    case {Res, AbsDir} of
-        {error, _} ->
+%%------------------------------------------------------------------------------
+%% @doc Recursively search upward through the path tree and returns the absolute
+%% path to all files matching the given filenames.
+%% @end
+%%------------------------------------------------------------------------------
+-spec find_files(string(), [string()]) -> [string()].
+find_files("/", Files) ->
+    find_file("/", Files);
+find_files([_|":/"] = Path, Files) ->
+    %% E.g. "C:/". This happens on Windows.
+    find_file(Path, Files);
+find_files(Path, Files) ->
+    %find_files(Path, Files, Files).
+    ParentPath = filename:dirname(Path),
+    find_file(Path, Files) ++
+    find_files(ParentPath, Files).
+
+%%------------------------------------------------------------------------------
+%% @doc Find the first file matching one of the filenames in the given path.
+%% @end
+%%------------------------------------------------------------------------------
+-spec find_file(string(), [string()]) -> [string()].
+find_file(_Path, []) ->
+    [];
+find_file(Path, [File|Rest]) ->
+    AbsFile = absname(Path, File),
+    case filelib:is_regular(AbsFile) of
+        true ->
+            log("Found build file: [~p] ~p~n", [Path, AbsFile]),
+            % Return file and continue searching in parent directory.
+            [AbsFile];
+        false ->
+            find_file(Path, Rest)
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Load the settings from a given set of build system files.
+%% @end
+%%------------------------------------------------------------------------------
+-spec load_build_files(atom(), string(), [string()]) ->
+    {opts, [{atom(), term()}]} |
+    {result, term()} |
+    error.
+load_build_files(rebar, _ProjectRoot, ConfigFiles) ->
+    load_rebar_files(ConfigFiles, no_config);
+load_build_files(rebar3, ProjectRoot, _ConfigFiles) ->
+    % _ConfigFiles is a list containing only rebar.lock.
+    ConfigNames = ["rebar.config", "rebar.config.script"],
+    case find_files(ProjectRoot, ConfigNames) of
+        [] ->
+            log_error("rebar.config not found in ~p~n", [ProjectRoot]),
             error;
-        {_, "/"} ->
-            ok;
-        {_, [_|":/"]} ->
-            %% E.g. "C:/". This happens on Windows.
-            ok;
-        {_, _} ->
-            process_rebar_configs(filename:dirname(AbsDir))
+        [RebarConfigFile|_] ->
+            load_rebar3_files(RebarConfigFile)
+    end;
+load_build_files(makefile, _ProjectRoot, ConfigFiles) ->
+    load_makefiles(ConfigFiles);
+load_build_files(unknown_build_system, ProjectRoot, _) ->
+    {opts, [
+            {i, absname(ProjectRoot, "include")},
+            {i, absname(ProjectRoot, "../include")},
+            {i, ProjectRoot}
+           ]}.
+
+%%------------------------------------------------------------------------------
+%% @doc Load the content of each rebar file.
+%%
+%% Note worthy: The config returned by this function only represents the first
+%% rebar file (the one closest to the file to compile). The subsequent rebar
+%% files will be processed for code path only.
+%% @end
+%%------------------------------------------------------------------------------
+-spec load_rebar_files([string()], no_config | [{atom(), term()}]) ->
+    {opts, [{atom(), term()}]} | error.
+load_rebar_files([], no_config) ->
+    error;
+load_rebar_files([], Config) ->
+    {opts, Config};
+load_rebar_files([ConfigFile|Rest], Config) ->
+    ConfigPath = filename:dirname(ConfigFile),
+    ConfigResult = case filename:extension(ConfigFile) of
+                       ".script" -> file:script(ConfigFile);
+                       ".config" -> file:consult(ConfigFile)
+                   end,
+    case ConfigResult of
+        {ok, ConfigTerms} ->
+            log("rebar.config read: ~s~n", [ConfigFile]),
+            NewConfig = process_rebar_config(ConfigPath, ConfigTerms, Config),
+            case load_rebar_files(Rest, NewConfig) of
+                {opts, SubConfig} -> {opts, SubConfig};
+                error -> {opts, NewConfig}
+            end;
+        {error, Reason} ->
+            log_error("rebar.config consult failed:~n"),
+            file_error(ConfigFile, Reason),
+            error
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Load the content of each rebar3 file.
+%%
+%% Note worthy: The config returned by this function only represent the first
+%% rebar file (the one closest to the file to compile).
+%% @end
+%%------------------------------------------------------------------------------
+-spec load_rebar3_files(string()) ->
+    {opts, [{atom(), term()}]} | error.
+load_rebar3_files(ConfigFile) ->
+    ConfigPath = filename:dirname(ConfigFile),
+    ConfigResult = case filename:extension(ConfigFile) of
+                       ".script" -> file:script(ConfigFile);
+                       ".config" -> file:consult(ConfigFile)
+                   end,
+    case ConfigResult of
+        {ok, ConfigTerms} ->
+            log("rebar.config read: ~s~n", [ConfigFile]),
+            case process_rebar3_config(ConfigPath, ConfigTerms) of
+                error ->
+                    error;
+                Config ->
+                    {opts, Config}
+            end;
+        {error, Reason} ->
+            log_error("rebar.config consult failed:~n"),
+            file_error(ConfigFile, Reason),
+            error
     end.
 
 %%------------------------------------------------------------------------------
@@ -224,24 +361,172 @@ process_rebar_configs(AbsDir) ->
 %% and returns and compilation options to be used when compiling the file.
 %% @end
 %%------------------------------------------------------------------------------
--spec process_rebar_config(Dir :: string(), ConfigTerms :: [term()]) ->
-          [Option :: term()].
-process_rebar_config(Dir, Terms) ->
-    % The reasons for why these directories are added is documented in the same
-    % function of https://github.com/vim-erlang/vim-erlang-compiler/blob/master/compiler/erlang_check.erl.
+-spec process_rebar_config(string(), [{atom(), term()}],
+                           [{atom(), term()}] | no_config) ->
+    [{atom(), term()}].
+process_rebar_config(Path, Terms, Config) ->
 
-    % ebin -> code_path
-    code:add_pathsa([absname(Dir, "ebin")]),
+    % App layout:
+    %
+    % * rebar.config
+    % * src/
+    % * ebin/ => ebin -> code_path
+    % * include/ => ".." -> include. This is needed because files in src may
+    %                use `-include_lib("appname/include/f.hrl")`
+
+    % Project layout:
+    %
+    % * rebar.config
+    % * src/
+    % * $(deps_dir)/
+    %   * $(app_name)/
+    %     * ebin/ => deps -> code_path
+    % * apps/
+    %   * $(sub_dir)/
+    %     * ebin/ => sub_dirs -> code_path
+    %     * include/ => apps -> include
+
+    DepsDir = proplists:get_value(deps_dir, Terms, "deps"),
+    LibDirs = proplists:get_value(lib_dirs, Terms, []),
+    SubDirs = proplists:get_value(sub_dirs, Terms, []),
+    ErlOpts = proplists:get_value(erl_opts, Terms, []),
+
+    % ebin -> code_path (when the rebar.config file is in the app directory
+    code:add_pathsa([absname(Path, "ebin")]),
 
     % deps -> code_path
-    RebarDepsDir = proplists:get_value(deps_dir, Terms, "deps"),
-    code:add_pathsa(filelib:wildcard(absname(Dir, RebarDepsDir) ++ "/*/ebin")),
+    code:add_pathsa(filelib:wildcard(absname(Path, DepsDir) ++ "/*/ebin")),
+
+    % libs -> code_path
+    code:add_pathsa(filelib:wildcard(absname(Path, LibDirs) ++ "/*/ebin")),
 
     % sub_dirs -> code_path
-    [ code:add_pathsa(filelib:wildcard(absname(Dir, SubDir) ++ "/ebin"))
-      || SubDir <- proplists:get_value(sub_dirs, Terms, []) ],
+    [ code:add_pathsa(filelib:wildcard(absname(Path, SubDir) ++ "/ebin"))
+      || SubDir <- SubDirs ],
 
-    ok.
+    case Config of
+        no_config ->
+            Includes =
+            [ {i, absname(Path, Dir)}
+              || Dir <- ["apps", "include"] ] ++
+            [ {i, absname(Path, filename:append(SubDir, "include"))}
+              || SubDir <- SubDirs ],
+
+            Opts = ErlOpts ++ Includes,
+            remove_warnings_as_errors(Opts);
+        _ ->
+            Config
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Apply a rebar.config file.
+%%
+%% This function adds the directories returned by rebar3 to the code path and
+%% returns and compilation options to be used when compiling the file.
+%% @end
+%%------------------------------------------------------------------------------
+-spec process_rebar3_config(string(), [{atom(), term()}]) ->
+    [{atom(), term()}] | error.
+process_rebar3_config(ConfigPath, Terms) ->
+    case find_rebar3(ConfigPath) of
+        not_found ->
+            % Compilation would likely fail without settings the paths, so let's
+            % give an explicit error instead of proceeding anyway.
+            log_error("rebar3 executable not found.~n"),
+            error;
+        {ok, Rebar3} ->
+            % load the profile used by rebar3 to print the dependency path list
+            Profile = rebar3_get_profile(Terms),
+            % "rebar3 path" prints all paths that belong to the project; we add
+            % these to the Erlang paths.
+            %
+            % QUIET=1 ensures that it won't print other messages, see
+            % https://github.com/erlang/rebar3/issues/1143.
+            {ok, Cwd} = file:get_cwd(),
+            file:set_cwd(ConfigPath),
+            Paths = os:cmd(
+                      io_lib:format("QUIET=1 ~p as ~p path", [Rebar3, Profile])
+                     ),
+            file:set_cwd(Cwd),
+            CleanedPaths = [absname(ConfigPath, SubDir)
+                            || SubDir <- string:tokens(Paths, " ")],
+            code:add_pathsa(CleanedPaths),
+
+            ErlOpts = proplists:get_value(erl_opts, Terms, []),
+            remove_warnings_as_errors(ErlOpts)
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Read the profile name defined in rebar.config for Rebar3
+%%
+%% Look inside rebar.config to find a special configuration called
+%% `vim_erlang_compiler`.
+%%
+%% E.g. to use the "test" profile:
+%% {vim_erlang_compiler, [
+%%   {profile, "test"}
+%% ]}.
+%%------------------------------------------------------------------------------
+rebar3_get_profile(Terms) ->
+  case proplists:get_value(vim_erlang_compiler, Terms) of
+    undefined -> "default";
+    Options -> proplists:get_value(profile, Options, "default")
+  end.
+
+%%------------------------------------------------------------------------------
+%% @doc Find the rebar3 executable.
+%%
+%% First we try to find rebar3 in the project directory. Second we try to find
+%% it in the PATH.
+%% @end
+%%------------------------------------------------------------------------------
+-spec find_rebar3([string()]) -> {ok, string()} |
+                                 not_found.
+find_rebar3(ConfigPath) ->
+    case find_files(ConfigPath, ["rebar3"]) of
+        [Rebar3|_] ->
+            {ok, Rebar3};
+        [] ->
+            case os:find_executable("rebar3") of
+                false ->
+                    not_found;
+                Rebar3 ->
+                    {ok, Rebar3}
+            end
+    end.
+
+%%------------------------------------------------------------------------------
+%% @doc Remove the "warnings_as_errors" option from the given Erlang options.
+%%
+%% If "warnings_as_errors" is left in, rebar sometimes prints the following
+%% line:
+%%
+%%     compile: warnings being treated as errors
+%%
+%% The problem is that Vim interprets this as a line about an actual warning
+%% about a file called "compile", so it will jump to the "compile" file.
+%%
+%% And anyway, it is fine to show warnings as warnings as not errors: the
+%% developer know whether their project handles warnings as errors and interpret
+%% them accordingly.
+%% @end
+%%------------------------------------------------------------------------------
+-spec remove_warnings_as_errors([{atom(), string()}]) -> [{atom(), string()}].
+remove_warnings_as_errors(ErlOpts) ->
+    proplists:delete(warnings_as_errors, ErlOpts).
+
+%%------------------------------------------------------------------------------
+%% @doc Set code paths and options for a simple Makefile
+%% @end
+%%------------------------------------------------------------------------------
+-spec load_makefiles([string()]) -> {ok, [{atom(), term()}]} | error.
+load_makefiles([Makefile|_Rest]) ->
+    Path = filename:dirname(Makefile),
+    code:add_pathsa([absname(Path, "ebin")]),
+    code:add_pathsa(filelib:wildcard(absname(Path, "deps") ++ "/*/ebin")),
+    {opts, [{i, absname(Path, "include")},
+            {i, absname(Path, "deps")}]}.
+
 
 module_edoc(Mod) ->
     File = case filename:find_src(Mod) of
@@ -302,8 +587,14 @@ analyze_function(Fun) ->
     Name = list_to_atom(get_attribute(Fun, "name")),
     Args0 = xmerl_xpath:string("typespec/type/fun/argtypes/type", Fun),
     Args = lists:map(fun(Arg) -> get_attribute(Arg, "name") end, Args0),
-    Return = analyze_return(Fun),
-    {Name, Args, Return}.
+    try
+        Return = analyze_return(Fun),
+        {Name, Args, Return}
+    catch
+        throw:no_spec ->
+            Arity = get_attribute(Fun, "arity"),
+            {Name, list_to_integer(Arity)}
+    end.
 
 analyze_return(Fun) ->
     case xmerl_xpath:string("typespec/type/fun/type/*", Fun) of
@@ -366,8 +657,12 @@ merge_functions([], Info, Funs) ->
 merge_functions(Edoc, [], Funs) ->
     lists:reverse(Funs, Edoc);
 merge_functions(Edoc, Info, Funs) ->
-    [H1 = {K1, _, _} | T1] = Edoc,
+    [H1 | T1] = Edoc,
     [H2 = {K2, _} | T2] = Info,
+    K1 = case H1 of
+        {Name, _, _} -> Name;
+        {Name, _} -> Name
+    end,
     if
         K1 == K2 ->
             merge_functions(T1, T2, [H1 | Funs]);

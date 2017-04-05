@@ -150,7 +150,6 @@ syntax keyword swiftKeywords
       \ public
       \ repeat
       \ required
-      \ rethrows
       \ return
       \ self
       \ set
@@ -159,7 +158,6 @@ syntax keyword swiftKeywords
       \ super
       \ switch
       \ throw
-      \ throws
       \ try
       \ typealias
       \ unowned
@@ -169,7 +167,12 @@ syntax keyword swiftKeywords
       \ while
       \ willSet
 
+syntax keyword swiftDefinitionModifier
+      \ rethrows
+      \ throws
+
 syntax match swiftMultiwordKeywords "indirect case"
+syntax match swiftMultiwordKeywords "indirect enum"
 " }}}
 
 " Names surrounded by backticks. This aren't limited to keywords because 1)
@@ -223,6 +226,7 @@ syntax region swiftGenericsWrapper start="\v\<" end="\v\>" contains=swiftType tr
 syntax region swiftLiteralWrapper start="\v\=\s*" skip="\v[^\[\]]\(\)" end="\v(\[\]|\(\))" contains=ALL transparent oneline
 syntax region swiftReturnWrapper start="\v-\>\s*" end="\v(\{|$)" contains=swiftType transparent oneline
 syntax match swiftType "\v<\u\w*" contained containedin=swiftTypeWrapper,swiftLiteralWrapper,swiftGenericsWrapper,swiftTypeCastWrapper
+syntax match swiftTypeDeclaration /->/ skipwhite nextgroup=swiftType
 
 syntax keyword swiftImports import
 syntax keyword swiftCastKeyword is as contained
@@ -240,7 +244,7 @@ syntax keyword swiftPreprocessor
 syntax match swiftComment "\v\/\/.*$"
       \ contains=swiftTodos,swiftDocString,swiftMarker,@Spell oneline
 syntax region swiftComment start="/\*" end="\*/"
-      \ contains=swiftTodos,swiftDocString,swiftMarker,swiftComment,@Spell fold
+      \ contains=swiftTodos,swiftDocString,swiftMarker,@Spell fold
 
 
 " Set highlights
@@ -252,6 +256,7 @@ highlight default link swiftMarker Comment
 
 highlight default link swiftString String
 highlight default link swiftInterpolatedWrapper Delimiter
+highlight default link swiftTypeDeclaration Delimiter
 highlight default link swiftNumber Number
 highlight default link swiftBoolean Boolean
 
@@ -270,6 +275,7 @@ highlight default link swiftPreprocessor PreProc
 highlight default link swiftMethod Function
 highlight default link swiftProperty Identifier
 
+highlight default link swiftDefinitionModifier Define
 highlight default link swiftConditionStatement PreProc
 highlight default link swiftAvailability Normal
 highlight default link swiftAvailabilityArg Normal

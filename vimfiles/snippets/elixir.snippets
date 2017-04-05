@@ -217,27 +217,15 @@ snippet pry     添加断点调试
 	IEx.pry${0}
 snippet m       map
 	%${1}{${0}}
-snippet s       ~s{ .. } [二进制字符串]
-	~s{${0}}
-snippet c       ~c{ .. } [字符列表]
-	~c{${0}}
-snippet r       ~r{ .. } [正则表达式]
-	~r{${0}}
-snippet x       ~x{ .. }
+snippet x       ~x[ .. ]
+	~${1}[${0}]
+snippet y       ~y{ .. }
 	~${1}{${0}}
 snippet {       #{ .. }
 	#{${0}
-snippet ,       <>
-	<>${0}
-snippet ,,      << .. >>
-	<<${0}>>
 snippet \       \\
 	\\\\ ${0}
 snippet |       |>
 	|> ${0}
-snippet <       <-
-	<- ${0}
-snippet >       ->
-	-> ${0}
 snippet .       =>
 	=> ${0}
