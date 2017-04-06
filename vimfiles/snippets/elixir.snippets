@@ -25,6 +25,8 @@ snippet mdoc    模块文档
 	@moduledoc ${0}
 snippet tdoc    类型文档
 	@typedoc ${0}
+snippet sdoc    简短文档
+	@shortdoc ${0}
 snippet doc     普通文档
 	@doc ${0}
 snippet beh     行为
@@ -120,10 +122,6 @@ snippet do      do
 	do
 	  ${0}
 	end
-snippet re      receive
-	receive do
-	  ${0}
-	end
 snippet cs      case [匹配单一变量]
 	case ${1} do
 	  ${0}
@@ -143,7 +141,9 @@ snippet el      else
 	  ${0}
 snippet w       when
 	when ${0}
-snippet fo      for
+snippet fo      for [单行]
+	for ${1}, do: ${0}
+snippet fo.     for [多行]
 	for ${1} do
 	  ${0}
 	end
@@ -171,16 +171,25 @@ snippet cat     捕获异常
 snippet ext     终止进程
 	exit ${0}
 # 消息
-snippet sen     发送消息
+snippet se      发送消息
 	send ${0}
-snippet rec     接收消息
+snippet re      接收消息
 	receive do
 	  ${0}
 	end
+# 测试
+snippet test    测试区块
+	test "${1}"${2} do
+	  ${0}
+	end
+snippet as      断言
+	assert ${0}
+snippet rf      反向断言
+	refute ${0}
 # 单个关键字
-snippet se      self
+snippet s       self
 	self${0}
-snippet af      after
+snippet a       after
 	after${0}
 # 内置函数
 snippet len     长度
@@ -215,8 +224,6 @@ snippet _f     __FILE__
 # 其他
 snippet pry     添加断点调试
 	IEx.pry${0}
-snippet m       map
-	%${1}{${0}}
 snippet x       ~x[ .. ]
 	~${1}[${0}]
 snippet y       ~y{ .. }
@@ -227,5 +234,5 @@ snippet \       \\
 	\\\\ ${0}
 snippet |       |>
 	|> ${0}
-snippet .       =>
-	=> ${0}
+snippet .       <>
+	<${0}>
