@@ -170,6 +170,8 @@ snippet cat     捕获异常
 	catch${0}
 snippet ext     终止进程
 	exit ${0}
+snippet aft     必定执行
+	after${0}
 # 消息
 snippet se      发送消息
 	send ${0}
@@ -186,11 +188,6 @@ snippet as      断言
 	assert ${0}
 snippet rf      反向断言
 	refute ${0}
-# 单个关键字
-snippet s       self
-	self${0}
-snippet a       after
-	after${0}
 # 内置函数
 snippet len     长度
 	length ${0}
@@ -222,6 +219,8 @@ snippet _d     __DIR__
 snippet _f     __FILE__
 	__FILE__${0}
 # 其他
+snippet s       self
+	self${0}
 snippet pry     添加断点调试
 	IEx.pry${0}
 snippet x       ~x[ .. ]
