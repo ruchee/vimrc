@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-04-02 12:51:55
+" -----------------    Date: 2017-04-10 15:40:33
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -366,6 +366,7 @@ au FileType nginx          set iskeyword-=:
 " 针对部分语言添加字典补全
 au FileType c      call AddCDict()
 au FileType cpp    call AddCPPDict()
+au FileType rust   call AddRustDict()
 au FileType java   call AddJavaDict()
 au FileType elixir call AddElixirDict()
 au FileType lua    call AddLuaDict()
@@ -394,6 +395,15 @@ function AddCPPDict()
   else
     set dict+=~/.vim/dict/c.txt
     set dict+=~/.vim/dict/cpp-stdlib.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddRustDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/rust.txt
+  else
+    set dict+=~/.vim/dict/rust.txt
   endif
   set complete+=k
 endfunction
