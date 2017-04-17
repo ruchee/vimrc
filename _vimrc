@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-04-10 15:40:33
+" -----------------    Date: 2017-04-17 16:47:19
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -512,6 +512,7 @@ endfunction
 let g:cpp_class_scope_highlight           = 1  " 高亮C++ class scope
 let g:cpp_experimental_template_highlight = 1  " 高亮C++ template functions
 
+let g:go_template_autocreate              = 0  " 关闭自动生成模版代码
 let g:go_auto_type_info                   = 0  " 关闭Go语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
 let g:go_def_mapping_enabled              = 0  " 关闭Go语言对gd的绑定
 let g:go_highlight_operators              = 1  " 开启Go语言操作符高亮

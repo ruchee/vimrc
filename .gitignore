@@ -9,6 +9,7 @@
 /vimfiles/bundle/YouCompleteMe
 /vimfiles/bundle/YCM-Generator
 /vimfiles/bundle/editorconfig
+/vimfiles/bundle/vim-elixir-alchemist
 
 Thumbs.db
 .DS_Store

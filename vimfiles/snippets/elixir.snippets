@@ -210,14 +210,16 @@ snippet pp      输出复杂数据类型
 snippet ins     将任意数据类型转换为可读形式
 	inspect ${0}
 # 特殊标识
-snippet _m     __MODULE__
-	__MODULE__${0}
-snippet _c     __CALLER__
-	__CALLER__${0}
+snippet _e     __ENV__
+	__ENV__${0}
 snippet _d     __DIR__
 	__DIR__${0}
-snippet _f     __FILE__
-	__FILE__${0}
+snippet _m     __ENV__.module
+	__ENV__.module${0}
+snippet _f     __ENV__.file
+	__ENV__.file${0}
+snippet _l     __ENV__.line
+	__ENV__.line${0}
 # 其他
 snippet s       self
 	self${0}
