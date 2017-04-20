@@ -1008,8 +1008,9 @@ function! s:BufCommands()
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rpreview :exe s:deprecate(':Rpreview', ':Preview')|call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rbrowse :call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Preview :call s:Preview(<bang>0,<line1>,<q-args>)
-  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_environments   Rlog     :call s:Log(<bang>0,<q-args>)
-  command! -buffer -bar -nargs=* -bang                                                Rset     :call s:Set(<bang>0,<f-args>)
+  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_log            Rlog     exe s:deprecate(':Rlog', ':Clogfile', <bang>0 ? 'Clogfile<bang> '.<q-args> : s:Plog(0, <q-args>))
+  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_log            Clogfile exe s:Clogfile(1<bang>, <q-args>)
+  command! -buffer -bar -nargs=* -bang                                                Rset     :exe s:Set(<bang>0,<f-args>)
   command! -buffer -bar -nargs=0 Rtags       :execute rails#app().tags_command()
   command! -buffer -bar -nargs=0 Ctags       :execute rails#app().tags_command()
   command! -buffer -bar -nargs=0 -bang Rrefresh :if <bang>0|unlet! g:autoloaded_rails|source `=s:file`|endif|call s:Refresh(<bang>0)
@@ -1033,18 +1034,36 @@ function! s:BufCommands()
   endif
 endfunction
 
-function! s:Log(bang,arg)
+function! s:Complete_log(A, L, P) abort
+  return s:completion_filter(rails#app().relglob('log/','**/*', '.log'), a:A)
+endfunction
+
+function! s:Clogfile(bang, arg) abort
   let lf = rails#app().path('log/' . (empty(a:arg) ? s:environment() : a:arg) . '.log')
-  if a:bang
-    exe 'cgetfile' s:fnameescape(lf)
-    clast
-  else
-    if exists(":Tail") == 2
-      exe 'Tail'  s:fnameescape(lf)
-    else
-      exe 'pedit' s:fnameescape(lf)
-    endif
+  if !filereadable(lf)
+    return 'cgetfile ' . s:fnameescape(lf)
   endif
+  let [mp, efm, cc] = [&l:mp, &l:efm, get(b:, 'current_compiler', '')]
+  let chdir = exists("*haslocaldir") && haslocaldir() ? 'lchdir' : 'chdir'
+  let cwd = getcwd()
+  try
+    compiler rails
+    exe chdir s:fnameescape(rails#app().path())
+    exe 'cgetfile' s:fnameescape(lf)
+  finally
+    let [&l:mp, &l:efm, b:current_compiler] = [mp, efm, cc]
+    if empty(cc) | unlet! b:current_compiler | endif
+    exe chdir s:fnameescape(cwd)
+  endtry
+  copen
+  setf railslog
+  $
+  return 'silent! clast'
+endfunction
+
+function! s:Plog(bang, arg) abort
+  let lf = rails#app().path('log/' . (empty(a:arg) ? s:environment() : a:arg) . '.log')
+  return 'pedit' . (a:bang ? '!' : '') . ' +$ ' . s:fnameescape(lf)
 endfunction
 
 function! rails#command(bang, count, arg) abort
@@ -1534,9 +1553,8 @@ function! s:readable_preview_urls(lnum) dict abort
       let handler = self.controller_name().'#'.fnamemodify(self.name(),':t:r:r')
     endif
     if exists('handler')
-      call self.app().route_names()
-      for route in values(self.app().cache.get('named_routes'))
-        if route.method ==# 'GET' && route.handler ==# handler
+      for route in self.app().routes()
+        if route.method =~# 'GET' && route.handler ==# handler
           let urls += [s:gsub(s:gsub(route.path, '\([^()]*\)', ''), ':\w+', '1')]
 
         endif
@@ -2344,19 +2362,21 @@ function! rails#cfile(...) abort
   return empty(cfile) && a:0 && a:1 is# 'delegate' ? "\<C-R>\<C-F>" : cfile
 endfunction
 
-function! s:app_named_route_file(route) dict abort
-  call self.route_names()
-  if self.cache.has("named_routes") && has_key(self.cache.get("named_routes"),a:route)
-    return s:sub(self.cache.get("named_routes")[a:route].handler, '#', '_controller.rb#')
-  endif
+function! s:app_named_route_file(route_name) dict abort
+  for route in self.routes()
+    if get(route, 'name', '') ==# a:route_name
+      return s:sub(route.handler, '#', '_controller.rb#')
+    endif
+  endfor
   return ""
 endfunction
 
-function! s:app_route_names() dict abort
-  if self.cache.needs("named_routes")
+function! s:app_routes() dict abort
+  if self.cache.needs('routes')
     let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
     let cwd = getcwd()
-    let routes = {}
+    let routes = []
+    let paths = {}
     try
       execute cd fnameescape(rails#app().path())
       let output = system(self.rake_command().' routes')
@@ -2364,19 +2384,26 @@ function! s:app_route_names() dict abort
       execute cd fnameescape(cwd)
     endtry
     for line in split(output, "\n")
-      let matches = matchlist(line, '^ \+\(\l\w*\) \{-\}\(\u*\) \+\(\S\+\) \+\(\w\+#\w\+\)')
+      let matches = matchlist(line, '^ *\(\l\w*\|\) \{-\}\([A-Z|]*\) \+\(\S\+\) \+\([[:alnum:]_/]\+#\w\+\)\%( {.*\)\=$')
       if !empty(matches)
         let [_, name, method, path, handler; __] = matches
-        let routes[name] = {'method': method, 'path': path, 'handler': handler}
+        if !empty(name)
+          let paths[path] = name
+        else
+          let name = get(paths, path, '')
+        endif
+        call insert(routes, {'method': method, 'path': path, 'handler': handler, 'name': name})
+      else
+        PP line
       endif
     endfor
-    call self.cache.set("named_routes",routes)
+    call self.cache.set('routes', routes)
   endif
 
-  return keys(self.cache.get("named_routes"))
+  return self.cache.get('routes')
 endfunction
 
-call s:add_methods('app', ['route_names','named_route_file'])
+call s:add_methods('app', ['routes', 'named_route_file'])
 
 function! s:RailsIncludefind(str,...) abort
   if a:str ==# "ApplicationController" && rails#app().has_path('app/controllers/application.rb')
@@ -3976,10 +4003,14 @@ function! rails#log_syntax()
     syn match railslogEscape      '\e\[[0-9;]*m'
     syn match railslogEscapeMN    '\e\[[0-9;]*m' nextgroup=railslogModelNum,railslogEscapeMN skipwhite contained
   endif
-  syn match   railslogRender      '\%(^\s*\%(\e\[[0-9;]*m\)\=\)\@<=\%(Started\|Processing\|Rendering\|Rendered\|Redirected\|Completed\)\>'
-  syn match   railslogComment     '^\s*# .*'
-  syn match   railslogModel       '\%(^\s*\%(\e\[[0-9;]*m\)*\)\@<=\u\%(\w\|:\)* \%(Load\%( Including Associations\| IDs For Limited Eager Loading\)\=\|Columns\|Exists\|Count\|Create\|Update\|Destroy\|Delete all\)\>' skipwhite nextgroup=railslogModelNum,railslogEscapeMN
-  syn match   railslogModel       '\%(^\s*\%(\e\[[0-9;]*m\)*\)\@<=\%(SQL\|CACHE\)\>' skipwhite nextgroup=railslogModelNum,railslogEscapeMN
+  syn match   railslogQfFileName  "^[^|]*|\@=" nextgroup=railslogQfSeparator
+  syn match   railslogQfSeparator "|" nextgroup=railslogQfLineNr contained
+  syn match   railslogQfLineNr    "[^|]*" contained contains=railslogQfError
+  syn match   railslogQfError     "error" contained
+  syn match   railslogRender      '\%(\%(^\||\)\s*\%(\e\[[0-9;]*m\)\=\)\@<=\%(Started\|Processing\|Rendering\|Rendered\|Redirected\|Completed\)\>'
+  syn match   railslogComment     '\%(^\||\)\@<=\s*# .*'
+  syn match   railslogModel       '\%(\%(^\||\)\s*\%(\e\[[0-9;]*m\)*\)\@<=\u\%(\w\|:\)* \%(Load\%( Including Associations\| IDs For Limited Eager Loading\)\=\|Columns\|Exists\|Count\|Create\|Update\|Destroy\|Delete all\)\>' skipwhite nextgroup=railslogModelNum,railslogEscapeMN
+  syn match   railslogModel       '\%(\%(^\||\)\s*\%(\e\[[0-9;]*m\)*\)\@<=\%(SQL\|CACHE\)\>' skipwhite nextgroup=railslogModelNum,railslogEscapeMN
   syn region  railslogModelNum    start='(' end=')' contains=railslogNumber contained skipwhite
   syn match   railslogNumber      '\<\d\+\>%'
   syn match   railslogNumber      '[ (]\@<=\<\d\+\.\d\+\>\.\@!'
@@ -3989,12 +4020,15 @@ function! rails#log_syntax()
   syn match   railslogIP          '\<\d\{1,3\}\%(\.\d\{1,3}\)\{3\}\>'
   syn match   railslogTimestamp   '\<\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\>'
   syn match   railslogSessionID   '\<\x\{32\}\>'
-  syn match   railslogIdentifier  '^\s*\%(Session ID\|Parameters\|Unpermitted parameters\)\ze:'
+  syn match   railslogIdentifier  '\%(^\||\)\@<=\s*\%(Session ID\|Parameters\|Unpermitted parameters\)\ze:'
   syn match   railslogSuccess     '\<2\d\d \u[A-Za-z0-9 ]*\>'
   syn match   railslogRedirect    '\<3\d\d \u[A-Za-z0-9 ]*\>'
   syn match   railslogError       '\<[45]\d\d \u[A-Za-z0-9 ]*\>'
-  syn match   railslogError       '^DEPRECATION WARNING\>'
+  syn match   railslogDeprecation '\<DEPRECATION WARNING\>'
   syn keyword railslogHTTP        OPTIONS GET HEAD POST PUT PATCH DELETE TRACE CONNECT
+  hi def link railslogQfFileName  Directory
+  hi def link railslogQfLineNr    LineNr
+  hi def link railslogQfError     Error
   hi def link railslogEscapeMN    railslogEscape
   hi def link railslogEscape      Ignore
   hi def link railslogComment     Comment
@@ -4006,22 +4040,39 @@ function! rails#log_syntax()
   hi def link railslogIdentifier  Identifier
   hi def link railslogRedirect    railslogSuccess
   hi def link railslogSuccess     Special
+  hi def link railslogDeprecation railslogError
   hi def link railslogError       Error
   hi def link railslogHTTP        Special
 endfunction
 
+function! s:reload_log() abort
+  if &buftype == 'quickfix' && get(w:, 'quickfix_title') =~ '^:cgetfile'
+    let pos = getpos('.')
+    exe 'cgetfile' s:fnameescape(w:quickfix_title[10:-1])
+    silent! clast
+    call setpos('.', pos)
+  else
+    checktime
+  endif
+  if &l:filetype !=# 'railslog'
+    setfiletype railslog
+  endif
+endfunction
+
 function! rails#log_setup() abort
-  nnoremap <buffer> <silent> R :checktime<CR>
-  nnoremap <buffer> <silent> G :checktime<Bar>$<CR>
+  nnoremap <buffer> <silent> R :<C-U>call <SID>reload_log()<CR>
+  nnoremap <buffer> <silent> G :<C-U>call <SID>reload_log()<Bar>exe v:count ? v:count : '$'<CR>
   nnoremap <buffer> <silent> q :bwipe<CR>
-  setlocal modifiable noswapfile autoread
+  setlocal noswapfile autoread
   if exists('+concealcursor')
     setlocal concealcursor=nc conceallevel=2
   else
+    let pos = getpos('.')
+    setlocal modifiable
     silent %s/\%(\e\[[0-9;]*m\|\r$\)//ge
+    call setpos('.', pos)
   endif
   setlocal readonly nomodifiable
-  $
 endfunction
 
 " }}}1
@@ -4076,8 +4127,22 @@ function! s:app_db_config(environment) dict
   if has_key(all, a:environment)
     return all[a:environment]
   elseif self.has_gem('rails-default-database')
-    let db = s:gsub(fnamemodify(self.path(), ':t'), '[^[:alnum:]]+', '_') .
-          \ '_' . a:environment
+    let db = ''
+    if self.has_file('config/application.rb')
+      for line in readfile(self.path('config/application.rb'), 32)
+        let db = matchstr(line,'^\s*config\.database_name\s*=\s*[''"]\zs.\{-\}\ze[''"]')
+        if !empty(db)
+          break
+        endif
+    endfor
+    if empty(db)
+      let db = s:gsub(fnamemodify(self.path(), ':t'), '[^[:alnum:]]+', '_') .
+            \ '_%s'
+    endif
+    let db = substitute(db, '%s', a:environment, 'g')
+    if db !~# '_test$' && a:environment ==# 'test'
+      let db .= '_test'
+    endif
     if self.has_gem('pg')
       return {'adapter': 'postgresql', 'database': db}
     elseif self.has_gem('mysql') || self.has_gem('mysql2')
@@ -5120,7 +5185,7 @@ augroup railsPluginAuto
   autocmd BufWritePost */config/database.yml      call rails#cache_clear("db_config")
   autocmd BufWritePost */config/projections.json  call rails#cache_clear("projections")
   autocmd BufWritePost */test/test_helper.rb      call rails#cache_clear("user_assertions")
-  autocmd BufWritePost */config/routes.rb         call rails#cache_clear("named_routes")
+  autocmd BufWritePost */config/routes.rb         call rails#cache_clear("routes")
   autocmd BufWritePost */config/application.rb    call rails#cache_clear("default_locale")
   autocmd BufWritePost */config/application.rb    call rails#cache_clear("stylesheet_suffix")
   autocmd BufWritePost */config/environments/*.rb call rails#cache_clear("environments")

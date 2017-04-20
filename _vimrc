@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-04-17 16:47:19
+" -----------------    Date: 2017-04-20 20:24:07
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -368,14 +368,14 @@ au FileType c      call AddCDict()
 au FileType cpp    call AddCPPDict()
 au FileType rust   call AddRustDict()
 au FileType java   call AddJavaDict()
-au FileType elixir call AddElixirDict()
 au FileType lua    call AddLuaDict()
 au FileType perl   call AddPerlDict()
 au FileType php    call AddPHPDict()
 au FileType python call AddPythonDict()
-au FileType ruby   call AddRubyDict()
 au FileType mysql  call AddMySQLDict()
-au FileType css,scss,less call AddCSSDict()
+au FileType elixir,eelixir call AddElixirDict()
+au FileType ruby,eruby     call AddRubyDict()
+au FileType css,scss,less  call AddCSSDict()
 au FileType javascript,coffee,typescript,ls call AddJavaScriptDict()
 au FileType html,eelixir,blade,htmldjango,eruby,jst,mustache,handlebars,vue,jsx call AddHTMLDict()
 

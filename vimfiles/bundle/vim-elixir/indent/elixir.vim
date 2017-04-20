@@ -5,9 +5,7 @@ let b:did_indent = 1
 
 setlocal indentexpr=elixir#indent(v:lnum)
 
-setlocal indentkeys+=0=end,0=catch,0=rescue,0=after,0=else,=->,0},0],0=\|>,0=<>
-" TODO: @jbodah 2017-02-27:
-" setlocal indentkeys+=0)
+setlocal indentkeys+=0=end,0=catch,0=rescue,0=after,0=else,=->,0},0],0),0=\|>,0=<>
 " TODO: @jbodah 2017-02-27: all operators should cause reindent when typed
 
 function! elixir#indent(lnum)
@@ -21,27 +19,14 @@ function! elixir#indent(lnum)
 
   let handlers = [
         \'top_of_file',
-        \'starts_with_after',
-        \'starts_with_else',
         \'starts_with_end',
-        \'starts_with_rescue',
-        \'starts_with_catch',
+        \'starts_with_mid_or_end_block_keyword',
         \'following_trailing_do',
-        \'following_trailing_else',
         \'following_trailing_binary_operator',
         \'starts_with_pipe',
-        \'starts_with_close_sq_bracket',
-        \'starts_with_close_curly_brace',
+        \'starts_with_close_bracket',
         \'starts_with_binary_operator',
-        \'inside_cond_block',
-        \'inside_case_block',
-        \'inside_fn',
-        \'inside_rescue',
-        \'inside_catch',
-        \'inside_after',
-        \'inside_receive',
-        \'inside_data_structure',
-        \'inside_parens',
+        \'inside_nested_construct',
         \'starts_with_comment',
         \'inside_generic_block'
         \]
