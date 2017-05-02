@@ -1223,17 +1223,6 @@ if !exists("cpp_no_cpp11")
     syntax keyword cppSTLtype codecvt_utf8_utf16
     syntax keyword cppSTLtype codecvt_mode
 
-    " regex
-    syntax keyword cppSTLtype basic_regex
-    syntax keyword cppSTLtype sub_match
-    syntax keyword cppSTLtype match_results
-    syntax keyword cppSTLtype regex_traits
-    syntax keyword cppSTLtype regex_match regex_search regex_replace
-    syntax keyword cppSTLiterator regex_iterator
-    syntax keyword cppSTLiterator regex_token_iterator
-    syntax keyword cppSTLexception regex_error
-    syntax keyword cppSTLtype syntax_option_type match_flag_type error_type
-
     " atomic
     syntax keyword cppSTLtype atomic
     syntax keyword cppSTLfunction atomic_is_lock_free
@@ -1420,6 +1409,69 @@ if !exists("cpp_no_cpp11")
     syntax keyword cppSTLtype seconds
     syntax keyword cppSTLtype minutes
     syntax keyword cppSTLtype hours
+
+    "regex
+    syntax keyword cppSTLtype regex
+    syntax keyword cppSTLtype wregex
+    syntax keyword cppSTLtype basic_regex
+    syntax keyword cppSTLtype sub_match
+    syntax keyword cppSTLtype match_results
+    syntax keyword cppSTLtype regex_iterator
+    syntax keyword cppSTLtype regex_token_iterator
+    syntax keyword cppSTLtype regex_error
+    syntax keyword cppSTLtype regex_traits
+
+    syntax keyword cppSTLfunction regex_match
+    syntax keyword cppSTLfunction regex_search
+    syntax keyword cppSTLfunction regex_replace
+
+    syntax keyword cppSTLfunction mark_count
+    syntax keyword cppSTLfunction getloc
+    syntax keyword cppSTLfunction imbue
+
+    syntax keyword cppSTLnamespace regex_constants
+    syntax keyword cppSTLtype syntax_option_type
+    syntax keyword cppSTLtype match_flag_type
+    syntax keyword cppSTLtype error_type
+
+    syntax keyword cppSTLconstant icase
+    syntax keyword cppSTLconstant nosubs
+    syntax keyword cppSTLconstant optimize
+    syntax keyword cppSTLconstant collate
+    syntax keyword cppSTLconstant ECMAScript
+    syntax keyword cppSTLconstant basic
+    syntax keyword cppSTLconstant extended
+    syntax keyword cppSTLconstant awk
+    syntax keyword cppSTLconstant grep
+    syntax keyword cppSTLconstant egrep
+
+    syntax keyword cppSTLconstant match_default
+    syntax keyword cppSTLconstant match_not_bol
+    syntax keyword cppSTLconstant match_not_eol
+    syntax keyword cppSTLconstant match_not_bow
+    syntax keyword cppSTLconstant match_not_eow
+    syntax keyword cppSTLconstant match_any
+    syntax keyword cppSTLconstant match_not_null
+    syntax keyword cppSTLconstant match_continuous
+    syntax keyword cppSTLconstant match_prev_avail
+    syntax keyword cppSTLconstant format_default
+    syntax keyword cppSTLconstant format_sed
+    syntax keyword cppSTLconstant format_no_copy
+    syntax keyword cppSTLconstant format_first_only
+
+    syntax keyword cppSTLconstant error_collate
+    syntax keyword cppSTLconstant error_ctype
+    syntax keyword cppSTLconstant error_escape
+    syntax keyword cppSTLconstant error_backref
+    syntax keyword cppSTLconstant error_brack
+    syntax keyword cppSTLconstant error_paren
+    syntax keyword cppSTLconstant error_brace
+    syntax keyword cppSTLconstant error_badbrace
+    syntax keyword cppSTLconstant error_range
+    syntax keyword cppSTLconstant error_space
+    syntax keyword cppSTLconstant error_badrepeat
+    syntax keyword cppSTLconstant error_complexity
+    syntax keyword cppSTLconstant error_stack
 
 endif " C++11
 

@@ -177,7 +177,7 @@ endfunction
 
 function! elixir#indent#handle_starts_with_mid_or_end_block_keyword(lnum, text, _prev_nb_lnum, _prev_nb_text)
   if elixir#indent#starts_with(a:text, elixir#indent#keyword('catch\|rescue\|after\|else'), a:lnum)
-    let pair_lnum = elixir#indent#searchpair_back(elixir#indent#keyword('receive\|try\|if\|fn'), elixir#indent#keyword('catch\|rescue\|after\|else').'\zs', elixir#indent#keyword('end'))
+    let pair_lnum = elixir#indent#searchpair_back(elixir#indent#keyword('with\|receive\|try\|if\|fn'), elixir#indent#keyword('catch\|rescue\|after\|else').'\zs', elixir#indent#keyword('end'))
     return indent(pair_lnum)
   else
     return -1
@@ -219,7 +219,7 @@ endfunction
 " function, etc... so we need to first figure out what the innermost structure
 " is then forward execution to the proper handler
 function! elixir#indent#handle_inside_nested_construct(lnum, text, prev_nb_lnum, prev_nb_text)
-  let start_pattern = '\C\%(\<case\>\|\<cond\>\|\<try\>\|\<receive\>\|\<fn\>\|{\|\[\|(\)'
+  let start_pattern = '\C\%(\<if\>\|\<case\>\|\<cond\>\|\<try\>\|\<receive\>\|\<fn\>\|{\|\[\|(\)'
   let end_pattern = '\C\%(\<end\>\|\]\|}\|)\)'
   let pair_info = elixir#indent#searchpairpos_back(start_pattern, '', end_pattern)
   let pair_lnum = pair_info[0]
