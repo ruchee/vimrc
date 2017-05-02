@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-02 12:13:53
+" -----------------    Date: 2017-05-02 17:37:17
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -391,10 +391,10 @@ endfunction
 function AddCPPDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/c.txt
-    set dict+=$VIM/vimfiles/dict/cpp-stdlib.txt
+    set dict+=$VIM/vimfiles/dict/cpp.txt
   else
     set dict+=~/.vim/dict/c.txt
-    set dict+=~/.vim/dict/cpp-stdlib.txt
+    set dict+=~/.vim/dict/cpp.txt
   endif
   set complete+=k
 endfunction

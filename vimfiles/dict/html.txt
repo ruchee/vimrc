@@ -1,4 +1,3 @@
-a
 abbr
 above
 abs
@@ -175,7 +174,6 @@ curl
 cursor
 cx
 cy
-d
 data
 datalist
 datetime
@@ -316,7 +314,6 @@ framespacing
 from
 fx
 fy
-g
 g1
 g2
 gcd
@@ -390,7 +387,6 @@ itemprop
 itemref
 itemscope
 itemtype
-k
 k1
 k2
 k3
@@ -662,7 +658,6 @@ output
 overflow
 overline-position
 overline-thickness
-p
 pagex
 pagey
 panose-1
@@ -703,9 +698,7 @@ progress
 prompt
 prsubset
 pubdate
-q
 quotient
-r
 radialGradient
 radiogroup
 radius
@@ -749,7 +742,6 @@ ruby
 rules
 rx
 ry
-s
 samp
 sandbox
 scalarproduct
@@ -931,28 +923,15 @@ widths
 word-spacing
 wrap
 writing-mode
-x
 x-height
 x1
 x2
 xChannelSelector
-xlink:actuate
-xlink:arcrole
-xlink:href
-xlink:role
-xlink:show
-xlink:title
-xlink:type
-xml:base
-xml:lang
-xml:space
 xmlns
 xmp
 xor
 xref
-y
 y1
 y2
 yChannelSelector
-z
 zoomAndPan
