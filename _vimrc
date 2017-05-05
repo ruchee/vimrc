@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-02 17:37:17
+" -----------------    Date: 2017-05-05 17:30:56
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -55,6 +55,7 @@
 " \php                       --一键切换到PHP语法高亮
 " \ruby                      --一键切换到Ruby语法高亮
 " \eruby                     --一键切换到eRuby语法高亮
+" \cf                        --一键切换到Coffee语法高亮
 " \js                        --一键切换到JavaScript语法高亮
 " \css                       --一键切换到CSS语法高亮
 " \html                      --一键切换到HTML语法高亮
@@ -809,13 +810,17 @@ nmap <leader>ev <esc>:e $MYVIMRC<cr>
 imap <leader>php <esc>:se ft=php<cr>li
 nmap <leader>php <esc>:se ft=php<cr>
 
-" \ruby                一键切换到Ruby语法高亮
+" \ruby               一键切换到Ruby语法高亮
 imap <leader>ruby <esc>:se ft=ruby<cr>li
 nmap <leader>ruby <esc>:se ft=ruby<cr>
 
-" \eruby                一键切换到eRuby语法高亮
+" \eruby              一键切换到eRuby语法高亮
 imap <leader>eruby <esc>:se ft=eruby<cr>li
 nmap <leader>eruby <esc>:se ft=eruby<cr>
+
+" \cf                 一键切换到Coffee语法高亮
+imap <leader>cf <esc>:se ft=coffee<cr>li
+nmap <leader>cf <esc>:se ft=coffee<cr>
 
 " \js                 一键切换到JavaScript语法高亮
 imap <leader>js <esc>:se ft=javascript<cr>li
