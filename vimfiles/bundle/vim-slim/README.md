@@ -62,3 +62,30 @@ If you're adding Vundle to a built-up vimrc, just make sure all these calls
 3. Open vim and run `:PluginInstall`.
 
 To update, open vim and run `:PluginInstall!` (notice the bang!)
+
+
+Known Issues
+------------
+
+We use `setfiletype` upon autodetect, which does not overrides filetype once it
+was set. That leads into an issue when filetype is set to `html` before we took
+our chance (happens when slim file has `doctype html` header):
+
+> Vim's `filetype.vim` has an `autocmd` that tries to detect *html* files based
+> on *doctype* and this is triggered **before** scripts in `ftdetect/*`
+> are sourced.
+>
+> -- https://github.com/slim-template/vim-slim/issues/38#issuecomment-23760100
+
+To avoid that you have two options. Either using `doctype 5` instead of
+`doctype html` or adding your own enforced version of `autocmd` to your
+`.vimrc`:
+
+```vim
+autocmd BufNewFile,BufRead *.slim setlocal filetype=slim
+```
+
+See Also:
+
+- https://github.com/slim-template/vim-slim/issues/38
+- https://github.com/slim-template/vim-slim/commit/1ac9ebd51467ddbe0f12f01cdac57a76483a00af

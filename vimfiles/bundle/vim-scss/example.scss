@@ -970,6 +970,13 @@ $a: (
   // yet another comment
 }
 
+// issue #65, cssBoxProp & cssDimensionProp are not recognized as mixin params
+// i.e. "margin" and "width" are not highlighted in the example below
+.container {
+  @include test(margin, $marginDefault, auto);
+  @include test(width, 18);
+}
+
 // function is not recognized in map
 $m: (key: fn());
 

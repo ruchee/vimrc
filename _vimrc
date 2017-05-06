@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-05 17:30:56
+" -----------------    Date: 2017-05-06 14:12:01
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -374,11 +374,18 @@ au FileType perl   call AddPerlDict()
 au FileType php    call AddPHPDict()
 au FileType python call AddPythonDict()
 au FileType mysql  call AddMySQLDict()
+
 au FileType elixir,eelixir call AddElixirDict()
 au FileType ruby,eruby     call AddRubyDict()
-au FileType css,scss,less  call AddCSSDict()
-au FileType javascript,coffee,typescript,ls call AddJavaScriptDict()
-au FileType html,eelixir,blade,htmldjango,eruby,jst,mustache,handlebars,vue,jsx call AddHTMLDict()
+
+au FileType html,eelixir,blade,volt,*.twig,htmldjango,jinja,eruby,jst call AddHTMLDict()
+au FileType smarty,mustache,handlebars,vue,jsx                        call AddHTMLDict()
+au FileType css,scss,less                                             call AddCSSDict()
+au FileType javascript,coffee,typescript,ls                           call AddJavaScriptDict()
+
+au FileType slim,pug call AddHTMLDict()
+au FileType slim,pug call AddCSSDict()
+au FileType slim,pug call AddJavaScriptDict()
 
 function AddCDict()
   if g:isWIN
@@ -560,7 +567,7 @@ let g:snipMate.scope_aliases                    = {}
 let g:snipMate.scope_aliases['c']               = 'cpp'
 let g:snipMate.scope_aliases['objc']            = 'cpp,objc'
 let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
-let g:snipMate.scope_aliases['javascript']      = 'js_vue,js_angular,js_react,js_wxapp,javascript'
+let g:snipMate.scope_aliases['javascript']      = 'js_*,javascript'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
 let g:snipMate.scope_aliases['javascript.jsx']  = 'javascript,jsx'
 let g:snipMate.scope_aliases['elixir']          = 'elixir,phoenix'
@@ -568,9 +575,7 @@ let g:snipMate.scope_aliases['eelixir']         = 'html,eelixir'
 let g:snipMate.scope_aliases['smarty']          = 'html,smarty'
 let g:snipMate.scope_aliases['blade']           = 'html,blade'
 let g:snipMate.scope_aliases['volt']            = 'html,volt'
-let g:snipMate.scope_aliases['html.twig']       = 'html,twig'
-let g:snipMate.scope_aliases['jinja.twig']      = 'html,twig'
-let g:snipMate.scope_aliases['htmldjango.twig'] = 'html,twig'
+let g:snipMate.scope_aliases['*.twig']          = 'html,twig'
 let g:snipMate.scope_aliases['htmldjango']      = 'html,htmldjango'
 let g:snipMate.scope_aliases['jinja']           = 'html,jinja'
 let g:snipMate.scope_aliases['ruby']            = 'ruby,rails,rspec'

@@ -16,6 +16,7 @@ syn include @htmlCss syntax/css/css-fonts-3.vim
 syn include @htmlCss syntax/css/css-fonts-4.vim
 syn include @htmlCss syntax/css/css-gcpm-3.vim
 syn include @htmlCss syntax/css/css-grid-1.vim
+syn include @htmlCss syntax/css/css-images-4.vim
 syn include @htmlCss syntax/css/css-inline-3.vim
 syn include @htmlCss syntax/css/css-line-grid-1.vim
 syn include @htmlCss syntax/css/css-lists-3.vim
@@ -62,6 +63,7 @@ syn include @htmlCss syntax/css/css3-speech.vim
 syn include @htmlCss syntax/css/css3-transitions.vim
 syn include @htmlCss syntax/css/cssom-1.vim
 syn include @htmlCss syntax/css/cssom-view-1.vim
+syn include @htmlCss syntax/css/fill-stroke-3.vim
 syn include @htmlCss syntax/css/filter-effects-1.vim
 syn include @htmlCss syntax/css/geometry-1.vim
 syn include @htmlCss syntax/css/html5.vim
