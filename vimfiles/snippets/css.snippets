@@ -10,9 +10,9 @@ snippet .
 	}
 # 全局相关
 snippet im      导入外部样式文件
-	@import "${1}"${2};${0}
+	@import '${1}'${2};${0}
 snippet ch      在外部样式文件中指定字符编码
-	@charset "${1:utf-8}";${0}
+	@charset '${1:utf-8}';${0}
 snippet me      指定媒体类型和查询条件
 	@media ${1} {${0}}
 snippet ff      设置嵌入HTML文档的字体
