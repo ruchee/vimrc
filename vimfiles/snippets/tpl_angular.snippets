@@ -1,0 +1,28 @@
+# 流程控制
+snippet aif       ngIf
+	*ngIf="${0}"
+snippet asw       ngSwitch
+	[ngSwitch]="${0}"
+snippet acs       ngSwitchCase
+	*ngSwitchCase="${0}"
+snippet adf       ngSwitchDefault
+	*ngSwitchDefault${0}
+snippet afo       ngFor
+	*ngFor="let ${1} of ${0}"
+# HTML结构
+snippet ast       ngStyle [设置单个CSS属性]
+	[style.${1}]="${0}"
+snippet acss      ngStyle [设置多个CSS属性]
+	[ngStyle]="{ ${0} }"
+snippet acls      ngClass [设置标签的class属性]
+	[ngClass]="${0}"
+# 补充功能
+snippet ano       ngNonBindable [不渲染 {{}} 里面的变量]
+	ngNonBindable${0}
+# 通用结构
+snippet ax        []=""
+	[${1}]="${0}"
+snippet ay        ()=""
+	(${1})="${0}"
+snippet a.        {{ .. }}
+	{{ ${0} }}

@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-10 00:06:29
+" -----------------    Date: 2017-05-11 17:06:46
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -591,7 +591,7 @@ let g:snipMate.scope_aliases['vue']             = 'html,vue'
 let g:snipMate.scope_aliases['scss']            = 'css,scss'
 let g:snipMate.scope_aliases['less']            = 'css,less'
 let g:snipMate.scope_aliases['xhtml']           = 'html'
-let g:snipMate.scope_aliases['html']            = 'blaze,html'
+let g:snipMate.scope_aliases['html']            = 'tpl_*,html'
 " For 微信小程序
 let g:snipMate.scope_aliases['wxml']            = 'html,wxml'
 let g:snipMate.scope_aliases['wxss']            = 'css,wxss'
