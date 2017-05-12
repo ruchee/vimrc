@@ -4,6 +4,21 @@ snippet vtpl    template
 	  ${0}
 	</template>
 # 流程控制
+snippet vif     if
+	v-if="${0}"
+# 数据
+snippet vb      数据绑定
+	v-bind:${1}="${0}"
+snippet vo      监听事件
+	v-on:${1}="${0}"
+snippet von     变量只渲染一次，后续不再自动更新
+	v-once${0}
+snippet vht     输出 HTML
+	v-html="${0}"
 # 其他
+snippet vx      v-bind 缩写
+	:${1}="${0}"
+snippet vy      v-on 缩写
+	@${1}="${0}"
 snippet v.      {{..}}
 	{{${0}}}
