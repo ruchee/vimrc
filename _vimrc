@@ -1014,7 +1014,7 @@ else
   let blog.path_html     = '~/mysite/html/'
   let blog.template_path = '~/mysite/templates/'
 endif
-let blog.template_default  = 'site'
+let blog.template_default  = 'code'
 let blog.template_ext      = '.html'
 let blog.auto_export       = 1
 let g:vimwiki_list         = [blog]
