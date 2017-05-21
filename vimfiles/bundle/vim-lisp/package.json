@@ -1,0 +1,22 @@
+{
+  "name": "lisp-syntax-file-generator",
+  "version": "1.0.0",
+  "description": "Automatically generate syntax file for Lisp based on the YAML input file that contains syntax mapping rules",
+  "main": "generate-syntax-file.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "vim",
+    "lisp",
+    "syntax",
+    "file",
+    "generator"
+  ],
+  "author": "Nguyen Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^3.10.1",
+    "yamljs": "^0.2.4"
+  }
+}

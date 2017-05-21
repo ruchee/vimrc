@@ -1,0 +1,29 @@
+lispPredicate:
+  keywords: >
+    eq eql equal equalp atom listp symbolp null numberp
+    = > >= < <=
+  highlight_link: Conditional
+
+lispSideEffect:
+  keywords: >
+    defun print setf
+
+lispExtract:
+  keywords: >
+    first second third four last butlast rest
+  matches: >
+    "\<c[ad]\+r\>"
+  highlight_link: StorageClass
+
+lispCompute:
+  keywords: >
+    length search random
+  highlight_link: Structure
+
+lispConstruct:
+  keywords: >
+    sort append cons
+
+lispOperator:
+  keywords: >
+    + - * / not and or cond
