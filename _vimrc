@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-11 17:06:46
+" -----------------    Date: 2017-05-23 21:53:37
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -253,7 +253,9 @@ au BufRead,BufNewFile *.conf     set ft=dosini
 au BufRead,BufNewFile http*.conf set ft=apache
 au BufRead,BufNewFile *.ini      set ft=dosini
 
+au BufRead,BufNewFile */nginx/*.conf        set ft=nginx
 au BufRead,BufNewFile */nginx/**/*.conf     set ft=nginx
+au BufRead,BufNewFile */openresty/*.conf    set ft=nginx
 au BufRead,BufNewFile */openresty/**/*.conf set ft=nginx
 
 au BufRead,BufNewFile *.yml.bak      set ft=yaml
