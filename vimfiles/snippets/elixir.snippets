@@ -130,6 +130,9 @@ snippet co      cond [不限制匹配变量]
 	cond do
 	  ${0}
 	end
+snippet wi      with
+	with ${0}
+	do
 snippet if      if
 	if ${1} do
 	  ${0}
@@ -229,8 +232,14 @@ snippet x       ~x[ .. ]
 	~${1}[${0}]
 snippet y       ~y{ .. }
 	~${1}{${0}}
+snippet m       %{ .. }
+	%{${0}}
 snippet {       #{ .. }
 	#{${0}
+snippet <       <-
+	<-${0}
+snippet >       ->
+	->${0}
 snippet \       \\
 	\\\\ ${0}
 snippet |       |>
