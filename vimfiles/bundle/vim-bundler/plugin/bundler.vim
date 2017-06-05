@@ -104,13 +104,13 @@ let s:abstract_prototype = {}
 " Section: Syntax highlighting
 
 function! s:syntaxfile()
-  syntax keyword rubyGemfileMethod gemspec gem source path git group platforms env ruby
+  syntax keyword rubyGemfileMethod gemspec gem source path git group platform platforms env ruby
   hi def link rubyGemfileMethod Function
 endfunction
 
 function! s:syntaxlock()
   setlocal iskeyword+=-,.
-  syn match gemfilelockHeading  '^[[:upper:]]\+$'
+  syn match gemfilelockHeading  '^[[:upper:] ]\+$'
   syn match gemfilelockKey      '^\s\+\zs\S\+:'he=e-1 skipwhite nextgroup=gemfilelockRevision
   syn match gemfilelockKey      'remote:'he=e-1 skipwhite nextgroup=gemfilelockRemote
   syn match gemfilelockRemote   '\S\+' contained
@@ -121,7 +121,7 @@ function! s:syntaxlock()
   syn match gemfilelockBang     '!' contained
   if !empty(bundler#project())
     exe 'syn match gemfilelockFound "\<\%(bundler\|' . join(keys(s:project().paths()), '\|') . '\)\>" contained'
-    exe 'syn match gemfilelockMissing "\<\%(' . join(keys(filter(s:project().versions(), '!has_key(s:project().paths(), v:key)')), '\|') . '\)\>" contained'
+    exe 'syn match gemfilelockMissing "\<\%(' . join(filter(keys(s:project().versions()), '!has_key(s:project().paths(), v:val)'), '\|') . '\)\>" contained'
   else
     exe 'syn match gemfilelockFound "\<\%(\S*\)\>" contained'
   endif
@@ -140,10 +140,22 @@ function! s:syntaxlock()
 endfunction
 
 function! s:setuplock()
-  nnoremap <silent><buffer> gf         :Bopen    <C-R><C-F><CR>
-  nnoremap <silent><buffer> <C-W>f     :Bsplit   <C-R><C-F><CR>
-  nnoremap <silent><buffer> <C-W><C-F> :Bsplit   <C-R><C-F><CR>
-  nnoremap <silent><buffer> <C-W>gf    :Btabedit <C-R><C-F><CR>
+  setlocal includeexpr=get(bundler#project().gems(),v:fname,v:fname)
+  setlocal suffixesadd=/
+  cnoremap <buffer><expr> <Plug><cfile> get(bundler#project().gems(),expand("<cfile>"),"\022\006")
+  let pattern = '^$\|Rails'
+  if mapcheck('gf', 'n') =~# pattern
+    nnoremap <silent><buffer> gf         :Bopen    <C-R><C-F><CR>
+  endif
+  if mapcheck('<C-W>f', 'n') =~# pattern
+    nnoremap <silent><buffer> <C-W>f     :Bsplit   <C-R><C-F><CR>
+  endif
+  if mapcheck('<C-W><C-F>', 'n') =~# pattern
+    nnoremap <silent><buffer> <C-W><C-F> :Bsplit   <C-R><C-F><CR>
+  endif
+  if mapcheck('<C-W>gf', 'n') =~# pattern
+    nnoremap <silent><buffer> <C-W>gf    :Btabedit <C-R><C-F><CR>
+  endif
 endfunction
 
 augroup bundler_syntax

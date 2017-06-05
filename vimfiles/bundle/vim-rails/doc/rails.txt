@@ -17,7 +17,6 @@ Author:  Tim Pope <http://tpo.pe/>
 |rails-rails-integration|           Integration with the Rails Universe
 |rails-abbreviations|           Abbreviations
 |rails-syntax|                  Syntax Highlighting
-|rails-options|                 Managed Vim Options
 |rails-projections|             Projections
 |rails-configuration|           Configuration
 |rails-global-settings|         Global Settings
@@ -42,8 +41,11 @@ inspired the creation of this plugin.
 
 The standard Rails load path is prepended to 'path', enabling |:find| to work:
 >
-	:find application_controller.rb
+	:find application_controller
 <
+In asset files, 'path' is instead set to the asset load path, and
+'suffixesadd' is set to a long list of possible JavaScript or CSS suffixes.
+
 File Under Cursor - gf ~
 						*rails-gf*
 The |gf| command, which normally edits the current file under the cursor, has
@@ -66,8 +68,8 @@ Example uses of |gf|, and where they might lead.
 	<%= render 'sh*ared/sidebar' %>
 <	app/views/shared/_sidebar.html.erb ~
 >
-	<%= stylesheet_link_tag 'scaf*fold' %>
-<	public/stylesheets/scaffold.css ~
+	<%= stylesheet_link_tag 'appl*ication' %>
+<	app/assets/stylesheets/application.css ~
 >
 	class BlogController < Applica*tionController
 <	app/controllers/application_controller.rb ~
@@ -150,8 +152,8 @@ Each of the following commands has variants for splitting, vertical splitting,
 opening in a new tab, and reading the file into the current buffer.  For
 :Emodel, those variants would be :Smodel, :Vmodel, :Tmodel, and :Dmodel.
 They also allow for jumping to methods or line numbers using the same syntax
-as |:R|, and file creation (with a bit of boilerplate) can be forced by adding
-a ! after the filename (not after the command itself!).
+as |:rails-R|, and file creation (with a bit of boilerplate) can be forced by
+adding a ! after the filename (not after the command itself!).
 
 There are also "classic" versions of these commands that start with :R (e.g.,
 :Rmodel, :RSmodel, :RVmodel, :RTmodel, and :RDmodel).
@@ -236,9 +238,7 @@ There are also "classic" versions of these commands that start with :R (e.g.,
 			default locale.
 
 				*rails-:Emailer* *rails-:Rmailer*
-:Emailer [{name}]	Edit the mailer specified.  This looks in both
-			app/mailers for Rails 3 and app/models for older
-			versions of Rails but only tab completes the former.
+:Emailer [{name}]	Edit the specified mailer.
 
 				*rails-:Emigration* *rails-:Rmigration*
 :Emigration [{pattern}]	If {pattern} is a number, find the migration for that
@@ -254,9 +254,9 @@ There are also "classic" versions of these commands that start with :R (e.g.,
 				*rails-:Espec* *rails-:Rspec*
 :Espec [{name}]		Edit the given spec.  With no argument, defaults to
 			editing spec/spec_helper.rb (If you want to jump to
-			the spec for the given file, use |:A| instead).  This
-			command is only defined if there is a spec folder in
-			the root of the application.
+			the spec for the given file, use |rails-:A| instead).
+			This command is only defined if there is a spec folder
+			in the root of the application.
 
 				*rails-:Eschema* *rails-:Rschema*
 :Eschema [{table}]	Edit the schema and optionally jump to the specified
@@ -291,7 +291,7 @@ EXECUTABLE WRAPPERS				*rails-exec*
 
 Several commands are provided that wrap the `rails` and `rake` executables.
 Additionally, `rake` can be invoked directly with |:make| (or dispatch.vim's
-|:Make|).
+:Make).
 
 						*rails-:Rails*
 :Rails {command} [options]
@@ -308,8 +308,7 @@ Additionally, `rake` can be invoked directly with |:make| (or dispatch.vim's
 
 						*rails-:Rscript*
 :Rscript {command} [options]
-			Deprecated alias for |:Rails| {command}.  Defaults to
-			calling |:Console|.
+			Deprecated alias for |:Rails| {command}.
 
 						*rails-:Console*
 :Console {options}	Launch rails console {options}. If dispatch.vim's
@@ -332,7 +331,7 @@ Additionally, `rake` can be invoked directly with |:make| (or dispatch.vim's
 
 					*rails-:Server!* *rails-:Rserver!*
 :Server! {options}	Kill the pid found in tmp/pids/server.pid and then
-			invoke |:Server|.
+			invoke :Server.
 
 					*rails-:Runner* *rails-:Rrunner*
 :[range]Runner [file]	Run the given file or code with rails runner and load
@@ -390,7 +389,7 @@ File                            Task when given range ~
 test/*_test.rb                  test TEST=test/*_test.rb TESTOPTS=-n<method>
 spec/*_spec.rb                  spec SPEC=spec/*_spec.rb:<line>
 features/*.feature              cucumber FEATURE=features/*.feature:<line>
-app/controllers/*_controller.rb routes CONTROLLER=*
+app/controllers/*_controller.rb routes -c *
 test/fixtures/*.yml             db:fixtures:identify LABEL=<label>
 db/migrate/*_*.rb               db:migrate:down VERSION=*
 lib/tasks/*.rake                <try to guess currently edited task>
@@ -467,8 +466,8 @@ Migration Inversion ~
 
 MISCELLANEOUS COMMANDS				*rails-misc*
 
-						*rails-:Clogfile*
-:Clogfile [environment]	Load the log file for the given environment using
+						*rails-:Clog*
+:Clog [environment]	Load the log file for the given environment using
 			|:cgetfile|, open the quickfix window, and jump to the
 			last line.  |R| is remapped to reload the list, and
 			|G| remapped to do the same before it's usual behavior
@@ -585,12 +584,10 @@ detected, so all navigation commands should work as expected inside a spec
 file.  :Rails in a spec runs just that spec, and in a model, controller, or
 helper, runs the associated spec.
 
-|:Eunittest| and |:Efunctionaltest| lead double lives, handling model/helper
-and controller/mailer specs respectively.  For view specs, you can use
-|:Espec|, or define your own navigation commands:
->
-	Rnavcommand specview spec/views -glob=**/* -suffix=_spec.rb
-<
+:Eunittest and :Efunctionaltest lead double lives, handling model/helper and
+controller/mailer specs respectively.  For everything else, you can use
+:Espec.
+
 ABBREVIATIONS				*rails-abbreviations* *rails-snippets*
 
 Abbreviations are "snippets lite".  They may later be extracted into a
@@ -663,35 +660,7 @@ If you define custom assertions in test_helper.rb, these will be highlighted
 in your tests.  These are found by scanning test_helper.rb for lines of the
 form "  def assert_..." and extracting the method name.  The railsUserMethod
 syntax group is used.  The list of assertions can be refreshed with
-|:Rrefresh|.
-
-						*rails-syntax-yaml*
-YAML syntax highlighting has been extended to highlight eRuby, which can be
-used in most Rails YAML files (including database.yml and fixtures).
-
-MANAGED VIM OPTIONS			*rails-options*
-
-The following options are set local to buffers where the plugin is active.
-
-					*rails-'shiftwidth'*	*rails-'sw'*
-					*rails-'softtabstop'*	*rails-'sts'*
-					*rails-'expandtab'*	*rails-'et'*
-Indent settings are no longer adjusted by default.  Install sleuth.vim, or try
-this in your vimrc instead: >
-	autocmd FileType ruby set sw=2 sts=2 et
-<
-					*rails-'path'*		*rails-'pa'*
-All the relevant directories from your application are added to your 'path'.
-This makes it easy to access a buried file: >
-	:find blog_controller
-<
-					*rails-'includeexpr'*	*rails-'inex'*
-The 'includeexpr' option is set to enable the magic described in |rails-gf|.
-
-					*rails-'filetype'*	*rails-'ft'*
-The 'filetype' is sometimes adjusted for Rails files.  Most notably, template
-extensions like *.builder and *.ruby are treated as Ruby files, and
-*.yml.example is treated as YAML.
+|rails-:Rrefresh|.
 
 PROJECTIONS		*rails-config/projections.json* *rails-projections*
 
@@ -843,10 +812,10 @@ This variable was formerly used to globally disable abbreviations.  Use
 g:rails_no_abbreviations if you want to do that.
 
 						*g:rails_ctags_arguments*
-Additional arguments to pass to ctags from |:Ctags|.  Defaults to limiting to
-Ruby files.
+Additional arguments to pass to ctags from |:rails-Ctags|.  Defaults to
+limiting to Ruby files.
 >
-	let g:rails_ctags_arguments = ['--languages=ruby']
+	let g:rails_ctags_arguments = ['--languages=Ruby']
 <
 This option is ignored if a ctags configuration file named .ctags is found in
 the root of the project.

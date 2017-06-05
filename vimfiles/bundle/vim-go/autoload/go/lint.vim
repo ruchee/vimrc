@@ -123,12 +123,11 @@ function! go#lint#Golint(...) abort
   endif
 
   if a:0 == 0
-    let goargs = shellescape(expand('%'))
+    let out = go#util#System(bin_path)
   else
-    let goargs = go#util#Shelljoin(a:000)
+    let out = go#util#System(bin_path . " " . go#util#Shelljoin(a:000))
   endif
 
-  let out = go#util#System(bin_path . " " . goargs)
   if empty(out)
     echon "vim-go: " | echohl Function | echon "[lint] PASS" | echohl None
     return
@@ -252,12 +251,20 @@ function s:lint_job(args)
   function! s:callback(chan, msg) closure
     let old_errorformat = &errorformat
     let &errorformat = l:errformat
-    caddexpr a:msg
+    if l:listtype == "locationlist"
+      lad a:msg
+    elseif l:listtype == "quickfix"
+      caddexpr a:msg
+    endif
     let &errorformat = old_errorformat
 
-    " TODO(arslan): cursor still jumps to first error even If I don't want
-    " it. Seems like there is a regression somewhere, but not sure where.
-    copen
+    " TODO(jinleileiking): give a configure to jump or not
+    let l:winnr = winnr()
+
+    let errors = go#list#Get(l:listtype)
+    call go#list#Window(l:listtype, len(errors))
+
+    exe l:winnr . "wincmd w"
   endfunction
 
   function! s:exit_cb(job, exitval) closure

@@ -32,6 +32,62 @@ INTRODUCTION                                                 *airline-intro*
 vim-airline is a fast and lightweight alternative to powerline, written
 in 100% vimscript with no outside dependencies.
 
+When the plugin is correctly loaded, and Vim is configured for drawing a
+'statusline' (set 'laststatus' to 2, to always display the airline
+statusline) Vim will draw a nice statusline at the bottom of each window.
+
+That line consists of several sections, each one displaying some piece of
+information. By default (without configuration) this line will look like this: >
+
++-----------------------------------------------------------------------------+
+|~                                                                            |
+|~                                                                            |
+|~                     VIM - Vi IMproved                                      |
+|~                                                                            |
+|~                       version 8.0                                          |
+|~                    by Bram Moolenaar et al.                                |
+|~           Vim is open source and freely distributable                      |
+|~                                                                            |
+|~           type :h :q<Enter>          to exit                               |
+|~           type :help<Enter> or <F1>  for on-line help                      |
+|~           type :help version8<Enter> for version info                      |
+|~                                                                            |
+|~                                                                            |
++-----------------------------------------------------------------------------+
+| A | B |                     C                            X | Y | Z |  [...] |
++-----------------------------------------------------------------------------+
+
+The statusline is the colored line at the bottom, which contains the sections
+(possibly in different colors):
+
+section  meaning (example)~
+--------------------------
+  A      displays the mode + additional flags like crypt/spell/paste (INSERT)
+  B      VCS information (branch, hunk summary) (master)
+  C      filename + read-only flag (~/.vim/vimrc RO)
+  X      filetype  (vim)
+  Y      file encoding[fileformat] (utf-8[unix])
+  Z      current position in the file
+           percentage % ☰ current line/number of lines ln : column
+           So this: 10% ☰ 10/100 ln : 20   means: >
+              10%     - 10 percent
+              ☰ 10    - current line 10
+              /100 ln - of 100 lines
+              : 20    - current column 20
+<
+  [...]  additional sections (warning/errors/statistics)
+         from external plugins (e.g. YCM/syntastic/...)
+
+For a better look, those sections can be colored differently, depending on the mode and
+whether the current file is 'modified'
+
+Additionally, several extensions exists, that can provide additional feature (e.g. the
+tabline extension provides an extra statusline on the top of the Vim window and can
+display loaded buffers and tabs in the current Vim session).
+
+Most of this is customizable and the default sections can be configured using the vim
+variables g:airline_section_<name> (see |airline-default-sections|)
+
 ==============================================================================
 FEATURES                                                  *airline-features*
 
@@ -144,9 +200,12 @@ values):
   window-local variable so you can disable it for only some windows) >
   let w:airline_disabled = 1
 
-* Do not draw separators for empty sections (only for the active window)
- >
+* Do not draw separators for empty sections (only for the active window) >
   let g:airline_skip_empty_sections = 1
+<
+  This variable can be overriden by setting a window-local variable with
+  the same name (in the correct window): >
+  let w:airline_skip_empty_sections = 0
 <
 ==============================================================================
 COMMANDS                                                  *airline-commands*
@@ -233,6 +292,7 @@ Note: If you define any section variables it will replace the default values
 entirely.  If you want to disable only certain parts of a section you can try
 using variables defined in the |airline-configuration| or |airline-extensions|
 section.
+                                                    |airline-default-sections|
 >
   variable names                default contents
   ----------------------------------------------------------------------------
@@ -558,8 +618,9 @@ are supported!
   let g:airline#extensions#tabline#show_splits = 1
     *
 * switch position of buffers and tabs on splited tabline (c)
+  (only supported for ctrlspace plugin). >
   let g:airline#extensions#tabline#switch_buffers_and_tabs = 0
-
+<
 * enable/disable displaying buffers with a single tab. (c)
   let g:airline#extensions#tabline#show_buffers = 1
 <
@@ -808,10 +869,10 @@ vim-ctrlspace <https://github.com/szw/vim-ctrlspace>
 
 * enable/disable vim-ctrlspace integration >
   let g:airline#extensions#ctrlspace#enabled = 1
-
+<
   To make the vim-ctrlspace integration work you will need to make the
   ctrlspace statusline function call the correct airline function. Therefore
-  add the following line into your .vimrc:
+  add the following line into your .vimrc: >
 
   let g:CtrlSpaceStatuslineFunction = "airline#extensions#ctrlspace#statusline()"
 <
@@ -837,7 +898,41 @@ po.vim <http://www.vim.org/scripts/script.php?script_id=2530>
 <
 * truncate width names to a fixed length >
   let g:airline#extensions#po#displayed_limit = 0
+
+-------------------------------------                          *airline-vimtex*
+vimtex <https://github.com/lervag/vimtex>
+
+Shows the current file's vimtex related info.
+
+* enable/disable vimtex integration >
+  let g:airline#extensions#vimtex#enabled = 1
 <
+* left and right delimiters (shown only when status string is not empty)
+  let g:airline#extensions#vimtex#left = "{"
+  let g:airline#extensions#vimtex#right = "}"
+
+State indicators:
+
+* the current tex file is the main project file (nothing is shown by default)
+  let g:airline#extensions#vimtex#main = ""
+
+* the current tex file is a subfile of the project 
+  and the compilation is set for the main file
+  let g:airline#extensions#vimtex#sub_main = "m"
+
+* the current tex file is a subfile of the project
+  and the compilation is set for this subfile
+  let g:airline#extensions#vimtex#sub_local = "l"
+
+* single compilation is running
+  let g:airline#extensions#vimtex#compiled = "c₁"
+
+* continuousr compilation is running
+  let g:airline#extensions#vimtex#continuous = "c"
+
+* viewer is opened
+  let g:airline#extensions#vimtex#viewer = "v"
+
 ==============================================================================
 ADVANCED CUSTOMIZATION                      *airline-advanced-customization*
 
@@ -882,11 +977,16 @@ Before is a list of parts that are predefined by vim-airline.
 * `filetype`       displays the file type
 * `readonly`       displays the read only indicator
 * `file`           displays the filename and modified indicator
+* `path`           displays the filename (absolute path) and modifier indicator
+* `linenr`         displays the current line number
+* `maxlinenr`      dispalys the number of lines in the buffer
 * `ffenc`          displays the file format and encoding
 
 And the following are defined for their respective extensions:
 
-`hunks`, `branch`, `tagbar`, `syntastic`, `whitespace`
+`ale_error_count``ale_warning_count``branch``eclim``hunks`
+`neomake_error_count``neomake_warning_count``obsession``syntastic`
+`tagbar``whitespace``windowswap``ycm_error_count``ycm_warning_count`
 
 -------------------------------------                      *airline-accents*
 Accents can be defined on any part, like so: >
@@ -930,9 +1030,10 @@ the space and cwd are not defined parts. For convenience, if a part of that
 key does not exist, it will be inserted as is. The unit tests will be a good
 resource for possibilities.
 
-Note: The use of |VimEnter| is important, because most extensions are lazily
+Note: The use of |User| is important, because most extensions are lazily
 loaded, so we must give them a chance to define their parts before we can use
-them.
+them. Also this autocommand is only triggered, after the airline functions are
+actually available on startup.
 
 Note: The `airline#section#create` function and friends will do its best to
 create a section with the appropriate separators, but it only works for
@@ -974,7 +1075,6 @@ You can also remove a function as well, which is useful for when you want a
 temporary override. >
   call airline#remove_statusline_func('MyPlugin')
 <
-
 ==============================================================================
 PIPELINE                                                  *airline-pipeline*
 
@@ -1108,6 +1208,6 @@ Contributions and pull requests are welcome.
 ==============================================================================
 LICENSE                                                    *airline-license*
 
-MIT License.  Copyright © 2013-2016 Bailey Ling.
+MIT License.  Copyright © 2013-2017 Bailey Ling, Christian Brabandt
 
  vim:tw=78:ts=8:ft=help:norl:

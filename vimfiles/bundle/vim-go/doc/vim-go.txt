@@ -167,7 +167,7 @@ COMMANDS                                                         *go-commands*
                                                                      *:GoLint*
 :GoLint [packages]
 
-    Run golint for the current Go file, or for given packages.
+    Run golint for the current directory, or for given packages.
 
                                                                       *:GoDoc*
 :GoDoc [word]
@@ -607,7 +607,7 @@ CTRL-t
 
     Changes the build tags for various commands. If you have any file that
     uses a custom build tag, such as `//+build integration` , this command can
-    be used to pass it to all tools that accepts tags, such as guru, gorenate,
+    be used to pass it to all tools that accepts tags, such as guru, gorename,
     etc..
 
     The build tags is cleared (unset) if `""` is given. If no arguments is
@@ -1107,10 +1107,23 @@ used >
 <
                                                           *'g:go_fmt_options'*
 
-Use this option to add additional options to the |'g:go_fmt_command'|. Default
-is empty. >
-
+Use this option to add additional options to the |'g:go_fmt_command'|. It's
+value type can be either a string or a dictionary. This is due backwards
+compatibility. The string version will be removed in the future so please use
+the dictionary version. Default is empty. 
+>
   let g:go_fmt_options = ''
+
+  or 
+
+  let g:go_fmt_options = {}
+<
+The dictionary version allows you to define options for multiple binaries:
+>
+  let g:go_fmt_options = {
+    \ 'gofmt': '-s',
+    \ 'goimports': '-local mycompany.com',
+    \ }
 <
                                                     *'g:go_fmt_fail_silently'*
 
@@ -1189,28 +1202,6 @@ is used. Use "neosnippet" for neosnippet.vim: >
 
   let g:go_snippet_engine = "ultisnips"
 <
-                                                    *'g:go_snippet_case_type'*
-
-Use this option to define the default conversion type of snippet expansion for
-field tags. For the following case, if `snakecase` is used the `json` snippet
-will expand to:
->
-  type T struct {
-    FooBarQuz string `json:"foo_bar_quz"
-  }
-<
-
-If "camelcase" is used:
->
-  type T struct {
-    FooBarQuz string `json:"fooBarQuz"
-  }
-<
-By default "snakecase" is used. Current values are: ["snakecase",
-"camelcase"].
->
-  let g:go_snippet_case_type = "snakecase"
-<
                                                            *'g:go_get_update'*
 
 Use this option to disable updating dependencies with |:GoInstallBinaries|. By
@@ -1232,7 +1223,7 @@ set, so the relevant commands defaults are being used.
                                                            *'g:go_build_tags'*
 
 These options that will be automatically passed to the `-tags` option of
-various tools, such as `guru`, `gorename`, etc... This is a permanatent
+various tools, such as `guru`, `gorename`, etc... This is a permanent
 setting. A more useful way is to use |:GoBuildTags| to dynamically change or
 remove build tags. By default it's not set.
 >
@@ -1404,9 +1395,10 @@ explicitly overrides this behavior. For standard Vim behavior, set it to 10.
 <
                                                             *'g:go_list_type'*
 
-Specifies the type of list to use. The default value (empty) will use the
-appropriate kind of list for the command that was called. Supported values are
-"", "quickfix", and "locationlist". >
+Specifies the type of list to use for command outputs (such as errors from
+builds, results from static analysis commands, etc...). The default value
+(empty) will use the appropriate kind of list for the command that was called.
+Supported values are "", "quickfix", and "locationlist". >
 
   let g:go_list_type = ""
 <
@@ -1560,9 +1552,24 @@ default it's 60 seconds. Must be in milliseconds.
 
                                                    *'g:go_addtags_transform'*
 
-Sets the `transform` option for `gomodifytags` when using |:GoAddTags|.
-Possible options are: `snakecase`, `camelcase`. By default it is set to
-`snakecase`.
+Sets the `transform` option for `gomodifytags` when using |:GoAddTags| or if
+it's being used for snippet expansion of single fields.  Possible options are:
+`snakecase`, `camelcase`. For the following case, if `snakecase` is used the
+field will be transformed to:
+>
+  type T struct {
+    FooBarQuz string `json:"foo_bar_quz"
+  }
+<
+
+If "camelcase" is used:
+>
+  type T struct {
+    FooBarQuz string `json:"fooBarQuz"
+  }
+<
+By default "snakecase" is used. Current values are: ["snakecase",
+"camelcase"].
 >
       let g:go_addtags_transform = 'snakecase'
 <

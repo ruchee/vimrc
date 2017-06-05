@@ -12,7 +12,7 @@ Lean &amp; mean status/tabline for vim that's light as air.
    [undotree][17], [nerdtree][18], [tagbar][19], [vim-gitgutter][29],
    [vim-signify][30], [quickfixsigns][39], [syntastic][5], [eclim][34],
    [lawrencium][21], [virtualenv][31], [tmuxline][35], [taboo.vim][37],
-   [ctrlspace][38], [vim-bufmru][47], [vimagit][50] and more.
+   [ctrlspace][38], [vim-bufmru][47], [vimagit][50], [denite][51] and more.
 *  Looks good with regular fonts and provides configuration points so you can use unicode or powerline symbols.
 *  Optimized for speed; it loads in under a millisecond.
 *  Extensive suite of themes for popular color schemes including [solarized][23] (dark and light), [tomorrow][24] (all variants), [base16][32] (all variants), [molokai][25], [jellybeans][26] and others.
@@ -72,6 +72,9 @@ vim-airline integrates with a variety of plugins out of the box.  These extensio
 #### [unite.vim][9]
 ![image](https://f.cloud.github.com/assets/306502/962319/4d7d3a7e-04ed-11e3-9d59-ab29cb310ff8.png)
 
+#### [denite.nvim][51]
+![image](https://cloud.githubusercontent.com/assets/246230/23939717/f65bce6e-099c-11e7-85c3-918dbc839392.png)
+
 #### [tagbar][19]
 ![image](https://f.cloud.github.com/assets/306502/962150/7e7bfae6-04ea-11e3-9e28-32af206aed80.png)
 
@@ -101,6 +104,9 @@ vim-airline integrates with a variety of plugins out of the box.  These extensio
 
 #### [xkb-switch][48]/[xkb-layout][49]
 ![image](https://cloud.githubusercontent.com/assets/5715281/22061422/347e7842-ddb8-11e6-8bdb-7abbd418653c.gif)
+
+#### [vimtex][53]
+![image](https://cloud.githubusercontent.com/assets/1798172/25799740/e77d5c2e-33ee-11e7-8660-d34ce4c5f13f.png)
 
 ## Extras
 
@@ -145,19 +151,15 @@ I wrote the initial version on an airplane, and since it's light as air it turne
 
 This plugin follows the standard runtime path structure, and as such it can be installed with a variety of plugin managers:
 
-*  [Pathogen][11]
-  *  `git clone https://github.com/vim-airline/vim-airline ~/.vim/bundle/vim-airline`
-  *  Remember to run `:Helptags` to generate help tags
-*  [NeoBundle][12]
-  *  `NeoBundle 'vim-airline/vim-airline'`
-*  [Vundle][13]
-  *  `Plugin 'vim-airline/vim-airline'`
-*  [Plug][40]
-  *  `Plug 'vim-airline/vim-airline'`
-*  [VAM][22]
-  *  `call vam#ActivateAddons([ 'vim-airline' ])`
-*  manual
-  *  copy all of the files into your `~/.vim` directory
+| Plugin Manager | Install with... |
+| ------------- | ------------- |
+| [Pathogen][11] | `git clone https://github.com/vim-airline/vim-airline ~/.vim/bundle/vim-airline`<br/>Remember to run `:Helptags` to generate help tags |
+| [NeoBundle][12] | `NeoBundle 'vim-airline/vim-airline'` |
+| [Vundle][13] | `Plugin 'vim-airline/vim-airline'` |
+| [Plug][40] | `Plug 'vim-airline/vim-airline'` |
+| [VAM][22] | `call vam#ActivateAddons([ 'vim-airline' ])` |
+| [Dein][52] | `call dein#add('vim-airline/vim-airline')` |
+| manual | copy all of the files into your `~/.vim` directory |
 
 # Configuration
 
@@ -252,3 +254,6 @@ MIT License. Copyright (c) 2013-2016 Bailey Ling.
 [48]: https://github.com/ierton/xkb-switch
 [49]: https://github.com/vovkasm/input-source-switcher
 [50]: https://github.com/jreybert/vimagit
+[51]: https://github.com/Shougo/denite.nvim
+[52]: https://github.com/Shougo/dein.vim
+[53]: https://github.com/lervag/vimtex
