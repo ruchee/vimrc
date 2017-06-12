@@ -34,6 +34,8 @@ snippet f.      函数2
 	}
 snippet ff      匿名函数
 	func (${1})${2} {${0}}
+snippet fd      函数声明
+	${1:f_name}(${0})
 snippet str     结构体
 	type ${1:str_name} struct {
 	  ${0}
@@ -94,17 +96,17 @@ snippet co      继续
 	continue${0}
 snippet br      中断
 	break ${0}
-snippet go      跳转
+snippet gt      跳转
 	goto ${0}
-snippet de      函数返回之前执行
+snippet df      函数返回之前执行
 	defer ${0}
 snippet ra      range
 	range ${0}
-snippet g       Go程
+snippet go      Go程
 	go ${0}
 snippet ch      管道
 	chan ${0}
-snippet d       删除
+snippet de      删除
 	delete(${0})
 snippet con     定义常量
 	const ${0}
@@ -131,12 +133,8 @@ snippet e       error
 	error${0}
 snippet b       bool
 	bool${0}
-snippet r       rune
-	rune${0}
 snippet s       string
 	string${0}
-snippet by      byte
-	byte${0}
 snippet i       int
 	int${0}
 snippet i8      int8
@@ -145,6 +143,8 @@ snippet i16     int16
 	int16${0}
 snippet i32     int32
 	int32${0}
+snippet r       rune
+	rune${0}
 snippet i64     int64
 	int64${0}
 snippet u       uint
@@ -153,6 +153,8 @@ snippet up      uintptr
 	uintptr${0}
 snippet u8      uint8
 	uint8${0}
+snippet by      byte
+	byte${0}
 snippet u16     uint16
 	uint16${0}
 snippet u32     uint32
@@ -168,8 +170,6 @@ snippet c64     complex64
 snippet c128    complex128
 	complex128${0}
 # 内置函数
-snippet cl      关闭管道
-	close(${0})
 snippet l       获取大小或长度
 	len(${0})
 snippet c       获取最大容量
@@ -180,8 +180,6 @@ snippet m       分配内存（返回对指定类型初始化之后的值）
 	make(${0})
 snippet ap      连接切片
 	append(${0})
-snippet pan     错误处理
-	panic(${0})
 snippet rv      错误处理
 	recover(${0})
 # 输入输出
