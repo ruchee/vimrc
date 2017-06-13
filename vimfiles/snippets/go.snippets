@@ -170,6 +170,8 @@ snippet c64     complex64
 snippet c128    complex128
 	complex128${0}
 # 内置函数
+snippet cl      关闭管道
+	close(${0})
 snippet l       获取大小或长度
 	len(${0})
 snippet c       获取最大容量
@@ -180,6 +182,8 @@ snippet m       分配内存（返回对指定类型初始化之后的值）
 	make(${0})
 snippet ap      连接切片
 	append(${0})
+snippet pan     错误处理
+	panic(${0})
 snippet rv      错误处理
 	recover(${0})
 # 输入输出
