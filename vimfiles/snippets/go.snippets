@@ -40,15 +40,7 @@ snippet str     结构体
 	type ${1:str_name} struct {
 	  ${0}
 	}
-snippet <       结构体
-	type ${1:str_name} struct {
-	  ${0}
-	}
 snippet int     接口
-	type ${1:int_name} interface {
-	  ${0}
-	}
-snippet >       接口
 	type ${1:int_name} interface {
 	  ${0}
 	}
@@ -170,21 +162,21 @@ snippet c64     complex64
 snippet c128    complex128
 	complex128${0}
 # 内置函数
-snippet cl      关闭管道
-	close(${0})
 snippet l       获取大小或长度
 	len(${0})
 snippet c       获取最大容量
 	cap(${0})
-snippet n       分配内存（值类型和用户自定义类型）
+snippet n       分配内存（返回指针）
 	new(${0})
 snippet m       分配内存（返回对指定类型初始化之后的值）
 	make(${0})
-snippet ap      连接切片
+snippet ap      附加元素
 	append(${0})
+snippet cl      关闭管道
+	close(${0})
 snippet pan     错误处理
 	panic(${0})
-snippet rv      错误处理
+snippet rev     错误处理
 	recover(${0})
 # 输入输出
 snippet p       输出（不换行）
@@ -197,12 +189,8 @@ snippet fpf     fmt.Printf
 	fmt.Printf("${1}", ${0})
 snippet fpl     fmt.Println
 	fmt.Println(${0})
-snippet fsp     fmt.Sprintf
-	fmt.Sprintf("${1}", ${0})
-snippet ffp     fmt.Fprintf
-	fmt.Fprintf(${0})
 # 其他
 snippet .       :=
 	:= ${0}
-snippet ,       <-
+snippet <       <-
 	<- ${0}
