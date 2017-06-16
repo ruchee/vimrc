@@ -6,7 +6,7 @@
 if exists('g:autoloaded_rails') || &cp
   finish
 endif
-let g:autoloaded_rails = '5.2'
+let g:autoloaded_rails = '5.3'
 
 " Utility Functions {{{1
 
@@ -377,8 +377,6 @@ function! s:readable_controller_name(...) dict abort
     return s:sub(f,'.*<app/controllers/(.{-})%(_controller)=\.rb$','\1')
   elseif f =~ '\<app/mailers/.*\.rb$'
     return s:sub(f,'.*<app/mailers/(.{-})\.rb$','\1')
-  elseif f =~ '\<app/apis/.*_api\.rb$'
-    return s:sub(f,'.*<app/apis/(.{-})_api\.rb$','\1')
   elseif f =~ '\<app/jobs/.*\.rb$'
     return s:sub(f,'.*<app/jobs/(.{-})%(_job)=\.rb$','\1')
   elseif f =~ '\<test/\%(functional\|controllers\)/.*_test\.rb$'
@@ -522,8 +520,7 @@ function! s:warn(str) abort
 endfunction
 
 function! s:deprecate(old, new, ...) abort
-  call s:warn(a:old . ' is deprecated in favor of ' . a:new)
-  return a:0 ? a:1 : ''
+  return 'echoerr ' . string(a:old . ' is obsolete. Use ' . a:new . ' instead.')
 endfunction
 
 function! s:error(str) abort
@@ -630,16 +627,8 @@ function! s:readable_app() dict abort
   return self._app
 endfunction
 
-function! RailsRevision()
+function! rails#revision() abort
   return 1000*matchstr(g:autoloaded_rails,'^\d\+')+matchstr(g:autoloaded_rails,'[1-9]\d*$')
-endfunction
-
-function! RailsRoot()
-  if exists("b:rails_root")
-    return b:rails_root
-  else
-    return ""
-  endif
 endfunction
 
 function! s:app_file(name) dict abort
@@ -693,26 +682,6 @@ function! s:buffer_name() dict abort
   endif
 endfunction
 
-function! RailsFilePath()
-  if !exists("b:rails_root")
-    return ""
-  else
-    return rails#buffer().name()
-  endif
-endfunction
-
-function! RailsFile()
-  return RailsFilePath()
-endfunction
-
-function! RailsFileType()
-  if !exists("b:rails_root")
-    return ""
-  else
-    return rails#buffer().type_name()
-  endif
-endfunction
-
 function! s:readable_calculate_file_type() dict abort
   let f = self.name()
   let e = matchstr(f, '\.\zs[^.\/]\+$')
@@ -731,16 +700,10 @@ function! s:readable_calculate_file_type() dict abort
   elseif nr > 0 && getbufvar(nr,'rails_file_type') != ''
     return getbufvar(nr,'rails_file_type')
   elseif f =~ '_controller\.rb$' || f =~ '\<app/controllers/.*\.rb$'
-    if join(s:readfile(full_path,50),"\n") =~ '\<wsdl_service_name\>'
-      let r = "controller-api"
-    else
-      let r = "controller"
-    endif
-  elseif f =~ '\<app/apis/.*_api\.rb'
-    let r = "api"
+    let r = "controller"
   elseif f =~ '\<test/test_helper\.rb$'
     let r = "test"
-  elseif f =~ '\<spec/spec_helper\.rb$'
+  elseif f =~ '\<spec/\%(spec\|rails\)_helper\.rb$'
     let r = "spec"
   elseif f =~ '_helper\.rb$'
     let r = "helper"
@@ -998,15 +961,13 @@ call s:add_methods('app', ['ruby_script_command','static_rails_command','prepare
 function! s:BufCommands()
   call s:BufNavCommands()
   call s:BufScriptWrappers()
-  command! -buffer -bar -nargs=+ Rnavcommand :call s:Navcommand(<bang>0,<f-args>)
   command! -buffer -bar -nargs=* -bang Rabbrev :call s:Abbrev(<bang>0,<f-args>)
   command! -buffer -bar -nargs=? -bang -count -complete=customlist,rails#complete_rake Rake    :call s:Rake(<bang>0,!<count> && <line1> ? -1 : <count>,<q-args>)
-  command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rpreview :exe s:deprecate(':Rpreview', ':Preview')|call s:Preview(<bang>0,<line1>,<q-args>)
+  command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rpreview :exe s:deprecate(':Rpreview', ':Preview', ':Preview<bang> '.<q-args>))
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Rbrowse :call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -range -complete=customlist,s:Complete_preview Preview :call s:Preview(<bang>0,<line1>,<q-args>)
   command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_log            Rlog     exe s:deprecate(':Rlog', ':Clog', <bang>0 ? 'Clog<bang> '.<q-args> : s:Plog(0, <q-args>))
-  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_log            Clog     exe s:Clog(1<bang>, <q-args>)
-  command! -buffer -bar -nargs=* -bang                                                Rset     :exe s:Set(<bang>0,<f-args>)
+  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_log            Clog     exe s:Clog(1<bang>, '<mods>', <q-args>)
   command! -buffer -bar -nargs=0 Rtags       :execute rails#app().tags_command()
   command! -buffer -bar -nargs=0 Ctags       :execute rails#app().tags_command()
   command! -buffer -bar -nargs=0 -bang Rrefresh :if <bang>0|unlet! g:autoloaded_rails|source `=s:file`|endif|call s:Refresh(<bang>0)
@@ -1014,18 +975,18 @@ function! s:BufCommands()
     command! -buffer -bar -nargs=? -complete=customlist,s:Complete_environments Rdbext  :call s:BufDatabase(2,<q-args>)|let b:dbext_buffer_defaulted = 1
   endif
   let ext = expand("%:e")
-  if RailsFilePath() =~ '\<app/views/'
+  if rails#buffer().name() =~# '^app/views/'
     " TODO: complete controller names with trailing slashes here
-    command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Rextract :exe s:deprecate(':Rextract', ':Extract', '<line1>,<line2>Extract<bang> '.<q-args>)
     command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Extract  :<line1>,<line2>call s:Extract(<bang>0,'<mods>',<f-args>)
   elseif rails#buffer().name() =~# '^app/helpers/.*\.rb$'
-    command! -buffer -bar -bang -nargs=1 -range Rextract :<line1>,<line2>call s:RubyExtract(<bang>0, '<mods>', 'app/helpers', [], s:sub(<f-args>, '_helper$|Helper$|$', '_helper'))
     command! -buffer -bar -bang -nargs=1 -range Extract  :<line1>,<line2>call s:RubyExtract(<bang>0, '<mods>', 'app/helpers', [], s:sub(<f-args>, '_helper$|Helper$|$', '_helper'))
   elseif rails#buffer().name() =~# '^app/\w\+/.*\.rb$'
-    command! -buffer -bar -bang -nargs=1 -range Rextract :<line1>,<line2>call s:RubyExtract(<bang>0, '<mods>', matchstr(rails#buffer().name(), '^app/\w\+/').'concerns', ['  extend ActiveSupport::Concern', ''], <f-args>)
     command! -buffer -bar -bang -nargs=1 -range Extract  :<line1>,<line2>call s:RubyExtract(<bang>0, '<mods>', matchstr(rails#buffer().name(), '^app/\w\+/').'concerns', ['  extend ActiveSupport::Concern', ''], <f-args>)
   endif
-  if RailsFilePath() =~ '\<db/migrate/.*\.rb$'
+  if exists(':Extract') == 2
+    command! -buffer -bar -bang -nargs=? -range -complete=customlist,s:controllerList Rextract :exe s:deprecate(':Rextract', ':Extract', '<line1>,<line2>Extract<bang> '.<q-args>)
+  endif
+  if rails#buffer().name() =~# '^db/migrate/.*\.rb$'
     command! -buffer -bar                 Rinvert  :call s:Invert(<bang>0)
   endif
 endfunction
@@ -1034,7 +995,7 @@ function! s:Complete_log(A, L, P) abort
   return s:completion_filter(rails#app().relglob('log/','**/*', '.log'), a:A)
 endfunction
 
-function! s:Clog(bang, arg) abort
+function! s:Clog(bang, mods, arg) abort
   let lf = rails#app().path('log/' . (empty(a:arg) ? s:environment() : a:arg) . '.log')
   if !filereadable(lf)
     return 'cgetfile ' . s:fnameescape(lf)
@@ -1051,7 +1012,7 @@ function! s:Clog(bang, arg) abort
     if empty(cc) | unlet! b:current_compiler | endif
     exe chdir s:fnameescape(cwd)
   endtry
-  return 'copen|$'
+  return s:mods(a:mods) . ' copen|$'
 endfunction
 
 function! s:Plog(bang, arg) abort
@@ -1296,12 +1257,6 @@ function! s:readable_test_file_candidates() dict abort
           \ fnamemodify(f,':r:r:s?\<app/?spec/?')."_spec.rb",
           \ s:sub(s:sub(f,'<app/views/','test/controllers/'),'/[^/]*$','_controller_test.rb'),
           \ s:sub(s:sub(f,'<app/views/','test/functional/'),'/[^/]*$','_controller_test.rb')]
-  elseif self.type_name('controller-api')
-    let tests = [
-          \ s:sub(s:sub(f,'/controllers/','/apis/'),'_controller\.rb$','_api.rb')]
-  elseif self.type_name('api')
-    let tests = [
-          \ s:sub(s:sub(f,'/apis/','/controllers/'),'_api\.rb$','_controller.rb')]
   elseif self.type_name('lib')
     let tests = [
           \ s:sub(f,'<lib/(.*)\.rb$','test/lib/\1_test.rb'),
@@ -1473,7 +1428,7 @@ function! s:rake2rails(task) abort
   return task
 endfunction
 
-function! s:readable_default_rails_task(...) dict abort
+function! s:readable_default_task(...) dict abort
   return s:rake2rails(call(self.default_rake_task, a:000, self))
 endfunction
 
@@ -1497,7 +1452,7 @@ function! rails#complete_rake(A,L,P)
   return s:completion_filter(rails#app().rake_tasks(), a:A, ':')
 endfunction
 
-call s:add_methods('readable', ['test_file_candidates', 'test_file', 'default_rake_task', 'default_rails_task'])
+call s:add_methods('readable', ['test_file_candidates', 'test_file', 'default_rake_task', 'default_task'])
 call s:add_methods('app', ['rake_command'])
 
 " }}}1
@@ -1679,13 +1634,13 @@ endfunction
 function! s:BufScriptWrappers()
   command! -buffer -bang -bar -nargs=? -complete=customlist,s:Complete_script   Rscript       :execute s:deprecate(':Rscript', ':Rails', 'Rails<bang>' . empty(<q-args>) ? 'console' : <q-args>)
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_environments Console   :Rails<bang> console <args>
-  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Rgenerate     :execute s:deprecate(':Rgenerate', ':Generate', rails#app().generator_command(<bang>0,'<mods>','generate',<f-args>))
+  command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Rgenerate     :execute s:deprecate(':Rgenerate', ':Generate', ':Generate<bang> '.<q-args>)
   command! -buffer -bang -bar -nargs=* -complete=customlist,s:Complete_generate Generate      :execute rails#app().generator_command(<bang>0,'<mods>','generate',<f-args>)
-  command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Rdestroy      :execute s:deprecate(':Rdestroy', ':Destroy', rails#app().generator_command(1,'<mods>','destroy',<f-args>))
+  command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Rdestroy      :execute s:deprecate(':Rdestroy', ':Destroy', ':Destroy<bang> '.<q-args>)
   command! -buffer -bar -nargs=*       -complete=customlist,s:Complete_destroy  Destroy       :execute rails#app().generator_command(1,'<mods>','destroy',<f-args>)
-  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Rserver       :execute s:deprecate(':Rserver', ':Server', rails#app().server_command(<bang>0, 1, <q-args>))
+  command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Rserver       :execute s:deprecate(':Rserver', ':Server', ':Server<bang> '.<q-args>)
   command! -buffer -bar -nargs=? -bang -complete=customlist,s:Complete_server   Server        :execute rails#app().server_command(0, <bang>0, <q-args>)
-  command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Rrunner       :execute s:deprecate(':Rrunner', ':Runner', rails#buffer().runner_command(<bang>0, <count>?<line1>:0, <q-args>))
+  command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Rrunner       :execute s:deprecate(':Rrunner', ':Runner', ':Runner<bang> '.<q-args>)
   command! -buffer -bang -nargs=? -range=0 -complete=customlist,s:Complete_edit Runner        :execute rails#buffer().runner_command(<bang>0, <count>?<line1>:0, <q-args>)
   command! -buffer       -nargs=1 -range=0 -complete=customlist,s:Complete_ruby Rp            :execute rails#app().output_command(<count>==<line2>?<count>:-1, 'p begin '.<q-args>.' end')
   command! -buffer       -nargs=1 -range=0 -complete=customlist,s:Complete_ruby Rpp           :execute rails#app().output_command(<count>==<line2>?<count>:-1, 'require %{pp}; pp begin '.<q-args>.' end')
@@ -1720,20 +1675,16 @@ function! s:Rails(bang, count, arg) abort
     let native = '\v^%(application|benchmarker|console|dbconsole|destroy|generate|new|plugin|profiler|runner|server|version)>'
     if !rails#app().has('rails3')
       let use_rake = !rails#app().has_file('script/' . matchstr(str, '\S\+'))
-    elseif str !~# '^-' && str !~# native && rails#app().has_rails5()
+    elseif str !~# '^-' && str !~# native
       let use_rake = 1
     endif
-  elseif rails#buffer().type_name('test', 'spec', 'cucumber') && !rails#app().has_rails5()
-    return rails#buffer().runner_command(a:bang, a:count, '')
-  elseif rails#buffer().name() =~# '^\%(app\|config\|db\|lib\|log\|README\|Rakefile\|test\|spec\|features\)'
+  else
     let str = rails#buffer().default_rake_task(a:count)
     if str ==# '--tasks'
       let str = ''
     else
       let use_rake = 1
     endif
-  else
-    let str = ''
   endif
   if str =~# '^\%(c\|console\|db\|dbconsole\|s\|server\)\S\@!' && str !~# ' -d\| --daemon\| --help'
     return rails#app().start_rails_command(str, a:bang)
@@ -1950,7 +1901,7 @@ function! s:app_generator_command(bang, mods, ...) dict abort
   if a:bang || empty(getqflist())
     return ''
   else
-    return s:mods(a:mods) 'cfirst'
+    return s:mods(a:mods) . ' cfirst'
   endif
 endfunction
 
@@ -2385,6 +2336,9 @@ function! s:ruby_cfile() abort
   let res = s:findamethod('fixtures','fixtures/\1.yml')
   if res != ""|return res|endif
 
+  let res = s:findamethod('file_fixture','fixtures/files/\1')
+  if res != ""|return res|endif
+
   let res = s:findamethod('\%(\w\+\.\)\=resources','\1_controller.rb')
   if res != ""|return res|endif
 
@@ -2726,23 +2680,6 @@ function! s:specList(A,L,P)
   return s:completion_filter(rails#app().relglob("spec/","**/*","_spec.rb"),a:A)
 endfunction
 
-function! s:Navcommand(bang,...)
-  let prefixes = []
-  let suffix = '.rb'
-  let affinity = ''
-  for arg in a:000
-    if arg =~# '^[a-z]\+$'
-      for prefix in ['E', 'S', 'V', 'T', 'D', 'R', 'RE', 'RS', 'RV', 'RT', 'RD']
-        exe 'command! -buffer -bar -bang -nargs=* ' .
-              \ (prefix =~# 'D' ? '-range=0 ' : '') .
-              \ prefix . arg . ' :echoerr ' .
-              \ string(':Rnavcommand has been removed.  See :help rails-projections')
-      endfor
-      break
-    endif
-  endfor
-endfunction
-
 function! s:define_navcommand(name, projection, ...) abort
   if empty(a:projection)
     return
@@ -3020,7 +2957,7 @@ function! s:viewEdit(cmd, ...) abort
     if !rails#app().has_path(fnamemodify(file, ':h'))
       call mkdir(rails#app().path(fnamemodify(file, ':h')), 'p')
     endif
-    return s:edit(a:cmd, file.djump)
+    return s:edit(a:cmd, file)
   else
     return s:open(a:cmd, 'app/views/'.view)
   endif
@@ -3160,14 +3097,14 @@ function! s:projection_pairs(options)
   return pairs
 endfunction
 
-function! s:r_warning(cmd) abort
+function! s:r_error(cmd, impl) abort
   let cmd = matchstr(a:cmd, '\w\+$')
   if cmd =~# 'R\|^$'
     let old = s:sub(cmd, '^$', 'R')
     let instead = s:sub(s:sub(cmd, '^R', ''), '^$', 'E')
-    return '|echohl WarningMsg|echomsg ":'.old.' navigation commands are deprecated. Use :'.instead.' commands instead."|echohl None'
+    return 'echoerr ":'.old.' navigation commands are obsolete. Use :'.instead.' commands instead."'
   endif
-  return ''
+  return a:impl
 endfunction
 
 function! s:readable_open_command(cmd, argument, name, projections) dict abort
@@ -3201,7 +3138,7 @@ function! s:readable_open_command(cmd, argument, name, projections) dict abort
     endif
     if !empty(file) && self.app().has_path(file)
       let file = fnamemodify(self.app().path(file), ':.')
-      return cmd . ' ' . s:jumpargs(file, djump) . s:r_warning(a:cmd)
+      return s:r_error(a:cmd, cmd . ' ' . s:jumpargs(file, djump))
     endif
   endfor
   if empty(argument)
@@ -3231,15 +3168,13 @@ function! s:readable_open_command(cmd, argument, name, projections) dict abort
         let ph = {
               \ 'match': root,
               \ 'file': file,
-              \ 'project': self.app().path(),
-              \ 'S': rails#camelize(root),
-              \ 'h': toupper(root[0]) . tr(rails#underscore(root), '_', ' ')[1:-1]}
+              \ 'project': self.app().path()}
         call map(template, 's:expand_placeholders(v:val, ph)')
         call map(template, 's:gsub(v:val, "\t", "  ")')
         let file = fnamemodify(simplify(file), ':.')
-        return cmd . ' ' . s:fnameescape(file) . '|call setline(1, '.string(template).')' . '|set nomod'.s:r_warning(a:cmd)
+        return s:r_error(a:cmd, cmd . ' ' . s:fnameescape(file) . '|call setline(1, '.string(template).')' . '|set nomod')
       else
-        return cmd . ' +AD ' . s:fnameescape(file) . s:r_warning(a:cmd)
+        return s:r_error(a:cmd, cmd . ' +AD ' . s:fnameescape(file))
       endif
     endif
   endfor
@@ -3540,16 +3475,16 @@ function! s:Extract(bang, mods, ...) range abort
   let last = a:lastline
   let range = first.",".last
   if rails#buffer().type_name('view-layout')
-    if RailsFilePath() =~ '\<app/views/layouts/application\>'
+    if rails#buffer().name() =~# '^app/views/layouts/application\>'
       let curdir = 'app/views/shared'
       if file !~ '/'
         let file = "shared/" .file
       endif
     else
-      let curdir = s:sub(RailsFilePath(),'.*<app/views/layouts/(.*)%(\.\w*)$','app/views/\1')
+      let curdir = s:sub(rails#buffer().name(),'.*<app/views/layouts/(.*)%(\.\w*)$','app/views/\1')
     endif
   else
-    let curdir = fnamemodify(RailsFilePath(),':h')
+    let curdir = fnamemodify(rails#buffer().name(),':h')
   endif
   let curdir = rails_root.'/'.curdir
   let dir = fnamemodify(file,':h')
@@ -3879,146 +3814,141 @@ endfunction
 
 call s:add_methods('app', ['user_classes','user_assertions'])
 
-function! rails#buffer_syntax()
+function! rails#ruby_syntax() abort
+  let buffer = rails#buffer()
+  if buffer.type_name() == ''
+    syn keyword rubyRailsMethod params request response session headers cookies flash
+  endif
+  if buffer.type_name() ==# 'model' || buffer.type_name('model-record')
+    syn keyword rubyRailsARMethod attribute default_scope enum named_scope scope serialize store
+    syn keyword rubyRailsARAssociationMethod belongs_to has_one has_many has_and_belongs_to_many composed_of accepts_nested_attributes_for
+    syn keyword rubyRailsARCallbackMethod before_create before_destroy before_save before_update before_validation before_validation_on_create before_validation_on_update before_commit
+    syn keyword rubyRailsARCallbackMethod after_create after_destroy after_save after_update after_validation after_validation_on_create after_validation_on_update after_create_commit after_update_commit after_destroy_commit
+    syn keyword rubyRailsARCallbackMethod around_create around_destroy around_save around_update
+    syn keyword rubyRailsARCallbackMethod after_commit after_find after_initialize after_rollback after_touch
+    syn keyword rubyRailsARClassMethod attr_accessible attr_protected attr_readonly has_secure_password has_secure_token store_accessor
+    syn keyword rubyRailsARValidationMethod validate validates validate_on_create validate_on_update validates_acceptance_of validates_associated validates_confirmation_of validates_each validates_exclusion_of validates_format_of validates_inclusion_of validates_length_of validates_numericality_of validates_presence_of validates_absence_of validates_size_of validates_uniqueness_of validates_with
+    syn keyword rubyRailsMethod logger
+  endif
+  if buffer.type_name('model-observer')
+    syn keyword rubyRailsARMethod observe
+  endif
+  if buffer.type_name('mailer')
+    syn keyword rubyRailsRenderMethod mail render
+    syn keyword rubyRailsControllerMethod attachments default helper helper_attr helper_method layout
+  endif
+  if buffer.type_name('job')
+    syn keyword rubyRailsAPIMethod queue_as rescue_from
+    syn keyword rubyRailsARCallbackMethod before_enqueue around_enqueue after_enqueue before_perform around_perform after_perform
+  endif
+  if buffer.type_name('controller','helper','mailer','view')
+    syn keyword rubyRailsMethod logger url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url
+  endif
+  if buffer.type_name('helper','view')
+    exe 'syn keyword rubyRailsHelperMethod' s:helpermethods()
+    syn match rubyRailsHelperMethod '\<select\>\%(\s*{\|\s*do\>\|\s*(\=\s*&\)\@!'
+    syn match rubyRailsHelperMethod '\<\%(content_for\w\@!?\=\|current_page?\)'
+    syn match rubyRailsViewMethod '\.\@<!\<\(h\|html_escape\|u\|url_encode\)\>'
+    if buffer.type_name('view-partial')
+      syn keyword rubyRailsMethod local_assigns
+    endif
+  elseif buffer.type_name('controller')
+    syn keyword rubyRailsMethod params request response session headers cookies flash
+    syn keyword rubyRailsRenderMethod render
+    syn keyword rubyRailsControllerMethod helper helper_attr helper_method filter layout serialize exempt_from_layout filter_parameter_logging hide_action cache_sweeper protect_from_forgery caches_page cache_page caches_action expire_page expire_action rescue_from
+    syn keyword rubyRailsRenderMethod head redirect_to redirect_back render_to_string respond_with
+    syn match   rubyRailsRenderMethod '\<respond_to\>?\@!'
+    syn keyword rubyRailsFilterMethod before_filter append_before_filter prepend_before_filter after_filter append_after_filter prepend_after_filter around_filter append_around_filter prepend_around_filter skip_before_filter skip_after_filter skip_filter before_action append_before_action prepend_before_action after_action append_after_action prepend_after_action around_action append_around_action prepend_around_action skip_before_action skip_after_action skip_action
+    syn keyword rubyRailsFilterMethod verify
+  endif
+  if buffer.type_name('db-migration','db-schema')
+    syn keyword rubyRailsMigrationMethod create_table change_table drop_table rename_table create_join_table drop_join_table
+    syn keyword rubyRailsMigrationMethod add_column rename_column change_column change_column_default change_column_null remove_column remove_columns
+    syn keyword rubyRailsMigrationMethod add_foreign_key remove_foreign_key
+    syn keyword rubyRailsMigrationMethod add_timestamps remove_timestamps
+    syn keyword rubyRailsMigrationMethod add_reference remove_reference add_belongs_to remove_belongs_to
+    syn keyword rubyRailsMigrationMethod add_index remove_index rename_index
+    syn keyword rubyRailsMigrationMethod execute transaction reversible revert
+  endif
+  if buffer.type_name('test')
+    if !empty(rails#app().user_assertions())
+      exe "syn keyword rubyRailsUserMethod ".join(rails#app().user_assertions())
+    endif
+    syn keyword rubyRailsTestMethod refute refute_empty refute_equal refute_in_delta refute_in_epsilon refute_includes refute_instance_of refute_kind_of refute_match refute_nil refute_operator refute_predicate refute_respond_to refute_same
+    syn keyword rubyRailsTestMethod add_assertion assert assert_block assert_equal assert_includes assert_in_delta assert_instance_of assert_kind_of assert_match assert_nil assert_no_match assert_not assert_not_equal assert_not_includes assert_not_nil assert_not_same assert_nothing_raised assert_nothing_thrown assert_operator assert_raise assert_respond_to assert_same assert_send assert_throws assert_recognizes assert_generates assert_routing flunk fixtures fixture_path use_transactional_fixtures use_instantiated_fixtures assert_difference assert_no_difference assert_valid
+    syn keyword rubyRailsTestMethod test setup teardown
+    if !buffer.type_name('test-unit')
+      syn match   rubyRailsTestControllerMethod  '\.\@<!\<\%(get\|post\|put\|patch\|delete\|head\|process\|assigns\)\>'
+      syn keyword rubyRailsTestControllerMethod get_via_redirect post_via_redirect put_via_redirect delete_via_redirect request_via_redirect
+      syn keyword rubyRailsTestControllerMethod assert_response assert_redirected_to assert_template assert_recognizes assert_generates assert_routing assert_dom_equal assert_dom_not_equal assert_select assert_select_rjs assert_select_encoded assert_select_email assert_tag assert_no_tag
+    endif
+  elseif buffer.type_name('spec')
+    syn keyword rubyRailsTestMethod describe context it its specify shared_context shared_examples shared_examples_for shared_context include_examples include_context it_should_behave_like it_behaves_like before after around subject fixtures controller_name helper_name scenario feature background given described_class
+    syn match rubyRailsTestMethod '\<let\>!\='
+    syn keyword rubyRailsTestMethod violated pending skip expect expect_any_instance_of allow allow_any_instance_of double instance_double mock mock_model stub_model xit
+    syn match rubyRailsTestMethod '\.\@<!\<stub\>!\@!'
+    if !buffer.type_name('spec-model')
+      syn match   rubyRailsTestControllerMethod  '\.\@<!\<\%(get\|post\|put\|patch\|delete\|head\|process\|assigns\)\>'
+      syn keyword rubyRailsTestControllerMethod  integrate_views render_views
+      syn keyword rubyRailsMethod params request response session flash
+      syn keyword rubyRailsMethod url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url
+      if buffer.type_name('spec-view')
+        syn keyword rubyRailsTestViewMethod render rendered assign
+      elseif buffer.type_name('spec-helper')
+        syn keyword RubyRailsTestHelperMethod helper
+      endif
+    endif
+  endif
+  if buffer.type_name('task')
+    syn match rubyRailsRakeMethod '^\s*\zs\%(task\|file\|namespace\|desc\|before\|after\|on\)\>\%(\s*=\)\@!'
+  endif
+  if buffer.type_name('config-routes')
+    syn match rubyRailsMethod '\.\zs\%(connect\|named_route\)\>'
+    syn keyword rubyRailsMethod match get put patch post delete redirect root resource resources collection member nested scope namespace controller constraints mount concern concerns
+  endif
+  syn keyword rubyRailsMethod debugger
+  syn keyword rubyRailsMethod alias_attribute alias_method_chain attr_accessor_with_default attr_internal attr_internal_accessor attr_internal_reader attr_internal_writer concerning delegate mattr_accessor mattr_reader mattr_writer superclass_delegating_accessor superclass_delegating_reader superclass_delegating_writer with_options
+  syn keyword rubyRailsMethod cattr_accessor cattr_reader cattr_writer class_inheritable_accessor class_inheritable_array class_inheritable_array_writer class_inheritable_hash class_inheritable_hash_writer class_inheritable_option class_inheritable_reader class_inheritable_writer inheritable_attributes read_inheritable_attribute reset_inheritable_attributes write_inheritable_array write_inheritable_attribute write_inheritable_hash
+  syn keyword rubyRailsInclude require_dependency
+endfunction
+
+function! rails#buffer_syntax() abort
   if !exists("g:rails_no_syntax")
     let buffer = rails#buffer()
     let keywords = split(join(filter(buffer.projected('keywords'), 'type(v:val) == type("")'), ' '))
     let special = filter(copy(keywords), 'v:val =~# ''^\h\k*[?!]$''')
     let regular = filter(copy(keywords), 'v:val =~# ''^\h\k*$''')
     if &syntax == 'ruby'
+      call rails#ruby_syntax()
       if !empty(special)
         exe 'syn match rubyRailsMethod "\<\%('.join(special, '\|').'\)"'
       endif
       if !empty(regular)
         exe 'syn keyword rubyRailsMethod '.join(regular, ' ')
       endif
-      if buffer.type_name() == ''
-        syn keyword rubyRailsMethod params request response session headers cookies flash
-      endif
-      if buffer.type_name() ==# 'model' || buffer.type_name('model-record')
-        syn keyword rubyRailsARMethod attribute default_scope enum named_scope scope serialize store
-        syn keyword rubyRailsARAssociationMethod belongs_to has_one has_many has_and_belongs_to_many composed_of accepts_nested_attributes_for
-        syn keyword rubyRailsARCallbackMethod before_create before_destroy before_save before_update before_validation before_validation_on_create before_validation_on_update before_commit
-        syn keyword rubyRailsARCallbackMethod after_create after_destroy after_save after_update after_validation after_validation_on_create after_validation_on_update after_create_commit after_update_commit after_destroy_commit
-        syn keyword rubyRailsARCallbackMethod around_create around_destroy around_save around_update
-        syn keyword rubyRailsARCallbackMethod after_commit after_find after_initialize after_rollback after_touch
-        syn keyword rubyRailsARClassMethod attr_accessible attr_protected attr_readonly has_secure_password has_secure_token store_accessor
-        syn keyword rubyRailsARValidationMethod validate validates validate_on_create validate_on_update validates_acceptance_of validates_associated validates_confirmation_of validates_each validates_exclusion_of validates_format_of validates_inclusion_of validates_length_of validates_numericality_of validates_presence_of validates_absence_of validates_size_of validates_uniqueness_of validates_with
-        syn keyword rubyRailsMethod logger
-      endif
-      if buffer.type_name('model-observer')
-        syn keyword rubyRailsARMethod observe
-      endif
-      if buffer.type_name('mailer')
-        syn keyword rubyRailsRenderMethod mail render
-        syn keyword rubyRailsControllerMethod attachments default helper helper_attr helper_method layout
-      endif
-      if buffer.type_name('job')
-        syn keyword rubyRailsAPIMethod queue_as rescue_from
-        syn keyword rubyRailsARCallbackMethod before_enqueue around_enqueue after_enqueue before_perform around_perform after_perform
-      endif
-      if buffer.type_name('controller','helper','mailer','view')
-        syn keyword rubyRailsMethod logger url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url
-      endif
-      if buffer.type_name('helper','view')
-        exe 'syn keyword rubyRailsHelperMethod' s:helpermethods()
-        syn match rubyRailsHelperMethod '\<select\>\%(\s*{\|\s*do\>\|\s*(\=\s*&\)\@!'
-        syn match rubyRailsHelperMethod '\<\%(content_for\w\@!?\=\|current_page?\)'
-        syn match rubyRailsViewMethod '\.\@<!\<\(h\|html_escape\|u\|url_encode\)\>'
-        if buffer.type_name('view-partial')
-          syn keyword rubyRailsMethod local_assigns
-        endif
-      elseif buffer.type_name('controller')
-        syn keyword rubyRailsMethod params request response session headers cookies flash
-        syn keyword rubyRailsRenderMethod render
-        syn keyword rubyRailsControllerMethod helper helper_attr helper_method filter layout serialize exempt_from_layout filter_parameter_logging hide_action cache_sweeper protect_from_forgery caches_page cache_page caches_action expire_page expire_action rescue_from
-        syn keyword rubyRailsRenderMethod head redirect_to redirect_back render_to_string respond_with
-        syn match   rubyRailsRenderMethod '\<respond_to\>?\@!'
-        syn keyword rubyRailsFilterMethod before_filter append_before_filter prepend_before_filter after_filter append_after_filter prepend_after_filter around_filter append_around_filter prepend_around_filter skip_before_filter skip_after_filter skip_filter before_action append_before_action prepend_before_action after_action append_after_action prepend_after_action around_action append_around_action prepend_around_action skip_before_action skip_after_action skip_action
-        syn keyword rubyRailsFilterMethod verify
-      endif
-      if buffer.type_name('db-migration','db-schema')
-        syn keyword rubyRailsMigrationMethod create_table change_table drop_table rename_table create_join_table drop_join_table
-        syn keyword rubyRailsMigrationMethod add_column rename_column change_column change_column_default change_column_null remove_column remove_columns
-        syn keyword rubyRailsMigrationMethod add_foreign_key remove_foreign_key
-        syn keyword rubyRailsMigrationMethod add_timestamps remove_timestamps
-        syn keyword rubyRailsMigrationMethod add_reference remove_reference add_belongs_to remove_belongs_to
-        syn keyword rubyRailsMigrationMethod add_index remove_index rename_index
-        syn keyword rubyRailsMigrationMethod execute transaction reversible revert
-      endif
-      if buffer.type_name('test')
-        if !empty(rails#app().user_assertions())
-          exe "syn keyword rubyRailsUserMethod ".join(rails#app().user_assertions())
-        endif
-        syn keyword rubyRailsTestMethod refute refute_empty refute_equal refute_in_delta refute_in_epsilon refute_includes refute_instance_of refute_kind_of refute_match refute_nil refute_operator refute_predicate refute_respond_to refute_same
-        syn keyword rubyRailsTestMethod add_assertion assert assert_block assert_equal assert_includes assert_in_delta assert_instance_of assert_kind_of assert_match assert_nil assert_no_match assert_not assert_not_equal assert_not_includes assert_not_nil assert_not_same assert_nothing_raised assert_nothing_thrown assert_operator assert_raise assert_respond_to assert_same assert_send assert_throws assert_recognizes assert_generates assert_routing flunk fixtures fixture_path use_transactional_fixtures use_instantiated_fixtures assert_difference assert_no_difference assert_valid
-        syn keyword rubyRailsTestMethod test setup teardown
-        if !buffer.type_name('test-unit')
-          syn match   rubyRailsTestControllerMethod  '\.\@<!\<\%(get\|post\|put\|patch\|delete\|head\|process\|assigns\)\>'
-          syn keyword rubyRailsTestControllerMethod get_via_redirect post_via_redirect put_via_redirect delete_via_redirect request_via_redirect
-          syn keyword rubyRailsTestControllerMethod assert_response assert_redirected_to assert_template assert_recognizes assert_generates assert_routing assert_dom_equal assert_dom_not_equal assert_select assert_select_rjs assert_select_encoded assert_select_email assert_tag assert_no_tag
-        endif
-      elseif buffer.type_name('spec')
-        syn keyword rubyRailsTestMethod describe context it its specify shared_context shared_examples shared_examples_for shared_context include_examples include_context it_should_behave_like it_behaves_like before after around subject fixtures controller_name helper_name scenario feature background given described_class
-        syn match rubyRailsTestMethod '\<let\>!\='
-        syn keyword rubyRailsTestMethod violated pending skip expect expect_any_instance_of allow allow_any_instance_of double instance_double mock mock_model stub_model xit
-        syn match rubyRailsTestMethod '\.\@<!\<stub\>!\@!'
-        if !buffer.type_name('spec-model')
-          syn match   rubyRailsTestControllerMethod  '\.\@<!\<\%(get\|post\|put\|patch\|delete\|head\|process\|assigns\)\>'
-          syn keyword rubyRailsTestControllerMethod  integrate_views render_views
-          syn keyword rubyRailsMethod params request response session flash
-          syn keyword rubyRailsMethod url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url
-          if buffer.type_name('spec-view')
-            syn keyword rubyRailsTestViewMethod render rendered assign
-          elseif buffer.type_name('spec-helper')
-            syn keyword RubyRailsTestHelperMethod helper
-          endif
-        endif
-      endif
-      if buffer.type_name('task')
-        syn match rubyRailsRakeMethod '^\s*\zs\%(task\|file\|namespace\|desc\|before\|after\|on\)\>\%(\s*=\)\@!'
-      endif
-      if buffer.type_name('config-routes')
-        syn match rubyRailsMethod '\.\zs\%(connect\|named_route\)\>'
-        syn keyword rubyRailsMethod match get put patch post delete redirect root resource resources collection member nested scope namespace controller constraints mount concern concerns
-      endif
-      syn keyword rubyRailsMethod debugger
-      syn keyword rubyRailsMethod alias_attribute alias_method_chain attr_accessor_with_default attr_internal attr_internal_accessor attr_internal_reader attr_internal_writer concerning delegate mattr_accessor mattr_reader mattr_writer superclass_delegating_accessor superclass_delegating_reader superclass_delegating_writer with_options
-      syn keyword rubyRailsMethod cattr_accessor cattr_reader cattr_writer class_inheritable_accessor class_inheritable_array class_inheritable_array_writer class_inheritable_hash class_inheritable_hash_writer class_inheritable_option class_inheritable_reader class_inheritable_writer inheritable_attributes read_inheritable_attribute reset_inheritable_attributes write_inheritable_array write_inheritable_attribute write_inheritable_hash
-      syn keyword rubyRailsInclude require_dependency
-
-      syn region  rubyString   matchgroup=rubyStringDelimiter start=+\%(:order\s*=>\s*\)\@<="+ skip=+\\\\\|\\"+ end=+"+ contains=@rubyStringSpecial,railsOrderSpecial
-      syn region  rubyString   matchgroup=rubyStringDelimiter start=+\%(:order\s*=>\s*\)\@<='+ skip=+\\\\\|\\'+ end=+'+ contains=@rubyStringSpecial,railsOrderSpecial
-      syn match   railsOrderSpecial +\c\<\%(DE\|A\)SC\>+ contained
-      syn region  rubyString   matchgroup=rubyStringDelimiter start=+\%(:conditions\s*=>\s*\[\s*\)\@<="+ skip=+\\\\\|\\"+ end=+"+ contains=@rubyStringSpecial,railsConditionsSpecial
-      syn region  rubyString   matchgroup=rubyStringDelimiter start=+\%(:conditions\s*=>\s*\[\s*\)\@<='+ skip=+\\\\\|\\'+ end=+'+ contains=@rubyStringSpecial,railsConditionsSpecial
-      syn match   railsConditionsSpecial +?\|:\h\w*+ contained
-      syn cluster rubyNotTop add=railsOrderSpecial,railsConditionsSpecial
 
     elseif (&syntax =~# '^eruby\>' || &syntax == 'haml') && &syntax !~# 'yaml'
-      let containedin = 'contained containedin=@'.&syntax.'RailsRegions'
-      let group = matchstr(&syntax, '^\w\+')
+      let containedin = 'contained containedin=@'.matchstr(&syntax, '^\w\+').'RailsRegions'
       syn case match
       if !empty(special)
-        exe 'syn match '.group.'RailsMethod "\<\%('.join(special, '\|').'\)"' containedin
+        exe 'syn match rubyRailsMethod "\<\%('.join(special, '\|').'\)"' containedin
       endif
       if !empty(regular)
-        exe 'syn keyword '.group.'RailsMethod '.join(regular, ' ') containedin
+        exe 'syn keyword rubyRailsMethod '.join(regular, ' ') containedin
       endif
-      if group == 'haml'
+      if &syntax == 'haml'
         exe 'syn cluster hamlRailsRegions contains=hamlRubyCodeIncluded,hamlRubyCode,hamlRubyHash,@hamlEmbeddedRuby,rubyInterpolation'
       else
         exe 'syn cluster erubyRailsRegions contains=erubyOneLiner,erubyBlock,erubyExpression,rubyInterpolation'
       endif
-      exe 'syn keyword rubyRailsHelperMethod' s:helpermethods() 'contained containedin=@'.group.'RailsRegions'
-      exe 'syn match rubyRailsHelperMethod "\<select\>\%(\s*{\|\s*do\>\|\s*(\=\s*&\)\@!" contained containedin=@'.group.'RailsRegions'
-      exe 'syn match rubyRailsHelperMethod "\<\%(content_for\w\@!?\=\|current_page?\)" contained containedin=@'.group.'RailsRegions'
-      exe 'syn keyword rubyRailsMethod logger url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url contained containedin=@'.group.'RailsRegions'
-      exe 'syn match rubyRailsViewMethod "\.\@<!\<\(h\|html_escape\|u\|url_encode\)\>" contained containedin=@'.group.'RailsRegions'
+      exe 'syn keyword rubyRailsHelperMethod' s:helpermethods() containedin
+      exe 'syn match rubyRailsHelperMethod "\<select\>\%(\s*{\|\s*do\>\|\s*(\=\s*&\)\@!"' containedin
+      exe 'syn match rubyRailsHelperMethod "\<\%(content_for\w\@!?\=\|current_page?\)"' containedin
+      exe 'syn keyword rubyRailsMethod logger url_for polymorphic_path polymorphic_url edit_polymorphic_path edit_polymorphic_url new_polymorphic_path new_polymorphic_url' containedin
+      exe 'syn match rubyRailsViewMethod "\.\@<!\<\(h\|html_escape\|u\|url_encode\)\>"' containedin
       if buffer.type_name('view-partial')
-        exe 'syn keyword rubyRailsMethod local_assigns contained containedin=@'.group.'RailsRegions'
+        exe 'syn keyword rubyRailsMethod local_assigns' containedin
       endif
-      exe 'syn keyword rubyRailsRenderMethod render contained containedin=@'.group.'RailsRegions'
     endif
 
     if &syntax =~# '^\%(javascript\|coffee\|css\|scss\|sass\)'
@@ -4067,9 +3997,6 @@ function! s:HiDefaults()
   hi def link railsUserClass                  railsClass
   hi def link railsMethod                     Function
   hi def link railsClass                      Type
-  hi def link railsOrderSpecial               railsStringSpecial
-  hi def link railsConditionsSpecial          railsStringSpecial
-  hi def link railsStringSpecial              Identifier
 endfunction
 
 function! rails#log_syntax()
@@ -4459,11 +4386,6 @@ function! s:AddParenExpand(abbr,expn,...)
   endif
 endfunction
 
-if !exists('g:rails_no_abbreviations') && type(get(g:, 'rails_abbreviations', {})) == type(0)
-  call s:error('Use rails_no_abbreviations not rails_abbreviations to disable abbreviations')
-  let g:rails_no_abbreviations = 1
-endif
-
 function! s:BufAbbreviations()
   " Some of these were cherry picked from the TextMate snippets
   if !exists('g:rails_no_abbreviations')
@@ -4478,16 +4400,7 @@ function! s:BufAbbreviations()
       Rabbrev coo[ cookies
       Rabbrev fl[ flash
       Rabbrev rr( render
-      Rabbrev rf( render :file\ =>\ 
-      Rabbrev rj( render :json\ =>\ 
-      Rabbrev rp( render :partial\ =>\ 
-      Rabbrev rt( render :text\ =>\ 
-      Rabbrev rx( render :xml\ =>\ 
       " ))))))
-    endif
-    if buffer.type_name('view','helper')
-      Rabbrev dotiw distance_of_time_in_words
-      Rabbrev taiw  time_ago_in_words
     endif
     if buffer.type_name('controller')
       Rabbrev re(  redirect_to
@@ -4522,15 +4435,6 @@ function! s:BufAbbreviations()
       Rabbrev mdt(  drop_table
       " )))))))
     endif
-    if buffer.type_name('test')
-      Rabbrev ase(  assert_equal
-      Rabbrev asko( assert_kind_of
-      Rabbrev asnn( assert_not_nil
-      Rabbrev asr(  assert_raise
-      Rabbrev asre( assert_response
-      Rabbrev art(  assert_redirected_to
-      " ))))))
-    endif
     Rabbrev logd( logger.debug
     Rabbrev logi( logger.info
     Rabbrev logw( logger.warn
@@ -4546,7 +4450,7 @@ function! s:BufAbbreviations()
     Rabbrev AJ::  ActiveJob
     " )))))
     for pairs in
-          \ items(type(get(g:, 'rails_abbreviations', 0)) == type({}) ? g:rails_abbreviations : {})
+          \ items(get(g:, 'rails_abbreviations', {}))
       call call(function(s:sid.'Abbrev'), [0, pairs[0]] + s:split(pairs[1]))
     endfor
     for hash in reverse(rails#buffer().projected('abbreviations'))
@@ -4665,6 +4569,35 @@ function! s:app_engines() dict abort
   return self.cache.get('engines')
 endfunction
 
+function! s:app_smart_projections() dict abort
+  let ts = getftime(self.path('app/'))
+  if self.cache.needs('smart_projections', ts)
+    let dict = {}
+    for dir in self.relglob('app/', '*s', '/')
+      let singular = rails#singularize(dir)
+      let glob = 'app/' . dir . '/*_' . singular . '.rb'
+      if dir !~# '\v^%(assets|models|views)$' &&
+            \ !has_key(s:default_projections, glob) &&
+            \ !empty(self.relglob('', glob))
+        let dict[glob] = {'type': s:gsub(tolower(singular), '\A+', ' ')}
+      endif
+    endfor
+    if has_key(dict, 'app/mailers/*_mailer.rb') || self.has_rails5()
+      let dict['app/mailers/*_mailer.rb'] = {
+            \ "affinity": "controller",
+            \ "template": ["class {camelcase|capitalize|colons}Mailer < ActionMailer::Base", "end"],
+            \ "type": "mailer"}
+    else
+      let dict['app/mailers/*.rb'] = {
+            \ "affinity": "controller",
+            \ "template": ["class {camelcase|capitalize|colons} < ActionMailer::Base", "end"],
+            \ "type": "mailer"}
+    endif
+    call self.cache.set('smart_projections', dict, ts)
+  endif
+  return self.cache.get('smart_projections')
+endfunction
+
 function! s:extend_projection(dest, src) abort
   let dest = copy(a:dest)
   for key in keys(a:src)
@@ -4738,11 +4671,6 @@ let s:default_projections = {
       \    "template": ["class {camelcase|capitalize|colons}Job < ActiveJob::Base", "end"],
       \    "type": "job"
       \  },
-      \  "app/mailers/*.rb": {
-      \    "affinity": "controller",
-      \    "template": ["class {camelcase|capitalize|colons} < ActionMailer::Base", "end"],
-      \    "type": "mailer"
-      \  },
       \  "app/models/*.rb": {
       \    "affinity": "model",
       \    "template": ["class {camelcase|capitalize|colons}", "end"],
@@ -4783,7 +4711,7 @@ let s:has_projections = {
       \    "spec/*_spec.rb": {"alternate": "app/{}.rb"},
       \    "spec/controllers/*_spec.rb": {
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe {camelcase|capitalize|colons} do",
       \        "end"
@@ -4792,7 +4720,7 @@ let s:has_projections = {
       \    },
       \    "spec/features/*_spec.rb": {
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe \"{underscore|capitalize|blank}\" do",
       \        "end"
@@ -4801,7 +4729,7 @@ let s:has_projections = {
       \    },
       \    "spec/helpers/*_spec.rb": {
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe {camelcase|capitalize|colons} do",
       \        "end"
@@ -4810,7 +4738,7 @@ let s:has_projections = {
       \    },
       \    "spec/integration/*_spec.rb": {
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe \"{underscore|capitalize|blank}\" do",
       \        "end"
@@ -4821,7 +4749,7 @@ let s:has_projections = {
       \    "spec/mailers/*_spec.rb": {
       \      "affinity": "controller",
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe {camelcase|capitalize|colons} do",
       \        "end"
@@ -4831,7 +4759,7 @@ let s:has_projections = {
       \    "spec/models/*_spec.rb": {
       \      "affinity": "model",
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe {camelcase|capitalize|colons} do",
       \        "end"
@@ -4841,7 +4769,7 @@ let s:has_projections = {
       \    "spec/rails_helper.rb": {"type": "integration test"},
       \    "spec/requests/*_spec.rb": {
       \      "template": [
-      \        "require 'spec_helper'",
+      \        "require 'rails_helper'",
       \        "",
       \        "describe \"{underscore|capitalize|blank}\" do",
       \        "end"
@@ -4953,6 +4881,7 @@ function! s:app_projections() dict abort
       call s:combine_projections(dict, v)
     endif
   endfor
+  call s:combine_projections(dict, self.smart_projections())
   call s:combine_projections(dict, get(g:, 'rails_projections', ''))
   for gem in keys(get(g:, 'rails_gem_projections', {}))
     if self.has_gem(gem)
@@ -4994,7 +4923,7 @@ function! s:app_projections() dict abort
   return dict
 endfunction
 
-call s:add_methods('app', ['gems', 'has_gem', 'engines', 'projections'])
+call s:add_methods('app', ['gems', 'has_gem', 'engines', 'smart_projections', 'projections'])
 
 let s:transformations = {}
 
@@ -5099,15 +5028,7 @@ function! s:readable_projected_with_raw(key, ...) dict abort
             \ 'match': root,
             \ 'file': self.path(),
             \ 'project': self.app().path(),
-            \ 's': root,
-            \ 'S': rails#camelize(root),
-            \ 'h': toupper(root[0]) . tr(rails#underscore(root), '_', ' ')[1:-1],
-            \ 'p': rails#pluralize(root),
-            \ 'i': rails#singularize(root),
             \ '%': '%'}, a:0 ? a:1 : {})
-      if suffix =~# '\.js\>'
-        let ph.S = s:gsub(ph.S, '::', '.')
-      endif
       let mine += map(s:getlist(all[pattern], a:key), '[s:expand_placeholders(v:val, ph), v:val]')
     endif
   endfor
@@ -5119,10 +5040,6 @@ function! s:readable_projected(key, ...) dict abort
 endfunction
 
 call s:add_methods('readable', ['projected', 'projected_with_raw'])
-
-function! s:Set(bang,...)
-  call s:warn('Rset is obsolete and has no effect')
-endfunction
 
 " }}}1
 " Detection {{{1
@@ -5332,10 +5249,6 @@ function! rails#buffer_setup() abort
     call self.setvar('dispatch', dir . dispatch[0])
   elseif self.name() =~# '^public'
     call self.setvar('dispatch', ':Preview')
-  elseif self.type_name('spec', 'cucumber')
-    call self.setvar('dispatch', ':Runner')
-  elseif self.type_name('test') && !self.app().has_rails5()
-    call self.setvar('dispatch', ':Runner')
   elseif self.name() =~# '^\%(app\|config\|db\|lib\|log\|README\|Rakefile\|test\|spec\|features\)'
     if !exists('dir')
       call self.setvar('dispatch', ':Rails')
@@ -5343,7 +5256,7 @@ function! rails#buffer_setup() abort
       call self.setvar('dispatch',
             \ dir .
             \ self.app().ruby_script_command('bin/rails') .
-            \ ' `=rails#buffer(' . self['#'] . ').default_rails_task(v:lnum)`')
+            \ ' `=rails#buffer(' . self['#'] . ').default_task(v:lnum)`')
     else
       call self.setvar('dispatch',
             \ dir . '-compiler=rails ' .
