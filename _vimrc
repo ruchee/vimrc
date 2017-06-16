@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-05-23 21:53:37
+" -----------------    Date: 2017-06-16 10:57:02
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -571,6 +571,7 @@ let g:snipMate.snippet_version                  = 0
 let g:snipMate.scope_aliases                    = {}
 let g:snipMate.scope_aliases['c']               = 'cpp'
 let g:snipMate.scope_aliases['objc']            = 'cpp,objc'
+let g:snipMate.scope_aliases['gohtmltmpl']      = 'html,gohtmltmpl'
 let g:snipMate.scope_aliases['racket']          = 'scheme,racket'
 let g:snipMate.scope_aliases['javascript']      = 'js_*,javascript'
 let g:snipMate.scope_aliases['typescript']      = 'javascript,typescript'
