@@ -40,10 +40,14 @@ snippet str     结构体
 	type ${1:str_name} struct {
 	  ${0}
 	}
+snippet sd      空结构体
+	type ${1:str_name} struct {${0}}
 snippet int     接口
 	type ${1:int_name} interface {
 	  ${0}
 	}
+snippet id      空接口
+	type ${1:int_name} interface {${0}}
 # 流程控制
 snippet if      if
 	if ${1} {
@@ -90,7 +94,7 @@ snippet br      中断
 	break ${0}
 snippet gt      跳转
 	goto ${0}
-snippet df      函数返回之前执行
+snippet de      函数返回之前执行
 	defer ${0}
 snippet ra      range
 	range ${0}
@@ -98,7 +102,7 @@ snippet go      Go程
 	go ${0}
 snippet ch      管道
 	chan ${0}
-snippet de      删除
+snippet d       删除
 	delete(${0})
 snippet con     定义常量
 	const ${0}
