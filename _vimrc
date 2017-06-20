@@ -1,191 +1,192 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-06-16 10:57:02
+" -----------------    Date: 2017-06-20 19:33:22
 " -----------------   https://github.com/ruchee/vimrc
 
 
-" ---------- Ctrl系按键 ----------
+" ---------- Ctrl 系按键 ----------
 "
-" Ctrl + H                   --光标移当前行行首       [插入模式]
-" Ctrl + J                   --光标移下一行行首       [插入模式]
-" Ctrl + K                   --光标移上一行行尾       [插入模式]
-" Ctrl + L                   --光标移当前行行尾       [插入模式]
+" Ctrl + H                   光标移当前行行首         [插入模式]
+" Ctrl + J                   光标移下一行行首         [插入模式]
+" Ctrl + K                   光标移上一行行尾         [插入模式]
+" Ctrl + L                   光标移当前行行尾         [插入模式]
 
-" ---------- Leader系按键 ----------
+" ---------- Leader 系按键 ----------
 "
-" \c                         --复制至公共剪贴板       [仅选择模式]
-" \a                         --复制所有至公共剪贴板   [Normal模式可用]
-" \v                         --从公共剪贴板粘贴       [全模式可用]
+" \c                         复制至公共剪贴板         [仅选择模式]
+" \a                         复制所有至公共剪贴板     [Normal 模式可用]
+" \v                         从公共剪贴板粘贴         [全模式可用]
 "
-" \rr                        --一键编译&&运行         [全模式可用]
-" \rb                        --一键去除所有尾部空白   [全模式可用]
-" \rm                        --一键去除^M字符         [全模式可用]
-" \rt                        --一键替换全部Tab为空格  [全模式可用]
-" \ra                        --一键清理当前代码文件   [Normal模式可用]
+" \rr                        一键编译 && 运行         [全模式可用]
+" \rb                        一键去除全部尾部空白     [全模式可用]
+" \rm                        一键去除全部 ^M 字符     [全模式可用]
+" \rt                        一键替换全部 Tab 为空格  [全模式可用]
+" \ra                        一键清理当前代码文件     [Normal 模式可用]
 "
-" \ww                        --打开Vimwiki主页
-" \wa                        --一键编译所有Vimwiki源文件
-" \nt                        --打开/关闭NERDTree文件树窗口
-" \ut                        --打开/关闭Undotree文档编辑历史窗口
-" \tl                        --打开/关闭Tags窗口
+" \ww                        打开 Vimwiki 主页
+" \wa                        一键编译所有 Vimwiki 源文件
+" \nt                        打开/关闭 NERDTree 文件树窗口
+" \ut                        打开/关闭 Undotree 文档编辑历史窗口
+" \tl                        打开/关闭 Tags 窗口
 "
-" \be                        --打开BufExplorer窗口    [独立显示] [Normal模式可用]
-" \bs                        --打开BufExplorer窗口    [分割显示] [Normal模式可用]
-" \bv                        --打开BufExplorer窗口    [边栏显示] [Normal模式可用]
+" \be                        打开 BufExplorer 窗口    [独立显示] [Normal 模式可用]
+" \bs                        打开 BufExplorer 窗口    [分割显示] [Normal 模式可用]
+" \bv                        打开 BufExplorer 窗口    [边栏显示] [Normal 模式可用]
 "
-" \fe                        --打开/关闭文件编码窗口  [Normal模式可用]
-" \mp                        --生成Promptline脚本文件 [Normal模式可用]
+" \fe                        打开/关闭文件编码窗口    [Normal 模式可用]
+" \mp                        生成 Promptline 脚本文件 [Normal 模式可用]
 "
-" \gi                        --开启或关闭GitGutter    [Normal模式可用]
-" \gd                        --打开Git文件对比模式    [Normal模式可用] [竖直]
-" \gs                        --打开Git文件对比模式    [Normal模式可用] [水平]
-" \gl                        --查看Git提交日志        [Normal模式可用]
+" \gi                        开启或关闭 GitGutter     [Normal 模式可用]
+" \gd                        打开 Git 文件对比模式    [Normal 模式可用] [竖直]
+" \gs                        打开 Git 文件对比模式    [Normal 模式可用] [水平]
+" \gl                        查看 Git 提交日志        [Normal 模式可用]
 "
-" \il                        --显示/关闭对齐线        [Normal模式可用]
-" \bb                        --按=号对齐代码          [Normal模式可用]
-" \bn                        --自定义对齐             [Normal模式可用]
-" \th                        --一键生成与当前编辑文件同名的HTML文件 [不输出行号]
-" \ev                        --编辑当前所使用的Vim配置文件
+" \il                        显示/关闭对齐线          [Normal 模式可用]
+" \bb                        按 = 号对齐代码          [Normal 模式可用]
+" \bn                        自定义对齐               [Normal 模式可用]
+" \th                        一键生成与当前编辑文件同名的 HTML 文件 [不输出行号]
+" \ev                        编辑当前所使用的 Vim 配置文件
 "
-" \cc                        --添加行注释             [NERD_commenter]
-" \cm                        --添加块注释             [NERD_commenter]
-" \cs                        --添加SexStyle块注释     [NERD_commenter]
-" \cu                        --取消注释               [NERD_commenter]
+" \cc                        添加行注释               [NERD_commenter]
+" \cm                        添加块注释               [NERD_commenter]
+" \cs                        添加 SexStyle 块注释     [NERD_commenter]
+" \cu                        取消注释                 [NERD_commenter]
 "
-" \php                       --一键切换到PHP语法高亮
-" \ruby                      --一键切换到Ruby语法高亮
-" \eruby                     --一键切换到eRuby语法高亮
-" \cf                        --一键切换到Coffee语法高亮
-" \js                        --一键切换到JavaScript语法高亮
-" \css                       --一键切换到CSS语法高亮
-" \html                      --一键切换到HTML语法高亮
+" \got                       一键切换到 gohtmltmpl 语法高亮
+" \php                       一键切换到 PHP        语法高亮
+" \ruby                      一键切换到 Ruby       语法高亮
+" \eruby                     一键切换到 eRuby      语法高亮
+" \cf                        一键切换到 Coffee     语法高亮
+" \js                        一键切换到 JavaScript 语法高亮
+" \css                       一键切换到 CSS        语法高亮
+" \html                      一键切换到 HTML       语法高亮
 
 " ---------- 补全命令 ----------
 "
-" Ctrl + P                   --缓冲区补全             [插入模式]
-" Ctrl + U                   --全能补全               [插入模式]
-" Tab键                      --语法结构补全           [插入模式] [snipMate插件]
-" Ctrl + Y + ,               --HTML标签补全           [插入模式] [emmet插件]
+" Ctrl + P                   缓冲区补全               [插入模式]
+" Ctrl + U                   全能补全                 [插入模式]
+" Tab键                      语法结构补全             [插入模式] [snipMate 插件]
+" Ctrl + Y + ,               HTML标签补全             [插入模式] [emmet 插件]
 
 " ---------- 格式化命令 ----------
 "
-" ==                         --缩进当前行
-" =G                         --缩进直到文件结尾
-" gg=G                       --缩进整个文件
-" 行号G=行号G                --缩进指定区间
+" ==                         缩进当前行
+" =G                         缩进直到文件结尾
+" gg=G                       缩进整个文件
+" 行号G=行号G                缩进指定区间
 
-" u [小写]                   --单步复原               [非插入模式]
-" U [大写]                   --整行复原               [非插入模式]
-" Ctrl + R                   --反撤消                 [非插入模式]
+" u [小写]                   单步复原                 [非插入模式]
+" U [大写]                   整行复原                 [非插入模式]
+" Ctrl + R                   反撤消                   [非插入模式]
 "
-" \pcf                       --格式化当前PHP文件              [Normal模式] [php-cs-fixer插件]
-" \pcd                       --格式化当前目录下的所有PHP文件  [Normal模式] [php-cs-fixer插件]
+" \pcf                       格式化当前 PHP 文件              [Normal 模式] [php-cs-fixer 插件]
+" \pcd                       格式化当前目录下的所有 PHP 文件  [Normal 模式] [php-cs-fixer 插件]
 "
 " ---------- 查看命令 ----------
 "
-" Ctrl+G                     --显示当前文件和光标的粗略信息
-" g Ctrl+G                   --显示当前文件和光标的详细信息
+" Ctrl+G                     显示当前文件和光标的粗略信息
+" g Ctrl+G                   显示当前文件和光标的详细信息
 "
 " ---------- 搜索命令 ----------
 "
-" #                          --向前搜索当前光标所在字符
-" *                          --向后搜索当前光标所在字符
-" ?                          --向前搜索
-" /                          --向后搜索
-" :%s/xx/yy/g                --正则搜索替换
+" #                          向前搜索当前光标所在字符
+" *                          向后搜索当前光标所在字符
+" ?                          向前搜索
+" /                          向后搜索
+" :%s/xx/yy/g                正则搜索替换
 "
-" ??                         --向前搜索     [PCRE风格] [由eregex插件提供]
-" //                         --向后搜索     [PCRE风格] [由eregex插件提供]
-" :%S/xx/yy/g                --正则搜索替换 [PCRE风格] [由eregex插件提供]
+" ??                         向前搜索     [PCRE 风格] [由 eregex 插件提供]
+" //                         向后搜索     [PCRE 风格] [由 eregex 插件提供]
+" :%S/xx/yy/g                正则搜索替换 [PCRE 风格] [由 eregex 插件提供]
 "
-" Ctrl + P                   --在当前工程目录搜索文件 [Normal模式] [ctrlp插件] [此插件功能颇多，具体可查看其文档]
-" \ss                        --在当前所在目录搜索单词 [Normal模式] [ack插件]
+" Ctrl + P                   在当前工程目录搜索文件 [Normal 模式] [ctrlp 插件] [此插件功能颇多，具体可查看其文档]
+" \ss                        在当前所在目录搜索单词 [Normal 模式] [ack 插件]
 "
 " ---------- 跳转命令 ----------
 "
-" Ctrl + ]                   --转到函数定义           [ctags跳转]
-" Ctrl + T                   --返回调用函数           [ctags跳转]
+" Ctrl + ]                   转到函数定义           [ctags 跳转]
+" Ctrl + T                   返回调用函数           [ctags 跳转]
 
-" Ctrl + O                   --跳到上一个编辑位置     [Normal模式]
-" Ctrl + I                   --跳回下一个编辑位置     [Normal模式]
+" Ctrl + O                   跳到上一个编辑位置     [Normal 模式]
+" Ctrl + I                   跳回下一个编辑位置     [Normal 模式]
 
-" 0 or ^ or $                --跳至 行首 or 第一个非空字符 or 行尾
-" %                          --在匹配的括号间跳跃
-" { or }                     --按段落上/下跳跃
-" f字符                      --跳至从当前光标开始本行第一个指定字符出现的位置
-" gd                         --跳至当前光标所在单词首次出现的位置
-" gf                         --打开当前光标所在的文件名，如果确实存在该文件的话
+" 0 or ^ or $                跳至 行首 or 第一个非空字符 or 行尾
+" %                          在匹配的括号间跳跃
+" { or }                     按段落上/下跳跃
+" f字符                      跳至从当前光标开始本行第一个指定字符出现的位置
+" gd                         跳至当前光标所在单词首次出现的位置
+" gf                         打开当前光标所在的文件名，如果确实存在该文件的话
 "
-" ]c                         --跳到下一个差异处
-" [c                         --跳到上一个差异处
+" ]c                         跳到下一个差异处
+" [c                         跳到上一个差异处
 "
-" [ Ctrl+D                   --跳至当前光标所在变量的首次定义位置 [从文件头部开始]
-" [ Ctrl+I                   --跳至当前光标所在变量的首次出现位置 [从文件头部开始]
-" [ D                        --列出当前光标所在变量的所有定义位置 [从文件头部开始]
-" [ I                        --列出当前光标所在变量的所有出现位置 [从文件头部开始]
+" [ Ctrl+D                   跳至当前光标所在变量的首次定义位置 [从文件头部开始]
+" [ Ctrl+I                   跳至当前光标所在变量的首次出现位置 [从文件头部开始]
+" [ D                        列出当前光标所在变量的所有定义位置 [从文件头部开始]
+" [ I                        列出当前光标所在变量的所有出现位置 [从文件头部开始]
 "
 " ---------- 文本操作 ----------
 "
-" dw de d0 d^ d$ dd          --删除
-" cw ce c0 c^ c$ cc          --删除并进入插入模式
-" yw ye y0 y^ y$ yy          --复制
-" vw ve v0 v^ v$ vv          --选中
+" dw de d0 d^ d$ dd          删除
+" cw ce c0 c^ c$ cc          删除并进入插入模式
+" yw ye y0 y^ y$ yy          复制
+" vw ve v0 v^ v$ vv          选中
 "
-" di分隔符                   --删除指定分隔符之间的内容 [不包括分隔符]
-" ci分隔符                   --删除指定分隔符之间的内容并进入插入模式 [不包括分隔符]
-" yi分隔符                   --复制指定分隔符之间的内容 [不包括分隔符]
-" vi分隔符                   --选中指定分隔符之间的内容 [不包括分隔符]
+" di分隔符                   删除指定分隔符之间的内容               [不包括分隔符]
+" ci分隔符                   删除指定分隔符之间的内容并进入插入模式 [不包括分隔符]
+" yi分隔符                   复制指定分隔符之间的内容               [不包括分隔符]
+" vi分隔符                   选中指定分隔符之间的内容               [不包括分隔符]
 "
-" da分隔符                   --删除指定分隔符之间的内容 [包括分隔符]
-" ca分隔符                   --删除指定分隔符之间的内容并进入插入模式 [包括分隔符]
-" ya分隔符                   --复制指定分隔符之间的内容 [包括分隔符]
-" va分隔符                   --选中指定分隔符之间的内容 [包括分隔符]
+" da分隔符                   删除指定分隔符之间的内容               [包括分隔符]
+" ca分隔符                   删除指定分隔符之间的内容并进入插入模式 [包括分隔符]
+" ya分隔符                   复制指定分隔符之间的内容               [包括分隔符]
+" va分隔符                   选中指定分隔符之间的内容               [包括分隔符]
 "
 " Xi和Xa都可以在X后面加入一个数字，以指代所处理的括号层次
 " 如 d2i( 执行的是删除当前光标外围第二层括号内的所有内容
 "
-" dt字符                     --删除本行内容，直到遇到第一个指定字符 [不包括该字符]
-" ct字符                     --删除本行内容，直到遇到第一个指定字符并进入插入模式 [不包括该字符]
-" yt字符                     --复制本行内容，直到遇到第一个指定字符 [不包括该字符]
-" vt字符                     --选中本行内容，直到遇到第一个指定字符 [不包括该字符]
+" dt字符                     删除本行内容，直到遇到第一个指定字符               [不包括该字符]
+" ct字符                     删除本行内容，直到遇到第一个指定字符并进入插入模式 [不包括该字符]
+" yt字符                     复制本行内容，直到遇到第一个指定字符               [不包括该字符]
+" vt字符                     选中本行内容，直到遇到第一个指定字符               [不包括该字符]
 "
-" df字符                     --删除本行内容，直到遇到第一个指定字符 [包括该字符]
-" cf字符                     --删除本行内容，直到遇到第一个指定字符并进入插入模式 [包括该字符]
-" yf字符                     --复制本行内容，直到遇到第一个指定字符 [包括该字符]
-" vf字符                     --选中本行内容，直到遇到第一个指定字符 [包括该字符]
+" df字符                     删除本行内容，直到遇到第一个指定字符               [包括该字符]
+" cf字符                     删除本行内容，直到遇到第一个指定字符并进入插入模式 [包括该字符]
+" yf字符                     复制本行内容，直到遇到第一个指定字符               [包括该字符]
+" vf字符                     选中本行内容，直到遇到第一个指定字符               [包括该字符]
 "
 " XT 和 XF 是 Xt/Xf 的反方向操作
 "
-" cs'"                        --将外围的单引号变成双引号     [surround.vim插件]
-" cs"<p>                      --将外围的双引号变成HTML标签对 [surround.vim插件]
-" cst"                        --将外围的界定符变成双引号     [surround.vim插件]
-" ds"                         --删除外围的双引号定界符       [surround.vim插件]
+" cs'"                        将外围的单引号变成双引号       [surround 插件]
+" cs"<p>                      将外围的双引号变成 HTML 标签对 [surround 插件]
+" cst"                        将外围的界定符变成双引号       [surround 插件]
+" ds"                         删除外围的双引号定界符         [surround 插件]
 "
 " ---------- 文本比较 ----------
 "
-" dp                         --将当前文件所在差异行替换到对比文件 [give]
-" do                         --将对比文件所在差异行替换到当前文件 [get]
+" dp                         将当前文件所在差异行替换到对比文件 [give]
+" do                         将对比文件所在差异行替换到当前文件 [get]
 "
 " ---------- 便捷操作 ----------
 "
-" Ctrl + A                   --将当前光标所在数字自增1        [仅普通模式可用]
-" Ctrl + X                   --将当前光标所在数字自减1        [仅普通模式可用]
-" :g/^/m0                    --将整个文件所有行排列顺序颠倒   [命令模式]
-" m字符       and '字符      --标记位置 and 跳转到标记位置
-" q字符 xxx q and @字符      --录制宏   and 执行宏
+" Ctrl + A                   将当前光标所在数字自增1        [仅普通模式可用]
+" Ctrl + X                   将当前光标所在数字自减1        [仅普通模式可用]
+" :g/^/m0                    将整个文件所有行排列顺序颠倒   [命令模式]
+" m字符       and '字符      标记位置 and 跳转到标记位置
+" q字符 xxx q and @字符      录制宏   and 执行宏
 "
 " ---------- 代码折叠 ----------
 "
-" zc                         --折叠
-" zC                         --对所在范围内所有嵌套的折叠点进行折叠
-" zo                         --展开折叠
-" zO                         --对所在范围内所有嵌套的折叠点展开
-" [z                         --到当前打开的折叠的开始处
-" ]z                         --到当前打开的折叠的末尾处
-" zj                         --向下移动到后一个折叠的开始处
-" zk                         --向上移动到前一个折叠的结束处
+" zc                         折叠
+" zC                         对所在范围内所有嵌套的折叠点进行折叠
+" zo                         展开折叠
+" zO                         对所在范围内所有嵌套的折叠点展开
+" [z                         到当前打开的折叠的开始处
+" ]z                         到当前打开的折叠的末尾处
+" zj                         向下移动到后一个折叠的开始处
+" zk                         向上移动到前一个折叠的结束处
 "
-" ---------- Vimwiki [Vim中的wiki/blog系统] ----------------
+" ---------- Vimwiki [Vim 中的 wiki 系统] ----------------
 "
 " 链接：[[链接地址|链接描述]]
 " 图片：{{图片地址||属性1="属性值" 属性2="属性值"}}
@@ -193,8 +194,8 @@
 "
 " ---------- 其他常用内建命令 ------------------------------
 "
-" :se ff=unix                --更改文件格式，可选 unix、dos、mac
-" :se ft=cpp                 --更改文件语法着色模式
+" :se ff=unix                更改文件格式，可选 unix、dos、mac
+" :se ft=cpp                 更改文件语法着色模式
 
 
 " 判断操作系统类型
@@ -212,7 +213,7 @@ else
 endif
 
 
-" 判断是否处于GUI界面
+" 判断是否处于 GUI 界面
 if has('gui_running')
   let g:isGUI = 1
 else
@@ -228,7 +229,7 @@ set tabstop=2
 au FileType python set shiftwidth=4
 au FileType python set tabstop=4
 
-" 修正Go语言的部分快捷键 [需要安装一堆工具才能正常工作，可在Vim里面执行 :GoInstallBinaries 命令完成安装]
+" 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
@@ -300,7 +301,7 @@ set nobackup                 " 不生成备份文件
 set noswapfile               " 不生成交换文件
 set list                     " 显示特殊字符，其中Tab使用高亮~代替，尾部空白使用高亮点号代替
 set listchars=tab:\~\ ,trail:.
-set expandtab                " 将Tab自动转化成空格 [需要输入真正的Tab键时，使用 Ctrl+V + Tab]
+set expandtab                " 将 Tab 自动转化成空格 [需要输入真正的 Tab 符时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
 
 syntax enable                " 打开语法高亮
@@ -323,14 +324,14 @@ if g:isWIN
 endif
 
 
-" 使用GUI界面时的设置
+" 使用 GUI 界面时的设置
 if g:isGUI
   " 启动时自动最大化窗口
   if g:isWIN
     au GUIEnter * simalt ~x
   endif
   "winpos 20 20              " 指定窗口出现的位置，坐标原点在屏幕左上角
-  "set lines=20 columns=90   " 指定窗口大小，lines为高度，columns为宽度
+  "set lines=20 columns=90   " 指定窗口大小，lines 为高度，columns 为宽度
   set guioptions+=c          " 使用字符提示框
   set guioptions-=m          " 隐藏菜单栏
   set guioptions-=T          " 隐藏工具栏
@@ -343,7 +344,7 @@ if g:isGUI
 endif
 
 
-" 加载pathogen插件管理器
+" 加载 pathogen 插件管理器
 execute pathogen#infect()
 
 
@@ -383,10 +384,10 @@ au FileType mysql  call AddMySQLDict()
 au FileType elixir,eelixir call AddElixirDict()
 au FileType ruby,eruby     call AddRubyDict()
 
-au FileType html,eelixir,blade,volt,*.twig,htmldjango,jinja,eruby,jst call AddHTMLDict()
-au FileType smarty,mustache,handlebars,vue,jsx                        call AddHTMLDict()
-au FileType css,scss,less                                             call AddCSSDict()
-au FileType javascript,coffee,typescript,ls                           call AddJavaScriptDict()
+au FileType html,gohtmltmpl,eelixir,blade,volt,*.twig,htmldjango,jinja,eruby,jst call AddHTMLDict()
+au FileType smarty,mustache,handlebars,vue,jsx                                   call AddHTMLDict()
+au FileType css,scss,less                                                        call AddCSSDict()
+au FileType javascript,coffee,typescript,ls                                      call AddJavaScriptDict()
 
 au FileType slim,pug call AddHTMLDict()
 au FileType slim,pug call AddCSSDict()
@@ -522,43 +523,44 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let g:cpp_class_scope_highlight           = 1  " 高亮C++ class scope
-let g:cpp_member_variable_highlight       = 1  " 高亮C++ member variables
-let g:cpp_experimental_template_highlight = 1  " 高亮C++ template functions
-let g:cpp_concepts_highlight              = 1  " 高亮C++ library concepts
+let g:cpp_class_scope_highlight           = 1  " 高亮 C++ class scope
+let g:cpp_class_decl_highlight            = 1  " 高亮 C++ class decl
+let g:cpp_member_variable_highlight       = 1  " 高亮 C++ member variables
+let g:cpp_experimental_template_highlight = 1  " 高亮 C++ template functions
+let g:cpp_concepts_highlight              = 1  " 高亮 C++ library concepts
 
 let g:go_template_autocreate              = 0  " 关闭自动生成模版代码
-let g:go_auto_type_info                   = 0  " 关闭Go语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
-let g:go_def_mapping_enabled              = 0  " 关闭Go语言对gd的绑定
-let g:go_highlight_operators              = 1  " 开启Go语言操作符高亮
-let g:go_highlight_functions              = 1  " 开启Go语言函数名高亮
-let g:go_highlight_methods                = 1  " 开启Go语言方法名高亮
-let g:go_highlight_structs                = 1  " 开启Go语言结构体名高亮
+let g:go_auto_type_info                   = 0  " 关闭 Go 语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
+let g:go_def_mapping_enabled              = 0  " 关闭 Go 语言对gd的绑定
+let g:go_highlight_operators              = 1  " 开启 Go 语言操作符高亮
+let g:go_highlight_functions              = 1  " 开启 Go 语言函数名高亮
+let g:go_highlight_methods                = 1  " 开启 Go 语言方法名高亮
+let g:go_highlight_structs                = 1  " 开启 Go 语言结构体名高亮
 
-let g:haskell_enable_quantification       = 1  " 开启Haskell高亮 forall
-let g:haskell_enable_recursivedo          = 1  " 开启Haskell高亮 mdo and rec
-let g:haskell_enable_arrowsyntax          = 1  " 开启Haskell高亮 proc
-let g:haskell_enable_pattern_synonyms     = 1  " 开启Haskell高亮 pattern
-let g:haskell_enable_typeroles            = 1  " 开启Haskell高亮 type roles
-let g:haskell_enable_static_pointers      = 1  " 开启Haskell高亮 static
+let g:haskell_enable_quantification       = 1  " 高亮 Haskell forall
+let g:haskell_enable_recursivedo          = 1  " 高亮 Haskell mdo and rec
+let g:haskell_enable_arrowsyntax          = 1  " 高亮 Haskell proc
+let g:haskell_enable_pattern_synonyms     = 1  " 高亮 Haskell pattern
+let g:haskell_enable_typeroles            = 1  " 高亮 Haskell type roles
+let g:haskell_enable_static_pointers      = 1  " 高亮 Haskell static
 
-let g:pymode_python                       = 'python'  " 使用 Python2 语法检查      [Python-Mode]
-let g:pymode_rope_goto_definition_bind    = '<C-]>'   " 自定义跳转快捷键           [Python-Mode]
-let g:pymode_options_colorcolumn          = 0         " 关闭右侧的单行字符长度标尺 [Python-Mode]
+let g:pymode_python                       = 'python3'  " 使用 Python3 语法检查      [Python-Mode]
+let g:pymode_rope_goto_definition_bind    = '<C-]>'    " 自定义跳转快捷键           [Python-Mode]
+let g:pymode_options_colorcolumn          = 0          " 关闭右侧的单行字符长度标尺 [Python-Mode]
 
 " 设置部分语言插件的特性
-let g:smarty_left_delimiter  = '{{'            " 设置Smarty标签左界定符
-let g:smarty_right_delimiter = '}}'            " 设置Smarty标签右界定符
+let g:smarty_left_delimiter  = '{{'            " 设置 Smarty 标签左界定符
+let g:smarty_right_delimiter = '}}'            " 设置 Smarty 标签右界定符
 
 " BufExplorer         文件缓冲浏览器
 let g:bufExplorerSortBy = 'name'               " 按文件名排序
 
-" TagBar              tags标签浏览器
+" TagBar              tags 标签浏览器
 let g:tagbar_sort = 0                          " 关闭排序     [也就是按标签本身在文件中的位置排序]
 let g:tagbar_show_linenumbers = -1             " 显示行号     [使用全局关于行号的默认配置]
 let g:tagbar_autopreview = 1                   " 开启自动预览 [随着光标在标签上的移动，顶部会出现一个实时的预览窗口]
 
-" snipMate            Tab智能补全
+" snipMate            Tab 智能补全
 let g:snips_author                              = 'Ruchee'
 let g:snipMate                                  = {}
 " 不使用插件自带的默认继承
@@ -567,7 +569,7 @@ let g:snipMate.no_default_aliases               = 1
 let g:snipMate.override                         = 1
 " 使用旧版解析器
 let g:snipMate.snippet_version                  = 0
-" 设置补全项之间的继承关系，比如 C语言补全继承C++的补全
+" 设置补全项之间的继承关系，比如 C语言继承 C++ 的补全
 let g:snipMate.scope_aliases                    = {}
 let g:snipMate.scope_aliases['c']               = 'cpp'
 let g:snipMate.scope_aliases['objc']            = 'cpp,objc'
@@ -617,7 +619,7 @@ let g:NERDTreeIndicatorMapCustom = {
 " NERD_commenter      注释处理插件
 let NERDSpaceDelims = 1                        " 自动添加前置空格
 
-" eregex              PCRE风格的搜索
+" eregex              PCRE 风格的搜索
 let g:eregex_forward_delim  = '//'             " 指定正向搜索按键
 let g:eregex_backward_delim = '??'             " 指定反向搜索按键
 
@@ -640,9 +642,9 @@ let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
-let g:indentLine_char       = '┆'             " 设置对齐线字符
-let g:indentLine_color_term = 239              " 设置非GUI线条颜色
-let g:indentLine_color_gui  = '#A4E57E'        " 设置GUI线条颜色
+let g:indentLine_char       = '┆'              " 设置对齐线字符
+let g:indentLine_color_term = 239              " 设置非 GUI 线条颜色
+let g:indentLine_color_gui  = '#A4E57E'        " 设置 GUI 线条颜色
 
 " AirLine             彩色状态栏
 let g:airline_theme           = 'badwolf'      " 设置主题
@@ -696,12 +698,12 @@ let g:syntastic_enable_racket_racket_checker = 1
 " 自定义指定后缀的文件不开启语法检查
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
-" php-cs-fixer        格式化PHP代码
+" php-cs-fixer        格式化 PHP 代码
 let g:php_cs_fixer_rules = '@PSR2'             " 指定使用的格式化规则
-let g:php_cs_fixer_php_path = 'php'            " 指定PHP可执行文件的路径
+let g:php_cs_fixer_php_path = 'php'            " 指定 PHP 可执行文件的路径
 let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
 
-" vim-ruby            Ruby代码补全 [默认只在Mac平台下开启，其他平台请确认Vim有编译+ruby选项，然后修改此处配置以开启使用]
+" vim-ruby            Ruby 代码补全 [默认只在 Mac 平台下开启，其他平台请确认 Vim 有编译 +ruby 选项，然后修改此处配置以开启使用]
 if g:isMAC
   let g:rubycomplete_buffer_loading = 1
   let g:rubycomplete_classes_in_global = 1
@@ -722,19 +724,19 @@ vmap <c-]> g<c-]>
 " Ctrl + U            简化全能补全按键
 imap <c-u> <c-x><c-o>
 
-" Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal模式]
+" Ctrl + H            光标移当前行行首[插入模式]、切换左窗口[Normal 模式]
 imap <c-h> <esc>I
 map <c-h> <c-w><c-h>
 
-" Ctrl + J            光标移下一行行首[插入模式]、切换下窗口[Normal模式]
+" Ctrl + J            光标移下一行行首[插入模式]、切换下窗口[Normal 模式]
 imap <c-j> <esc><down>I
 map <c-j> <c-w><c-j>
 
-" Ctrl + K            光标移上一行行尾[插入模式]、切换上窗口[Normal模式]
+" Ctrl + K            光标移上一行行尾[插入模式]、切换上窗口[Normal 模式]
 imap <c-k> <esc><up>A
 map <c-k> <c-w><c-k>
 
-" Ctrl + L            光标移当前行行尾[插入模式]、切换右窗口[Normal模式]
+" Ctrl + L            光标移当前行行尾[插入模式]、切换右窗口[Normal 模式]
 imap <c-l> <esc>A
 map <c-l> <c-w><c-l>
 
@@ -749,99 +751,103 @@ imap <leader>v <esc>"+p
 nmap <leader>v "+p
 vmap <leader>v "+p
 
-" \bb                 按=号对齐代码 [Tabular插件]
+" \bb                 按=号对齐代码 [Tabular 插件]
 nmap <leader>bb :Tab /=<cr>
 
-" \bn                 自定义对齐    [Tabular插件]
+" \bn                 自定义对齐    [Tabular 插件]
 nmap <leader>bn :Tab /
 
-" \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree插件]
+" \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree 插件]
 nmap <leader>nt :NERDTree<cr>
 
-" \ut                 打开/关闭文档编辑历史窗口，在左侧栏显示 [Undotree插件]
+" \ut                 打开/关闭文档编辑历史窗口，在左侧栏显示 [Undotree 插件]
 nmap <leader>ut :UndotreeToggle<cr>
 
-" \il                 显示/关闭对齐线 [indentLine插件]
+" \il                 显示/关闭对齐线 [indentLine 插件]
 nmap <leader>il :IndentLinesToggle<cr>
 
-" \tl                 打开/关闭Tags窗口，在右侧栏显示 [Tagbar插件]
+" \tl                 打开/关闭 Tags 窗口，在右侧栏显示 [Tagbar 插件]
 nmap <leader>tl :TagbarToggle<cr><c-w><c-l>
 
-" \fe                 打开文件编码窗口，在右侧栏显示 [FencView插件]
+" \fe                 打开文件编码窗口，在右侧栏显示 [FencView 插件]
 nmap <leader>fe :FencView<cr>
 
-" \mp                 生成Promptline脚本文件，用于个性化终端操作 [Promptline插件]
+" \mp                 生成 Promptline 脚本文件，用于个性化终端操作 [Promptline 插件]
 nmap <leader>mp :!rm ~/backup/.promptline<cr><esc>:PromptlineSnapshot ~/backup/.promptline airline<cr>
 
-" \gi                 开启或关闭GitGutter [GitGutter插件]
+" \gi                 开启或关闭 GitGutter [GitGutter 插件]
 nmap <leader>gi :GitGutterToggle<cr>:GitGutterSignsToggle<cr>:GitGutterLineHighlightsToggle<cr>
 
-" \gd                 打开Git文件对比模式 [竖直] [GitGutter插件]
+" \gd                 打开 Git 文件对比模式 [竖直] [GitGutter 插件]
 nmap <leader>gd :Gdiff<cr>
 
-" \gs                 打开Git文件对比模式 [水平] [GitGutter插件]
+" \gs                 打开 Git 文件对比模式 [水平] [GitGutter 插件]
 nmap <leader>gs :Gsdiff<cr>
 
-" \gl                 查看Git提交日志 [gitv插件]
+" \gl                 查看 Git 提交日志 [gitv 插件]
 nmap <leader>gl :Gitv<cr>
 
-" \ss                 搜索当前光标下的单词 [ack插件]
+" \ss                 搜索当前光标下的单词 [ack 插件]
 nmap <leader>ss :Ack! '\b<c-r><c-w>\b'<cr>
 
-" \rb                 一键去除所有尾部空白
+" \rb                 一键去除全部尾部空白
 imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 nmap <leader>rb :let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 vmap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>
 
-" \rm                 一键去除特殊字符
+" \rm                 一键去除全部 ^M 字符
 imap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 nmap <leader>rm :%s/<c-v><c-m>//g<cr>
 vmap <leader>rm <esc>:%s/<c-v><c-m>//g<cr>
 
-" \rt                 一键替换全部Tab为空格
+" \rt                 一键替换全部 Tab 为空格
 nmap <leader>rt <esc>:retab<cr>
 
 " \ra                 一键清理当前代码文件
 nmap <leader>ra <esc>\rt<esc>\rb<esc>gg=G<esc>gg<esc>
 
-" \th                 一键生成与当前编辑文件同名的HTML文件 [不输出行号]
+" \th                 一键生成与当前编辑文件同名的 HTML 文件 [不输出行号]
 imap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 nmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 vmap <leader>th <esc>:set nonumber<cr>:set norelativenumber<cr><esc>:TOhtml<cr><esc>:w %:r.html<cr><esc>:q<cr>:set number<cr>:set relativenumber<cr>
 
-" \wa                 一键编译所有Vimwiki源文件
+" \wa                 一键编译所有 Vimwiki 源文件
 imap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 nmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 vmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 
-" \ev                 编辑当前所使用的Vim配置文件
+" \ev                 编辑当前所使用的 Vim 配置文件
 nmap <leader>ev <esc>:e $MYVIMRC<cr>
 
-" \php                一键切换到PHP语法高亮
+" \got                一键切换到 gohtmltmpl 语法高亮
+imap <leader>got <esc>:se ft=gohtmltmpl<cr>li
+nmap <leader>got <esc>:se ft=gohtmltmpl<cr>
+
+" \php                一键切换到 PHP 语法高亮
 imap <leader>php <esc>:se ft=php<cr>li
 nmap <leader>php <esc>:se ft=php<cr>
 
-" \ruby               一键切换到Ruby语法高亮
+" \ruby               一键切换到 Ruby 语法高亮
 imap <leader>ruby <esc>:se ft=ruby<cr>li
 nmap <leader>ruby <esc>:se ft=ruby<cr>
 
-" \eruby              一键切换到eRuby语法高亮
+" \eruby              一键切换到 eRuby 语法高亮
 imap <leader>eruby <esc>:se ft=eruby<cr>li
 nmap <leader>eruby <esc>:se ft=eruby<cr>
 
-" \cf                 一键切换到Coffee语法高亮
+" \cf                 一键切换到 Coffee 语法高亮
 imap <leader>cf <esc>:se ft=coffee<cr>li
 nmap <leader>cf <esc>:se ft=coffee<cr>
 
-" \js                 一键切换到JavaScript语法高亮
+" \js                 一键切换到 JavaScript 语法高亮
 imap <leader>js <esc>:se ft=javascript<cr>li
 nmap <leader>js <esc>:se ft=javascript<cr>
 
-" \css                一键切换到CSS语法高亮
+" \css                一键切换到 CSS 语法高亮
 imap <leader>css <esc>:se ft=css<cr>li
 nmap <leader>css <esc>:se ft=css<cr>
 
-" \html               一键切换到HTML语法高亮
+" \html               一键切换到 HTML 语法高亮
 imap <leader>html <esc>:se ft=html<cr>li
 nmap <leader>html <esc>:se ft=html<cr>
 
