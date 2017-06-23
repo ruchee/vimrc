@@ -1,0 +1,11 @@
+== Vim syntax highlight and support files for qmake.
+
+It just provides the usual syntax highlight for qmake files (`.pro` and `.pri`,
+but possibly I'll add other file terminations), plus the usual settings like
+http://vimhelp.appspot.com/options.txt.html#%27commentstring%27[`'commentstring'`].
+
+I have other plans, like a `:QMake` command that could help in setting things
+like paths and other configuration variables for syntax cheking, configuring
+https://github.com/thinca/vim-quickrun[QuickRun] or
+https://github.com/tpope/vim-dispatch[Dispatch], but this is a lot of work, and
+zero has been done so far, so it's unlikely to happen at this point.
