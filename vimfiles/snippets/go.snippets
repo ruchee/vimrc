@@ -24,11 +24,11 @@ snippet main    主函数
 	func main () {
 	  ${0}
 	}
-snippet f       函数1
+snippet f       函数
 	func ${1:f_name} (${2})${3} {
 	  ${0}
 	}
-snippet f.      函数2
+snippet f.      方法
 	func (${1}) ${2:f_name} (${3})${4} {
 	  ${0}
 	}
@@ -36,6 +36,18 @@ snippet ff      匿名函数
 	func (${1})${2} {${0}}
 snippet fd      函数声明
 	${1:f_name}(${0})
+snippet ft      单元测试
+	func Test${1} (t *testing.T) {
+	  ${0}
+	}
+snippet fb      基准测试
+	func Benchmark${1} (b *testing.B) {
+	  ${0}
+	}
+snippet fe      示例
+	func Example${1} () {
+	  ${0}
+	}
 snippet str     结构体
 	type ${1:str_name} struct {
 	  ${0}
@@ -124,6 +136,10 @@ snippet t.      定义多个类型
 	)
 snippet io      初始置0，自增1
 	iota${0}
+snippet st      struct
+	struct${0}
+snippet in      interface
+	interface${0}
 # 数据类型
 snippet e       error
 	error${0}

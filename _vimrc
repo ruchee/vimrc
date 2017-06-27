@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-06-20 19:33:22
+" -----------------    Date: 2017-06-27 13:34:02
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -374,6 +374,7 @@ au FileType nginx          set iskeyword-=:
 au FileType c      call AddCDict()
 au FileType cpp    call AddCPPDict()
 au FileType rust   call AddRustDict()
+au FileType go     call AddGoDict()
 au FileType java   call AddJavaDict()
 au FileType lua    call AddLuaDict()
 au FileType perl   call AddPerlDict()
@@ -418,6 +419,15 @@ function AddRustDict()
     set dict+=$VIM/vimfiles/dict/rust.txt
   else
     set dict+=~/.vim/dict/rust.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddGoDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/go.txt
+  else
+    set dict+=~/.vim/dict/go.txt
   endif
   set complete+=k
 endfunction
