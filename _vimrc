@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-06-27 13:34:02
+" -----------------    Date: 2017-06-28 08:45:19
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -394,6 +394,9 @@ au FileType slim,pug call AddHTMLDict()
 au FileType slim,pug call AddCSSDict()
 au FileType slim,pug call AddJavaScriptDict()
 
+au FileType Dockerfile     call AddDockerfileDict()
+au FileType docker-compose call AddDockerComposeDict()
+
 function AddCDict()
   if g:isWIN
     set dict+=$VIM/vimfiles/dict/c.txt
@@ -527,6 +530,24 @@ function AddHTMLDict()
     set dict+=$VIM/vimfiles/dict/html.txt
   else
     set dict+=~/.vim/dict/html.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddDockerfileDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/Dockerfile.txt
+  else
+    set dict+=~/.vim/dict/Dockerfile.txt
+  endif
+  set complete+=k
+endfunction
+
+function AddDockerComposeDict()
+  if g:isWIN
+    set dict+=$VIM/vimfiles/dict/docker-compose.txt
+  else
+    set dict+=~/.vim/dict/docker-compose.txt
   endif
   set complete+=k
 endfunction
