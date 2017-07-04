@@ -1,18 +1,9 @@
-# Copyright (c) 2005-2014 LOGILAB S.A. (Paris, FRANCE).
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Copyright (c) 2006, 2008-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2013-2016 Claudiu Popa <pcmanticore@gmail.com>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
 """check for new / old style related problems
 """
 import sys
@@ -23,8 +14,8 @@ from pylint.interfaces import IAstroidChecker, INFERENCE, INFERENCE_FAILURE, HIG
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import (
     check_messages,
-    has_known_bases,
     node_frame_class,
+    has_known_bases
 )
 
 MSGS = {
@@ -53,7 +44,7 @@ MSGS = {
               {'maxversion': (3, 0)}),
     'C1001': ('Old-style class defined.',
               'old-style-class',
-              'Used when a class is defined that does not inherit from another'
+              'Used when a class is defined that does not inherit from another '
               'class and does not inherit explicitly from "object".',
               {'maxversion': (3, 0)})
     }
@@ -77,7 +68,7 @@ class NewStyleConflictChecker(BaseChecker):
     options = ()
 
     @check_messages('slots-on-old-class', 'old-style-class')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         """ Check __slots__ in old style classes and old
         style class definition.
         """
@@ -95,10 +86,10 @@ class NewStyleConflictChecker(BaseChecker):
             self.add_message('old-style-class', node=node, confidence=HIGH)
 
     @check_messages('property-on-old-class')
-    def visit_callfunc(self, node):
+    def visit_call(self, node):
         """check property usage"""
         parent = node.parent.frame()
-        if (isinstance(parent, astroid.Class) and
+        if (isinstance(parent, astroid.ClassDef) and
                 not parent.newstyle and
                 isinstance(node.func, astroid.Name)):
             confidence = (INFERENCE if has_known_bases(parent)
@@ -109,62 +100,78 @@ class NewStyleConflictChecker(BaseChecker):
                                  confidence=confidence)
 
     @check_messages('super-on-old-class', 'bad-super-call', 'missing-super-argument')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check use of super"""
         # ignore actual functions or method within a new style class
         if not node.is_method():
             return
         klass = node.parent.frame()
-        for stmt in node.nodes_of_class(astroid.CallFunc):
+        for stmt in node.nodes_of_class(astroid.Call):
             if node_frame_class(stmt) != node_frame_class(node):
                 # Don't look down in other scopes.
                 continue
+
             expr = stmt.func
-            if not isinstance(expr, astroid.Getattr):
+            if not isinstance(expr, astroid.Attribute):
                 continue
+
             call = expr.expr
             # skip the test if using super
-            if isinstance(call, astroid.CallFunc) and \
-               isinstance(call.func, astroid.Name) and \
-               call.func.name == 'super':
-                confidence = (INFERENCE if has_known_bases(klass)
-                              else INFERENCE_FAILURE)
-                if not klass.newstyle:
-                    # super should not be used on an old style class
-                    self.add_message('super-on-old-class', node=node,
-                                     confidence=confidence)
-                else:
-                    # super first arg should be the class
-                    if not call.args and sys.version_info[0] == 3:
+            if not (isinstance(call, astroid.Call) and
+                    isinstance(call.func, astroid.Name) and
+                    call.func.name == 'super'):
+                continue
+
+            if not klass.newstyle and has_known_bases(klass):
+                # super should not be used on an old style class
+                self.add_message('super-on-old-class', node=node)
+            else:
+                # super first arg should be the class
+                if not call.args:
+                    if sys.version_info[0] == 3:
                         # unless Python 3
                         continue
-
-                    try:
-                        supcls = (call.args and next(call.args[0].infer())
-                                  or None)
-                    except astroid.InferenceError:
+                    else:
+                        self.add_message('missing-super-argument', node=call)
                         continue
 
-                    if supcls is None:
-                        self.add_message('missing-super-argument', node=call,
-                                         confidence=confidence)
-                        continue
+                # calling super(type(self), self) can lead to recursion loop
+                # in derived classes
+                arg0 = call.args[0]
+                if isinstance(arg0, astroid.Call) and \
+                   isinstance(arg0.func, astroid.Name) and \
+                   arg0.func.name == 'type':
+                    self.add_message('bad-super-call', node=call, args=('type', ))
+                    continue
 
-                    if klass is not supcls:
-                        name = None
-                        # if supcls is not YES, then supcls was infered
-                        # and use its name. Otherwise, try to look
-                        # for call.args[0].name
-                        if supcls is not astroid.YES:
-                            name = supcls.name
-                        else:
-                            if hasattr(call.args[0], 'name'):
-                                name = call.args[0].name
-                        if name is not None:
-                            self.add_message('bad-super-call',
-                                             node=call,
-                                             args=(name, ),
-                                             confidence=confidence)
+                # calling super(self.__class__, self) can lead to recursion loop
+                # in derived classes
+                if len(call.args) >= 2 and \
+                   isinstance(call.args[1], astroid.Name) and \
+                   call.args[1].name == 'self' and \
+                   isinstance(arg0, astroid.Attribute) and \
+                   arg0.attrname == '__class__':
+                    self.add_message('bad-super-call', node=call, args=('self.__class__', ))
+                    continue
+
+                try:
+                    supcls = call.args and next(call.args[0].infer(), None)
+                except astroid.InferenceError:
+                    continue
+
+                if klass is not supcls:
+                    name = None
+                    # if supcls is not YES, then supcls was infered
+                    # and use its name. Otherwise, try to look
+                    # for call.args[0].name
+                    if supcls:
+                        name = supcls.name
+                    elif call.args and hasattr(call.args[0], 'name'):
+                        name = call.args[0].name
+                    if name:
+                        self.add_message('bad-super-call', node=call, args=(name, ))
+
+    visit_asyncfunctiondef = visit_functiondef
 
 
 def register(linter):

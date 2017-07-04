@@ -458,7 +458,7 @@ if !exists("ruby_no_special_methods")
   syn match   rubyControl   "\<\%(exit!\|\%(abort\|at_exit\|exit\|fork\|loop\|trap\)\>[?!]\@!\)"
   syn keyword rubyEval	    eval class_eval instance_eval module_eval
   syn keyword rubyException raise fail catch throw
-  syn keyword rubyInclude   autoload load require require_relative
+  syn keyword rubyInclude   autoload gem load require require_relative
   syn keyword rubyKeyword   callcc caller lambda proc
   " false positive with 'include?'
   syn match   rubyMacro     "\<include\>[?!]\@!"
@@ -527,7 +527,6 @@ hi def link rubyConstant		Type
 hi def link rubyClassName		rubyConstant
 hi def link rubyModuleName		rubyConstant
 hi def link rubyGlobalVariable		rubyIdentifier
-hi def link rubyBlockParameter		rubyIdentifier
 hi def link rubyInstanceVariable	rubyIdentifier
 hi def link rubyPredefinedIdentifier	rubyIdentifier
 hi def link rubyPredefinedConstant	rubyPredefinedIdentifier

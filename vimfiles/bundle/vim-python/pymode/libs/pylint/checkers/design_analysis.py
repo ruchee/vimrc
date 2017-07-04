@@ -1,31 +1,20 @@
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Copyright (c) 2006, 2009-2010, 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
 """check for signs of poor design"""
 
-import re
 from collections import defaultdict
 
-from astroid import If, InferenceError
+from astroid import If, BoolOp
+from astroid import decorators
 
 from pylint.interfaces import IAstroidChecker
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
-
-# regexp for ignored argument name
-IGNORED_ARGUMENT_NAMES = re.compile('_.*')
+from pylint import utils
 
 
 MSGS = {
@@ -64,10 +53,25 @@ MSGS = {
               'too-many-statements',
               'Used when a function or method has too many statements. You \
               should then split it in smaller functions / methods.'),
-    'R0923': ('Interface not implemented',
-              'interface-not-implemented',
-              'Used when an interface class is not implemented anywhere.'),
+    'R0916': ('Too many boolean expressions in if statement (%s/%s)',
+              'too-many-boolean-expressions',
+              'Used when a if statement contains too many boolean '
+              'expressions'),
     }
+
+
+def _count_boolean_expressions(bool_op):
+    """Counts the number of boolean expressions in BoolOp `bool_op` (recursive)
+
+    example: a and (b or c or (d and e)) ==> 5 boolean expressions
+    """
+    nb_bool_expr = 0
+    for bool_expr in bool_op.get_children():
+        if isinstance(bool_expr, BoolOp):
+            nb_bool_expr += _count_boolean_expressions(bool_expr)
+        else:
+            nb_bool_expr += 1
+    return nb_bool_expr
 
 
 class MisdesignChecker(BaseChecker):
@@ -87,12 +91,6 @@ class MisdesignChecker(BaseChecker):
     options = (('max-args',
                 {'default' : 5, 'type' : 'int', 'metavar' : '<int>',
                  'help': 'Maximum number of arguments for function / method'}
-               ),
-               ('ignored-argument-names',
-                {'default' : IGNORED_ARGUMENT_NAMES,
-                 'type' :'regexp', 'metavar' : '<regexp>',
-                 'help' : 'Argument names that match this expression will be '
-                          'ignored. Default to name with leading underscore'}
                ),
                ('max-locals',
                 {'default' : 15, 'type' : 'int', 'metavar' : '<int>',
@@ -139,6 +137,13 @@ class MisdesignChecker(BaseChecker):
                  'help' : 'Maximum number of public methods for a class \
 (see R0904).'}
                ),
+               ('max-bool-expr',
+                {'default': 5,
+                 'type': 'int',
+                 'metavar': '<num>',
+                 'help': 'Maximum number of boolean expressions in a if '
+                         'statement'}
+               ),
               )
 
     def __init__(self, linter=None):
@@ -146,8 +151,6 @@ class MisdesignChecker(BaseChecker):
         self.stats = None
         self._returns = None
         self._branches = None
-        self._used_ifaces = None
-        self._ifaces = None
         self._stmts = 0
 
     def open(self):
@@ -155,49 +158,28 @@ class MisdesignChecker(BaseChecker):
         self.stats = self.linter.add_stats()
         self._returns = []
         self._branches = defaultdict(int)
-        self._used_ifaces = {}
-        self._ifaces = []
 
-    def close(self):
-        """check that interface classes are used"""
-        for iface in self._ifaces:
-            if not iface in self._used_ifaces:
-                self.add_message('interface-not-implemented', node=iface)
+    @decorators.cachedproperty
+    def _ignored_argument_names(self):
+        return utils.get_global_option(self, 'ignored-argument-names', default=None)
 
     @check_messages('too-many-ancestors', 'too-many-instance-attributes',
-                    'too-few-public-methods', 'too-many-public-methods',
-                    'interface-not-implemented')
-    def visit_class(self, node):
+                    'too-few-public-methods', 'too-many-public-methods')
+    def visit_classdef(self, node):
         """check size of inheritance hierarchy and number of instance attributes
         """
-        # Is the total inheritance hierarchy is 7 or less?
         nb_parents = len(list(node.ancestors()))
         if nb_parents > self.config.max_parents:
             self.add_message('too-many-ancestors', node=node,
                              args=(nb_parents, self.config.max_parents))
-        # Does the class contain less than 20 attributes for
-        # non-GUI classes (40 for GUI)?
-        # FIXME detect gui classes
+
         if len(node.instance_attrs) > self.config.max_attributes:
             self.add_message('too-many-instance-attributes', node=node,
                              args=(len(node.instance_attrs),
                                    self.config.max_attributes))
-        # update interface classes structures
-        if node.type == 'interface' and node.name != 'Interface':
-            self._ifaces.append(node)
-            for parent in node.ancestors(False):
-                if parent.name == 'Interface':
-                    continue
-                self._used_ifaces[parent] = 1
-        try:
-            for iface in node.interfaces():
-                self._used_ifaces[iface] = 1
-        except InferenceError:
-            # XXX log ?
-            pass
 
     @check_messages('too-few-public-methods', 'too-many-public-methods')
-    def leave_class(self, node):
+    def leave_classdef(self, node):
         """check number of public methods"""
         my_methods = sum(1 for method in node.mymethods()
                          if not method.name.startswith('_'))
@@ -230,7 +212,7 @@ class MisdesignChecker(BaseChecker):
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
                     'too-many-statements')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         """check function name, docstring, arguments, redefinition,
         variable names, max locals
         """
@@ -238,12 +220,14 @@ class MisdesignChecker(BaseChecker):
         self._returns.append(0)
         # check number of arguments
         args = node.args.args
+        ignored_argument_names = self._ignored_argument_names
         if args is not None:
-            ignored_args_num = len(
-                [arg for arg in args
-                 if self.config.ignored_argument_names.match(arg.name)])
+            ignored_args_num = 0
+            if ignored_argument_names:
+                ignored_args_num = sum(1 for arg in args if ignored_argument_names.match(arg.name))
+
             argnum = len(args) - ignored_args_num
-            if  argnum > self.config.max_args:
+            if argnum > self.config.max_args:
                 self.add_message('too-many-arguments', node=node,
                                  args=(len(args), self.config.max_args))
         else:
@@ -256,10 +240,12 @@ class MisdesignChecker(BaseChecker):
         # init statements counter
         self._stmts = 1
 
+    visit_asyncfunctiondef = visit_functiondef
+
     @check_messages('too-many-return-statements', 'too-many-branches',
                     'too-many-arguments', 'too-many-locals',
                     'too-many-statements')
-    def leave_function(self, node):
+    def leave_functiondef(self, node):
         """most of the work is done here on close:
         checks for max returns, branch, return in __init__
         """
@@ -275,6 +261,8 @@ class MisdesignChecker(BaseChecker):
         if self._stmts > self.config.max_statements:
             self.add_message('too-many-statements', node=node,
                              args=(self._stmts, self.config.max_statements))
+
+    leave_asyncfunctiondef = leave_functiondef
 
     def visit_return(self, _):
         """count number of returns"""
@@ -302,8 +290,10 @@ class MisdesignChecker(BaseChecker):
         self._inc_branch(node, 2)
         self._stmts += 2
 
+    @check_messages('too-many-boolean-expressions')
     def visit_if(self, node):
-        """increments the branches counter"""
+        """increments the branches counter and checks boolean expressions"""
+        self._check_boolean_expressions(node)
         branches = 1
         # don't double count If nodes coming from some 'elif'
         if node.orelse and (len(node.orelse) > 1 or
@@ -311,6 +301,19 @@ class MisdesignChecker(BaseChecker):
             branches += 1
         self._inc_branch(node, branches)
         self._stmts += branches
+
+    def _check_boolean_expressions(self, node):
+        """Go through "if" node `node` and counts its boolean expressions
+
+        if the "if" node test is a BoolOp node
+        """
+        condition = node.test
+        if not isinstance(condition, BoolOp):
+            return
+        nb_bool_expr = _count_boolean_expressions(condition)
+        if nb_bool_expr > self.config.max_bool_expr:
+            self.add_message('too-many-boolean-expressions', node=condition,
+                             args=(nb_bool_expr, self.config.max_bool_expr))
 
     def visit_while(self, node):
         """increments the branches counter"""

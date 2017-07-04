@@ -11,7 +11,7 @@ from pylama.lint.extensions import LINTERS
 try:
     from pylama.lint.pylama_pylint import Linter
     LINTERS['pylint'] = Linter()
-except Exception: # noqa
+except Exception:  # noqa
     pass
 
 
@@ -43,13 +43,14 @@ def code_check():
             if opts:
                 options.linters_params[linter] = options.linters_params.get(linter, {})
                 options.linters_params[linter].update(opts)
+        options.linters_params['pylint']['clear_cache'] = True
 
         env.debug(options)
 
         path = os.path.relpath(env.curbuf.name, env.curdir)
         env.debug("Start code check: ", path)
 
-        if getattr(options, 'skip', None) and any(p.match(path) for p in options.skip): # noqa
+        if getattr(options, 'skip', None) and any(p.match(path) for p in options.skip):  # noqa
             env.message('Skip code checking.')
             env.debug("Skipped")
             return env.stop()

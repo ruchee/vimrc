@@ -1,38 +1,38 @@
-# Copyright 2014 Michal Nowikowski.
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+# Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
+# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015 Pavel Roskin <proski@gnu.org>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
 """Checker for spelling errors in comments and docstrings.
 """
 
+import os
 import sys
 import tokenize
 import string
 import re
 
-if sys.version_info[0] >= 3:
-    maketrans = str.maketrans
-else:
-    maketrans = string.maketrans
+try:
+    import enchant
+    from enchant.tokenize import get_tokenizer, Filter, EmailFilter, URLFilter, WikiWordFilter
+except ImportError:
+    enchant = None
+    class Filter:
+        def _skip(self, word):
+            raise NotImplementedError
+
+import six
 
 from pylint.interfaces import ITokenChecker, IAstroidChecker
 from pylint.checkers import BaseTokenChecker
 from pylint.checkers.utils import check_messages
 
-try:
-    import enchant
-except ImportError:
-    enchant = None
+if sys.version_info[0] >= 3:
+    maketrans = str.maketrans
+else:
+    maketrans = string.maketrans
 
 if enchant is not None:
     br = enchant.Broker()
@@ -47,6 +47,27 @@ else:
     instr = " To make it working install python-enchant package."
 
 table = maketrans("", "")
+
+
+class WordsWithDigigtsFilter(Filter):
+    """Skips words with digits.
+    """
+
+    def _skip(self, word):
+        for char in word:
+            if char.isdigit():
+                return True
+        return False
+
+
+class WordsWithUnderscores(Filter):
+    """Skips words with underscores.
+
+    They are probably function parameter names.
+    """
+    def _skip(self, word):
+        return '_' in word
+
 
 class SpellingChecker(BaseTokenChecker):
     """Check spelling in comments and docstrings"""
@@ -105,6 +126,11 @@ class SpellingChecker(BaseTokenChecker):
         # "pylint" appears in comments in pylint pragmas.
         self.ignore_list.extend(["param", "pylint"])
 
+        # Expand tilde to allow e.g. spelling-private-dict-file = ~/.pylintdict
+        if self.config.spelling_private_dict_file:
+            self.config.spelling_private_dict_file = os.path.expanduser(
+                self.config.spelling_private_dict_file)
+
         if self.config.spelling_private_dict_file:
             self.spelling_dict = enchant.DictWithPWL(
                 dict_name, self.config.spelling_private_dict_file)
@@ -120,6 +146,11 @@ class SpellingChecker(BaseTokenChecker):
         # ' and _ are treated in a special way.
         puncts = string.punctuation.replace("'", "").replace("_", "")
         self.punctuation_regex = re.compile('[%s]' % re.escape(puncts))
+        self.tokenizer = get_tokenizer(dict_name, filters=[EmailFilter,
+                                                           URLFilter,
+                                                           WikiWordFilter,
+                                                           WordsWithDigigtsFilter,
+                                                           WordsWithUnderscores])
         self.initialized = True
 
     def close(self):
@@ -127,35 +158,7 @@ class SpellingChecker(BaseTokenChecker):
             self.private_dict_file.close()
 
     def _check_spelling(self, msgid, line, line_num):
-        line2 = line.strip()
-        # Replace ['afadf with afadf (but preserve don't)
-        line2 = re.sub("'([^a-zA-Z]|$)", " ", line2)
-        # Replace afadf'] with afadf (but preserve don't)
-        line2 = re.sub("([^a-zA-Z]|^)'", " ", line2)
-        # Replace punctuation signs with space e.g. and/or -> and or
-        line2 = self.punctuation_regex.sub(' ', line2)
-
-        words = []
-        for word in line2.split():
-            # Skip words with digits.
-            if len(re.findall(r"\d", word)) > 0:
-                continue
-
-            # Skip words with mixed big and small letters,
-            # they are probaly class names.
-            if (len(re.findall("[A-Z]", word)) > 0 and
-                    len(re.findall("[a-z]", word)) > 0 and
-                    len(word) > 2):
-                continue
-
-            # Skip words with _ - they are probably function parameter names.
-            if word.count('_') > 0:
-                continue
-
-            words.append(word)
-
-        # Go through words and check them.
-        for word in words:
+        for word, _ in self.tokenizer(line.strip()):
             # Skip words from ignore list.
             if word in self.ignore_list:
                 continue
@@ -201,7 +204,7 @@ class SpellingChecker(BaseTokenChecker):
                 self.add_message(msgid, line=line_num,
                                  args=(orig_word, line,
                                        indicator,
-                                       "' or '".join(suggestions)))
+                                       "'{0}'".format("' or '".join(suggestions))))
 
     def process_tokens(self, tokens):
         if not self.initialized:
@@ -210,6 +213,12 @@ class SpellingChecker(BaseTokenChecker):
         # Process tokens and look for comments.
         for (tok_type, token, (start_row, _), _, _) in tokens:
             if tok_type == tokenize.COMMENT:
+                if start_row == 1 and token.startswith('#!/'):
+                    # Skip shebang lines
+                    continue
+                if token.startswith('# pylint:'):
+                    # Skip pylint enable/disable comments
+                    continue
                 self._check_spelling('wrong-spelling-in-comment',
                                      token, start_row)
 
@@ -220,16 +229,18 @@ class SpellingChecker(BaseTokenChecker):
         self._check_docstring(node)
 
     @check_messages('wrong-spelling-in-docstring')
-    def visit_class(self, node):
+    def visit_classdef(self, node):
         if not self.initialized:
             return
         self._check_docstring(node)
 
     @check_messages('wrong-spelling-in-docstring')
-    def visit_function(self, node):
+    def visit_functiondef(self, node):
         if not self.initialized:
             return
         self._check_docstring(node)
+
+    visit_asyncfunctiondef = visit_functiondef
 
     def _check_docstring(self, node):
         """check the node has any spelling errors"""
@@ -238,6 +249,10 @@ class SpellingChecker(BaseTokenChecker):
             return
 
         start_line = node.lineno + 1
+        if six.PY2:
+            encoding = node.root().file_encoding
+            docstring = docstring.decode(encoding or sys.getdefaultencoding(),
+                                         'replace')
 
         # Go through lines of docstring
         for idx, line in enumerate(docstring.splitlines()):

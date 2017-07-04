@@ -1,33 +1,23 @@
-# copyright 2003-2013 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
-# contact http://www.logilab.fr/ -- mailto:contact@logilab.fr
-#
-# This file is part of astroid.
-#
-# astroid is free software: you can redistribute it and/or modify it
-# under the terms of the GNU Lesser General Public License as published by the
-# Free Software Foundation, either version 2.1 of the License, or (at your
-# option) any later version.
-#
-# astroid is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License
-# for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License along
-# with astroid. If not, see <http://www.gnu.org/licenses/>.
+# Copyright (c) 2010-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Google, Inc.
+# Copyright (c) 2015-2016 Cara Vinson <ceridwenv@gmail.com>
+
+# Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
+# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+
 """This module contains some mixins for the different nodes.
 """
 
-from logilab.common.decorators import cachedproperty
+import warnings
 
-from astroid.exceptions import (AstroidBuildingException, InferenceError,
-                                NotFoundError)
+from astroid import decorators
+from astroid import exceptions
 
 
 class BlockRangeMixIn(object):
     """override block range """
 
-    @cachedproperty
+    @decorators.cachedproperty
     def blockstart_tolineno(self):
         return self.lineno
 
@@ -48,21 +38,35 @@ class FilterStmtsMixin(object):
     """Mixin for statement filtering and assignment type"""
 
     def _get_filtered_stmts(self, _, node, _stmts, mystmt):
-        """method used in _filter_stmts to get statemtents and trigger break"""
+        """method used in _filter_stmts to get statements and trigger break"""
         if self.statement() is mystmt:
             # original node's statement is the assignment, only keep
             # current node (gen exp, list comp)
             return [node], True
         return _stmts, False
 
-    def ass_type(self):
+    def assign_type(self):
         return self
+
+    def ass_type(self):
+        warnings.warn('%s.ass_type() is deprecated and slated for removal '
+                      'in astroid 2.0, use %s.assign_type() instead.'
+                      % (type(self).__name__, type(self).__name__),
+                      PendingDeprecationWarning, stacklevel=2)
+        return self.assign_type()
 
 
 class AssignTypeMixin(object):
 
-    def ass_type(self):
+    def assign_type(self):
         return self
+
+    def ass_type(self):
+        warnings.warn('%s.ass_type() is deprecated and slated for removal '
+                      'in astroid 2.0, use %s.assign_type() instead.'
+                      % (type(self).__name__, type(self).__name__),
+                      PendingDeprecationWarning, stacklevel=2)
+        return self.assign_type()
 
     def _get_filtered_stmts(self, lookup_node, node, _stmts, mystmt):
         """method used in filter_stmts"""
@@ -77,11 +81,18 @@ class AssignTypeMixin(object):
 
 class ParentAssignTypeMixin(AssignTypeMixin):
 
+    def assign_type(self):
+        return self.parent.assign_type()
+
     def ass_type(self):
-        return self.parent.ass_type()
+        warnings.warn('%s.ass_type() is deprecated and slated for removal '
+                      'in astroid 2.0, use %s.assign_type() instead.'
+                      % (type(self).__name__, type(self).__name__),
+                      PendingDeprecationWarning, stacklevel=2)
+        return self.assign_type()
 
 
-class FromImportMixIn(FilterStmtsMixin):
+class ImportFromMixin(FilterStmtsMixin):
     """MixIn for From and Import Nodes"""
 
     def _infer_name(self, frame, name):
@@ -103,12 +114,9 @@ class FromImportMixIn(FilterStmtsMixin):
         if mymodule.relative_to_absolute_name(modname, level) == mymodule.name:
             # FIXME: we used to raise InferenceError here, but why ?
             return mymodule
-        try:
-            return mymodule.import_module(modname, level=level)
-        except AstroidBuildingException:
-            raise InferenceError(modname)
-        except SyntaxError as ex:
-            raise InferenceError(str(ex))
+
+        return mymodule.import_module(modname, level=level,
+                                      relative_only=level and level >= 1)
 
     def real_name(self, asname):
         """get name from 'as' name"""
@@ -120,5 +128,6 @@ class FromImportMixIn(FilterStmtsMixin):
                 _asname = name
             if asname == _asname:
                 return name
-        raise NotFoundError(asname)
-
+        raise exceptions.AttributeInferenceError(
+            'Could not find original name for {attribute} in {target!r}',
+            target=self, attribute=asname)

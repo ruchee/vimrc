@@ -50,6 +50,14 @@ pylama:
 	rm -rf $(PYLAMA)
 	make $(PYLAMA)
 	make $(PYLAMA)/lint/pylama_pylint
+	@pip install --upgrade --force-reinstall --target=$(LIBS) pydocstyle
+	@pip install --upgrade --force-reinstall --target=$(LIBS) pycodestyle
+	@pip install --upgrade --force-reinstall --target=$(LIBS) pyflakes
+	@pip install --upgrade --force-reinstall --target=$(LIBS) mccabe
+	@pip install --upgrade --force-reinstall --target=$(LIBS) pylint
+	@find $(LIBS) -name *.dist-info -type d | xargs rm -rf
+	@find $(LIBS) -name *.egg-info  -type d | xargs rm -rf
+	@find $(LIBS) -name test*  -type d | xargs rm -rf
 
 .PHONY: rope
 rope:

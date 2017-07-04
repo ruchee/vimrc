@@ -1,20 +1,14 @@
-# -*- coding: utf-8; mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4
+# -*- coding: utf-8;
+# mode: python; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4
 # -*- vim:fenc=utf-8:ft=python:et:sw=4:ts=4:sts=4
-# Copyright (c) 2003-2013 LOGILAB S.A. (Paris, FRANCE).
-# http://www.logilab.fr/ -- mailto:contact@logilab.fr
-#
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later
-# version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+# Copyright (c) 2008-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
+# Copyright (c) 2014 Manuel Vázquez Acosta <mva.led@gmail.com>
+# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+
+# Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+
 """Emacs and Flymake compatible Pylint.
 
 This script is for integration with emacs and is compatible with flymake mode.
@@ -48,9 +42,14 @@ its output.
 """
 from __future__ import print_function
 
-import sys, os
+import os
 import os.path as osp
+import sys
+import shlex
 from subprocess import Popen, PIPE
+
+import six
+
 
 def _get_env():
     '''Extracts the environment PYTHONPATH and appends the current sys.path to
@@ -86,12 +85,11 @@ def lint(filename, options=None):
 
     # Start pylint
     # Ensure we use the python and pylint associated with the running epylint
-    from pylint import lint as lint_mod
-    lint_path = lint_mod.__file__
+    run_cmd = "import sys; from pylint.lint import Run; Run(sys.argv[1:])"
     options = options or ['--disable=C,R,I']
-    cmd = [sys.executable, lint_path] + options + [
+    cmd = [sys.executable, "-c", run_cmd] + [
         '--msg-template', '{path}:{line}: {category} ({msg_id}, {symbol}, {obj}) {msg}',
-        '-r', 'n', child_path]
+        '-r', 'n', child_path] + options
     process = Popen(cmd, stdout=PIPE, cwd=parent_path, env=_get_env(),
                     universal_newlines=True)
 
@@ -110,8 +108,7 @@ def lint(filename, options=None):
     return process.returncode
 
 
-def py_run(command_options='', return_std=False, stdout=None, stderr=None,
-           script='epylint'):
+def py_run(command_options='', return_std=False, stdout=None, stderr=None):
     """Run pylint from python
 
     ``command_options`` is a string containing ``pylint`` command line options;
@@ -139,9 +136,10 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         >>> (pylint_stdout, pylint_stderr) = py_run( 'module_name.py', True)
     """
     # Create command line to call pylint
-    if os.name == 'nt':
-        script += '.bat'
-    command_line = script + ' ' + command_options
+    epylint_part = [sys.executable, "-c", "from pylint import epylint;epylint.Run()"]
+    options = shlex.split(command_options)
+    cli = epylint_part + options
+
     # Providing standard output and/or error if not set
     if stdout is None:
         if return_std:
@@ -154,12 +152,12 @@ def py_run(command_options='', return_std=False, stdout=None, stderr=None,
         else:
             stderr = sys.stderr
     # Call pylint in a subprocess
-    p = Popen(command_line, shell=True, stdout=stdout, stderr=stderr,
-              env=_get_env(), universal_newlines=True)
-    p.wait()
+    process = Popen(cli, shell=False, stdout=stdout, stderr=stderr,
+                    env=_get_env(), universal_newlines=True)
+    proc_stdout, proc_stderr = process.communicate()
     # Return standard output and error
     if return_std:
-        return (p.stdout, p.stderr)
+        return six.moves.StringIO(proc_stdout), six.moves.StringIO(proc_stderr)
 
 
 def Run():

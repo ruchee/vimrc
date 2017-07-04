@@ -92,10 +92,22 @@ def set_prefs(prefs):
     # imports.
     prefs['split_imports'] = False
 
-    # If `True`, rope will sort imports alphabetically by module name
-    # instead of alphabetically by import statement, with from imports
-    # after normal imports.
+    # If `True`, rope will remove all top-level import statements and
+    # reinsert them at the top of the module when making changes.
+    prefs['pull_imports_to_top'] = True
+
+    # If `True`, rope will sort imports alphabetically by module name instead of
+    # alphabetically by import statement, with from imports after normal
+    # imports.
     prefs['sort_imports_alphabetically'] = False
+
+    # Location of implementation of rope.base.oi.type_hinting.interfaces.ITypeHintingFactory
+    # In general case, you don't have to change this value, unless you're an rope expert.
+    # Change this value to inject you own implementations of interfaces
+    # listed in module rope.base.oi.type_hinting.providers.interfaces
+    # For example, you can add you own providers for Django Models, or disable the search
+    # type-hinting in a class hierarchy, etc.
+    prefs['type_hinting_factory'] = 'rope.base.oi.type_hinting.factory.default_type_hinting_factory'
 
 
 def project_opened(project):
