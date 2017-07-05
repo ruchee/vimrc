@@ -104,18 +104,16 @@ snippet co      继续
 	continue${0}
 snippet br      中断
 	break ${0}
-snippet gt      跳转
+snippet go      跳转
 	goto ${0}
-snippet de      函数返回之前执行
-	defer ${0}
 snippet ra      range
 	range ${0}
-snippet go      Go程
-	go ${0}
 snippet ch      管道
 	chan ${0}
-snippet d       删除
-	delete(${0})
+snippet g       Go程
+	go ${0}
+snippet d       函数返回之前执行
+	defer ${0}
 snippet con     定义常量
 	const ${0}
 snippet con.    定义多个常量
@@ -182,17 +180,19 @@ snippet c64     complex64
 snippet c128    complex128
 	complex128${0}
 # 内置函数
-snippet l       获取大小或长度
+snippet l       获取大小
 	len(${0})
-snippet c       获取最大容量
+snippet c       获取容量
 	cap(${0})
 snippet n       分配内存（返回指针）
 	new(${0})
 snippet m       分配内存（返回对指定类型初始化之后的值）
 	make(${0})
-snippet ap      附加元素
+snippet ap      附加元素 [slice]
 	append(${0})
-snippet cl      关闭管道
+snippet de      删除元素 [map]
+	delete(${0})
+snippet cl      关闭管道 [chan]
 	close(${0})
 snippet pan     错误处理
 	panic(${0})

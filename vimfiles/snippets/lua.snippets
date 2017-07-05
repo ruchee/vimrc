@@ -11,6 +11,12 @@ snippet -       分隔注释
 	----------------------------------------------------------------------${0}
 snippet rq      包含库文件
 	require('${1}')${0}
+snippet df      加载 Lua 源文件
+	dofile('${1}')${0}
+snippet doc     多行字符串
+	[[
+	${0}
+	]]
 # 函数
 snippet f       多行函数定义
 	function ${1:f_name}(${2})
@@ -54,26 +60,26 @@ snippet do     do .. end
 	  ${0}
 	end
 # 协同程序
-snippet cre     create
+snippet ccr     create
 	coroutine.create(${0})
-snippet sta     status
+snippet cst     status
 	coroutine.status(${0})
-snippet res     resume
+snippet cre     resume
 	coroutine.resume(${0})
-snippet yie     yield
+snippet cyi     yield
 	coroutine.yield(${0})
 # 常用函数
-snippet df      加载Lua源文件
-	dofile('${0}')
-snippet tp      检测数据类型
+snippet p       输出
+	print(${0})
+snippet t       检测数据类型
 	type(${0})
-snippet er      打印错误信息
+snippet e       打印错误信息
 	error(${0})
 snippet ip      数组迭代器
 	ipairs(${0})
-snippet pa      Table迭代器
+snippet pa      Table 迭代器
 	pairs(${0})
-snippet up      解开Table
+snippet up      解开 Table
 	unpack(${0})
 snippet tn      转换成数值
 	tonumber(${0})
@@ -96,16 +102,12 @@ snippet tab     表
 	table.${0}
 snippet s       自身
 	self${0}
-snippet p       输出
-	print(${0})
 snippet n       nil
 	nil${0}
 # 其他
 snippet _i      元表索引
 	__index${0}
-snippet _v      版本号
-	_VERSION${0}
-snippet <       多行字符串
-	[[${0}]]
-snippet .       :: ... ::
-	::${0}::
+snippet <       { .. }
+	{ ${0} }
+snippet .       字符串连接符
+	.. ${0}
