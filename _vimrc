@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-06-28 08:45:19
+" -----------------    Date: 2017-07-10 22:56:38
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -579,6 +579,17 @@ let g:pymode_python                       = 'python3'  " 使用 Python3 语法�
 let g:pymode_rope_goto_definition_bind    = '<C-]>'    " 自定义跳转快捷键           [Python-Mode]
 let g:pymode_options_colorcolumn          = 0          " 关闭右侧的单行字符长度标尺 [Python-Mode]
 
+" 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [默认高亮为 HTML] [js-pretty-template 插件]
+" 可用形如 :JsPreTmpl xml 的命令临时修改模版字符串的高亮语法
+autocmd FileType javascript JsPreTmpl html
+autocmd FileType typescript JsPreTmpl html
+autocmd FileType typescript syn clear foldBraces
+autocmd FileType coffee     JsPreTmpl html
+autocmd FileType dart       JsPreTmpl html
+
+" tsuquyomi
+let g:tsuquyomi_disable_quickfix = 1           " 禁用 tsuquyomi 的报错窗口，改用 syntastic 的
+
 " 设置部分语言插件的特性
 let g:smarty_left_delimiter  = '{{'            " 设置 Smarty 标签左界定符
 let g:smarty_right_delimiter = '}}'            " 设置 Smarty 标签右界定符
@@ -723,7 +734,7 @@ let g:syntastic_enable_perl6latest_checker   = 1
 let g:syntastic_python_python_exec           = 'python3'
 let g:syntastic_eruby_ruby_quiet_messages    = {'regex': 'possibly useless use of a variable in void context'}
 let g:syntastic_javascript_checkers          = ['eslint']
-let g:syntastic_typescript_checkers          = ['eslint']
+let g:syntastic_typescript_checkers          = ['tsuquyomi']
 let g:syntastic_elm_checkers                 = ['elm_make']
 let g:syntastic_enable_racket_racket_checker = 1
 " 自定义指定后缀的文件不开启语法检查
