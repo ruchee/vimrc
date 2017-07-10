@@ -4,10 +4,11 @@
 #### macOS
 
 1. 安装 brew 包管理器，如果已安装则此步可跳过：`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-2. `brew install macvim ctags git`
-3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
-4. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc` ]
-5. 指定使用 macvim [ 命令为 `cd /usr/local/bin && ln -s mvim vim` ]
+2. `brew install ctags git`
+3. 推荐使用 MacVim 的官方安装包，而不是用 brew 安装 macvim 或 vim [MacVim 官方下载地址 [https://github.com/macvim-dev/macvim/releases](https://github.com/macvim-dev/macvim/releases)]
+4. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
+5. 使用 Git 下载本项目，然后将本项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc` ]
+6. 指定在终端使用 MacVim [ 命令为 `ln -s /Applications/MacVim.app/Contents/bin/* /usr/local/bin` ]
 
 ----
 
@@ -48,7 +49,9 @@
 1. 可使用这两条命令使 Linux、Cygwin 以及 Windows 共用同一套配置 [ 当然，这儿假设你安装的是双系统 ]：`ln -s your_gvim_path/vimfiles ~/.vim`、`ln -s your_gvim_path/_vimrc ~/.vimrc`
 2. 如出现快捷键不响应的情况，请检查你是否开启了其他软件（比如 金山词霸 等），某些软件的快捷键有可能和 Vim 相冲突，只需修改或禁用这些软件的快捷键即可
 3. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 set relativenumber 一项，以使用绝对行号
-4. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
+4. 如果条件允许，最好用 universal-ctags 替代老旧的 ctags
+5. 部分插件需要脚本语言的支持，如果条件允许，请安装 Lua、Python、Ruby、Node 等语言的运行环境
+6. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
 
 ----
 

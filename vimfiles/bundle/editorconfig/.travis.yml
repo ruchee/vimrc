@@ -1,0 +1,23 @@
+language: ruby
+
+rvm:
+  - 2.2.4
+
+gemfile: tests/Gemfile
+
+addons:
+  apt:
+    packages:
+      - vim-gtk
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+
+script:
+  bundle exec rspec tests/spec/editorconfig_spec.rb
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
