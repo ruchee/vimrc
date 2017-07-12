@@ -20,7 +20,14 @@ else
 end
 
 " Check the php-cs-fixer version
-let g:php_cs_fixer_version = system(g:php_cs_fixer_version_command . " | sed -e 's/[^0-9.]*\\([0-9.]*\\).*/\\1/'")
+if (has('win32') || has('win64'))
+    let sxq_save = &shellxquote
+    set shellxquote&
+    let g:php_cs_fixer_version = strpart(matchstr(system(g:php_cs_fixer_version_command), '\d\+\.\d\+\.\d\+'), 0, 1)
+    let &shellxquote = sxq_save
+else
+    let g:php_cs_fixer_version = system(g:php_cs_fixer_version_command . " | sed -e 's/[^0-9.]*\\([0-9.]*\\).*/\\1/'")
+endif
 
 if g:php_cs_fixer_version >= 2
     let g:php_cs_fixer_rules = get(g:, 'php_cs_fixer_rules', '@PSR2')

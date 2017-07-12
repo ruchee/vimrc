@@ -1,0 +1,27 @@
+{
+    "name": "lvht/msgpack-rpc",
+    "authors": [
+        {
+            "name": "吕海涛",
+            "email": "git@lvht.net"
+        }
+    ],
+    "autoload" : {
+        "psr-4": {
+            "Lvht\\MsgpackRpc\\": "src/"
+        }
+    },
+    "autoload-dev" : {
+        "psr-4": {
+            "Lvht\\MsgpackRpc\\": "test/"
+        }
+    },
+    "require": {
+        "php": "^5.3||^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.4",
+        "mockery/mockery": "^0.9.5",
+        "symfony/var-dumper": "^3.1"
+    }
+}

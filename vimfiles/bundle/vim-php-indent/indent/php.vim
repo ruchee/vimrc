@@ -3,8 +3,8 @@
 " Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
 " URL:		http://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2016 October 2nd
-" Version:	1.61
+" Last Change:	2017 March 12th
+" Version:	1.62
 "
 "
 "	Type :help php-indent for available options
@@ -40,6 +40,11 @@
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
 "
+"
+" Changes: 1.62         - Fix some multi-line block declaration interferences (issue #49)
+"			- Fix Grouped 'use' declaration (issue #48)
+"			- Fix array index issue with function call (issue #54)
+"			- Add anonymous class declaration support (issue #55)
 "
 " Changes: 1.61         - Prevent multi-line strings declaration from breaking
 "                         indentation. (issue #47)
@@ -517,7 +522,7 @@ let s:unstated = '\%(^\s*'.s:blockstart.'.*)\|\%(//.*\)\@<!\<e'.'lse\>\)'.s:endl
 
 let s:terminated = '\%(\%(;\%(\s*\%(?>\|}\)\)\=\|<<<\s*[''"]\=\a\w*[''"]\=$\|^\s*}\|^\s*'.s:PHP_validVariable.':\)'.s:endline.'\)'
 let s:PHP_startindenttag = '<?\%(.*?>\)\@!\|<script[^>]*>\%(.*<\/script>\)\@!'
-
+let s:structureHead = '^\s*\%(' . s:blockstart . '\)\|'. s:functionDecl . s:endline . '\|\<new\s\+class\>'
 
 
 let s:escapeDebugStops = 0
@@ -685,7 +690,7 @@ function! FindOpenBracket(lnum, blockStarter) " {{{
 	while line > 1
 	    let linec = getline(line)
 
-	    if linec =~ s:terminated || linec =~ '^\s*\%(' . s:blockstart . '\)\|'. s:functionDecl . s:endline
+	    if linec =~ s:terminated || linec =~ s:structureHead
 		break
 	    endif
 
@@ -695,6 +700,20 @@ function! FindOpenBracket(lnum, blockStarter) " {{{
 
     return line
 endfun " }}}
+
+let s:blockChars = {'{':1, '[': 1, '(': 1, ')':-1, ']':-1, '}':-1}
+function! BalanceDirection (str)
+
+    let balance = 0
+
+    for c in split(a:str, '\zs')
+	if has_key(s:blockChars, c)
+	    let balance += s:blockChars[c]
+	endif
+    endfor
+
+    return balance
+endfun
 
 function! FindTheIfOfAnElse (lnum, StopAfterFirstPrevElse) " {{{
 
@@ -1132,17 +1151,20 @@ function! GetPhpIndent()
     " PHP start tags are always at col 1, useless to indent unless the end tag
     " is on the same line
     if cline =~# '^\s*<?' && cline !~ '?>' && b:PHP_outdentphpescape
+	" DEBUG call DebugPrintReturn(1135)
 	return 0
     endif
 
     " PHP end tags are always at col 1, useless to indent unless if it's
     " followed by a start tag on the same line
     if	cline =~ '^\s*?>' && cline !~# '<?' && b:PHP_outdentphpescape
+	" DEBUG call DebugPrintReturn(1142)
 	return 0
     endif
 
     " put HereDoc end tags at start of lines
     if cline =~? '^\s*\a\w*;$\|^\a\w*$\|^\s*[''"`][;,]' && cline !~? s:notPhpHereDoc
+	" DEBUG call DebugPrintReturn(1148)
 	return 0
     endif " }}}
 
@@ -1150,7 +1172,7 @@ function! GetPhpIndent()
 
     " Find an executable php code line above the current line.
     let lnum = GetLastRealCodeLNum(v:lnum - 1)
-	" DEBUG call DebugPrintReturn(1121 . "last php line: " . lnum)
+    " DEBUG call DebugPrintReturn(1121 . " last php line: " . lnum)
 
     " last line
     let last_line = getline(lnum)
@@ -1223,7 +1245,7 @@ function! GetPhpIndent()
     let terminated = s:terminated
 
     let unstated  = s:unstated
-    
+
 
     " if the current line is an 'else' starting line
     if ind != b:PHP_default_indenting && cline =~# '^\s*else\%(if\)\=\>'
@@ -1243,7 +1265,7 @@ function! GetPhpIndent()
 	" let's find the indent of the block starter (if, while, for, etc...)
 	while last_line_num > 1
 
-	    if previous_line =~ terminated || previous_line =~ '^\s*\%(' . s:blockstart . '\)\|'. s:functionDecl . endline
+	    if previous_line =~ terminated || previous_line =~ s:structureHead
 
 		let ind = indent(last_line_num)
 
@@ -1430,21 +1452,22 @@ function! GetPhpIndent()
 
 	" if the last line is a [{(\[]$ or a multiline function call (or array
 	" declaration) with already one parameter on the opening ( line
-	if last_line =~# '[{(\[]'.endline || last_line =~? '\h\w*\s*(.*,$' && AntepenultimateLine !~ '[,(\[]'.endline
+	if last_line =~# '[{(\[]'.endline || last_line =~? '\h\w*\s*(.*,$' && AntepenultimateLine !~ '[,(\[]'.endline && BalanceDirection(last_line) > 0
 
 	    let dontIndent = 0
 	    " the last line contains a '{' with other meaningful characters
 	    " before it but is not a block starter / function declaration.
 	    " It should mean that it's a multi-line block declaration and that
 	    " the previous line is already indented...
-	    if last_line =~ '\S\+\s*{'.endline && last_line !~ '^\s*)\s*{'.endline && last_line !~ '^\s*\%(' . s:blockstart . '\)\|'. s:functionDecl . s:endline
+	    if last_line =~ '\S\+\s*{'.endline && last_line !~ '^\s*[)\]]\+\s*{'.endline && last_line !~ s:structureHead
 		let dontIndent = 1
 	    endif
 
-	    " DEBUG call DebugPrintReturn(1290. '   ' . dontIndent . ' lastline: ' . last_line)
+	    " DEBUG call DebugPrintReturn(1450. '   ' . dontIndent . ' lastline: ' . last_line . ' balance? ' . BalanceDirection(last_line))
 	    " indent if we don't want braces at code level or if the last line
 	    " is not a lonely '{' (default indent for the if block)
 	    if !dontIndent && (!b:PHP_BracesAtCodeLevel || last_line !~# '^\s*{')
+		" DEBUG call DebugPrintReturn(1454. '  +1 indent ')
 		let ind = ind + s:sw()
 	    endif
 
@@ -1460,7 +1483,7 @@ function! GetPhpIndent()
 	    " ')' was opened on the same line, if not it means it closes a
 	    " multiline '(.*)' thing and that the current line need to be
 	    " de-indented one time.
-	elseif last_line =~ '\S\+\s*),'.endline
+	elseif last_line =~ '\S\+\s*),'.endline && BalanceDirection(last_line) < 0
 	    call cursor(lnum, 1)
 	    call search('),'.endline, 'W') " line never begins with ) so no need for 'c' flag
 	    " DEBUG call DebugPrintReturn(1373)
@@ -1480,10 +1503,12 @@ function! GetPhpIndent()
 	    "
 	    " IE: We test the line before the last one to check if we already
 	    " were in this "list"
+	    "
+	    " we handle "use" block statement specifically for now...
 
-    elseif AntepenultimateLine =~ '{'.endline || AntepenultimateLine =~ terminated || AntepenultimateLine =~# s:defaultORcase
+	elseif AntepenultimateLine =~ '{'.endline && AntepenultimateLine !~? '^\s*use\>' || AntepenultimateLine =~ terminated || AntepenultimateLine =~# s:defaultORcase
 	    let ind = ind + s:sw()
-	    " DEBUG call DebugPrintReturn(1422 . '  ' . AntepenultimateLine)
+	    " DEBUG call DebugPrintReturn(1422 . ' AntepenultimateLine:  ' . AntepenultimateLine . '   lastline: ' . last_line . ' LastLineClosed: ' . LastLineClosed)
 	endif
 
     endif
