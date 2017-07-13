@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-07-10 22:56:38
+" -----------------    Date: 2017-07-13 20:04:55
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -745,13 +745,11 @@ let g:php_cs_fixer_rules = '@PSR2'             " 指定使用的格式化规则
 let g:php_cs_fixer_php_path = 'php'            " 指定 PHP 可执行文件的路径
 let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
 
-" vim-ruby            Ruby 代码补全 [默认只在 Mac 平台下开启，其他平台请确认 Vim 有编译 +ruby 选项，然后修改此处配置以开启使用]
-if g:isMAC
-  let g:rubycomplete_buffer_loading = 1
-  let g:rubycomplete_classes_in_global = 1
-  let g:rubycomplete_rails = 1
-  let g:rubycomplete_load_gemfile = 1
-endif
+" vim-ruby            Ruby 代码补全
+let g:rubycomplete_buffer_loading    = 1
+let g:rubycomplete_classes_in_global = 1
+let g:rubycomplete_rails             = 1
+let g:rubycomplete_load_gemfile      = 1
 
 " javascript-libraries-syntax                    指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux,d3'
