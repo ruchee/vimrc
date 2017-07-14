@@ -373,6 +373,16 @@ snippet ude     解码URL字符串
 #### 判断类型 #####
 snippet isn     是否为空
 	is_null(${0})
+snippet isb     是否是布尔值
+	is_bool(${0})
+snippet isi     是否是整形
+	is_int(${0})
+snippet isf     是否是浮点数
+	is_float(${0})
+snippet isd     是否是浮点数
+	is_double(${0})
+snippet iss     是否是字符串
+	is_string(${0})
 snippet isa     是否是数组
 	is_array(${0})
 snippet iso     是否是对象
@@ -478,6 +488,7 @@ snippet v       var
 	var ${0};
 snippet n       new
 	new ${0}
+# 其他
 snippet s       self::
 	self::${0}
 snippet t       $this->
