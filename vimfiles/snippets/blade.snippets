@@ -33,7 +33,7 @@ snippet elif    elseif
 snippet el      else
 	@else
 	  ${0}
-snippet ul      unless [与if相反]
+snippet uls     unless [与if相反]
 	@unless (${1})
 	  ${0}
 	@endunless
@@ -60,6 +60,8 @@ snippet wh      while
 # 辅助函数
 snippet lit     生成链接
 	link_to('${1}', ${0})
+snippet mef     伪造表单方法
+	method_field('${0}')
 # 其他
 snippet pa      引用父片段
 	@parent${0}
