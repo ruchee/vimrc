@@ -6,22 +6,44 @@ snippet //      多行注释
 # 模板复用
 snippet in      包含模板 [继承当前模板的数据]
 	@include('${1}')${0}
+snippet inif    包含模板 [存在才包含]
+	@includeIf('${1}')${0}
 snippet re      包含模板 [不继承数据]
 	@render('${1}')${0}
 snippet ex      扩展模板
 	@extends('${1}')${0}
 snippet la      布局
 	@layout('${0}')
-snippet yi      向外传递数据
+snippet yi      填充区块 [原始数据不默认呈现]
 	@yield('${0}')
-snippet se      填充区块
+snippet se      填充区块 [扩充原始数据]
 	@section('${1}')
 	  ${0}
-	@stop
-snippet se.     默认内容
+	@endsection
+snippet se.     填充区块 [原始数据，默认呈现]
 	@section('${1}')
 	  ${0}
 	@show
+snippet cm      组件
+	@component('${1}')
+	  ${0}
+	@endcomponent
+snippet sl      槽
+	@slot('${1}')
+	  ${0}
+	@endslot
+snippet pu      堆栈
+	@push('${1}')
+	  ${0}
+	@endpush
+snippet ve      声明不被解析的区块
+	@verbatim
+	  ${0}
+	@endverbatim
+snippet php     执行纯 PHP 代码
+	@php
+	  ${0}
+	@endphp
 # 流程控制
 snippet if      if
 	@if (${1})
@@ -33,7 +55,7 @@ snippet elif    elseif
 snippet el      else
 	@else
 	  ${0}
-snippet uls     unless [与if相反]
+snippet uls     unless [与 if 相反]
 	@unless (${1})
 	  ${0}
 	@endunless
@@ -41,7 +63,7 @@ snippet fo      for
 	@for (${1})
 	  ${0}
 	@endfor
-snippet fel     forelse
+snippet foel    forelse
 	@forelse (${1})
 	  ${2}
 	@empty
@@ -62,16 +84,44 @@ snippet lit     生成链接
 	link_to('${1}', ${0})
 snippet mef     伪造表单方法
 	method_field('${0}')
-# 其他
+# 循环变量
+snippet lo      循环变量
+	@loop${0}
+snippet loi     当前索引，从 0 开始
+	@loop->index${0}
+snippet loit    当前迭代数，从 1 开始
+	@loop->iteration${0}
+snippet lor     剩余的迭代数
+	@loop->remaining${0}
+snippet loc     迭代总数
+	@loop->count${0}
+snippet lof     首次迭代
+	$loop->first${0}
+snippet lol     最后一次迭代
+	$loop->last${0}
+snippet lod     当前循环的嵌套深度
+	$loop->depth${0}
+snippet lop     访问父循环的 $loop 变量
+	$loop->parent${0}
+# 单个关键字
 snippet pa      引用父片段
 	@parent${0}
 snippet st      终止控制结构
 	@stop${0}
+snippet co      中断本次循环
+	@continue${0}
+snippet br      结束全部循环
+	@break${0}
 snippet sh      显示
 	@show${1}
 snippet lan     语言
 	@lang('${0}')
 snippet cho     选择
 	@choice('${0}')
+# 其他
+snippet at      保留花括号的原始形态，避免被解析
+	@{{ ${0} }}
+snippet raw     输出变量 [不调用 htmlspecialchars 转义]
+	{!! ${0} !!}
 snippet .       输出变量
 	{{ ${0} }}
