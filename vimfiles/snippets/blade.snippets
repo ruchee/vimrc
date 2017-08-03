@@ -8,8 +8,6 @@ snippet in      包含模板 [继承当前模板的数据]
 	@include('${1}')${0}
 snippet inif    包含模板 [存在才包含]
 	@includeIf('${1}')${0}
-snippet re      包含模板 [不继承数据]
-	@render('${1}')${0}
 snippet ex      扩展模板
 	@extends('${1}')${0}
 snippet la      布局
@@ -84,6 +82,8 @@ snippet lit     生成链接
 	link_to('${1}', ${0})
 snippet mef     伪造表单方法
 	method_field('${0}')
+snippet csf     生成表单 token
+	csrf_field()${0}
 # 循环变量
 snippet lo      循环变量
 	@loop${0}
