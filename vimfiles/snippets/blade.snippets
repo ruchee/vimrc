@@ -119,6 +119,8 @@ snippet lan     语言
 snippet cho     选择
 	@choice('${0}')
 # 其他
+snippet s       短 section
+	@section('${1}', ${0})
 snippet at      保留花括号的原始形态，避免被解析
 	@{{ ${0} }}
 snippet raw     输出变量 [不调用 htmlspecialchars 转义]
