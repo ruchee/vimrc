@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-07-13 20:04:55
+" -----------------    Date: 2017-08-03 23:16:23
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -741,9 +741,10 @@ let g:syntastic_enable_racket_racket_checker = 1
 au BufRead,BufNewFile *.min.js exec ':SyntasticToggleMode'
 
 " php-cs-fixer        格式化 PHP 代码
-let g:php_cs_fixer_rules = '@PSR2'             " 指定使用的格式化规则
-let g:php_cs_fixer_php_path = 'php'            " 指定 PHP 可执行文件的路径
-let g:php_cs_fixer_enable_default_mapping = 1  " 使用插件默认的快捷键
+let g:php_cs_fixer_rules = '@PSR2'                 " 指定默认的格式化规则
+let g:php_cs_fixer_php_path = 'php'                " 指定 PHP 可执行文件的路径
+let g:php_cs_fixer_config_file = $HOME.'/.php_cs'  " 指定单独的 PHP-CS-Fixer 配置文件 [如果指定的配置文件存在，就会使用该配置]
+let g:php_cs_fixer_enable_default_mapping = 1      " 使用插件默认的快捷键
 
 " vim-ruby            Ruby 代码补全
 let g:rubycomplete_buffer_loading    = 1
