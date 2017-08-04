@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-08-03 23:16:23
+" -----------------    Date: 2017-08-04 22:55:01
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -348,26 +348,12 @@ endif
 execute pathogen#infect()
 
 
-" 针对部分语言加减指定字符的单词属性
-au FileType clojure        set iskeyword-=.
-au FileType clojure        set iskeyword-=>
-au FileType perl,php       set iskeyword-=.
-au FileType perl,php       set iskeyword-=$
-au FileType perl,php       set iskeyword-=-
-au FileType ruby           set iskeyword-=:
-au FileType ruby           set iskeyword+=!
-au FileType ruby           set iskeyword+=?
-au FileType eruby          set iskeyword-=.
-au FileType javascript     set iskeyword-=.
-au FileType coffee         set iskeyword-=.
-au FileType coffee         set iskeyword+=-
-au FileType typescript     set iskeyword-=.
-au FileType css,scss,less  set iskeyword+=.
-au FileType css,scss,less  set iskeyword+=#
-au FileType css,scss,less  set iskeyword+=-
-au FileType nginx          set iskeyword-=/
-au FileType nginx          set iskeyword-=.
-au FileType nginx          set iskeyword-=:
+" 修正部分语言的关键字列表
+au FileType perl          set iskeyword=@,48-57,_,192-255
+au FileType php,blade     set iskeyword=@,48-57,_,192-255
+au FileType ruby,eruby    set iskeyword=@,48-57,_,192-255,?,!
+au FileType css,scss,less set iskeyword=@,48-57,_,192-255,#
+au FileType nginx         set iskeyword=@,48-57,_,192-255
 
 
 " 针对部分语言添加字典补全
@@ -761,6 +747,9 @@ let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angular
 " Ctrl + ]            多选择跳转
 nmap <c-]> g<c-]>
 vmap <c-]> g<c-]>
+
+" Ctrl + T            跳回原位置
+nmap <c-t> :pop<cr>
 
 " Ctrl + U            简化全能补全按键
 imap <c-u> <c-x><c-o>

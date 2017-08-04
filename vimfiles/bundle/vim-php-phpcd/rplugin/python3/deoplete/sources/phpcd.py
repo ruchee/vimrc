@@ -1,4 +1,5 @@
 from .base import Base
+from neovim.api.nvim import NvimError
 
 class Source(Base):
     def __init__(self, vim):
@@ -17,4 +18,7 @@ class Source(Base):
         return self.vim.call('phpcd#CompletePHP', 1, '')
 
     def gather_candidates(self, context):
-        return self.vim.call('phpcd#CompletePHP', 0, context['complete_str'])
+        try:
+            return self.vim.call('phpcd#CompletePHP', 0, context['complete_str'])
+        except NvimError:
+            return []
