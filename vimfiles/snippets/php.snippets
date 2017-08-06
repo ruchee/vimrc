@@ -42,35 +42,35 @@ snippet dfo     判断常量是否有定义，无定义则退出并输出错误�
 # 接口、类、方法
 snippet int     接口定义
 	interface ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet tra     内含模块定义 [用于实现Mixin，相当于类，但不能实例化，借鉴自Ruby] [PHP 5.4新增]
 	trait ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet cl      类定义
 	class ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet cle     带继承的类定义
 	class ${1} extends ${2} {
-	  ${0}
+	    ${0}
 	}
 snippet cli     实现接口的类定义
 	class ${1} implements ${2} {
-	  ${0}
+	    ${0}
 	}
 snippet clei    先继承后实现接口的类定义
 	class ${1} extends ${2} implements ${3} {
-	  ${0}
+	    ${0}
 	}
 snippet clee    继承异常类
 	class ${1} extends Exception {
-	  ${0}
+	    ${0}
 	}
 snippet f       函数定义
 	function ${1}(${2})${3} {
-	  ${0}
+	    ${0}
 	}
 snippet f.      用于接口的方法声明
 	function ${1}(${2})${3};${0}
@@ -86,133 +86,133 @@ snippet pus     public static方法
 	public static ${0}
 snippet fc      构造方法
 	function __construct(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet pfc     public构造函数
 	public function __construct(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet pac     调用父类构造方法
 	parent::__construct(${1});${0}
 snippet fd      析构方法
 	function __destruct() {
-	  ${0}
+	    ${0}
 	}
 snippet fcl     克隆方法
 	function __clone() {
-	  ${0}
+	    ${0}
 	}
 snippet fts     将类当作字符串打印
 	function __toString() {
-	  ${0}
+	    ${0}
 	}
 snippet fau     自动加载
 	function __autoload(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fsl     __sleep()：执行serialize()时触发
 	function __sleep() {
-	  ${0}
+	    ${0}
 	}
 snippet fwa     __wakeup()：执行unserialize()时触发
 	function __wakeup() {
-	  ${0}
+	    ${0}
 	}
 snippet fge     __get()：访问未定义的属性时触发
 	function __get(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fse     __set()：给未定义的属性赋值时触发
 	function __set(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fca     __call()：调用未定义的方法时触发
 	function __call(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fcas    __callStatic()：静态方法，静态调用未定义的方法时触发
 	function __callStatic(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fis     __isset()：对未定义的属性调用isset()时触发
 	function __isset(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fus     __unset()：对未定义的属性调用unset()时触发
 	function __unset(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fiv     __invoke()：尝试以调用函数的方式调用对象时触发
 	function __invoke(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fss     __set_state()：静态方法，执行var_export()时触发
 	function __set_state(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fde     __debuginfo()：执行var_dump()时触发
 	function __debuginfo() {
-	  ${0}
+	    ${0}
 	}
 # 流程控制
 snippet if      if
 	if (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet elif    elseif
 	elseif (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet el      else
 	else {
-	  ${0}
+	    ${0}
 	}
 snippet fo      for循环
 	for (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fe      foreach迭代
 	foreach (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet wh      while循环
 	while (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet do      do .. while
 	do {
-	  ${0}
+	    ${0}
 	} while (${1});
 snippet sw      switch
 	switch (${1}) {
-	${0}
+	    ${0}
 	}
 snippet cs      case
 	case ${1}:
-	  ${0}
+	    ${0}
 snippet def     default
 	default:
-	  ${0}
+	    ${0}
 snippet de      设定代码执行指令 [无大括号]
 	declare(${0});
 snippet de.     设定代码执行指令 [有大括号]
 	declare (${1}) {
-	  ${0}
+	    ${0}
 	}
 # 异常处理
 snippet thr     抛出异常
 	throw new ${1:Exception}(${0});
 snippet try     监控代码块
 	try {
-	  ${0}
+	    ${0}
 	}
 snippet cat     捕获异常
 	catch (${1:Exception} $${2:e}) {
-	  ${0}
+	    ${0}
 	}
 snippet fin     善后处理 [PHP 5.5新增]
 	finally {
-	  ${0}
+	    ${0}
 	}
 snippet E       Exception
 	Exception${0}

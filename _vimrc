@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-08-04 22:55:01
+" -----------------    Date: 2017-08-05 16:53:41
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -226,8 +226,8 @@ set shiftwidth=2
 set tabstop=2
 
 " 对部分语言设置单独的缩进 [四空格缩进]
-au FileType python set shiftwidth=4
-au FileType python set tabstop=4
+au FileType php,python set shiftwidth=4
+au FileType php,python set tabstop=4
 
 " 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -656,7 +656,7 @@ let g:ctrlp_map = '<c-p>'                      " 指定触发按键
 let g:ctrlp_cmd = 'CtrlP'                      " 指定默认触发的搜索模式
 let g:ctrlp_use_caching   = 0                  " 不使用缓存
 " 指定自定义的忽略文件列表
-let g:ctrlp_custom_ignore = 'node_modules/\|bower_components/\|tmp/\|cache/\|git/\|svn/\|DS_Store'
+let g:ctrlp_custom_ignore = 'node_modules/\|vendor/\|git/\|svn/\|tmp/\|cache'
 let g:ctrlp_user_command  = {
       \ 'types': {
       \ 1: ['.git', 'cd %s && git ls-files -co --exclude-standard'],
