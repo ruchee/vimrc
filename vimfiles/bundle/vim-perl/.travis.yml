@@ -1,11 +1,10 @@
 language: perl
 install:
   - sudo apt-get install vim
-  - cpanm --notest Test::Differences Text::VimColor IO::Pty Test::Deep Parallel::ForkManager JSON Path::Tiny Test::SharedFork
-  - git fetch origin p5-corpus:origin/p5-corpus
+  - cpanm --notest Test::Differences Text::VimColor IO::Pty Test::Deep Parallel::ForkManager JSON Path::Tiny Test::SharedFork Test::LongString
+  - git fetch origin p5-corpus-ng:origin/p5-corpus-ng
   - vim --version
 script:
-  - cmp syntax/perl6.vim <(perl tools/preproc.pl syntax/perl6.vim.pre)
   - make test
 branches:
   except:
