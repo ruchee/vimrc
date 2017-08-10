@@ -20,10 +20,8 @@ snippet doc     跨行文本
 # 命令空间、别名
 snippet na      声明命名空间
 	namespace ${1};${0}
-snippet u       引用命名空间或Traits
+snippet u       引用命名空间或 Traits
 	use ${1};${0}
-snippet us      引用命名空间并定义别名
-	use ${1} as ${2};${0}
 # 代码重用
 snippet rq      require包含
 	require __DIR__.'/${1}';${0}
@@ -44,7 +42,7 @@ snippet int     接口定义
 	interface ${1} {
 	    ${0}
 	}
-snippet tra     内含模块定义 [用于实现Mixin，相当于类，但不能实例化，借鉴自Ruby] [PHP 5.4新增]
+snippet tra     内含模块定义 [用于实现 Mixin，相当于类，但不能实例化，借鉴自 Ruby] [PHP 5.4新增]
 	trait ${1} {
 	    ${0}
 	}
@@ -76,19 +74,19 @@ snippet f.      用于接口的方法声明
 	function ${1}(${2})${3};${0}
 snippet ff      匿名函数（不换行）
 	function (${1})${2} {${0}}
-snippet ffu     带use子句的匿名函数
+snippet ffu     带 use 子句的匿名函数
 	function (${1})${2} use (${3}) {${0}};
 snippet abf     用于声明抽象方法
 	abstract function ${1}(${2})${3};${0}
-snippet prs     private static属性
+snippet prs     private static 属性
 	private static ${0}
-snippet pus     public static方法
+snippet pus     public static 方法
 	public static ${0}
 snippet fc      构造方法
 	function __construct(${1}) {
 	    ${0}
 	}
-snippet pfc     public构造函数
+snippet pfc     public 构造函数
 	public function __construct(${1}) {
 	    ${0}
 	}
@@ -110,11 +108,11 @@ snippet fau     自动加载
 	function __autoload(${1}) {
 	    ${0}
 	}
-snippet fsl     __sleep()：执行serialize()时触发
+snippet fsl     __sleep()：执行 serialize() 时触发
 	function __sleep() {
 	    ${0}
 	}
-snippet fwa     __wakeup()：执行unserialize()时触发
+snippet fwa     __wakeup()：执行 unserialize() 时触发
 	function __wakeup() {
 	    ${0}
 	}
@@ -134,11 +132,11 @@ snippet fcas    __callStatic()：静态方法，静态调用未定义的方法�
 	function __callStatic(${1}) {
 	    ${0}
 	}
-snippet fis     __isset()：对未定义的属性调用isset()时触发
+snippet fis     __isset()：对未定义的属性调用 isset() 时触发
 	function __isset(${1}) {
 	    ${0}
 	}
-snippet fus     __unset()：对未定义的属性调用unset()时触发
+snippet fus     __unset()：对未定义的属性调用 unset() 时触发
 	function __unset(${1}) {
 	    ${0}
 	}
@@ -146,11 +144,11 @@ snippet fiv     __invoke()：尝试以调用函数的方式调用对象时触发
 	function __invoke(${1}) {
 	    ${0}
 	}
-snippet fss     __set_state()：静态方法，执行var_export()时触发
+snippet fss     __set_state()：静态方法，执行 var_export() 时触发
 	function __set_state(${1}) {
 	    ${0}
 	}
-snippet fde     __debuginfo()：执行var_dump()时触发
+snippet fde     __debuginfo()：执行 var_dump() 时触发
 	function __debuginfo() {
 	    ${0}
 	}
@@ -167,15 +165,15 @@ snippet el      else
 	else {
 	    ${0}
 	}
-snippet fo      for循环
+snippet fo      for
 	for (${1}) {
 	    ${0}
 	}
-snippet fe      foreach迭代
+snippet fe      foreach
 	foreach (${1}) {
 	    ${0}
 	}
-snippet wh      while循环
+snippet wh      while
 	while (${1}) {
 	    ${0}
 	}
@@ -243,7 +241,7 @@ snippet Rpro    类属性信息
 	ReflectionProperty${0}
 snippet Rfun    函数信息和工具
 	ReflectionFunction${0}
-snippet Rext    PHP扩展信息
+snippet Rext    PHP 扩展信息
 	ReflectionExtension${0}
 snippet Rexc    错误类
 	ReflectionException${0}
@@ -278,7 +276,7 @@ snippet ee      输出信息，并终止执行
 	echo ${0}; exit();
 snippet en      输出换行
 	echo ${0}."\n";
-snippet eb      输出HTML换行
+snippet eb      输出 HTML 换行
 	echo ${0}.'<br>';
 snippet e-      打印调试分隔符
 	echo '------ ${0} ------<br>';
@@ -309,15 +307,15 @@ snippet env     环境变量
 	$_ENV['${0}']
 snippet ser     服务器环境变量
 	$_SERVER['${0}']
-snippet coo     COOKIE数据
+snippet coo     COOKIE 数据
 	$_COOKIE['${0}']
-snippet ses     SESSION数据
+snippet ses     SESSION 数据
 	$_SESSION['${0}']
-snippet get     GET数据
+snippet get     GET 数据
 	$_GET['${0}']
-snippet pos     POST数据
+snippet pos     POST 数据
 	$_POST['${0}']
-snippet req     GET、POST、COOKIE数据
+snippet req     GET、POST、COOKIE 数据
 	$_REQUEST['${0}']
 snippet fil     与文件上传相关的变量数组
 	$_FILES['${0}']
@@ -343,10 +341,10 @@ snippet ds      平台无关目录分隔符
 	DIRECTORY_SEPARATOR${0}
 snippet ps      平台无关路径分隔符
 	PATH_SEPARATOR${0}
-snippet pv      PHP解释器版本号
-	PHP_VERSION${0}
-snippet pl      平台无关下一行
+snippet pl      平台无关换行
 	PHP_EOL${0}
+snippet pv      PHP 解释器版本号
+	PHP_VERSION${0}
 #### 常用函数 ####
 snippet ra      数组生成器
 	range(${1}, ${0})
@@ -362,13 +360,13 @@ snippet exp     字符串分割
 	explode('${1}', ${0})
 snippet imp     字符串组合
 	implode('${1}', ${0})
-snippet jen     编码JSON
+snippet jen     编码 JSON
 	json_encode(${0})
-snippet jde     解码JSON
+snippet jde     解码 JSON
 	json_decode(${0})
-snippet uen     编码URL字符串
+snippet uen     编码 URL 字符串
 	urlencode(${0})
-snippet ude     解码URL字符串
+snippet ude     解码 URL 字符串
 	urldecode(${0})
 #### 判断类型 #####
 snippet isn     是否为空
@@ -405,7 +403,7 @@ snippet sv      to string type
 #### 出错处理 #####
 snippet elog    写出错日志
 	error_log(${0})
-#### PHP标准库 #####
+#### PHP 标准库 #####
 snippet spl_aur 注册自动载入函数
 	spl_autoload_register('${0}');
 #### 模板标签 ####
@@ -413,21 +411,21 @@ snippet pe      输出标签
 	<?php echo ${0} ?>
 snippet pp      输出标签 [PHP 5.4起默认可用]
 	<?= ${0} ?>
-snippet pin     include标签
+snippet pin     include 标签
 	<?php include('${1}') ?>${0}
-snippet pif     if标签
+snippet pif     if 标签
 	<?php if (${1}): ?>${0}<?php endif ?>
-snippet pelif   elseif标签
+snippet pelif   elseif 标签
 	<?php elseif (${1}): ?>${0}
-snippet pel     else标签
+snippet pel     else 标签
 	<?php else: ?>${0}
-snippet pfo     for标签
+snippet pfo     for 标签
 	<?php for (${1}): ?>${0}<?php endfor ?>
-snippet pfe     foreach标签
+snippet pfe     foreach 标签
 	<?php foreach (${1}): ?>${0}<?php endforeach ?>
-snippet psw     switch标签
+snippet psw     switch 标签
 	<?php switch (${1}): ?>${0}<?php endswitch ?>
-snippet pcs     case标签
+snippet pcs     case 标签
 	<?php case ${1}: ?>${0}
 snippet pvd     打印变量详情 [var_dump]
 	<?php var_dump(${0}) ?>
