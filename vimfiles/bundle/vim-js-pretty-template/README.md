@@ -62,7 +62,7 @@ This plugin provides the `:JsPreTmpl` command.  For example:
 :JsPreTmpl html
 ```
 
-executing the above, a template string is highlighted with HTML way.
+Executing the above, a template string is highlighted with HTML way.
 
 This command requires an argument. It's a `FileType` name which you can apply into templates in your JavaScript code.
 
@@ -70,6 +70,32 @@ If you want to apply automatically, you can append the following to your `.vimrc
 
 ```vim
 autocmd FileType javascript JsPreTmpl html
+```
+
+### Tagged Template Literal
+You can override the default rule defined `:JsPreTml` command with another rule using `jspretmpl#register_tag()` function. For example,
+
+```vim
+" Register tag name associated the filetype
+call jspretmpl#register_tag('gql', 'graphql')
+
+autocmd FileType javascript JsPreTmpl html
+```
+
+Then your JavaScript codes are Highlighted as the following:
+
+```javascript
+// HTML way default
+const template = `
+  <div>html</div>
+`;
+
+// GraphQL way if gql tagged
+const query = gql`
+  fragment on User {
+    name
+  }
+`;
 ```
 
 ### For alternative JavaScript users

@@ -51,6 +51,7 @@ let s:icon_open   = g:tagbar_iconchars[1]
 let s:type_init_done    = 0
 let s:autocommands_done = 0
 let s:statusline_in_use = 0
+let s:init_done = 0
 
 " 0: not checked yet; 1: checked and found; 2: checked and not found
 let s:checked_ctags       = 0
@@ -122,6 +123,7 @@ function! s:Init(silent) abort
         call s:AutoUpdate(fnamemodify(expand('%'), ':p'), 0)
     endif
 
+    let s:init_done = 1
     return 1
 endfunction
 
@@ -477,7 +479,7 @@ function! s:InitTypes() abort
             \ 'f' : 'namespace'
         \ }
         let type_javascript.scope2kind = {
-            \ 'namespace' : 'v'
+            \ 'namespace' : 'f'
         \ }
         let type_javascript.ctagsbin   = jsctags
         let type_javascript.ctagsargs  = '-f -'
@@ -967,6 +969,11 @@ endfunction
 " s:RestoreSession() {{{2
 " Properly restore Tagbar after a session got loaded
 function! s:RestoreSession() abort
+    if s:init_done
+        call s:debug('Tagbar already initialized; not restoring session')
+        return
+    endif
+
     call s:debug('Restoring session')
 
     let curfile = fnamemodify(bufname('%'), ':p')
@@ -975,12 +982,12 @@ function! s:RestoreSession() abort
     if tagbarwinnr == -1
         " Tagbar wasn't open in the saved session, nothing to do
         return
-    else
-        let in_tagbar = 1
-        if winnr() != tagbarwinnr
-            call s:goto_win(tagbarwinnr)
-            let in_tagbar = 0
-        endif
+    endif
+
+    let in_tagbar = 1
+    if winnr() != tagbarwinnr
+        call s:goto_win(tagbarwinnr, 1)
+        let in_tagbar = 0
     endif
 
     let s:last_autofocus = 0
@@ -1024,6 +1031,8 @@ function! s:MapKeys() abort
         \ ['togglefold',    'ToggleFold()'],
         \ ['openallfolds',  'SetFoldLevel(99, 1)'],
         \ ['closeallfolds', 'SetFoldLevel(0, 1)'],
+        \ ['incrementfolds',  'ChangeFoldLevel(1, 1)'],
+        \ ['decrementfolds',  'ChangeFoldLevel(-1, 1)'],
         \ ['nextfold',      'GotoNextFold()'],
         \ ['prevfold',      'GotoPrevFold()'],
         \
@@ -1556,7 +1565,7 @@ function! s:NormalTag.getPrototype(short) abort dict
         if self.fields.line == 0 || !bufloaded(bufnr)
             " No linenumber available or buffer not loaded (probably due to
             " 'nohidden'), try the pattern instead
-            return substitute(self.pattern, '^\\V\\^\\C\s*\(.*\)\\$$', '\1', '')
+            return substitute(self.pattern, '^\\M\\^\\C\s*\(.*\)\\$$', '\1', '')
         endif
 
         let line = getbufline(bufnr, self.fields.line)[0]
@@ -2471,7 +2480,7 @@ function! s:ParseTagline(part1, part2, typeinfo, fileinfo) abort
         let dollar = ''
     endif
     let pattern         = strpart(pattern, start, end - start)
-    let taginfo.pattern = '\V\^\C' . pattern . dollar
+    let taginfo.pattern = '\M\^\C' . pattern . dollar
 
     " When splitting fields make sure not to create empty keys or values in
     " case a value illegally contains tabs
@@ -2665,6 +2674,14 @@ function! s:add_tag_recursive(parent, taginfo, pathlist) abort
         " Start at line 0 so that pseudotags get included
         let minline = 0
         for candidate in parents
+            " If the line number of the current tag is 0 then we have no way
+            " of determining the best candidate by comparing line numbers.
+            " Just use the first one we have.
+            if a:taginfo.fields.line == 0
+                let parent = candidate
+                break
+            endif
+
             if candidate.fields.line <= a:taginfo.fields.line &&
              \ candidate.fields.line >= minline
                 let parent = candidate
@@ -2718,7 +2735,7 @@ function! s:create_pseudotag(name, parent, kind, typeinfo, fileinfo) abort
     let pseudotag             = s:PseudoTag.New(a:name)
     let pseudotag.fields.kind = a:kind
 
-    let parentscope = substitute(curpath, a:name . '$', '', '')
+    let parentscope = substitute(curpath, '\V' . a:name . '$', '', '')
     let parentscope = substitute(parentscope,
                                \ '\V\^' . a:typeinfo.sro . '\$', '', '')
 
@@ -3082,6 +3099,8 @@ function! s:PrintHelp() abort
         silent  put ='\" ' . s:get_map_str('togglefold') . ': Toggle fold'
         silent  put ='\" ' . s:get_map_str('openallfolds') . ': Open all folds'
         silent  put ='\" ' . s:get_map_str('closeallfolds') . ': Close all folds'
+        silent  put ='\" ' . s:get_map_str('incrementfolds') . ': Increment fold level by 1'
+        silent  put ='\" ' . s:get_map_str('decrementfolds') . ': Decrement fold level by 1'
         silent  put ='\" ' . s:get_map_str('nextfold') . ': Go to next fold'
         silent  put ='\" ' . s:get_map_str('prevfold') . ': Go to previous fold'
         silent  put ='\"'
@@ -3479,6 +3498,22 @@ function! s:ToggleFold() abort
     call s:RenderKeepView(newline)
 endfunction
 
+" s:ChangeFoldLevel() {{{2
+function! s:ChangeFoldLevel(diff, force) abort
+    let fileinfo = s:TagbarState().getCurrent(0)
+    if empty(fileinfo)
+        return
+    endif
+
+    if fileinfo.foldlevel == 99
+        call s:MinimizeMaxFoldLevel(fileinfo, fileinfo.getTags())
+    endif
+
+    let level = fileinfo.foldlevel
+    let level = level + a:diff
+    call s:SetFoldLevel(level, a:force)
+endfunction
+
 " s:SetFoldLevel() {{{2
 function! s:SetFoldLevel(level, force) abort
     if a:level < 0
@@ -3527,6 +3562,23 @@ function! s:SetFoldLevelRecursive(fileinfo, tags, level) abort
             call s:SetFoldLevelRecursive(a:fileinfo, tag.getChildren(), a:level)
         endif
     endfor
+endfunction
+
+" s:MinimizeMaxFoldLevel() {{{2
+" Set the file's fold level to the lowest value that still shows all tags
+function! s:MinimizeMaxFoldLevel(fileinfo, tags) abort
+    let maxlvl = 0
+    let tags = copy(a:tags)
+
+    for tag in tags
+        if maxlvl < tag.depth
+            let maxlvl = tag.depth
+        endif
+        call tag.setFolded(0)
+        call extend(tags, tag.getChildren())
+    endfor
+
+    let a:fileinfo.foldlevel = maxlvl
 endfunction
 
 " s:OpenParents() {{{2

@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-08-06 13:42:15
+" -----------------    Date: 2017-08-13 15:00:31
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -57,6 +57,7 @@
 " \ruby                      一键切换到 Ruby       语法高亮
 " \eruby                     一键切换到 eRuby      语法高亮
 " \cf                        一键切换到 Coffee     语法高亮
+" \ts                        一键切换到 TypeScript 语法高亮
 " \js                        一键切换到 JavaScript 语法高亮
 " \css                       一键切换到 CSS        语法高亮
 " \html                      一键切换到 HTML       语法高亮
@@ -668,7 +669,7 @@ let g:ctrlp_user_command  = {
       \ 'ignore': 1
       \ }                                      " 特定项目使用 types 中指定的命令，非特定项目使用 fallback 中的命令，且启用自定义的忽略文件列表
 
-" ack                 单词搜索                   需要配合 the_silver_searcher 使用
+" ack                 单词搜索                   需要安装 the_silver_searcher 配合使用
 let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " indentLine          显示对齐线
@@ -681,7 +682,7 @@ let g:indentLine_color_gui  = '#A4E57E'        " 设置 GUI 线条颜色
 let g:airline_theme           = 'badwolf'      " 设置主题
 let g:airline_powerline_fonts = 0              " 关闭自定义字体
 
-" Promptline          终端辅助工具
+" Promptline          终端辅助工具               此插件和 Vim 本身的使用没多大关系，将其生成的文件加载到 .bashrc，可达到美化终端的效果。比如说进入一个 Git 工程会自动显示当前分支情况
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
 let g:promptline_preset = {
       \'a'    : [ '\u' ],
@@ -872,6 +873,10 @@ nmap <leader>eruby <esc>:se ft=eruby<cr>
 imap <leader>cf <esc>:se ft=coffee<cr>li
 nmap <leader>cf <esc>:se ft=coffee<cr>
 
+" \ts                 一键切换到 TypeScript 语法高亮
+imap <leader>ts <esc>:se ft=typescript<cr>li
+nmap <leader>ts <esc>:se ft=typescript<cr>
+
 " \js                 一键切换到 JavaScript 语法高亮
 imap <leader>js <esc>:se ft=javascript<cr>li
 nmap <leader>js <esc>:se ft=javascript<cr>
@@ -885,7 +890,7 @@ imap <leader>html <esc>:se ft=html<cr>li
 nmap <leader>html <esc>:se ft=html<cr>
 
 
-" ======= 编译 && 运行 && 模板 ======= "
+" ======= 编译 && 运行 ======= "
 
 " 编译并运行
 func! Compile_Run_Code()

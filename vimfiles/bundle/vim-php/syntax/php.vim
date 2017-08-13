@@ -551,12 +551,18 @@ syn region phpIdentifierArray    matchgroup=phpParent start="\[" end="]" contain
 syn keyword phpBoolean true false  contained
 
 " Number
-syn match phpNumber "-\=\<\d\+\>" contained display
+syn match phpNumber "\<\d\+\>" contained display
+syn match phpNumber "-\d\+\>" contained display
 syn match phpNumber "\<0x\x\{1,8}\>"  contained display
+syn match phpNumber "-0x\x\{1,8}\>"  contained display
 syn match phpNumber "\<0b[01]\+\>"    contained display
+syn match phpNumber "-0b[01]\+\>"    contained display
+syn match phpNumber "\<\d\+\%([eE][+-]\=\d\+\)\=\>" contained display
+syn match phpNumber "-\d\+\%([eE][+-]\=\d\+\)\=\>" contained display
 
 " Float
-syn match phpNumber "\(-\=\<\d+\|-\=\)\.\d\+\>" contained display
+syn match phpNumber "\<\%(\d\+\.\d\+\|\d\+\.\|\.\d\+\)\%([eE][+-]\=\d\+\)\=\>" contained display
+syn match phpNumber "-\%(\d\+\.\d\+\|\d\+\.\|\.\d\+\)\%([eE][+-]\=\d\+\)\=\>" contained display
 
 " SpecialChar
 syn match phpSpecialChar "\\[fnrtv\\]" contained display

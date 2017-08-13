@@ -36,11 +36,19 @@ function! s:OnCall(status, response) " {{{
 	execute params[0]
 endfunction " }}}
 
+function! s:OnError(a, b, c) " {{{
+	echo join(a:b, "\n")
+endfunction
+
+function! s:OnError2(a, b)
+	echo a:b
+endfunction " }}}
+
 function! rpc#start(...) " {{{
 	if has('nvim')
-		return jobstart(a:000, {'rpc': v:true})
+		return jobstart(a:000, {'rpc': v:true, 'on_stderr': function('s:OnError')})
 	else
-		return job_start(a:000, {'out_cb': function('s:OnCall')})
+		return job_start(a:000, {'out_cb': function('s:OnCall'), 'err_cb': function('s:OnError2')})
 	end
 endfunction " }}}
 
