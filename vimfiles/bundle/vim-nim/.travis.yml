@@ -1,0 +1,17 @@
+language: viml
+script: ./tests/travis.sh
+cache:
+    apt: true
+    directories:
+        - tests/tmp
+before_install:
+    - sudo apt-get -qq install software-properties-common
+    - sudo add-apt-repository -y ppa:neovim-ppa/unstable
+    - sudo apt-get -qq update
+    - sudo apt-get -qq install neovim
+    - sudo apt-get -qq install tree
+    - sudo apt-get -qq install python-dev python-pip python3-dev python3-pip
+    - sudo pip install pytest
+    - sudo pip install neovim
+    # - sudo apt-get -qq install nim
+    # - sudo apt-get -qq install nimble
