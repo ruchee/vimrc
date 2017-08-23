@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-08-13 15:00:31
+" -----------------    Date: 2017-08-23 08:46:20
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -59,6 +59,7 @@
 " \cf                        一键切换到 Coffee     语法高亮
 " \ts                        一键切换到 TypeScript 语法高亮
 " \js                        一键切换到 JavaScript 语法高亮
+" \jsx                       一键切换到 JSX        语法高亮
 " \css                       一键切换到 CSS        语法高亮
 " \html                      一键切换到 HTML       语法高亮
 
@@ -881,6 +882,10 @@ nmap <leader>ts <esc>:se ft=typescript<cr>
 imap <leader>js <esc>:se ft=javascript<cr>li
 nmap <leader>js <esc>:se ft=javascript<cr>
 
+" \jsx                一键切换到 JSX 语法高亮
+imap <leader>jsx <esc>:se ft=javascript.jsx<cr>li
+nmap <leader>jsx <esc>:se ft=javascript.jsx<cr>
+
 " \css                一键切换到 CSS 语法高亮
 imap <leader>css <esc>:se ft=css<cr>li
 nmap <leader>css <esc>:se ft=css<cr>
@@ -1053,9 +1058,9 @@ let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,
 
 let blog = {}
 if g:isWIN
-  let blog.path          = 'D:/Ruchee/Files/mysite/wiki/'
-  let blog.path_html     = 'D:/Ruchee/Files/mysite/html/'
-  let blog.template_path = 'D:/Ruchee/Files/mysite/templates/'
+  let blog.path          = 'D:/Ruchee/mysite/wiki/'
+  let blog.path_html     = 'D:/Ruchee/mysite/html/'
+  let blog.template_path = 'D:/Ruchee/mysite/templates/'
 else
   let blog.path          = '~/mysite/wiki/'
   let blog.path_html     = '~/mysite/html/'
