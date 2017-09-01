@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-08-28 17:01:30
+" -----------------    Date: 2017-09-01 14:04:45
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -187,6 +187,11 @@
 " ]z                         到当前打开的折叠的末尾处
 " zj                         向下移动到后一个折叠的开始处
 " zk                         向上移动到前一个折叠的结束处
+"
+" ---------- 服务器文件传输 ----------
+"
+" \uu                        向服务器上传文件 [sync 插件]
+" \dd                        从服务器下载文件 [sync 插件]
 "
 " ---------- Vimwiki [Vim 中的 wiki 系统] ----------------
 "
@@ -853,6 +858,12 @@ vmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 
 " \ev                 编辑当前所使用的 Vim 配置文件
 nmap <leader>ev <esc>:e $MYVIMRC<cr>
+
+" \uu                 向服务器上传文件 [sync 插件]
+nmap <leader>uu <esc>:call SyncUploadFile()<cr>
+
+" \dd                 从服务器下载文件 [sync 插件]
+nmap <leader>dd <esc>:call SyncDownloadFile()<cr>
 
 " \got                一键切换到 gohtmltmpl 语法高亮
 imap <leader>got <esc>:se ft=gohtmltmpl<cr>li
