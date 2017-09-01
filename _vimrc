@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-01 14:04:45
+" -----------------    Date: 2017-09-01 23:22:18
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -166,8 +166,13 @@
 "
 " ---------- 文本比较 ----------
 "
-" dp                         将当前文件所在差异行替换到对比文件 [give]
-" do                         将对比文件所在差异行替换到当前文件 [get]
+" dp                         将当前文件所在差异行替换到对比文件 [保留当前文件的改动]
+" do                         将对比文件所在差异行替换到当前文件 [保留对比文件的改动]
+
+" \ml                        保留本分支的改动 [git mergetool -t vimdiff 时可用]
+" \mr                        保留它分支的改动 [git mergetool -t vimdiff 时可用]
+" \mb                        保留基分支的改动 [git mergetool -t vimdiff 时可用]
+" \mu                        刷新比较结果     [git mergetool -t vimdiff 时可用]
 "
 " ---------- 便捷操作 ----------
 "
@@ -864,6 +869,18 @@ nmap <leader>uu <esc>:call SyncUploadFile()<cr>
 
 " \dd                 从服务器下载文件 [sync 插件]
 nmap <leader>dd <esc>:call SyncDownloadFile()<cr>
+
+" \ml                 保留本分支的改动 [git mergetool -t vimdiff 时可用]
+nmap <leader>ml :diffget LOCAL<cr>
+
+" \mr                 保留它分支的改动 [git mergetool -t vimdiff 时可用]
+nmap <leader>mr :diffget REMOTE<cr>
+
+" \mb                 保留基分支的改动 [git mergetool -t vimdiff 时可用]
+nmap <leader>mb :diffget BASE<cr>
+
+" \mu                 刷新比较结果     [git mergetool -t vimdiff 时可用]
+nmap <leader>mu :diffupdate<cr>
 
 " \got                一键切换到 gohtmltmpl 语法高亮
 imap <leader>got <esc>:se ft=gohtmltmpl<cr>li
