@@ -36,6 +36,8 @@ class Parser
             $stmts = $traverser->traverse($stmts);
         } catch (\PhpParser\Error $e) {
             // pass
+        } catch (\ErrorException $e) {
+            // pass
         }
 
         return $visitor->classes;

@@ -131,6 +131,10 @@ values):
 
 * enable spell detection >
   let g:airline_detect_spell=1
+
+* display spelling language when spell detection is enabled
+  (if enough space is available) >
+  let g:airline_detect_spelllang=1
 <
 * enable iminsert detection >
   let g:airline_detect_iminsert=0
@@ -207,6 +211,10 @@ values):
   the same name (in the correct window): >
   let w:airline_skip_empty_sections = 0
 <
+* Caches the changes to the highlighting groups, should therefore be faster.
+  Set this to one, if you experience a sluggish Vim: >
+  let g:airline_highlighting_cache = 0
+<
 ==============================================================================
 COMMANDS                                                  *airline-commands*
 
@@ -253,11 +261,12 @@ its contents. >
   let g:airline_right_sep = '«'
   let g:airline_right_sep = '◀'
   let g:airline_symbols.crypt = '🔒'
+  let g:airline_symbols.linenr = '☰'
   let g:airline_symbols.linenr = '␊'
   let g:airline_symbols.linenr = '␤'
   let g:airline_symbols.linenr = '¶'
-  let g:airline_symbols.maxlinenr = '☰'
   let g:airline_symbols.maxlinenr = ''
+  let g:airline_symbols.maxlinenr = '㏑'
   let g:airline_symbols.branch = '⎇'
   let g:airline_symbols.paste = 'ρ'
   let g:airline_symbols.paste = 'Þ'
@@ -273,7 +282,8 @@ its contents. >
   let g:airline_right_alt_sep = ''
   let g:airline_symbols.branch = ''
   let g:airline_symbols.readonly = ''
-  let g:airline_symbols.linenr = ''
+  let g:airline_symbols.linenr = '☰'
+  let g:airline_symbols.maxlinenr = ''
 
   " old vim-powerline symbols
   let g:airline_left_sep = '⮀'
@@ -303,12 +313,13 @@ section.
   let g:airline_section_x       (tagbar, filetype, virtualenv)
   let g:airline_section_y       (fileencoding, fileformat)
   let g:airline_section_z       (percentage, line number, column number)
-  let g:airline_section_error   (ycm_error_count, syntastic, eclim)
-  let g:airline_section_warning (ycm_warning_count, whitespace)
+  let g:airline_section_error   (ycm_error_count, syntastic-err, eclim)
+  let g:airline_section_warning (ycm_warning_count, syntastic-warn, whitespace)
 
   " here is an example of how you could replace the branch indicator with
-  " the current working directory, followed by the filename.
-  let g:airline_section_b = '%{getcwd()}'
+  " the current working directory (limited to 10 characters),
+  " followed by the filename.
+  let g:airline_section_b = '%-0.10{getcwd()}'
   let g:airline_section_c = '%t'
 <
 ==============================================================================
@@ -437,7 +448,7 @@ notexists symbol will be displayed after the branch name.
   endfunction
 <
 -------------------------------------                    *airline-syntastic*
-syntastic <https://github.com/scrooloose/syntastic>
+syntastic <https://github.com/vim-syntastic/syntastic>
 
 * enable/disable syntastic integration >
   let g:airline#extensions#syntastic#enabled = 1
@@ -445,6 +456,18 @@ syntastic <https://github.com/scrooloose/syntastic>
   Note: The recommendation from syntastic to modify the statusline directly
   does not apply, if you use vim-airline, since it will take care for you of
   adjusting the statusline.
+
+* syntastic error_symbol >
+  let airline#extensions#syntastic#error_symbol = 'E:'
+<
+* syntastic statusline error format (see |syntastic_stl_format|) >
+  let airline#extensions#syntastic#stl_format_err = '%E{[%e(#%fe)]}'
+
+* syntastic warning >
+  let airline#extensions#syntastic#warning_symbol = 'W:'
+< 
+* syntastic statusline warning format (see |syntastic_stl_format|) >
+  let airline#extensions#syntastic#stl_format_err = '%W{[%w(#%fw)]}'
 <
 -------------------------------------                       *airline-tagbar*
 tagbar <https://github.com/majutsushi/tagbar>
@@ -611,7 +634,7 @@ eclim <https://eclim.org>
 Note: If you're using the ctrlspace tabline only the option marked with (c)
 are supported!
 
-* enable/disable enhanced tabline. (c)
+* enable/disable enhanced tabline. (c) >
   let g:airline#extensions#tabline#enabled = 0
 
 * enable/disable displaying open splits per tab (only when tabs are opened). >
@@ -621,7 +644,7 @@ are supported!
   (only supported for ctrlspace plugin). >
   let g:airline#extensions#tabline#switch_buffers_and_tabs = 0
 <
-* enable/disable displaying buffers with a single tab. (c)
+* enable/disable displaying buffers with a single tab. (c) >
   let g:airline#extensions#tabline#show_buffers = 1
 <
 
@@ -629,7 +652,7 @@ Note: If you are using neovim (has('tablineat') = 1), then you can click
 on the tabline with the left mouse button to switch to that buffer, and
 with the middle mouse button to delete that buffer.
 
-* enable/disable displaying tabs, regardless of number. (c)
+* enable/disable displaying tabs, regardless of number. (c) >
   let g:airline#extensions#tabline#show_tabs = 1
 <
 * configure filename match rules to exclude from the tabline. >
@@ -652,10 +675,10 @@ with the middle mouse button to delete that buffer.
   Note: The tab-type will only be displayed in tab-mode,
   if there are no splits shown. (See: g:airline#extensions#tabline#show_splits)
 
-* rename label for buffers (default: 'buffers') (c)
+* rename label for buffers (default: 'buffers') (c) >
   let g:airline#extensions#tabline#buffers_label = 'b'
 
-* rename label for tabs (default: 'tabs') (c)
+* rename label for tabs (default: 'tabs') (c) >
   let g:airline#extensions#tabline#tabs_label = 't'
 
 * enable/disable displaying index of the buffer.
@@ -677,12 +700,15 @@ with the middle mouse button to delete that buffer.
   nmap <leader>- <Plug>AirlineSelectPrevTab
   nmap <leader>+ <Plug>AirlineSelectNextTab
 
-  Note: Mappings will be ignored within a NERDTree buffer.
+  Note: Mappings will be ignored within "g:airline#extensions#tabline#keymap_ignored_filetypes".
 
   Note: In buffer_idx_mode these mappings won't change the
   current tab, but switch to the buffer visible in that tab.
   Use |gt| for switching tabs.
   In tabmode, those mappings will switch to the specified tab.
+
+* define the set of filetypes which are ignored selectTab keymappings
+  let g:airline#extensions#tabline#keymap_ignored_filetypes = ['vimfiler', 'nerdtree']
 
 * change the display format of the buffer index >
   let g:airline#extensions#tabline#buffer_idx_format = {
@@ -699,7 +725,7 @@ with the middle mouse button to delete that buffer.
         \}
 <
 
-* defines the name of a formatter for how buffer names are displayed. (c)
+* defines the name of a formatter for how buffer names are displayed. (c) >
   let g:airline#extensions#tabline#formatter = 'default'
 
   " here is how you can define a 'foo' formatter:
@@ -835,10 +861,17 @@ vim-xkblayout
   let g:airline#extensions#xkblayout#enabled = 1
 
 * define path to the backend switcher library
-  Linux (Install https://github.com/ierton/xkb-switch):
+  Linux (Install https://github.com/ierton/xkb-switch): >
    let g:XkbSwitchLib = '/usr/local/lib/libxkbswitch.so'
-  macOS (Install https://github.com/vovkasm/input-source-switcher):
+<
+  macOS (Install https://github.com/vovkasm/input-source-switcher): >
    let g:XkbSwitchLib = '/usr/local/lib/libInputSourceSwitcher.dylib'
+
+-------------------------------------                     *airline-keymap*
+vim-keymap
+
+* enable/disable vim-keymap extension >
+  let g:airline#extensions#keymap#enabled = 1
 
 -------------------------------------                   *airline-windowswap*
 vim-windowswap <https://github.com/wesQ3/vim-windowswap>
@@ -907,32 +940,56 @@ Shows the current file's vimtex related info.
 * enable/disable vimtex integration >
   let g:airline#extensions#vimtex#enabled = 1
 <
-* left and right delimiters (shown only when status string is not empty)
+* left and right delimiters (shown only when status string is not empty) >
   let g:airline#extensions#vimtex#left = "{"
   let g:airline#extensions#vimtex#right = "}"
 
 State indicators:
 
-* the current tex file is the main project file (nothing is shown by default)
+* the current tex file is the main project file (nothing is shown by default) >
   let g:airline#extensions#vimtex#main = ""
 
 * the current tex file is a subfile of the project 
-  and the compilation is set for the main file
+  and the compilation is set for the main file >
   let g:airline#extensions#vimtex#sub_main = "m"
 
 * the current tex file is a subfile of the project
-  and the compilation is set for this subfile
+  and the compilation is set for this subfile >
   let g:airline#extensions#vimtex#sub_local = "l"
 
-* single compilation is running
+* single compilation is running >
   let g:airline#extensions#vimtex#compiled = "c₁"
 
-* continuousr compilation is running
+* continuousr compilation is running >
   let g:airline#extensions#vimtex#continuous = "c"
 
-* viewer is opened
+* viewer is opened >
   let g:airline#extensions#vimtex#viewer = "v"
 
+-------------------------------------                    *airline-ale*
+ale <https://github.com/w0rp/ale>
+
+* enable/disable ale integration >
+  let g:airline#extensions#ale#enabled = 1
+
+* ale error_symbol >
+  let airline#extensions#ale#error_symbol = 'E:'
+<
+* ale warning >
+  let airline#extensions#ale#warning_symbol = 'W:'
+<
+-------------------------------------                    *airline-neomake*
+neomake <https://github.com/neomake/neomake>
+
+* enable/disable neomake integration >
+  let g:airline#extensions#neomake#enabled = 1
+
+* neomake error_symbol >
+  let airline#extensions#neomake#error_symbol = 'E:'
+<
+* neomake warning >
+  let airline#extensions#neomake#warning_symbol = 'W:'
+<
 ==============================================================================
 ADVANCED CUSTOMIZATION                      *airline-advanced-customization*
 
@@ -984,9 +1041,10 @@ Before is a list of parts that are predefined by vim-airline.
 
 And the following are defined for their respective extensions:
 
-`ale_error_count``ale_warning_count``branch``eclim``hunks`
-`neomake_error_count``neomake_warning_count``obsession``syntastic`
-`tagbar``whitespace``windowswap``ycm_error_count``ycm_warning_count`
+`ale_error_count` `ale_warning_count` `branch` `eclim` `hunks`
+`neomake_error_count` `neomake_warning_count` `obsession`
+`syntastic-warn` `syntastic-err` `tagbar` `whitespace`
+`windowswap` `ycm_error_count` `ycm_warning_count`
 
 -------------------------------------                      *airline-accents*
 Accents can be defined on any part, like so: >
@@ -1196,6 +1254,9 @@ A. Themes have been extracted into the vim-airlines-themes repository. Simply
    clone https://github.com/vim-airline/vim-airline-themes and everything
    should work again.
 
+Q. Performance is bad
+A. Check the question at the wiki:
+   https://github.com/vim-airline/vim-airline/wiki/FAQ#i-have-a-performance-problem
 
 Solutions to other common problems can be found in the Wiki:
 <https://github.com/vim-airline/vim-airline/wiki/FAQ>

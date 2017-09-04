@@ -159,6 +159,7 @@ This plugin follows the standard runtime path structure, and as such it can be i
 | [Plug][40] | `Plug 'vim-airline/vim-airline'` |
 | [VAM][22] | `call vam#ActivateAddons([ 'vim-airline' ])` |
 | [Dein][52] | `call dein#add('vim-airline/vim-airline')` |
+| [minpac][54] | `call minpac#add('vim-airline/vim-airline')` |
 | manual | copy all of the files into your `~/.vim` directory |
 
 # Configuration
@@ -188,7 +189,11 @@ Many optimizations have been made such that the majority of users will not see a
 
 The [minivimrc][7] project has some helper mappings to troubleshoot performance related issues.
 
-If you don't want all the bells and whistles enabled by default, you can define a value for `g:airline_extensions`.  When this variable is defined, only the extensions listed will be loaded; an empty array would effectively disable all extensions.
+If you don't want all the bells and whistles enabled by default, you can define a value for `g:airline_extensions`.  When this variable is defined, only the extensions listed will be loaded; an empty array would effectively disable all extensions (e.g. `:let g:airline_extensions = []`).
+
+Also, you can enable caching of the various syntax highlighting groups. This will try to prevent some of the more expensive `:hi` calls in Vim, which seem to be expensive in the Vim core at the expense of possibly not being hunderet percent correct all the times (especially if you often change highlighting groups yourself using `:hi` commands). To set this up do `:let g:airline_highlighting_cache = 1`. A `:AirlineRefresh` will however clear the cache.
+
+In addition you might want to check out the [dark_minimal theme][55], which does not change highlighting groups once they are defined. Also please check the [FAQ][27] for more information on how to diagnose and fix the problem.
 
 # Screenshots
 
@@ -202,7 +207,7 @@ If you are interested in becoming a maintainer (we always welcome more maintaine
 
 # License
 
-MIT License. Copyright (c) 2013-2016 Bailey Ling.
+MIT License. Copyright (c) 2013-2017 Bailey Ling & Contributors.
 
 [1]: https://github.com/Lokaltog/vim-powerline
 [2]: https://github.com/Lokaltog/powerline
@@ -216,7 +221,7 @@ MIT License. Copyright (c) 2013-2016 Bailey Ling.
 [10]: https://github.com/ctrlpvim/ctrlp.vim
 [11]: https://github.com/tpope/vim-pathogen
 [12]: https://github.com/Shougo/neobundle.vim
-[13]: https://github.com/gmarik/vundle
+[13]: https://github.com/VundleVim/Vundle.vim
 [14]: https://github.com/vim-airline/vim-airline/wiki/Screenshots
 [15]: https://github.com/techlivezheng/vim-plugin-minibufexpl
 [16]: https://github.com/sjl/gundo.vim
@@ -257,3 +262,5 @@ MIT License. Copyright (c) 2013-2016 Bailey Ling.
 [51]: https://github.com/Shougo/denite.nvim
 [52]: https://github.com/Shougo/dein.vim
 [53]: https://github.com/lervag/vimtex
+[54]: https://github.com/k-takata/minpac/
+[55]: https://github.com/vim-airline/vim-airline-themes/blob/master/autoload/airline/themes/dark_minimal.vim

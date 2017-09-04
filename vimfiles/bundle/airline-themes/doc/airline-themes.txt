@@ -26,6 +26,7 @@ FEATURES                                              *airline-themes-list*
 Currently this repository contains the following themes:
 
     * alduin
+    * angr
     * aurora
     * badcat
     * badwolf
@@ -77,8 +78,11 @@ Currently this repository contains the following themes:
     * cobalt2
     * cool
     * dark
+    * dark_minimal
+    * deus
     * distinguished
     * durant
+    * faryfloss
     * hybrid
     * hybridline
     * jay
@@ -124,6 +128,13 @@ g:airline_theme in your |.vimrc|  like this: >
 
     :let g:airline_theme='dark'
 <
+                                                  *airline-theme-dark_minimal*
+
+This is a copy of the dark.vim theme, however it does not change colors in
+the different modes, so should bring some performance improvements because
+airline does not have to redefine highlighting groups after they have been
+setup once. However, it won't change colors if e.g. the mode changes.
+
                                                   *airline-theme-solarized*
 *g:solarized_base16*
 
@@ -210,6 +221,15 @@ Has no effect if using true/24-bit color. To enable 16-color mode: >
 described in the installation notes for the joshdick/onedark.vim colorscheme:
 (https://github.com/joshdick/onedark.vim#installation)
 
+                                                       *airline-theme-deus*
+
+*g:deus_termcolors*
+
+Set to 256 for 256-color mode (the default), or 16 for 16-color mode.
+Has no effect if using true/24-bit color. To enable 16-color mode: >
+
+    let g:onedark_termcolors = 16
+<
 ==============================================================================
 CONTRIBUTIONS                                *airline-themes-contributions*
 

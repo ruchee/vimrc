@@ -20,7 +20,7 @@ changed, or `o` to open it in a split.  When you're done, use `:Gedit`
 in the historic buffer to go back to the work tree version.
 
 `:Gmove` does a `git mv` on a file and simultaneously renames the
-buffer.  `:Gremove` does a `git rm` on a file and simultaneously deletes
+buffer.  `:Gdelete` does a `git rm` on a file and simultaneously deletes
 the buffer.
 
 Use `:Ggrep` to search the work tree (or any arbitrary commit) with
@@ -66,7 +66,7 @@ If you don't have a preferred installation method, one option is to install
 and paste:
 
     cd ~/.vim/bundle
-    git clone git://github.com/tpope/vim-fugitive.git
+    git clone https://github.com/tpope/vim-fugitive.git
     vim -u NONE -c "helptags vim-fugitive/doc" -c q
 
 If your Vim version is below 7.2, I recommend also installing

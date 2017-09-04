@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
     'PHPCD\\' => array($baseDir . '/php'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Lvht\\MsgpackRpc\\' => array($vendorDir . '/lvht/msgpack-rpc/src'),

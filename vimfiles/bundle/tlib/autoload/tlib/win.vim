@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    82
+" @Revision:    84
 
 
 if !exists('g:tlib#win#use_winid')
@@ -59,11 +59,12 @@ else
                 return
             endif
         endfor
+        " Was the window closed? What should we do now?
         if winnr() != a:win_id.winnr
             exec a:win_id.winnr 'wincmd w'
         endif
         if bufnr('%') != a:win_id.bufnr
-            exec 'buffer' a:win_id.bufnr
+            exec 'hide buffer' a:win_id.bufnr
         endif
     endf
 endif

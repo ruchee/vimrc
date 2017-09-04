@@ -1,7 +1,7 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2017-02-22.
-" @Revision:    61
+" @Last Change: 2017-04-12.
+" @Revision:    62
 
 
 if !exists('g:tlib#sys#special_protocols')
@@ -39,7 +39,7 @@ if !exists("g:tlib#sys#system_browser")
         let g:tlib#sys#system_browser = "exec 'silent !open' shellescape('%s')"
     elseif exists('$XDG_CURRENT_DESKTOP') && !empty($XDG_CURRENT_DESKTOP)
         let g:tlib#sys#system_browser = "exec 'silent !xdg-open' shellescape('%s') '&'"
-    elseif $GNOME_DESKTOP_SESSION_ID != "" || $DESKTOP_SESSION == 'gnome'
+    elseif !empty($GNOME_DESKTOP_SESSION_ID) || $DESKTOP_SESSION ==# 'gnome'
         let g:tlib#sys#system_browser = "exec 'silent !gnome-open' shellescape('%s')"
     elseif exists("$KDEDIR") && !empty($KDEDIR)
         let g:tlib#sys#system_browser = "exec 'silent !kfmclient exec' shellescape('%s')"

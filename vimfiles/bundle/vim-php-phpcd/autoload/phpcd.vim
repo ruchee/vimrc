@@ -209,6 +209,7 @@ function! phpcd#GetCurrentSymbolWithContext() " {{{
 
 	let current_instruction = phpcd#GetCurrentInstruction(line('.'), max([0, col('.') - 2]), phpbegin)
 	let context = substitute(current_instruction, 'clone ', '', '')
+	let context = substitute(current_instruction, 'yield ', '', '')
 	let context = substitute(context, '\s*[$a-zA-Z_0-9\\\x7f-\xff]*$', '', '')
 	let context = substitute(context, '\s\+\([\-:]\)', '\1', '')
 
@@ -536,7 +537,7 @@ function! phpcd#GetCallChainReturnType(classname_candidate, class_candidate_name
 
 	if methodstack[0] =~ '('
 		let method = matchstr(methodstack[0], '\v^\$*\zs[^[(]+\ze')
-		let return_types = rpc#request(g:phpcd_channel_id, 'functype', full_classname, method)
+		let return_types = rpc#request(g:phpcd_channel_id, 'functype', full_classname, method, expand('%:p'))
 	else
 		let prop = matchstr(methodstack[0], '\v^\$*\zs[^[(]+\ze')
 		let return_types = rpc#request(g:phpcd_channel_id, 'proptype', full_classname, prop)
@@ -711,7 +712,7 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 		return phpcd#GetCallChainReturnType(classname_candidate, class_candidate_namespace, class_candidate_imports, methodstack) " }}}
 	elseif get(methodstack, 0) =~# function_invocation_pattern " {{{
 		let function_name = matchstr(methodstack[0], '^\s*\zs'.function_name_pattern)
-		let return_types = rpc#request(g:phpcd_channel_id, 'functype', '', function_name)
+		let return_types = rpc#request(g:phpcd_channel_id, 'functype', '', function_name, expand('%:p'))
 		if len(return_types) > 0
 			let return_type = phpcd#SelectOne(return_types)
 			return phpcd#GetCallChainReturnType(return_type, '', class_candidate_imports, methodstack)

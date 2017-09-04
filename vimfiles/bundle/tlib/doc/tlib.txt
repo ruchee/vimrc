@@ -141,6 +141,7 @@ Contents~
         tlib#paragraph#Move ..................... |tlib#paragraph#Move()|
         g:tlib_persistent ....................... |g:tlib_persistent|
         tlib#persistent#Dir ..................... |tlib#persistent#Dir()|
+        tlib#persistent#EncodedFilename ......... |tlib#persistent#EncodedFilename()|
         tlib#progressbar#Init ................... |tlib#progressbar#Init()|
         tlib#rx#Escape .......................... |tlib#rx#Escape()|
         tlib#rx#EscapeReplace ................... |tlib#rx#EscapeReplace()|
@@ -407,7 +408,7 @@ g:tlib_inputlist_max_cols      (default: -1)
     Max width for a vertical list.
 
                                                     *g:tlib_inputlist_width_filename*
-g:tlib_inputlist_width_filename (default: '&co / 3')
+g:tlib_inputlist_width_filename (default: '&columns / 3')
     Size of filename columns when listing filenames.
     See |tlib#input#List()|.
 
@@ -627,7 +628,7 @@ g:tlib#cache#max_filename      (default: 200)
     |pathshorten()|.
 
                                                     *tlib#cache#Dir()*
-tlib#cache#Dir(?mode = 'bg')
+tlib#cache#Dir(?mode = 'bg', ?ensure_dir = true)
     The default cache directory.
 
                                                     *tlib#cache#EncodedFilename()*
@@ -1143,6 +1144,10 @@ g:tlib_persistent              (default: '')
                                                     *tlib#persistent#Dir()*
 tlib#persistent#Dir(?mode = 'bg')
     Return the full directory name for persistent data files.
+
+                                                    *tlib#persistent#EncodedFilename()*
+tlib#persistent#EncodedFilename(type, file, ?mkdir=0, ?dir='')
+    Encode `file` and call |tlib#persistent#Filename()|.
 
 
 ------------------------------------------------------------------------

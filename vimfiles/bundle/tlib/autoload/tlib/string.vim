@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    142
+" @Revision:    143
 
 
 " :def: function! tlib#string#RemoveBackslashes(text, ?chars=' ')
@@ -40,7 +40,7 @@ function! tlib#string#Format(template, dict) "{{{3
             let rest = ml[4]
             if has_key(a:dict, var)
                 call add(out, a:dict[var])
-            elseif var == '%%'
+            elseif var ==# '%%'
                 call add(out, '%')
             else
                 call add(out, ml[1])

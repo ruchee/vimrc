@@ -1,6 +1,9 @@
 " MIT License. Copyright (c) 2013-2016 Bailey Ling.
 " vim: et ts=2 sts=2 sw=2
 
+" TODO: Try to cache winwidth(0) function
+" e.g. store winwidth per window and access that, only update it, if the size
+" actually changed.
 scriptencoding utf-8
 
 call airline#init#bootstrap()
@@ -81,33 +84,5 @@ else
       endif
     endfor
     return 0
-  endfunction
-endif
-
-" Define a wrapper over system() that uses nvim's async job control if
-" available. This way we avoid overwriting v:shell_error, which might
-" potentially disrupt other plugins.
-if has('nvim')
-  function! s:system_job_handler(job_id, data, event) dict
-    if a:event == 'stdout'
-      let self.buf .=  join(a:data)
-    endif
-  endfunction
-
-  function! airline#util#system(cmd)
-    let l:config = {
-    \ 'buf': '',
-    \ 'on_stdout': function('s:system_job_handler'),
-    \ }
-    let l:id = jobstart(a:cmd, l:config)
-    if l:id < 1
-      return system(a:cmd)
-    endif
-    call jobwait([l:id])
-    return l:config.buf
-  endfunction
-else
-  function! airline#util#system(cmd)
-    return system(a:cmd)
   endfunction
 endif

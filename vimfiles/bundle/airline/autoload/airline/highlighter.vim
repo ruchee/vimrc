@@ -3,10 +3,14 @@
 
 scriptencoding utf-8
 
-let s:is_win32term = (has('win32') || has('win64')) && !has('gui_running') && (empty($CONEMUBUILD) || &term !=? 'xterm')
+let s:is_win32term = (has('win32') || has('win64')) &&
+                   \ !has('gui_running') &&
+                   \ (empty($CONEMUBUILD) || &term !=? 'xterm') &&
+                   \ !(exists("+termguicolors") && &termguicolors)
 
 let s:separators = {}
 let s:accents = {}
+let s:hl_groups = {}
 
 function! s:gui2cui(rgb, fallback)
   if a:rgb == ''
@@ -38,25 +42,50 @@ function! s:get_syn(group, what)
 endfunction
 
 function! s:get_array(fg, bg, opts)
+  let opts=empty(a:opts) ? '' : join(a:opts, ',')
   return g:airline_gui_mode ==# 'gui'
-        \ ? [ a:fg, a:bg, '', '', join(a:opts, ',') ]
-        \ : [ '', '', a:fg, a:bg, join(a:opts, ',') ]
+        \ ? [ a:fg, a:bg, '', '', opts ]
+        \ : [ '', '', a:fg, a:bg, opts ]
+endfunction
+
+function! airline#highlighter#reset_hlcache()
+  let s:hl_groups = {}
 endfunction
 
 function! airline#highlighter#get_highlight(group, ...)
-  let fg = s:get_syn(a:group, 'fg')
-  let bg = s:get_syn(a:group, 'bg')
-  let reverse = g:airline_gui_mode ==# 'gui'
-        \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
-        \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
-        \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
-  return reverse ? s:get_array(bg, fg, a:000) : s:get_array(fg, bg, a:000)
+  if get(g:, 'airline_highlighting_cache', 0) && has_key(s:hl_groups, a:group)
+    return s:hl_groups[a:group]
+  else
+    let fg = s:get_syn(a:group, 'fg')
+    let bg = s:get_syn(a:group, 'bg')
+    let reverse = g:airline_gui_mode ==# 'gui'
+          \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
+          \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
+          \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
+    let bold = synIDattr(synIDtrans(hlID(a:group)), 'bold')
+    let opts = a:000
+    if bold
+      let opts = ['bold']
+    endif
+    let res = reverse ? s:get_array(bg, fg, opts) : s:get_array(fg, bg, opts)
+  endif
+  let s:hl_groups[a:group] = res
+  return res
 endfunction
 
 function! airline#highlighter#get_highlight2(fg, bg, ...)
   let fg = s:get_syn(a:fg[0], a:fg[1])
   let bg = s:get_syn(a:bg[0], a:bg[1])
   return s:get_array(fg, bg, a:000)
+endfunction
+
+function! s:hl_group_exists(group)
+  if !hlexists(a:group)
+    return 0
+  elseif empty(synIDattr(hlID(a:group), 'fg'))
+    return 0
+  endif
+  return 1
 endfunction
 
 function! airline#highlighter#exec(group, colors)
@@ -72,14 +101,22 @@ function! airline#highlighter#exec(group, colors)
   if len(colors) == 4
     call add(colors, '')
   endif
+  if g:airline_gui_mode ==# 'gui'
+    let new_hi = [colors[0], colors[1], '', '', colors[4]]
+  else
+    let new_hi = ['', '', printf("%s", colors[2]), printf("%s", colors[3]), colors[4]]
+  endif
   let colors = s:CheckDefined(colors)
-  if old_hi != colors || !hlexists(a:group)
+  if old_hi != new_hi || !s:hl_group_exists(a:group)
     let cmd = printf('hi %s %s %s %s %s %s %s %s',
-        \ a:group, s:Get(colors, 0, 'guifg=', ''), s:Get(colors, 1, 'guibg=', ''),
-        \ s:Get(colors, 2, 'ctermfg=', ''), s:Get(colors, 3, 'ctermbg=', ''),
-        \ s:Get(colors, 4, 'gui=', ''), s:Get(colors, 4, 'cterm=', ''),
-        \ s:Get(colors, 4, 'term=', ''))
+        \ a:group, s:Get(colors, 0, 'guifg='), s:Get(colors, 1, 'guibg='),
+        \ s:Get(colors, 2, 'ctermfg='), s:Get(colors, 3, 'ctermbg='),
+        \ s:Get(colors, 4, 'gui='), s:Get(colors, 4, 'cterm='),
+        \ s:Get(colors, 4, 'term='))
     exe cmd
+    if has_key(s:hl_groups, a:group)
+      let s:hl_groups[a:group] = colors
+    endif
   endif
 endfunction
 
@@ -115,11 +152,12 @@ function! s:CheckDefined(colors)
   return a:colors[0:1] + [fg, bg] + [a:colors[4]]
 endfunction
 
-function! s:Get(dict, key, prefix, default)
-  if get(a:dict, a:key, a:default) isnot# a:default
-    return a:prefix. get(a:dict, a:key)
-  else
+function! s:Get(dict, key, prefix)
+  let res=get(a:dict, a:key, '')
+  if res is ''
     return ''
+  else
+    return a:prefix. res
   endif
 endfunction
 
@@ -185,6 +223,11 @@ function! airline#highlighter#highlight(modes, ...)
   let mapped = map(a:modes, 'v:val == a:modes[0] ? v:val : a:modes[0]."_".v:val')
   let suffix = a:modes[0] == 'inactive' ? '_inactive' : ''
   for mode in mapped
+    if mode == 'inactive' && winnr('$') == 1
+      " there exist no inactive windows, don't need to create all those
+      " highlighting groups
+      continue
+    endif
     if exists('g:airline#themes#{g:airline_theme}#palette[mode]')
       let dict = g:airline#themes#{g:airline_theme}#palette[mode]
       for kvp in items(dict)
@@ -222,4 +265,3 @@ function! airline#highlighter#highlight(modes, ...)
     endif
   endfor
 endfunction
-

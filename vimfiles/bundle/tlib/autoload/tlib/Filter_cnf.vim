@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-11-25.
-" @Last Change: 2014-11-18.
-" @Revision:    0.0.114
+" @Last Change: 2017-03-17.
+" @Revision:    10.0.114
 
 let s:prototype = tlib#Object#New({'_class': ['Filter_cnf'], 'name': 'cnf'}) "{{{2
 let s:prototype.highlight = g:tlib#input#higroup
@@ -47,7 +47,8 @@ function! s:prototype.AssessName(world, name) dict "{{{3
         " if flt =~# '\u' && a:name =~# flt
         "     let xa += 5
         " endif
-
+        let rel = 1.0 + 5.0 * len(flt) / len(a:name)
+        let xa += float2nr(rel)
         if a:name =~ '\^'. flt
             let xa += 4
         elseif a:name =~ '\<'. flt

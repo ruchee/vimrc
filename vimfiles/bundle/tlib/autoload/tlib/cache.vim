@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-06-30.
-" @Last Change: 2017-03-06.
-" @Revision:    89.1.243
+" @Last Change: 2017-08-13.
+" @Revision:    119.1.243
 
 
 " The cache directory. If empty, use |tlib#dir#MyRuntime|.'/cache'.
@@ -45,16 +45,24 @@ TLet g:tlib#cache#dont_purge = ['[\/]\.last_purge$']
 " |pathshorten()|.
 TLet g:tlib#cache#max_filename = 200
 
+TLet g:tlib#cache#use_json = 0
+
+TLet g:tlib#cache#use_encoding = ''
+
+
 let s:cache = {}
 
 
-" :display: tlib#cache#Dir(?mode = 'bg')
+" :display: tlib#cache#Dir(?mode = 'bg', ?ensure_dir = true)
 " The default cache directory.
 function! tlib#cache#Dir(...) "{{{3
-    TVarArg ['mode', 'bg']
+    TVarArg ['mode', 'bg'], ['ensure_dir', 1]
     let dir = tlib#var#Get('tlib_cache', mode)
     if empty(dir)
         let dir = tlib#file#Join([tlib#dir#MyRuntime(), 'cache'])
+    endif
+    if ensure_dir
+        call tlib#dir#Ensure(dir)
     endif
     return dir
 endf
@@ -162,7 +170,19 @@ function! tlib#cache#Save(cfile, value, ...) "{{{3
         call s:PutValue(a:cfile, a:value)
     elseif !empty(a:cfile)
         " TLogVAR a:value
-        call writefile([string(a:value)], a:cfile, 'b')
+        let cfile = a:cfile
+        if g:tlib#cache#use_json && exists('*json_encode')
+            try
+                let value = json_encode(a:value)
+                let cfile .= '.json'
+            catch
+                echoerr v:exception
+                let value = string(a:value)
+            endtry
+        else
+            let value = string(a:value)
+        endif
+        call writefile([value], cfile, 'b')
         call s:SetTimestamp(a:cfile, 'write')
     endif
 endf
@@ -184,15 +204,45 @@ function! tlib#cache#Get(cfile, ...) "{{{3
     else
         call tlib#cache#MaybePurge()
         if !empty(a:cfile)
-            let mt = s:GetCacheTime(a:cfile)
-            let ft = getftime(a:cfile)
+            let jsonfile = a:cfile .'.json'
+            let use_json = g:tlib#cache#use_json && exists('*json_decode') && exists('v:none') && filereadable(jsonfile)
+            if use_json
+                let use_json = 1
+                let cfile = jsonfile
+            else
+                let cfile = a:cfile
+            endif
+            let mt = s:GetCacheTime(cfile)
+            let ft = getftime(cfile)
             if mt != -1 && mt >= ft
-                return s:GetValue(a:cfile, default)
+                return s:GetValue(cfile, default)
             elseif ft != -1
-                let val = readfile(a:cfile, 'b')
-                call s:SetTimestamp(a:cfile, 'read')
-                let value = eval(join(val, "\n"))
-                call s:PutValue(a:cfile, value)
+                call s:SetTimestamp(cfile, 'read')
+                let val = join(readfile(cfile, 'b'), '\n')
+                try
+                    if use_json
+                        " NOTE: Copy result of json_decode() in order to 
+                        " avoid "E741: value is locked" error in vim8.
+                        let value = json_decode(val)
+                        if value is v:none
+                            let value = default
+                        else
+                            let value = copy(value)
+                        endif
+                    else
+                        let value = eval(val)
+                    endif
+                catch
+                    echohl ErrorMsg
+                    echom v:exception
+                    echom 'tlib#cache#Get: Invalid value in:' cfile
+                    echom 'Value:' string(val)
+                    echohl NONE
+                    if g:tlib#debug
+                        let @* = string(val)
+                    endif
+                endtry
+                call s:PutValue(cfile, value)
                 return value
             endif
         endif

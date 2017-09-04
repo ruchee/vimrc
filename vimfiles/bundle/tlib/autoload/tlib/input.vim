@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1392
+" @Revision:    1425
 
 " :filedoc:
 " Input-related, select from a list etc.
@@ -778,7 +778,9 @@ function! tlib#input#ListW(world, ...) "{{{3
                 endif
             endif
         endif
-        call world.RestoreWindow()
+        if world.state !~ '\<norestore\>'
+            call world.RestoreWindow()
+        endif
         " for i in range(0,5)
         "     call getchar(0)
         " endfor
@@ -788,6 +790,7 @@ function! tlib#input#ListW(world, ...) "{{{3
             Tlibtrace 'tlib', post_keys
             call feedkeys(post_keys)
         endif
+        let world.state = ''
     endtry
 endf
 
@@ -1110,10 +1113,8 @@ function! tlib#input#Resume(name, pick, bufnr) "{{{3
     else
         call tlib#autocmdgroup#Init()
         autocmd! TLib BufEnter <buffer>
-        if b:tlib_{a:name}.state =~ '\<suspend\>'
+        if b:tlib_{a:name}.state !~# 'display\>'
             let b:tlib_{a:name}.state = 'redisplay'
-        else
-            let b:tlib_{a:name}.state .= ' redisplay'
         endif
         " call tlib#input#List('resume '. a:name)
         let cmd = 'resume '. a:name
@@ -1173,24 +1174,25 @@ endf
 "       endif
 "   endf
 "   call tlib#input#Edit('foo', b:var, 'FooContinue')
-function! tlib#input#Edit(name, value, callback, ...) "{{{3
+function! tlib#input#EditW(world, name, value, callback, ...) "{{{3
     Tlibtrace 'tlib', a:value
     TVarArg ['args', []]
-    let sargs = {'scratch': '__EDIT__'. a:name .'__', 'winid': tlib#win#GetID()}
+    let sargs = {'scratch': '__EDIT__'. a:name .'__', 'win_id': tlib#win#GetID()}
     let scr = tlib#scratch#UseScratch(sargs)
+    let b:tlib_world = a:world
 
     " :nodoc:
-    map <buffer> <c-w>c :call <SID>EditCallback(0)<cr>
+    map <buffer> <c-w>c :call tlib#input#EditCallback(0)<cr>
     " :nodoc:
-    imap <buffer> <c-w>c <c-o>call <SID>EditCallback(0)<cr>
+    imap <buffer> <c-w>c <c-o>call tlib#input#EditCallback(0)<cr>
     " :nodoc:
-    map <buffer> <c-s> :call <SID>EditCallback(1)<cr>
+    map <buffer> <c-s> :call tlib#input#EditCallback(1)<cr>
     " :nodoc:
-    imap <buffer> <c-s> <c-o>call <SID>EditCallback(1)<cr>
+    imap <buffer> <c-s> <c-o>call tlib#input#EditCallback(1)<cr>
     " :nodoc:
-    map <buffer> <c-w><cr> :call <SID>EditCallback(1)<cr>
+    map <buffer> <c-w><cr> :call tlib#input#EditCallback(1)<cr>
     " :nodoc:
-    imap <buffer> <c-w><cr> <c-o>call <SID>EditCallback(1)<cr>
+    imap <buffer> <c-w><cr> <c-o>call tlib#input#EditCallback(1)<cr>
     
     call tlib#normal#WithRegister('gg"tdG', 't')
     call append(1, split(a:value, "\<c-j>", 1))
@@ -1213,14 +1215,17 @@ function! tlib#input#Edit(name, value, callback, ...) "{{{3
     endif
     let b:tlib_scratch_edit_args     = args
     let b:tlib_scratch_edit_scratch  = sargs
-    " exec 'autocmd BufDelete,BufHidden,BufUnload <buffer> call s:EditCallback('. string(a:name) .')'
+    " exec 'autocmd BufDelete,BufHidden,BufUnload <buffer> call tlib#input#EditCallback('. string(a:name) .')'
     " echohl MoreMsg
     " echom 'Press <c-s> to enter, <c-w>c to cancel editing.'
     " echohl NONE
+    let world = getbufvar(scr, 'tlib_world', a:world)
+    let world.state .= ' norestore'
+    return world
 endf
 
 
-function! s:EditCallback(...) "{{{3
+function! tlib#input#EditCallback(...) "{{{3
     TVarArg ['ok', -1]
     " , ['bufnr', -1]
     " autocmd! BufDelete,BufHidden,BufUnload <buffer>
@@ -1232,10 +1237,11 @@ function! s:EditCallback(...) "{{{3
     let cb   = b:tlib_scratch_edit_callback
     let args = b:tlib_scratch_edit_args
     let sargs = b:tlib_scratch_edit_scratch
+    let world = b:tlib_world
     Tlibtrace 'tlib', cb, args, sargs
+    call call(cb, args + [ok, text, world])
     call tlib#scratch#CloseScratch(b:tlib_scratch_edit_scratch)
     call tlib#win#SetById(sargs.win_id)
-    call call(cb, args + [ok, text])
 endf
 
 

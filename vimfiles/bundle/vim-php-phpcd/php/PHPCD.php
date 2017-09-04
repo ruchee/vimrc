@@ -183,11 +183,11 @@ class PHPCD implements RpcHandler
      * @param string $class_name for function set this args to empty
      * @param string $name
      */
-    private function doc($class_name, $name, $is_method = true)
+    private function doc($class_name, $name, $is_method = true, $path = null)
     {
         try {
             if (!$class_name) {
-                return $this->docFunction($name);
+                return $this->docFunction($name, $path);
             }
 
             return $this->docClass($class_name, $name, $is_method);
@@ -197,8 +197,22 @@ class PHPCD implements RpcHandler
         }
     }
 
-    private function docFunction($name)
+    private function docFunction($name, $path)
     {
+        $nsuse = $this->nsuse($path);
+
+        if (isset($nsuse['alias'][$name])) {
+            $_name = $nsuse['alias'][$name];
+            if (function_exists($_name)) {
+                $name = $_name;
+            }
+        } else {
+            $_name = $nsuse['namespace'].'\\'.$name;
+            if (function_exists($_name)) {
+                $name = $_name;
+            }
+        }
+
         $reflection = new \ReflectionFunction($name);
         $doc = $reflection->getDocComment();
         $path = $reflection->getFileName();
@@ -370,13 +384,8 @@ class PHPCD implements RpcHandler
                         }
 
                         /** empty type means import of some class **/
-                        if (empty($use_matches['type'])) {
+                        if (empty($use_matches['type']) || $use_matches['type'] == 'function') {
                             $s['imports'][$alias] = $use_matches['left'] . $suffix;
-                        }
-
-                        if (preg_match('/function\s+(?<func_name>[\w]+)/i', $expansion, $function_matches)) {
-                            $func_name = $function_matches['func_name'];
-                            $s['imports'][$func_name] = $use_matches['left'].$func_name;
                         }
                     }
                 }
@@ -402,16 +411,16 @@ class PHPCD implements RpcHandler
      *
      * @return [type1, type2]
      */
-    public function functype($class_name, $name)
+    public function functype($class_name, $name, $path)
     {
         if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
-            $type = $this->typeByReturnType($class_name, $name);
+            $type = $this->typeByReturnType($class_name, $name, $path);
             if ($type) {
                 return [$type];
             }
         }
 
-        list($path, $doc) = $this->doc($class_name, $name);
+        list($path, $doc) = $this->doc($class_name, $name, $path);
         return $this->typeByDoc($path, $doc, $class_name);
     }
 
@@ -428,13 +437,27 @@ class PHPCD implements RpcHandler
         return $types;
     }
 
-    private function typeByReturnType($class_name, $name)
+    private function typeByReturnType($class_name, $name, $path)
     {
         try {
             if ($class_name) {
                 $reflection = new \ReflectionClass($class_name);
                 $reflection = $reflection->getMethod($name);
             } else {
+                $nsuse = $this->nsuse($path);
+
+                if (isset($nsuse['alias'][$name])) {
+                    $_name = $nsuse['alias'][$name];
+                    if (function_exists($_name)) {
+                        $name = $_name;
+                    }
+                } else {
+                    $_name = $nsuse['namespace'].'\\'.$name;
+                    if (function_exists($_name)) {
+                        $name = $_name;
+                    }
+                }
+
                 $reflection = new \ReflectionFunction($name);
             }
             $type = (string) $reflection->getReturnType();

@@ -240,7 +240,7 @@ function! airline#extensions#load()
     call add(loaded_ext, 'syntastic')
   endif
 
-  if (get(g:, 'airline#extensions#ale#enabled', 1) && exists('g:loaded_ale'))
+  if (get(g:, 'airline#extensions#ale#enabled', 1) && exists(':ALELint'))
     call airline#extensions#ale#init(s:ext)
     call add(loaded_ext, 'ale')
   endif
@@ -298,6 +298,11 @@ function! airline#extensions#load()
   if (get(g:, 'airline#extensions#xkblayout#enabled', 1) && exists('g:XkbSwitchLib'))
     call airline#extensions#xkblayout#init(s:ext)
     call add(loaded_ext, 'xkblayout')
+  endif
+
+  if (get(g:, 'airline#extensions#keymap#enabled', 1) && has('keymap'))
+    call airline#extensions#keymap#init(s:ext)
+    call add(loaded_ext, 'keymap')
   endif
 
   if (get(g:, 'airline#extensions#windowswap#enabled', 1) && get(g:, 'loaded_windowswap', 0))
