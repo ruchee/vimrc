@@ -77,7 +77,7 @@ syn match redLocal "\/local\>"
 syn match redSet "\K\k*:"
 
 " Strings
-syn match redString "\a\+:\/\/[^[:space:]]*" 
+syn match redString "\a\+:\/\/[^[:space:]]*"
 syn match redString "%[^[:space:]]*"
 syn region redString oneline start=+%\="+ skip=+^"+ end=+"+ contains=redSpecialCharacter
 syn region redString start=+[^#]{+ end=+}+ skip=+{[^}]*}+ contains=redSpecialCharacter

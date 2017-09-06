@@ -7,5 +7,5 @@ function s:DetectRed()
   endif
 endfunction
 
-au BufRead,BufNewFile *.red setf red
+au BufRead,BufNewFile *.red,*.reds setf red
 au BufRead,BufNewFile * call s:DetectRed()
