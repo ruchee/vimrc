@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-01 23:22:18
+" -----------------    Date: 2017-09-06 17:55:42
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -984,6 +984,8 @@ func! Compile_Run_Code()
     else
       exec '!valac %:t && ./%:r'
     endif
+  elseif &filetype == 'red'
+    exec '!red %:t'
   elseif &filetype == 'java'
     exec '!javac %:t && java %:r'
   elseif &filetype == 'groovy'
