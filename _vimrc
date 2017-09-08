@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-06 17:55:42
+" -----------------    Date: 2017-09-08 10:22:17
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -1034,6 +1034,8 @@ func! Compile_Run_Code()
     else
       exec '!ghc -o %:r %:t && ./%:r'
     endif
+  elseif &filetype == 'io'
+    exec '!io %:t'
   elseif &filetype == 'lua'
     exec '!lua %:t'
   elseif &filetype == 'perl'

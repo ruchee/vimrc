@@ -1,0 +1,51 @@
+snippet #       可执行标识
+	#!/usr/bin/env io
+	${0}
+snippet /       单行注释
+	// ${0}
+snippet //      多行注释
+	/* ${0}*/
+snippet -       分隔注释
+	// -------------------------------${0}
+# 数据结构
+snippet li      列表
+	list(${0})
+snippet m       散列
+	map(${0})
+# 关键符号
+snippet lb      主命名空间
+	Lobby${0}
+snippet cl      对象克隆
+	clone${0}
+snippet me      创建方法
+	method(${0})
+snippet tp      检测对象的类型
+	type${0}
+snippet pt      原型
+	proto${0}
+# 对象槽
+snippet sln     返回对象所有槽的名字
+	slotNames${0}
+snippet gsl     获取指定槽的内容
+	getSlot("${0}")
+# 常用函数
+snippet sz      大小
+	size${0}
+snippet ap      附加
+	append(${0})
+snippet pp      在最前面插入
+	prepend(${0})
+snippet po      弹出
+	pop${0}
+snippet av      取平均值
+	average${0}
+snippet ise     是否为空
+	isEmpty${0}
+# 输入输出
+snippet p       输出 [不换行]
+	print${0}
+snippet pl      输出 [换行]
+	println${0}
+# 其他
+snippet .       初始化
+	:= ${0}
