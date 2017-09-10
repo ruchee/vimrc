@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-08 10:22:17
+" -----------------    Date: 2017-09-10 23:30:29
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -361,6 +361,7 @@ endif
 
 " 加载 pathogen 插件管理器
 execute pathogen#infect()
+execute pathogen#helptags()
 
 
 " 修正部分语言的关键字列表

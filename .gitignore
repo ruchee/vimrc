@@ -9,9 +9,12 @@
 /vimfiles/bundle/YouCompleteMe
 /vimfiles/bundle/YCM-Generator
 
+tags
+tags-*
+!/vimfiles/bundle/doczh/doc/tags-cn
+
 Thumbs.db
 .DS_Store
 *.pyc
 *.cache
 *.swp
-tags
