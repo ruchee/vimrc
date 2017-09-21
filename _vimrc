@@ -809,7 +809,7 @@ nmap <leader>bb :Tab /=<cr>
 nmap <leader>bn :Tab /
 
 " \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree 插件]
-nmap <leader>nt :NERDTree<cr>
+nmap <leader>nt :NERDTreeToggle<cr>
 
 " \ut                 打开/关闭文档编辑历史窗口，在左侧栏显示 [Undotree 插件]
 nmap <leader>ut :UndotreeToggle<cr>
