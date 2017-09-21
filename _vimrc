@@ -866,10 +866,10 @@ vmap <leader>wa <esc>\ww<esc>:VimwikiAll2HTML<cr>:qa<cr>
 nmap <leader>ev <esc>:e $MYVIMRC<cr>
 
 " \uu                 向服务器上传文件 [sync 插件]
-nmap <leader>uu <esc>:call SyncUploadFile()<cr>
+nmap <leader>uu <esc>:w<cr>:call SyncUploadFile()<cr>
 
 " \dd                 从服务器下载文件 [sync 插件]
-nmap <leader>dd <esc>:call SyncDownloadFile()<cr>
+nmap <leader>dd <esc>:w<cr>:call SyncDownloadFile()<cr>
 
 " \ml                 保留本分支的改动 [git mergetool -t vimdiff 时可用]
 nmap <leader>ml :diffget LOCAL<cr>
