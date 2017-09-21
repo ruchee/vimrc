@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-10 23:30:29
+" -----------------    Date: 2017-09-21 11:27:51
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -577,6 +577,11 @@ let g:haskell_enable_pattern_synonyms     = 1  " 高亮 Haskell pattern
 let g:haskell_enable_typeroles            = 1  " 高亮 Haskell type roles
 let g:haskell_enable_static_pointers      = 1  " 高亮 Haskell static
 
+if has('python3')
+  command! -nargs=1 Py py3 <args>
+else
+  command! -nargs=1 Py py <args>
+endif
 let g:pymode_python                       = 'python3'  " 使用 Python3 语法检查      [Python-Mode]
 let g:pymode_rope_goto_definition_bind    = '<C-]>'    " 自定义跳转快捷键           [Python-Mode]
 let g:pymode_options_colorcolumn          = 0          " 关闭右侧的单行字符长度标尺 [Python-Mode]
