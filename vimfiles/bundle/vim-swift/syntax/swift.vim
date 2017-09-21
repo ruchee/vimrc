@@ -84,14 +84,13 @@ syntax match swiftOperator "\v\+"
 syntax match swiftOperator "\v\="
 syntax match swiftOperator "\v\|"
 syntax match swiftOperator "\v\/"
-syntax match swiftOperator "\v\."
 syntax match swiftOperator "\v\<"
 syntax match swiftOperator "\v\>"
 syntax match swiftOperator "\v\?\?"
 
 " Methods/Functions/Properties
-syntax match swiftMethod "\(\.\)\@<=\w\+\((\)\@="
-syntax match swiftProperty "\(\.\)\@<=\<\w\+\>(\@!"
+syntax match swiftMethod "\.\@<=\<\D\w*\>\ze("
+syntax match swiftProperty "\.\@<=\<\D\w*\>(\@!"
 
 " Swift closure arguments
 syntax match swiftClosureArgument "\$\d\+\(\.\d\+\)\?"
@@ -186,6 +185,7 @@ syntax keyword swiftAttributes
       \ @available
       \ @convention
       \ @discardableResult
+      \ @escaping
       \ @exported
       \ @IBAction
       \ @IBDesignable
@@ -220,7 +220,7 @@ syntax keyword swiftDebugIdentifier
 
 syntax keyword swiftLineDirective #setline
 
-syntax region swiftTypeWrapper start="\v:\s*" skip="\s*,\s*$*\s*" end="$\|/"me=e-1 contains=ALLBUT,swiftInterpolatedWrapper transparent
+syntax region swiftTypeWrapper start=":\s*\(\.\)\@!\<\u" skip="\s*,\s*$*\s*" end="$\|/"me=e-1 contains=ALLBUT,swiftInterpolatedWrapper transparent
 syntax region swiftTypeCastWrapper start="\(as\|is\)\(!\|?\)\=\s\+" end="\v(\s|$|\{)" contains=swiftType,swiftCastKeyword keepend transparent oneline
 syntax region swiftGenericsWrapper start="\v\<" end="\v\>" contains=swiftType transparent oneline
 syntax region swiftLiteralWrapper start="\v\=\s*" skip="\v[^\[\]]\(\)" end="\v(\[\]|\(\))" contains=ALL transparent oneline

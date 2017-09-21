@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-21 11:27:51
+" -----------------    Date: 2017-09-21 23:46:26
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -103,6 +103,7 @@
 "
 " Ctrl + P                   在当前工程目录搜索文件 [Normal 模式] [ctrlp 插件] [此插件功能颇多，具体可查看其文档]
 " \ss                        在当前所在目录搜索单词 [Normal 模式] [ack 插件]
+" \ff                        搜索当前文件中的类、方法、函数名 [Normal 模式] [ctrlp-funky 插件]
 "
 " ---------- 跳转命令 ----------
 "
@@ -686,6 +687,10 @@ let g:ctrlp_user_command  = {
       \ 'ignore': 1
       \ }                                      " 特定项目使用 types 中指定的命令，非特定项目使用 fallback 中的命令，且启用自定义的忽略文件列表
 
+" ctrlp-funky         函数搜索
+let g:ctrlp_funky_matchtype        = 'path'    " 命中字符即时高亮
+let g:ctrlp_funky_syntax_highlight = 1         " 开启语法高亮
+
 " ack                 单词搜索                   需要安装 the_silver_searcher 配合使用
 let g:ackprg = 'ag --nogroup --nocolor --column'
 
@@ -732,12 +737,14 @@ let g:syntastic_c_compiler_options           = '-Wall -std=c11'
 let g:syntastic_cpp_compiler_options         = '-Wall -std=c++14'
 let g:syntastic_swift_checkers               = ['swiftpm', 'swiftlint']
 let g:syntastic_rust_checkers                = ['rustc']
+let g:syntastic_kotlin_checkers              = ['kotlinc']
+let g:syntastic_enable_kotlin_checker        = 1
 let g:syntastic_elixir_checkers              = ['elixir']
 let g:syntastic_enable_elixir_checker        = 1
 let g:syntastic_perl_checkers                = ['perl']
 let g:syntastic_enable_perl_checker          = 1
-let g:syntastic_perl6_checkers               = ['perl6latest']
-let g:syntastic_enable_perl6latest_checker   = 1
+let g:syntastic_perl6_checkers               = ['perl6']
+let g:syntastic_enable_perl6_checker         = 1
 let g:syntastic_python_python_exec           = 'python3'
 let g:syntastic_eruby_ruby_quiet_messages    = {'regex': 'possibly useless use of a variable in void context'}
 let g:syntastic_javascript_checkers          = ['eslint']
@@ -840,6 +847,9 @@ nmap <leader>gl :Gitv<cr>
 
 " \ss                 搜索当前光标下的单词 [ack 插件]
 nmap <leader>ss :Ack! '\b<c-r><c-w>\b'<cr>
+
+" \ff                 搜索当前文件中的类、方法、函数名 [ctrlp-funky 插件]
+nmap <leader>ff :CtrlPFunky<cr>
 
 " \rb                 一键去除全部尾部空白
 imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>

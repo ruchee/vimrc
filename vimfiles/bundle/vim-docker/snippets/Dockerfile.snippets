@@ -3,9 +3,9 @@ snippet F
 snippet f
 	FROM ${1:ubuntu}
 snippet M
-	MAINTAINER ${1:name}
+	LABEL maintainer="${1:name}"
 snippet m
-	MAINTAINER ${1:name}
+	LABEL maintainer="${1:name}"
 snippet R
 	RUN ${1:command}
 snippet r
@@ -50,7 +50,8 @@ snippet upd
 	# update packages
 	RUN echo "deb http://archive.ubuntu.com/ubuntu ${1:precise} main universe" > /etc/apt/sources.list; \
 	    apt-get update && apt-get -y upgrade; \
-	${2}
+	    ${2}
+	    ;rm -rf /var/lib/apt/lists/*
 snippet head
 	# ${1:Description}
 	#

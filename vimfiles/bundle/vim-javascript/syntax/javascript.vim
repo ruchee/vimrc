@@ -101,20 +101,20 @@ exe 'syntax keyword jsSuper     super  contained '.(exists('g:javascript_conceal
 " Statement Keywords
 syntax match   jsBlockLabel              /\<[a-zA-Z_$][0-9a-zA-Z_$]*\>\s*::\@!/    contains=jsNoise skipwhite skipempty nextgroup=jsBlock
 syntax match   jsBlockLabelKey contained /\<[a-zA-Z_$][0-9a-zA-Z_$]*\>\%(\s*\%(;\|\n\)\)\@=/
-syntax keyword jsStatement    contained with yield debugger
-syntax keyword jsStatement    contained break continue skipwhite skipempty nextgroup=jsBlockLabelKey
-syntax keyword jsConditional            if             skipwhite skipempty nextgroup=jsParenIfElse
-syntax keyword jsConditional            else           skipwhite skipempty nextgroup=jsCommentIfElse,jsIfElseBlock
-syntax keyword jsConditional            switch         skipwhite skipempty nextgroup=jsParenSwitch
-syntax keyword jsRepeat                 while for      skipwhite skipempty nextgroup=jsParenRepeat,jsForAwait
-syntax keyword jsDo                     do             skipwhite skipempty nextgroup=jsRepeatBlock
+syntax keyword jsStatement     contained with yield debugger
+syntax keyword jsStatement     contained break continue skipwhite skipempty nextgroup=jsBlockLabelKey
+syntax keyword jsConditional            if              skipwhite skipempty nextgroup=jsParenIfElse
+syntax keyword jsConditional            else            skipwhite skipempty nextgroup=jsCommentIfElse,jsIfElseBlock
+syntax keyword jsConditional            switch          skipwhite skipempty nextgroup=jsParenSwitch
+syntax keyword jsRepeat                 while for       skipwhite skipempty nextgroup=jsParenRepeat,jsForAwait
+syntax keyword jsDo                     do              skipwhite skipempty nextgroup=jsRepeatBlock
 syntax region  jsSwitchCase   contained matchgroup=jsLabel start=/\<\%(case\|default\)\>/ end=/:\@=/ contains=@jsExpression,jsLabel skipwhite skipempty nextgroup=jsSwitchColon keepend
-syntax keyword jsTry                    try            skipwhite skipempty nextgroup=jsTryCatchBlock
-syntax keyword jsFinally      contained finally        skipwhite skipempty nextgroup=jsFinallyBlock
-syntax keyword jsCatch        contained catch          skipwhite skipempty nextgroup=jsParenCatch
+syntax keyword jsTry                    try             skipwhite skipempty nextgroup=jsTryCatchBlock
+syntax keyword jsFinally      contained finally         skipwhite skipempty nextgroup=jsFinallyBlock
+syntax keyword jsCatch        contained catch           skipwhite skipempty nextgroup=jsParenCatch
 syntax keyword jsException              throw
 syntax keyword jsAsyncKeyword           async await
-syntax match   jsSwitchColon   contained /::\@!/       skipwhite skipempty nextgroup=jsSwitchBlock
+syntax match   jsSwitchColon   contained /::\@!/        skipwhite skipempty nextgroup=jsSwitchBlock
 
 " Keywords
 syntax keyword jsGlobalObjects      Array Boolean Date Function Iterator Number Object Symbol Map WeakMap Set RegExp String Proxy Promise Buffer ParallelArray ArrayBuffer DataView Float32Array Float64Array Int16Array Int32Array Int8Array Uint16Array Uint32Array Uint8Array Uint8ClampedArray JSON Math console document window Intl Collator DateTimeFormat NumberFormat fetch
@@ -164,7 +164,7 @@ syntax region  jsSpreadExpression   contained matchgroup=jsSpreadOperator      s
 syntax region  jsRestExpression     contained matchgroup=jsRestOperator        start=/\.\.\./ end=/[,)]\@=/
 syntax region  jsTernaryIf                    matchgroup=jsTernaryIfOperator   start=/?/  end=/\%(:\|[\}]\@=\)/  contains=@jsExpression extend skipwhite skipempty nextgroup=@jsExpression
 
-syntax match   jsGenerator            contained /\*/ skipwhite skipempty nextgroup=jsFuncName,jsFuncArgs
+syntax match   jsGenerator            contained /\*/ skipwhite skipempty nextgroup=jsFuncName,jsFuncArgs,jsFlowFunctionGroup
 syntax match   jsFuncName             contained /\<[a-zA-Z_$][0-9a-zA-Z_$]*\>/ skipwhite skipempty nextgroup=jsFuncArgs,jsFlowFunctionGroup
 syntax region  jsFuncArgExpression    contained matchgroup=jsFuncArgOperator start=/=/ end=/[,)]\@=/ contains=@jsExpression extend
 syntax match   jsFuncArgCommas        contained ','
@@ -176,10 +176,10 @@ syntax match   jsArrowFuncArgs  /\k\+\s*\%(=>\)\@=/ skipwhite contains=jsFuncArg
 " Matches a series of arguments surrounded in parens
 syntax match   jsArrowFuncArgs  /([^()]*)\s*\(=>\)\@=/ contains=jsFuncArgs skipempty skipwhite nextgroup=jsArrowFunction extend
 
-exe 'syntax match jsFunction /\<function\>/ skipwhite skipempty nextgroup=jsGenerator,jsFuncName,jsFuncArgs skipwhite '.(exists('g:javascript_conceal_function')       ? 'conceal cchar='.g:javascript_conceal_function : '')
-exe 'syntax match jsArrowFunction /=>/      skipwhite skipempty nextgroup=jsFuncBlock,jsCommentFunction               '.(exists('g:javascript_conceal_arrow_function') ? 'conceal cchar='.g:javascript_conceal_arrow_function : '')
-exe 'syntax match jsArrowFunction /()\s*\(=>\)\@=/   skipwhite skipempty nextgroup=jsArrowFunction                    '.(exists('g:javascript_conceal_noarg_arrow_function') ? 'conceal cchar='.g:javascript_conceal_noarg_arrow_function : '').(' contains=jsArrowFuncArgs')
-exe 'syntax match jsArrowFunction /_\s*\(=>\)\@=/    skipwhite skipempty nextgroup=jsArrowFunction                    '.(exists('g:javascript_conceal_underscore_arrow_function') ? 'conceal cchar='.g:javascript_conceal_underscore_arrow_function : '')
+exe 'syntax match jsFunction /\<function\>/ skipwhite skipempty nextgroup=jsGenerator,jsFuncName,jsFuncArgs,jsFlowFunctionGroup skipwhite '.(exists('g:javascript_conceal_function')       ? 'conceal cchar='.g:javascript_conceal_function : '')
+exe 'syntax match jsArrowFunction /=>/      skipwhite skipempty nextgroup=jsFuncBlock,jsCommentFunction                                   '.(exists('g:javascript_conceal_arrow_function') ? 'conceal cchar='.g:javascript_conceal_arrow_function : '')
+exe 'syntax match jsArrowFunction /()\s*\(=>\)\@=/   skipwhite skipempty nextgroup=jsArrowFunction                                        '.(exists('g:javascript_conceal_noarg_arrow_function') ? 'conceal cchar='.g:javascript_conceal_noarg_arrow_function : '').(' contains=jsArrowFuncArgs')
+exe 'syntax match jsArrowFunction /_\s*\(=>\)\@=/    skipwhite skipempty nextgroup=jsArrowFunction                                        '.(exists('g:javascript_conceal_underscore_arrow_function') ? 'conceal cchar='.g:javascript_conceal_underscore_arrow_function : '')
 
 " Classes
 syntax keyword jsClassKeyword           contained class
@@ -237,8 +237,8 @@ if exists("javascript_plugin_flow")
   runtime extras/flow.vim
 endif
 
-syntax cluster jsExpression  contains=jsBracket,jsParen,jsObject,jsTernaryIf,jsTaggedTemplate,jsTemplateString,jsString,jsRegexpString,jsNumber,jsFloat,jsOperator,jsBooleanTrue,jsBooleanFalse,jsNull,jsFunction,jsArrowFunction,jsGlobalObjects,jsExceptions,jsFutureKeys,jsDomErrNo,jsDomNodeConsts,jsHtmlEvents,jsFuncCall,jsUndefined,jsNan,jsPrototype,jsBuiltins,jsNoise,jsClassDefinition,jsArrowFunction,jsArrowFuncArgs,jsParensError,jsComment,jsArguments,jsThis,jsSuper,jsDo,jsForAwait,jsAsyncKeyword
-syntax cluster jsAll         contains=@jsExpression,jsStorageClass,jsConditional,jsRepeat,jsReturn,jsStatement,jsException,jsTry,jsNoise,jsBlockLabel
+syntax cluster jsExpression  contains=jsBracket,jsParen,jsObject,jsTernaryIf,jsTaggedTemplate,jsTemplateString,jsString,jsRegexpString,jsNumber,jsFloat,jsOperator,jsBooleanTrue,jsBooleanFalse,jsNull,jsFunction,jsArrowFunction,jsGlobalObjects,jsExceptions,jsFutureKeys,jsDomErrNo,jsDomNodeConsts,jsHtmlEvents,jsFuncCall,jsUndefined,jsNan,jsPrototype,jsBuiltins,jsNoise,jsClassDefinition,jsArrowFunction,jsArrowFuncArgs,jsParensError,jsComment,jsArguments,jsThis,jsSuper,jsDo,jsForAwait,jsAsyncKeyword,jsStatement
+syntax cluster jsAll         contains=@jsExpression,jsStorageClass,jsConditional,jsRepeat,jsReturn,jsException,jsTry,jsNoise,jsBlockLabel
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already

@@ -49,6 +49,7 @@ if foo {
 5 // int
 
 5.5 // float
+45.4
 5e-2
 5E2
 5.5E-2
@@ -359,3 +360,12 @@ self.init(className: "Item", dictionary: [
     "summary": item.summary])
 
 XCAssertEqual(variables as NSDictionary, expectedVariables as NSDictionary, "\(template)")
+
+NSWorkspace.sharedWorkspace().notificationCenter.addObserver(
+    self, selector: #selector(self.activeApplicationChanged(_:)),
+    name: NSWorkspaceDidActivateApplicationNotification, object: nil
+)
+
+public func find(closure: @noescape Element throws -> Bool) rethrows -> Element? {
+
+}
