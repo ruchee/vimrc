@@ -8,7 +8,12 @@
   place-self: space-around;
   place-content: space-between;
   place-items: space-evenly;
-  display: legacy;
+  row-gap: legacy;
+  column-gap: auto;
+  gap: auto;
+  grid-column-gap: auto;
+  grid-row-gap: auto;
+  grid-gap: auto;
 }
 
 .animations {
@@ -214,7 +219,6 @@
   display: flow;
   display: flow-root;
   display: contents;
-  display: inline-list-item;
   display: discard;
 }
 
@@ -285,6 +289,9 @@
   display: auto;
 }
 
+.fonts-4 {
+}
+
 .fonts-3 {
   font-feature-settings: common-ligatures;
   font-kerning: no-common-ligatures;
@@ -324,10 +331,20 @@
 }
 
 .fonts-4 {
-  font-optical-sizing: emoji;
-  font-variation-settings: math;
-  display: fangsong;
-  display: system-ui;
+  font-min-size: emoji;
+  font-max-size: math;
+  font-display: fangsong;
+  font-optical-sizing: system-ui;
+  font-variation-settings: infinity;
+  font-palette: swap;
+  font-presentation: fallback;
+  display: optional;
+  display: light;
+  display: dark;
+}
+
+@font-palette-values Test {
+  base-palette: 1;
 }
 
 .gcpm-3::footnote-call,
@@ -351,16 +368,13 @@
   grid-auto-columns: 0.2fr;
   grid-auto-flow: dense;
   grid: auto-flow;
-  grid-row-start: subgrid;
-  grid-column-start: span;
+  grid-row-start: span;
+  grid-column-start: auto;
   grid-row-end: auto;
   grid-column-end: auto;
   grid-column: auto;
   grid-row: auto;
   grid-area: auto;
-  grid-column-gap: auto;
-  grid-row-gap: auto;
-  grid-gap: auto;
 }
 
 .images-3 {
@@ -402,6 +416,60 @@
   display: auto;
 }
 
+.logical-1 {
+  block-size: logical;
+  inline-size: physical;
+  min-block-size: rotate;
+  min-inline-size: auto;
+  max-block-size: auto;
+  max-inline-size: auto;
+  margin-block-start: auto;
+  margin-block-end: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  margin-block: auto;
+  margin-inline: auto;
+  inset-block-start: auto;
+  inset-block-end: auto;
+  inset-inline-start: auto;
+  inset-inline-end: auto;
+  inset-block: auto;
+  inset-inline: auto;
+  inset: auto;
+  padding-block-start: auto;
+  padding-block-end: auto;
+  padding-inline-start: auto;
+  padding-inline-end: auto;
+  padding-block: auto;
+  padding-inline: auto;
+  border-block-start-width: auto;
+  border-block-end-width: auto;
+  border-inline-start-width: auto;
+  border-inline-end-width: auto;
+  border-block-width: auto;
+  border-inline-width: auto;
+  border-block-start-style: auto;
+  border-block-end-style: auto;
+  border-inline-start-style: auto;
+  border-inline-end-style: auto;
+  border-block-style: auto;
+  border-inline-style: auto;
+  border-block-start-color: auto;
+  border-block-end-color: auto;
+  border-inline-start-color: auto;
+  border-inline-end-color: auto;
+  border-block-color: auto;
+  border-inline-color: auto;
+  border-block-start: auto;
+  border-block-end: auto;
+  border-inline-start: auto;
+  border-inline-end: auto;
+  border-block: auto;
+  border-inline: auto;
+  background-image-transform: auto;
+  border-image-transform: auto;
+}
+
 .masking-1 {
   clip-path: fill-box;
   clip-rule: stroke-box;
@@ -425,17 +493,17 @@
 }
 
 .motion-1 {
-  motion-path: path(M 100 100 L 300 100 L 200 300 z);
-  motion-offset: auto;
-  motion-rotation: auto;
-  motion: auto;
+  offset-path: ray(45deg closest-side);
+  offset-distance: path(M 100 100 L 300 100 L 200 300 z);
+  offset-anchor: auto;
+  offset-rotate: auto;
+  offset: auto;
 }
 
 .multicol {
   columns: column;
   column-count: balance;
   column-fill: avoid-column;
-  column-gap: auto;
   column-rule: auto;
   column-rule-color: auto;
   column-rule-style: auto;
@@ -448,6 +516,14 @@
 
 .overflow-3 {
   max-lines: auto;
+}
+
+.overflow-4::nth-fragment(1) {
+  scrollbar-gutter: stable;
+  continue: force;
+  display: overflow;
+  display: paginate;
+  display: fragments;
 }
 
 .page {
@@ -671,9 +747,10 @@
   line-break: loose;
   overflow-wrap: strict;
   tab-size: match-parent;
-  display: hanging;
+  text-align-all: hanging;
   display: each-line;
   display: full-width;
+  display: anywhere;
 }
 
 .text-4 {
