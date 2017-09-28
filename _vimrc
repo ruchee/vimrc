@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-21 23:46:26
+" -----------------    Date: 2017-09-28 16:15:22
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -1084,6 +1084,8 @@ func! Compile_Run_Code()
     exec '!Rscript %:t'
   elseif &filetype == 'sh'
     exec '!bash %:t'
+  elseif &filetype == 'slim'
+    exec '!slimrb -ce %:t > %:r.html.erb'
   elseif &filetype == 'scss'
     exec '!scss %:t > %:r.css'
   elseif &filetype == 'less'

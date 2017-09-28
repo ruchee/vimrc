@@ -10,16 +10,14 @@ If you are already using pathogen, you can skip to step 3.
 
 1. Install pathogen (if you haven't already)
 
-        mkdir -p ~/.vim/autoload ~/.vim/bundle; \
-        curl -so ~/.vim/autoload/pathogen.vim \
-        https://raw.github.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+        mkdir -p ~/.vim/autoload ~/.vim/bundle && \
+        curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
 
 2. Edit `~/.vimrc` to run pathogen as the first line of the file (if you haven't already)
 
     ```vim
-    call pathogen#infect()
-
-    syntax enable
+    execute pathogen#infect()
+    syntax on
     filetype plugin indent on
     ```
 
