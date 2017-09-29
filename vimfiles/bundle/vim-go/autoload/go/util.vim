@@ -110,30 +110,52 @@ function! go#util#osarch() abort
   return go#util#env("goos") . '_' . go#util#env("goarch")
 endfunction
 
-" System runs a shell command. If possible, it will temporary set
-" the shell to /bin/sh for Unix-like systems providing a Bourne
-" POSIX like environment.
-function! go#util#System(str, ...) abort
+" Run a shell command.
+"
+" It will temporary set the shell to /bin/sh for Unix-like systems if possible,
+" so that we always use a standard POSIX-compatible Bourne shell (and not e.g.
+" csh, fish, etc.) See #988 and #1276.
+function! s:system(cmd, ...) abort
   " Preserve original shell and shellredir values
   let l:shell = &shell
   let l:shellredir = &shellredir
 
-  " Use a Bourne POSIX like shell. Some parts of vim-go expect
-  " commands to be executed using bourne semantics #988 and #1276.
-  " Alter shellredir to match bourne. Especially important if login shell
-  " is set to any of the csh or zsh family #1276.
   if !go#util#IsWin() && executable('/bin/sh')
       set shell=/bin/sh shellredir=>%s\ 2>&1
   endif
 
   try
-    let l:output = call('system', [a:str] + a:000)
-    return l:output
+    return call('system', [a:cmd] + a:000)
   finally
     " Restore original values
     let &shell = l:shell
     let &shellredir = l:shellredir
   endtry
+endfunction
+
+" System runs a shell command "str". Every arguments after "str" is passed to
+" stdin.
+function! go#util#System(str, ...) abort
+  return call('s:system', [a:str] + a:000)
+endfunction
+
+" Exec runs a shell command "cmd", which must be a list, one argument per item.
+" Every list entry will be automatically shell-escaped
+" Every other argument is passed to stdin.
+function! go#util#Exec(cmd, ...) abort
+  if len(a:cmd) == 0
+    call go#util#EchoError("go#util#Exec() called with empty a:cmd")
+    return
+  endif
+
+  " CheckBinPath will show a warning for us.
+  let l:bin = go#path#CheckBinPath(a:cmd[0])
+  if empty(l:bin)
+    return ["", 1]
+  endif
+
+  let l:out = call('s:system', [go#util#Shelljoin([l:bin] + a:cmd[1:])] + a:000)
+  return [l:out, go#util#ShellError()]
 endfunction
 
 function! go#util#ShellError() abort
@@ -261,31 +283,42 @@ function! go#util#camelcase(word) abort
   endif
 endfunction
 
-" TODO(arslan): I couldn't parameterize the highlight types. Check if we can
-" simplify the following functions
+" Echo a message to the screen and highlight it with the group in a:hi.
 "
-" NOTE(arslan): echon doesn't work well with redraw, thus echo doesn't print
-" even though we order it. However echom seems to be work fine.
+" The message can be a list or string; every line with be :echomsg'd separately.
+function! s:echo(msg, hi)
+  let l:msg = a:msg
+  if type(l:msg) != type([])
+    let l:msg = split(l:msg, "\n")
+  endif
+
+  " Tabs display as ^I or <09>, so manually expand them.
+  let l:msg = map(l:msg, 'substitute(v:val, "\t", "        ", "")')
+
+  exe 'echohl ' . a:hi
+  for line in l:msg
+    echom "vim-go: " . line
+  endfor
+  echohl None
+endfunction
+
 function! go#util#EchoSuccess(msg)
-  redraw | echohl Function | echom "vim-go: " . a:msg | echohl None
+  call s:echo(a:msg, 'Function')
 endfunction
-
 function! go#util#EchoError(msg)
-  redraw | echohl ErrorMsg | echom "vim-go: " . a:msg | echohl None
+  call s:echo(a:msg, 'ErrorMsg')
 endfunction
-
 function! go#util#EchoWarning(msg)
-  redraw | echohl WarningMsg | echom "vim-go: " . a:msg | echohl None
+  call s:echo(a:msg, 'WarningMsg')
 endfunction
-
 function! go#util#EchoProgress(msg)
-  redraw | echohl Identifier | echom "vim-go: " . a:msg | echohl None
+  call s:echo(a:msg, 'Identifier')
 endfunction
-
 function! go#util#EchoInfo(msg)
-  redraw | echohl Debug | echom "vim-go: " . a:msg | echohl None
+  call s:echo(a:msg, 'Debug')
 endfunction
 
+" Get all lines in the buffer as a a list.
 function! go#util#GetLines()
   let buf = getline(1, '$')
   if &encoding != 'utf-8'
@@ -297,6 +330,18 @@ function! go#util#GetLines()
     let buf = map(buf, 'v:val."\r"')
   endif
   return buf
+endfunction
+
+" Convert the current buffer to the "archive" format of
+" golang.org/x/tools/go/buildutil:
+" https://godoc.org/golang.org/x/tools/go/buildutil#ParseOverlayArchive
+"
+" > The archive consists of a series of files. Each file consists of a name, a
+" > decimal file size and the file contents, separated by newlinews. No newline
+" > follows after the file contents. 
+function! go#util#archive()
+    let l:buffer = join(go#util#GetLines(), "\n")
+    return expand("%:p:gs!\\!/!") . "\n" . strlen(l:buffer) . "\n" . l:buffer
 endfunction
 
 " vim: sw=2 ts=2 et

@@ -34,8 +34,7 @@ function! s:guru_cmd(args) range abort
 
   let filename = fnamemodify(expand("%"), ':p:gs?\\?/?')
   if &modified
-    let content  = join(go#util#GetLines(), "\n")
-    let result.stdin_content = filename . "\n" . strlen(content) . "\n" . content
+    let result.stdin_content = go#util#archive()
     call add(cmd, "-modified")
   endif
 
@@ -112,7 +111,8 @@ function! s:sync_guru(args) abort
 
   if !has_key(a:args, 'disable_progress')
     if a:args.needs_scope
-      call go#util#EchoProgress("analysing with scope ". result.scope . " ...")
+      call go#util#EchoProgress("analysing with scope ". result.scope .
+            \ " (see ':help go-guru-scope' if this doesn't work)...")
     elseif a:args.mode !=# 'what'
       " the query might take time, let us give some feedback
       call go#util#EchoProgress("analysing ...")
@@ -150,7 +150,8 @@ function! s:async_guru(args) abort
 
   if !has_key(a:args, 'disable_progress')
     if a:args.needs_scope
-      call go#util#EchoProgress("analysing with scope ". result.scope . " ...")
+      call go#util#EchoProgress("analysing with scope " . result.scope .
+            \ " (see ':help go-guru-scope' if this doesn't work)...")
     endif
   endif
 
@@ -159,9 +160,10 @@ function! s:async_guru(args) abort
     call add(messages, a:msg)
   endfunction
 
-  function! s:exit_cb(job, exitval) closure
-    let out = join(messages, "\n")
+  let status = {}
+  let exitval = 0
 
+  function! s:exit_cb(job, exitval) closure
     let status = {
           \ 'desc': 'last status',
           \ 'type': statusline_type,
@@ -169,21 +171,27 @@ function! s:async_guru(args) abort
           \ }
 
     if a:exitval
+      let exitval = a:exitval
       let status.state = "failed"
     endif
 
     call go#statusline#Update(status_dir, status)
+  endfunction
+
+  function! s:close_cb(ch) closure
+    let out = join(messages, "\n")
 
     if has_key(a:args, 'custom_parse')
-      call a:args.custom_parse(a:exitval, out)
+      call a:args.custom_parse(exitval, out)
     else
-      call s:parse_guru_output(a:exitval, out, a:args.mode)
+      call s:parse_guru_output(exitval, out, a:args.mode)
     endif
   endfunction
 
   let start_options = {
         \ 'callback': funcref("s:callback"),
         \ 'exit_cb': funcref("s:exit_cb"),
+        \ 'close_cb': funcref("s:close_cb"),
         \ }
 
   if has_key(result, 'stdin_content')
@@ -583,11 +591,12 @@ function! s:parse_guru_output(exit_val, output, title) abort
 
   let old_errorformat = &errorformat
   let errformat = "%f:%l.%c-%[%^:]%#:\ %m,%f:%l:%c:\ %m"
-  call go#list#ParseFormat("locationlist", errformat, a:output, a:title)
+  let l:listtype = go#list#Type("_guru")
+  call go#list#ParseFormat(l:listtype, errformat, a:output, a:title)
   let &errorformat = old_errorformat
 
-  let errors = go#list#Get("locationlist")
-  call go#list#Window("locationlist", len(errors))
+  let errors = go#list#Get(l:listtype)
+  call go#list#Window(l:listtype, len(errors))
 endfun
 
 function! go#guru#Scope(...) abort
