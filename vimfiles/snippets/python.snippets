@@ -1,5 +1,5 @@
 snippet #       可执行标识
-	#!/usr/bin/env python
+	#!/usr/bin/env python3
 	${0}
 snippet coding  指定编码
 	# -*- coding: utf-8 -*-${0}
@@ -36,6 +36,9 @@ snippet cl.     类定义 [带括号]
 	    ${0}
 snippet d       函数定义 [不带self]
 	def ${1:f_name}(${2}):
+	    ${0}
+snippet d.      方法定义 [带self]
+	def ${1:f_name}(self${2}):
 	    ${0}
 snippet ds      方法定义 [带self]
 	def ${1:f_name}(self${2}):
@@ -96,8 +99,6 @@ snippet pa      空语句
 # 输入输出
 snippet p       输出
 	print(${0})
-snippet ri      获取输入
-	raw_input(${0})
 # 其他
 snippet s       self
 	self${0}
