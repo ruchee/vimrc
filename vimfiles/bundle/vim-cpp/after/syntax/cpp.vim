@@ -34,9 +34,11 @@
 " -----------------------------------------------------------------------------
 
 " Functions
-syn match   cCustomParen    "(" contains=cParen contains=cCppParen
-syn match   cCustomFunc     "\w\+\s*(\@="
-hi def link cCustomFunc  Function
+if !exists('g:cpp_no_function_highlight')
+    syn match   cCustomParen    "(" contains=cParen contains=cCppParen
+    syn match   cCustomFunc     "\w\+\s*(\@="
+    hi def link cCustomFunc  Function
+endif
 
 " Class and namespace scope
 if exists('g:cpp_class_scope_highlight') && g:cpp_class_scope_highlight
@@ -145,7 +147,7 @@ endif
 "hi def link cCustomFunc  Function
 
 " Cluster for all the stdlib functions defined below
-syn cluster cppSTLgroup     contains=cppSTLfunction,cppSTLfunctional,cppSTLconstant,cppSTLnamespace,cppSTLtype,cppSTLexception,cppSTLiterator,cppSTLiterator_tagcppSTLenumcppSTLioscppSTLcast
+syn cluster cppSTLgroup     contains=cppSTLfunction,cppSTLfunctional,cppSTLconstant,cppSTLnamespace,cppSTLtype,cppSTLexception,cppSTLiterator,cppSTLiterator_tag,cppSTLenum,cppSTLios,cppSTLcast
 
 
 " -----------------------------------------------------------------------------
@@ -739,6 +741,7 @@ syntax keyword cppSTLtype slice_array
 syntax keyword cppSTLtype stack
 syntax keyword cppSTLtype stream
 syntax keyword cppSTLtype streambuf
+syntax keyword cppSTLtype streamsize
 syntax keyword cppSTLtype string
 syntax keyword cppSTLtype stringbuf
 syntax keyword cppSTLtype stringstream

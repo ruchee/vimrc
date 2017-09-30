@@ -30,15 +30,15 @@ if !exists("b:julia_syntax_highlight_deprecated")
   let b:julia_syntax_highlight_deprecated = get(g:, "julia_syntax_highlight_deprecated", 0)
 endif
 
-if b:julia_syntax_version =~? '\<\%(curr\%(ent\)\?\|release\|5\|0\.5\)\>'
-  let b:julia_syntax_version = 5
-elseif b:julia_syntax_version =~? '\<\%(next\|devel\|6\|0\.6\)\>'
+if b:julia_syntax_version =~? '\<\%(curr\%(ent\)\?\|release\|6\|0\.6\)\>'
   let b:julia_syntax_version = 6
-elseif b:julia_syntax_version =~? '\<\%(prev\%(ious\)\?\|legacy\|4\|0\.4\)\>'
-  let b:julia_syntax_version = 4
+elseif b:julia_syntax_version =~? '\<\%(next\|devel\|7\|0\.7\)\>'
+  let b:julia_syntax_version = 7
+elseif b:julia_syntax_version =~? '\<\%(prev\%(ious\)\?\|legacy\|5\|0\.5\)\>'
+  let b:julia_syntax_version = 5
 else
   echohl WarningMsg | echomsg "Unrecognized or unsupported julia syntax version: " . b:julia_syntax_version | echohl None
-  let b:julia_syntax_version = 5
+  let b:julia_syntax_version = 6
 endif
 
 let s:julia_spellcheck_strings = get(g:, "julia_spellcheck_strings", 0)
@@ -47,15 +47,14 @@ let s:julia_spellcheck_comments = get(g:, "julia_spellcheck_comments", 1)
 
 let s:julia_highlight_operators = get(g:, "julia_highlight_operators", 1)
 
-" characters which cannot be used in identifiers ('?' is sort of valid but
-" let's just pretend it isn't). This list is very incomplete:
+" characters which cannot be used in identifiers. This list is very incomplete:
 " 1) it only cares about charactes below 256
 " 2) it doesn't distinguish between what's allowed as the 1st char vs in the
-"    rest of an identifier
+"    rest of an identifier (e.g. digits, `!` and `?`)
 " Despite these shortcomings, it seems to do a decent job.
 " note: \U5B and \U5D are '[' and ']'
 let s:nonid_chars = "\U01-\U07" . "\U0E-\U1F" .
-      \             "\"#$'(,.:;=?@`\\U5B{" .
+      \             "\"#$'(,.:;=@`\\U5B{" .
       \             "\U80-\UA1" . "\UA7\UA8\UAB\UAD\UAF\UB4" . "\UB6-\UB8" . "\UBB\UBF"
 
 let s:nonidS_chars = "[:space:])\\U5D}" . s:nonid_chars
@@ -78,8 +77,9 @@ let s:binop_chars = "=+\\U2D*/\\%÷^&|⊻<>≤≥≡≠≢∈∉⋅×∪∩⊆�
 " same as above, but with character ranges, for performance
 let s:binop_chars_extra = "\\U214B\\U2190-\\U2194\\U219A\\U219B\\U21A0\\U21A3\\U21A6\\U21AE\\U21CE\\U21CF\\U21D2\\U21D4\\U21F4-\\U21FF\\U2208-\\U220D\\U2213\\U2214\\U2217-\\U2219\\U221D\\U2224-\\U222A\\U2237\\U2238\\U223A\\U223B\\U223D\\U223E\\U2240-\\U228B\\U228D-\\U229C\\U229E-\\U22A3\\U22A9\\U22AC\\U22AE\\U22B0-\\U22B7\\U22BB-\\U22BD\\U22C4-\\U22C7\\U22C9-\\U22D3\\U22D5-\\U22ED\\U22F2-\\U22FF\\U25B7\\U27C8\\U27C9\\U27D1\\U27D2\\U27D5-\\U27D7\\U27F0\\U27F1\\U27F5-\\U27F7\\U27F7\\U27F9-\\U27FF\\U2900-\\U2918\\U291D-\\U2920\\U2944-\\U2970\\U29B7\\U29B8\\U29BC\\U29BE-\\U29C1\\U29E1\\U29E3-\\U29E5\\U29F4\\U29F6\\U29F7\\U29FA\\U29FB\\U2A07\\U2A08\\U2A1D\\U2A22-\\U2A2E\\U2A30-\\U2A3D\\U2A40-\\U2A45\\U2A4A-\\U2A58\\U2A5A-\\U2A63\\U2A66\\U2A67\\U2A6A-\\U2AD9\\U2ADB\\U2AF7-\\U2AFA\\U2B30-\\U2B44\\U2B47-\\U2B4C\\UFFE9-\\UFFEC"
 
-" a Julia identifier, sort of
-let s:idregex = '[^' . s:nonidS_chars . '0-9!' . s:uniop_chars . s:binop_chars . '][^' . s:nonidS_chars . s:uniop_chars . s:binop_chars . s:binop_chars_extra . ']*'
+" a Julia identifier, sort of (TODO: the special case of a lone `?` should be
+" removed as soon as the Julia parser is fixed)
+let s:idregex = '\%([^' . s:nonidS_chars . '0-9!?' . s:uniop_chars . s:binop_chars . '][^' . s:nonidS_chars . s:uniop_chars . s:binop_chars . s:binop_chars_extra . ']*\|\<?\>\)'
 
 let s:operators = '\%(' . '\.\%([-+*/^÷%|&!]\|//\|\\\|<<\|>>>\?\)\?=' .
       \           '\|'  . '[:$<>]=\|||\|&&\||>\|<|\|<:\|:>\|::\|<<\|>>>\?\|//\|[-=]>\|\.\{3\}' .
@@ -94,34 +94,30 @@ syntax cluster juliaExprsPrintf		contains=@juliaExpressions,@juliaPrintfItems
 
 syntax cluster juliaParItems		contains=juliaParBlock,juliaSqBraBlock,juliaCurBraBlock,juliaQuotedParBlock,juliaQuotedQMarkPar
 syntax cluster juliaKeywordItems	contains=juliaKeyword,juliaRepKeyword,juliaTypedef
-if b:julia_syntax_version == 6
-  syntax cluster juliaBlocksItems	contains=@juliaBlocksItemsAll,@juliaBlocksItems06
-else
+if b:julia_syntax_version == 5
   syntax cluster juliaBlocksItems	contains=@juliaBlocksItemsAll
-endif
-syntax cluster juliaBlocksItemsAll	contains=juliaConditionalBlock,juliaRepeatBlock,juliaBeginBlock,juliaFunctionBlock,juliaMacroBlock,juliaQuoteBlock,juliaTypeBlock,juliaImmutableBlock,juliaExceptionBlock,juliaLetBlock,juliaDoBlock,juliaModuleBlock
-syntax cluster juliaBlocksItems06	contains=juliaStructBlock,juliaMutableStructBlock,juliaAbstractBlock,juliaPrimitiveBlock
-if b:julia_syntax_version == 4
-  syntax cluster juliaTypesItems	contains=@juliaTypesItemsAll,@juliaTypesItems04
 else
-  syntax cluster juliaTypesItems	contains=@juliaTypesItemsAll,@juliaTypesItems04,@juliaTypesItems0506
+  syntax cluster juliaBlocksItems	contains=@juliaBlocksItemsAll,@juliaBlocksItems0607
+endif
+syntax cluster juliaBlocksItemsAll	contains=juliaConditionalBlock,juliaWhileBlock,juliaForBlock,juliaBeginBlock,juliaFunctionBlock,juliaMacroBlock,juliaQuoteBlock,juliaTypeBlock,juliaImmutableBlock,juliaExceptionBlock,juliaLetBlock,juliaDoBlock,juliaModuleBlock
+syntax cluster juliaBlocksItems0607	contains=juliaStructBlock,juliaMutableStructBlock,juliaAbstractBlock,juliaPrimitiveBlock
+if b:julia_syntax_version == 5
+  syntax cluster juliaTypesItems	contains=@juliaTypesItemsAll,@juliaTypesItems05
+elseif b:julia_syntax_version == 6
+  syntax cluster juliaTypesItems	contains=@juliaTypesItemsAll,@juliaTypesItems05,@juliaTypesItems0607
+else
+  syntax cluster juliaTypesItems	contains=@juliaTypesItemsAll,@juliaTypesItems0607
 endif
 syntax cluster juliaTypesItemsAll	contains=juliaBaseTypeBasic,juliaBaseTypeNum,juliaBaseTypeC,juliaBaseTypeError,juliaBaseTypeIter,juliaBaseTypeString,juliaBaseTypeArray,juliaBaseTypeDict,juliaBaseTypeSet,juliaBaseTypeIO,juliaBaseTypeProcess,juliaBaseTypeRange,juliaBaseTypeRegex,juliaBaseTypeFact,juliaBaseTypeFact,juliaBaseTypeSort,juliaBaseTypeRound,juliaBaseTypeSpecial,juliaBaseTypeRandom,juliaBaseTypeDisplay,juliaBaseTypeTime,juliaBaseTypeOther
-syntax cluster juliaTypesItems04	contains=juliaBaseTypeString04
-syntax cluster juliaTypesItems0506	contains=juliaBaseTypeString0506,juliaBaseTypeArray0506,juliaBaseTypeRange0506,juliaBaseTypeOther0506,juliaBaseTypeIO0506
-if b:julia_syntax_version == 4
-  syntax cluster juliaConstItems	contains=@juliaConstItemsAll
-else
-  syntax cluster juliaConstItems	contains=@juliaConstItemsAll,@juliaConstItems0506
-endif
-syntax cluster juliaConstItemsAll	contains=juliaConstNum,juliaConstBool,juliaConstEnv,juliaConstIO,juliaConstMMap,juliaConstC,juliaConstGeneric
-syntax cluster juliaConstItems0506	contains=juliaConstEnv0506
+syntax cluster juliaTypesItems05	contains=juliaBaseTypeIter05,juliaBaseTypeRange05
+syntax cluster juliaTypesItems0607	contains=juliaBaseTypeBasic0607,juliaBaseTypeArray0607,juliaBaseTypeSet0607,juliaBaseTypeProcess0607,juliaBaseTypeRange0607,juliaBaseTypeTime0607
+syntax cluster juliaConstItems		contains=juliaConstNum,juliaConstBool,juliaConstEnv,juliaConstIO,juliaConstMMap,juliaConstC,juliaConstGeneric
 syntax cluster juliaMacroItems		contains=juliaPossibleMacro,juliaDollarVar,juliaDollarPar,juliaDollarSqBra
 syntax cluster juliaSymbolItems		contains=juliaPossibleSymbol
 syntax cluster juliaNumberItems		contains=juliaNumbers
 syntax cluster juliaStringItems		contains=juliaChar,juliaString,juliabString,juliasString,juliavString,juliaipString,juliabigString,juliaMIMEString,juliaShellString,juliaDocString,juliaRegEx
 syntax cluster juliaPrintfItems		contains=juliaPrintfParBlock,juliaPrintfString
-syntax cluster juliaOperatorItems	contains=juliaOperator,juliaRangeOperator,juliaCTransOperator,juliaTernaryRegion,juliaColon,juliaSemicolon
+syntax cluster juliaOperatorItems	contains=juliaOperator,juliaRangeOperator,juliaCTransOperator,juliaTernaryRegion,juliaColon,juliaSemicolon,juliaComma
 syntax cluster juliaCommentItems	contains=juliaCommentL,juliaCommentM
 syntax cluster juliaErrorItems		contains=juliaErrorPar,juliaErrorEnd,juliaErrorElse,juliaErrorCatch,juliaErrorFinally
 
@@ -140,6 +136,7 @@ if !s:julia_spellcheck_comments
 endif
 
 syntax match   juliaSemicolon		display ";"
+syntax match   juliaComma		display ","
 syntax match   juliaColon		display ":"
 
 syntax match   juliaErrorPar		display "[])}]"
@@ -151,11 +148,7 @@ syntax match   juliaErrorSemicol	display contained ";"
 
 syntax match   juliaRangeEnd		display contained "\<end\>"
 
-if b:julia_syntax_version >= 5
-  syntax region  juliaParBlock		matchgroup=juliaParDelim start="(" end=")" contains=@juliaExpressions,juliaComprehensionFor
-else
-  syntax region  juliaParBlock		matchgroup=juliaParDelim start="(" end=")" contains=@juliaExpressions
-endif
+syntax region  juliaParBlock		matchgroup=juliaParDelim start="(" end=")" contains=@juliaExpressions,juliaComprehensionFor
 syntax region  juliaParBlockInRange	matchgroup=juliaParDelim contained start="(" end=")" contains=@juliaExpressions,juliaParBlockInRange,juliaRangeEnd,juliaComprehensionFor
 syntax region  juliaSqBraBlock		matchgroup=juliaParDelim start="\[" end="\]" contains=@juliaExpressions,juliaParBlockInRange,juliaRangeEnd,juliaComprehensionFor,juliaSymbolS,juliaQuotedParBlockS,juliaQuotedQMarkParS
 syntax region  juliaCurBraBlock		matchgroup=juliaParDelim start="{" end="}" contains=@juliaExpressions
@@ -171,7 +164,8 @@ syntax match   juliaRepKeyword		display "\<\%(break\|continue\)\>"
 syntax region  juliaConditionalBlock	matchgroup=juliaConditional start="\<if\>" end="\<end\>" contains=@juliaExpressions,juliaConditionalEIBlock,juliaConditionalEBlock fold
 syntax region  juliaConditionalEIBlock	matchgroup=juliaConditional transparent contained start="\<elseif\>" end="\<\%(end\|else\|elseif\)\>"me=s-1 contains=@juliaExpressions,juliaConditionalEIBlock,juliaConditionalEBlock
 syntax region  juliaConditionalEBlock	matchgroup=juliaConditional transparent contained start="\<else\>" end="\<end\>"me=s-1 contains=@juliaExpressions
-syntax region  juliaRepeatBlock		matchgroup=juliaRepeat start="\<\%(while\|for\)\>" end="\<end\>" contains=@juliaExpressions fold
+syntax region  juliaWhileBlock		matchgroup=juliaRepeat start="\<while\>" end="\<end\>" contains=@juliaExpressions fold
+syntax region  juliaForBlock		matchgroup=juliaRepeat start="\<for\>" end="\<end\>" contains=@juliaExpressions,juliaOuter fold
 syntax region  juliaBeginBlock		matchgroup=juliaBlKeyword start="\<begin\>" end="\<end\>" contains=@juliaExpressions fold
 syntax region  juliaFunctionBlock	matchgroup=juliaBlKeyword start="\<function\>" end="\<end\>" contains=@juliaExpressions fold
 syntax region  juliaMacroBlock		matchgroup=juliaBlKeyword start="\<macro\>" end="\<end\>" contains=@juliaExpressions fold
@@ -188,33 +182,33 @@ syntax region  juliaCatchBlock		matchgroup=juliaException transparent contained 
 syntax region  juliaFinallyBlock	matchgroup=juliaException transparent contained start="\<finally\>" end="\<end\>"me=s-1 contains=@juliaExpressions
 syntax match   juliaTypedef		"\<\%(abstract\|typealias\|bitstype\)\>"
 " AbstractBlock needs to come after to take precedence
-syntax region  juliaAbstractBlock	matchgroup=juliaBlKeyword start="\<abstract type\>" end="\<end\>" fold
-syntax region  juliaPrimitiveBlock	matchgroup=juliaBlKeyword start="\<primitive type\>" end="\<end\>" fold
+syntax region  juliaAbstractBlock	matchgroup=juliaBlKeyword start="\<abstract type\>" end="\<end\>" fold contains=@juliaExpressions
+syntax region  juliaPrimitiveBlock	matchgroup=juliaBlKeyword start="\<primitive type\>" end="\<end\>" fold contains=@juliaExpressions
 
-if b:julia_syntax_version >= 5
-  exec 'syntax region  juliaComprehensionFor	matchgroup=juliaComprehensionFor transparent contained start="\%([^[:space:],;:({[]\_s*\)\@'.s:d(80).'<=\<for\>" end="\ze[]);]" contains=@juliaExpressions,juliaComprehensionIf,juliaComprehensionFor'
-  syntax match   juliaComprehensionIf	contained "\<if\>"
-else
-  syntax match   juliaComprehensionFor	contained "\<for\>"
-endif
+exec 'syntax region  juliaComprehensionFor	matchgroup=juliaComprehensionFor transparent contained start="\%([^[:space:],;:({[]\_s*\)\@'.s:d(80).'<=\<for\>" end="\ze[]);]" contains=@juliaExpressions,juliaComprehensionIf,juliaComprehensionFor'
+syntax match   juliaComprehensionIf	contained "\<if\>"
 
-syntax match   juliaBaseTypeBasic	display "\<\%(Tuple\|NTuple\|Symbol\|\%(Intrinsic\)\?Function\|Union\|Type\%(Name\|Constructor\|Var\)\?\|Any\|ANY\|Vararg\|Top\|None\|Nothing\|Ptr\|Void\|Exception\|Module\|Box\|Expr\|LambdaStaticData\|\%(Data\|Union\)Type\|\%(LineNumber\|Label\|Goto\|Quote\|Top\|Symbol\|Getfield\)Node\|WeakRef\|Associative\|Method\(Table\)\?\|GetfieldNode\|Nullable\|Pair\|Ref\|Val\)\>"
+exec 'syntax match   juliaOuter    contained "\<outer\ze\s\+' . s:idregex . '\>"'
+
+syntax match   juliaBaseTypeBasic	display "\<\%(Tuple\|NTuple\|Symbol\|\%(Intrinsic\)\?Function\|Union\|Type\%(Name\|Constructor\|Var\)\?\|Any\|ANY\|Vararg\|Top\|None\|Nothing\|Ptr\|Void\|Exception\|Module\|Box\|Expr\|LambdaStaticData\|\%(Data\|Union\)Type\|\%(LineNumber\|Label\|Goto\|Quote\|Top\|Symbol\|Getfield\)Node\|\%(Weak\|Global\)\?Ref\|Associative\|Method\(Table\)\?\|GetfieldNode\|Nullable\|Pair\|Val\|TypeMap\%(Level\|Entry\)\)\>"
+syntax match   juliaBaseTypeBasic0607	display "\<\%(UnionAll\|CodeInfo\)\>"
 syntax match   juliaBaseTypeNum		display "\<\%(U\?Int\%(8\|16\|32\|64\|128\)\?\|Float\%(16\|32\|64\)\|Complex\%(32\|64\|128\)\?\|Bool\|Char\|Number\|Signed\|Unsigned\|Integer\|AbstractFloat\|Real\|Rational\|Irrational\|Enum\|BigInt\|BigFloat\|MathConst\)\>"
 syntax match   juliaBaseTypeC		display "\<\%(FileOffset\|C\%(u\?\%(char\|short\|int\|long\(long\)\?\|w\?string\)\|float\|double\|\%(ptrdiff\|s\?size\|wchar\|off\|u\?intmax\)_t\)\)\>"
-syntax match   juliaBaseTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|\%(Stack\)\?Overflow\|EOF\|Undef\%(Ref\|Var\)\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\|OutOfMemory\|Init\|Assertion\|Unicode\)Error\|\%(Interrupt\|Error\|ProcessExited\|Captured\|Composite\|InvalidState\|Null\|Remote\)Exception\|DimensionMismatch\)\>"
-syntax match   juliaBaseTypeIter	display "\<\%(EachLine\|Enumerate\|Zip\|Filter\|Cartesian\%(Index\|Range\)\|LinSpace\)\>"
-syntax match   juliaBaseTypeString	display "\<\%(DirectIndex\|Sub\|Rep\|Rev\|Abstract\)String\>"
-syntax match   juliaBaseTypeString04	display "\<\(ASCII\|UTF\%(8\|16\|32\)\|W\|Byte\|Rope\)String\>"
-syntax match   juliaBaseTypeString0506	display "\<String\>"
-syntax match   juliaBaseTypeArray	display "\<\%(\%(Sub\)\?Array\|\%(Abstract\|Dense\|Strided\)\?\%(Array\|Matrix\|Vec\%(tor\|OrMat\)\)\|SparseMatrixCSC\|\%(AbstractSparse\|Bit\|Shared\)\%(Array\|Vector\|Matrix\)\|\%\(D\|Bid\|\%(Sym\)\?Trid\)iagonal\|Hermitian\|Symmetric\|UniformScaling\|\%(Lower\|Upper\)Triangular\)\>"
-syntax match   juliaBaseTypeArray0506	display "\<SparseVector\>"
+syntax match   juliaBaseTypeError	display "\<\%(\%(Bounds\|Divide\|Domain\|\%(Stack\)\?Overflow\|EOF\|Undef\%(Ref\|Var\)\|System\|Type\|Parse\|Argument\|Key\|Load\|Method\|Inexact\|OutOfMemory\|Init\|Assertion\|Unicode\|ReadOnlyMemory\)Error\|\%(Interrupt\|Error\|ProcessExited\|Captured\|Composite\|InvalidState\|Null\|Remote\)Exception\|DimensionMismatch\|SegmentationFault\)\>"
+syntax match   juliaBaseTypeIter	display "\<\%(EachLine\|Enumerate\|Cartesian\%(Index\|Range\)\|LinSpace\)\>"
+syntax match   juliaBaseTypeIter05	display "\<\%(Zip\|Filter\)\>"
+syntax match   juliaBaseTypeString	display "\<\%(DirectIndex\|Sub\|Rep\|Rev\|Abstract\)\?String\>"
+syntax match   juliaBaseTypeArray	display "\<\%(\%(Sub\)\?Array\|\%(Abstract\|Dense\|Strided\)\?\%(Array\|Matrix\|Vec\%(tor\|OrMat\)\)\|SparseMatrixCSC\|\%(AbstractSparse\|Bit\|Shared\)\%(Array\|Vector\|Matrix\)\|\%\(D\|Bid\|\%(Sym\)\?Trid\)iagonal\|Hermitian\|Symmetric\|UniformScaling\|\%(Lower\|Upper\)Triangular\|SparseVector\|VecElement\)\>"
+syntax match   juliaBaseTypeArray0607	display "\<\%(Conj\%(Array\|Matrix\|Vector\)\|Index\%(Cartesian\|Linear\|Style\)\|PermutedDimsArray\|RowVector\)\>"
 syntax match   juliaBaseTypeDict	display "\<\%(WeakKey\|ObjectId\)\?Dict\>"
 syntax match   juliaBaseTypeSet		display "\<\%(Int\)\?Set\>"
-syntax match   juliaBaseTypeIO		display "\<\%(IO\%(Stream\|Buffer\)\?\|RawFD\|StatStruct\|DevNull\|FileMonitor\|PollingFileWatcher\|Timer\|Base64\%(Decode\|Encode\)Pipe\|\%(UDP\|TCP\)Socket\|\%(Abstract\)\?Channel\|BufferStream\|ReentrantLock\)\>"
-syntax match   juliaBaseTypeIO0506	display "\<IOContext\>"
+syntax match   juliaBaseTypeSet0607	display "\<AbstractSet\>"
+syntax match   juliaBaseTypeIO		display "\<\%(IO\%(Stream\|Buffer\|Context\)\?\|RawFD\|StatStruct\|DevNull\|FileMonitor\|PollingFileWatcher\|Timer\|Base64\%(Decode\|Encode\)Pipe\|\%(UDP\|TCP\)Socket\|\%(Abstract\)\?Channel\|BufferStream\|ReentrantLock\)\>"
 syntax match   juliaBaseTypeProcess	display "\<\%(ProcessGroup\|Pipe\|Cmd\)\>"
-syntax match   juliaBaseTypeRange	display "\<\%(Dims\|Range\%(Index\)\?\|\%(Ordinal\|Step\|Unit\|Float\)Range\|Colon\)\>"
-syntax match   juliaBaseTypeRange0506	display "\<AbstractUnitRange\>"
+syntax match   juliaBaseTypeProcess0607	display "\<PipeBuffer\>"
+syntax match   juliaBaseTypeRange	display "\<\%(Dims\|Range\%(Index\)\?\|\%(Ordinal\|Step\|\%(Abstract\)\?Unit\)Range\|Colon\)\>"
+syntax match   juliaBaseTypeRange05	display "\<FloatRange\>"
+syntax match   juliaBaseTypeRange0607	display "\<\%(ExponentialBackOff\|StepRangeLen\)\>"
 syntax match   juliaBaseTypeRegex	display "\<Regex\%(Match\)\?\>"
 syntax match   juliaBaseTypeFact	display "\<Factorization\>"
 syntax match   juliaBaseTypeSort	display "\<\%(Insertion\|\(Partial\)\?Quick\|Merge\)Sort\>"
@@ -223,13 +217,12 @@ syntax match   juliaBaseTypeSpecial	display "\<\%(LocalProcess\|ClusterManager\)
 syntax match   juliaBaseTypeRandom	display "\<\%(AbstractRNG\|MersenneTwister\|RandomDevice\)\>"
 syntax match   juliaBaseTypeDisplay	display "\<\%(Text\(Display\)\?\|Display\|MIME\|HTML\)\>"
 syntax match   juliaBaseTypeTime	display "\<\%(Date\%(Time\)\?\)\>"
-syntax match   juliaBaseTypeOther	display "\<\%(RemoteRef\|Task\|Condition\|VersionNumber\|IPv[46]\|SerializationState\|WorkerConfig\)\>"
-syntax match   juliaBaseTypeOther0506	display "\<\%(Future\|RemoteChannel\|IPAddr\|Stack\%(Trace\|Frame\)\|\(Caching\|Worker\)Pool\|AbstractSerializer\)\>"
+syntax match   juliaBaseTypeTime0607	display "\<DateFormat\>"
+syntax match   juliaBaseTypeOther	display "\<\%(RemoteRef\|Task\|Condition\|VersionNumber\|IPv[46]\|SerializationState\|WorkerConfig\|Future\|RemoteChannel\|IPAddr\|Stack\%(Trace\|Frame\)\|\(Caching\|Worker\)Pool\|AbstractSerializer\)\>"
 
 syntax match   juliaConstNum		display "\<\%(NaN\%(16\|32\|64\)\?\|Inf\%(16\|32\|64\)\?\|eu\?\|pi\|π\|eulergamma\|γ\|catalan\|φ\|golden\)\>"
 syntax match   juliaConstBool		display "\<\%(true\|false\)\>"
-syntax match   juliaConstEnv		display "\<\%(ARGS\|ENV\|CPU_CORES\|OS_NAME\|ENDIAN_BOM\|LOAD_PATH\|VERSION\|JULIA_HOME\)\>"
-syntax match   juliaConstEnv0506	display "\<PROGRAM_FILE\>"
+syntax match   juliaConstEnv		display "\<\%(ARGS\|ENV\|CPU_CORES\|OS_NAME\|ENDIAN_BOM\|LOAD_PATH\|VERSION\|JULIA_HOME\|PROGRAM_FILE\)\>"
 syntax match   juliaConstIO		display "\<\%(STD\%(OUT\|IN\|ERR\)\)\>"
 syntax match   juliaConstC		display "\<\%(WORD_SIZE\|C_NULL\)\>"
 syntax match   juliaConstGeneric	display "\<\%(nothing\|Main\)\>"
@@ -238,7 +231,7 @@ syntax match   juliaPossibleMacro	transparent "@" contains=juliaMacroCall,juliaM
 
 exec 'syntax match   juliaMacro		contained "@' . s:idregex . '\%(\.' . s:idregex . '\)*"'
 exec 'syntax region  juliaMacroCallP	contained transparent start="@' . s:idregex . '\%(\.' . s:idregex . '\)*(" end=")\@'.s:d(1).'<=" contains=juliaMacro,juliaParBlock'
-exec 'syntax region  juliaMacroCall	contained transparent start="\(@' . s:idregex . '\%(\.' . s:idregex . '\)*\)\@=\1\%([^(]\|$\)" end="\ze\%([])};#]\|$\)" contains=@juliaExpressions,juliaMacro,juliaSymbolS,juliaQuotedParBlockS,juliaQuotedQMarkParS'
+exec 'syntax region  juliaMacroCall	contained transparent start="\(@' . s:idregex . '\%(\.' . s:idregex . '\)*\)\@=\1\%([^(]\|$\)" end="\ze\%([])};#]\|$\|\<for\>\)" contains=@juliaExpressions,juliaMacro,juliaSymbolS,juliaQuotedParBlockS,juliaQuotedQMarkParS'
 
 syntax match   juliaNumbers		transparent "\<\d\|\.\d\|\<im\>" contains=juliaNumber,juliaFloat,juliaComplexUnit
 
@@ -281,9 +274,9 @@ syntax match   juliaComplexUnit		display	contained "\<im\>"
 
 exec 'syntax match   juliaOperator	"' . s:operators . '"'
 syntax match   juliaRangeOperator	display ":"
-exec 'syntax region  juliaTernaryRegion	matchgroup=juliaTernaryOperator start="?" skip="\%(:\(:\|[^:[:space:]'."'".'"({[]\+\s*\ze:\)\|^\s*:\|\%(?\s*\)\@'.s:d(6).'<=:(\)" end=":" contains=@juliaExpressions,juliaErrorSemicol'
+exec 'syntax region  juliaTernaryRegion	matchgroup=juliaTernaryOperator start="\s\zs?\ze\s" skip="\%(:\(:\|[^:[:space:]'."'".'"({[]\+\s*\ze:\)\|^\s*:\|\%(?\s*\)\@'.s:d(6).'<=:(\)" end=":" contains=@juliaExpressions,juliaErrorSemicol'
 
-let s:interp_dollar = '\([' . s:nonidS_chars . s:uniop_chars . s:binop_chars . '!]\|^\)\@'.s:d(1).'<=\$'
+let s:interp_dollar = '\([' . s:nonidS_chars . s:uniop_chars . s:binop_chars . '!?]\|^\)\@'.s:d(1).'<=\$'
 
 exec 'syntax match   juliaDollarVar	display contained "' . s:interp_dollar . s:idregex . '"'
 exec 'syntax region  juliaDollarPar	matchgroup=juliaDollarVar contained start="' .s:interp_dollar . '(" end=")" contains=@juliaExpressions'
@@ -295,7 +288,7 @@ syntax match   juliaChar		display "'\\x\x\{2\}'" contains=juliaHexEscapeChar
 syntax match   juliaChar		display "'\\u\x\{1,4\}'" contains=juliaUniCharSmall
 syntax match   juliaChar		display "'\\U\x\{1,8\}'" contains=juliaUniCharLarge
 
-exec 'syntax match   juliaCTransOperator	"[[:space:]}' . s:nonid_chars . s:uniop_chars . s:binop_chars . '!]\@'.s:d(1).'<!\.\?' . "'" . '"'
+exec 'syntax match   juliaCTransOperator	"[[:space:]}' . s:nonid_chars . s:uniop_chars . s:binop_chars . '!?]\@'.s:d(1).'<!\.\?' . "'" . '"'
 
 syntax region  juliaString		matchgroup=juliaStringDelim start=+\z("\(""\)\?\)+ skip=+\%(\\\\\)*\\"+ end=+\z1+ contains=@juliaStringVars,@juliaSpecialChars,@juliaSpellcheckStrings
 syntax region  juliabString		matchgroup=juliaStringDelim start=+\<b\z("\(""\)\?\)+ skip=+\%(\\\\\)*\\"+ end=+\z1+ contains=@juliaSpecialChars
@@ -308,7 +301,7 @@ syntax region  juliaMIMEString		matchgroup=juliaStringDelim start=+\<MIME\z("\("
 syntax region  juliaDocString		matchgroup=juliaStringDelim start=+^"""+ skip=+\%(\\\\\)*\\"+ end=+"""+ contains=@juliaStringVars,@juliaSpecialChars,@juliaSpellcheckDocStrings
 
 exec 'syntax region  juliaPrintfMacro		contained transparent start="@s\?printf(" end=")\@'.s:d(1).'<=" contains=juliaMacro,juliaPrintfParBlock'
-syntax region  juliaPrintfMacro		contained transparent start="@s\?printf\s\+" end="\ze\%([])};#]\|$\)" contains=@juliaExprsPrintf,juliaMacro,juliaSymbolS,juliaQuotedParBlockS,juliaQuotedQMarkParS
+syntax region  juliaPrintfMacro		contained transparent start="@s\?printf\s\+" end="\ze\%([])};#]\|$\|\<for\>\)" contains=@juliaExprsPrintf,juliaMacro,juliaSymbolS,juliaQuotedParBlockS,juliaQuotedQMarkParS
 syntax region  juliaPrintfParBlock	contained matchgroup=juliaParDelim start="(" end=")" contains=@juliaExprsPrintf
 syntax region  juliaPrintfString	contained matchgroup=juliaStringDelim start=+"+ skip=+\%(\\\\\)*\\"+ end=+"+ contains=@juliaSpecialChars,@juliaPrintfChars
 
@@ -342,7 +335,7 @@ syntax match   juliaPrintfFmt		display contained "\\%%"hs=s+1
 syntax match   juliaPossibleSymbol      transparent ":\ze[^:]" contains=juliaSymbol,juliaQuotedParBlock,juliaQuotedQMarkPar,juliaColon
 
 let s:quotable = '\%(' . s:idregex . '\|?\|' . s:operators . '\|' . s:float_regex . '\|' . s:int_regex . '\)'
-let s:quoting_colon = '\%(\%(^\s*\|\s\{6,\}\|[' . s:nonid_chars . s:uniop_chars . s:binop_chars . ']\s*\)\@'.s:d(6).'<=\|\%(\<return\s\*\)\@'.s:d(9).'<=\)\zs:'
+let s:quoting_colon = '\%(\%(^\s*\|\s\{6,\}\|[' . s:nonid_chars . s:uniop_chars . s:binop_chars . '?]\s*\)\@'.s:d(6).'<=\|\%(\<\%(return\|if\|else\%(if\)\?\|while\|try\|begin\)\s*\)\@'.s:d(9).'<=\)\zs:'
 let s:quoting_colonS = '\s\@'.s:d(1).'<=:'
 
 " note: juliaSymbolS only works within whitespace-sensitive contexts,
@@ -361,7 +354,6 @@ exec 'syntax region   juliaQuotedParBlock	matchgroup=juliaQParDelim start="' . s
 exec 'syntax match    juliaQuotedQMarkPar	"' . s:quoting_colon . '(\s*?\s*)" contains=juliaQuotedQMark'
 exec 'syntax region   juliaQuotedParBlockS	matchgroup=juliaQParDelim contained start="' . s:quoting_colonS . '(" end=")" contains=@juliaExpressions'
 exec 'syntax match    juliaQuotedQMarkParS	contained "' . s:quoting_colonS . '(\s*?\s*)" contains=juliaQuotedQMark'
-syntax match   juliaQuotedQMark         contained "?"
 
 " force precedence over Symbols
 syntax match   juliaOperator		display "::"
@@ -376,6 +368,7 @@ syntax keyword juliaTodo		contained TODO FIXME XXX
 "   :hi link juliaParDelim Delimiter
 hi def link juliaParDelim		juliaNone
 hi def link juliaSemicolon		juliaNone
+hi def link juliaComma  		juliaNone
 
 hi def link juliaColon			juliaOperator
 
@@ -387,6 +380,7 @@ hi def link juliaConditional		Conditional
 hi def link juliaRepeat			Repeat
 hi def link juliaException		Exception
 hi def link juliaTypedef		Keyword
+exec 'hi! def link juliaOuter ' . (b:julia_syntax_version >= 7 ? 'Keyword' : 'NONE')
 hi def link juliaBaseTypeBasic		Type
 hi def link juliaBaseTypeNum		Type
 hi def link juliaBaseTypeC		Type
@@ -408,15 +402,13 @@ hi def link juliaBaseTypeRandom		Type
 hi def link juliaBaseTypeDisplay	Type
 hi def link juliaBaseTypeTime		Type
 hi def link juliaBaseTypeOther		Type
-for t in ["Array","Range","Other","IO"]
-  let h = b:julia_syntax_version >= 5 ? "Type" : "NONE"
-  exec "hi! def link juliaBaseType" . t . "0506	" . h
+for t in ["Basic", "Array", "Set", "Range", "Time", "Process"]
+  let h = b:julia_syntax_version >= 6 ? "Type" : "NONE"
+  exec "hi! def link juliaBaseType" . t . "0607	" . h
 endfor
-for t in ["String"]
-  let h = b:julia_syntax_version > 4 ? "juliaDeprecated" : "Type"
-  exec "hi! def link juliaBaseType" . t . "04 " . h
-  let h = b:julia_syntax_version > 4 ? "Type" : "juliaDeprecated"
-  exec "hi! def link juliaBaseType" . t . "0506 " . h
+for t in ["Iter", "Range"]
+  let h = b:julia_syntax_version == 5 ? "Type" : b:julia_syntax_version == 6 ? "juliaDeprecated" : "NONE"
+  exec "hi! def link juliaBaseType" . t . "05 " . h
 endfor
 
 hi def link juliaConstNum		Constant
@@ -427,10 +419,6 @@ hi def link juliaConstLimits		Constant
 hi def link juliaConstGeneric		Constant
 hi def link juliaRangeEnd		Constant
 hi def link juliaConstBool		Boolean
-for t in ["Env"]
-  let h = b:julia_syntax_version >= 5 ? "Constant" : "NONE"
-  exec "hi! def link juliaConst" . t . "0506 " . h
-endfor
 
 hi def link juliaComprehensionFor	Keyword
 hi def link juliaComprehensionIf	Keyword

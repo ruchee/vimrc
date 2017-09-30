@@ -1,0 +1,313 @@
+snippet header "Top file header" b
+/* `!p snip.rv = snip.fn`
+ *
+ * Copyright (C) ${2:`date +%Y`} ${3:`git config --global user.name`} <${4:`git config --global user.email`}>
+ *
+ * ${5:License text.}
+ *
+ * Author:
+ *	${6:`git config --global user.name`} <${7:`git config --global user.email`}>
+ */
+$0
+endsnippet
+
+snippet gpl "General Public License"
+${1:This program} is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License as
+* published by the Free Software Foundation; either version 2 of the
+* License, or (at your option) any later version.
+*
+* $1 is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, see <http://www.gnu.org/licenses/>.$0
+endsnippet
+
+snippet try "try catch statement" b
+try {
+	$1
+} catch (${2:Error e}) {
+	${3:print ("%s\n", e.message);}
+}$0
+endsnippet
+
+snippet tryf "try catch finally statement" b
+try {
+	$1
+} catch (${2:Error e}) {
+	${3:print ("%s\n", e.message);}
+} finally {
+	$4
+}$0
+endsnippet
+
+snippet do "do while loop" b
+do {
+	$1
+} while (${2:condition});$0
+endsnippet
+
+snippet for "for loop" b
+for (var ${1:i} = 0; $1 < ${2:N}; $1++) {
+	$3
+}$0
+endsnippet
+
+snippet foreach "foreach loop" b
+foreach (var ${1:item} in ${2:list}) {
+	$3
+}$0
+endsnippet
+
+snippet ifee "if else if else statement" b
+if (${1:condition}) {
+	$2
+} else if (${3:condition}) {
+	$4
+} else {
+	$5
+}$0
+endsnippet
+
+snippet ife "if else statement" b
+if (${1:condition}) {
+	$2
+} else {
+	$3
+}$0
+endsnippet
+
+snippet if "if statement" b
+if (${1:condition}) {
+	$2
+}$0
+endsnippet
+
+snippet switch "switch statement" b
+switch (${1:condition}) {
+case: ${2:value}
+	$3
+	break;
+default:
+	${4:break;}
+}$0
+endsnippet
+
+snippet case "case statement" b
+case: ${1:value}
+	$2
+	break;$0
+endsnippet
+
+snippet while "while statement" b
+while (${1:condition}) {
+	$2
+}$0
+endsnippet
+
+snippet class "class" b
+public class ${1:Name} : ${2:GLib.Object} {
+	$1
+}$0
+endsnippet
+
+snippet prop "property" b
+${1:public} ${2:type} ${3:name} {
+	get $4;
+	set $5;
+}$0
+endsnippet
+
+snippet sig "signal" b
+${1:public} signal void ${2:name} (${3:args});$0
+endsnippet
+
+snippet sprop "simple property" b
+${1:public} ${2:int} ${3:name} { get; set; ${4:default = 0; }}$0
+endsnippet
+
+snippet cmain "class main" b
+public static int main (string[] args) {
+	$1
+	return 0;
+}$0
+endsnippet
+
+snippet enum "enum statement" b
+enum ${1:name} {
+	${2:ENUM1},
+	${3:ENUM2}
+}$0
+endsnippet
+
+snippet fix "FIXME comment" b
+/* FIXME: $1 */$0
+endsnippet
+
+snippet main "outside main" b
+int main (string[] args) {
+	$1
+	return 0;
+}$0
+endsnippet
+
+snippet new "new statement" b
+${1:type} ${2:name} = new ${1:type} ();$0
+endsnippet
+
+snippet ps "print string only" b
+print ("$1\n");$0
+endsnippet
+
+snippet "p[rint]?" "print statement" r
+print ("$1\n"${2:, ${3:expression}});$0
+endsnippet
+
+snippet struct "struct statement" b
+struct ${1:name} {
+	${2:public int a};
+	${3:public int b};
+}$0
+endsnippet
+
+snippet todo "TODO comment" b
+/* TODO: ${1: task} */$0
+endsnippet
+
+snippet var "var statement" b
+var ${1:name} = ${2:new ${3:type ()}};
+endsnippet
+
+snippet ccode "CCode definition" b
+[CCode (${1:array_length = false, array_null_terminated = true})]$0
+endsnippet
+
+snippet delegate "Delegate definition" b
+delegate ${1:type} ${2:name} (${3:${4:arg_type} ${5:arg_name}});$0
+endsnippet
+
+snippet lambda "anonymous lambda function" w
+(${1:variables}) => {${2:body}}$0
+endsnippet
+
+snippet doc "doc: valadoc comment" b
+/**
+ * ${1:Short description}
+ */$0
+endsnippet
+
+snippet docall "doc: complete valadoc comment" b
+/**
+ * ${1:Short description}
+ *
+ * ${2:Long description}
+ *
+ * ${3:@param ${4:parameter} ${5:parameter description}}
+ * ${6:@return ${7:return value description}}
+ * ${8:@see} ${8:node name}
+ */$0
+endsnippet
+
+snippet docode "doc: code inside a valadoc comment"
+{{{${1:code}}}}$0
+endsnippet
+
+snippet "inherit[Dd]oc" "doc: inherit descriptions from the parent" r
+{@inheritDoc}$0
+endsnippet
+
+snippet link "doc: link reference"
+{@link ${1:${VISUAL:node name}}}$0
+endsnippet
+
+snippet deprecated "doc: deprecated functionality"
+@deprecated ${1:version}$0
+endsnippet
+
+snippet see "doc: see also reference"
+@see ${1:node name}$0
+endsnippet
+
+snippet since "doc: version in which was introduced"
+@since ${1:version}$0
+endsnippet
+
+snippet param "doc: method parameter"
+@param ${1:parameter} ${2:parameter description}$0
+endsnippet
+
+snippet return "doc: return value"
+@return ${1:return value description}$0
+endsnippet
+
+snippet throws "doc: exception handling"
+@throws ${1:type name} ${2: description}$0
+endsnippet
+
+snippet tmain "main with test function" b
+public int main (string[] args) {
+	Test.init (ref args);
+
+	Test.add_func ("/${1:test_name}", ${2:() => {
+		$3
+	}});
+
+	return Test.run ();$0
+}
+endsnippet
+
+snippet testadd "add a test function" b
+Test.add_func ("/${1:test_name}", ${2:() => {
+	$3
+}});
+endsnippet
+
+snippet mainoptions "add a main class with options" b
+public const string version = "${1:0.1.0}";
+
+public class ${2:Main} : Object {
+	private static bool display_version = false;
+
+	private const OptionEntry[] options = {
+		{ "version", 0, 0, OptionArg.NONE, ref display_version, "Display version number", null },$0
+		{ null } // list terminator
+	};
+
+	public static int main (string[] args) {
+
+		var args_length = args.length;
+		string help;
+		/* parse the command line */
+		try {
+			var opt_context = new OptionContext ("- ${3: application description}");
+			opt_context.set_help_enabled (true);
+			opt_context.add_main_entries (options, null);
+			opt_context.parse (ref args);
+			help = opt_context.get_help (true, null);
+		} catch (OptionError e) {
+			stdout.printf ("error: %s\n", e.message);
+			stdout.printf ("Run '%s --help' to see a full list of available command line options.\n", args[0]);
+			return 0;
+		}
+
+		/* display help if no arguments are passed */
+		if (args_length == 1) {
+			print (help + "\n");
+			return 0;
+		}
+
+		if (display_version) {
+			print ("%s - %s\n", args[0], version);
+		}
+
+		return 0;
+	}
+}
+endsnippet
+
+snippet option "Add an option to an OptionEntry" b
+{ "${1:long-name}", '${2:short}', 0, OptionArg.${4:NONE|INT|INT64|FILENAME|FILENAME_ARRAY|STRING|STRING_ARRAY}, ref ${5:variable_name}, "${6:Description}", "${7:Arg description}" },$0
+endsnippet

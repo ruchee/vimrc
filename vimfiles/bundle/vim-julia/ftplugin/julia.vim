@@ -11,12 +11,12 @@ let b:did_ftplugin = 1
 let s:save_cpo = &cpo
 set cpo-=C
 
-setlocal include="^\s*\%(reload\|include\)\>"
+setlocal include=^\\s*\\%(reload\\\|include\\)\\>
 setlocal suffixesadd=.jl
 setlocal comments=:#
 setlocal commentstring=#=%s=#
 setlocal cinoptions+=#1
-setlocal define="^\s*macro\>"
+setlocal define=^\\s*macro\\>
 
 let b:julia_vim_loaded = 1
 
@@ -71,7 +71,7 @@ if exists("loaded_matchit")
   " the 'end' keyword when it is used as a range rather than as
   " the end of a block
   let b:match_skip = 'synIDattr(synID(line("."),col("."),1),"name") =~ '
-        \ . '"\\<julia\\%(Comprehension\\%(For\\|If\\)\\|RangeEnd\\|SymbolS\\?\\|Comment[LM]\\|\\%([bv]\\|ip\\|MIME\\|Shell\|Doc\\)\\?String\\|RegEx\\)\\>"'
+        \ . '"\\<julia\\%(Comprehension\\%(For\\|If\\)\\|RangeEnd\\|SymbolS\\?\\|Comment[LM]\\|\\%([bv]\\|ip\\|MIME\\|Shell\\|Doc\\)\\?String\\|RegEx\\)\\>"'
 
   let b:undo_ftplugin = b:undo_ftplugin
         \ . " | unlet! b:match_words b:match_skip b:match_ignorecase"

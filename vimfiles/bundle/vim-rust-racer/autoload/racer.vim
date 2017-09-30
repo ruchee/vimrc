@@ -1,9 +1,31 @@
+let s:is_win = has('win32') || has('win64')
+
+function! racer#GetRacerCmd() abort
+  if !exists('g:racer_cmd')
+    let sep = s:is_win ? '\' : '/'
+    let path = join([
+          \ escape(expand('<sfile>:p:h'), '\'),
+          \ '..',
+          \ 'target',
+          \ 'release',
+          \ ], sep)
+    if isdirectory(path)
+      let pathsep = s:is_win ? ';' : ':'
+      let $PATH .= pathsep . path
+    endif
+    let g:racer_cmd = 'racer'
+  endif
+
+  return expand(g:racer_cmd)
+endfunction
+
 function! s:RacerGetPrefixCol(base)
     let col = col('.') - 1
     let b:racer_col = col
     let b:tmpfname = tempname()
     call writefile(s:RacerGetBufferContents(a:base), b:tmpfname)
-    let cmd = g:racer_cmd . ' prefix ' . line('.') . ' ' . col . ' ' . b:tmpfname
+    let cmd = racer#GetRacerCmd() . ' prefix ' .
+        \ line('.') . ' ' . col . ' ' . b:tmpfname
     let res = system(cmd)
     let prefixline = split(res, '\n')[0]
     let startbyte = split(prefixline[7:], ',')[0]
@@ -15,7 +37,8 @@ function! s:RacerGetExpCompletions(base)
     let b:tmpfname = tempname()
     call writefile(s:RacerGetBufferContents(a:base), b:tmpfname)
     let fname = expand('%:p')
-    let cmd = g:racer_cmd . ' complete ' . line('.') . ' ' . col . ' "' . fname . '" "' . b:tmpfname . '"'
+    let cmd = racer#GetRacerCmd() . ' complete ' .
+        \ line('.') . ' ' . col . ' "' . fname . '" "' . b:tmpfname . '"'
     let res = system(cmd)
 
     let typeMap = {
@@ -40,23 +63,19 @@ function! s:RacerGetExpCompletions(base)
 
         if kind ==# 'f'
             " function
-            let completion['menu'] = substitute(
-                \   substitute(
-                \     substitute(info, '\(pub\|fn\) ', '', 'g'),
-                \     '{*$', '', ''
-                \   ),
-                \   ' where\s\?.*$', '', ''
-                \ )
+            let menu = substitute(info, '\(pub\|fn\) ', '', 'g')
+            let menu = substitute(menu, '{*$', '', '')
+            let menu = substitute(menu, ' where\s\?.*$', '', '')
+            let completion['menu'] = menu
             if g:racer_insert_paren == 1
                 let completion['abbr'] = completions[0]
                 let completion['word'] .= '('
             endif
             let completion['info'] = info
         elseif kind ==# 's' " struct
-            let completion['menu'] = substitute(
-                \   substitute(info, '\(pub\|struct\) ', '', 'g'),
-                \   '{*$', '', ''
-                \ )
+            let menu = substitute(info, '\(pub\|struct\) ', '', 'g')
+            let menu = substitute(menu, '{*$', '', '')
+            let completion['menu'] = menu
         endif
 
         if stridx(tolower(completions[0]), tolower(a:base)) == 0
@@ -72,16 +91,16 @@ function! s:RacerSplitLine(line)
     let placeholder = '{PLACEHOLDER}'
     let line = substitute(a:line, '\\;', placeholder, 'g')
     let parts = split(line, separator)
-    let docs = substitute(
-        \   substitute(
-        \     substitute(
-        \       substitute(get(parts, 7, ''), '^\"\(.*\)\"$', '\1', ''),
-        \       '\\\"', '\"', 'g'
-        \     ),
-        \     '\\''', '''', 'g'
-        \   ),
-        \   '\\n', '\n', 'g'
-        \ )
+
+    let docs = substitute(get(parts, 7, ''), '^\"\(.*\)\"$', '\1', '')
+    let docs = substitute(docs, '\\\"', '\"', 'g')
+    let docs = substitute(docs, '\\''', '''', 'g')
+    let docs = substitute(docs, '\\n', '\n', 'g')
+
+    " Add empty lines to before/after code snippets and before section titles
+    let docs =  substitute(docs, '\n```\zs\n', '\n\n', 'g')
+    let docs =  substitute(docs, '\n\ze\%(```rust\|#\+ .\+\)\n', '\n\n', 'g')
+
     let parts = add(parts[:6], docs)
     let parts = map(copy(parts), 'substitute(v:val, ''{PLACEHOLDER}'', '';'', ''g'')')
 
@@ -98,7 +117,8 @@ function! racer#ShowDocumentation()
     " Create temporary file with the buffer's current state
     call writefile(getline(1, '$'), b:tmpfname)
     let fname = expand('%:p')
-    let cmd = g:racer_cmd . ' complete-with-snippet ' . line('.') . ' ' . col . ' ' . fname . ' ' . b:tmpfname
+    let cmd = racer#GetRacerCmd() . ' complete-with-snippet ' .
+        \ line('.') . ' ' . col . ' ' . fname . ' ' . b:tmpfname
     let res = system(cmd)
     " Restore de cursor position
     call winrestview(winview)
@@ -150,11 +170,13 @@ function! s:RacerGetCompletions(base)
     if getline('.')[:col-1] =~# '".*"\.$'
         call writefile(['fn main() {', '    let x: &str = "";', '    x.', '}'], b:tmpfname)
         let fname = expand('%:p')
-        let cmd = g:racer_cmd . ' complete 3 6 "' . fname . '" "' . b:tmpfname . '"'
+        let cmd = racer#GetRacerCmd() . ' complete 3 6 "' .
+            \ fname . '" "' . b:tmpfname . '"'
     else
         call writefile(s:RacerGetBufferContents(a:base), b:tmpfname)
         let fname = expand('%:p')
-        let cmd = g:racer_cmd . ' complete ' . line('.') . ' ' . col . ' "' . fname . '" "' . b:tmpfname . '"'
+        let cmd = racer#GetRacerCmd() . ' complete ' .
+            \ line('.') . ' ' . col . ' "' . fname . '" "' . b:tmpfname . '"'
     endif
     let res = system(cmd)
     let lines = split(res, '\n')
@@ -183,7 +205,8 @@ function! racer#GoToDefinition()
     let fname = expand('%:p')
     let tmpfname = tempname()
     call writefile(getline(1, '$'), tmpfname)
-    let cmd = g:racer_cmd . ' find-definition ' . line('.') . ' ' . col . ' ' . fname . ' ' . tmpfname
+    let cmd = racer#GetRacerCmd() . ' find-definition ' .
+        \ line('.') . ' ' . col . ' ' . fname . ' ' . tmpfname
     let res = system(cmd)
     let lines = split(res, '\n')
     for line in lines
@@ -221,7 +244,7 @@ function! s:RacerJumpToLocation(filename, linenum, colnum)
 
     " Record jump mark
     normal! m`
-    if a:filename != bufname('%')
+    if a:filename != expand('%:p')
         try
             exec 'keepjumps e ' . fnameescape(a:filename)
         catch /^Vim\%((\a\+)\)\=:E37/
@@ -258,8 +281,26 @@ function! s:Warn(msg)
 endfunction
 
 function! s:ErrorCheck()
-    if !executable(g:racer_cmd)
+    if !executable(racer#GetRacerCmd())
         call s:Warn('No racer executable found in $PATH (' . $PATH . ')')
+        return 1
+    endif
+    if !exists('$RUST_SRC_PATH')
+        if executable('rustc')
+            let sep = s:is_win ? '\' : '/'
+            let path = join([
+                \ substitute(system('rustc --print sysroot'), '\n$', '', ''),
+                \ 'lib',
+                \ 'rustlib',
+                \ 'src',
+                \ 'rust',
+                \ 'src',
+                \ ], sep)
+            if isdirectory(path)
+                return 0
+            endif
+        endif
+        call s:Warn('Could not locate Rust source. Try setting $RUST_SRC_PATH.')
         return 1
     endif
 endfunction

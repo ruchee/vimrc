@@ -21,10 +21,14 @@ endif
 
 let s:skipPatterns = '\<julia\%(Comprehension\%(For\|If\)\|RangeEnd\|CommentL\|\%([bsv]\|ip\|big\|MIME\|Shell\|Printf\|Doc\)\=String\|RegEx\|SymbolS\?\)\>'
 
-function JuliaMatch(lnum, str, regex, st)
+function JuliaMatch(lnum, str, regex, st, ...)
   let s = a:st
+  let e = a:0 > 0 ? a:1 : -1
   while 1
     let f = match(a:str, a:regex, s)
+    if e >= 0 && f >= e
+      return -1
+    endif
     if f >= 0
       let attr = synIDattr(synID(a:lnum,f+1,1),"name")
       if attr =~ s:skipPatterns
@@ -37,15 +41,16 @@ function JuliaMatch(lnum, str, regex, st)
   return f
 endfunction
 
-function GetJuliaNestingStruct(lnum)
+function GetJuliaNestingStruct(lnum, ...)
   " Auxiliary function to inspect the block structure of a line
   let line = getline(a:lnum)
-  let s = 0
+  let s = a:0 > 0 ? a:1 : 0
+  let e = a:0 > 1 ? a:2 : -1
   let blocks_stack = []
   let num_closed_blocks = 0
   while 1
-    let fb = JuliaMatch(a:lnum, line, '@\@<!\<\%(if\|else\%(if\)\=\|while\|for\|try\|catch\|finally\|\%(staged\)\?function\|macro\|begin\|mutable\s\+struct\|\%(mutable\s\+\)\@<!struct\|\%(abstract\|primitive\)\s\+type\|\%(\%(abstract\|primitive\)\s\+\)\@<!type\|immutable\|let\|\%(bare\)\?module\|quote\|do\)\>', s)
-    let fe = JuliaMatch(a:lnum, line, '@\@<!\<end\>', s)
+    let fb = JuliaMatch(a:lnum, line, '@\@<!\<\%(if\|else\%(if\)\=\|while\|for\|try\|catch\|finally\|\%(staged\)\?function\|macro\|begin\|mutable\s\+struct\|\%(mutable\s\+\)\@<!struct\|\%(abstract\|primitive\)\s\+type\|\%(\%(abstract\|primitive\)\s\+\)\@<!type\|immutable\|let\|\%(bare\)\?module\|quote\|do\)\>', s, e)
+    let fe = JuliaMatch(a:lnum, line, '@\@<!\<end\>', s, e)
 
     if fb < 0 && fe < 0
       " No blocks found
@@ -161,18 +166,17 @@ function GetJuliaNestingStruct(lnum)
 endfunction
 
 function GetJuliaNestingBrackets(lnum, c)
-  " Auxiliary function to inspect the block structure of a line
+  " Auxiliary function to inspect the brackets structure of a line
   let line = getline(a:lnum)[0 : (a:c - 1)]
   let s = 0
   let brackets_stack = []
-  let num_closed_brackets = 0
   let last_closed_bracket = -1
   while 1
     let fb = JuliaMatch(a:lnum, line, '[([{]', s)
     let fe = JuliaMatch(a:lnum, line, '[])}]', s)
 
     if fb < 0 && fe < 0
-      " No blocks found
+      " No brackets found
       break
     end
 
@@ -212,7 +216,6 @@ function GetJuliaNestingBrackets(lnum, c)
         if len(brackets_stack) > 0 && brackets_stack[-1][0] == 'par'
           call remove(brackets_stack, -1)
         else
-          let num_closed_brackets += 1
           let last_closed_bracket = i + 1
         endif
         continue
@@ -224,7 +227,6 @@ function GetJuliaNestingBrackets(lnum, c)
         if len(brackets_stack) > 0 && brackets_stack[-1][0] == 'sqbra'
           call remove(brackets_stack, -1)
         else
-          let num_closed_brackets += 1
           let last_closed_bracket = i + 1
         endif
         continue
@@ -236,7 +238,6 @@ function GetJuliaNestingBrackets(lnum, c)
         if len(brackets_stack) > 0 && brackets_stack[-1][0] == 'curbra'
           call remove(brackets_stack, -1)
         else
-          let num_closed_brackets += 1
           let last_closed_bracket = i + 1
         endif
         continue
@@ -250,14 +251,16 @@ function GetJuliaNestingBrackets(lnum, c)
     " Note: it should be impossible to get here
     break
   endwhile
+  let first_open_bracket = -1
   let last_open_bracket = -1
   if len(brackets_stack) > 0
+    let first_open_bracket = brackets_stack[0][1]
     let last_open_bracket = brackets_stack[-1][1]
   endif
-  return [last_open_bracket, last_closed_bracket]
+  return [first_open_bracket, last_open_bracket, last_closed_bracket]
 endfunction
 
-let s:bracketBlocks = '\<julia\%(\%(\%(Printf\)\?Par\|SqBra\|CurBra\)Block\|ParBlockInRange\|StringVars\%(Par\|SqBra\|CurBra\)\|Dollar\%(Par\|SqBra\)\)\>'
+let s:bracketBlocks = '\<julia\%(\%(\%(Printf\)\?Par\|SqBra\|CurBra\)Block\|ParBlockInRange\|StringVars\%(Par\|SqBra\|CurBra\)\|Dollar\%(Par\|SqBra\)\|QuotedParBlockS\?\)\>'
 
 function IsInBrackets(lnum, c)
   let stack = map(synstack(a:lnum, a:c), 'synIDattr(v:val, "name")')
@@ -274,7 +277,7 @@ function LastBlockIndent(lnum)
   while lnum > 0
     let ind = indent(lnum)
     if ind == 0
-      return [max([lnum,1]), 0]
+      return [lnum, 0]
     endif
     if !IsInBrackets(lnum, 1)
       break
@@ -298,15 +301,20 @@ function GetJuliaIndent()
     return 0
   endif
 
+  let ind = -1
+  let st = -1
+  let lim = -1
+
   " Multiline bracketed expressions take precedence
   let c = len(getline(lnum)) + 1
   while IsInBrackets(lnum, c)
-    let [last_open_bracket, last_closed_bracket] = GetJuliaNestingBrackets(lnum, c)
+    let [first_open_bracket, last_open_bracket, last_closed_bracket] = GetJuliaNestingBrackets(lnum, c)
 
     " First scenario: the previous line has a hanging open bracket:
     " set the indentation to match the opening bracket (plus an extra space)
     if last_open_bracket != -1
-      let ind = last_open_bracket + 1
+      let st = last_open_bracket
+      let ind = virtcol([lnum, st + 1])
 
     " Second scenario: some multiline bracketed expression was closed in the
     " previous line. But since we know we are still in a bracketed expression,
@@ -327,6 +335,7 @@ function GetJuliaIndent()
           let ind = 0
         else
           " we skipped a bracket set, keep searching for an opening bracket
+          let lim = c
           continue
         endif
       endif
@@ -339,20 +348,25 @@ function GetJuliaIndent()
     " In case the current line starts with a closing bracket, we align it with
     " the opening one.
     if JuliaMatch(v:lnum, getline(v:lnum), '[])}]', indent(v:lnum)) == indent(v:lnum) && ind > 0
-      let ind -= 1
+      return ind - 1
     endif
 
-    let &ignorecase = s:save_ignorecase
-    unlet s:save_ignorecase
-    return ind
+    break
   endwhile
 
-  " We are not in a multiline bracketed expression. Thus we look for a
-  " previous line to use as a reference
-  let [lnum,ind] = LastBlockIndent(lnum)
+  if ind == -1
+    " We are not in a multiline bracketed expression. Thus we look for a
+    " previous line to use as a reference
+    let [lnum,ind] = LastBlockIndent(lnum)
+    let c = len(getline(lnum)) + 1
+    if IsInBrackets(lnum, c)
+      let [first_open_bracket, last_open_bracket, last_closed_bracket] = GetJuliaNestingBrackets(lnum, c)
+      let lim = first_open_bracket
+    endif
+  end
 
   " Analyse the reference line
-  let [num_open_blocks, num_closed_blocks] = GetJuliaNestingStruct(lnum)
+  let [num_open_blocks, num_closed_blocks] = GetJuliaNestingStruct(lnum, st, lim)
 
   " Increase indentation for each newly opened block
   " in the reference line

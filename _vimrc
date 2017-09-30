@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-28 16:15:22
+" -----------------    Date: 2017-09-30 11:40:53
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -244,6 +244,11 @@ au FileType php,python set tabstop=4
 
 au FileType blade set shiftwidth=2
 au FileType blade set tabstop=2
+
+" 配置 Rust 支持 [需要使用 cargo 安装 racer 和 rustfmt 才能正常工作，RUST_SRC_PATH 需要自己下载 Rust 源码并指定好正确的路径]
+let $RUST_SRC_PATH                 = $HOME.'/code/data/sources/languages/rust/src'
+let g:racer_experimental_completer = 1  " 补全时显示完整的函数定义
+let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
 
 " 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -583,9 +588,7 @@ if has('python3')
 else
   command! -nargs=1 Py py <args>
 endif
-let g:pymode_python                       = 'python3'  " 使用 Python3 语法检查      [Python-Mode]
-let g:pymode_rope_goto_definition_bind    = '<C-]>'    " 自定义跳转快捷键           [Python-Mode]
-let g:pymode_options_colorcolumn          = 0          " 关闭右侧的单行字符长度标尺 [Python-Mode]
+let g:pymode_python = 'python3'                " 使用 Python3 语法检查 [Python-Mode]
 
 " 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [默认高亮为 HTML] [js-pretty-template 插件]
 " 可用形如 :JsPreTmpl xml 的命令临时修改模版字符串的高亮语法
