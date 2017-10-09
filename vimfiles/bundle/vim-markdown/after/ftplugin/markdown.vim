@@ -125,7 +125,11 @@ else
         if l1 =~ '^#' && !s:is_mkdCode(a:lnum)
             " fold level according to option
             if s:vim_markdown_folding_level == 1 || matchend(l1, '^#\+') > s:vim_markdown_folding_level
-                return -1
+                if a:lnum == line('$')
+                    return matchend(l1, '^#\+') - 1
+                else
+                    return -1
+                endif
             else
                 " headers are not folded
                 return 0
@@ -133,7 +137,7 @@ else
         endif
 
         if l0 =~ '^#' && !s:is_mkdCode(a:lnum-1)
-            " current line starts with hashes
+            " previous line starts with hashes
             return '>'.matchend(l0, '^#\+')
         else
             " keep previous foldlevel
@@ -150,7 +154,7 @@ let s:vim_markdown_folding_level = get(g:, "vim_markdown_folding_level", 1)
 if !get(g:, "vim_markdown_folding_disabled", 0)
     setlocal foldexpr=Foldexpr_markdown(v:lnum)
     setlocal foldmethod=expr
-    if get(g:, "vim_markdown_folding_style_pythonic", 0)
+    if get(g:, "vim_markdown_folding_style_pythonic", 0) && get(g:, "vim_markdown_override_foldtext", 1)
         setlocal foldtext=Foldtext_markdown()
     endif
 endif
