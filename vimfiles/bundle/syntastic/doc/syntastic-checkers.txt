@@ -3186,6 +3186,9 @@ Maintainer:  Dmitry Geurkov <d.geurkov@gmail.com>
 
     http://checkstyle.sourceforge.net/
 
+You need a working installation of Java Runtime Environment to run
+"Checkstyle".
+
 Checker options~
 
 This checker is initialised using the "makeprgBuild()" function and thus it
@@ -3204,6 +3207,10 @@ Default: "sun_checks.xml"
 Path to the configuration file for the "-c" option (cf.
 http://checkstyle.sourceforge.net/cmdline.html#Command_line_usage).
 
+                                          *'g:syntastic_java_checkstyle_exec'*
+Type: string
+Default: "java"
+Path to the "java" executable.
 
 Notes~
 
@@ -5976,6 +5983,9 @@ Syntastic uses the command line version of "Scalastyle":
 
     http://www.scalastyle.org/command-line.html
 
+You need a working installation of Java Runtime Environment to run
+"Scalastyle".
+
 Checker options~
 
 This checker is initialised using the "makeprgBuild()" function and thus it
@@ -5994,6 +6004,11 @@ Type: string
 Default: "scalastyle_config.xml"
 Path to the configuration file to use. You might want to also set this to a
 full path.
+
+                                         *'g:syntastic_scala_scalastyle_exec'*
+Type: string
+Default: "java"
+Path to the "java" executable.
 
 ==============================================================================
 SYNTAX CHECKERS FOR SCSS                             *syntastic-checkers-scss*
@@ -6459,7 +6474,7 @@ Default: 1
 Whether to show informational messages ("chktex" option "-m"). By default
 informational messages are shown as warnings.
 
-Note~
+Notes~
 
 If you're checking files containing tab characters, then Vim's 'tabstop'
 must match "ChkTeX"'s idea of tabstop, otherwise column numbers will be
@@ -6467,6 +6482,9 @@ shifted. At the time of this writing, "ChkTeX"'s tabstop is hardcoded to 8,
 so you should probably add something like this to your vimrc: >
     set tabstop=8
 <
+Note also that because of the way "ChkTeX" handles error formats column
+numbers are not available on Windows when running under "cmd.exe".
+
 ------------------------------------------------------------------------------
 2. lacheck                                             *syntastic-tex-lacheck*
 

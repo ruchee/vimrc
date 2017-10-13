@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-09-30 11:40:53
+" -----------------    Date: 2017-10-13 11:01:00
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -362,6 +362,12 @@ if g:isGUI
   set showtabline=0          " 隐藏Tab栏
   set cursorline             " 高亮突出当前行
   " set cursorcolumn         " 高亮突出当前列
+endif
+
+
+" 修复在 Mac 自带终端中使用时，有可能会在文件头部出现随机字符串的问题
+if !empty($TERM_PROGRAM) && $TERM_PROGRAM == 'Apple_Terminal'
+  set t_SH=
 endif
 
 
