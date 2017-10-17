@@ -8,6 +8,7 @@ set_error_handler(function ($severity, $message, $file, $line) {
 $root   = $argv[1];
 $messenger = $argv[2];
 $autoload_file = $argv[3];
+$disable_modifier = $argv[4];
 
 /** load autoloader for PHPCD **/
 require __DIR__ . '/../vendor/autoload.php';
@@ -34,7 +35,7 @@ if (is_readable($autoload_file)) {
     require $autoload_file;
 }
 
-$server = new ForkServer($messenger, new PHPCD\PHPCD($root, $logger));
+$server = new ForkServer($messenger, new PHPCD\PHPCD($root, $logger, $disable_modifier));
 $server->addHandler(new PHPCD\PHPID($root, $logger));
 
 $server->loop();

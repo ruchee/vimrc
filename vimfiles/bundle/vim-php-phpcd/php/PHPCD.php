@@ -11,6 +11,7 @@ class PHPCD implements RpcHandler
     const MATCH_HEAD        = 'match_head';
 
     private $matchType;
+    private $disable_modifier;
 
     /**
      * @var Logger
@@ -24,10 +25,11 @@ class PHPCD implements RpcHandler
 
     private $root;
 
-    public function __construct($root, Logger $logger, $match_type = self::MATCH_HEAD)
+    public function __construct($root, Logger $logger, $disable_modifier = 0, $match_type = self::MATCH_HEAD)
     {
         $this->logger = $logger;
         $this->root = $root;
+        $this->disable_modifier = $disable_modifier;
     }
 
     public function setServer(RpcServer $server)
@@ -356,15 +358,26 @@ class PHPCD implements RpcHandler
         }
 
         $file = new \SplFileObject($path);
+
+        $_line = '';
         foreach ($file as $line) {
             if (preg_match($class_pattern, $line, $matches)) {
                 $s['class'] = $matches['class'];
                 break;
             }
-            $line = trim($line);
-            if (!$line) {
+
+            $_line .= trim($line);
+            if (!($_line && preg_match('/;$/', $_line))) {
                 continue;
             }
+
+            $line = $_line;
+            $_line = '';
+
+            if (strpos($line, '<?php') === 0) {
+                $line = substr($line, 5);
+            }
+
             if (preg_match('/(<\?php)?\s*namespace\s+(.*);$/', $line, $matches)) {
                 $s['namespace'] = $matches[2];
             } elseif (strtolower(substr($line, 0, 3) == 'use')) {
@@ -639,7 +652,7 @@ class PHPCD implements RpcHandler
         foreach ($matches['names'] as $idx => $name) {
             $items[] = [
                 'word' => $name,
-                'abbr' => sprintf('%3s %s', '+', $name),
+                'abbr' => $this->disable_modifier ? $name : sprintf('%3s %s', '+', $name),
                 'info' => $matches['types'][$idx],
                 'kind' => 'p',
                 'icase' => 1,
@@ -665,9 +678,16 @@ class PHPCD implements RpcHandler
         $items = [];
         foreach ($matches['names'] as $idx => $name) {
             preg_match_all('/\$[a-zA-Z0-9_]+/mi', $matches['params'][$idx], $params);
+
+            if ($this->disable_modifier) {
+                $abbr = sprintf("%s(%s)", $name, join(', ', end($params)));
+            } else {
+                $abbr = sprintf("%3s %s(%s)", '+', $name, join(', ', end($params)));
+            }
+
             $items[] = [
                 'word' => $name,
-                'abbr' => sprintf("%3s %s (%s)", '+', $name, join(', ', end($params))),
+                'abbr' => $abbr,
                 'info' => $matches['types'][$idx],
                 'kind' => 'f',
                 'icase' => 1,
@@ -753,14 +773,78 @@ class PHPCD implements RpcHandler
 
         return [
             'word' => $name,
-            'abbr' => sprintf("%3s %s", $modifier, $name),
+            'abbr' => $modifier ? sprintf("%3s %s", $modifier, $name) : $name,
             'info' => preg_replace('#/?\*(\*|/)?#', '', $property->getDocComment()),
             'kind' => 'p',
             'icase' => 1,
         ];
     }
 
-    private function getMethodInfo($method, $pattern = null)
+      /**
+     * @param \ReflectionParameter $param
+     * @return string
+     */
+    private function formatParamInfo(\ReflectionParameter $param)
+    {
+        /* @var ReflectionClass|null $hintedClass */
+        $hintedClass = $param->getClass();
+        $paramString = '';
+        if ($hintedClass) {
+            $paramString .= $hintedClass->getName() . ' ';
+        } elseif ($param->hasType()) {
+            $paramString .= $param->getType() . ' ';
+        }
+        $paramString .= '$' . $param->getName();
+        if (!$param->isDefaultValueAvailable()) {
+            return $paramString;
+        }
+        if ($param->isDefaultValueConstant()) {
+            $default = $param->getDefaultValueConstantName();
+        } else {
+            $default = $param->getDefaultValue();
+            if (!is_string($default)) {
+                $default = json_encode($default);
+            }
+        }
+        $paramString .= " = " . $default;
+        return $paramString;
+    }
+    /**
+     * @param \ReflectionMethod $param
+     * @return string
+     */
+    private function getExtraMethodInfo(\ReflectionMethod $method)
+    {
+        $name = $method->getName();
+        $declaringClass = $method->getDeclaringClass()->getName();
+        $visibility  = $method->isPrivate()   ? 'private'
+                     : $method->isProtected() ? 'protected'
+                     : 'public';
+        $accessMode = $method->isStatic() ? "::" : "->";
+        $paramsInfo = [];
+        foreach ($method->getParameters() as $param) {
+            $paramsInfo[] = $this->formatParamInfo($param);
+        }
+        $returnType = '';
+        if (method_exists($method, 'getReturnType') && $method->hasReturnType()) {
+            $returnType = " : " . (string)$method->getReturnType();
+        }
+        $docblock = $this->clearDoc($method->getDocComment());
+        return sprintf(
+            "%s %s%s%s(\n%s)%s\n%s",
+            $visibility,
+            $declaringClass,
+            $accessMode,
+            $name,
+            count($paramsInfo)
+                ? '    ' . join(",\n    ", $paramsInfo) . "\n"
+                : '',
+            $returnType,
+            $docblock
+        );
+    }
+
+    private function getMethodInfo(\ReflectionMethod $method, $pattern = null)
     {
         $name = $method->getName();
         if ($pattern && !$this->matchPattern($pattern, $name)) {
@@ -772,11 +856,16 @@ class PHPCD implements RpcHandler
         }, $method->getParameters());
 
         $modifier = $this->getModifiers($method);
+        if ($modifier) {
+            $abbr = sprintf("%3s %s(%s)", $modifier, $name, join(', ', $params));
+        } else {
+            $abbr = sprintf("%s(%s)", $name, join(', ', $params));
+        }
 
         return [
             'word' => $name,
-            'abbr' => sprintf("%3s %s (%s)", $modifier, $name, join(', ', $params)),
-            'info' => $this->clearDoc($method->getDocComment()),
+            'abbr' => $abbr,
+            'info' => $this->getExtraMethodInfo($method),
             'kind' => 'f',
             'icase' => 1,
         ];
@@ -814,6 +903,10 @@ class PHPCD implements RpcHandler
 
     private function getModifiers($reflection)
     {
+        if ($this->disable_modifier) {
+            return '';
+        }
+
         $signs = '';
 
         $modifiers = $reflection->getModifiers();
@@ -886,5 +979,55 @@ class PHPCD implements RpcHandler
         }
 
         return $namespaces;
+    }
+
+    public function keyword()
+    {
+        $keywords = require __DIR__.'/keyword.php';
+        return array_map(function ($keyword) {
+            return [
+                'word' => $keyword,
+                'abbr' => $keyword,
+                'info' => '',
+                'kind' => 'd',
+                'icase' => 1,
+            ];
+        }, $keywords);
+    }
+
+    public function classmap($pattern)
+    {
+        $use_fqdn = isset($pattern[0]) && $pattern[0] === "\\";
+        $pattern = trim($pattern, "\\");
+        $classmap_file = $this->root.'/vendor/composer/autoload_classmap.php';
+        $defined = array_merge(get_declared_traits(),
+            get_declared_interfaces(), get_declared_classes());
+
+        if (is_readable($classmap_file)) {
+            $_classmap = require $classmap_file;
+            if ($_classmap) {
+                $defined = array_merge($defined, array_keys($_classmap));
+            }
+        }
+
+        $classmap = [];
+        foreach ($defined as $name) {
+            if ($this->matchPattern($pattern, $name)) {
+                $classmap[] = $name;
+            }
+        }
+
+        return array_map(function ($name) use($use_fqdn) {
+            if ($use_fqdn) {
+                $name = "\\".$name;
+            }
+            return [
+                'word' => $name,
+                'abbr' => $name,
+                'info' => '',
+                'kind' => 't',
+                'icase' => 1,
+            ];
+        }, array_unique($classmap));
     }
 }

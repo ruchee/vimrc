@@ -9,7 +9,7 @@ class Source(Base):
         self.mark = '[phpcd]'
         self.filetypes = ['php']
         self.is_bytepos = True
-        self.input_pattern = '\w+|[^. \t]->\w*|\w+::\w*'
+        self.input_pattern = '\w+|[^. \t]->\w*|\w+::\w*|\\\\'
         self.rank = 500
         self.max_pattern_length = -1
         self.matchers = ['matcher_full_fuzzy']

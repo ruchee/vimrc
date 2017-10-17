@@ -30,16 +30,16 @@ each plugin. In general, you have to add a line to your `~/.vimrc`:
 
 ```viml
 " vim-plug
-Plug 'elixir-lang/vim-elixir'
+Plug 'elixir-editors/vim-elixir'
 " NeoBundle
-NeoBundle 'elixir-lang/vim-elixir'
+NeoBundle 'elixir-editors/vim-elixir'
 " Vundle
-Plugin 'elixir-lang/vim-elixir'
+Plugin 'elixir-editors/vim-elixir'
 ```
 
 ### Manual installation
 
-Copy the contents of each directory in the respective directories inside
+Run [./manual_install.sh](manual_install.sh) to copy the contents of each directory in the respective directories inside
 `~/.vim`.
 
 

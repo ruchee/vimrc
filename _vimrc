@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-10-13 11:01:00
+" -----------------    Date: 2017-10-17 15:24:46
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -746,6 +746,10 @@ let g:syntastic_c_compiler_options           = '-Wall -std=c11'
 let g:syntastic_cpp_compiler_options         = '-Wall -std=c++14'
 let g:syntastic_swift_checkers               = ['swiftpm', 'swiftlint']
 let g:syntastic_rust_checkers                = ['rustc']
+let g:syntastic_nim_checkers                 = ['nim']
+let g:syntastic_enable_nim_checker           = 1
+let g:syntastic_crystal_checkers             = ['crystal']
+let g:syntastic_enable_crystal_checker       = 1
 let g:syntastic_kotlin_checkers              = ['kotlinc']
 let g:syntastic_enable_kotlin_checker        = 1
 let g:syntastic_elixir_checkers              = ['elixir']

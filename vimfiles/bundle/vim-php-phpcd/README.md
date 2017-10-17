@@ -1,28 +1,30 @@
-# phpcd - PHP Completion Daemon for Vim/NeoVim
+# phpcd - PHP Completion Daemon Plugin for Vim/NeoVim
 
 [![asciicast](https://asciinema.org/a/4dzyyjymrguylqt21igxlhhqx.png)](https://asciinema.org/a/4dzyyjymrguylqt21igxlhhqx)
 
 ## Introduction
 
-PHPCD (PHP Completion Daemon) is another Vim omni complete engine for PHP.
+PHPCD (PHP Completion Daemon) is another PHP completion engine for Vim/NeoVim.
 
-PHPCD is based on [phpcomplete.vim](https://github.com/shawncplus/phpcomplete.vim) but is faster.
+PHPCD is based on [phpcomplete.vim](https://github.com/shawncplus/phpcomplete.vim) but is faster and smarter.
 
 While phpcomplete.vim uses the tags file to fetch the context info, PHPCD uses PHP's Reflection mechanism to fetch the context info, and this is why PHPCD is faster. All the phpcomplete VimL code related the tags file has been droped and reimplemented.
 
-PHPCD consists of two parts. On part is written in VimL (mainly based on phpcomplete.vim), and the other in PHP. ~~The communication between the VimL part and the PHP part relies on NeoVim's MsgPack-RPC mechanism. This is why NeoVim is needed.~~ Both NeoVim and Vim 7.4+ are supported now. Thanks to NoeVims's MsgPack-RPC and Vim's Channel.
+PHPCD consists of two parts. On part is written in VimL (mainly based on phpcomplete.vim), and the other in PHP. ~~The communication between the VimL part and the PHP part relies on NeoVim's MsgPack-RPC mechanism. This is why NeoVim is needed.~~ Both NeoVim and Vim 8.0+ are supported now. Thanks to NoeVims's MsgPack-RPC and Vim's Channel/Job mechanism.
 
 ##  Feature
- * Fast, Lightweight, Powerful
+ * Fast, Lightweight, Powerful, Smart
  * Correct restriction of static or standard methods based on context (show only static methods with `::` and only standard with `->`)
  * Real support for `self::`, `static::`, `parent::` and `$this->` with the aforementioned context restriction
  * Better class detection
      - Recognize `/* @var $yourvar YourClass */`、 `/* @var YourClass $yourvar */` type mark comments
      - Recognize `$instance = new Class;` class instantiations
-     - Recognize `$instance = Class::foo()->bar();` method call chain return type use `bar`'s `@return` docblocks
-     - Recognize `$date = DateTime::createFromFormat(...)` built-in class return types
-     - Recognize type hinting in function prototypes
+     - Recognize `(new Class)->` class instantiations
+     - ~~Recognize `$date = DateTime::createFromFormat(...)` built-in class return types~~
+     - Recognize both parameter type hinting and return hinting in function prototypes
      - Recognize types in `@param` lines in function docblocks
+     - Recognize types in `@return` lines in function docblocks
+     - Recognize `$instance = Class::foo()->bar();` method call chain return type
      - Recognize array of objects via docblock like `$foo[42]->` or for variables created in `foreach`
  * Displays docblock info in the preview for methods and properties
  * Support built-in class support with constants, methods and properties
@@ -32,7 +34,7 @@ PHPCD consists of two parts. On part is written in VimL (mainly based on phpcomp
 
 ### System requirement
 
- 1. [PHP 5.3+](http://php.net/)
+ 1. [PHP 5.4+](http://php.net/)
  2. [PCNTL](http://php.net/manual/en/book.pcntl.php) Extension
  3. [Msgpack 0.5.7+(for NeoVim)](https://github.com/msgpack/msgpack-php) Extension or [JSON(for Vim 7.4+)](http://php.net/manual/en/intro.json.php) Extension
  4. ~~[Composer](https://getcomposer.org/) Project~~
@@ -87,5 +89,7 @@ let g:phpcd_php_cli_executable = 'php7.0'
 ```
 
 Use <kbd>Ctrl</kbd>+<kbd>x</kbd><kbd>Ctrl</kbd>+<kbd>o</kbd> to complete and use <kbd>ctrl</kbd>+<kbd>]</kbd> to go to the defination.
+
+If you use neosnippet, you may like to set `g:phpcd_disable_modifier` to `0`.
 
 Good luck :)

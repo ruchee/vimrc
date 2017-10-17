@@ -1,196 +1,198 @@
-scriptencoding utf-8
-
-
-if exists("b:current_syntax")
+" For version 5.x: Clear all syntax items
+" For version 6.x: Quit when a syntax file was already loaded
+if version < 600
+  syntax clear
+elseif exists("b:current_syntax")
   finish
 endif
-if version < 600
-    syntax
+
+" Keep user-supplied options
+if !exists("nim_highlight_numbers")
+  let nim_highlight_numbers = 1
+endif
+if !exists("nim_highlight_builtins")
+  let nim_highlight_builtins = 1
+endif
+if !exists("nim_highlight_exceptions")
+  let nim_highlight_exceptions = 1
+endif
+if !exists("nim_highlight_space_errors")
+  let nim_highlight_space_errors = 1
+endif
+if !exists("nim_highlight_special_vars")
+  let nim_highlight_special_vars = 1
+endif
+
+if exists("nim_highlight_all")
+  let nim_highlight_numbers      = 1
+  let nim_highlight_builtins     = 1
+  let nim_highlight_exceptions   = 1
+  let nim_highlight_space_errors = 1
+  let nim_highlight_special_vars = 1
+endif
+
+syn region nimBrackets       contained extend keepend matchgroup=Bold start=+\(\\\)\@<!\[+ end=+]\|$+ skip=+\\\s*$\|\(\\\)\@<!\\]+ contains=@tclCommandCluster
+
+syn keyword nimKeyword       addr and as asm atomic
+syn keyword nimKeyword       bind block break
+syn keyword nimKeyword       case cast concept const continue converter
+syn keyword nimKeyword       defer discard distinct div do
+syn keyword nimKeyword       elif else end enum except export
+syn keyword nimKeyword       finally for from func
+syn keyword nimKeyword       generic
+syn keyword nimKeyword       if import in include interface is isnot iterator
+syn keyword nimKeyword       let
+syn keyword nimKeyword       mixin using mod
+syn keyword nimKeyword       nil not notin
+syn keyword nimKeyword       object of or out
+syn keyword nimKeyword       proc method macro template nextgroup=nimFunction skipwhite
+syn keyword nimKeyword       ptr
+syn keyword nimKeyword       raise ref return
+syn keyword nimKeyword       shared shl shr static
+syn keyword nimKeyword       try tuple type
+syn keyword nimKeyword       var
+syn keyword nimKeyword       when while with without
+syn keyword nimKeyword       xor
+syn keyword nimKeyword       yield
+
+syn match   nimFunction      "[a-zA-Z_][a-zA-Z0-9_]*" contained
+syn match   nimClass         "[a-zA-Z_][a-zA-Z0-9_]*" contained
+syn keyword nimRepeat        for while
+syn keyword nimConditional   if elif else case of
+syn keyword nimOperator      and in is not or xor shl shr div
+syn match   nimComment       "#.*$" contains=nimTodo,@Spell
+syn region  nimComment       start="#\[" end="\]#" contains=nimTodo,@Spell
+syn keyword nimTodo          TODO FIXME XXX contained
+syn keyword nimBoolean       true false
+
+
+" Strings
+syn region nimString start=+'+ skip=+\\\\\|\\'\|\\$+ excludenl end=+'+ end=+$+ keepend contains=nimEscape,nimEscapeError,@Spell
+syn region nimString start=+"+ skip=+\\\\\|\\"\|\\$+ excludenl end=+"+ end=+$+ keepend contains=nimEscape,nimEscapeError,@Spell
+syn region nimString start=+"""+ end=+"""+ keepend contains=nimEscape,nimEscapeError,@Spell
+syn region nimRawString matchgroup=Normal start=+[rR]"+ end=+"+ skip=+\\\\\|\\"+ contains=@Spell
+
+syn match  nimEscape		+\\[abfnrtv'"\\]+ contained
+syn match  nimEscape		"\\\o\{1,3}" contained
+syn match  nimEscape		"\\x\x\{2}" contained
+syn match  nimEscape		"\(\\u\x\{4}\|\\U\x\{8}\)" contained
+syn match  nimEscape		"\\$"
+
+syn match nimEscapeError "\\x\x\=\X" display contained
+
+if nim_highlight_numbers == 1
+  " numbers (including longs and complex)
+  syn match   nimNumber	"\v<0x\x+(\'(i|I|f|F|u|U)(8|16|32|64))?>"
+  syn match   nimNumber	"\v<[0-9_]+(\'(i|I|f|F|u|U)(8|16|32|64))?>"
+  syn match   nimNumber	"\v[0-9]\.[0-9_]+([eE][+-]=[0-9_]+)=>"
+  syn match   nimNumber	"\v<[0-9_]+(\.[0-9_]+)?([eE][+-]?[0-9_]+)?(\'(f|F)(32|64))?>"
+endif
+
+if nim_highlight_builtins == 1
+  " builtin functions, types and objects, not really part of the syntax
+  syn keyword nimBuiltin int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float float32 float64
+  syn keyword nimBuiltin bool void chr char string cstring pointer range array openarray openArray seq varargs varArgs
+  syn keyword nimBuiltin set Byte Natural Positive Conversion
+  syn keyword nimBuiltin BiggestInt BiggestFloat cchar cschar cshort cint csize cuchar cushort
+  syn keyword nimBuiltin clong clonglong cfloat cdouble clongdouble cuint culong culonglong cchar
+  syn keyword nimBuiltin CompileDate CompileTime nimversion nimVersion nimmajor nimMajor
+  syn keyword nimBuiltin nimminor nimMinor nimpatch nimPatch cpuendian cpuEndian hostos hostOS hostcpu hostCPU inf
+  syn keyword nimBuiltin neginf nan QuitSuccess QuitFailure dbglinehook dbgLineHook stdin
+  syn keyword nimBuiltin stdout stderr defined new high low sizeof succ pred
+  syn keyword nimBuiltin inc dec newseq newSeq len incl excl card ord chr ze ze64
+  syn keyword nimBuiltin tou8 toU8 tou16 toU16 tou32 toU32 abs min max add repr
+  syn match   nimBuiltin "\<contains\>"
+  syn keyword nimBuiltin tofloat toFloat tobiggestfloat toBiggestFloat toint toInt tobiggestint toBiggestInt
+  syn keyword nimBuiltin addquitproc addQuitProc
+  syn keyword nimBuiltin copy setlen setLen newstring newString zeromem zeroMem copymem copyMem movemem moveMem
+  syn keyword nimBuiltin equalmem equalMem alloc alloc0 realloc dealloc assert
+  syn keyword nimBuiltin echo swap getrefcount getRefcount getcurrentexception getCurrentException Msg
+  syn keyword nimBuiltin getoccupiedmem getOccupiedMem getfreemem getFreeMem gettotalmem getTotalMem isnil isNil seqtoptr seqToPtr
+  syn keyword nimBuiltin find pop GC_disable GC_enable GC_fullCollect
+  syn keyword nimBuiltin GC_setStrategy GC_enableMarkAndSweep GC_Strategy
+  syn keyword nimBuiltin GC_disableMarkAnd Sweep GC_getStatistics GC_ref
+  syn keyword nimBuiltin GC_ref GC_ref GC_unref GC_unref GC_unref quit
+  syn keyword nimBuiltin OpenFile OpenFile CloseFile EndOfFile readChar
+  syn keyword nimBuiltin FlushFile readfile readFile readline readLine write writeln writeLn writeline writeLine
+  syn keyword nimBuiltin getfilesize getFileSize ReadBytes ReadChars readbuffer readBuffer writebytes writeBytes
+  syn keyword nimBuiltin writechars writeChars writebuffer writeBuffer setfilepos setFilePos getfilepos getFilePos
+  syn keyword nimBuiltin filehandle fileHandle countdown countup items lines
+  syn keyword nimBuiltin FileMode File RootObj FileHandle ByteAddress Endianness
+endif
+
+if nim_highlight_exceptions == 1
+  " builtin exceptions and warnings
+  syn keyword nimException E_Base EAsynch ESynch ESystem EIO EOS
+  syn keyword nimException ERessourceExhausted EArithmetic EDivByZero
+  syn keyword nimException EOverflow EAccessViolation EAssertionFailed
+  syn keyword nimException EControlC EInvalidValue EOutOfMemory EInvalidIndex
+  syn keyword nimException EInvalidField EOutOfRange EStackOverflow
+  syn keyword nimException ENoExceptionToReraise EInvalidObjectAssignment
+  syn keyword nimException EInvalidObject EInvalidLibrary EInvalidKey
+  syn keyword nimException EInvalidObjectConversion EFloatingPoint
+  syn keyword nimException EFloatInvalidOp EFloatDivByZero EFloatOverflow
+  syn keyword nimException EFloatInexact EDeadThread EResourceExhausted
+  syn keyword nimException EFloatUnderflow
+endif
+
+if nim_highlight_space_errors == 1
+  " trailing whitespace
+  syn match   nimSpaceError   display excludenl "\S\s\+$"ms=s+1
+  " any tabs are illegal in nim
+  syn match   nimSpaceError   display "\t"
+endif
+
+if nim_highlight_special_vars
+  syn keyword nimSpecialVar result
+endif
+
+syn sync match nimSync grouphere NONE "):$"
+syn sync maxlines=200
+syn sync minlines=2000
+
+if version >= 508 || !exists("did_nim_syn_inits")
+  if version <= 508
+    let did_nim_syn_inits = 1
+    command -nargs=+ HiLink hi link <args>
+  else
+    command -nargs=+ HiLink hi def link <args>
+  endif
+
+  " The default methods for highlighting.  Can be overridden later
+  HiLink nimBrackets       Operator
+  HiLink nimKeyword	      Keyword
+  HiLink nimFunction	    	Function
+  HiLink nimConditional	  Conditional
+  HiLink nimRepeat		      Repeat
+  HiLink nimString		      String
+  HiLink nimRawString	    String
+  HiLink nimBoolean        Boolean
+  HiLink nimEscape		      Special
+  HiLink nimOperator		    Operator
+  HiLink nimPreCondit	    PreCondit
+  HiLink nimComment		    Comment
+  HiLink nimTodo		        Todo
+  HiLink nimDecorator	    Define
+  HiLink nimSpecialVar	    Identifier
+  
+  if nim_highlight_numbers == 1
+    HiLink nimNumber	Number
+  endif
+  
+  if nim_highlight_builtins == 1
+    HiLink nimBuiltin	Number
+  endif
+  
+  if nim_highlight_exceptions == 1
+    HiLink nimException	Exception
+  endif
+  
+  if nim_highlight_space_errors == 1
+    HiLink nimSpaceError	Error
+  endif
+
+  delcommand HiLink
 endif
 
 let b:current_syntax = "nim"
 
-
-" Keywords
-syntax keyword nimKeyword let const var static async await
-syntax keyword nimKeyword addr asm atomic bind cast defer discard
-syntax keyword nimKeyword do expr stmt end generic mixin iterator
-syntax keyword nimKeyword typedesc openarray out ptr ref return using
-syntax keyword nimKeyword varargs with without yield nil
-
-syntax keyword nimRepeat       for    while   in
-syntax keyword nimBoolean      true   false   on      off
-syntax keyword nimConditional  if     elif    else    case      continue break
-syntax keyword nimDefine       from   as
-syntax keyword nimException    try    except  finally raise
-syntax keyword nimInclude      import include export
-syntax keyword nimLabel        of
-syntax keyword nimMacro        macro  template
-syntax keyword nimPreCondit    when   block
-syntax keyword nimStorage      tuple  enum    object  interface concept  distinct any
-syntax keyword nimStorageClass type
-syntax keyword nimTypedef      func   proc    method  converter
-
-syntax keyword nimTodo TODO FIXME
-
-
-" Operators
-syntax match   nimOperatorAll "[&:?!@<>\|\~\.\^\=\/\+\-\*\$%]\+"
-syntax keyword nimOperator    not   xor shl shr div mod notin is isnot .
-syntax keyword nimOP9         div   mod shl   shr
-syntax keyword nimOP5         notin is  isnot not
-syntax keyword nimOP4         and
-syntax keyword nimOP3         or    xor
-syntax match   nimOP10        "[\$\^]"
-syntax match   nimOP9         "[\*\%\\\/]"
-syntax match   nimOP6         "\."
-syntax match   nimOP5         "[=|<|>]"
-syntax match   nimOP5         "\v([!<>]\=)"
-syntax match   nimOP2         "[@:?]"
-syntax match   nimOP1         "[\*+\/%&]="
-syntax match   nimOP0         "=>"
-syntax match   nimOP0         "\->"
-
-syntax match nimFunction  /[a-z,A-Z,0-9]\+\ze(/
-
-
-" Comments
-syntax match nimComment "\v#.*$" contains=nimTodo
-syntax region nimComment start="#\+\[" end="\]#\+" contains=nimTodo
-syntax match nimIdentifier /\w\+/
-highlight link nimIdentifier     Identifier
-
-
-" String
-syntax match nimStringLiterals contained /\\n\|\\r\|\\c\|\\l\|\\f\|\\t\|\\v\|\\\\|\\"\|\\\'\|\\a\|\\b\|\\e\|\\x\x\x\|[0-9]\+/ containedin=nimString
-syntax region nimString start=/\v"/ skip=/\v\\./ end=/\v"/ contains=nimStringLiterals
-syntax match nimChar /\'\(\\n\|\\r\|\\c\|\\l\|\\f\|\\t\|\\v\|\\\\|\\"\|\\\'\|\\a\|\\b\|\\e\|.\)\'/
-
-syntax keyword nimBuiltinFunction assert echo debugEcho GC_addCycleRoot GC_disable
-syntax keyword nimBuiltinFunction GC_disableMarkAndSweep GC_enable GC_enableMarkAndSweep GC_fullCollect GC_getStatistics
-syntax keyword nimBuiltinFunction GC_ref GC_setStrategy GC_unref abs add addAndFetch addQuitProc alloc alloc0 allocCStringArray
-syntax keyword nimBuiltinFunction allocShared allocShared0 astToStr atomicDec atomicInc card cas chr clamp close cmp
-syntax keyword nimBuiltinFunction compileOption compiles copy copyMem cpuRelax create createShared createSharedU
-syntax keyword nimBuiltinFunction createU cstringArrayToSeq dealloc deallocCStringArray deallocShared debugEcho dec
-syntax keyword nimBuiltinFunction declared declaredInScope deepCopy defined definedInScope del delete echo endOfFile
-syntax keyword nimBuiltinFunction equalMem excl failedAssertImpl find finished flushFile freeShared gcInvariant getCurrentException
-syntax keyword nimBuiltinFunction getCurrentExceptionMsg getFileHandle getFilePos getFileSize getFrame getFreeMem
-syntax keyword nimBuiltinFunction getOccupiedMem getRefcount getStackTrace getTotalMem getTypeInfo gorge high inc
-syntax keyword nimBuiltinFunction incl insert instantiationInfo internalNew isNil iterToProc len likely locals low
-syntax keyword nimBuiltinFunction max min moveMem new newSeq newString newStringOfCap newWideCString onRaise open
-syntax keyword nimBuiltinFunction ord pop pred procCall quit raiseAssert rawEnv rawProc readAll readBuffer readBytes
-syntax keyword nimBuiltinFunction readChar readChars readFile readLine realloc reallocShared reopen repr reset resize
-syntax keyword nimBuiltinFunction resizeShared safeAdd setControlCHook setCurrentException setFilePos setFrame setLen
-syntax keyword nimBuiltinFunction setupForeignThreadGc shallow shallowCopy sizeof slurp stackTraceAvailable staticExec
-syntax keyword nimBuiltinFunction staticRead substr succ swap toBiggestFloat toBiggestInt toFloat toInt toU16 toU32
-syntax keyword nimBuiltinFunction toU8 unlikely unsafeAddr unsafeNew write writeBuffer writeBytes writeChars writeFile
-syntax keyword nimBuiltinFunction writeLine writeLn writeStackTrace xlen ze ze64 zeroMem accumulateResult currentSourcePath
-syntax keyword nimBuiltinFunction doAssert excl incl newException onFailedAssert stdmsg
-
-
-syntax keyword nimBuiltinIterators countdown countup fieldPairs fields items lines mitems mpairs pairs
-
-syntax keyword nimBuiltinType int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64 float float32 float64 bool char string cstring pointer Ordinal ptr ref expr stmt typedesc void auto any untyped typed SomeSignedInt SomeUnsignedInt SomeInteger SomeOrdinal SomeReal SomeNumber range array openArray varargs seq set Slice shared guarded byte Natural Positive RootObj RootRef RootEffect TimeEffect IOEffect ReadIOEffect WriteIOEffect ExecIOEffect Exception SystemError IOError OSError LibraryError ResourceExhaustedError ArithmeticError DivByZeroError OverflowError AccessViolationError AssertionError ValueError KeyError OutOfMemError IndexError FieldError RangeError StackOverflowError ReraiseError ObjectAssignmentError ObjectConversionError FloatingPointError FloatInvalidOpError FloatDivByZeroError FloatOverflowError FloatUnderflowError FloatInexactError DeadThreadError TResult Endianness TaintedString LibHandle ProcAddr ByteAddress BiggestInt BiggestFloat clong culong cchar cschar cshort cint csize clonglong cfloat cdouble clongdouble cuchar cushort cuint culonglong cstringArray PFloat32 PFloat64 PInt64 PInt32 GC_Strategy PFrame TFrame File FileMode FileHandle THINSTANCE AlignType RefCount Utf16Char WideCString NimNode
-syntax keyword nimGlobals programResult globalRaiseHook localRaiseHook outOfMemHook stdin stdout stderr errorMessageWriter
-syntax keyword nimGlobals nimvm
-syntax keyword nimGlobals appType NoFakeVars isMainModule CompileDate CompileTime cpuEndian hostOS hostCPU QuitSuccess QuitFailure Inf NegInf NaN NimMajor NimMinor NimPatch NimVersion nativeStackTraceSupported
-
-
-" Numbers
-syntax match nimNumber "\v<[0-9_]+((i|I|u|U)(8|16|32|64))?>"
-syntax match nimNumber "\v<0x[0-9,a-f,A-F]+>"
-syntax match nimNumber "\v<0[bB][01]+>"
-syntax match nimNumber "\v<0[ocC][0-7]+>"
-syntax match nimFloat "\v<[0-9_]+(f|d|F|D)>"
-syntax match nimFloat "\v<[0-9_]+\.[0-9]+(f|d|F|D)>"
-syntax match nimFloat "\v<[0-9_]+((f|F)(32|64|128))>"
-syntax match nimFloat "\v<[0-9_]+\.[0-9]+((f|F)(32|64|128))?>"
-
-
-" Tokens
-syntax match nimToken "`"
-syntax match nimToken "("
-syntax match nimToken ")"
-" syntax match nimToken "{"
-" syntax match nimToken "}"
-syntax match nimToken "\["
-syntax match nimToken "\]"
-syntax match nimToken ","
-syntax match nimToken ";"
-syntax match nimToken "\[\."
-syntax match nimToken "\.\]"
-syntax match nimToken "(\."
-syntax match nimToken "\.)"
-
-
-" Pragmas
-syntax case ignore
-syntax keyword nimPragmas contained bitsize bycopy byref compile disabling dynlib emit exportc extern header importc incompletestruct containedin=nimPragma
-syntax keyword nimPragmas contained link nodecl packed passc passl thread threadvar unchecked union varargs volatile acyclic asmnostackframe containedin=nimPragma
-syntax keyword nimPragmas contained assertions boundchecks callconv checks codegendecl compilation compiletime computedgoto deadcodeelim containedin=nimPragma
-syntax keyword nimPragmas contained deprecated destructor error experimental fatal final global hint hints immediate importcpp importobjc containedin=nimPragma
-syntax keyword nimPragmas contained injectstmt line linearscanend nilchecks noreturn nosideeffect optimization overflowchecks override patterns containedin=nimPragma
-syntax keyword nimPragmas contained pop pragma procvar pure push register shallow unroll warning warnings magic discardable inject containedin=nimPragma
-syntax keyword nimPragmas contained tags nimcall benign push checks magic rtl inline closure dirty compilerproc inheritable noinit effects requiresinit containedin=nimPragma
-syntax region nimPragma start=/{\./ end=/\.}/ contains=nimPragmas,nimString,nimNumber,nimFloat,nimBoolean
-syntax case match
-
-
-" Linking
-highlight link nimBoolean          Boolean
-highlight link nimBuiltinFunction  Function
-highlight link nimBuiltinIterators Typedef
-highlight link nimBuiltinType      Type
-highlight link nimChar             Character
-highlight link nimComment          Comment
-highlight link nimFloat            Float
-highlight link nimFunction         Function
-highlight link nimIdentifier       Identifier
-highlight link nimKeyword          Keyword
-highlight link nimNumber           Number
-highlight link nimOperatorAll      Operator
-highlight link nimString           String
-highlight link nimStringLiterals   Character
-highlight link nimPragmas          Character
-highlight link nimSuffix           SpecialChar
-highlight link nimTodo             Todo
-highlight link nimToken            Delimiter
-
-highlight link nimConditional  Conditional
-highlight link nimConstant     Constant
-highlight link nimDefine       Define
-highlight link nimException    Exception
-highlight link nimGlobals      Constant
-highlight link nimInclude      Include
-highlight link nimLabel        Label
-highlight link nimMacro        Macro
-highlight link nimPreCondit    PreCondit
-highlight link nimPreProc      PreProc
-highlight link nimRepeat       Repeat
-highlight link nimStorage      Structure
-highlight link nimStorageClass StorageClass
-highlight link nimTypedef      Typedef
-highlight link nimOperator     Operator
-
-if len(g:nvim_nim_highlighter_semantics) > 0
-    hi Semantic0  guifg=#904719 gui=none
-    hi Semantic1  guifg=#44f365 gui=none
-    hi Semantic2  guifg=#503f43 gui=none
-    hi Semantic3  guifg=#c18167 gui=none
-    hi Semantic4  guifg=#688704 gui=none
-    hi Semantic5  guifg=#6b4b77 gui=none
-    hi Semantic6  guifg=#718c07 gui=none
-    hi Semantic7  guifg=#7211cb gui=none
-    hi Semantic8  guifg=#84ec66 gui=none
-    hi Semantic9  guifg=#8f7fc3 gui=none
-    hi Semantic10 guifg=#9dd1db gui=none
-    hi Semantic11 guifg=#b80145 gui=none
-    hi Semantic12 guifg=#c19345 gui=none
-    hi Semantic13 guifg=#ce6723 gui=none
-    hi Semantic14 guifg=#d787c4 gui=none
-    hi Semantic15 guifg=#e20caf gui=none
-    hi Semantic16 guifg=#e59eee gui=none
-    hi Semantic17 guifg=#efd63f gui=none
-    hi Semantic18 guifg=#fcbc89 gui=none
-    hi Semantic19 guifg=#7c78c9 gui=none
-endif

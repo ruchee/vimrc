@@ -45,7 +45,8 @@ if !exists('g:phpcd_channel_id')
 	let phpcd_path = expand('<sfile>:p:h:h') . '/php/main.php'
 	let g:php_autoload_path = g:phpcd_root.'/'.g:phpcd_autoload_path
 	let g:phpcd_channel_id = rpc#start(g:phpcd_php_cli_executable,
-				\ phpcd_path, g:phpcd_root, messenger, g:php_autoload_path)
+				\ phpcd_path, g:phpcd_root, messenger, g:php_autoload_path,
+				\ g:phpcd_disable_modifier)
 
 	if g:phpcd_root != '/'
 		let g:phpid_channel_id = g:phpcd_channel_id

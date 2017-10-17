@@ -43,6 +43,14 @@ function! go#util#IsWin() abort
   return 0
 endfunction
 
+" IsMac returns 1 if current OS is macOS or 0 otherwise.
+function! go#util#IsMac() abort
+  return has('mac') ||
+        \ has('macunix') ||
+        \ has('gui_macvim') ||
+        \ go#util#System('uname') =~? '^darwin'
+endfunction
+
  " Checks if using:
  " 1) Windows system,
  " 2) And has cygpath executable,
@@ -264,32 +272,42 @@ endfunction
 " snakecase converts a string to snake case. i.e: FooBar -> foo_bar
 " Copied from tpope/vim-abolish
 function! go#util#snakecase(word) abort
-  let word = substitute(a:word,'::','/','g')
-  let word = substitute(word,'\(\u\+\)\(\u\l\)','\1_\2','g')
-  let word = substitute(word,'\(\l\|\d\)\(\u\)','\1_\2','g')
-  let word = substitute(word,'[.-]','_','g')
+  let word = substitute(a:word, '::', '/', 'g')
+  let word = substitute(word, '\(\u\+\)\(\u\l\)', '\1_\2', 'g')
+  let word = substitute(word, '\(\l\|\d\)\(\u\)', '\1_\2', 'g')
+  let word = substitute(word, '[.-]', '_', 'g')
   let word = tolower(word)
   return word
 endfunction
 
-" camelcase converts a string to camel case. i.e: FooBar -> fooBar
-" Copied from tpope/vim-abolish
+" camelcase converts a string to camel case. e.g. FooBar or foo_bar will become
+" fooBar.
+" Copied from tpope/vim-abolish.
 function! go#util#camelcase(word) abort
   let word = substitute(a:word, '-', '_', 'g')
   if word !~# '_' && word =~# '\l'
-    return substitute(word,'^.','\l&','')
+    return substitute(word, '^.', '\l&', '')
   else
-    return substitute(word,'\C\(_\)\=\(.\)','\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))','g')
+    return substitute(word, '\C\(_\)\=\(.\)', '\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))','g')
   endif
+endfunction
+
+" pascalcase converts a string to 'PascalCase'. e.g. fooBar or foo_bar will
+" become FooBar.
+function! go#util#pascalcase(word) abort
+  let word = go#util#camelcase(a:word)
+  return toupper(word[0]) . word[1:]
 endfunction
 
 " Echo a message to the screen and highlight it with the group in a:hi.
 "
 " The message can be a list or string; every line with be :echomsg'd separately.
 function! s:echo(msg, hi)
-  let l:msg = a:msg
-  if type(l:msg) != type([])
-    let l:msg = split(l:msg, "\n")
+  let l:msg = []
+  if type(a:msg) != type([])
+    let l:msg = split(a:msg, "\n")
+  else
+    let l:msg = a:msg
   endif
 
   " Tabs display as ^I or <09>, so manually expand them.
@@ -338,7 +356,7 @@ endfunction
 "
 " > The archive consists of a series of files. Each file consists of a name, a
 " > decimal file size and the file contents, separated by newlinews. No newline
-" > follows after the file contents. 
+" > follows after the file contents.
 function! go#util#archive()
     let l:buffer = join(go#util#GetLines(), "\n")
     return expand("%:p:gs!\\!/!") . "\n" . strlen(l:buffer) . "\n" . l:buffer

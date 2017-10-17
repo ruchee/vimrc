@@ -30,11 +30,11 @@ CONTENTS                                                         *go-contents*
 ==============================================================================
 INTRO                                                               *go-intro*
 
-Go (golang) support for Vim. vim-go automatically installs all necessary
-binaries for providing a seamless Vim integration. It comes with pre-defined
-sensible settings (like automatic `gofmt` on save), has autocomplete, snippet
-support, improved syntax highlighting, go toolchain commands, etc. It's highly
-customizable and individual features can be disabled/enabled easily.
+Go (golang) support for Vim. vim-go comes with sensible predefined settings
+(e.g. automatic `gofmt` on save), has autocomplete, snippet support, improved
+syntax highlighting, go toolchain commands, etc. It is highly customizable,
+and individual features can be toggled easily. vim-go leverages a number of
+tools developed by the Go community to provide a seamless Vim experience.
 
   * Compile your package with |:GoBuild|, install it with |:GoInstall| or
     test it with |:GoTest|. Run a single tests with |:GoTestFunc|).
@@ -73,15 +73,16 @@ customizable and individual features can be disabled/enabled easily.
 ==============================================================================
 INSTALL                                                           *go-install*
 
-Master branch is a _development_ branch. Please use with caution. I recommend
-to use the latest stable release from
-https://github.com/fatih/vim-go/releases/latest
+The latest stable release, https://github.com/fatih/vim-go/releases/latest, is
+the recommended version to use. If you choose to use the master branch
+instead, please do so with caution; it is a _development_ branch.
 
-Vim-go follows the standard runtime path structure and should work with any of
+vim-go follows the standard runtime path structure and should work with any of
 the major plugin managers.
 
-For Pathogen or Vim |packages| just clone the repo, for other plugin managers
-add the appropriate lines and execute the plugin's install command.
+For Pathogen or Vim |packages|, just clone the repo. For other plugin managers
+you may also need to add the lines to your vimrc to execute the plugin
+manager's install command.
 
 *  Vim 8 |packages|
 >
@@ -108,11 +109,10 @@ add the appropriate lines and execute the plugin's install command.
 
     Copy all of the files into your `~/.vim` directory
 <
-You will also need to install all necessary binaries. We have a handy
-command for it: |:GoInstallBinaries|, which will `go get` all the required
-binaries.
-The binaries will be installed to `$GOPATH/bin` (default: `$HOME/go/bin`). It
-requires `git`.
+You will also need to install all the necessary binaries. vim-go makes it easy
+to install all of them by providing a command, |:GoInstallBinaries|, to
+`go get` all the required binaries. The binaries will be installed to $GOBIN
+or $GOPATH/bin (default: $HOME/go/bin). It requires `git`.
 
 Depending on your installation method, you may have to generate the plugin's
 |:helptags| manually (e.g. `:helptags ALL`).
@@ -475,18 +475,21 @@ CTRL-t
 :GoInstallBinaries [binaries]
 
     Download and install all necessary Go tool binaries such as `godef`,
-    `goimports`, `gocode`, etc. under `g:go_bin_path`. If one or more
-    [binaries] are given then it will only install those. The default is to
-    update everything.
+    `goimports`, `gocode`, etc. under |'g:go_bin_path'|. If [binaries] is
+    supplied, then only the specified binaries will be installed. The default
+    is to install everything.
+
     Set |'g:go_get_update'| to disable updating dependencies.
 
                                                            *:GoUpdateBinaries*
 :GoUpdateBinaries [binaries]
 
     Download and update previously installed Go tool binaries such as `godef`,
-    `goimports`, `gocode`, etc. under `g:go_bin_path`. If one or more
-    [binaries] are given then it will only update those. The
-    default is to update everything.
+    `goimports`, `gocode`, etc. under |'g:go_bin_path'|. If [binaries] is
+    supplied, then only the specified binaries will be updated. The default is
+    to update everything.
+
+    Set |'g:go_get_update'| to disable updating dependencies.
 
                                                                *:GoImplements*
 :GoImplements
@@ -827,8 +830,8 @@ CTRL-t
 MAPPINGS                                                        *go-mappings*
 
 vim-go has several <Plug> keys which can be used to create custom mappings
-For example, to create a mapping that `go run` for the current package, create
-a mapping for the `(go-run)`: >
+For example, to create a mapping that calls `go run` for the current package,
+create a mapping for the `(go-run)`: >
 
   au FileType go nmap <leader>r <Plug>(go-run)
 
@@ -1097,10 +1100,14 @@ set to 10 seconds . >
 <
                                                  *'g:go_play_browser_command'*
 
-Use this option to change the browser that is used to open the snippet url
-posted to play.golang.org with |:GoPlay| or for the relevant documentation
-used with |:GoDocBrowser|. By default it tries to find it automatically for
-the current OS. >
+Browser to use for |:GoPlay| or |:GoDocBrowser|. The url must be added with
+`%URL%`, and it's advisable to include `&` to make sure the shell returns. For
+example:
+>
+  let g:go_play_browser_command = 'firefox-developer %URL% &'
+<
+
+By default it tries to find it automatically for the current OS. >
 
   let g:go_play_browser_command = ''
 <
@@ -1465,10 +1472,15 @@ By default it is set to edit.
 <
                                                      *'g:go_gorename_prefill'*
 
-Specifies whether |:GoRename| prefills the new identifier name with the
-word under the cursor. By default it is enabled.
+Expression to prefill the new identifier when using |:GoRename| without any
+arguments. Use an empty string if you don't want to prefill anything. By
+default it converts the identifier to camel case but preserves the
+capitalisation of the first letter to ensure that the exported state stays the
+same.
 >
-  let g:go_gorename_prefill = 1
+  let g:go_gorename_prefill = 'expand("<cword>") =~# "^[A-Z]"' .
+        \ '? go#util#pascalcase(expand("<cword>"))' .
+        \ ': go#util#camelcase(expand("<cword>"))'
 <
                                                      *'g:go_gocode_autobuild'*
 
@@ -1611,7 +1623,7 @@ By default "snakecase" is used. Current values are: ["snakecase",
 ==============================================================================
 SYNTAX HIGHLIGHTING                                 *ft-go-syntax* *go-syntax*
 
-Vim-go comes with an enhanced version of Vim's Go syntax highlighting. It
+vim-go comes with an enhanced version of Vim's Go syntax highlighting. It
 comes with a number of features, most of which are disabled by default.
 
 The recommended settings are the default values. If you're experiencing
@@ -1932,7 +1944,7 @@ by being a patreon at: https://www.patreon.com/fatih
 By being a patron, you are enabling vim-go to grow and mature, helping me to
 invest in bug fixes, new documentation, and improving both current and future
 features. It's completely optional and is just a direct way to support
-Vim-go's ongoing development. Thanks!
+vim-go's ongoing development. Thanks!
 
 Check it out: https://www.patreon.com/fatih
 
