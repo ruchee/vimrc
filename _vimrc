@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-10-17 15:24:46
+" -----------------    Date: 2017-10-22 11:13:12
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -595,6 +595,7 @@ else
   command! -nargs=1 Py py <args>
 endif
 let g:pymode_python = 'python3'                " 使用 Python3 语法检查 [Python-Mode]
+let g:pymode_options_colorcolumn = 0           " 关闭右侧的单行字符长度标尺
 
 " 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [默认高亮为 HTML] [js-pretty-template 插件]
 " 可用形如 :JsPreTmpl xml 的命令临时修改模版字符串的高亮语法
