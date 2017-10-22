@@ -491,7 +491,7 @@ function! s:SpawnExternalParser(cmd) " {{{2
 
         call s:ResetShellSlash()
 
-        let l:parsing_result = split(system(l:cmd), '\n')
+        let l:parsing_result = split(system(l:cmd), '[\r\n]')
 
         " if editorconfig core's exit code is not zero, give out an error
         " message
@@ -641,6 +641,15 @@ function! s:ApplyConfig(config) " {{{1
                     " Fill only if the columns of screen is large enough
                     let &l:colorcolumn = join(
                                 \ range(l:max_line_length+1,&l:columns),',')
+                elseif g:EditorConfig_max_line_indicator == 'exceeding'
+                    let &l:colorcolumn = ''
+                    for l:match in getmatches()
+                        if get(l:match, 'group', '') == 'ColorColumn'
+                            call matchdelete(get(l:match, 'id'))
+                        endif
+                    endfor
+                    call matchadd('ColorColumn',
+                        \ '\%' . (l:max_line_length + 1) . 'v', 100)
                 endif
             endif
         endif
