@@ -12,24 +12,24 @@ snippet doc     heredoc
 # 复合结构
 snippet f       函数定义
 	function ${1:f_name} {
-	  ${0}
+	    ${0}
 	}
 # 流程控制
 snippet if      if
 	if [ ${1} ]
 	then
-	  ${0}
+	    ${0}
 	fi
 snippet elif    elif
 	elif [ ${1} ]
 	then
-	  ${0}
+	    ${0}
 snippet el      else
 	else
-	  ${0}
+	    ${0}
 snippet th      then
 	then
-	  ${0}
+	    ${0}
 snippet fo      for循环
 	for ${0}
 snippet fi      for .. in
@@ -42,11 +42,11 @@ snippet sel     select .. in
 	select ${1} in ${0}
 snippet do      do .. done
 	do
-	  ${0}
+	    ${0}
 	done
 snippet cs      case .. in
 	case ${1} in
-	  ${0}
+	    ${0}
 	esac
 snippet def     default
 	default ${0};

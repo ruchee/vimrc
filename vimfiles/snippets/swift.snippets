@@ -13,115 +13,114 @@ snippet im      导入模块
 # 模块、类
 snippet cl      类
 	class ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet cle     类继承
 	class ${1}: ${2} {
-	  ${0}
+	    ${0}
 	}
 snippet str     结构体
 	struct ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet enu     枚举
 	enum ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet pro     协议
 	protocol ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet ext     扩展功能
 	extension ${1} {
-	  ${0}
+	    ${0}
 	}
 # 函数/方法
 snippet f       函数
-	func ${1} (${2})${3} {
-	  ${0}
+	func ${1}(${2})${3} {
+	    ${0}
 	}
 snippet ff      函数原型
 	(${1}) -> ${0}
 snippet fi      构造函数
 	init (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fd      析构函数
 	deinit {
-	  ${0}
+	    ${0}
 	}
 snippet fg      属性getter方法
 	get {
-	  ${0}
+	    ${0}
 	}
 snippet fs      属性setter方法
 	set {
-	  ${0}
+	    ${0}
 	}
 snippet fws     属性设置新值之前运行 [与 get 和 set 不能共存]
 	willSet {
-	  ${0}
+	    ${0}
 	}
 snippet fds     属性设置新值之后运行 [与 get 和 set 不能共存]
 	didSet {
-	  ${0}
+	    ${0}
 	}
 # 流程控制
 snippet if      if
 	if ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet elif    else if
 	else if ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet el      else
 	else {
-	  ${0}
+	    ${0}
 	}
 snippet fo      for
 	for ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet foi     for .. in
 	for ${1} in ${2} {
-	  ${0}
+	    ${0}
 	}
 snippet wh      while
 	while ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet rep     repeat .. while
 	repeat {
-	  ${0}
+	    ${0}
 	} while ${1}
 snippet sw      switch
 	switch ${1} {
-	${0}
+	    ${0}
 	}
 snippet cs      case
 	case ${1}:
-	  ${0}
+	    ${0}
 snippet def     default
 	default:
-	  ${0}
+	    ${0}
 # 异常处理
 snippet thr     抛出异常
 	throw ${0}
 snippet do      异常处理块
 	do {
-	  ${0}
-	} catch {
+	    ${0}
 	}
 snippet try     捕获异常
 	try ${0}
 snippet cat     处理异常
 	catch${1} {
-	  ${0}
+	    ${0}
 	}
 snippet df      无论怎样都会执行
 	defer {
-	  ${0}
+	    ${0}
 	}
 # 单个关键字
 snippet pu      公共

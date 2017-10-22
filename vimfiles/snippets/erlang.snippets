@@ -33,20 +33,20 @@ snippet f       函数定义 [同一行]
 	${1:f_name}(${2}) -> ${0}
 snippet f.      函数定义 [另起一行]
 	${1:f_name}(${2}) ->
-	  ${0}
+	    ${0}
 snippet ff      匿名函数 [同一行]
 	fun(${1}) -> ${0} end
 snippet ff.     匿名函数 [另起一行]
 	fun($1) ->
-	  ${0}
+	    ${0}
 	end
 snippet rec     接收消息
 	receive
-	  ${0}
+	    ${0}
 	end
 snippet be      代码块
 	begin
-	  ${0}
+	    ${0}
 	end
 snippet se      发送消息
 	${1} ! ${0}
@@ -69,22 +69,22 @@ snippet dmon    移除监视
 # 流程控制
 snippet if      if
 	if ${1}
-	  ${0}
+	    ${0}
 	end
 snippet cs      case
 	case ${1} of
-	  ${0}
+	    ${0}
 	end
 snippet w       when
 	when ${0}
 # 异常处理
 snippet try     监控代码段
 	try ${1} of
-	  ${0}
+	    ${0}
 	end
 snippet cat     捕获异常
 	catch
-	  ${0}
+	    ${0}
 snippet aft     善后处理
 	after${0}
 snippet thr     抛出异常

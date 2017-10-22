@@ -11,15 +11,15 @@ snippet im      导入包
 # 类、函数
 snippet cl      类定义
 	class ${1:cl_name} {
-	  ${0}
+	    ${0}
 	}
 snippet int     接口定义
 	interface ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet f       方法定义
 	${1}(${2}) {
-	  ${0}
+	    ${0}
 	}
 snippet ff      匿名函数
 	(${1}) -> ${0}
@@ -27,53 +27,53 @@ snippet fd      方法原型
 	${1}(${2});${0}
 snippet main    主函数
 	public static void main(String[] args) {
-	  ${0}
+	    ${0}
 	}
 # 流程控制
 snippet if      if
 	if (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet elif    else if
 	else if (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet el      else
 	else {
-	  ${0}
+	    ${0}
 	}
 snippet wh      while循环
 	while (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fo      for循环
 	for (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet sw      switch
 	switch (${1}) {
-	${0}
+	    ${0}
 	}
 snippet cs      case
 	case ${1}:
-	  ${0}
+	    ${0}
 snippet def     default
 	default:
-	  ${0}
+	    ${0}
 # 异常处理
 snippet try     try
 	try {
-	  ${0}
+	    ${0}
 	}
 snippet thr     抛出异常
 	throw ${0}
 snippet cat     捕获异常
 	catch (${0}) {
-	  ${0}
+	    ${0}
 	}
 snippet fin     善后处理
 	finally {
-	  ${0}
+	    ${0}
 	}
 # 输入输出
 snippet p       常用输出

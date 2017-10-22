@@ -43,28 +43,28 @@ snippet df      AMD模块定义
 # 类相关 [ES6新增]
 snippet cl      类定义
 	class ${1} {
-	  ${0}
+	    ${0}
 	}
 snippet cle     类继承
 	class ${1} extends ${2} {
-	  ${0}
+	    ${0}
 	}
 snippet fc      构造方法
 	constructor(${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fc.     单行空构造方法
 	constructor(${0}) {}
 snippet cf      普通方法
 	${1}(${2})${3} {
-	  ${0}
+	    ${0}
 	}
 snippet _pt     指定原型
 	__proto__${0}
 # 函数、流程控制
 snippet f       常规函数
 	function ${1}(${2})${3} {
-	  ${0}
+	    ${0}
 	}
 snippet ff      匿名函数 [ES5语法]
 	function(${1})${2} {${0}}
@@ -74,82 +74,82 @@ snippet la      匿名函数 [单一参数箭头函数，行内直接return] [ES
 	${1} => ${0}
 snippet of      对象中的方法
 	${1}: function(${2}) {
-	  ${0}
+	    ${0}
 	},
 snippet oo      对象属性
 	${1}: {
-	  ${0}
+	    ${0}
 	},
 snippet fg      get方法
 	get ${1}(${2})${3} {
-	  ${0}
+	    ${0}
 	}
 snippet fs      set方法
 	set ${1}(${2})${3} {
-	  ${0}
+	    ${0}
 	}
 snippet wi      指定缺省对象
 	with (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet if      if
 	if (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet elif    else if
 	else if (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet el      else
 	else {
-	  ${0}
+	    ${0}
 	}
 snippet fo      for [ES6语法]
 	for (let ${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fi      for .. in [ES6语法]
 	for (let ${1} in ${2}) {
-	  ${0}
+	    ${0}
 	}
 snippet foo     for .. of [ES6语法]
 	for (let ${1} of ${2}) {
-	  ${0}
+	    ${0}
 	}
 snippet fe      forEach
 	forEach(${0})
 snippet wh      while
 	while (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet do      do .. while
 	do {
-	  ${0}
+	    ${0}
 	} while (${1})
 snippet sw      switch
 	switch (${1}) {
-	${0}
+	    ${0}
 	}
 snippet cs      case
 	case ${1}:
-	  ${0}
+	    ${0}
 snippet def     default
 	default:
-	  ${0}
+	    ${0}
 # 异常处理
 snippet thr     抛出异常
 	throw ${0}
 snippet try     监控代码块
 	try {
-	  ${0}
+	    ${0}
 	}
 snippet cat     捕获异常
 	catch (${1}) {
-	  ${0}
+	    ${0}
 	}
 snippet fin     善后处理
 	finally {
-	  ${0}
+	    ${0}
 	}
 # 单个关键字
 snippet co      继续

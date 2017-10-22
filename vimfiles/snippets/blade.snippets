@@ -16,70 +16,70 @@ snippet yi      填充区块 [原始数据不默认呈现]
 	@yield('${0}')
 snippet se      填充区块 [扩充原始数据]
 	@section('${1}')
-	  ${0}
+	    ${0}
 	@endsection
 snippet se.     填充区块 [原始数据，默认呈现]
 	@section('${1}')
-	  ${0}
+	    ${0}
 	@show
 snippet cm      组件
 	@component('${1}')
-	  ${0}
+	    ${0}
 	@endcomponent
 snippet sl      槽
 	@slot('${1}')
-	  ${0}
+	    ${0}
 	@endslot
 snippet pu      堆栈
 	@push('${1}')
-	  ${0}
+	    ${0}
 	@endpush
 snippet ve      声明不被解析的区块
 	@verbatim
-	  ${0}
+	    ${0}
 	@endverbatim
 snippet can     授权策略判断
 	@can('${1}', ${2})
-	  ${0}
+	    ${0}
 	@endcan
 snippet php     执行纯 PHP 代码
 	@php
-	  ${0}
+	    ${0}
 	@endphp
 # 流程控制
 snippet if      if
 	@if (${1})
-	  ${0}
+	    ${0}
 	@endif
 snippet elif    elseif
 	@elseif (${1})
-	  ${0}
+	    ${0}
 snippet el      else
 	@else
-	  ${0}
+	    ${0}
 snippet uls     unless [与 if 相反]
 	@unless (${1})
-	  ${0}
+	    ${0}
 	@endunless
 snippet fo      for
 	@for (${1})
-	  ${0}
+	    ${0}
 	@endfor
 snippet foel    forelse
 	@forelse (${1})
-	  ${2}
+	    ${2}
 	@empty
-	  ${0}
+	    ${0}
 	@endforelse
 snippet e       each
 	@each(${0})
 snippet fe      foreach
 	@foreach (${1})
-	  ${0}
+	    ${0}
 	@endforeach
 snippet wh      while
 	@while (${1})
-	  ${0}
+	    ${0}
 	@endwhile
 # 辅助函数
 snippet lit     生成链接
