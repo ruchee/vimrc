@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-10-22 23:52:19
+" -----------------    Date: 2017-11-03 17:33:51
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -25,7 +25,7 @@
 "
 " \ww                        打开 Vimwiki 主页
 " \wa                        一键编译所有 Vimwiki 源文件
-" \nt                        打开/关闭 NERDTree 文件树窗口
+" \nt                        打开 NERDTree 文件树窗口
 " \ut                        打开/关闭 Undotree 文档编辑历史窗口
 " \tl                        打开/关闭 Tags 窗口
 "
@@ -820,8 +820,8 @@ nmap <leader>bb :Tab /=<cr>
 " \bn                 自定义对齐    [Tabular 插件]
 nmap <leader>bn :Tab /
 
-" \nt                 打开/关闭文件树窗口，在左侧栏显示 [NERDTree 插件]
-nmap <leader>nt :NERDTreeToggle<cr>
+" \nt                 打开文件树窗口，在左侧栏显示 [NERDTree 插件]
+nmap <leader>nt :NERDTree<cr>
 
 " \ut                 打开/关闭文档编辑历史窗口，在左侧栏显示 [Undotree 插件]
 nmap <leader>ut :UndotreeToggle<cr>
