@@ -465,7 +465,7 @@ syntastic <https://github.com/vim-syntastic/syntastic>
 
 * syntastic warning >
   let airline#extensions#syntastic#warning_symbol = 'W:'
-< 
+<
 * syntastic statusline warning format (see |syntastic_stl_format|) >
   let airline#extensions#syntastic#stl_format_err = '%W{[%w(#%fw)]}'
 <
@@ -559,14 +559,18 @@ eclim <https://eclim.org>
   " create a file in the dir autoload/airline/extensions/wordcount/formatters/
   " called foo.vim
   " this example needs at least Vim > 7.4.1042
-  function! airline#extensions#wordcount#formatters#foo#format()
+  function! airline#extensions#wordcount#formatters#foo#format(format,fmt)
     return (wordcount()['words'] == 0 ? 'NONE' :
         \ wordcount()['words'] > 100 ? 'okay' : 'not enough')
   endfunction
   let g:airline#extensions#wordline#formatter = 'foo'
 
-* defines how to display the wordcount statistics: >
-  let g:airline#extensions#wordcount#format = '%d words'
+* defines how to display the wordcount statistics for the default formatter: >
+  " Defaults are below.  If fmt_short isn't defined, fmt is used.
+  " '%s' will be substituted by the word count
+  " fmt_short is displayed when window width is less than 80
+  let g:airline#extensions#wordcount#formatter#default#fmt = '%s words'
+  let g:airline#extensions#wordcount#formatter#default#fmt_short = '%sW'
 <
 -------------------------------------                   *airline-whitespace*
 * enable/disable detection of whitespace errors. >
@@ -737,7 +741,7 @@ with the middle mouse button to delete that buffer.
   let g:airline#extensions#tabline#formatter = 'foo'
 <
 
-  Note: the following variables are only used by the 'default' formatter.
+  Note: the following variables are used by the 'default' formatter.
   When no disambiguation is needed, both 'unique_tail_improved' and
   'unique_tail' delegate formatting to 'default', so these variables also
   control rendering of unique filenames when using these formatters.
@@ -761,6 +765,12 @@ with the middle mouse button to delete that buffer.
   " there is another file of the same name, in which it will display it along
   " with the containing parent directory.
   let g:airline#extensions#tabline#formatter = 'unique_tail'
+
+      " The following variables are also used by `unique_tail` formatter.
+      " the meanings are the same as the ones in default formatter.
+
+      let g:airline#extensions#tabline#fnamemod = ':p:.'
+      let g:airline#extensions#tabline#fnamecollapse = 1
 
   " The `unique_tail_improved` - another algorithm, that will smartly uniquify
   " buffers names with similar filename, suppressing common parts of paths.
@@ -949,7 +959,7 @@ State indicators:
 * the current tex file is the main project file (nothing is shown by default) >
   let g:airline#extensions#vimtex#main = ""
 
-* the current tex file is a subfile of the project 
+* the current tex file is a subfile of the project
   and the compilation is set for the main file >
   let g:airline#extensions#vimtex#sub_main = "m"
 
@@ -1036,7 +1046,7 @@ Before is a list of parts that are predefined by vim-airline.
 * `file`           displays the filename and modified indicator
 * `path`           displays the filename (absolute path) and modifier indicator
 * `linenr`         displays the current line number
-* `maxlinenr`      dispalys the number of lines in the buffer
+* `maxlinenr`      displays the number of lines in the buffer
 * `ffenc`          displays the file format and encoding
 
 And the following are defined for their respective extensions:

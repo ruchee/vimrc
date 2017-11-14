@@ -31,14 +31,18 @@ function! s:toggle_off()
   call airline#extensions#tabline#autoshow#off()
   call airline#extensions#tabline#tabs#off()
   call airline#extensions#tabline#buffers#off()
-  call airline#extensions#tabline#ctrlspace#off()
+  if s:ctrlspace
+    call airline#extensions#tabline#ctrlspace#off()
+  endif
 endfunction
 
 function! s:toggle_on()
   call airline#extensions#tabline#autoshow#on()
   call airline#extensions#tabline#tabs#on()
   call airline#extensions#tabline#buffers#on()
-  call airline#extensions#tabline#ctrlspace#on()
+  if s:ctrlspace
+    call airline#extensions#tabline#ctrlspace#on()
+  endif
 
   set tabline=%!airline#extensions#tabline#get()
 endfunction
@@ -59,6 +63,9 @@ function! s:update_tabline()
     return
   endif
   doautocmd User BufMRUChange
+  " sometimes, the tabline is not correctly updated see #1580
+  " so force redraw here
+  let &tabline = &tabline
 endfunction
 
 function! airline#extensions#tabline#load_theme(palette)
