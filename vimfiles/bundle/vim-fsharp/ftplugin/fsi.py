@@ -3,9 +3,14 @@ from os import path
 import string
 import threading
 import tempfile
-import Queue
 import uuid
 import hidewin
+
+try:
+    from queue import Queue
+except:
+    from Queue import Queue
+
 
 class FSharpInteractive:
     def __init__(self, fsi_path, is_debug = False):
@@ -16,14 +21,18 @@ class FSharpInteractive:
         command = [fsi_path, '--fsi-server:%s' % id, '--nologo']
         opts = { 'stdin': PIPE, 'stdout': PIPE, 'stderr': PIPE, 'shell': False, 'universal_newlines': True }
         hidewin.addopt(opts)
-        self.p = Popen(command, **opts) 
+
+        try:
+            self.p = Popen(command, **opts)
+        except Exception as e:
+            raise Exception ('Error executing fsi.  g:fsharp_interactive_bin="' + fsi_path + '" ' + str(e))
 
         if is_debug:
             logfiledir = tempfile.gettempdir() + "/fsi-log.txt"
             self.logfile = open(logfiledir, "w")
 
         self._should_work = True
-        self.lines = Queue.Queue()
+        self.lines = Queue()
         self.worker = threading.Thread(target=self._work, args=[])
         self.worker.daemon = True
         self.worker.start()
@@ -39,16 +48,22 @@ class FSharpInteractive:
             self.logfile.flush()
 
     def shutdown(self):
-        print "shutting down fsi"
+        """Shutdown fsi process"""
+        print("shutting down fsi")
         self._should_work = False
-        self.p.kill()
+        try:
+            self.p.kill()
+        except:
+            pass
 
     def set_loc(self, path, line_num):
         self.p.stdin.write("#" + str(line_num) + " @\"" + path + "\"\n")
-            
+        self.p.stdin.flush()
+
     def send(self, txt):
         self.p.stdin.write(txt + "\n")
         self.p.stdin.write(";;\n")
+        self.p.stdin.flush()
         self._log(">" + txt + ";;")
 
     def cd(self, path):
@@ -56,6 +71,7 @@ class FSharpInteractive:
             return
         self.p.stdin.write("System.IO.Directory.SetCurrentDirectory(@\"" + path + "\");;\n")
         self.p.stdin.write("#silentCd @\"" + path + "\";;\n")
+        self.p.stdin.flush()
         self.purge()
         self._current_path = path
 
@@ -73,7 +89,7 @@ class FSharpInteractive:
     def read_until_prompt(self, time_out):
         output = []
         try:
-            l = self.lines.get(True, time_out) 
+            l = self.lines.get(True, time_out)
             if 'SERVER-PROMPT>' in l:
                 return output
             output.append(str(l).rstrip())
@@ -97,7 +113,7 @@ class FSharpInteractive:
                 self.lines.put(l, True)
                 self._log(l)
             except Exception as ex:
-                print ex
+                print(ex)
 
     def _err_work(self):
         while(self._should_work):

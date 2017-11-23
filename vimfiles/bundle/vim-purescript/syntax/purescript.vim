@@ -19,13 +19,13 @@ syn keyword purescriptBoolean true false
 syn match purescriptDelimiter "[,;|.()[\]{}]"
 
 " Constructor
-syn match purescriptConstructor "\<[A-Z]\w*\>"
+syn match purescriptConstructor "\%(\<class\s\+\)\@15<!\<[A-Z]\w*\>"
 syn region purescriptConstructorDecl matchgroup=purescriptConstructor start="\<[A-Z]\w*\>" end="\(|\|$\)"me=e-1,re=e-1 contained
   \ containedin=purescriptData,purescriptNewtype
   \ contains=purescriptType,purescriptTypeVar,purescriptDelimiter,purescriptOperatorType,purescriptOperatorTypeSig,@purescriptComment
 
 " Type
-syn match purescriptType "\<[A-Z]\w*\>" contained
+syn match purescriptType "\%(\<class\s\+\)\@15<!\<[A-Z]\w*\>" contained
   \ containedin=purescriptTypeAlias
   \ nextgroup=purescriptType,purescriptTypeVar skipwhite
 syn match purescriptTypeVar "\<[_a-z]\(\w\|\'\)*\>" contained
@@ -34,9 +34,20 @@ syn region purescriptTypeExport matchgroup=purescriptType start="\<[A-Z]\(\S\&[^
   \ contains=purescriptConstructor,purescriptDelimiter
 
 " Function
-syn match purescriptFunction "\<[_a-z]\(\w\|\'\)*\>" contained
-syn match purescriptFunction "(\(\W\&[^(),\"]\)\+)" contained extend
-syn match purescriptBacktick "`[_A-Za-z][A-Za-z0-9_]*`"
+syn match purescriptFunction "\%(\<instance\s\+\|\<class\s\+\)\@18<!\<[_a-z]\(\w\|\'\)*\>" contained
+" syn match purescriptFunction "\<[_a-z]\(\w\|\'\)*\>" contained
+syn match purescriptFunction "(\%(\<class\s\+\)\@18<!\(\W\&[^(),\"]\)\+)" contained extend
+syn match purescriptBacktick "`[_A-Za-z][A-Za-z0-9_\.]*`"
+
+" Class
+syn region purescriptClassDecl start="^\%(\s*\)class\>"ms=e-5 end="\<where\>\|$"
+  \ contains=purescriptClass,purescriptClassName,purescriptOperatorType,purescriptOperator,purescriptType,purescriptWhere
+  \ nextgroup=purescriptClass
+  \ skipnl
+syn match purescriptClass "\<class\>" containedin=purescriptClassDecl contained
+  \ nextgroup=purescriptClassName
+  \ skipnl
+syn match purescriptClassName "\<[A-Z]\w*\>" containedin=purescriptClassDecl contained
 
 " Module
 syn match purescriptModuleName "\(\w\+\.\?\)*" contained excludenl
@@ -44,8 +55,8 @@ syn match purescriptModuleKeyword "\<module\>"
 syn match purescriptModule "^module\>\s\+\<\(\w\+\.\?\)*\>"
   \ contains=purescriptModuleKeyword,purescriptModuleName
   \ nextgroup=purescriptModuleParams skipwhite skipnl skipempty
-syn region purescriptModuleParams start="(" end=")" fold contained keepend
-  \ contains=purescriptDelimiter,purescriptType,purescriptTypeExport,purescriptFunction,purescriptStructure,purescriptModuleKeyword,@purescriptComment
+syn region purescriptModuleParams start="(" skip="([^)]\{-})" end=")" fold contained keepend
+  \ contains=purescriptClassDecl,purescriptClass,purescriptClassName,purescriptDelimiter,purescriptType,purescriptTypeExport,purescriptFunction,purescriptStructure,purescriptModuleKeyword,@purescriptComment
   \ nextgroup=purescriptImportParams skipwhite
 
 " Import
@@ -63,18 +74,30 @@ syn match purescriptImportParams "hiding" contained
   \ nextgroup=purescriptModuleParams,purescriptImportParams skipwhite
 
 " Function declaration
-syn region purescriptFunctionDecl excludenl start="^\z(\s*\)\(foreign\s\+import\_s\+\)\?[_a-z]\(\w\|\'\)*\_s\{-}\(::\|∷\)" end="^\z1\=\S"me=s-1,re=s-1 keepend
+syn region purescriptFunctionDecl
+  \ excludenl start="^\z(\s*\)\(\(foreign\s\+import\)\_s\+\)\?[_a-z]\(\w\|\'\)*\_s\{-}\(::\|∷\)"
+  \ end="^\z1\=\S"me=s-1,re=s-1 keepend
   \ contains=purescriptFunctionDeclStart,purescriptForall,purescriptOperatorType,purescriptOperatorTypeSig,purescriptType,purescriptTypeVar,purescriptDelimiter,@purescriptComment
-syn match purescriptFunctionDeclStart "^\s*\(foreign\s\+import\_s\+\)\?\([_a-z]\(\w\|\'\)*\)\_s\{-}\(::\|∷\)" contained
-  \ contains=purescriptImportKeyword,purescriptFunction,purescriptOperatorType
+syn region purescriptFunctionDecl
+  \ excludenl start="^\z(\s*\)where\z(\s\+\)[_a-z]\(\w\|\'\)*\_s\{-}\(::\|∷\)"
+  \ end="^\(\z1\s\{5}\z2\)\=\S"me=s-1,re=s-1 keepend
+  \ contains=purescriptFunctionDeclStart,purescriptForall,purescriptOperatorType,purescriptOperatorTypeSig,purescriptType,purescriptTypeVar,purescriptDelimiter,@purescriptComment
+syn region purescriptFunctionDecl
+  \ excludenl start="^\z(\s*\)let\z(\s\+\)[_a-z]\(\w\|\'\)*\_s\{-}\(::\|∷\)"
+  \ end="^\(\z1\s\{3}\z2\)\=\S"me=s-1,re=s-1 keepend
+  \ contains=purescriptFunctionDeclStart,purescriptForall,purescriptOperatorType,purescriptOperatorTypeSig,purescriptType,purescriptTypeVar,purescriptDelimiter,@purescriptComment
+syn match purescriptFunctionDeclStart "^\s*\(\(foreign\s\+import\|let\|where\)\_s\+\)\?\([_a-z]\(\w\|\'\)*\)\_s\{-}\(::\|∷\)" contained
+  \ contains=purescriptImportKeyword,purescriptWhere,purescriptLet,purescriptFunction,purescriptOperatorType
 syn keyword purescriptForall forall
 syn match purescriptForall "∀"
 
 " Keywords
 syn keyword purescriptConditional if then else
-syn keyword purescriptStatement do case of let in
+syn keyword purescriptStatement do case of in
+syn keyword purescriptLet let
+" syn keyword purescriptClass class
 syn keyword purescriptWhere where
-syn match purescriptStructure "\<\(data\|newtype\|type\|class\)\>"
+syn match purescriptStructure "\<\(data\|newtype\|type\|kind\)\>"
   \ nextgroup=purescriptType skipwhite
 syn keyword purescriptStructure derive
 syn keyword purescriptStructure instance
@@ -88,7 +111,7 @@ syn match purescriptInfix "^\(infix\|infixl\|infixr\)\>\s\+\([0-9]\+\)\s\+\(type
 
 " Operators
 syn match purescriptOperator "\([-!#$%&\*\+/<=>\?@\\^|~:]\|\<_\>\)"
-syn match purescriptOperatorType "\(::\|∷\)"
+syn match purescriptOperatorType "\%(\<instance\>.*\)\@40<!\(::\|∷\)"
   \ nextgroup=purescriptForall,purescriptType skipwhite skipnl skipempty
 syn match purescriptOperatorFunction "\(->\|<-\|[\\→←]\)"
 syn match purescriptOperatorTypeSig "\(->\|<-\|=>\|<=\|::\|[∷∀→←⇒⇐]\)" contained
@@ -163,9 +186,12 @@ highlight def link purescriptLineComment purescriptComment
 highlight def link purescriptBlockComment purescriptComment
 
 " purescript general highlights
+highlight def link purescriptClass purescriptKeyword
+highlight def link purescriptClassName Type
 highlight def link purescriptStructure purescriptKeyword
 highlight def link purescriptKeyword Keyword
 highlight def link purescriptStatement Statement
+highlight def link purescriptLet Statement
 highlight def link purescriptOperator Operator
 highlight def link purescriptFunction Function
 highlight def link purescriptType Type

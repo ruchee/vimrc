@@ -28,7 +28,7 @@
   animation-timing-function: auto;
 }
 
-.background {
+.backgrounds-3 {
   background-clip: space;
   background-origin: round;
   background-size: local;
@@ -76,7 +76,7 @@
 }
 
 .break-3 {
-  break-after: auto;
+  break-after: avoid-column;
   break-before: auto;
   break-inside: auto;
   box-decoration-break: auto;
@@ -500,10 +500,10 @@
   offset: auto;
 }
 
-.multicol {
+.multicol-1 {
   columns: column;
   column-count: balance;
-  column-fill: avoid-column;
+  column-fill: balance-all;
   column-rule: auto;
   column-rule-color: auto;
   column-rule-style: auto;
@@ -868,6 +868,13 @@
 }
 
 .web-animations-1 {
+  display: auto;
+}
+
+.webvtt1::cue,
+.webvtt1::cue-region,
+.webvtt1::cue(#cue1),
+.webvtt1::cue-region(#scroll), {
   display: auto;
 }
 

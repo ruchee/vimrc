@@ -79,6 +79,70 @@ else
 endif
 "---------------------------------------------
 
+" Convert ascii-based ops into their single-character unicode equivalent
+if get(g:, 'perl6_unicode_abbrevs', 0)
+    iabbrev <buffer> !(<) ⊄
+    iabbrev <buffer> !(<=) ⊈
+    iabbrev <buffer> !(>) ⊅
+    iabbrev <buffer> !(>=) ⊉
+    iabbrev <buffer> !(cont) ∌
+    iabbrev <buffer> !(elem) ∉
+    iabbrev <buffer> != ≠
+    iabbrev <buffer> (&) ∩
+    iabbrev <buffer> (+) ⊎
+    iabbrev <buffer> (-) ∖
+    iabbrev <buffer> (.) ⊍
+    iabbrev <buffer> (<) ⊂
+    iabbrev <buffer> (<+) ≼
+    iabbrev <buffer> (<=) ⊆
+    iabbrev <buffer> (>) ⊃
+    iabbrev <buffer> (>+) ≽
+    iabbrev <buffer> (>=) ⊇
+    iabbrev <buffer> (\|) ∪
+    iabbrev <buffer> (^) ⊖
+    iabbrev <buffer> (atomic) ⚛
+    iabbrev <buffer> (cont) ∋
+    iabbrev <buffer> (elem) ∈
+    iabbrev <buffer> * ×
+    iabbrev <buffer> **0 ⁰
+    iabbrev <buffer> **1 ¹
+    iabbrev <buffer> **2 ²
+    iabbrev <buffer> **3 ³
+    iabbrev <buffer> **4 ⁴
+    iabbrev <buffer> **5 ⁵
+    iabbrev <buffer> **6 ⁶
+    iabbrev <buffer> **7 ⁷
+    iabbrev <buffer> **8 ⁸
+    iabbrev <buffer> **9 ⁹
+    iabbrev <buffer> + ⁺
+    iabbrev <buffer> - −
+    iabbrev <buffer> ... …
+    iabbrev <buffer> / ÷
+    iabbrev <buffer> << «
+    iabbrev <buffer> <<[=]<< «=«
+    iabbrev <buffer> <<[=]>> «=»
+    iabbrev <buffer> <= ≤
+    iabbrev <buffer> =~= ≅
+    iabbrev <buffer> >= ≥
+    iabbrev <buffer> >> »
+    iabbrev <buffer> >>[=]<< »=«
+    iabbrev <buffer> >>[=]>> »=»
+    iabbrev <buffer> Inf ∞
+    iabbrev <buffer> atomic-add-fetch ⚛+=
+    iabbrev <buffer> atomic-assign ⚛=
+    iabbrev <buffer> atomic-fetch ⚛
+    iabbrev <buffer> atomic-dec-fetch --⚛
+    iabbrev <buffer> atomic-fetch-dec ⚛--
+    iabbrev <buffer> atomic-fetch-inc ⚛++
+    iabbrev <buffer> atomic-inc-fetch ++⚛
+    iabbrev <buffer> atomic-sub-fetch ⚛−=
+    iabbrev <buffer> e 𝑒
+    iabbrev <buffer> o ∘
+    iabbrev <buffer> pi π
+    iabbrev <buffer> set() ∅
+    iabbrev <buffer> tau τ
+endif
+
 " Undo the stuff we changed.
 let b:undo_ftplugin = "setlocal fo< com< cms< inc< inex< def< isf< isk< kp< path<" .
         \         " | unlet! b:browsefilter"

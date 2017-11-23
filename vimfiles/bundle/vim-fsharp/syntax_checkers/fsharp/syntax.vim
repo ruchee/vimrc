@@ -7,7 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 function! SyntaxCheckers_fsharp_syntax_IsAvailable() dict
-    return has('python')
+    return has('python3') || has('python')
 endfunction
 
 function! SyntaxCheckers_fsharp_syntax_GetLocList() dict

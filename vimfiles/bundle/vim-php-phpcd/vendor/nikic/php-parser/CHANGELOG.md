@@ -1,7 +1,20 @@
-Version 3.1.2-dev
+Version 3.1.3-dev
 -----------------
 
 Nothing yet.
+
+Version 3.1.2 (2017-11-04)
+--------------------------
+
+### Fixed
+
+* Comments on empty blocks are now preserved on a `Stmt\Nop` node. (#382)
+
+### Added
+
+* Added `kind` attribute for `Stmt\Namespace_` node, which is one of `KIND_SEMICOLON` or
+  `KIND_BRACED`. (#417)
+* Added `setDocComment()` method to namespace builder. (#437)
 
 Version 3.1.1 (2017-09-02)
 --------------------------

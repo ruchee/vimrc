@@ -3,8 +3,8 @@
 " Description: vim global plugin that provides easy code commenting
 " Author:      Martin Grenfell <martin.grenfell at gmail dot com>
 " Maintainer:  Caleb Maclennan <caleb@alerque.com>
-" Version:     2.4.0
-" Last Change: Tue May 24 14:03:29 EEST 2016
+" Version:     2.5.1
+" Last Change: Tue Nov  7 10:45:53 +03 2017
 " License:     This program is free software. It comes without any warranty,
 "              to the extent permitted by applicable law. You can redistribute
 "              it and/or modify it under the terms of the Do What The Fuck You
@@ -238,7 +238,7 @@ let s:delimiterMap = {
     \ 'jinja': { 'left': '<!--', 'right': '-->', 'leftAlt': '{#', 'rightAlt': '#}' },
     \ 'jproperties': { 'left': '#' },
     \ 'jsp': { 'left': '<%--', 'right': '--%>' },
-    \ 'julia': { 'left': '#' },
+    \ 'julia': { 'left': '# ', 'leftAlt': '#=', 'rightAlt': '=#' },
     \ 'kix': { 'left': ';' },
     \ 'kscript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'lace': { 'left': '--' },
@@ -274,6 +274,7 @@ let s:delimiterMap = {
     \ 'mel': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'meson': { 'left': '#' },
     \ 'mib': { 'left': '--' },
+    \ 'minizinc': { 'left': '% ', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'mips': { 'left': '#' },
     \ 'mirah': {'left': '#' },
     \ 'mkd': { 'left': '<!---', 'right': '-->' },
@@ -352,6 +353,7 @@ let s:delimiterMap = {
     \ 'rebol': { 'left': ';' },
     \ 'registry': { 'left': ';' },
     \ 'remind': { 'left': '#' },
+    \ 'renpy': { 'left': '# ' },
     \ 'resolv': { 'left': '#' },
     \ 'rgb': { 'left': '!' },
     \ 'rib': { 'left': '#' },
@@ -406,6 +408,7 @@ let s:delimiterMap = {
     \ 'sqr': { 'left': '!' },
     \ 'squid': { 'left': '#' },
     \ 'ss': { 'left': ';', 'leftAlt': '#|', 'rightAlt': '|#' },
+    \ 'sshconfig': { 'left': '#' },
     \ 'sshdconfig': { 'left': '#' },
     \ 'st': { 'left': '"' },
     \ 'stan': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -432,6 +435,7 @@ let s:delimiterMap = {
     \ 'tsalt': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'tsscl': { 'left': '#' },
     \ 'tssgm': { 'left': "comment = '", 'right': "'" },
+    \ 'ttl': { 'left': '#' },
     \ 'tup': { 'left': '#' },
     \ 'twig': { 'left': '{#', 'right': '#}' },
     \ 'txt2tags': { 'left': '%' },

@@ -45,7 +45,7 @@ function! jspretmpl#applySyntax(filetype, startCondition)
   let group = s:tmplSyntaxGroup(a:filetype)
   let region = s:tmplSyntaxRegion(a:filetype)
   let b:jspre_current_ft = a:filetype
-  if &ft == 'javascript' || &ft == 'typescript'
+  if &ft == 'javascript' || &ft == 'typescript' || &ft == 'jsx' || &ft == 'javascript.jsx'
     if strlen(a:startCondition)
       let regexp_start = a:startCondition
     else

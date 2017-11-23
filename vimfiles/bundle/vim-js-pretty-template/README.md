@@ -1,6 +1,6 @@
 # vim-js-pretty-template
 
-A Vim plgin to highlight JavaScript's [Template Strings](http://tc39wiki.calculist.org/es6/template-strings/) contents in other FileType syntax rule which you want.
+A Vim plugin to highlight JavaScript's [Template Strings](http://tc39wiki.calculist.org/es6/template-strings/) contents in other `FileType` syntax rule which you want.
 
 ```js
 var htmlTempl = `
@@ -50,8 +50,7 @@ then run the following in Vim:
 Run the following in a terminal:
 
 ```sh
-cd ~/.vim/bundle
-git clone https://github.com/Quramy/vim-js-pretty-template
+git clone https://github.com/Quramy/vim-js-pretty-template.git ~/.vim/bundle/vim-js-pretty-template
 ```
 
 ## Usage

@@ -1,0 +1,51 @@
+language: python
+
+python:
+    - "2.6"
+    - "2.7"
+    - "3.3"
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "pypy"
+    # commenting "pypy3" because it's been broken on TravisCI for several months
+    # using alpha target instead
+    # https://github.com/travis-ci/travis-ci/issues/6277
+    - "pypy3.3-5.5-alpha"  #- "pypy3" 
+
+env:
+    - LANG=
+    - PEP8_VERSION=pypi
+    - PEP8_VERSION=github
+
+matrix:
+    allow_failures:
+        - env: PEP8_VERSION=github
+
+install:
+    - if [ "$TRAVIS_PYTHON_VERSION" == "2.6" ]; then pip install unittest2; fi
+    - if [ "$PEP8_VERSION" == "github" ]; then pip install git+https://github.com/PyCQA/pycodestyle; fi
+    - python setup.py build --build-base=".build-$TRAVIS_PYTHON_VERSION" install
+
+script:
+    - python test/test_autopep8.py
+    - python test/acid.py -aaa --experimental test/example.py
+    - python test/acid.py -aaa --experimental test/example_with_reduce.py
+
+    - if [ "$TRAVIS_PYTHON_VERSION" == "3.3" ]; then python -m doctest -v README.rst; fi
+
+    - if [[ "$TRAVIS_PYTHON_VERSION" != "pypy"* ]]; then pycodestyle autopep8.py; fi
+    - if [[ "$TRAVIS_PYTHON_VERSION" != "pypy"* ]]; then pip install pyflakes; pyflakes autopep8.py; fi
+
+    - pip install pydiff
+    - python test/acid.py --pycodestyle= -aaa --compare-bytecode --experimental test/example.py
+
+    # See issue #175.
+    - python test/acid.py --pycodestyle= --aggressive --line-range 550 610 test/inspect_example.py
+    - python test/acid.py --pycodestyle= --line-range 289 925 test/vectors_example.py
+
+    - python test/test_suite.py
+
+after_success:
+    # pypy is too slow.
+    - if [[ "$TRAVIS_PYTHON_VERSION" != "pypy"* ]]; then ./coveralls.bash; fi

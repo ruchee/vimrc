@@ -1,0 +1,12 @@
+#!/bin/bash -e
+
+z40=0000000000000000000000000000000000000000
+
+IFS=' '
+while read _ local_sha _ _
+do
+    if [ "$local_sha" != $z40 ]
+    then
+        make check
+    fi
+done

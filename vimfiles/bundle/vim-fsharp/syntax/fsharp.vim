@@ -31,16 +31,16 @@ syn keyword  fsharpScript contained line error warning light nowarn
 
 
 " comments
-syn match    fsharpComment "//.*$" contains=fsharpTodo,@Spell
+syn match    fsharpSingleLineComment "//.*$" contains=fsharpTodo,@Spell
 syn region   fsharpDocComment start="///" end="$" contains=fsharpTodo,fsharpXml,@Spell keepend oneline
-syn region   fsharpXml matchgroup=fsharpXmlDoc start="<[^>]\+>" end="</[^>]\+>" contained
+syn region   fsharpXml matchgroup=fsharpXmlDoc start="<[^>]\+>" end="</[^>]\+>" contained contains=fsharpXml
 
 " Double-backtick identifiers
-syn region   fsharpDoubleBacktick start="``" end="``"  keepend oneline
+syn region   fsharpDoubleBacktick start="``" end="``" keepend oneline
 
 
 " symbol names
-syn match fsharpSymbol "\%(let\|use\|mutable\|rec\|and\)\@<=!\=\s\+\zs\w\+\ze\s*[^=:]*[=:]"
+syn match fsharpSymbol "\%(let\|use\|mutable\|rec\|and\|private\)\@<=!\=\s\+\zs\w\+\ze\s*[^=:]*[=:]"
 syn match fsharpSymbol "\%(member\)\@<=\s\+\w\+\.\zs\w\+"
 
 
@@ -64,7 +64,7 @@ syn region   fsharpEncl transparent matchgroup=fsharpKeyword start="\[|" matchgr
 
 
 " comments
-syn region   fsharpComment start="(\*" end="\*)" contains=fsharpComment,fsharpTodo
+syn region   fsharpMultiLineComment start="(\*" end="\*)" contains=fsharpTodo
 syn keyword  fsharpTodo contained TODO FIXME XXX NOTE
 
 " keywords
@@ -197,63 +197,65 @@ if version >= 508 || !exists("did_fs_syntax_inits")
         command -nargs=+ HiLink hi def link <args>
     endif
 
-    HiLink fsharpBraceErr      Error
-    HiLink fsharpBrackErr      Error
-    HiLink fsharpParenErr      Error
-    HiLink fsharpArrErr        Error
-    HiLink fsharpCommentErr    Error
+    HiLink fsharpBraceErr          Error
+    HiLink fsharpBrackErr          Error
+    HiLink fsharpParenErr          Error
+    HiLink fsharpArrErr            Error
+    HiLink fsharpCommentErr        Error
 
-    HiLink fsharpComment       Comment
-    HiLink fsharpDocComment    Comment
-    HiLink fsharpXml           Comment
+    HiLink fsharpSingleLineComment Comment
+    HiLink fsharpMultiLineComment  Comment
+    HiLink fsharpDocComment        Comment
+    HiLink fsharpXml               Comment
+    HiLink fsharpDoubleBacktick    String
 
-    HiLink fsharpOpen          Include
-    HiLink fsharpModPath       Include
-    HiLink fsharpScript        Include
-    HiLink fsharpPreCondit     Include
+    HiLink fsharpOpen              Include
+    HiLink fsharpModPath           Include
+    HiLink fsharpScript            Include
+    HiLink fsharpPreCondit         Include
 
-    HiLink fsharpKeyword       Keyword
-    HiLink fsharpCoreMethod    Keyword
+    HiLink fsharpKeyword           Keyword
+    HiLink fsharpCoreMethod        Keyword
 
-    HiLink fsharpOCaml         Statement
-    HiLink fsharpLinq          Statement
+    HiLink fsharpOCaml             Statement
+    HiLink fsharpLinq              Statement
 
-    HiLink fsharpSymbol        Function
+    HiLink fsharpSymbol            Function
 
-    HiLink fsharpFunDef        Operator
-    HiLink fsharpRefAssign     Operator
-    HiLink fsharpTopStop       Operator
-    HiLink fsharpKeyChar       Operator
-    HiLink fsharpOperator      Operator
+    HiLink fsharpFunDef            Operator
+    HiLink fsharpRefAssign         Operator
+    HiLink fsharpTopStop           Operator
+    HiLink fsharpKeyChar           Operator
+    HiLink fsharpOperator          Operator
 
-    HiLink fsharpBoolean       Boolean
-    HiLink fsharpConstant      Constant
-    HiLink fsharpCharacter     Character
-    HiLink fsharpNumber        Number
-    HiLink fsharpFloat         Float
+    HiLink fsharpBoolean           Boolean
+    HiLink fsharpConstant          Constant
+    HiLink fsharpCharacter         Character
+    HiLink fsharpNumber            Number
+    HiLink fsharpFloat             Float
 
-    HiLink fsharpString        String
-    HiLink fsharpFormat        Special
+    HiLink fsharpString            String
+    HiLink fsharpFormat            Special
 
-    HiLink fsharpModifier      StorageClass
+    HiLink fsharpModifier          StorageClass
 
-    HiLink fsharpException     Exception
+    HiLink fsharpException         Exception
 
-    HiLink fsharpLabel         Identifier
-    HiLink fsharpOption        Identifier
-    HiLink fsharpTypeName      Identifier
-    HiLink fsharpModule        Identifier
+    HiLink fsharpLabel             Identifier
+    HiLink fsharpOption            Identifier
+    HiLink fsharpTypeName          Identifier
+    HiLink fsharpModule            Identifier
 
-    HiLink fsharpType          Type
+    HiLink fsharpType              Type
 
-    HiLink fsharpCoreClass     Typedef
-    HiLink fsharpAttrib        Typedef
-    HiLink fsharpXmlDoc        Typedef
+    HiLink fsharpCoreClass         Typedef
+    HiLink fsharpAttrib            Typedef
+    HiLink fsharpXmlDoc            Typedef
 
-    HiLink fsharpTodo          Todo
+    HiLink fsharpTodo              Todo
 
-    HiLink fsharpEncl          Delimiter
-    HiLink fsharpAttribute     Delimiter
+    HiLink fsharpEncl              Delimiter
+    HiLink fsharpAttribute         Delimiter
 
     delcommand HiLink
 endif

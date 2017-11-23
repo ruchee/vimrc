@@ -80,7 +80,7 @@ command! -bar -nargs=* -complete=custom,s:Complete Opam :execute s:Opam(<bang>0,
 " Statusline {{{1
 
 function! opam#statusline()
-  if exists('g:opam_currnet_compiler')
+  if exists('g:opam_current_compiler')
     let c = g:opam_current_compiler
   else
     let c = opam#compiler_version()

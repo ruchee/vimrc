@@ -354,7 +354,7 @@ function! vaxe#SetCompiler()
     endif
 
     let &l:makeprg = build_command
-    let &l:errorformat="%I%f:%l: characters %c-%*[0-9] : Warning : %m
+    let &l:errorformat="%W%f:%l: characters %c-%*[0-9] : Warning : %m
                 \,%E%f:%l: characters %c-%*[0-9] : %m
                 \,%E%f:%l: lines %*[0-9]-%*[0-9] : %m"
 

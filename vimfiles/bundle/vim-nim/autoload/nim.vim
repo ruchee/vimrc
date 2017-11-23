@@ -11,7 +11,7 @@ endif
 
 if has("python3")
   exe 'py3file ' . fnameescape(s:plugin_path) . '/nim_vim.py'
-else
+elseif has("python")
   exe 'pyfile ' . fnameescape(s:plugin_path) . '/nim_vim.py'
 endif
 

@@ -5,7 +5,7 @@ endif
 syn keyword ocamlbuild_tagsOperator ",\|:\|-\|(\|)"
 syn keyword ocamlbuild_tagsTodo FIXME NOTE NOTES TODO XXX contained
 
-syn keyword ocamlbuild_tagsKeyword1 true annot bin_annot traverse not_hygienic custom package include debug principal strict_sequence short_paths or no_alias_deps
+syn keyword ocamlbuild_tagsKeyword1 true annot bin_annot traverse not_hygienic custom package include debug principal strict_sequence strict_formats short_paths or no_alias_deps safe_string warn syntax thread
 syn match ocamlbuild_tagsKeyword2 "for-pack"
 
 syn match ocamlbuild_tagsOr "or" contained

@@ -21,7 +21,7 @@ let ftdetectDir = __SOURCE_DIRECTORY__ @@ "ftdetect"
 let syntaxCheckersDir = __SOURCE_DIRECTORY__ @@ "syntax_checkers"
 
 let acArchive = "fsautocomplete.zip"
-let acVersion = "0.30.0"
+let acVersion = "0.34.0"
 
 Target "FSharp.AutoComplete" (fun _ ->
   CreateDir vimBinDir

@@ -1,10 +1,10 @@
-# graphql.vim
+# GraphQL for Vim
 
 [![Build Status](https://travis-ci.org/jparise/vim-graphql.svg)](https://travis-ci.org/jparise/vim-graphql)
 
 This is a [Vim](http://www.vim.org/) plugin that provides [GraphQL][gql] file
-detection and syntax highlighting. It currently targets the [April 2016 draft
-specification][spec].
+detection, syntax highlighting, and indentation. It currently targets the
+[October 2016 draft specification][spec].
 
 ## Installation
 
@@ -22,6 +22,11 @@ specification][spec].
 
 1. `cd ~/.vim/bundle`
 2. `git clone https://github.com/jparise/vim-graphql.git`
+
+## JavaScript Support
+
+When the [vim-javascript](https://github.com/pangloss/vim-javascript) plugin is
+installed, GraphQL syntax support in ES6 tagged template literals is enabled.
 
 ## Testing
 

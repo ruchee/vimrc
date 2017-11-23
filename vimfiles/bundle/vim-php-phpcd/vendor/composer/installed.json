@@ -169,17 +169,17 @@
     },
     {
         "name": "nikic/php-parser",
-        "version": "v3.1.1",
-        "version_normalized": "3.1.1.0",
+        "version": "v3.1.2",
+        "version_normalized": "3.1.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/nikic/PHP-Parser.git",
-            "reference": "a1e8e1a30e1352f118feff1a8481066ddc2f234a"
+            "reference": "08131e7ff29de6bb9f12275c7d35df71f25f4d89"
         },
         "dist": {
             "type": "zip",
-            "url": "https://files.phpcomposer.com/files/nikic/PHP-Parser/a1e8e1a30e1352f118feff1a8481066ddc2f234a.zip",
-            "reference": "a1e8e1a30e1352f118feff1a8481066ddc2f234a",
+            "url": "https://files.phpcomposer.com/files/nikic/PHP-Parser/08131e7ff29de6bb9f12275c7d35df71f25f4d89.zip",
+            "reference": "08131e7ff29de6bb9f12275c7d35df71f25f4d89",
             "shasum": ""
         },
         "require": {
@@ -189,7 +189,7 @@
         "require-dev": {
             "phpunit/phpunit": "~4.0|~5.0"
         },
-        "time": "2017-09-02T17:10:46+00:00",
+        "time": "2017-11-04T11:48:34+00:00",
         "bin": [
             "bin/php-parse"
         ],

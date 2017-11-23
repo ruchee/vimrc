@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 from os import path
+import sys
 import string
 import tempfile
 import unittest
@@ -8,12 +9,14 @@ import threading
 import hidewin
 import vim
 
+
 class G:
     fsac = None
     fsi = None
     paths = {}
     locations = []
     projects = {}
+
 
 class Interaction:
     def __init__(self, proc, timeOut, logfile = None):
@@ -26,6 +29,7 @@ class Interaction:
 
     def _write(self, txt):
         self.proc.stdin.write(txt)
+        self.proc.stdin.flush()
 
         if self.debug:
             self.logfile.write("> " + txt)
@@ -52,6 +56,7 @@ class Interaction:
     def update(self, data):
         self.data = data
         self.event.set()
+
 
 class FSAutoComplete:
     def __init__(self, dir, debug = False):
@@ -111,6 +116,11 @@ class FSAutoComplete:
                 self.logfile2.write("::work read: %s" % data)
                 self.logfile2.flush()
 
+            # Temporary fix for unwanted stdout messages from Mono V5.0.1.1
+            # To be removed for the next Mono release
+            if (len(data) == 0 or data[0] != '{'):
+                continue
+
             parsed = json.loads(data)
             if parsed['Kind'] == "completion":
                 self.completion.update(parsed['Data'])
@@ -136,7 +146,7 @@ class FSAutoComplete:
         self.send("outputmode json\n")
 
     def project(self, fn):
-        self.send("project \"%s\"\n" % path.abspath(fn))
+        self.send("project \"%s\" verbose\n" % path.abspath(fn))
 
     def parse(self, fn, full, lines):
         self.send("parse \"%s\"\n" % (fn))
@@ -165,8 +175,8 @@ class FSAutoComplete:
             return []
 
         if base != '':
-            msg = filter(lambda(line):
-                    line['Name'].lower().find(base.lower()) != -1, msg)
+            msg = list(filter(lambda line: line['Name'].lower().find(base.lower()) != -1,
+                              msg))
         msg.sort(key=lambda x: x['Name'].startswith(base), reverse=True)
 
         return msg
@@ -203,43 +213,81 @@ class FSAutoComplete:
             return msg
 
     def _vim_encode(self, s):
+        """Encode string so vim can properly display it"""
+        if (sys.version_info > (3, 0)):
+            return s
         return s.encode(vim.eval("&encoding"))
 
-    def tooltip(self, fn, line, column):
+    def _format_comment(self, comment):
+        """Clean comment so it displays nicely"""
+        return self._vim_encode(comment.replace("\"", "\\\"").replace("\n ", "\n").strip())
+
+    def tooltip(self, fn, line, column, include_comments):
+        """Get the tooltip information for an expression"""
         msg = self._tooltip.send('tooltip "%s" \"%s\" %d %d 500\n' % (fn, self._current_line(), line, column))
         if msg == None:
             return ""
-        output = ""
+
+        output_signature = ""
         for ols in msg:
             for ol in ols:
-                output = output + self._vim_encode(ol['Signature']) + "\n"
+                output_signature = output_signature + self._vim_encode(ol['Signature']) + "\n"
+
+        output_comments = ""
+        if include_comments:
+            for ols in msg:
+                for ol in ols:
+                    output_comments = output_comments + self._format_comment(ol['Comment']) + "\n"
+                
+        if include_comments and output_comments.strip() != "":
+            output = 'HasComments%s\n%s' % (output_signature, output_comments)
+        else:
+            output = output_signature
+
         return output
 
-
-    def helptext(self, candidate):
+    def helptext(self, candidate, include_comments):
+        """Get the helptext for an expression (used for omni completion)"""
         msg = self._helptext.send('helptext %s\n' % candidate)
         if msg == None:
             return ""
 
-        output = ""
+        output_signature = ""
         for ols in msg['Overloads']:
             for ol in ols:
-                output = output + self._vim_encode(ol['Signature']) + "\n"
+                output_signature = output_signature + self._vim_encode(ol['Signature']) + "\n"
 
-        msg = output 
+        output_comments = ""
+        if include_comments:
+            for ols in msg['Overloads']:
+                for ol in ols:
+                    output_comments = output_comments + self._format_comment(ol['Comment']) + "\n"
+        
+        if include_comments and output_comments.strip() != "":
+            msg = '%s\n%s' % (output_signature, output_comments)
+        else:
+            msg = output_signature
 
-        if "\'" in msg and "\"" in msg:
-            msg = msg.replace("\"", "") #HACK: dictionary parsing in vim gets weird if both ' and " get printed in the same string
+        if "\'" in msg and "\\\"" in msg:
+            msg = msg.replace("\\\"", "\'") #HACK: dictionary parsing in vim gets weird if both ' and " get printed in the same string, so replace " with '
         elif "\n" in msg:
             msg = msg + "\n\n'" #HACK: - the ' is inserted to ensure that newlines are interpreted properly in the preview window
         return msg
+
+    def shutdown(self):
+        """Shutdown fsautocomplete process"""
+        try:
+            self.send("quit\n")
+            self.p.kill()
+        except:
+            pass
 
 class FSharpVimFixture(unittest.TestCase):
     def setUp(self):
         self.fsac = FSAutoComplete('.')
         self.testscript = 'test/TestScript.fsx'
         with open(self.testscript, 'r') as content_file:
-            content = map(lambda(line): line.strip('\n'), list(content_file))
+            content = map(lambda line: line.strip('\n'), list(content_file))
 
         self.fsac.parse(self.testscript, True, content)
 
@@ -248,7 +296,6 @@ class FSharpVimFixture(unittest.TestCase):
 
     def test_completion(self):
         completions = self.fsac.complete(self.testscript, 8, 16, '')
-
 
 if __name__ == '__main__':
     unittest.main()

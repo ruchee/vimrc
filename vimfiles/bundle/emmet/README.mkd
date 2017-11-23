@@ -19,11 +19,16 @@ To install using pathogen.vim:
 
     cd ~/.vim/bundle
     git clone https://github.com/mattn/emmet-vim.git
-    
+
 To install using [Vundle](https://github.com/gmarik/vundle):
 
     " add this line to your .vimrc file
     Plugin 'mattn/emmet-vim'
+
+To install using [Vim-Plug](https://github.com/junegunn/vim-plug):
+
+    " add this line to your .vimrc file
+    Plug 'mattn/emmet-vim'
 
 To checkout the source from repository:
 
@@ -64,7 +69,7 @@ Then type `<c-y>,` (<kbd>Ctrl</kbd><kbd>y</kbd><kbd>,</kbd>), and you should see
 </html>
 ```
 
-[More Tutorials](https://raw.github.com/mattn/emmet-vim/master/TUTORIAL)
+[More Tutorials](https://raw.github.com/mattn/emmet-vim/blob/master/TUTORIAL)
 
 
 ## Enable in different mode

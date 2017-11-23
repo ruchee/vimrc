@@ -2,7 +2,7 @@
 " Language: GraphQL
 " Maintainer: Jon Parise <jon@indelible.org>
 
-if exists("b:current_syntax")
+if exists('b:current_syntax')
     finish
 endif
 
@@ -18,12 +18,15 @@ syn keyword graphqlNull     null
 syn match   graphqlNumber   "-\=\<\%(0\|[1-9]\d*\)\%(\.\d\+\)\=\%([eE][-+]\=\d\+\)\=\>"
 syn region  graphqlString	start=+"+  skip=+\\\\\|\\"+  end=+"\|$+
 
+syn keyword graphqlKeyword on nextgroup=graphqlType skipwhite
+
 syn keyword graphqlStructure enum scalar type union nextgroup=graphqlType skipwhite
 syn keyword graphqlStructure input interface subscription nextgroup=graphqlType skipwhite
-syn keyword graphqlStructure implements on nextgroup=graphqlType skipwhite
+syn keyword graphqlStructure implements nextgroup=graphqlType skipwhite
 syn keyword graphqlStructure query mutation fragment nextgroup=graphqlIdentifier skipwhite
 syn keyword graphqlStructure directive nextgroup=graphqlDirective skipwhite
 syn keyword graphqlStructure extend nextgroup=graphqlStructure skipwhite
+syn keyword graphqlStructure schema nextgroup=graphqlFold skipwhite
 
 syn match graphqlDirective  "\<@\h\w*\>"   display
 syn match graphqlVariable   "\<\$\h\w*\>"  display
@@ -51,10 +54,11 @@ hi def link graphqlConstant         Constant
 hi def link graphqlDirective        PreProc
 hi def link graphqlIdentifier       Identifier
 hi def link graphqlMetaFields       Special
+hi def link graphqlKeyword          Keyword
 hi def link graphqlStructure        Structure
 hi def link graphqlType             Type
 hi def link graphqlVariable         Identifier
 
 syn sync minlines=500
 
-let b:current_syntax = "graphql"
+let b:current_syntax = 'graphql'

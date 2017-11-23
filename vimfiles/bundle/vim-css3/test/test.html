@@ -40,7 +40,7 @@
 }
 </style>
 <style>
-.background {
+.backgrounds-3 {
   background-clip: space;
   background-origin: round;
   background-size: local;
@@ -91,7 +91,7 @@
 </style>
 <style>
 .break-3 {
-  break-after: auto;
+  break-after: avoid-column;
   break-before: auto;
   break-inside: auto;
   box-decoration-break: auto;
@@ -543,10 +543,10 @@
 }
 </style>
 <style>
-.multicol {
+.multicol-1 {
   columns: column;
   column-count: balance;
-  column-fill: avoid-column;
+  column-fill: balance-all;
   column-rule: auto;
   column-rule-color: auto;
   column-rule-style: auto;
@@ -947,6 +947,14 @@
 </style>
 <style>
 .web-animations-1 {
+  display: auto;
+}
+</style>
+<style>
+.webvtt1::cue,
+.webvtt1::cue-region,
+.webvtt1::cue(#cue1),
+.webvtt1::cue-region(#scroll), {
   display: auto;
 }
 </style>

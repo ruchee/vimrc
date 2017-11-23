@@ -23,7 +23,7 @@ CONTENTS                                                      *fsharp-contents*
 DEPENDENCIES                                              *fsharp-dependencies*
 
 Required:~
-    - Vim 7.3 or higher with Python 2 support
+    - Vim 7.3 or higher with Python 2 or 3 support
     - Mono OR .NET Framework
     - F#
 
@@ -148,7 +148,6 @@ General commands:~
 :FSharpToggleHelptext
     toggles g:fsharp_completion_helptext. (See below for details)
 
-
 FSharp interaction commands:~
 
                                                                      `:FsiEval`
@@ -175,7 +174,6 @@ FSharp interaction commands:~
                                                                      `:FsiShow`
 :FsiShow
     Opens the _fsi-out_ buffer in a split window
-
 
 ===============================================================================
 MAPPINGS                                                      *fsharp-mappings*

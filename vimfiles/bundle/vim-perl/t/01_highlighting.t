@@ -2,9 +2,14 @@
 
 use strict;
 use warnings;
+use lib 'tools';
+
+use Local::VisualDiff;
+
 use Cwd;
 use File::Find;
 use File::Spec::Functions qw<catfile catdir>;
+use JSON qw(decode_json encode_json);
 use Test::More;
 use Test::Differences;
 use Text::VimColor 0.25;
@@ -80,40 +85,37 @@ sub test_source_file {
         if(@custom_options) {
             my $custom_hilite = create_custom_highlighter($hilite, @custom_options);
             $custom_hilite->syntax_mark_file($file);
-            $output = $custom_hilite->html();
+            $output = $custom_hilite->marked;
         } else {
             $hilite->syntax_mark_file($file);
-            $output = $hilite->html();
+            $output = $hilite->marked;
         }
 
-        my $html_file = $file;
-        $html_file .= '.html';
+        my $marked_file = $file;
+        $marked_file .= '.json';
 
         SKIP: {
-            # remove old failure output if present
-            my $fail = "${file}_fail.html";
-            unlink $fail;
-
             # create the corresponding html file if it's missing
-            if (!-e $html_file) {
-                open my $markup, '>', $html_file or die "Can't open $html_file: $!\n";
-                print {$markup} $output;
+            if (!-e $marked_file) {
+                open my $markup, '>', $marked_file or die "Can't open $marked_file: $!\n";
+                print {$markup} encode_json($output);
                 close $markup;
 
-                skip("Created $html_file", 1);
+                skip("Created $marked_file", 1);
             }
 
-            open my $handle, '<', $html_file or die "Can't open $html_file: $!\n";
-            my $expected = do { local $/; scalar <$handle> };
+            open my $handle, '<', $marked_file or die "Can't open $marked_file: $!\n";
+            my $expected = decode_json(do { local $/; scalar <$handle> });
 
-            eq_or_diff($output, $expected, "Correct output for $file");
+            my $differences = find_differently_colored_lines($expected, $output);
+            ok(!@$differences, "Correct output for $file");
 
-            # if the HTML is incorrect, write it out to a file for
+            # if the markup is incorrect, write it out to a file for
             # the user to inspect
-            if ($output ne $expected) {
-                open my $fh, '>', $fail or die "Can't open $fail: $!\n";
-                print $fh $output;
-                diag("You can inspect the incorrect output at $fail");
+            if (@$differences) {
+                diag_differences([ lines_from_marked($expected) ],
+                    [ lines_from_marked($output) ], $differences);
+                diag("if the middle column is correct, you can delete $marked_file and re-run this test to regenerate the file based on the current syntax definitions");
             }
         }
     }
@@ -131,7 +133,7 @@ if(@ARGV) {
     }, 't_source/perl');
 }
 
-plan tests => scalar(map { @HIGHLIGHTERS } @test_files);
+plan tests => @HIGHLIGHTERS * @test_files;
 
 foreach my $test_file (@test_files) {
     test_source_file($test_file, \@HIGHLIGHTERS);

@@ -301,7 +301,28 @@ spec:
 				- ${5:"override"
 				- "--the"
 				- "entrypoint"}
-			restartPolicy: Never
+			restartPolicy: OnFailure
+endsnippet
+
+snippet cron "Kubernetes Cronjob" !b
+apiVersion: batch/v2alpha1
+kind: CronJob
+metadata:
+	name: ${1:name}
+spec:
+	schedule: "${2:*/1} * * * *"
+	jobTemplate:
+		spec:
+			template:
+				spec:
+					containers:
+					- name: $1
+						image: ${3: image}
+						args: ${4:
+						- /bin/sh
+						- -c
+						- date; echo Hello from the Kubernetes cluster}
+					restartPolicy: OnFailure
 endsnippet
 
 snippet skr "SecretKeyRef" 
@@ -352,4 +373,12 @@ initContainers:
 	${6:volumeMounts:
 	- name: ${4:data}
 		mountPath: ${5:/data}}$0
+endsnippet
+
+snippet strat "Deployment Strategy" !b
+strategy:
+	type: ${1:RollingUpdate|Recreate}
+	rollingUpdate:
+		maxSurge: ${2:1}
+		maxUnavailable: ${3:1}$0
 endsnippet

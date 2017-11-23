@@ -71,7 +71,7 @@ fun! php_cs_fixer#fix(path, dry_run)
 
     if g:php_cs_fixer_version >= 2
         if exists('g:php_cs_fixer_rules') && g:php_cs_fixer_rules != '@PSR2'
-            let command = command.' --rules='.g:php_cs_fixer_rules
+            let command = command." --rules='".g:php_cs_fixer_rules."'"
         endif
     else
 		if exists('g:php_cs_fixer_level') && g:php_cs_fixer_level != 'all'

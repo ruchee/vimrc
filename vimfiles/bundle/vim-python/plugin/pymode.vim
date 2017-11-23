@@ -1,9 +1,6 @@
 " vi: fdl=1
 let g:pymode_version = "0.9.4"
 
-com! PymodeVersion echomsg "Current python-mode version: " . g:pymode_version
-com! PymodeTroubleshooting call pymode#troubleshooting#test()
-
 " Enable pymode by default :)
 call pymode#default('g:pymode', 1)
 call pymode#default('g:pymode_debug', 0)
@@ -43,6 +40,7 @@ call pymode#default("g:pymode_folding", 1)
 call pymode#default("g:pymode_folding_nest_limit", 1000)
 " Change for folding customization (by example enable fold for 'if', 'for')
 call pymode#default("g:pymode_folding_regex", '^\s*\%(class\|def\|async\s\+def\) .\+\(:\s\+\w\)\@!')
+" call pymode#default("g:pymode_folding_regex", '^\s*\%(class\|def\|async\s\+def\)')
 
 " Enable/disable python motion operators
 call pymode#default("g:pymode_motion", 1)
@@ -112,10 +110,10 @@ call pymode#default("g:pymode_lint_message", 1)
 call pymode#default("g:pymode_lint_checkers", ['pyflakes', 'pep8', 'mccabe'])
 
 " Skip errors and warnings (e.g. E4,W)
-call pymode#default("g:pymode_lint_ignore", "")
+call pymode#default("g:pymode_lint_ignore", [])
 
 " Select errors and warnings (e.g. E4,W)
-call pymode#default("g:pymode_lint_select", "")
+call pymode#default("g:pymode_lint_select", [])
 
 " Auto open cwindow if any errors has been finded
 call pymode#default("g:pymode_lint_cwindow", 1)
@@ -315,7 +313,6 @@ else
     command! -nargs=1 PymodePython echo <args>
 
 endif
-
 
 command! PymodeVersion echomsg "Pymode version: " . g:pymode_version . " interpreter: " . g:pymode_python . " lint: " . g:pymode_lint . " rope: " . g:pymode_rope
 

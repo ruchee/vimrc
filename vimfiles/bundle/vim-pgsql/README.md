@@ -1,47 +1,85 @@
-Vim Postgresql syntax file
-===============
+# Vim PostgreSQL syntax plugin
 
-* Language:     pgsql
-* Maintainer:   Devrim GUNDUZ <devrim@PostgreSQL.org>
-* Contributors: Jacek Wysocki, Ryan Delaney <ryan.delaney@gmail.com>
-* Last Change:  $Fri May 23 09:55:21 PDT 2014$
-* Filenames:    *.pgsql *.plpgsql
-* URL:			https://github.com/exu/pgsql.vim
+![pgsql syntax highlighting](https://raw.github.com/lifepillar/Resources/master/pgsql/pgsql.png)
 
-Installation
----
+This plugin provides syntax highlighting and auto-completion support for
+PostgreSQL version 9.6 or above and for some of its extensions, including:
 
-If you use [Pathogen](https://github.com/tpope/vim-pathogen) for plugin
-management, simply clone this repository into `~/.vim/bundle` to make the
-`pgsql` syntax type available:
+- PL/pgSQL;
+- [PostGIS](http://postgis.net) (including PostGIS Topology);
+- [pgRouting](http://pgrouting.org);
+- [pgTap](http://pgtap.org).
 
-    git clone https://github.com/exu/pgsql.vim ~/.vim/bundle/pgsql.vim
+Besides, syntax highlighting for any language may be activated inside functions
+(see below).
 
-If you prefer to install manually, copy `syntax/pgsql.vim`  into your
-`~/.vim/syntax/` directory, creating it if necessary.
 
-Usage
----
+# Installation
 
-Files with the suffix `.pgsql` will use the pgsql highlighting automatically.
+If your Vim supports packages (`echo has('packages')` prints `1`), I strongly
+recommend that you use them. Just clone this repo inside `pack/*/start`, e.g.,
 
-To enable `pgsql` syntax for any open buffer, use:
+    cd ~/.vim
+    git clone https://github.com/lifepillar/pgsql.vim.git pack/bundle/start/pgsql
 
-    :set syntax=pgsql
+Otherwise, if you don't have a preferred installation method, I recommend
+installing [Pathogen](https://github.com/tpope/vim-pathogen), and then simply
+copy and paste:
 
-Enabling for all .sql files
----
+    cd ~/.vim/bundle
+    git clone https://github.com/lifepillar/pgsql.vim.git
 
-You can make `pgsql.vim` the default for SQL syntax by adding this line to your
-`.vimrc`:
+
+# Usage
+
+**For thorough documentation, see `:h pgsql.txt`.**
+
+Files with a `.pgsql` suffix are highlighted out of the box. If you want to
+highlight `.sql` files using this plugin by default, add this to your `.vimrc`
+(see `:h ft_sql.txt`):
 
     let g:sql_type_default = 'pgsql'
 
-This tells the `sql.vim` module to use the `pgsql` dialect.
+Alternatively, after loading a `.sql` file use this command:
 
-Alternately, you can use an autocmd in your `~/.vim/filetype.vim` to enable it
-for all `.sql` files or some finer pattern:
+    :SQLSetType pgsql.vim
 
-    autocmd BufNewFile,BufRead *.sql setf pgsql
+To set the file type in new buffers use:
 
-You do not need both. If in doubt, use the first method.
+    :let b:sql_type_override='pgsql' | set ft=sql
+
+Code between `$pgsql$` or `$$` pairs is treated as PL/pgSQL and highlighted
+accordingly:
+
+![PL/pgSQL snippet](https://raw.github.com/lifepillar/Resources/master/pgsql/plpgsql.png)
+
+You may set `g:pgsql_pl` to a list of file types to be used in user-defined
+functions. For example, after setting:
+
+    let g:pgsql_pl = ['python']
+
+code between `$python$` pairs will be highlighted as Python:
+
+![PL/Pythonu snippet](https://raw.github.com/lifepillar/Resources/master/pgsql/plpython.png)
+
+
+# Hacking
+
+The syntax file is generated automatically. If you want to hack it, edit
+`src/pgsql.sql`, then execute:
+
+```sh
+cd src
+make install
+```
+
+This will update `syntax/pgsql.vim`. The script has been tested in macOS, but it
+should work on any *nix system.
+
+
+# Acknowledgments
+
+This plugin was originally based on code from
+[space::tekk](https://github.com/spacetekk/pgsql.vim) (and completely
+rewritten).
+

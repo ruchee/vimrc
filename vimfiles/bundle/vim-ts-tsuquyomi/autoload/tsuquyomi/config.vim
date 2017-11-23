@@ -70,6 +70,12 @@ function! s:deleteCommand()
   delc TsuReloadProject
 endfunction
 
+function! tsuquyomi#config#tssargs()
+  let args = []
+  call add(args, '--locale '.g:tsuquyomi_locale)
+  return join(args, ' ')
+endfunction
+
 function! tsuquyomi#config#tsscmd()
   if s:tss_cmd !=# ''
     return s:tss_cmd
@@ -223,6 +229,7 @@ function! tsuquyomi#config#applyBufLocalDefaultMap()
     endif
     if !hasmapto('<Plug>(TsuquyomiSplitDefinition)')
         map <buffer> <C-W>] <Plug>(TsuquyomiSplitDefinition)
+        map <buffer> <C-W><C-]> <Plug>(TsuquyomiSplitDefinition)
     endif
     if !hasmapto('<Plug>(TsuquyomiGoBack)')
         map <buffer> <C-t> <Plug>(TsuquyomiGoBack)

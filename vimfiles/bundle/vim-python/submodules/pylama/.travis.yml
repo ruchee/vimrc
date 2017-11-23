@@ -1,0 +1,25 @@
+language: python
+
+python:
+    - "2.7"
+
+env:
+    - TOXENV=py27
+    - TOXENV=py33
+    - TOXENV=py35
+    - TOXENV=cov
+
+branches:
+    only:
+        - master
+        - develop
+
+install: pip install tox
+
+script: tox
+
+after_script:
+    - if [ $TOXENV == "cov" ]; then
+        pip install coveralls;
+        coveralls;
+      fi

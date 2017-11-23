@@ -70,6 +70,7 @@ syntax keyword dartTodo          contained TODO FIXME XXX
 syntax region  dartComment       start="/\*"  end="\*/" contains=dartComment,dartTodo,dartDocLink,@Spell
 syntax match   dartLineComment   "//.*" contains=dartTodo,@Spell
 syntax match   dartLineDocComment "///.*" contains=dartTodo,dartDocLink,@Spell
+syntax match   dartShebangLine   /^\%1l#!.*/
 syntax region  dartDocLink       oneline contained start=+\[+ end=+\]+
 
 " Strings
@@ -81,8 +82,8 @@ endif
 syntax cluster dartStringContains contains=@dartRawStringContains,dartInterpolation,dartSpecialChar
 syntax region  dartString         oneline start=+\z(["']\)+ end=+\z1+ contains=@dartStringContains keepend
 syntax region  dartRawString      oneline start=+r\z(["']\)+ end=+\z1+ contains=@dartRawStringContains keepend
-syntax region  dartMultilineString     start=+\z("\{3\}\|'\{3\}\)+ end=+\z1+ contains=@dartStringContains
-syntax region  dartRawMultilineString     start=+r\z("\{3\}\|'\{3\}\)+ end=+\z1+ contains=@dartSRawtringContains
+syntax region  dartMultilineString     start=+\z("\{3\}\|'\{3\}\)+ end=+\z1+ contains=@dartStringContains keepend
+syntax region  dartRawMultilineString     start=+r\z("\{3\}\|'\{3\}\)+ end=+\z1+ contains=@dartSRawtringContains keepend
 syntax match   dartInterpolation contained "\$\(\w\+\|{[^}]\+}\)" extend
 syntax match   dartSpecialChar   contained "\\\(u\x\{4\}\|u{\x\+}\|x\x\x\|x{\x\+}\|.\)" extend
 
@@ -108,6 +109,7 @@ highlight default link dartOperator        Operator
 highlight default link dartComment         Comment
 highlight default link dartLineComment     Comment
 highlight default link dartLineDocComment  Comment
+highlight default link dartShebangLine     Comment
 highlight default link dartConstant        Constant
 highlight default link dartTypedef         Typedef
 highlight default link dartTodo            Todo

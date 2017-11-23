@@ -8,7 +8,7 @@ bin_d  = $(abspath ftplugin/bin)
 
 ac_exe     = $(bin_d)/fsautocomplete.exe
 ac_archive = fsautocomplete.zip
-ac_version = 0.30.0
+ac_version = 0.34.0
 ac_url     = https://github.com/fsharp/FSharp.AutoComplete/releases/download/$(ac_version)/$(ac_archive)
 
 git_url    = https://github.com/fsharp/FsAutoComplete.git

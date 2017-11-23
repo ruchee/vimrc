@@ -88,8 +88,7 @@ syn match haxeErrorCharacter contained "\\\(x.\{0,2}\|u.\{0,4\}\|[^"'\\/nrt]\)"
 syn match haxeSpecialCharacter contained "\\\(x[a-fA-F0-9]\{2\}\|[0-7]\{3\}\|["'\\/nrt]\)"
 syn match haxeIntSpecialChar contained "\$\@<!\(\$\$\)\+\(\(\$\$\)\+\)\@!"
 syn match haxeInterpolatedIdent contained "\((\$\$)\+\)\@<!\$[a-zA-Z_][a-zA-Z_0-9]*"
-syn region haxeInterpolated contained start=+\((\$\$)\+\)\@<!\${+ end=+}+ contains=TOP
-syn region haxeInterpolated contained start=+\(\$\(\$\$\)\+\)\@<!${+ end=+}+ contains=TOP
+syn region haxeInterpolated contained start=+\(\$\(\$\$\)\+\)\@<!${+ end=+}+ contains=@Spell
 syn region haxeDString start=+"+ end=+"+ contains=haxeSpecialCharacter,haxeErrorCharacter,@Spell
 syn region haxeSString start=+'+ end=+'+ contains=haxeSpecialCharacter,haxeErrorCharacter,haxeIntSpecialChar,haxeInterpolatedIdent,haxeInterpolated,@Spell
 
@@ -132,6 +131,7 @@ syn match haxeCompilerMeta "@:\(
     \\|bitmap
     \\|build
     \\|buildXml
+    \\|callable
     \\|classCode
     \\|commutative
     \\|compilerGenerated

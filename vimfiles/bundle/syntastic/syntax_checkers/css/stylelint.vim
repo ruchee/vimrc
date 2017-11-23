@@ -21,6 +21,7 @@ set cpo&vim
 
 let s:args_after = {
     \ 'css':  '-f json',
+    \ 'html': '-f json',
     \ 'less': '-f json -s less',
     \ 'scss': '-f json -s scss' }
 

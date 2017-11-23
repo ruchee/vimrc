@@ -1,0 +1,114 @@
+*pgsql.txt*  Syntax highlighting for PostgreSQL files
+
+Author:  Lifepillar <https://github.com/lifepillar>
+License: Public Domain
+
+                                  _   ~
+                                 | |  ~
+           ____   ____  ___  ____| |  ~
+          |  _ \ / _  |/___)/ _  | |  ~
+          | |_| ( (_| |___ | |_| | |  ~
+          |  __/ \___ (___/ \__  |\_) ~
+          |_|   (_____|        |_|    ~
+
+    The best PostgreSQL plugin for Vim!
+
+====================================================================
+CONTENTS                                            *pgsql-contents*
+
+    1. Syntax highlighting .. |pgsql-syntax|
+    2. Customization ........ |pgsql-customization|
+    3. Autocompletion ....... |pgsql-autocompletion|
+    4. Contributing ......... |pgsql-contributing|
+    5. Credits .............. |pgsql-credits|
+
+====================================================================
+Section 1: Syntax highlighting                        *pgsql-syntax*
+
+Files with a .`pgsql` suffix are highlighted out of the box. If you
+want to highlight `.sql` files using this plugin by default, add
+this to your `.vimrc` (see |ft_sql.txt|):
+
+    let g:sql_type_default = 'pgsql'
+
+Alternatively, after loading a `.sql` file use this command:
+
+    :SQLSetType pgsql.vim
+
+To set the file type in new buffers use:
+
+    :let b:sql_type_override='pgsql' | set ft=sql
+
+Identifiers starting with an underscore are highlighted as
+variables. It is recommended to adopt the convention of prefixing
+function parameters and local variables with `_`.
+
+Code between `$pgsql$` or `$$` pairs is interpreted as PL/pgSQL and
+highlighted accordingly. To use any other language, such as PL/Perl,
+PL/Python, PL/R, and so on, see |pgsql-customization|.
+
+Text enclosed between `$HERE$` pairs is highlighted as
+a (multi-line) string.
+
+====================================================================
+Section 2: Customization                       *pgsql-customization*
+
+To enable embedded syntax highlighting inside the body of
+user-defined functions for languages other than PL/pgSQL, you should
+set `g:pgsql_pl` accordingly. The value of the variable is a List of
+file types. For example, to use PL/Python and PL/R, you should
+define:
+
+    let g:pgsql_pl = ['python', 'r']
+
+After that, code between `$python$` pairs will be highlighted as
+Python, and code between `$r$` pairs will be highlighted as R. There
+is also a buffer-local variable called `b:pgsql_pl` to override the
+global settings in a single buffer.
+
+Support for the most common PostgreSQL extensions is enabled by
+default. You may set |g:pgsql_disabled_extensions| to a |List| of
+unwanted extensions.
+
+Highlight group definitions may be changed in your `vimrc`, too. For
+example:
+
+  hi! link sqlKeyword Keyword
+
+See the source code for the available highlight groups.
+
+====================================================================
+Section 3: Autocompletion                     *pgsql-autocompletion*
+
+This plugin just defines a new dialect for Vim's SQL plugin. As
+such, it inherits the static and dynamic completion methods of that
+plugin (see |sql-completion|). So, for example, by default you may
+use `<C-c>f` to complete function names, `<C-c>T` to complete types,
+and so on. See |ft_sql.txt| for thorough documentation about SQL
+support in Vim.
+
+As far as I know, YouCompleteMe does not support SQL. If you use
+YouCompleteMe you may want to disable it for SQL buffers. Add this
+to `.vim/after/ftplugin/sql.vim`:
+
+  if exists('g:ycm_filetype_blacklist')
+    call extend(g:ycm_filetype_blacklist, { 'sql': 1 })
+  endif
+
+Of course, I recommend using my own MUcomplete plugin over YCM ;)
+
+====================================================================
+Section 4: Contributing                         *pgsql-contributing*
+
+For bug reports and feature requests please use:
+
+    https://github.com/lifepillar/pgsql.vim/issues
+
+Pull requests are welcome, too!
+
+====================================================================
+Section 5: Credits                                   *pgsql-credits*
+
+This plugin was originally a fork of space::tekk's
+
+    https://github.com/spacetekk/pgsql.vim

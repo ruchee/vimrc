@@ -1,12 +1,18 @@
 " Vim filetype plugin
 " Language:     F#
-" Last Change:  Fri 16 Oct 2015
+" Last Change:  Sun 25 Jun 2017
 " Maintainer:   Gregor Uhlenheuer <kongo2002@googlemail.com>
 
 if exists('b:did_ftplugin')
     finish
 endif
 let b:did_ftplugin = 1
+
+if has('python3')
+    let s:py_env = 'python3 << EOF'
+else
+    let s:py_env = 'python << EOF'
+endif
 
 "set some defaults
 if !exists('g:fsharp_only_check_errors_on_write')
@@ -15,13 +21,23 @@ endif
 if !exists('g:fsharp_completion_helptext')
     let g:fsharp_completion_helptext = 1
 endif
+if !exists('g:fsharp_helptext_comments')
+    let g:fsharp_helptext_comments= 0
+endif
+" Enable checker by default
+if !exists('g:syntastic_fsharp_checkers')
+    let g:syntastic_fsharp_checkers = ['syntax']
+endif
 
 let s:cpo_save = &cpo
 set cpo&vim
 
 " check for python support
-if has('python')
-    python <<EOF
+if !(has('python3') || has('python'))
+    echoerr "Python environment not found"
+    finish
+else
+    exe s:py_env
 import vim
 import os
 import re
@@ -56,7 +72,7 @@ b = vim.current.buffer
 x,ext = os.path.splitext(b.name)
 if '.fs' == ext or '.fsi' == ext:
     dir = os.path.dirname(os.path.realpath(b.name))
-    projs = filter(lambda f: f.lower() == 'project.json' or f.lower().endswith('.fsproj'), os.listdir(dir))
+    projs = list(filter(lambda f: f.lower() == 'project.json' or f.lower().endswith('.fsproj'), os.listdir(dir)))
     if len(projs):
         proj_file = os.path.join(dir, projs[0])
         vim.command("let b:proj_file = '%s'" % proj_file)
@@ -75,6 +91,10 @@ EOF
         let g:fsharp_map_typecheck = 't'
     endif
 
+    if !exists('g:fsharp_map_typehelp')
+        let g:fsharp_map_typehelp = 'h'
+    endif
+
     if !exists('g:fsharp_map_gotodecl')
         let g:fsharp_map_gotodecl = 'd'
     endif
@@ -89,6 +109,7 @@ EOF
 
     if g:fsharp_map_keys
         execute "nnoremap <buffer>" g:fsharp_map_prefix.g:fsharp_map_typecheck  ":call fsharpbinding#python#TypeCheck()<CR>"
+        execute "nnoremap <buffer>" g:fsharp_map_prefix.g:fsharp_map_typehelp  ":call fsharpbinding#python#TypeHelp()<CR>"
         execute "nnoremap <buffer>" g:fsharp_map_prefix.g:fsharp_map_gotodecl  ":call fsharpbinding#python#GotoDecl()<CR>"
         execute "nnoremap <buffer>" g:fsharp_map_prefix.g:fsharp_map_gobackfromdecl  ":call fsharpbinding#python#GoBackFromDecl()<CR>"
         execute "nnoremap <buffer>" g:fsharp_map_prefix.g:fsharp_map_fsiinput  ":call fsharpbinding#python#FsiInput()<CR>"
@@ -140,6 +161,9 @@ EOF
         au BufEnter     *.fs,*.fsi,*fsx call fsharpbinding#python#OnBufEnter()
         au InsertLeave  *.fs,*.fsi,*fsx  if pumvisible() == 0|silent! pclose|endif
     augroup END
+
+    " Python process cleanup
+    autocmd VimLeavePre * call fsharpbinding#python#OnVimLeave()
 
     " omnicomplete
     setlocal omnifunc=fsharpbinding#python#Complete

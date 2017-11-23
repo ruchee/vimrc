@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2017 Sung Pae <self@sungpae.com>
+# Distributed under the MIT license.
+# http://www.opensource.org/licenses/mit-license.php
+
+abort_with_help() {
+    echo "usage: $(basename "$0") [-p PREFIX] file.clj"
+    exit 1
+}
+
+PREFIX='report'
+
+while getopts :p: opt; do
+    case "$opt" in
+    p) PREFIX="$OPTARG";;
+    h) abort_with_help;;
+    esac
+done
+shift $((OPTIND-1))
+
+(($# == 1)) || abort_with_help
+
+VIMRC="
+set runtimepath^=$(dirname "$0")/../..
+filetype plugin indent on
+syntax on
+syntime on
+"
+
+exec vim -N -u <(echo "$VIMRC") \
+    -c "execute 'redir > ' . strftime('${PREFIX}-$(date +%s.%N).log')" \
+    -c 'call feedkeys(repeat("j", line("$")-1) . ":silent syntime report | quit\<CR>")' \
+    "$1"
