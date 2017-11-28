@@ -4,20 +4,61 @@ snippet //      多行注释
 	/* ${0}*/
 snippet -       分隔注释
 	//----------------------------------------------------------------------${0}
+# 代码重用
+snippet u       引入类库
+	use ${1};${0}
 # 函数、复合结构
 snippet main    主函数
 	fn main() {
 	    ${0}
 	}
+snippet f       函数
+	fn ${1}(${2})${3} {
+	    ${0}
+	}
+snippet ft      测试函数
+	#[test]
+	fn test_${1}() {
+	    ${0}
+	}
+# 流程控制
+snippet if      if
+	if ${1} {
+	    ${0}
+	}
+snippet fi      for .. in
+	for ${1} in ${2} {
+	    ${0}
+	}
+snippet wh      while
+	while ${1} {
+	    ${0}
+	}
 # 单个关键字
+snippet re      返回
+	return ${0};
 snippet l       变量赋值
-	let ${1} = ${2};${0}
+	let ${0}
 snippet m       使变量可变
 	mut ${0}
 snippet lm      声明可变变量
-	let mut ${1} = ${2};${0}
+	let mut ${0}
+# 测试
+snippet as      断言
+	assert!(${0});
+snippet das     断言 [非调试模式会跳过]
+	debug_assert!(${0});
+snippet ase     断言相等
+	assert_eq!(${0});
 # 输入输出
+snippet w       写入（不换行）
+	write!(${0});
+snippet wl      写入（换行）
+	writeln!(${0});
 snippet p       输出（不换行）
-	print!("${1}"${0});
+	print!(${0});
 snippet pl      输出（换行）
-	println!("${1}"${0});
+	println!(${0});
+# 其他
+snippet .       函数标识
+	#[${1}]${0}
