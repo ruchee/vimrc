@@ -1,4 +1,4 @@
 /fixtures/vendor
 log.txt-*
-outTestCase_*
-verr-TestCase_*
+outTestCase*
+verr-TestCase*

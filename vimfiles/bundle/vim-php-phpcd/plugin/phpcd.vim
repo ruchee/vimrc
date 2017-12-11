@@ -13,6 +13,8 @@ endif
 autocmd BufLeave,VimLeave *.php if g:phpcd_need_update > 0 | call phpcd#UpdateIndex() | endif
 autocmd BufWritePost *.php let g:phpcd_need_update = 1
 autocmd FileType php setlocal omnifunc=phpcd#CompletePHP
+autocmd InsertLeave,CompleteDone *.php if pumvisible() == 0 | pclose | endif
+
 if g:phpcd_auto_restart
 	autocmd FileType php autocmd BufEnter <buffer> call phpcd#EnterBufferWithAutoRestart()
 endif

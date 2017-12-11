@@ -791,7 +791,7 @@ class PHPCD implements RpcHandler
         $paramString = '';
         if ($hintedClass) {
             $paramString .= $hintedClass->getName() . ' ';
-        } elseif ($param->hasType()) {
+        } elseif (method_exists($param, 'hasType') && $param->hasType()) {
             $paramString .= $param->getType() . ' ';
         }
         $paramString .= '$' . $param->getName();

@@ -3,4 +3,4 @@ syntax on
 set virtualedit+=onemore
 
 let p = fnamemodify(expand('%:p:h'), ':h')
-exe 'set rtp='.p.'/,'.p.'/vimunit/,'.p.'/../vimunit/,'.&rtp
+exe 'set rtp='.p.'/,'.p.'/../vimunit/,'.&rtp

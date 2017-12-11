@@ -4,19 +4,8 @@ set -eu
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-if [ -f "$DIR/../vimunit/vutest.sh" ]; then
-	# vimunit in the plugin root
-	VU="$DIR/../vimunit/vutest.sh"
-
-elif [ -f "$DIR/../../vimunit/vutest.sh" ]; then
-	# vimunit in the plugin root's parent dir (think of ~/.vim/bundle)
-	VU="$DIR/../../vimunit/vutest.sh"
-
-else
-	# no vimunit found, just grab it from github
-	git clone https://github.com/complex857/vimunit.git "$DIR/../vimunit"
-	VU="$DIR/../vimunit/vutest.sh"
-fi
+# vimunit in the plugin root's parent dir (think of ~/.vim/bundle)
+VU="$DIR/../../vimunit/vutest.sh"
 
 if [ ! -f "$VU" ]; then
 	echo "Could not run tests. Vimunit executeable not found at: '$VU'"
