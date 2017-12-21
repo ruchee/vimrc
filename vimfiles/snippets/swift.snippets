@@ -149,22 +149,42 @@ snippet mu      标记可变
 	mutating ${0}
 # 特殊常量
 # 数据类型
-snippet _s      String
-	String${0}
-snippet _b      Bool
-	Bool${0}
 snippet _i      Int
 	Int${0}
+snippet _i8     Int8
+	Int8${0}
+snippet _i1     Int16
+	Int16${0}
+snippet _i3     Int32
+	Int32${0}
+snippet _i6     Int64
+	Int64${0}
+snippet _u      UInt
+	UInt${0}
+snippet _u8     UInt8
+	UInt8${0}
+snippet _u1     UInt16
+	UInt16${0}
+snippet _u3     UInt32
+	UInt32${0}
+snippet _u6     UInt64
+	UInt64${0}
 snippet _f      Float
 	Float${0}
 snippet _d      Double
 	Double${0}
+snippet _s      String
+	String${0}
+snippet _b      Bool
+	Bool${0}
 snippet _e      Error
 	Error${0}
 # 输入输出
 snippet p       输出
 	print(${0})
 # 其他
+snippet ?       三元运算符
+	${1} ? ${2} : ${0};
 snippet <       { .. }
 	{ ${0} }
 snippet (       字符串内插
