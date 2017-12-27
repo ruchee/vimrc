@@ -255,7 +255,7 @@ function! s:lastopeningline(pattern,limit,start)
 endfunction
 
 function! s:readable_define_pattern() dict abort
-  if self.name() =~ '\.yml\%(\.example\)\=$'
+  if self.name() =~ '\.yml\%(\.example\|sample\)\=$'
     return '^\%(\h\k*:\)\@='
   endif
   let define = '^\s*def\s\+\(self\.\)\='
@@ -599,7 +599,7 @@ function! rails#pluralize(word)
 endfunction
 
 function! rails#app(...) abort
-  let root = s:sub(a:0 ? a:1 : get(b:, 'rails_root', ''), '[\/]$', '')
+  let root = s:sub(a:0 && len(a:1) ? a:1 : get(b:, 'rails_root', ''), '[\/]$', '')
   if !empty(root)
     if !has_key(s:apps, root) && filereadable(root . '/config/environment.rb')
       let s:apps[root] = deepcopy(s:app_prototype)
@@ -1678,7 +1678,7 @@ function! s:Rails(bang, count, arg) abort
   let use_rake = 0
   if !empty(a:arg)
     let str = a:arg
-    let native = '\v^%(application|benchmarker|console|dbconsole|destroy|generate|new|plugin|profiler|runner|server|version)>'
+    let native = '\v^%(application|benchmarker|console|dbconsole|destroy|generate|new|plugin|profiler|runner|server|version|[cgst]|db)>'
     if !rails#app().has('rails3')
       let use_rake = !rails#app().has_file('script/' . matchstr(str, '\S\+'))
     elseif str !~# '^-' && str !~# native
@@ -1899,8 +1899,10 @@ function! s:app_generator_command(bang, mods, ...) dict abort
   try
     let &l:makeprg = self.prepare_rails_command(cmd)
     let &l:errorformat = s:efm_generate . ',chdir '.escape(self.path(), ',')
+    call s:push_chdir(1)
     noautocmd make!
   finally
+    call s:pop_command()
     let &l:errorformat = old_errorformat
     let &l:makeprg = old_makeprg
   endtry
@@ -2340,6 +2342,9 @@ function! s:ruby_cfile() abort
   if res != ""|return res.".rb"|endif
 
   let res = s:findamethod('fixtures','fixtures/\1.yml')
+  if res != ""|return res|endif
+
+  let res = s:findamethod('fixture_file_upload','fixtures/\1')
   if res != ""|return res|endif
 
   let res = s:findamethod('file_fixture','fixtures/files/\1')
@@ -3989,7 +3994,7 @@ function! rails#ruby_syntax() abort
     syn match   rubyTestAction '\.\@<!\<\%(get\|post\|put\|patch\|delete\|head\|process\)\>'
     syn match   rubyTestAction '\<follow_redirect!'
     syn keyword rubyTestAction get_via_redirect post_via_redirect
-    syn keyword rubyTestHelper request response flash session cookies
+    syn keyword rubyTestHelper request response flash session cookies fixture_file_upload
   endif
   if buffer.type_name('test-system', 'spec-feature', 'cucumber')
     syn keyword rubyTestHelper body current_host current_path current_scope current_url current_window html response_headers source status_code title windows
@@ -4188,24 +4193,21 @@ function! s:BufMappings() abort
   if empty(maparg('<Plug><cfile>', 'c'))
     return
   endif
-  nmap <buffer><silent> <Plug>RailsFind       <SID>:find <Plug><cfile><CR>
-  nmap <buffer><silent> <Plug>RailsSplitFind  <SID>:sfind <Plug><cfile><CR>
-  nmap <buffer><silent> <Plug>RailsTabFind    <SID>:tabfind <Plug><cfile><CR>
   let pattern = '^$\|_gf(v:count\|[Rr]uby\|[Rr]ails'
   if mapcheck('gf', 'n') =~# pattern
-    nmap <buffer> gf         <Plug>RailsFind
+    nmap <buffer><silent> gf         <SID>:find <Plug><cfile><CR>
   endif
   if mapcheck('<C-W>f', 'n') =~# pattern
-    nmap <buffer> <C-W>f     <Plug>RailsSplitFind
+    nmap <buffer><silent> <C-W>f     <SID>:sfind <Plug><cfile><CR>
   endif
   if mapcheck('<C-W><C-F>', 'n') =~# pattern
-    nmap <buffer> <C-W><C-F> <Plug>RailsSplitFind
+    nmap <buffer><silent> <C-W><C-F> <SID>:sfind <Plug><cfile><CR>
   endif
   if mapcheck('<C-W>gf', 'n') =~# pattern
-    nmap <buffer> <C-W>gf    <Plug>RailsTabFind
+    nmap <buffer><silent> <C-W>gf    <SID>:tabfind <Plug><cfile><CR>
   endif
   if mapcheck('<C-R><C-F>', 'c') =~# pattern
-    cmap <buffer> <C-R><C-F> <Plug><cfile>
+    cmap <buffer>         <C-R><C-F> <Plug><cfile>
   endif
 endfunction
 
@@ -4718,8 +4720,9 @@ endfunction
 
 let s:default_projections = {
       \  "*.example.yml": {"alternate": "{}.yml"},
-      \  "*.yml": {"alternate": ["{}.example.yml", "{}.yml"]},
+      \  "*.yml": {"alternate": ["{}.example.yml", "{}.yml.example", "{}.yml.sample"]},
       \  "*.yml.example": {"alternate": "{}.yml"},
+      \  "*.yml.sample": {"alternate": "{}.yml"},
       \  "Gemfile": {"alternate": "Gemfile.lock", "type": "lib"},
       \  "Gemfile.lock": {"alternate": "Gemfile"},
       \  "README": {"alternate": "config/database.yml"},
@@ -5277,7 +5280,7 @@ function! rails#buffer_setup() abort
     elseif exists(':SnipMateLoadScope') == 2
       SnipMateLoadScope rails
     endif
-  elseif self.name() =~# '\.yml\%(\.example\)\=$'
+  elseif self.name() =~# '\.yml\%(\.example\|sample\)\=$'
     call self.setvar('&define',self.define_pattern())
   elseif ft =~# '^eruby\>'
     call self.setvar('&define',self.define_pattern())

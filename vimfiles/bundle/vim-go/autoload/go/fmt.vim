@@ -58,7 +58,7 @@ function! go#fmt#Format(withGoimport) abort
   endif
 
   " Write current unsaved buffer to a temp file
-  let l:tmpname = tempname()
+  let l:tmpname = tempname() . '.go'
   call writefile(go#util#GetLines(), l:tmpname)
   if go#util#IsWin()
     let l:tmpname = tr(l:tmpname, '\', '/')
@@ -101,6 +101,9 @@ function! go#fmt#Format(withGoimport) abort
 
   " be smart and jump to the line the new statement was added/removed
   call cursor(line('.') + diff_offset, current_col)
+
+  " Syntax highlighting breaks less often.
+  syntax sync fromstart
 endfunction
 
 " update_file updates the target file with the given formatted source
@@ -150,28 +153,17 @@ function! go#fmt#update_file(source, target)
 endfunction
 
 " run runs the gofmt/goimport command for the given source file and returns
-" the the output of the executed command. Target is the real file to be
-" formated.
+" the output of the executed command. Target is the real file to be formatted.
 function! go#fmt#run(bin_name, source, target)
   let cmd = s:fmt_cmd(a:bin_name, a:source, a:target)
   if empty(cmd)
     return
   endif
 
-  if cmd[0] == "goimports"
-    " change GOPATH too, so goimports can pick up the correct library
-    let old_gopath = $GOPATH
-    let $GOPATH = go#path#Detect()
-  endif
-
   let command = join(cmd, " ")
 
   " execute our command...
   let out = go#util#System(command)
-
-  if cmd[0] == "goimports"
-    let $GOPATH = old_gopath
-  endif
 
   return out
 endfunction

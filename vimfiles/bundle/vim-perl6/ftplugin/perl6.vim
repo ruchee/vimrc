@@ -114,8 +114,6 @@ if get(g:, 'perl6_unicode_abbrevs', 0)
     iabbrev <buffer> **7 ⁷
     iabbrev <buffer> **8 ⁸
     iabbrev <buffer> **9 ⁹
-    iabbrev <buffer> + ⁺
-    iabbrev <buffer> - −
     iabbrev <buffer> ... …
     iabbrev <buffer> / ÷
     iabbrev <buffer> << «
