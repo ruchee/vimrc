@@ -861,12 +861,6 @@ function! s:CloseWindow() abort
 
     call s:ShrinkIfExpanded()
 
-    " The window sizes may have changed due to the shrinking happening after
-    " the window closing, so equalize them again.
-    if &equalalways
-        wincmd =
-    endif
-
     if s:autocommands_done && !s:statusline_in_use
         autocmd! TagbarAutoCmds
         let s:autocommands_done = 0
@@ -900,6 +894,12 @@ function! s:ShrinkIfExpanded() abort
            execute 'winpos ' . s:window_pos.pre.x .
                        \ ' ' . s:window_pos.pre.y
         endif
+    endif
+
+    " The window sizes may have changed due to the shrinking happening after
+    " the window closing, so equalize them again.
+    if &equalalways
+        wincmd =
     endif
 endfunction
 
@@ -1941,7 +1941,7 @@ function! s:HighlightTag(openfolds, ...) abort
         call winline()
 
         let foldpat = '[' . g:tagbar#icon_open . g:tagbar#icon_closed . ' ]'
-        let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\zs[^( ]\+\ze/'
+        let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\?\zs[^( ]\+\ze/'
         call tagbar#debug#log("Highlight pattern: '" . pattern . "'")
         if hlexists('TagbarHighlight') " Safeguard in case syntax highlighting is disabled
             execute 'match TagbarHighlight ' . pattern

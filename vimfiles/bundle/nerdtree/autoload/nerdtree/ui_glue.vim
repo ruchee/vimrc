@@ -227,24 +227,30 @@ function! s:closeTreeWindow()
     endif
 endfunction
 
-" FUNCTION: s:deleteBookmark(bm) {{{1
-" if the cursor is on a bookmark, prompt to delete
-function! s:deleteBookmark(bm)
-    echo  "Are you sure you wish to delete the bookmark:\n\"" . a:bm.name . "\" (yN):"
+" FUNCTION: s:deleteBookmark(bookmark) {{{1
+" Prompt the user to confirm the deletion of the selected bookmark.
+function! s:deleteBookmark(bookmark)
+    let l:message = "Delete the bookmark \"" . a:bookmark.name
+                \ . "\" from the bookmark list?"
 
-    if  nr2char(getchar()) ==# 'y'
-        try
-            call a:bm.delete()
-            call b:NERDTree.root.refresh()
-            call b:NERDTree.render()
-            redraw
-        catch /^NERDTree/
-            call nerdtree#echoWarning("Could not remove bookmark")
-        endtry
-    else
-        call nerdtree#echo("delete aborted" )
+    let l:choices = "&Yes\n&No"
+
+    echo | redraw
+    let l:selection = confirm(l:message, l:choices, 1, 'Warning')
+
+    if l:selection != 1
+        call nerdtree#echo('bookmark not deleted')
+        return
     endif
 
+    try
+        call a:bookmark.delete()
+        silent call b:NERDTree.root.refresh()
+        call b:NERDTree.render()
+        echo | redraw
+    catch /^NERDTree/
+        call nerdtree#echoWarning('could not remove bookmark')
+    endtry
 endfunction
 
 " FUNCTION: s:displayHelp() {{{1
@@ -255,55 +261,55 @@ function! s:displayHelp()
     call b:NERDTree.ui.centerView()
 endfunction
 
-" FUNCTION: s:findAndRevealPath() {{{1
-function! s:findAndRevealPath()
+" FUNCTION: s:findAndRevealPath(pathStr) {{{1
+function! s:findAndRevealPath(pathStr)
+    let l:pathStr = !empty(a:pathStr) ? a:pathStr : expand('%:p')
+
+    if empty(l:pathStr)
+        call nerdtree#echoWarning('no file for the current buffer')
+        return
+    endif
+
     try
-        let p = g:NERDTreePath.New(expand("%:p"))
+        let l:pathObj = g:NERDTreePath.New(l:pathStr)
     catch /^NERDTree.InvalidArgumentsError/
-        call nerdtree#echo("no file for the current buffer")
+        call nerdtree#echoWarning('invalid path')
         return
     endtry
 
-    if p.isUnixHiddenPath()
-        let showhidden=g:NERDTreeShowHidden
+    if l:pathObj.isUnixHiddenPath()
+        let l:showHidden = g:NERDTreeShowHidden
         let g:NERDTreeShowHidden = 1
     endif
 
     if !g:NERDTree.ExistsForTab()
         try
-            let cwd = g:NERDTreePath.New(getcwd())
+            let l:cwd = g:NERDTreePath.New(getcwd())
         catch /^NERDTree.InvalidArgumentsError/
-            call nerdtree#echo("current directory does not exist.")
-            let cwd = p.getParent()
+            call nerdtree#echo('current directory does not exist.')
+            let l:cwd = l:pathObj.getParent()
         endtry
 
-        if p.isUnder(cwd)
-            call g:NERDTreeCreator.CreateTabTree(cwd.str())
+        if l:pathObj.isUnder(l:cwd)
+            call g:NERDTreeCreator.CreateTabTree(l:cwd.str())
         else
-            call g:NERDTreeCreator.CreateTabTree(p.getParent().str())
+            call g:NERDTreeCreator.CreateTabTree(l:pathObj.getParent().str())
         endif
     else
-        if !p.isUnder(g:NERDTreeFileNode.GetRootForTab().path)
-            if !g:NERDTree.IsOpen()
-                call g:NERDTreeCreator.ToggleTabTree('')
-            else
-                call g:NERDTree.CursorToTreeWin()
-            endif
+        NERDTreeFocus
+
+        if !l:pathObj.isUnder(g:NERDTreeFileNode.GetRootForTab().path)
             call b:NERDTree.ui.setShowHidden(g:NERDTreeShowHidden)
-            call s:chRoot(g:NERDTreeDirNode.New(p.getParent(), b:NERDTree))
-        else
-            if !g:NERDTree.IsOpen()
-                call g:NERDTreeCreator.ToggleTabTree("")
-            endif
+            call s:chRoot(g:NERDTreeDirNode.New(l:pathObj.getParent(), b:NERDTree))
         endif
     endif
-    call g:NERDTree.CursorToTreeWin()
-    let node = b:NERDTree.root.reveal(p)
-    call b:NERDTree.render()
-    call node.putCursorHere(1,0)
 
-    if p.isUnixHiddenFile()
-        let g:NERDTreeShowHidden = showhidden
+    let l:node = b:NERDTree.root.reveal(l:pathObj)
+    call b:NERDTree.render()
+    call l:node.putCursorHere(1, 0)
+
+    if l:pathObj.isUnixHiddenFile()
+        let g:NERDTreeShowHidden = l:showHidden
     endif
 endfunction
 
@@ -581,7 +587,7 @@ function! nerdtree#ui_glue#setupCommands()
     command! -n=0 -bar NERDTreeClose :call g:NERDTree.Close()
     command! -n=1 -complete=customlist,nerdtree#completeBookmarks -bar NERDTreeFromBookmark call g:NERDTreeCreator.CreateTabTree('<args>')
     command! -n=0 -bar NERDTreeMirror call g:NERDTreeCreator.CreateMirror()
-    command! -n=0 -bar NERDTreeFind call s:findAndRevealPath()
+    command! -n=? -complete=file -bar NERDTreeFind call s:findAndRevealPath('<args>')
     command! -n=0 -bar NERDTreeFocus call NERDTreeFocus()
     command! -n=0 -bar NERDTreeCWD call NERDTreeCWD()
 endfunction
