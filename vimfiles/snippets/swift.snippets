@@ -71,6 +71,14 @@ snippet if      if
 	if ${1} {
 	    ${0}
 	}
+snippet ifc     if case
+	if case ${1} {
+	    ${0}
+	}
+snippet ifl     if let
+	if let ${1} {
+	    ${0}
+	}
 snippet elif    else if
 	else if ${1} {
 	    ${0}
@@ -105,6 +113,8 @@ snippet cs      case
 snippet def     default
 	default:
 	    ${0}
+snippet fa      继续匹配
+	fallthrough${0}
 # 异常处理
 snippet thr     抛出异常
 	throw ${0}
@@ -133,8 +143,14 @@ snippet v       定义变量
 	var ${0}
 snippet l       定义常量
 	let ${0}
+snippet w       条件匹配
+	where ${0}
 snippet re      返回
 	return ${0}
+snippet co      继续
+	continue${0}
+snippet br      中断
+	break${0}
 snippet su      调用父类的方法
 	super${0}
 snippet sui     调用父类的构造方法
@@ -173,6 +189,8 @@ snippet _f      Float
 	Float${0}
 snippet _d      Double
 	Double${0}
+snippet _c      Character
+	Character${0}
 snippet _s      String
 	String${0}
 snippet _b      Bool

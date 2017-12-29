@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-11-03 17:33:51
+" -----------------    Date: 2017-12-29 15:26:10
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -736,7 +736,7 @@ else
 endif
 let g:syntastic_c_compiler_options           = '-Wall -std=c11'
 let g:syntastic_cpp_compiler_options         = '-Wall -std=c++14'
-let g:syntastic_swift_checkers               = ['swiftpm', 'swiftlint']
+let g:syntastic_swift_checkers               = ['swift', 'swiftpm', 'swiftlint']
 let g:syntastic_rust_checkers                = ['rustc']
 let g:syntastic_nim_checkers                 = ['nim']
 let g:syntastic_enable_nim_checker           = 1
@@ -966,8 +966,10 @@ func! Compile_Run_Code()
             exec '!clang -fobjc-arc -framework Foundation %:t -o %:r && ./%:r'
         endif
     elseif &filetype == 'swift'
-        if g:isMAC
-            exec '!swift %:t'
+        if g:isWIN
+            exec '!swiftc %:t && %:r.exe'
+        else
+            exec '!swiftc %:t && ./%:r'
         endif
     elseif &filetype == 'd'
         if g:isWIN
