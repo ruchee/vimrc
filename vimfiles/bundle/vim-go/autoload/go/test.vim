@@ -129,6 +129,10 @@ function! go#test#Func(bang, ...) abort
 
   if a:0
     call extend(args, a:000)
+  else
+    " only add this if no custom flags are passed
+    let timeout  = get(g:, 'go_test_timeout', '10s')
+    call add(args, printf("-timeout=%s", timeout))
   endif
 
   call call('go#test#Test', args)
@@ -314,6 +318,10 @@ function! s:errorformat() abort
 
   " set the format for panics.
 
+  " handle panics from test timeouts
+  let format .= ",%+Gpanic: test timed out after %.%\\+"
+
+  " handle non-timeout panics
   " In addition to 'panic', check for 'fatal error' to support older versions
   " of Go that used 'fatal error'.
   "

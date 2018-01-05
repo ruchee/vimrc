@@ -612,7 +612,7 @@ simplify_return({abstype, _, [Type|_]}) ->
     {erlangName, Attrs, _} = Type,
     Name = proplists:get_value(name, Attrs),
     Name ++ "()";
-simplify_return({record, _, [Type]}) ->
+simplify_return({record, _, [Type|_]}) ->
     simplify_return(Type) ++ "()";
 simplify_return({nonempty_list, _, [Type]}) ->
     "[" ++ simplify_return(Type) ++ "]";

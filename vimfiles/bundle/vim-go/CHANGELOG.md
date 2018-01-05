@@ -1,5 +1,19 @@
 ## unplanned
 
+BUG FIXES:
+
+* Create quickfix list correctly when tests timeout.
+  [[GH-1633]](https://github.com/fatih/vim-go/pull/1633)
+* Apply `g:go_test_timeout` when running `:GoTestFunc`.
+  [[GH-1631]](https://github.com/fatih/vim-go/pull/1631)
+* The user's configured `g:go_doc_url` variable wasn't working correctly in the
+  case when the "gogetdoc" command isn't installed.
+  [[GH-1629]](https://github.com/fatih/vim-go/pull/1629)
+* Highlight format specifiers with an index (e.g. `%[2]d`).
+  [[GH-1634]](https://github.com/fatih/vim-go/pull/1634)
+
+## 1.16 - (December 29, 2017)
+
 FEATURES:
 
 * Add `g:go_doc_url` to change the `godoc` server from `godoc.org` to a custom
@@ -63,6 +77,9 @@ BUG FIXES:
   [[GH-1606]](https://github.com/fatih/vim-go/pull/1606).
 * Fix template creation for files in directories that don't exist yet.
   [[GH-1618]](https://github.com/fatih/vim-go/pull/1618).
+* Fix behavior of terminal windows and resize terminal windows correctly for
+  all valid `g:go_term_mode` values.
+  [[GH-1611]](https://github.com/fatih/vim-go/pull/1611).
 
 BACKWARDS INCOMPATIBILITIES:
 
