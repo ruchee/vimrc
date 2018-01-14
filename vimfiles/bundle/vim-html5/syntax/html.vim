@@ -110,7 +110,7 @@ syn keyword htmlArg contained async
 " <content>
 syn keyword htmlArg contained select
 " <iframe>
-syn keyword htmlArg contained seamless srcdoc sandbox allowfullscreen allowusermedia allowpaymentrequest 
+syn keyword htmlArg contained seamless srcdoc sandbox allowfullscreen allowusermedia allowpaymentrequest allowpresentation
 " <picture>
 syn keyword htmlArg contained srcset sizes
 " <a>
@@ -124,6 +124,8 @@ syn keyword htmlArg contained integrity crossorigin
 " <link>
 syn keyword htmlArg contained prefetch 
 " syn keyword htmlArg contained preload
+" <img>
+syn keyword htmlArg contained decoding
 
 " Custom Data Attributes
 " http://w3c.github.io/html/single-page.html#embedding-custom-non-visible-data-with-the-data-attributes

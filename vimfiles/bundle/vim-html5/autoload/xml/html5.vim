@@ -60,7 +60,7 @@ let charset = [
     \ 'windows-1256', 'windows-1257', 'windows-1258', 'TIS-620', ]
 " }}}
 
-let autofill_tokens = ['on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name', 'family-name', 'honorific-suffix', 'nickname', 'username', 'new-password', 'current-password', 'organization-title', 'organization', 'street-address', 'address-line1', 'address-line2', 'address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1', 'country', 'country-name', 'postal-code', 'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name', 'cc-number', 'cc-exp', 'cc-exp-month', 'cc-exp-year', 'cc-csc', 'cc-type', 'transaction-currency', 'transaction-amount', 'language', 'bday', 'bday-day', 'bday-month', 'bday-year', 'sex', 'url', 'photo']
+let autofill_tokens = ['on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name', 'family-name', 'honorific-suffix', 'nickname', 'organization-title', 'username', 'new-password', 'current-password', 'organization', 'street-address', 'address-line1', 'address-line2', 'address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1', 'country', 'country-name', 'postal-code', 'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name', 'cc-number', 'cc-exp', 'cc-exp-month', 'cc-exp-year', 'cc-csc', 'cc-type', 'transaction-currency', 'transaction-amount', 'language', 'bday', 'bday-day', 'bday-month', 'bday-year', 'sex', 'url', 'photo', 'tel', 'tel-country-code', 'tel-national', 'tel-area-code', 'tel-local', 'tel-local-prefix', 'tel-local-suffix', 'tel-extension', 'email', 'impp']
 
 " Attributes_and_Settings: {{{
 let core_attributes = {'accesskey': [], 'class': [], 'contenteditable': ['true', 'false', ''], 'contextmenu': [], 'dir': ['ltr', 'rtl'], 'draggable': ['true', 'false'], 'hidden': ['hidden', ''], 'id': [], 'is': [], 'lang': lang_tag, 'spellcheck': ['true', 'false', ''], 'style': [], 'tabindex': [], 'title': []}
@@ -80,6 +80,7 @@ let attributes_value = {
     \ 'action': ['URL', ''],
     \ 'allowfullscreen': ['Bool', ''],
     \ 'allowpaymentrequest': ['Bool', ''],
+    \ 'allowpresentation': ['Bool', ''],
     \ 'allowusermedia': ['Bool', ''],
     \ 'alt': ['Text', ''],
     \ 'async': ['Bool', ''],
@@ -577,11 +578,11 @@ let g:xmldata_html5 = {
 \ ],
 \ 'iframe': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', ''], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'allowfullscreen': [], 'allowpaymentrequest': [], 'allowusermedia': []})
+    \ extend(copy(global_attributes), {'src': [], 'srcdoc': [], 'name': [], 'width': [], 'height': [], 'sandbox': ['allow-same-origin', 'allow-forms', 'allow-scripts'], 'seamless': ['seamless', ''], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'allowfullscreen': [], 'allowpaymentrequest': [], 'allowpresentation': [], 'allowusermedia': []})
 \ ],
 \ 'img': [
     \ [],
-    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'usemap': [], 'ismap': ['ismap', ''], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'crossorigin': ['anonymous', 'use-credentials']})
+    \ extend(copy(global_attributes), {'src': [], 'alt': [], 'height': [], 'width': [], 'decoding': ['async', 'sync', 'auto'], 'usemap': [], 'ismap': ['ismap', ''], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'crossorigin': ['anonymous', 'use-credentials']})
 \ ],
 \ 'input': [
     \ [],
@@ -613,7 +614,7 @@ let g:xmldata_html5 = {
 \ ],
 \ 'link': [
     \ [],
-    \ extend(copy(global_attributes), {'href': [], 'rel': linkreltypes, 'hreflang': lang_tag, 'media': [], 'type': [], 'sizes': ['any'], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'crossorigin': crossorigin, 'preload': ['preload', ''], 'prefetch': ['prefetch', '']})
+    \ extend(copy(global_attributes), {'href': [], 'rel': linkreltypes, 'hreflang': lang_tag, 'media': [], 'type': [], 'sizes': ['any'], 'referrerpolicy': ['no-referrer', 'no-referrer-when-downgrade', 'origin', 'origin-when-cross-origin', 'unsafe-url'], 'crossorigin': crossorigin, 'preload': ['preload', ''], 'prefetch': ['prefetch', ''], 'as': ['report', 'document', 'document', 'object', 'embed', 'audio', 'font', 'image', 'audioworklet', 'paintworklet', 'script', 'serviceworker', 'sharedworker', 'worker', 'style', 'track', 'video', 'image', 'manifest', 'xslt', 'fetch', '']})
 \ ],
 \ 'main': [
     \ flow_elements + ['style'],
