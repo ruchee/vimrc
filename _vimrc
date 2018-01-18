@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2017-12-29 15:26:10
+" -----------------    Date: 2018-01-18 14:24:54
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -1097,6 +1097,8 @@ func! Compile_Run_Code()
         exec '!scss %:t > %:r.css'
     elseif &filetype == 'less'
         exec '!lessc %:t > %:r.css'
+    elseif &filetype == 'solidity'
+        exec '!solc --bin %:t'
     endif
 endfunc
 
