@@ -10,7 +10,46 @@ snippet con     合约
 	contract ${1} {
 	    ${0}
 	}
+snippet str     结构体
+	struct ${1} {
+	    ${0}
+	}
+snippet f       函数 [无返回值]
+	function ${1:f_name}(${2})${3} {
+	    ${0}
+	}
+snippet fr      函数 [有返回值]
+	function ${1:f_name}(${2})${3} returns(${4}) {
+	    ${0}
+	}
+snippet fv      函数 [只读数据]
+	function ${1:f_name}(${2})${3} view returns(${4}) {
+	    ${0}
+	}
+snippet fp      函数 [不碰数据]
+	function ${1:f_name}(${2})${3} pure returns(${4}) {
+	    ${0}
+	}
 # 流程控制
 # 异常处理
+# 数据类型
+snippet u       uint
+	uint${0}
+snippet u8      uint8
+	uint8${0}
+snippet u1      uint16
+	uint16${0}
+snippet u3      uint32
+	uint32${0}
+snippet u2      uint256
+	uint256${0}
+snippet s       string
+	string${0}
 # 单个关键字
+snippet pu      public
+	public${0}
+snippet pr      private
+	private${0}
+snippet re      return
+	return ${0};
 # 其他
