@@ -1280,7 +1280,7 @@ def bare_except(logical_line, noqa):
     regex = re.compile(r"except\s*:")
     match = regex.match(logical_line)
     if match:
-        yield match.start(), "E722 do not use bare except'"
+        yield match.start(), "E722 do not use bare 'except'"
 
 
 @register_check
@@ -1386,6 +1386,57 @@ def python_3000_backticks(logical_line):
     pos = logical_line.find('`')
     if pos > -1:
         yield pos, "W604 backticks are deprecated, use 'repr()'"
+
+
+@register_check
+def python_3000_invalid_escape_sequence(logical_line, tokens):
+    r"""Invalid escape sequences are deprecated in Python 3.6.
+
+    Okay: regex = r'\.png$'
+    W605: regex = '\.png$'
+    """
+    # https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
+    valid = [
+        '\n',
+        '\\',
+        '\'',
+        '"',
+        'a',
+        'b',
+        'f',
+        'n',
+        'r',
+        't',
+        'v',
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        'x',
+
+        # Escape sequences only recognized in string literals
+        'N',
+        'u',
+        'U',
+    ]
+
+    for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.STRING:
+            quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
+            # Extract string modifiers (e.g. u or r)
+            quote_pos = text.index(quote)
+            prefix = text[:quote_pos].lower()
+            start = quote_pos + len(quote)
+            string = text[start:-len(quote)]
+
+            if 'r' not in prefix:
+                pos = string.find('\\')
+                while pos >= 0:
+                    pos += 1
+                    if string[pos] not in valid:
+                        yield (
+                            pos,
+                            "W605 invalid escape sequence '\\%s'" %
+                            string[pos],
+                        )
+                    pos = string.find('\\', pos + 1)
 
 
 ##############################################################################
@@ -1995,8 +2046,9 @@ class StyleGuide(object):
         # build options from dict
         options_dict = dict(*args, **kwargs)
         arglist = None if parse_argv else options_dict.get('paths', None)
+        verbose = options_dict.get('verbose', None)
         options, self.paths = process_options(
-            arglist, parse_argv, config_file, parser)
+            arglist, parse_argv, config_file, parser, verbose)
         if options_dict:
             options.__dict__.update(options_dict)
             if 'paths' in options_dict:
@@ -2256,7 +2308,7 @@ def read_config(options, args, arglist, parser):
 
 
 def process_options(arglist=None, parse_argv=False, config_file=None,
-                    parser=None):
+                    parser=None, verbose=None):
     """Process options passed either via arglist or via command line args.
 
     Passing in the ``config_file`` parameter allows other tools, such as flake8
@@ -2279,6 +2331,10 @@ def process_options(arglist=None, parse_argv=False, config_file=None,
     # parsed from the command line (sys.argv)
     (options, args) = parser.parse_args(arglist)
     options.reporter = None
+
+    # If explicity specified verbosity, override any `-v` CLI flag
+    if verbose is not None:
+        options.verbose = verbose
 
     if options.ensure_value('testsuite', False):
         args.append(options.testsuite)

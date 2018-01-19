@@ -1,6 +1,21 @@
 pydocstyle - docstring style checker
 ====================================
 
+
+.. image:: https://travis-ci.org/PyCQA/pydocstyle.svg?branch=master
+    :target: https://travis-ci.org/PyCQA/pydocstyle
+
+.. image:: https://ci.appveyor.com/api/projects/status/40kkc366bmrrttca/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/Nurdok/pydocstyle/branch/master
+
+.. image:: https://readthedocs.org/projects/pydocstyle/badge/?version=latest
+    :target: https://readthedocs.org/projects/pydocstyle/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/pypi/pyversions/pydocstyle.svg
+    :target: https://pypi.org/project/pydocstyle
+
+
 (formerly pep257)
 
 **pydocstyle** is a static analysis tool for checking compliance with Python
@@ -10,7 +25,7 @@ docstring conventions.
 `PEP 257 <http://www.python.org/dev/peps/pep-0257/>`_ out of the box, but it
 should not be considered a reference implementation.
 
-**pydocstyle** supports Python 2.7, 3.3, 3.4, 3.5 and pypy.
+**pydocstyle** supports Python 2.7, 3.3, 3.4, 3.5, 3.6 and pypy.
 
 Quick Start
 -----------
@@ -40,13 +55,6 @@ Run
 
 Links
 -----
-
-.. image:: https://travis-ci.org/PyCQA/pydocstyle.svg?branch=master
-    :target: https://travis-ci.org/PyCQA/pydocstyle
-
-.. image:: https://readthedocs.org/projects/pydocstyle/badge/?version=latest
-    :target: https://readthedocs.org/projects/pydocstyle/?badge=latest
-    :alt: Documentation Status
 
 * `Read the full documentation here <http://pydocstyle.org>`_.
 

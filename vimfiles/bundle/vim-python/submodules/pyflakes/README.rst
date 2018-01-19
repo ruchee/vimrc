@@ -9,7 +9,7 @@ parsing the source file, not importing it, so it is safe to use on
 modules with side effects.  It's also much faster.
 
 It is `available on PyPI <https://pypi.python.org/pypi/pyflakes>`_
-and it supports all active versions of Python from 2.5 to 3.5.
+and it supports all active versions of Python from 2.5 to 3.6.
 
 
 
@@ -82,3 +82,8 @@ All changes should include tests and pass flake8_.
 .. _Pychecker: http://pychecker.sourceforge.net/
 .. _`rebase your changes`: https://git-scm.com/book/en/v2/Git-Branching-Rebasing
 .. _`GitHub pull request`: https://github.com/PyCQA/pyflakes/pulls
+
+Changelog
+---------
+
+Please see `NEWS.txt <NEWS.txt>`_.

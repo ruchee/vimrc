@@ -196,8 +196,10 @@ Else if :envvar:`XDG_CONFIG_HOME` is not defined:
 Example::
 
   [pycodestyle]
+  count = False
   ignore = E226,E302,E41
   max-line-length = 160
+  statistics = True
 
 At the project level, a ``setup.cfg`` file or a ``tox.ini`` file is read if
 present. If none of these files have a ``[pycodestyle]`` section, no project
@@ -413,13 +415,15 @@ This is the current list of error and warning codes:
 +------------+----------------------------------------------------------------------+
 | W604       | backticks are deprecated, use 'repr()'                               |
 +------------+----------------------------------------------------------------------+
+| W605       | invalid escape sequence '\x'                                         |
++------------+----------------------------------------------------------------------+
 
 
 **(*)** In the default configuration, the checks **E121**, **E123**, **E126**,
 **E133**, **E226**, **E241**, **E242**, **E704** and **W503** are ignored because
 they are not rules unanimously accepted, and `PEP 8`_ does not enforce them.  The
-check **E133** is mutually exclusive with check **E123**.  Use switch ``--hang-
-closing`` to report **E133** instead of **E123**.
+check **E133** is mutually exclusive with check **E123**.  Use switch
+``--hang-closing`` to report **E133** instead of **E123**.
 
 **(^)** These checks can be disabled at the line level using the ``# noqa``
 special comment.  This possibility should be reserved for special cases.
