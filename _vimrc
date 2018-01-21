@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-01-19 15:31:23
+" -----------------    Date: 2018-01-21 23:50:40
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -582,12 +582,16 @@ let g:haskell_enable_static_pointers      = 1  " 高亮 Haskell static
 
 if has('python3')
     command! -nargs=1 Py py3 <args>
-    set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.6/Python
-    set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.6
+    if g:isMAC
+        set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.6/Python
+        set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.6
+    endif
 else
     command! -nargs=1 Py py <args>
-    set pythondll=/usr/local/Frameworks/Python.framework/Versions/2.7/Python
-    set pythonhome=/usr/local/Frameworks/Python.framework/Versions/2.7
+    if g:isMAC
+        set pythondll=/usr/local/Frameworks/Python.framework/Versions/2.7/Python
+        set pythonhome=/usr/local/Frameworks/Python.framework/Versions/2.7
+    endif
 endif
 let g:pymode_python = 'python3'                " 使用 Python3 语法检查 [Python-Mode]
 let g:pymode_options_colorcolumn = 0           " 关闭右侧的单行字符长度标尺
