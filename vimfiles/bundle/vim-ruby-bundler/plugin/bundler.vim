@@ -105,7 +105,7 @@ let s:abstract_prototype = {}
 
 function! s:syntaxfile()
   syntax keyword rubyGemfileMethod gemspec gem source path git group platform platforms env ruby
-  hi def link rubyGemfileMethod Function
+  hi def link rubyGemfileMethod rubyInclude
 endfunction
 
 function! s:syntaxlock()
@@ -196,11 +196,13 @@ function! s:Detect(path) abort
     let lock = s:FindBundlerLock(a:path)
     if !empty(lock)
       let b:bundler_lock = lock
+      unlet! b:bundler_gem
     elseif !empty(getbufvar('#', 'bundler_lock'))
       let lock = getbufvar('#', 'bundler_lock')
-      for path in values(s:project(lock).paths())
+      for [gem, path] in items(s:project(lock).paths())
         if strpart(a:path, 0, len(path)) ==# path
           let b:bundler_lock = lock
+          let b:bundler_gem = gem
           break
         endif
       endfor
@@ -300,6 +302,7 @@ function! s:project_locked() dict abort
   if time != -1 && time != get(self,'_lock_time',-1)
     let self._locked = {'git': [], 'gem': [], 'path': []}
     let self._versions = {}
+    let self._dependencies = {}
 
     for line in readfile(lock_file)
       if line =~# '^\S'
@@ -314,6 +317,10 @@ function! s:project_locked() dict abort
         let ver = substitute(line, '.*(\|).*', '', 'g')
         let properties.versions[name] = ver
         let self._versions[name] = ver
+        let self._dependencies[name] = []
+      elseif line =~# '^      [a-zA-Z0-9._-]\+\s\+('
+        let dep = split(line, ' ')[0]
+        call add(self._dependencies[name], dep)
       endif
     endfor
     let self._lock_time = time
@@ -346,7 +353,7 @@ function! s:project_paths(...) dict abort
       exe chdir s:fnameescape(self.path())
 
       if len(gem_paths) == 0
-        let gem_paths = split(system(prefix.'ruby -rubygems -e '.s:shellesc('print Gem.path.join(%(;))')), ';')
+        let gem_paths = split(system(prefix.'ruby -rrubygems -e '.s:shellesc('print Gem.path.join(%(;))')), ';')
       endif
 
       let abi_version = system('ruby -rrbconfig -e '.s:shellesc('print RbConfig::CONFIG["ruby_version"]'))
@@ -493,7 +500,19 @@ function! s:project_projections_list() dict abort
   return self._projections_list
 endfunction
 
-call s:add_methods('project', ['locked', 'gems', 'paths', 'sorted', 'versions', 'has', 'projections_list'])
+function! s:project_dependencies(gem, ...) dict abort
+  let deps = a:0 ? a:1 : {}
+  let paths = a:0 > 1 ? a:2 : self.paths()
+  for dep in get(self._dependencies, a:gem, [])
+    if !has_key(deps, dep) && has_key(paths, dep)
+      let deps[dep] = paths[dep]
+      call self.dependencies(dep, deps, paths)
+    endif
+  endfor
+  return deps
+endfunction
+
+call s:add_methods('project', ['locked', 'gems', 'paths', 'sorted', 'versions', 'has', 'dependencies', 'projections_list'])
 
 " Section: Buffer
 
@@ -590,10 +609,6 @@ function! bundler#complete(A, L, P, ...) abort
   return s:completion_filter(['install','update','exec','package','config','check','list','show','outdated','console','viz','benchmark'], a:A)
 endfunction
 
-function! s:SetupMake() abort
-  compiler bundler
-endfunction
-
 call s:command("-bar -bang -nargs=? -complete=customlist,s:BundleComplete Bundle :execute s:Bundle('<bang>',<q-args>)")
 
 function! s:IsBundlerProject()
@@ -616,11 +631,6 @@ function! s:QuickFixCmdPostMake()
 endfunction
 
 augroup bundler_command
-  autocmd FileType gemfilelock call s:SetupMake()
-  autocmd FileType ruby
-        \ if expand('<afile>:t') =~# '^\%([Gg]emfile\|gems\.rb\)$' |
-        \   call s:SetupMake() |
-        \ endif
   autocmd QuickFixCmdPre *make* call s:QuickFixCmdPreMake()
   autocmd QuickFixCmdPost *make* call s:QuickFixCmdPostMake()
   autocmd User Bundler
@@ -678,7 +688,12 @@ endfunction
 
 function! s:buffer_alter_paths() dict abort
   if self.getvar('&suffixesadd') =~# '\.rb\>'
-    let new = self.project().sorted()
+    let gem = self.getvar('bundler_gem')
+    if empty(gem)
+      let new = self.project().sorted()
+    else
+      let new = sort(values(self.project().dependencies(gem)))
+    endif
     let old = type(self.getvar('bundler_paths')) == type([]) ? self.getvar('bundler_paths') : []
     for [option, suffix] in [['path', 'lib'], ['tags', 'tags']]
       let value = self.getvar('&'.option)

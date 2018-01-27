@@ -1250,7 +1250,7 @@ Maximum height for the GoDoc window created with |:GoDoc|. Default is 20. >
                                                               *'g:go_doc_url'*
 
 godoc server URL used when |:GoDocBrowser| is used. Change if you want to use
-a private internal service. Default is 'https://godoc.org'. 
+a private internal service. Default is 'https://godoc.org'.
 >
   let g:go_doc_url = 'https://godoc.org'
 <
@@ -1384,17 +1384,17 @@ default it's using `vet` and `golint`.
 <
                                                    *'g:go_metalinter_enabled'*
 
-Specifies the currently enabled linters for the |:GoMetaLinter| command. By
-default it's using `vet`, `golint` and `errcheck`.
+Specifies the linters to enable for the |:GoMetaLinter| command. By default
+it's using `vet`, `golint` and `errcheck`.
 >
   let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
 <
-                                                  *'g:go_metalinter_excludes'*
+                                                  *'g:go_metalinter_disabled'*
 
-Specifies the linters to be excluded from the |:GoMetaLinter| command. By
-default it's empty
+Specifies the linters to disable for the |:GoMetaLinter| command. By default
+it's empty
 >
-  let g:go_metalinter_excludes = []
+  let g:go_metalinter_disabled = []
 <
                                                    *'g:go_metalinter_command'*
 
@@ -1725,7 +1725,7 @@ Highlight operators such as `:=` , `==`, `-=`, etc.
 <
                                                   *'g:go_highlight_functions'*
 
-Highlight function names.
+Highlight function and method declarations.
 >
   let g:go_highlight_functions = 0
 <
@@ -1737,11 +1737,11 @@ declarations. Setting this implies the functionality from
 >
   let g:go_highlight_function_arguments = 0
 <
-                                                    *'g:go_highlight_methods'*
+                                             *'g:go_highlight_function_calls'*
 
-Highlight method names.
+Highlight function and method calls.
 >
-  let g:go_highlight_methods = 0
+  let g:go_highlight_function_calls = 0
 <
                                                       *'g:go_highlight_types'*
 

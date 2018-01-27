@@ -434,7 +434,74 @@ class PHPCD implements RpcHandler
         }
 
         list($path, $doc) = $this->doc($class_name, $name, $path);
-        return $this->typeByDoc($path, $doc, $class_name);
+        return $this->typeByDoc($path, $doc);
+    }
+
+    /**
+     * Fetch the function or class method parameter type by type hint or docblock
+     *
+     * @return [type1, type2]
+     */
+    public function argtype($class_name, $func_name, $name, $path)
+    {
+        if ($name && $name[0] === '$') {
+            $name = substr($name, 1);
+        }
+
+        $type = $this->argTypeByHint($class_name, $func_name, $name, $path);
+        if ($type && !$type->isBuiltin()) {
+            return ["\\".$type];
+        }
+
+        list($path, $doc) = $this->doc($class_name, $func_name, $path);
+        return $this->argTypeByDoc($path, $doc, $name);
+    }
+
+    private function argTypeByHint($class_name, $func_name, $name, $path)
+    {
+        try {
+            if ($class_name) {
+                $reflection = new \ReflectionClass($class_name);
+                $reflection = $reflection->getMethod($func_name);
+            } else {
+                $nsuse = $this->nsuse($path);
+
+                if (isset($nsuse['alias'][$name])) {
+                    $_name = $nsuse['alias'][$name];
+                    if (function_exists($_name)) {
+                        $name = $_name;
+                    }
+                } else {
+                    $_name = $nsuse['namespace'].'\\'.$func_name;
+                    if (function_exists($_name)) {
+                        $name = $_name;
+                    }
+                }
+
+                $reflection = new \ReflectionFunction($name);
+            }
+
+            /** @var \ReflectionMethod $reflection */
+            foreach ($reflection->getParameters() as $parameter) {
+                /** @var \ReflectionParameter $parameter */
+                if ($parameter->getName() === $name) {
+                    return $parameter->getType();
+                }
+            }
+        } catch (\ReflectionException $e) {
+            $this->logger->debug((string) $e);
+        }
+    }
+
+    private function argTypeByDoc($path, $doc, $name)
+    {
+        $has_doc = preg_match('/@param\s+(\S+)\s+\$'.$name.'/m', $doc, $matches);
+        if ($has_doc) {
+            $this->logger->debug('m', $matches);
+            return $this->fixRelativeType($path, explode('|', $matches[1]));
+        }
+
+        return [];
     }
 
     /**
@@ -445,7 +512,7 @@ class PHPCD implements RpcHandler
     public function proptype($class_name, $name)
     {
         list($path, $doc) = $this->doc($class_name, $name, false);
-        $types = $this->typeByDoc($path, $doc, $class_name);
+        $types = $this->typeByDoc($path, $doc);
 
         return $types;
     }
@@ -485,7 +552,7 @@ class PHPCD implements RpcHandler
         }
     }
 
-    private function typeByDoc($path, $doc, $class_name)
+    private function typeByDoc($path, $doc)
     {
         $has_doc = preg_match('/@(return|var)\s+(\S+)/m', $doc, $matches);
         if ($has_doc) {

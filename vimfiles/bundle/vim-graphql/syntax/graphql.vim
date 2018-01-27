@@ -8,22 +8,23 @@ endif
 
 syn match graphqlComment    "#.*$" contains=@Spell
 
-syn match graphqlOperator   "="
-syn match graphqlOperator   "!"
-syn match graphqlOperator   "|"
-syn match graphqlOperator   "\M..."
+syn match graphqlOperator   "=" display
+syn match graphqlOperator   "!" display
+syn match graphqlOperator   "|" display
+syn match graphqlOperator   "\M..." display
 
 syn keyword graphqlBoolean  true false
 syn keyword graphqlNull     null
-syn match   graphqlNumber   "-\=\<\%(0\|[1-9]\d*\)\%(\.\d\+\)\=\%([eE][-+]\=\d\+\)\=\>"
-syn region  graphqlString	start=+"+  skip=+\\\\\|\\"+  end=+"\|$+
+syn match   graphqlNumber   "-\=\<\%(0\|[1-9]\d*\)\%(\.\d\+\)\=\%([eE][-+]\=\d\+\)\=\>" display
+syn region  graphqlString   start=+"+  skip=+\\\\\|\\"+  end=+"\|$+
+syn region  graphqlString   start=+"""+ end=+"""+
 
 syn keyword graphqlKeyword on nextgroup=graphqlType skipwhite
 
 syn keyword graphqlStructure enum scalar type union nextgroup=graphqlType skipwhite
 syn keyword graphqlStructure input interface subscription nextgroup=graphqlType skipwhite
 syn keyword graphqlStructure implements nextgroup=graphqlType skipwhite
-syn keyword graphqlStructure query mutation fragment nextgroup=graphqlIdentifier skipwhite
+syn keyword graphqlStructure query mutation fragment nextgroup=graphqlName skipwhite
 syn keyword graphqlStructure directive nextgroup=graphqlDirective skipwhite
 syn keyword graphqlStructure extend nextgroup=graphqlStructure skipwhite
 syn keyword graphqlStructure schema nextgroup=graphqlFold skipwhite
@@ -31,7 +32,7 @@ syn keyword graphqlStructure schema nextgroup=graphqlFold skipwhite
 syn match graphqlDirective  "\<@\h\w*\>"   display
 syn match graphqlVariable   "\<\$\h\w*\>"  display
 
-syn match graphqlIdentifier "\<\h\w*\>"    display contained
+syn match graphqlName       "\<\h\w*\>"    display contained
 syn match graphqlType       "\<_*\u\w*\>"  display contained
 syn match graphqlConstant   "\<[A-Z_]\+\>" display contained
 
@@ -52,7 +53,7 @@ hi def link graphqlString           String
 
 hi def link graphqlConstant         Constant
 hi def link graphqlDirective        PreProc
-hi def link graphqlIdentifier       Identifier
+hi def link graphqlName             Identifier
 hi def link graphqlMetaFields       Special
 hi def link graphqlKeyword          Keyword
 hi def link graphqlStructure        Structure

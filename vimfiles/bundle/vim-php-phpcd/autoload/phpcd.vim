@@ -161,7 +161,7 @@ function! phpcd#JumpToDefinition(mode) " {{{
 	normal! zz
 endfunction " }}}
 
-function! phpcd#JumpBack() "{{{"
+function! phpcd#JumpBack() "{{{
 	if !exists('s:phpcd_jump_stack') || len(s:phpcd_jump_stack) == 0
 		return
 	endif
@@ -172,7 +172,7 @@ function! phpcd#JumpBack() "{{{"
 	unlet s:phpcd_jump_stack[-1]
 	exec 'buffer '.prev_buf
 	call setpos('.', prev_pos)
-endfunction "}}}"
+endfunction "}}}
 
 function! phpcd#GetCurrentSymbolWithContext() " {{{
 	" Check if we are inside of PHP markup
@@ -217,6 +217,15 @@ function! phpcd#GetCurrentSymbolWithContext() " {{{
 	let context = substitute(current_instruction, 'return ', '', '')
 	let context = substitute(context, '\s*[$a-zA-Z_0-9\\\x7f-\xff]*$', '', '')
 	let context = substitute(context, '\s\+\([\-:]\)', '\1', '')
+
+	if current_instruction[0:3] == 'use ' && word != '' && word[0] != '\'
+		let class_begin = search('{', 'bnW', search('class|trait', 'bnW'))
+		let class_end = searchpair('{','','}','n')
+		let cline = line('.')
+		if cline < class_begin || cline > class_end
+			let word = '\'.word
+		endif
+	endif
 
 	let [current_namespace, current_imports] = phpcd#GetCurrentNameSpace()
 	if word != ''
@@ -622,13 +631,6 @@ function! phpcd#GetMethodStack(line) " {{{
 endfunction " }}}
 
 function! phpcd#GetClassName(start_line, context, current_namespace, imports) " {{{
-	" Get class name
-	" Class name can be detected in few ways:
-	" - @var $myVar class
-	" - @var class $myVar
-	" - in the same line (php 5.4 (new Class)-> syntax)
-	" - line above
-
 	let class_name_pattern = '[a-zA-Z_\x7f-\xff\\][a-zA-Z_0-9\x7f-\xff\\]*' " {{{
 	let function_name_pattern = '[a-zA-Z_\x7f-\xff\\][a-zA-Z_0-9\x7f-\xff\\]*'
 	let function_invocation_pattern = '[a-zA-Z_\x7f-\xff\\][a-zA-Z_0-9\x7f-\xff\\]*('
@@ -723,7 +725,7 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 			return phpcd#GetCallChainReturnType(return_type, '', class_candidate_imports, methodstack)
 		endif " }}}
 	else " {{{
-		" extract the variable name from the context
+		" extract the variable name from the context {{{
 		let object = methodstack[0]
 		let object_is_array = (object =~ '\v^[^[]+\[' ? 1 : 0)
 		let object = matchstr(object, variable_name_pattern)
@@ -731,85 +733,42 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 		let function_boundary = phpcd#GetCurrentFunctionBoundaries()
 		let search_end_line = max([1, function_boundary[0][0]])
 		" -1 makes us ignore the current line (where the completion was invoked
-		let lines = reverse(getline(search_end_line, a:start_line - 1))
+		let lines = reverse(getline(search_end_line, a:start_line - 1)) "}}}
 
-		" check Constant lookup
-		let constant_object = matchstr(a:context, '\zs'.class_name_pattern.'\ze::')
-		if constant_object != ''
-			let classname_candidate = constant_object
-		endif
-
-		if classname_candidate == '' " {{{
-			" scan the file backwards from current line for explicit type declaration (@var $variable Classname)
-			for line in lines
-				" in file lookup for /* @var $foo Class */
-				if line =~# '@var\s\+'.object.'\s\+'.class_name_pattern
-					let classname_candidate = matchstr(line, '@var\s\+'.object.'\s\+\zs'.class_name_pattern.'\(\[\]\)\?')
-					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-					break
-				endif
-				" in file lookup for /* @var Class $foo */
-				if line =~# '@var\s\+'.class_name_pattern.'\s\+'.object
-					let classname_candidate = matchstr(line, '@var\s\+\zs'.class_name_pattern.'\(\[\]\)\?\ze'.'\s\+'.object)
-					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-					break
-				endif
-				" in file lookup for function (Foo $foo)
-				if line =~# 'function\s*('.class_name_pattern . '\s\+' . object
-					let classname_candidate = matchstr(line, class_name_pattern . '\ze\s\+' . object)
-					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-					break
-				endif
-			endfor
-		endif " }}}
-
-		if classname_candidate != '' " {{{
+		" check Constant lookup {{{
+		let classname_candidate = matchstr(a:context, '\zs'.class_name_pattern.'\ze::')
+		if classname_candidate != ''
+			let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
 			return phpcd#GetCallChainReturnType(classname_candidate, class_candidate_namespace, class_candidate_imports, methodstack)
-		endif " }}}
+		endif "}}}
 
 		" scan the file backwards from the current line {{{
 		let i = 1
 		for line in lines
-			" do in-file lookup of $var = new Class or $var = new [s|S]tatic
+				" in file lookup for /* @var $foo Class */
+				if line =~# '@var\s\+'.object.'\s\+'.class_name_pattern "{{{
+					let classname_candidate = matchstr(line, '@var\s\+'.object.'\s\+\zs'.class_name_pattern.'\(\[\]\)\?')
+					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
+					break
+				endif "}}}
+
+				" in file lookup for /* @var Class $foo */
+				if line =~# '@var\s\+'.class_name_pattern.'\s\+'.object "{{{
+					let classname_candidate = matchstr(line, '@var\s\+\zs'.class_name_pattern.'\(\[\]\)\?\ze'.'\s\+'.object)
+					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
+					break
+				endif "}}}
+
+			" do in-file lookup of $var = new Class or $var = new (s|S)tatic
 			if line =~# '^\s*'.object.'\s*=\s*new\s\+'.class_name_pattern && !object_is_array " {{{
 				let classname_candidate = matchstr(line, object.'\c\s*=\s*new\s*\zs'.class_name_pattern.'\ze')
 				if classname_candidate =~? '\vstatic|self' " {{{
-					let i = 1
-					while i < a:start_line
-						let line = getline(a:start_line - i)
-
-						if line =~? '\v^\s*(abstract\s+|final\s+)*\s*class\s'
-							let classname_candidate = matchstr(line, '\cclass\s\+\zs'.class_name_pattern.'\ze')
-							break
-						endif
-
-						let i += 1
-					endwhile
+					let nsuse = rpc#request(g:phpcd_channel_id, 'nsuse', expand('%:p'))
+					let classname_candidate = nsuse.class
 				end " }}}
-				if classname_candidate[0] == '\'
-					return classname_candidate
-				endif
 				let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
 				break
 			endif " }}}
-
-			" do in-file lookup of $var = (new static|self)
-			if line =~? '^\s*'.object.'\s*=\s*(\s*new\s\+(static\|self)\s*)' && !object_is_array " {{{
-				let classname_candidate = '' " {{{
-				let i = 1
-				while i < a:start_line
-					let line = getline(a:start_line - i)
-
-					if line =~? '\v^\s*(abstract\s+|final\s+)*\s*class\s'
-						let classname_candidate = matchstr(line, '\cclass\s\+\zs'.class_name_pattern.'\ze')
-						break
-					endif
-
-					let i += 1
-				endwhile " }}}
-				let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-				break
-			end " }}}
 
 			if line =~# '^\s*'.object.'\s*=\s*\(require\|include\).*' && !object_is_array " {{{
 				let path = matchstr(line, '\(require\|include\)\(_once\)\?\s*__DIR__\s*\.\s*\zs.*\ze;')
@@ -826,100 +785,54 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 				return classname
 			endif " }}}
 
-			" function declaration line
-			if line =~? 'function\(\s\+'.function_name_pattern.'\)\?\s*(' " {{{
-				let function_lines = join(reverse(copy(lines)), " ")
-				" search for type hinted arguments {{{
-				if function_lines =~? 'function\(\s\+'.function_name_pattern.'\)\?\s*(.\{-}'.class_name_pattern.'\s\+'.object && !object_is_array
-					let f_args = matchstr(function_lines, '\cfunction\(\s\+'.function_name_pattern.'\)\?\s*(\zs.\{-}\ze)')
-					let args = split(f_args, '\s*\zs,\ze\s*')
-					for arg in args
-						if arg =~# object.'\(,\|$\)'
-							let classname_candidate = matchstr(arg, '\s*\zs'.class_name_pattern.'\ze\s\+'.object)
-							let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-							break
-						endif
-					endfor
-					if classname_candidate != ''
-						break
-					endif
-				endif " }}}
+			" lambda declaration line
+			if line =~? 'function\s*(.\{-\}\s*'.object " {{{
+				" skip function () use($object)
+				if line =~? 'use\s*(.\{-\}'.object.'\>'
+					let i += 1
+					continue
+				endif
 
-				" search for docblock for the function {{{
-				let match_line = substitute(line, '\\', '\\\\', 'g')
-				let sccontent = getline(0, a:start_line - i)
-				let doc_str = phpcd#GetDocBlock(sccontent, match_line)
-				if doc_str != ''
-					let docblock = phpcd#ParseDocBlock(doc_str)
-					for param in docblock.params
-						if param.name =~? object
-							let classname_candidate = matchstr(param.type, class_name_pattern.'\(\[\]\)\?')
-							let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
-							break
-						endif
-					endfor
-					if classname_candidate != ''
-						break
+				" search for type hinted arguments
+				let classname_candidate = matchstr(line, '\c\zs'.class_name_pattern.'\ze\s\+'.object.'\>')
+				if classname_candidate
+					if classname_candidate[0] == '\'
+						return classname_candidate
 					endif
-				endif " }}}
+					let [classname_candidate, class_candidate_namespace] = phpcd#ExpandClassName(classname_candidate, a:current_namespace, a:imports)
+					break
+				endif
+			endif " }}}
+
+			" function declaration line
+			if line =~? 'function\s\+'.function_name_pattern.'\s*(.\{-\}\s*'.object " {{{
+				let nsuse = rpc#request(g:phpcd_channel_id, 'nsuse', expand('%:p'))
+				let classname = nsuse.namespace.'\'.nsuse.class
+				let funcname = matchstr(line, '\cfunction\s\+\zs'.function_name_pattern.'\ze')
+				let argtypes = rpc#request(g:phpcd_channel_id, 'argtype', classname, funcname, object, expand('%:p'))
+
+				let classname_candidate = phpcd#SelectOne(argtypes)
+				break
 			endif " }}}
 
 			" assignment for the variable in question with a variable on the right hand side
-			if line =~# '^\s*'.object.'\s*=&\?\s*\(clone\s\+\)\?\s*'.class_name_pattern" {{{
-
-				" try to find the next non-comment or string ";" char
-				let start_col = match(line, '^\s*'.object.'\C\s*=\zs&\?\s\+\(clone\)\?\s*'.class_name_pattern)
-				let filelines = reverse(copy(lines))
-				let [pos, char] = s:getNextCharWithPos(filelines, [len(filelines) - i, start_col])
-				let chars_read = 1
-				let last_pos = pos
-				" function_boundary == 0 if we are not in a function
-				let real_lines_offset = len(function_boundary) == 1 ? 1 : function_boundary[0][0]
-				" read while end of the file
-				while char != 'EOF' && chars_read < 1000
-					let last_pos = pos
-					let [pos, char] = s:getNextCharWithPos(filelines, pos)
-					let chars_read += 1
-					" we got a candidate
-					if char == ';'
-						" pos values is relative to the function's lines,
-						" line 0 need to be offsetted with the line number
-						" where te function was started to get the line number
-						" in real buffer terms
-						let synIDName = synIDattr(synID(real_lines_offset + pos[0], pos[1] + 1, 0), 'name')
-						" it's not a comment or string, end search
-						if synIDName !~? 'comment\|string'
-							break
-						endif
-					endif
-				endwhile
-
-				let prev_context = phpcd#GetCurrentInstruction(real_lines_offset + last_pos[0], last_pos[1], b:phpbegin)
-				if prev_context == ''
-					" cannot get previous context give up
-					return
-				endif
-				let prev_class = phpcd#GetClassName(a:start_line - i, prev_context, a:current_namespace, a:imports)
-
-				if stridx(prev_class, '\') != -1
-					let classname_parts = split(prev_class, '\\\+')
-					let classname_candidate = classname_parts[-1]
-					let class_candidate_namespace = join(classname_parts[0:-2], '\')
-				else
-					let classname_candidate = prev_class
-					let class_candidate_namespace = '\'
-				endif
+			if line =~# '^\s*'.object.'\s*=&\?\s*\(clone\s\+\)\?\s*'.variable_name_pattern.';' " {{{
+				let c = matchstr(a:context, variable_name_pattern.'\zs.\+')
+				let classname_candidate = phpcd#GetTypeAt(a:start_line - i, c)
 				break
 			endif " }}}
 
 			" assignment for the variable in question with function chains on the right hand side
 			if line =~? '^\s*' . object . '\s*=.*);\?$' " {{{
-				let classname = phpcd#GetCallChainReturnTypeAt(a:start_line - i)
-				let classname_parts = split(classname, '\\\+')
-				if len(classname_parts) > 0
-					let classname_candidate = classname_parts[-1]
-					let class_candidate_namespace = join(classname_parts[0:-2], '\')
-				endif
+				let classname_candidate = phpcd#GetCallChainReturnTypeAt(a:start_line - i)
+				break
+			endif " }}}
+
+			if line =~? object.'\s*=\s*'.variable_name_pattern.'[' " {{{
+				let sub_context = matchstr(line, '=\s*\zs'.variable_name_pattern.'\ze[')
+				let prev_class = phpcd#GetClassName(a:start_line - i, sub_context, a:current_namespace, a:imports)
+
+				let [classname_candidate, class_candidate_namespace] = s:getArrayType(prev_class)
 				break
 			endif " }}}
 
@@ -928,35 +841,18 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 				let sub_context = matchstr(line, 'foreach\s*(\s*\zs.\{-}\ze\s\+as')
 				let prev_class = phpcd#GetClassName(a:start_line - i, sub_context, a:current_namespace, a:imports)
 
-				" the iterated expression should return an array type
-				if prev_class =~ '\[\]$'
-					let prev_class = matchstr(prev_class, '\v^[^[]+')
+				let [classname_candidate, class_candidate_namespace] = s:getArrayType(prev_class)
+				if classname_candidate != ''
+					break
 				else
-					return
+					let i += 1
+					continue
 				endif
-
-				if stridx(prev_class, '\') != -1
-					let classname_parts = split(prev_class, '\\\+')
-					let classname_candidate = classname_parts[-1]
-					let class_candidate_namespace = join(classname_parts[0:-2], '\')
-				else
-					let classname_candidate = prev_class
-					let class_candidate_namespace = '\'
-				endif
-				break
 			endif " }}}
 
 			" catch clause with the variable in question
 			if line =~? 'catch\s*(\zs'.class_name_pattern.'\ze\s\+'.object " {{{
-				let classname = matchstr(line, 'catch\s*(\zs'.class_name_pattern.'\ze\s\+'.object)
-				if stridx(classname, '\') != -1
-					let classname_parts = split(classname, '\\\+')
-					let classname_candidate = classname_parts[-1]
-					let class_candidate_namespace = join(classname_parts[0:-2], '\')
-				else
-					let classname_candidate = classname
-					let class_candidate_namespace = '\'
-				endif
+				let classname_candidate = matchstr(line, 'catch\s*(\zs'.class_name_pattern.'\ze\s\+'.object)
 				break
 			endif " }}}
 
@@ -967,6 +863,26 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 			return phpcd#GetCallChainReturnType(classname_candidate, class_candidate_namespace, class_candidate_imports, methodstack)
 		endif " }}}
 	endif " }}}
+endfunction " }}}
+
+function s:getArrayType(prev_class) " {{{
+	" the iterated expression should return an array type
+	if a:prev_class =~ '\[\]$' " {{{
+		let prev_class = matchstr(a:prev_class, '\v^[^[]+')
+	else
+		return ['', '']
+	endif " }}}
+
+	if stridx(prev_class, '\') != -1 " {{{
+		let classname_parts = split(prev_class, '\\\+')
+		let classname_candidate = classname_parts[-1]
+		let class_candidate_namespace = join(classname_parts[0:-2], '\')
+	else
+		let classname_candidate = prev_class
+		let class_candidate_namespace = '\'
+	endif " }}}
+
+	return [classname_candidate, class_candidate_namespace]
 endfunction " }}}
 
 function! phpcd#UpdateIndex() " {{{
@@ -991,144 +907,6 @@ function! phpcd#Index() "{{{
 	endif
 
 	call rpc#notify(g:phpid_channel_id, 'index')
-endfunction " }}}
-
-function! phpcd#GetDocBlock(sccontent, search) " {{{
-	let i = 0
-	let l = 0
-	let comment_start = -1
-	let comment_end = -1
-	let sccontent_len = len(a:sccontent)
-
-	while (i < sccontent_len)
-		let line = a:sccontent[i]
-		" search for a function declaration
-		if line =~? a:search
-			let l = i - 1
-			" start backward serch for the comment block
-			while l != 0
-				let line = a:sccontent[l]
-				" if it's a one line docblock like comment and we can just return it right away
-				if line =~? '^\s*\/\*\*.\+\*\/\s*$'
-					return substitute(line, '\v^\s*(\/\*\*\s*)|(\s*\*\/)\s*$', '', 'g')
-					"... or if comment end found save line position and end search
-				elseif line =~? '^\s*\*/'
-					let comment_end = l
-					break
-					" ... or the line doesn't blank (only whitespace or nothing) end search
-				elseif line !~? '^\s*$'
-					break
-				endif
-				let l -= 1
-			endwhile
-			" no comment found
-			if comment_end == -1
-				return ''
-			end
-
-			while l != 0
-				let line = a:sccontent[l]
-				if line =~? '^\s*/\*\*'
-					let comment_start = l
-					break
-				endif
-				let l -= 1
-			endwhile
-
-			" no docblock comment start found
-			if comment_start == -1
-				return ''
-			end
-
-			let comment_start += 1 " we dont need the /**
-			let comment_end   -= 1 " we dont need the */
-
-			" remove leading whitespace and '*'s
-			let docblock = join(map(copy(a:sccontent[comment_start :comment_end]), 'substitute(v:val, "^\\s*\\*\\s*", "", "")'), "\n")
-			return docblock
-		endif
-		let i += 1
-	endwhile
-	return ''
-endfunction " }}}
-
-function! phpcd#ParseDocBlock(docblock) " {{{
-	let res = {
-				\ 'description': '',
-				\ 'params': [],
-				\ 'return': {},
-				\ 'throws': [],
-				\ 'var': {},
-				\ }
-
-	let res.description = substitute(matchstr(a:docblock, '\zs\_.\{-}\ze\(@var\|@param\|@return\|$\)'), '\(^\_s*\|\_s*$\)', '', 'g')
-	let docblock_lines = split(a:docblock, "\n")
-
-	let param_lines = filter(copy(docblock_lines), 'v:val =~? "^@param"')
-	for param_line in param_lines
-		let parts = matchlist(param_line, '@param\s\+\(\S\+\)\s\+\(\S\+\)\s*\(.*\)')
-		if len(parts) > 0
-			call add(res.params, {
-						\ 'line': parts[0],
-						\ 'type': phpcd#GetTypeFromDocBlockParam(get(parts, 1, '')),
-						\ 'name': get(parts, 2, ''),
-						\ 'description': get(parts, 3, '')})
-		endif
-	endfor
-
-	let return_line = filter(copy(docblock_lines), 'v:val =~? "^@return"')
-	if len(return_line) > 0
-		let return_parts = matchlist(return_line[0], '@return\s\+\(\S\+\)\s*\(.*\)')
-		let res['return'] = {
-					\ 'line': return_parts[0],
-					\ 'type': phpcd#GetTypeFromDocBlockParam(get(return_parts, 1, '')),
-					\ 'description': get(return_parts, 2, '')}
-	endif
-
-	let exception_lines = filter(copy(docblock_lines), 'v:val =~? "^\\(@throws\\|@exception\\)"')
-	for exception_line in exception_lines
-		let parts = matchlist(exception_line, '^\(@throws\|@exception\)\s\+\(\S\+\)\s*\(.*\)')
-		if len(parts) > 0
-			call add(res.throws, {
-						\ 'line': parts[0],
-						\ 'type': phpcd#GetTypeFromDocBlockParam(get(parts, 2, '')),
-						\ 'description': get(parts, 3, '')})
-		endif
-	endfor
-
-	let var_line = filter(copy(docblock_lines), 'v:val =~? "^@var"')
-	if len(var_line) > 0
-		let var_parts = matchlist(var_line[0], '@var\s\+\(\S\+\)\s*\(.*\)')
-		let res['var'] = {
-					\ 'line': var_parts[0],
-					\ 'type': phpcd#GetTypeFromDocBlockParam(get(var_parts, 1, '')),
-					\ 'description': get(var_parts, 2, '')}
-	endif
-
-	return res
-endfunction " }}}
-
-function! phpcd#GetTypeFromDocBlockParam(docblock_type) " {{{
-	if a:docblock_type !~ '|'
-		return a:docblock_type
-	endif
-
-	let primitive_types = [
-				\ 'string', 'float', 'double', 'int',
-				\ 'scalar', 'array', 'bool', 'void', 'mixed',
-				\ 'null', 'callable', 'resource', 'object']
-
-	" add array of primitives to the list too, like string[]
-	let primitive_types += map(copy(primitive_types), 'v:val."[]"')
-	let types = split(a:docblock_type, '|')
-	let valid_types = []
-	for type in types
-		if index(primitive_types, type) == -1
-			call add(valid_types, type)
-		endif
-	endfor
-
-	return phpcd#SelectOne(valid_types)
 endfunction " }}}
 
 function! phpcd#GetCurrentNameSpace() " {{{
@@ -1200,6 +978,19 @@ function! phpcd#GetCallChainReturnTypeAt(line) " {{{
 	exec 'normal! ' . a:line . 'G'
 	call search(';')
 	let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
+	let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
+	q
+	return classname
+endfunction " }}}
+
+function! phpcd#GetTypeAt(line, context) " {{{
+	silent! below 1sp
+	exec 'normal! ' . a:line . 'G'
+	call search(';')
+	normal beh
+	let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
+	let instruction = phpcd#GetCurrentInstruction(line('.'), col('.'), [0,0])
+	let context = instruction.a:context
 	let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
 	q
 	return classname

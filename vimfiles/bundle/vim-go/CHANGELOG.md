@@ -1,5 +1,10 @@
 ## unplanned
 
+IMPROVEMENTS:
+
+* Add descriptions to neosnippet abbrevations.
+  [[GH-1639]](https://github.com/fatih/vim-go/pull/1639)
+
 BUG FIXES:
 
 * Create quickfix list correctly when tests timeout.
@@ -11,6 +16,44 @@ BUG FIXES:
   [[GH-1629]](https://github.com/fatih/vim-go/pull/1629)
 * Highlight format specifiers with an index (e.g. `%[2]d`).
   [[GH-1634]](https://github.com/fatih/vim-go/pull/1634)
+* Respect `g:go_test_show_name` change for `:GoTest` when it changes during a
+  Vim session.
+  [[GH-1641]](https://github.com/fatih/vim-go/pull/1641)
+* Show `g:go_test_show_name` value for `:GoTest` failures if it's available.
+  [[GH-1641]](https://github.com/fatih/vim-go/pull/1641)
+* Make sure linter errors for the file being saved are shown in vim74 and nvim.
+  [[GH-1640]](https://github.com/fatih/vim-go/pull/1640)
+* Make sure only linter errors for the file being saved are shown in vim8.
+  Previously, all linter errors for all files in the current file's directory
+  were being shown.
+  [[GH-1640]](https://github.com/fatih/vim-go/pull/1640)
+* Make sure gometalinter is run on the given directories when arguments are
+  given to :GoMetaLinter.
+  [[GH-1640]](https://github.com/fatih/vim-go/pull/1640)
+* Do not run disabled linters with `gometalinter`.
+  [[GH-1648]](https://github.com/fatih/vim-go/pull/1648)
+* Do not prompt user to press enter after when gometalinter is called in
+  autosave mode
+  [[GH-1654]](https://github.com/fatih/vim-go/pull/1654)
+
+BACKWARDS INCOMPATIBILITIES:
+
+* Highlighting function and method declarations/calls is fixed. To fix it we
+  had to remove the meaning of the previous settings. The following setting is
+  removed:
+
+  * `go_highlight_methods`
+
+  in favor of the following settings and changes: 
+
+  * `go_highlight_functions`: This highlights now all function and method
+    declarations (whereas previously it would also highlight function and
+    method calls, not anymore)
+  * `go_highlight_function_calls`: This higlights now all all function and
+    method calls.
+  [[GH-1557]](https://github.com/fatih/vim-go/pull/1557)
+* Rename g`g:go_metalinter_excludes` to `g:go_metalinter_disabled`.
+  [[GH-1648]](https://github.com/fatih/vim-go/pull/1648)
 
 ## 1.16 - (December 29, 2017)
 
