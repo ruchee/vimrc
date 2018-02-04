@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-01-21 23:50:40
+" -----------------    Date: 2018-01-28 22:24:08
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -239,8 +239,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进 [两空格缩进]
-au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug set shiftwidth=2
-au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug set tabstop=2
+au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set shiftwidth=2
+au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set tabstop=2
 
 " 配置 Rust 支持 [需要使用 cargo 安装 racer 和 rustfmt 才能正常工作，RUST_SRC_PATH 需要自己下载 Rust 源码并指定好正确的路径]
 let $RUST_SRC_PATH                 = $HOME.'/code/data/sources/languages/rust/src'
