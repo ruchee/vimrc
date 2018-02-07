@@ -4,6 +4,10 @@
 // Note: the template functions break with
 // let g:cpp_experimental_template_highlight = 1
 
+#if !(defined _WIN32 || defined WINDOWS)
+#include <win.h>
+#endif
+
 class Class {
     Class(int val): value(val) {
     };
@@ -28,6 +32,7 @@ void Class::Function(double variable) {
 }
 
 void func<std::map<std::string, std::string<double>>>() {
+    int a = .4;
     std::cout << "output" << std::endl;
 }
 
