@@ -12,7 +12,7 @@ silent! nnoremap <silent> <unique> <buffer> <C-t>
 
 command! -nargs=0 PHPID call phpcd#Index()
 
-if !g:phpcd_auto_restart
+if !get(g:, 'phpcd_auto_restart', 0)
 	call phpcd#OpenFileNoAutoRestart()
 endif
 

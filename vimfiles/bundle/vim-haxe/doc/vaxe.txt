@@ -286,7 +286,7 @@ FUNCTIONS                                        *vaxe-functions*
                         for the current target, or the target specified by the
                         (optional) argument.
 
-*vaxe#lime#RebuildHxml*  Calling this function rebuilds the associated hxml 
+*vaxe#lime#RebuildHxml*  Calling this function rebuilds the associated hxml
                         used for completions, etc.
 
 *vaxe#flow#Target*    Calling this function will select a new flow target to
@@ -299,7 +299,7 @@ FUNCTIONS                                        *vaxe-functions*
                         for the current target, or the target specified by the
                         (optional) argument.
 
-*vaxe#flow#RebuildHxml*  Calling this function rebuilds the associated hxml 
+*vaxe#flow#RebuildHxml*  Calling this function rebuilds the associated hxml
                         used for completions, etc.
 
 ==============================================================================
@@ -375,6 +375,10 @@ SETTINGS                                        *vaxe-settings*
 *g:vaxe_hxml*           A variable that indicates the |vaxe-project-mode|
                         build file.  It will override the |vaxe-default-mode|
                         setting if present.
+
+*g:vaxe_skip_hxml*      Setting this variable will skip checks for a valid hxml
+                        file.  Use this if you wish to use an alternative build
+                        system and are willing to forgo completion support.
 
 *g:vaxe_completion_alter_signature*
                         Changes the method signatures in autocompletions to a

@@ -58,6 +58,7 @@ static char nvimcom_home[1024];
 static char search_list[1024];
 static char R_version[16];
 static int objbr_auto = 0; // 0 = Nothing; 1 = .GlobalEnv; 2 = Libraries
+static int envls_auto = 0; // Continuously update $NVIMR_TMPDIR/GlobalEnvList_ for the ncm-R plugin
 
 #ifdef WIN32
 static int r_is_busy = 1;
@@ -79,6 +80,8 @@ typedef struct liststatus_ {
 } ListStatus;
 
 static int nvimcom_checklibs();
+static void nvimcom_nvimclient(const char *msg, char *port);
+static void nvimcom_eval_expr(const char *buf);
 
 static ListStatus *firstList = NULL;
 
@@ -115,13 +118,25 @@ char *nvimcom_grow_obbrbuf()
     return(obbrbuf2 + strlen(obbrbuf2));
 }
 
-static void nvimcom_del_newline(char *buf)
+static void nvimcom_set_finalmsg(const char *msg, char *finalmsg)
 {
-    for(int i = 0; i < strlen(buf); i++)
-        if(buf[i] == '\n'){
-            buf[i] = 0;
-            break;
+    // Prefix NVIMR_SECRET to msg to increase security
+    strncpy(finalmsg, nvimsecr, 1023);
+    strncat(finalmsg, "call ", 1023);
+    if(strlen(msg) < 980){
+        strncat(finalmsg, msg, 1023);
+    } else {
+        char fn[512];
+        snprintf(fn, 510, "%s/nvimcom_msg", tmpdir);
+        FILE *f = fopen(fn, "w");
+        if(f == NULL){
+            REprintf("Error: Could not write to '%s'. [nvimcom]\n", fn);
+            return;
         }
+        fprintf(f, "%s\n", msg);
+        fclose(f);
+        strncat(finalmsg, "ReadRMsg()", 1023);
+    }
 }
 
 #ifndef WIN32
@@ -181,12 +196,8 @@ static void nvimcom_nvimclient(const char *msg, char *port)
 
     freeaddrinfo(result);	   /* No longer needed */
 
-    /* Prefix NVIMR_SECRET to msg to increase security.
-     * The nvimclient does not need this because it is protect by the X server. */
     char finalmsg[1024];
-    strncpy(finalmsg, nvimsecr, 1023);
-    strncat(finalmsg, "call ", 1023);
-    strncat(finalmsg, msg, 1023);
+    nvimcom_set_finalmsg(msg, finalmsg);
     len = strlen(finalmsg);
     if (write(s, finalmsg, len) != len) {
         REprintf("Error: partial/failed write\n");
@@ -227,12 +238,8 @@ static void nvimcom_nvimclient(const char *msg, char *port)
         return;
     }
 
-    /* Prefix NVIMR_SECRET to msg to increase security.
-     * The nvimclient does not need this because it is protect by the X server. */
-    char finalmsg[256];
-    strncpy(finalmsg, nvimsecr, 255);
-    strncat(finalmsg, "call ", 255);
-    strncat(finalmsg, msg, 255);
+    char finalmsg[1024];
+    nvimcom_set_finalmsg(msg, finalmsg);
     int len = strlen(finalmsg);
     if (send(sfd, finalmsg, len+1, 0) < 0) {
         REprintf("nvimcom_nvimclient failed sending message.\n");
@@ -340,6 +347,9 @@ char *nvimcom_browser_line(SEXP *x, const char *xname, const char *curenv, const
     } else if(Rf_isS4(*x)){
         p = nvimcom_strcat(p, "<#");
         strcpy(xclass, "s4");
+    } else if(Rf_isEnvironment(*x)){
+        p = nvimcom_strcat(p, ":#");
+        strcpy(xclass, "env");
     } else if(TYPEOF(*x) == PROMSXP){
         p = nvimcom_strcat(p, "&#");
         strcpy(xclass, "lazy");
@@ -348,11 +358,12 @@ char *nvimcom_browser_line(SEXP *x, const char *xname, const char *curenv, const
         strcpy(xclass, "other");
     }
 
+    p = nvimcom_strcat(p, xname);
+    p = nvimcom_strcat(p, "\t");
+
     PROTECT(lablab = allocVector(STRSXP, 1));
     SET_STRING_ELT(lablab, 0, mkChar("label"));
     PROTECT(label = getAttrib(*x, lablab));
-    p = nvimcom_strcat(p, xname);
-    p = nvimcom_strcat(p, "\t");
     if(length(label) > 0){
         if(Rf_isValidString(label)){
             snprintf(buf, 127, "%s", CHAR(STRING_ELT(label, 0)));
@@ -362,8 +373,18 @@ char *nvimcom_browser_line(SEXP *x, const char *xname, const char *curenv, const
                 p = nvimcom_strcat(p, "Error: label isn't \"character\".");
         }
     }
-    p = nvimcom_strcat(p, "\n");
     UNPROTECT(2);
+
+    if(strcmp(xclass, "data.frame") == 0){
+        // FIXME: nrows(*x) does not work (R bug?)
+        snprintf(ebuf, 63, " [%d, %d]", length(Rf_GetRowNames(*x)), length(*x));
+        p = nvimcom_strcat(p, ebuf);
+    } else if(strcmp(xclass, "list") == 0){
+        snprintf(ebuf, 63, " [%d]", length(*x));
+        p = nvimcom_strcat(p, ebuf);
+    }
+
+    p = nvimcom_strcat(p, "\n");
 
     if(strcmp(xclass, "list") == 0 || strcmp(xclass, "data.frame") == 0 || strcmp(xclass, "s4") == 0){
         strncpy(curenvB, curenv, 500);
@@ -521,6 +542,9 @@ static void nvimcom_list_env()
     if(tmpdir[0] == 0)
         return;
 
+    if(envls_auto)
+        nvimcom_eval_expr("nvimcom:::nvim.bol(\".GlobalEnv\", sendmsg = FALSE)");
+
     if(objbr_auto != 1)
         return;
 
@@ -606,29 +630,20 @@ static void nvimcom_char_eval_char(const char *buf, char *rep, int size)
 
 static void nvimcom_eval_expr(const char *buf)
 {
-    char fn[512];
-    snprintf(fn, 510, "%s/eval_reply", tmpdir);
-
     if(verbose > 3)
         Rprintf("nvimcom_eval_expr: '%s'\n", buf);
 
-    FILE *rep = fopen(fn, "w");
-    if(rep == NULL){
-        REprintf("Error: Could not write to '%s'. [nvimcom]\n", fn);
-        return;
-    }
+    char rep[128];
 
 #ifdef WIN32
     if(tcltkerr){
-        fprintf(rep, "Error: \"nvimcom\" and \"tcltk\" packages are incompatible!\n");
-        fclose(rep);
+        nvimcom_nvimclient("RWarningMsg('Error: \"nvimcom\" and \"tcltk\" packages are incompatible!')", edsrvr);
         return;
     } else {
         if(objbr_auto == 0)
             nvimcom_checklibs();
         if(tcltkerr){
-            fprintf(rep, "Error: \"nvimcom\" and \"tcltk\" packages are incompatible!\n");
-            fclose(rep);
+            nvimcom_nvimclient("RWarningMsg('Error: \"nvimcom\" and \"tcltk\" packages are incompatible!')", edsrvr);
             return;
         }
     }
@@ -642,37 +657,24 @@ static void nvimcom_eval_expr(const char *buf)
     SET_STRING_ELT(cmdSexp, 0, mkChar(buf));
     PROTECT(cmdexpr = R_ParseVector(cmdSexp, -1, &status, R_NilValue));
 
-    if (status != PARSE_OK) {
-        fprintf(rep, "INVALID\n");
+    if (status != PARSE_OK && verbose > 1) {
+        strcpy(rep, "RWarningMsg('Invalid command: ");
+        strncat(rep, buf, 80);
+        strcat(rep, "')");
+        nvimcom_nvimclient(rep, edsrvr);
     } else {
         /* Only the first command will be executed if the expression includes
          * a semicolon. */
         PROTECT(ans = R_tryEval(VECTOR_ELT(cmdexpr, 0), R_GlobalEnv, &er));
-        if(er){
-            fprintf(rep, "ERROR\n");
-        } else {
-            switch(TYPEOF(ans)) {
-                case REALSXP:
-                    fprintf(rep, "%f\n", REAL(ans)[0]);
-                    break;
-                case LGLSXP:
-                case INTSXP:
-                    fprintf(rep, "%d\n", INTEGER(ans)[0]);
-                    break;
-                case STRSXP:
-                    if(length(ans) > 0)
-                        fprintf(rep, "%s\n", CHAR(STRING_ELT(ans, 0)));
-                    else
-                        fprintf(rep, "EMPTY\n");
-                    break;
-                default:
-                    fprintf(rep, "RTYPE\n");
-            }
+        if(er && verbose > 1){
+            strcpy(rep, "RWarningMsg('Error running: ");
+            strncat(rep, buf, 80);
+            strcat(rep, "')");
+            nvimcom_nvimclient(rep, edsrvr);
         }
         UNPROTECT(1);
     }
     UNPROTECT(2);
-    fclose(rep);
 }
 
 static int nvimcom_checklibs()
@@ -1289,6 +1291,9 @@ void nvimcom_Start(int *vrb, int *odf, int *ols, int *anm, int *lbe, char **pth,
         strncpy(edsrvr, getenv("NVIMR_PORT"), 127);
     if(verbose > 1)
         REprintf("nclientserver port: %s\n", edsrvr);
+
+    if(getenv("NCM_R"))
+        envls_auto = 1;
 
     snprintf(liblist, 510, "%s/liblist_%s", tmpdir, getenv("NVIMR_ID"));
     snprintf(globenv, 510, "%s/globenv_%s", tmpdir, getenv("NVIMR_ID"));

@@ -1,10 +1,20 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#of('crystal')
+let s:V = vital#crystal#new()
 let s:P = s:V.import('Process')
-let s:J = s:V.import('Web.JSON')
 let s:C = s:V.import('ColorEcho')
+
+if exists('*json_decode')
+    function! s:decode_json(text) abort
+        return json_decode(a:text)
+    endfunction
+else
+    let s:J = s:V.import('Web.JSON')
+    function! s:decode_json(text) abort
+        return s:J.decode(a:text)
+    endfunction
+endif
 
 function! s:echo_error(msg, ...) abort
     echohl ErrorMsg
@@ -100,7 +110,7 @@ function! crystal_lang#jump_to_definition(file, pos) abort
         return s:echo_error(cmd_result.output)
     endif
 
-    let impl = s:J.decode(cmd_result.output)
+    let impl = s:decode_json(cmd_result.output)
     if impl.status !=# 'ok'
         return s:echo_error(impl.message)
     endif
@@ -147,7 +157,6 @@ endfunction
 
 function! crystal_lang#complete(findstart, base) abort
     if a:findstart
-        echom 'find start'
         return s:find_completion_start()
     endif
 
@@ -156,7 +165,7 @@ function! crystal_lang#complete(findstart, base) abort
         return
     endif
 
-    let contexts = s:J.decode(cmd_result.output)
+    let contexts = s:decode_json(cmd_result.output)
     if contexts.status !=# 'ok'
         return
     endif
@@ -269,59 +278,34 @@ function! crystal_lang#format_string(code, ...) abort
     return output
 endfunction
 
-function! s:get_saved_states() abort
-    let result = {}
-    let fname = bufname('%')
-    let current_winnr = winnr()
-    for i in range(1, winnr('$'))
-        let bufnr = winbufnr(i)
-        if bufnr == -1
-            continue
-        endif
-        if bufname(bufnr) ==# fname
-            execute i 'wincmd w'
-            let result[i] = {
-                \     'pos': getpos('.'),
-                \     'screen': winsaveview()
-                \ }
-        endif
-    endfor
-    execute current_winnr 'wincmd w'
-    return result
-endfunction
-
-function! crystal_lang#format(option_str) abort
+" crystal_lang#format(option_str [, on_save])
+function! crystal_lang#format(option_str, ...) abort
     if !executable(g:crystal_compiler_command)
         " Finish command silently
         return
     endif
 
-    let formatted = crystal_lang#format_string(join(getline(1, '$'), "\n"), a:option_str)
-    let formatted = substitute(formatted, '\n$', '', '')
+    let on_save = a:0 > 0 ? a:1 : 0
 
-    let sel_save = &l:selection
-    let ve_save = &virtualedit
-    let &l:selection = 'inclusive'
-    let &virtualedit = ''
-    let [save_g_reg, save_g_regtype] = [getreg('g'), getregtype('g')]
-    let windows_save = s:get_saved_states()
+    let before = join(getline(1, '$'), "\n")
+    let formatted = crystal_lang#format_string(before, a:option_str)
+    if !on_save
+        let after = substitute(formatted, '\n$', '', '')
+        if before ==# after
+            return
+        endif
+    endif
 
-    try
-        call setreg('g', formatted, 'v')
-        silent normal! gg0vG$"gp
-    finally
-        call setreg('g', save_g_reg, save_g_regtype)
-        let &l:selection = sel_save
-        let &virtualedit = ve_save
-        let winnr = winnr()
-        for winnr in keys(windows_save)
-            let w = windows_save[winnr]
-            execute winnr 'wincmd w'
-            call setpos('.', w.pos)
-            call winrestview(w.screen)
-        endfor
-        execute winnr 'wincmd w'
-    endtry
+    let view_save = winsaveview()
+    let pos_save = getpos('.')
+    let lines = split(formatted, '\n')
+    silent! undojoin
+    if line('$') > len(lines)
+        execute len(lines) . ',$delete' '_'
+    endif
+    call setline(1, lines)
+    call winrestview(view_save)
+    call setpos('.', pos_save)
 endfunction
 
 let &cpo = s:save_cpo

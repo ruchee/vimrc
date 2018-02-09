@@ -76,6 +76,10 @@ function! phpcd#CompletePHP(findstart, base) " {{{
 				endif
 			endif
 
+			if get(g:, 'phpcd_disable_static_filter', 0)
+					let is_static = 'both'
+			endif
+
 			return rpc#request(g:phpcd_channel_id, 'info', classname, a:base, is_static, public_only)
 		elseif context =~? 'implements'
 			" TODO complete class Foo implements
@@ -215,6 +219,7 @@ function! phpcd#GetCurrentSymbolWithContext() " {{{
 	let context = substitute(current_instruction, 'yield from', '', '')
 	let context = substitute(current_instruction, 'yield ', '', '')
 	let context = substitute(current_instruction, 'return ', '', '')
+	let context = substitute(current_instruction, 'echo ', '', '')
 	let context = substitute(context, '\s*[$a-zA-Z_0-9\\\x7f-\xff]*$', '', '')
 	let context = substitute(context, '\s\+\([\-:]\)', '\1', '')
 
@@ -641,6 +646,10 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 	let class_candidate_imports = a:imports
 	let methodstack = phpcd#GetMethodStack(a:context) " }}}
 
+	if empty(methodstack)
+		return ''
+	endif
+
 	if methodstack[-1] =~# '\vmake|app|get' " {{{
 		" just for laravel and container-interop
 		let container_interface = matchstr(methodstack[-1], '^\(make\|app\|get\)(\zs.\+\ze::class)')
@@ -975,24 +984,32 @@ endfunction " }}}
 
 function! phpcd#GetCallChainReturnTypeAt(line) " {{{
 	silent! below 1sp
-	exec 'normal! ' . a:line . 'G'
-	call search(';')
-	let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
-	let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
-	q
+	let classname = ''
+	try
+		exec 'normal! ' . a:line . 'G'
+		call search(';')
+		let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
+		let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
+	finally
+		q
+	endtry
 	return classname
 endfunction " }}}
 
 function! phpcd#GetTypeAt(line, context) " {{{
 	silent! below 1sp
-	exec 'normal! ' . a:line . 'G'
-	call search(';')
-	normal beh
-	let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
-	let instruction = phpcd#GetCurrentInstruction(line('.'), col('.'), [0,0])
-	let context = instruction.a:context
-	let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
-	q
+	let classname = ''
+	try
+		exec 'normal! ' . a:line . 'G'
+		call search(';')
+		normal beh
+		let [_, context, namespace, imports] = phpcd#GetCurrentSymbolWithContext()
+		let instruction = phpcd#GetCurrentInstruction(line('.'), col('.'), [0,0])
+		let context = instruction.a:context
+		let classname = phpcd#GetClassName(line('.'), context, namespace, imports)
+	finally
+		q
+	endtry
 	return classname
 endfunction " }}}
 
@@ -1008,6 +1025,11 @@ endfunction " }}}
 
 function! phpcd#GetRoot() " {{{
 	let pwd = expand("%:p:h")
+
+	if pwd[0] != '/' " for editing non exists dir file
+		let pwd = getcwd()
+	endif
+
 	let root = pwd
 
 	if g:phpcd_root != '/' && stridx(root, g:phpcd_root) == 0

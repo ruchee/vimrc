@@ -73,7 +73,7 @@ function StartR_ExternalTerm(rcmd)
                     \ opencmd ]
         call writefile(initterm, g:rplugin_tmpdir . "/initterm_" . $NVIMR_ID . ".sh")
         if has("nvim")
-            let g:rplugin_jobs["Terminal emulator"] = StartJob("sh '" . g:rplugin_tmpdir . "/initterm_" . $NVIMR_ID . ".sh'",
+            let g:rplugin_jobs["Terminal emulator"] = StartJob(["sh", g:rplugin_tmpdir . "/initterm_" . $NVIMR_ID . ".sh"],
                         \ {'on_stderr': function('ROnJobStderr'), 'on_exit': function('ROnJobExit'), 'detach': 1})
         else
             let g:rplugin_jobs["Terminal emulator"] = StartJob(["sh", g:rplugin_tmpdir . "/initterm_" . $NVIMR_ID . ".sh"],
@@ -133,7 +133,7 @@ endif
 
 if !exists("g:R_term")
     let s:terminals = ['gnome-terminal', 'konsole', 'xfce4-terminal', 'Eterm',
-                \ 'rxvt', 'urxvt', 'aterm', 'roxterm', 'terminator', 'lxterminal', 'xterm']
+                \ 'rxvt', 'urxvt', 'aterm', 'roxterm', 'lxterminal', 'xterm']
     for s:term in s:terminals
         if executable(s:term)
             let g:R_term = s:term
@@ -152,14 +152,14 @@ endif
 
 let s:term_cmd = g:R_term
 
-if g:R_term =~ '^\(gnome-terminal\|xfce4-terminal\|roxterm\|terminator\|Eterm\|aterm\|lxterminal\|rxvt\|urxvt\)$'
+if g:R_term =~ '^\(gnome-terminal\|xfce4-terminal\|roxterm\|Eterm\|aterm\|lxterminal\|rxvt\|urxvt\)$'
     let s:term_cmd = s:term_cmd . " --title R"
 elseif g:R_term == '^\(xterm\|uxterm\|lxterm\)$'
     let s:term_cmd = s:term_cmd . " -title R"
 endif
 
 if !g:R_nvim_wd
-    if g:R_term =~ '^\(gnome-terminal\|xfce4-terminal\|terminator\|lxterminal\)$'
+    if g:R_term =~ '^\(gnome-terminal\|xfce4-terminal\|lxterminal\)$'
         let s:term_cmd = g:R_term . " --working-directory='" . expand("%:p:h") . "'"
     elseif g:R_term == "konsole"
         let s:term_cmd = "konsole -p tabtitle=R --workdir '" . expand("%:p:h") . "'"
@@ -168,7 +168,15 @@ if !g:R_nvim_wd
     endif
 endif
 
-if g:R_term == "gnome-terminal" || g:R_term == "xfce4-terminal"
+if g:R_term == "gnome-terminal"
+    let s:gtv = split(system("gnome-terminal --version"))
+    if len(s:gtv) > 2 && s:gtv[2] >= "3.24.2"
+        let s:term_cmd = s:term_cmd . " --"
+    else
+        let s:term_cmd = s:term_cmd . " -x"
+    endif
+    unlet s:gtv
+elseif g:R_term == "xfce4-terminal"
     let s:term_cmd = s:term_cmd . " -x"
 else
     let s:term_cmd = s:term_cmd . " -e"

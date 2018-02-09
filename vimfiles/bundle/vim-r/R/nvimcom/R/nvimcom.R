@@ -53,7 +53,7 @@ NvimcomEnv$pkgdescr <- list()
            as.integer(getOption("nvimcom.labelerr")),
            path.package("nvimcom"),
            as.character(utils::packageVersion("nvimcom")),
-           paste0(paste(search(), collapse = " "), " Dec", getOption("OutDec")),
+           paste0(paste(.packages(), collapse = " "), " Dec", getOption("OutDec")),
            paste0(version$major, ".", version$minor),
            PACKAGE="nvimcom")
     }
@@ -113,7 +113,20 @@ nvim_capture_source_output <- function(s, o)
 
 nvim_viewdf <- function(oname, fenc = "")
 {
-    ok <- try(o <- get(oname, envir = .GlobalEnv), silent = TRUE)
+    oname_split <- unlist(strsplit(oname, "$", fixed = TRUE))
+    oname_split <- unlist(strsplit(oname_split, "[[", fixed = TRUE))
+    oname_split <- unlist(strsplit(oname_split, "]]", fixed = TRUE))
+    ok <- try(o <- get(oname_split[[1]], envir = .GlobalEnv), silent = TRUE)
+    if(length(oname_split) > 1){
+        for (i in 2:length(oname_split)) {
+            oname_integer <- suppressWarnings(o <- as.integer(oname_split[[i]]))
+            if(is.na(oname_integer)){
+                ok <- try(o <- ok[[oname_split[[i]]]], silent = TRUE)
+            } else {
+                ok <- try(o <- ok[[oname_integer]], silent = TRUE)
+            }
+        }
+    }
     if(inherits(ok, "try-error")){
         .C("nvimcom_msg_to_nvim",
            paste0("RWarningMsg('", '"', oname, '"', " not found in .GlobalEnv')"),
@@ -143,4 +156,36 @@ source.and.clean <- function(f, ...)
 {
     on.exit(unlink(f))
     source(f, ...)
+}
+
+nvim_format <- function(l1, l2, wco)
+{
+    ok <- try(formatR::tidy_source(paste0(Sys.getenv("NVIMR_TMPDIR"), "/unformatted_code"),
+                                   file = paste0(Sys.getenv("NVIMR_TMPDIR"), "/formatted_code"),
+                                   width.cutoff = wco))
+    if(inherits(ok, "try-error")){
+        .C("nvimcom_msg_to_nvim",
+           "RWarningMsg('Error trying to execute the function formatR::tyde_source()')",
+           PACKAGE="nvimcom")
+    } else {
+        .C("nvimcom_msg_to_nvim",
+           paste0("FinishRFormatCode(", l1, ", ", l2, ")"),
+           PACKAGE="nvimcom")
+    }
+    return(invisible(NULL))
+}
+
+nvim_insert <- function(cmd, type = "default")
+{
+    try(ok <- capture.output(cmd, file = paste0(Sys.getenv("NVIMR_TMPDIR"), "/Rinsert")))
+    if(inherits(ok, "try-error")){
+        .C("nvimcom_msg_to_nvim",
+           paste0("RWarningMsg('Error trying to execute the command \"", cmd, "\"')"),
+           PACKAGE="nvimcom")
+    } else {
+        .C("nvimcom_msg_to_nvim",
+           paste0('FinishRInsert("', type , '")'),
+           PACKAGE="nvimcom")
+    }
+    return(invisible(NULL))
 }

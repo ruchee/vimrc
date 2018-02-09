@@ -1,10 +1,12 @@
+
+
 Better JSON for VIM
 ===================
 
 *Distinct highlighting of keywords vs values, JSON-specific (non-JS) warnings, quote concealing.*  
-![JSON syntax coloring](http://farm8.staticflickr.com/7234/7185560283_102f6b753d.jpg)  
+![JSON syntax coloring](https://cloud.githubusercontent.com/assets/183877/7018898/98e428e0-dccf-11e4-9ab8-c554b3556155.jpg)
 Customization of Jeroen Ruigrok van der Werven's [vim-json highlighting script](http://www.vim.org/scripts/script.php?script_id=1945) with Rogerz Zhang's [indent script](https://github.com/vim-scripts/vim-json-bundle).  
-[Pathogen-friendly.](https://github.com/tpope/vim-pathogen) [Vundle-friendly too](https://github.com/elzr/vim-json/issues/25).
+[Pathogen-friendly.](https://github.com/tpope/vim-pathogen) [Vundle-friendly too.](https://github.com/elzr/vim-json/issues/25) ([Or install it manually.](https://github.com/elzr/vim-json/issues/52)) 
 
 Specific customizations
 -----------------------
@@ -26,11 +28,11 @@ Specific customizations
 Screenshots
 -----------
 
-**No syntax coloring**: wall of text.<br>![No syntax coloring](http://farm8.staticflickr.com/7085/7370791592_fe85355c89.jpg)
+**No syntax coloring**: wall of text.<br>![No syntax coloring](https://cloud.githubusercontent.com/assets/183877/7018892/8c9965a0-dccf-11e4-9790-0e815605e3a9.jpg)
 
-**Javascript (or for that matter, the standard json.vim) syntax coloring**: Barely an improvement from no syntax coloring.<br>![Javascript syntax coloring](http://farm8.staticflickr.com/7076/7370791528_664eb2da6d.jpg)
+**Javascript (or for that matter, the standard json.vim) syntax coloring**: Barely an improvement from no syntax coloring.<br>![Javascript syntax coloring](https://cloud.githubusercontent.com/assets/183877/7018893/906e67c0-dccf-11e4-89b1-11c3cfe9e2ef.jpg)
 
-**Better JSON syntax coloring**: a more meaningful, distinct and elegant presentation.<br>![JSON syntax coloring](http://farm8.staticflickr.com/7234/7185560283_102f6b753d.jpg)
+**Better JSON syntax coloring**: a more meaningful, distinct and elegant presentation.<br>![JSON syntax coloring](https://cloud.githubusercontent.com/assets/183877/7018894/95fd2c1c-dccf-11e4-8cbc-0f6588f9d060.jpg)
 
 Why use separate JSON highlighting instead of just Javascript?
 --------------------------------------------------------------
@@ -49,10 +51,11 @@ This is the expected behavior of the plugin:
 
 Most trouble, little as it is, has to do with Vim's newfangled concealing, which most people aren't yet familiar with, as it was introduced as recently as Vim 7.3+. If you just don't care for concealing you can easily disable it adding `let g:vim_json_syntax_conceal = 0` to your `.vimrc`.
 
-Concealing is nice for viewing but when you want to edit it should get out of your way seamlessly so you can see the actual code. Thus the **default behavior** *should* be text shown normally on the line your cursor is at, on all modes (normal, visual, insert). If this isn't the case and the concealing doesn't go away (not even in insert mode), you most likely have **an interfering plugin**. You need to look at your `concealcursor` setting (which can be set through this plugin with `g:vim_json_syntax_concealcursor`). The specially overeager [**indentLine**](https://github.com/Yggdroot/indentLine), plugin would require _yet_ an additional `let g:indentLine_noConcealCursor=""` in your `.vimrc` as detailed [here](https://github.com/elzr/vim-json/issues/23#issuecomment-40293049).
+Concealing is nice for viewing but when you want to edit it should get out of your way seamlessly so you can see the actual code. Thus the **default behavior** *should* be text shown normally on the line your cursor is at, on all modes (normal, visual, insert). If this isn't the case and the concealing doesn't go away (not even in insert mode), you most likely have **an interfering plugin**. You need to look at your `concealcursor` setting (which can be set through this plugin with `g:vim_json_syntax_concealcursor`). The specially overeager [**indentLine**](https://github.com/Yggdroot/indentLine), plugin would require _yet_ an additional `let g:indentLine_concealcursor=""` in your `.vimrc` as detailed [here](https://github.com/elzr/vim-json/issues/23#issuecomment-40293049).
 
 It's a good idea to test drive with the files `json-test.json` and `jsonp-test.jsonp` first thing.
 
 Other recommended software
 --------------------------
-[JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa): Chrome extension for printing JSON and JSONP nicely when you visit it 'directly' in a browser tab.
+* [JSON Formatter](https://chrome.google.com/webstore/detail/json-formatter/bcjindcccaagfpapjjmafapmmgkkhgoa): Chrome extension for printing JSON and JSONP nicely when you visit it 'directly' in a browser tab.
+* [Convert JSON to YAML](http://www.json2yaml.com/): side by side, real-time conversion of the "fat and rigid" JSON to the "skinny and flexible" YAML.

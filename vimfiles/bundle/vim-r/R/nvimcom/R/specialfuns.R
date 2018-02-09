@@ -146,17 +146,8 @@ nvim.primitive.args <- function(x)
 }
 
 # Adapted from: https://stat.ethz.ch/pipermail/ess-help/2011-March/006791.html
-nvim.args <- function(funcname, txt, pkg = NULL, objclass, firstLibArg = FALSE, extrainfo = FALSE)
+nvim.args <- function(funcname, txt, pkg = NULL, objclass, extrainfo = FALSE)
 {
-    # First argument of either library() or require():
-    if(firstLibArg){
-        p <- dir(.libPaths())
-        p <- p[grep(paste0("^", txt), p)]
-        return(paste(p,
-                     sapply(p, function(x) packageDescription(x)$Title),
-                     sep = "\x07", collapse = "\x09"))
-    }
-
     frm <- NA
     funcmeth <- NA
     if(!missing(objclass) && nvim.grepl("[[:punct:]]", funcname) == FALSE){
@@ -185,7 +176,7 @@ nvim.args <- function(funcname, txt, pkg = NULL, objclass, firstLibArg = FALSE, 
                 funcname <- deffun
                 funcmeth <- deffun
             } else if(!existsFunction(funcname)) {
-                return("NOT_EXISTS")
+                return("")
             }
             if(is.primitive(get(funcname)))
                 return(nvim.primitive.args(funcname))
@@ -225,7 +216,10 @@ nvim.args <- function(funcname, txt, pkg = NULL, objclass, firstLibArg = FALSE, 
         if (type == 'symbol') {
             res <- append(res, paste('\x09', field, info, sep = ''))
         } else if (type == 'character') {
-            res <- append(res, paste('\x09', field, '\x07"', gsub("\n", "\\\\n", frm[[field]]), '"', info, sep = ''))
+            frm[[field]] <- gsub("\n", "\\\\n", frm[[field]])
+            frm[[field]] <- gsub("\t", "\\\\t", frm[[field]])
+            frm[[field]] <- gsub('"', '\\\\"', frm[[field]])
+            res <- append(res, paste('\x09', field, '\x07"', frm[[field]], '"', info, sep = ''))
         } else if (type == 'logical' || type == 'double' || type == 'integer') {
             res <- append(res, paste('\x09', field, '\x07', as.character(frm[[field]]), info, sep = ''))
         } else if (type == 'NULL') {
@@ -303,21 +297,45 @@ nvim.names <- function(x)
 
 nvim.getclass <- function(x)
 {
-    if(!missing(x) && exists(deparse(substitute(x)), where = .GlobalEnv)){
-        if(getOption("nvimcom.verbose") < 3){
-            saved.warn <- getOption("warn")
-            options(warn = -1)
-            on.exit(options(warn = saved.warn))
-            tr <- try(obj <- eval(expression(x)), silent = TRUE)
-        } else {
-            tr <- try(obj <- eval(expression(x)))
-        }
-        if(class(tr)[1] == "try-error"){
-            return("#E#")
-        } else {
-            return(class(obj)[1])
-        }
-    } else {
+    if(missing(x) || length(charToRaw(x)) == 0)
+        return("#E#")
+
+    if(x == "#c#")
+        return("character")
+    else if (x == "#n#")
+        return("numeric")
+
+    if(!exists(x, where = .GlobalEnv)){
         return("#E#")
     }
+
+    if(getOption("nvimcom.verbose") < 3){
+        saved.warn <- getOption("warn")
+        options(warn = -1)
+        on.exit(options(warn = saved.warn))
+        tr <- try(cls <- class(get(x, envir = .GlobalEnv)), silent = TRUE)
+    } else {
+        tr <- try(cls <- class(get(x, envir = .GlobalEnv)))
+    }
+    if(class(tr)[1] == "try-error")
+        return("#E#")
+
+    return(cls)
+}
+
+nvim_complete_args <- function(rkeyword0, argkey, firstobj = "", pkg = NULL, extrainfo = FALSE)
+{
+    if(firstobj == ""){
+        res <- nvim.args(rkeyword0, argkey, pkg, extrainfo = extrainfo)
+    } else {
+        objclass <- nvim.getclass(firstobj)
+        if(objclass[1] == "#E#" || objclass[1] == "")
+            res <- nvim.args(rkeyword0, argkey, pkg, extrainfo = extrainfo)
+        else
+            res <- nvim.args(rkeyword0, argkey, pkg, objclass, extrainfo = extrainfo)
+    }
+    writeLines(text = res,
+               con = paste(Sys.getenv("NVIMR_TMPDIR"), "/args_for_completion", sep = ""))
+    .C("nvimcom_msg_to_nvim", 'FinishArgsCompletion()', PACKAGE="nvimcom")
+    return(invisible(NULL))
 }

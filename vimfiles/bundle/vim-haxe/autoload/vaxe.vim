@@ -228,6 +228,8 @@ function! vaxe#AutomaticHxml()
         call vaxe#flow#ProjectFlow(g:vaxe_flow)
     elseif exists('g:vaxe_hxml')
         call vaxe#ProjectHxml(g:vaxe_hxml)
+    elseif exists('g:vaxe_skip_hxml')
+        return
     else
         call vaxe#DefaultHxml()
     endif

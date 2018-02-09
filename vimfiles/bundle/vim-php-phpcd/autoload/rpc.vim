@@ -37,7 +37,12 @@ function! s:OnCall(status, response) " {{{
 endfunction " }}}
 
 function! s:OnError(a, b, c) " {{{
-	echo join(a:b, "\n")
+	let msg = join(a:b, "\n")
+	if msg =~# '^PHP Parse' && len(a:b) > 1
+		let msg = a:b[1]
+	endif
+
+	echo substitute(msg, escape(getcwd() . '/', '.'), '', 'g')
 endfunction
 
 function! s:OnError2(a, b)

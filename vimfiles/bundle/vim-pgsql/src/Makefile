@@ -32,7 +32,7 @@ $(KEYWORDS): $(TESTFILE) $(COMMON)
 	@ $(PSQL) -d $(DBNAME) -f $<
 
 .PHONY: install
-install: $(SYNFILE)
+install: $(SYNFILE) $(KEYWORDS)
 	cp $< $(DESTDIR)/$(SYNFILE)
 
 .PHONY: clean
@@ -42,3 +42,4 @@ clean:
 .PHONY: distclean
 distclean: clean dropdb
 	@- $(RM) errcodes.txt
+	@- $(RM) keywords.sql

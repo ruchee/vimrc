@@ -108,7 +108,7 @@ When you install `php.vim` using your preferred installation method, all the nee
 If you have a more recent version of PHP installed locally (with all of the PHP extensions you want/need), you may use the provided `Dockerfile` to rebuild the syntax file:
 
 ```bash
-docker build -t stanangeloff/php.vim .
+docker build -t stanangeloff/php.vim --no-cache --force-rm .
 docker run --rm -i -v "$PWD":/var/php -t stanangeloff/php.vim > /tmp/php.vim && cat /tmp/php.vim | sed 's/\x0D$//' > syntax/php.vim
 docker rmi stanangeloff/php.vim
 ```

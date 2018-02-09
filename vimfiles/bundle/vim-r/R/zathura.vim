@@ -6,11 +6,12 @@ endif
 let g:rplugin_zathura_pid = {}
 
 if executable("zathura")
-    let vv = split(system("zathura --version 2>/dev/null"))[1]
-    if vv < '0.3.1'
+    let s:zv = split(system('zathura --version 2>/dev/null'))
+    if len(s:zv) > 1 && s:zv[1] < '0.3.1'
         let g:rplugin_pdfviewer = "none"
         call RWarningMsgInp("Zathura version must be >= 0.3.1")
     endif
+    unlet s:zv
 else
     let g:rplugin_pdfviewer = "none"
     call RWarningMsgInp('Please, either install "zathura" or set the value of R_pdfviewer.')
@@ -99,6 +100,10 @@ function StartZathuraVim(fullpath)
 endfunction
 
 function RStart_Zathura(fullpath)
+    if g:R_synctex && g:rplugin_nvimcom_bin_dir != "" && IsJobRunning("ClientServer") == 0
+        call StartNClientServer('RStart_Zathura')
+    endif
+
     " Use wmctrl to check if the pdf is already open and get Zathura's PID to
     " close the document and kill Zathura.
     let fname = substitute(a:fullpath, ".*/", "", "")
@@ -127,10 +132,3 @@ function RStart_Zathura(fullpath)
         call StartZathuraVim(a:fullpath)
     endif
 endfunction
-
-if g:R_synctex && g:rplugin_nvimcom_bin_dir != "" && IsJobRunning("ClientServer") == 0 && $DISPLAY != ""
-    if $PATH !~ g:rplugin_nvimcom_bin_dir
-        let $PATH = g:rplugin_nvimcom_bin_dir . ':' . $PATH
-    endif
-    let g:rplugin_jobs["ClientServer"] = StartJob("nclientserver", g:rplugin_job_handlers)
-endif

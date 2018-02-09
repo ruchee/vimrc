@@ -75,29 +75,6 @@ $$
 $$;
 
 
--- Built-in keywords (except statements)
-create or replace function get_keywords()
-returns table (keyword text)
-language sql stable
-set search_path to "public", "pg_catalog" as
-$$
-  select word from pg_get_keywords()
-  except
-  select stm from get_statements();
-$$;
-
-
--- Keywords that cannot be extracted from system catalogs
-create or replace function get_additional_keywords()
-returns table (keyword text)
-language sql immutable as
-$$
-  -- Serial types are not true types, but merely a notational convenience for creating unique identifier columns.
-  -- See https://www.postgresql.org/docs/current/static/datatype-numeric.html#DATATYPE-SERIAL
-  values ('smallserial'), ('serial'), ('bigserial'), ('serial2'), ('serial4'), ('serial8');
-$$;
-
-
 create or replace function get_builtin_functions()
 returns table (synfunction text)
 language sql stable
@@ -131,7 +108,39 @@ $$
     from pg_type
    where typname not like '\_%'
      and typname not like 'pg_toast_%'
+     and typname not in ('any', 'name', 'pg_buffercache', 'pg_stat_statements', 'trigger', 'unknown')
      and typname not in (select get_catalog_tables());
+$$;
+
+
+-- Keywords that cannot be extracted from system catalogs (AFAIK)
+create or replace function get_additional_types()
+returns table ("type" text)
+language sql immutable as
+$$
+  -- Serial types are not true types, but merely a notational convenience for creating unique identifier columns.
+  -- See https://www.postgresql.org/docs/current/static/datatype-numeric.html#DATATYPE-SERIAL
+  values ('smallserial'), ('serial'), ('bigserial'), ('serial2'), ('serial4'), ('serial8'),
+         ('array'), ('bigint'), ('bit'), ('boolean'), ('char'), ('character'), ('cube'), ('decimal'),
+         ('double'), ('int'), ('integer'),
+         ('interval'), ('numeric'), ('precision'), ('real'), ('smallint'), ('text'), ('timestamp'),
+         ('varchar'), ('varying'), ('xml'), ('zone');
+$$;
+
+
+-- Built-in keywords (except statements and types)
+create or replace function get_keywords()
+returns table (keyword text)
+language sql stable
+set search_path to "public", "pg_catalog" as
+$$
+  select word from pg_get_keywords()
+  except
+  (select stm from get_statements()
+   union
+   select "type" from get_types()
+   union
+   select "type" from get_additional_types());
 $$;
 
 

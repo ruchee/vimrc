@@ -6,9 +6,10 @@ endif
 
 function RWriteChunk()
     if getline(".") =~ "^\\s*$" && RnwIsInRCode(0) == 0
-        call setline(line("."), "<<>>=")
-        exe "normal! o@"
-        exe "normal! 0kl"
+        let curline = line(".")
+        call setline(curline, "<<>>=")
+        call append(curline, ["@", ""])
+        call cursor(curline, 2)
     else
         exe "normal! a<"
     endif
@@ -314,7 +315,6 @@ function GoToBuf(rnwbn, rnwf, basedir, rnwln)
 endfunction
 
 function SyncTeX_backward(fname, ln)
-    let g:TheFnameLn = [a:fname, a:ln]
     let flnm = substitute(a:fname, '/\./', '/', '')   " Okular
     let basenm = substitute(flnm, "\....$", "", "")   " Delete extension
     if basenm =~ "/"

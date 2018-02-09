@@ -50,25 +50,25 @@ select 'Generating the test file...';
 
 \o keywords.sql
 select '-- Statements';
-select stm from get_statements();
+select stm from get_statements() order by stm;
 select '-- Types';
-select "type" from get_types();
+select "type" from get_types() order by "type";
+select '-- Additional types';
+select "type" from get_additional_types() order by "type";
 select 'pg_toast_1234';
 select '-- Built-in functions';
-select synfunction || '()' from get_builtin_functions();
+select synfunction || '()' from get_builtin_functions() order by synfunction;
 select vim_extensions();
 select '-- Extensions names';
-select extname from extension_names() where not extname ~* '-';
+select extname from extension_names() where not extname ~* '-' order by extname;
 select '-- Catalog tables';
-select table_name from get_catalog_tables();
+select table_name from get_catalog_tables() order by table_name;
 select '-- Built-in keywords';
-select keyword from get_keywords();
-select '-- Additional keywords';
-select keyword from get_additional_keywords();
+select keyword from get_keywords() order by keyword;
 select '-- Additional constants';
-select keyword from get_additional_constants();
+select keyword from get_additional_constants() order by keyword;
 select '-- Error codes';
-select errcode from get_errcodes();
+select errcode from get_errcodes() order by errcode;
 
 \o
 select 'done!';

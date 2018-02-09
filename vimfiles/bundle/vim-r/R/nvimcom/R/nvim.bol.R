@@ -77,6 +77,7 @@ nvim.omni.line <- function(x, envir, printenv, curlevel, maxlevel = 0) {
             else if(is.logical(xx)) x.group <- "logical"
             else if(is.data.frame(xx)) x.group <- "data.frame"
             else if(is.list(xx)) x.group <- "list"
+            else if(is.environment(xx)) x.group <- "env"
             else x.group <- " "
             x.class <- class(xx)[1]
         }
@@ -98,7 +99,7 @@ nvim.omni.line <- function(x, envir, printenv, curlevel, maxlevel = 0) {
                 cat(x, "\x06function\x06function\x06", printenv, "\x06Unknown arguments", "\n", sep="")
             }
         } else {
-            if(is.list(xx)){
+            if(is.list(xx) || is.environment(xx)){
                 if(curlevel == 0){
                     info <- ""
                     try(info <- NvimcomEnv$pkgdescr[[printenv]]$descr[[NvimcomEnv$pkgdescr[[printenv]]$alias[[x]]]],
@@ -116,7 +117,7 @@ nvim.omni.line <- function(x, envir, printenv, curlevel, maxlevel = 0) {
         }
     }
 
-    if(is.list(xx) && curlevel <= maxlevel){
+    if((is.list(xx) || is.environment(xx)) && curlevel <= maxlevel){
         obj.names <- names(xx)
         curlevel <- curlevel + 1
         if(length(xx) > 0){
@@ -135,60 +136,38 @@ nvim.omni.line <- function(x, envir, printenv, curlevel, maxlevel = 0) {
     }
 }
 
-# Code adapted from the gbRd package
-GetFunDescription <- function(pkg)
+CleanOmniLineASCII <- function(x)
 {
-    pth <- attr(packageDescription(pkg), "file")
-    pth <- sub("Meta/package.rds", "", pth)
-    pth <- paste0(pth, "help/")
-    idx <- paste0(pth, "AnIndex")
-
-    if(!file.exists(idx))
-        return(NULL)
-    tab <- read.table(idx, sep = "\t", quote = "", stringsAsFactors = FALSE)
-    als <- tab$V2
-    names(als) <- tab$V1
-
-    if(!file.exists(paste0(pth, pkg, ".rdx")))
-        return(NULL)
-    pkgInfo <- tools:::fetchRdDB(paste0(pth, pkg))
-
-    GetDescr <- function(x)
-    {
-        x <- paste0(x, collapse = "")
-        x <- sub(".*\\\\description\\{\\s*", "", x)
-        xc <- charToRaw(x)
-        k <- 1
-        i <- 1
-        l <- length(xc)
-        while(i < l)
-        {
-            if(xc[i] == 123){
-                k <- k + 1
-            }
-            if(xc[i] == 125){
-                k <- k - 1
-            }
-            if(k == 0){
-                x <- rawToChar(xc[1:i-1])
-                break
-            }
-            i <- i + 1
-        }
-
-        x <- sub("^\\s*", "", x)
-        x <- sub("\\s*$", "", x)
-        x <- gsub("\n\\s*", "\\\\N", x)
-        x <- paste0("\x08", x)
-        x
-    }
-    NvimcomEnv$pkgdescr[[pkg]] <- list("descr" = sapply(pkgInfo, GetDescr),
-                                       "alias" = als)
+    x <- gsub("\\\\R", "R", x)
+    x <- gsub("\\\\link\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\link\\[.+?\\]\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\code\\{(.+?)\\}", "'\\1'", x)
+    x <- gsub("\\\\samp\\{(.+?)\\}", "'\\1'", x)
+    x <- gsub("\\\\file\\{(.+?)\\}", "'\\1'", x)
+    x <- gsub("\\\\sQuote\\{(.+?)\\}", "'\\1'", x)
+    x <- gsub("\\\\dQuote\\{(.+?)\\}", '"\\1"', x)
+    x <- gsub("\\\\emph\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\bold\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\pkg\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\item\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\item ", "\\\\N  - ", x)
+    x <- gsub("\\\\itemize\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\eqn\\{.+?\\}\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\eqn\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\cite\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\url\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\linkS4class\\{(.+?)\\}", "\\1", x)
+    x <- gsub("\\\\command\\{(.+?)\\}", "`\\1`", x)
+    x <- gsub("\\\\href\\{\\{.+?\\}\\{(.+?)\\}\\}", "'\\1'", x)
+    x <- gsub("\\\\ifelse\\{\\{latex\\}\\{\\\\out\\{.\\}\\}\\{ \\}\\}\\{\\}", " ", x) # \sspace
+    x <- gsub("\\\\ldots", "...", x)
+    x <- gsub("\\\\dots", "...", x)
+    x <- gsub("\\\\preformatted\\{(.+?)\\}", "\\\\N\\1\\\\N", x)
+    x
 }
 
-CleanOmnils <- function(f)
+CleanOmniLineUTF8 <- function(x)
 {
-    x <- readLines(f)
     x <- gsub("\\\\R", "R", x)
     x <- gsub("\\\\link\\{(.+?)\\}", "\\1", x)
     x <- gsub("\\\\link\\[.+?\\]\\{(.+?)\\}", "\\1", x)
@@ -214,12 +193,83 @@ CleanOmnils <- function(f)
     x <- gsub("\\\\ldots", "...", x)
     x <- gsub("\\\\dots", "...", x)
     x <- gsub("\\\\preformatted\\{(.+?)\\}", "\\\\N\\1\\\\N", x)
+    x
+}
+
+if(.Platform$OS.type == "windows"){
+    CleanOmniLine <- CleanOmniLineASCII
+} else {
+    CleanOmniLine <- CleanOmniLineUTF8
+}
+
+# Code adapted from the gbRd package
+GetFunDescription <- function(pkg)
+{
+    pth <- attr(packageDescription(pkg), "file")
+    pth <- sub("Meta/package.rds", "", pth)
+    pth <- paste0(pth, "help/")
+    idx <- paste0(pth, "AnIndex")
+
+    # Development packages might not have any written documentation yet
+    if(!file.exists(idx) || !file.size(idx))
+        return(NULL)
+
+    tab <- read.table(idx, sep = "\t", quote = "", stringsAsFactors = FALSE)
+    als <- tab$V2
+    names(als) <- tab$V1
+
+    if(!file.exists(paste0(pth, pkg, ".rdx")))
+        return(NULL)
+    pkgInfo <- tools:::fetchRdDB(paste0(pth, pkg))
+
+    GetDescr <- function(x)
+    {
+        x <- paste0(x, collapse = "")
+        ttl <- sub(".*\\\\title\\{\\s*", "", x)
+        ttl <- sub("\n", " ", ttl)
+        ttl <- gsub("  +", " ", ttl)
+        ttl <- CleanOmniLine(ttl)
+        ttl <- sub("\\s*\\}.*", "", ttl)
+        ttl <- gsub("\\{", "", ttl)
+        x <- sub(".*\\\\description\\{\\s*", "", x)
+        xc <- charToRaw(x)
+        k <- 1
+        i <- 1
+        l <- length(xc)
+        while(i < l)
+        {
+            if(xc[i] == 123){
+                k <- k + 1
+            }
+            if(xc[i] == 125){
+                k <- k - 1
+            }
+            if(k == 0){
+                x <- rawToChar(xc[1:i-1])
+                break
+            }
+            i <- i + 1
+        }
+
+        x <- sub("^\\s*", "", sub("\\s*$", "", x))
+        x <- gsub("\n\\s*", "\\\\N", x)
+        x <- paste0("\x08", ttl, "\x05", x)
+        x
+    }
+    NvimcomEnv$pkgdescr[[pkg]] <- list("descr" = sapply(pkgInfo, GetDescr),
+                                       "alias" = als)
+}
+
+CleanOmnils <- function(f)
+{
+    x <- readLines(f)
+    x <- CleanOmniLine(x)
     writeLines(x, f)
 }
 
 
 # Build Omni List
-nvim.bol <- function(omnilist, packlist, allnames = FALSE, pattern = "") {
+nvim.bol <- function(omnilist, packlist, allnames = FALSE, pattern = "", sendmsg = TRUE) {
     nvim.OutDec <- options("OutDec")
     on.exit(options(nvim.OutDec))
     options(OutDec = ".")
@@ -241,6 +291,9 @@ nvim.bol <- function(omnilist, packlist, allnames = FALSE, pattern = "") {
         sink()
         writeLines(text = paste(obj.list, collapse = "\n"),
                    con = paste(Sys.getenv("NVIMR_TMPDIR"), "/nvimbol_finished", sep = ""))
+        flush(stdout())
+        if(sendmsg)
+            .C("nvimcom_msg_to_nvim", 'FinishBuildROmniList()', PACKAGE="nvimcom")
         return(invisible(NULL))
     }
 
@@ -265,6 +318,21 @@ nvim.bol <- function(omnilist, packlist, allnames = FALSE, pattern = "") {
                 next
             }
         }
+
+        # Save title of package in pack_descriptions:
+        if(file.exists(paste0(Sys.getenv("NVIMR_COMPLDIR"), "/pack_descriptions")))
+            pack_descriptions <- readLines(paste0(Sys.getenv("NVIMR_COMPLDIR"),
+                                                  "/pack_descriptions"))
+        else
+            pack_descriptions <- character()
+        pack_descriptions <- c(paste(curlib,
+                           gsub("[\t\n ]+", " ", packageDescription(curlib)$Title),
+                           gsub("[\t\n ]+", " ", packageDescription(curlib)$Description),
+                           sep = "\x09"), pack_descriptions)
+        pack_descriptions <- sort(pack_descriptions[!duplicated(pack_descriptions)])
+        writeLines(pack_descriptions,
+                   paste0(Sys.getenv("NVIMR_COMPLDIR"), "/pack_descriptions"))
+
         obj.list <- objects(curpack, all.names = allnames)
         l <- length(obj.list)
         if(l > 0){

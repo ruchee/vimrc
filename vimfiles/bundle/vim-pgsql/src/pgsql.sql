@@ -104,7 +104,7 @@ select
 $HERE$" Vim syntax file
 " Language:     SQL (PostgreSQL dialect), PL/pgSQL, PL/…, PostGIS, …
 " Maintainer:   Lifepillar
-" Version:      2.0.0
+" Version:      2.1.0
 " License:      This file is placed in the public domain.
 $HERE$;
 
@@ -133,6 +133,8 @@ select vim_format(array(select get_statements()), 'Statement');
 select '" Types';
 select vim_format(array(select get_types()), 'Type');
 select 'syn match sqlType /pg_toast_\d\+/';
+select '" Additional types';
+select vim_format(array(select get_additional_types()), 'Type');
 select '" Built-in functions';
 select vim_format(array(select get_builtin_functions()), 'Function');
 select '" Extensions names';
@@ -142,8 +144,6 @@ select '" Catalog tables';
 select vim_format(array(select get_catalog_tables()), 'Catalog');
 select '" Keywords';
 select vim_format(array(select get_keywords()), 'Keyword');
-select '" Additional keywords and constants';
-select vim_format(array(select get_additional_keywords()), 'Keyword');
 select vim_format(array(select get_additional_constants()), 'Constant');
 select  '" Error codes (Appendix A, Table A-1)';
 select vim_format(array(select get_errcodes()), 'ErrorCode');

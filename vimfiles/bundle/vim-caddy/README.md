@@ -11,4 +11,4 @@ Put `Plug 'isobit/vim-caddyfile'` in your vimrc and do `:PlugInstall`.
 Put `Bundle 'isobit/vim-caddyfile'` in your vimrc and do `:BundleInstall`.
 
 ## Preview
-![preview](https://raw.githubusercontent.com/isobit/vim-caddyfile/master/images/caddyfile-preview.png)
+![preview](https://raw.githubusercontent.com/isobit/vim-caddyfile/images/caddyfile-preview.png)
