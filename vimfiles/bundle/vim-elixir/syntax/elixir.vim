@@ -165,8 +165,8 @@ syn match  elixirRecordDeclaration      "[^[:space:];#<]\+"        contained con
 syn match  elixirMacroDeclaration       "[^[:space:];#<,()\[\]]\+" contained                      nextgroup=elixirArguments skipwhite skipnl
 syn match  elixirDelegateDeclaration    "[^[:space:];#<,()\[\]]\+" contained contains=elixirFunctionDeclaration             skipwhite skipnl
 syn region elixirDelegateDeclaration    start='\['     end='\]'    contained contains=elixirFunctionDeclaration             skipwhite skipnl
-syn match  elixirOverridableDeclaration "[^[:space:];#<]\+"        contained contains=elixirAlias                           skipwhite skipnl
-syn match  elixirExceptionDeclaration   "[^[:space:];#<]\+"        contained contains=elixirAlias                           skipwhite skipnl
+syn match  elixirOverridableDeclaration "[^[:space:];#<]\+"        contained contains=elixirAlias,elixirAtom                skipwhite skipnl
+syn match  elixirExceptionDeclaration   "[^[:space:];#<]\+"        contained contains=elixirAlias,elixirAtom                skipwhite skipnl
 syn match  elixirCallbackDeclaration    "[^[:space:];#<,()\[\]]\+" contained contains=elixirFunctionDeclaration             skipwhite skipnl
 
 " ExUnit
@@ -174,7 +174,7 @@ syn match  elixirExUnitMacro "\(^\s*\)\@<=\<\(test\|describe\|setup\|setup_all\|
 syn match  elixirExUnitAssert "\(^\s*\)\@<=\<\(assert\|assert_in_delta\|assert_raise\|assert_receive\|assert_received\|catch_error\)\>"
 syn match  elixirExUnitAssert "\(^\s*\)\@<=\<\(catch_exit\|catch_throw\|flunk\|refute\|refute_in_delta\|refute_receive\|refute_received\)\>"
 
-hi def link elixirBlockDefinition        Keyword
+hi def link elixirBlockDefinition        Define
 hi def link elixirDefine                 Define
 hi def link elixirPrivateDefine          Define
 hi def link elixirGuard                  Define
@@ -198,9 +198,9 @@ hi def link elixirMacroDeclaration       Macro
 hi def link elixirInclude                Include
 hi def link elixirComment                Comment
 hi def link elixirTodo                   Todo
-hi def link elixirKeyword                Keyword
+hi def link elixirKeyword                Define
 hi def link elixirExUnitAssert           Keyword
-hi def link elixirKernelFunction         Keyword
+hi def link elixirKernelFunction         Define
 hi def link elixirOperator               Operator
 hi def link elixirAtom                   Constant
 hi def link elixirPseudoVariable         Constant
