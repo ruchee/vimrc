@@ -345,6 +345,21 @@ snippet pl      平台无关换行
 	PHP_EOL${0}
 snippet pv      PHP 解释器版本号
 	PHP_VERSION${0}
+#### 数据类型 ####
+snippet _b      Boolean
+	Boolean${0}
+snippet _i      Integer
+	Int${0}
+snippet _fl     Float
+	Float${0}
+snippet _do     Double
+	Double${0}
+snippet _s      String
+	String${0}
+snippet _a      Array
+	Array${0}
+snippet _o      Object
+	Object${0}
 #### 常用函数 ####
 snippet ra      数组生成器
 	range(${1}, ${0})
@@ -491,6 +506,8 @@ snippet n       new
 # 其他
 snippet pem     存储着上一次错误的错误信息
 	$php_errormsg${0}
+snippet std     内置的默认类
+	stdClass${0}
 snippet od      or die
 	or die('${0}');
 snippet s       self::
