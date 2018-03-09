@@ -204,8 +204,9 @@ snippet try     监控代码块
 	try {
 	    ${0}
 	}
-snippet cat     捕获异常
-	catch (${1:Exception} $${2:e}) {
+snippet cat     捕获错误和异常
+	catch (Throwable $th) {
+	    $message = $th->getMessage();
 	    ${0}
 	}
 snippet fin     善后处理 [PHP 5.5新增]
@@ -363,6 +364,8 @@ snippet _o      Object
 snippet _it     Iterable（可迭代类型）
 	Iterable${0}
 #### 常用函数 ####
+snippet sl      字符串长度统计
+	strlen(${0})
 snippet ra      数组生成器
 	range(${1}, ${0})
 snippet ar      定义数组
@@ -406,6 +409,8 @@ snippet isr     是否是资源
 	is_resource(${0})
 snippet isc     是否是合法的可调用结构
 	is_callable(${0})
+snippet isit    是否是可迭代对象
+	is_iterable(${0})
 #### 类型转换 #####
 snippet bv      to boolean type
 	boolval(${0})
@@ -522,5 +527,7 @@ snippet r       / .. /
 	/${0}/
 snippet ?       三元运算符
 	$${1} ?${2}: ${0};
+snippet <       太空船操作符（比较操作符）
+	<=> ${0}
 snippet .       =>
 	=> ${0}

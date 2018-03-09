@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-01-28 22:24:08
+" -----------------    Date: 2018-03-09 09:52:31
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -251,6 +251,9 @@ let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
+
+" JSX 文件必须匹配完整的扩展名才以 JSX 语法渲染
+let g:jsx_ext_required = 1
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        set ft=c
