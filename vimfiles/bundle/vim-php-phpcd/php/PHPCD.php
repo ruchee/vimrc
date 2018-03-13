@@ -329,81 +329,28 @@ class PHPCD implements RpcHandler
      *   'namespace' => 'ns',
      *   'imports' => [
      *     'alias1' => 'fqdn1',
-     *   ]
+     *   ],
+     *   'class' => '',
      * ]
      */
     public function nsuse($path)
     {
-        $use_pattern = '/^use\s+((?<type>(constant|function)) )?(?<left>[\\\\\w]+\\\\)?({)?(?<right>[\\\\,\w\s]+)(})?\s*;$/';
-        $alias_pattern = '/(?<suffix>[\\\\\w]+)(\s+as\s+(?<alias>\w+))?/';
-        $class_pattern = '/^\s*\b((((final|abstract)\s+)?class)|interface|trait)\s+(?<class>\S+)/i';
+        $s = Parser::getClassNameEx($path);
 
-        $s = [
-            'namespace' => '',
-            'imports' => [
-                '@' => '',
-                // empty array will be enoded to "[]" by json
-                // so when there is no import we need convert
-                // the empty array into stdobj
-                // which will be encoded to "{}" by json
-                // however the msgpack used by neovim does not allowed dictionary
-                // with empty key. so we have no choice but fill import some
-                // value to ensure none empty.
-            ],
-            'class' => '',
-        ];
-
-        if (!file_exists($path)) {
-            return $s;
+        if (!$s['imports']) {
+            // empty array will be enoded to "[]" by json
+            // so when there is no import we need convert
+            // the empty array into stdobj
+            // which will be encoded to "{}" by json
+            // however the msgpack used by neovim does not allowed dictionary
+            // with empty key. so we have no choice but fill import some
+            // value to ensure none empty.
+            $s['imports']['@'] = '';
         }
 
-        $file = new \SplFileObject($path);
-
-        $_line = '';
-        foreach ($file as $line) {
-            if (preg_match($class_pattern, $line, $matches)) {
-                $s['class'] = $matches['class'];
-                break;
-            }
-
-            $_line .= trim($line);
-            if (!($_line && preg_match('/;$/', $_line))) {
-                continue;
-            }
-
-            $line = $_line;
-            $_line = '';
-
-            if (strpos($line, '<?php') === 0) {
-                $line = substr($line, 5);
-            }
-
-            if (preg_match('/(<\?php)?\s*namespace\s+(.*);$/', $line, $matches)) {
-                $s['namespace'] = $matches[2];
-            } elseif (strtolower(substr($line, 0, 3) == 'use')) {
-                if (preg_match($use_pattern, $line, $use_matches) && !empty($use_matches)) {
-                    $expansions = array_map('self::trim', explode(',', $use_matches['right']));
-
-                    foreach ($expansions as $expansion) {
-                        if (preg_match($alias_pattern, $expansion, $expansion_matches) && !empty($expansion_matches)) {
-                            $suffix = $expansion_matches['suffix'];
-
-                            if (empty($expansion_matches['alias'])) {
-                                $suffix_parts = explode('\\', $suffix);
-                                $alias = array_pop($suffix_parts);
-                            } else {
-                                $alias = $expansion_matches['alias'];
-                            }
-                        }
-
-                        /** empty type means import of some class **/
-                        if (empty($use_matches['type']) || $use_matches['type'] == 'function') {
-                            $s['imports'][$alias] = $use_matches['left'] . $suffix;
-                        }
-                    }
-                }
-            }
-        }
+        $s['namespace'] = (string) $s['namespace'];
+        $s['class'] = (string) $s['name'];
+        unset($s['name']);
 
         return $s;
     }
@@ -702,7 +649,7 @@ class PHPCD implements RpcHandler
         return $doc;
     }
 
-    public function getPseudoProperties(\ReflectionClass $reflection)
+    private function getPseudoProperties(\ReflectionClass $reflection)
     {
         $doc = $this->getAllClassDocComments($reflection);
         $all_docs = '';
@@ -729,7 +676,7 @@ class PHPCD implements RpcHandler
         return $items;
     }
 
-    public function getPseudoMethods(\ReflectionClass $reflection)
+    private function getPseudoMethods(\ReflectionClass $reflection)
     {
         $doc = $this->getAllClassDocComments($reflection);
         $all_docs = '';
@@ -876,6 +823,7 @@ class PHPCD implements RpcHandler
         $paramString .= " = " . $default;
         return $paramString;
     }
+
     /**
      * @param \ReflectionMethod $param
      * @return string

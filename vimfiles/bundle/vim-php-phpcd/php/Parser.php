@@ -2,44 +2,53 @@
 namespace PHPCD;
 
 use PhpParser\NodeVisitor\NameResolver;
-use PhpParser\Node;
-
+use PhpParser\NodeTraverser;
 
 class Parser
 {
-    public static function getParentAndInterfaces($path)
+    public static function getClassName($path)
+    {
+        $visitor = new ClassNameVisitor;
+
+        self::visit($path, $visitor);
+
+        return $visitor->name;
+    }
+
+    /**
+     * Fetch the php script's namespace and imports(by use) list.
+     *
+     * @param string $path the php scrpit path
+     *
+     * @return [
+     *   'namespace' => 'ns',
+     *   'imports' => [
+     *     'alias1' => 'fqdn1',
+     *   ],
+     *   'name' => 'c',
+     * ]
+     */
+    public static function getClassNameEx($path)
+    {
+        $visitor = new ClassNameExVisitor;
+
+        self::visit($path, $visitor);
+
+        return (array)$visitor;
+    }
+
+    private static function visit($path, $visitor)
     {
         $parser = (new \PhpParser\ParserFactory)->create(\PhpParser\ParserFactory::PREFER_PHP7);
 
         $traverser = new \PhpParser\NodeTraverser;
         $traverser->addVisitor(new \PhpParser\NodeVisitor\NameResolver);
-
-        $visitor = new class extends \PhpParser\NodeVisitorAbstract
-        {
-            public $classes = [];
-
-            public function leaveNode(Node $node)
-            {
-                if ($node instanceof Node\Stmt\Class_ && isset($node->namespacedName)) {
-                    $this->classes[(string)$node->namespacedName] = [
-                        'implements' => array_map(function ($name) { return (string) $name; }, $node->implements),
-                        'extends' => $node->extends,
-                    ];
-                }
-            }
-        };
-
         $traverser->addVisitor($visitor);
 
         try {
             $stmts = $parser->parse(file_get_contents($path));
             $stmts = $traverser->traverse($stmts);
-        } catch (\PhpParser\Error $e) {
-            // pass
-        } catch (\ErrorException $e) {
-            // pass
+        } catch (\Throwable $ignore) {
         }
-
-        return $visitor->classes;
     }
 }

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f
+class ComposerStaticInit21c4436fc0044985857dfa0202927fb3
 {
     public static $prefixLengthsPsr4 = array (
         'P' => 
@@ -144,6 +144,8 @@ class ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f
         'Monolog\\Processor\\UidProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/UidProcessor.php',
         'Monolog\\Processor\\WebProcessor' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Processor/WebProcessor.php',
         'Monolog\\Registry' => __DIR__ . '/..' . '/monolog/monolog/src/Monolog/Registry.php',
+        'PHPCD\\ClassNameExVisitor' => __DIR__ . '/../..' . '/php/ClassNameExVisitor.php',
+        'PHPCD\\ClassNameVisitor' => __DIR__ . '/../..' . '/php/ClassNameVisitor.php',
         'PHPCD\\PHPCD' => __DIR__ . '/../..' . '/php/PHPCD.php',
         'PHPCD\\PHPID' => __DIR__ . '/../..' . '/php/PHPID.php',
         'PHPCD\\Parser' => __DIR__ . '/../..' . '/php/Parser.php',
@@ -366,9 +368,9 @@ class ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit47535a7a38f3e261e1d763e927a68e9f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit21c4436fc0044985857dfa0202927fb3::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit21c4436fc0044985857dfa0202927fb3::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit21c4436fc0044985857dfa0202927fb3::$classMap;
 
         }, null, ClassLoader::class);
     }

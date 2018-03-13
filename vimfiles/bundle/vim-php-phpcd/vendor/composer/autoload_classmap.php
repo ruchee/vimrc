@@ -103,6 +103,8 @@ return array(
     'Monolog\\Processor\\UidProcessor' => $vendorDir . '/monolog/monolog/src/Monolog/Processor/UidProcessor.php',
     'Monolog\\Processor\\WebProcessor' => $vendorDir . '/monolog/monolog/src/Monolog/Processor/WebProcessor.php',
     'Monolog\\Registry' => $vendorDir . '/monolog/monolog/src/Monolog/Registry.php',
+    'PHPCD\\ClassNameExVisitor' => $baseDir . '/php/ClassNameExVisitor.php',
+    'PHPCD\\ClassNameVisitor' => $baseDir . '/php/ClassNameVisitor.php',
     'PHPCD\\PHPCD' => $baseDir . '/php/PHPCD.php',
     'PHPCD\\PHPID' => $baseDir . '/php/PHPID.php',
     'PHPCD\\Parser' => $baseDir . '/php/Parser.php',

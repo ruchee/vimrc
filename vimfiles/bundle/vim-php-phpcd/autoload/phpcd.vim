@@ -216,10 +216,10 @@ function! phpcd#GetCurrentSymbolWithContext() " {{{
 
 	let current_instruction = phpcd#GetCurrentInstruction(line('.'), max([0, col('.') - 2]), phpbegin)
 	let context = substitute(current_instruction, 'clone ', '', '')
-	let context = substitute(current_instruction, 'yield from', '', '')
-	let context = substitute(current_instruction, 'yield ', '', '')
-	let context = substitute(current_instruction, 'return ', '', '')
-	let context = substitute(current_instruction, 'echo ', '', '')
+	let context = substitute(context, 'yield from', '', '')
+	let context = substitute(context, 'yield ', '', '')
+	let context = substitute(context, 'return ', '', '')
+	let context = substitute(context, 'echo ', '', '')
 	let context = substitute(context, '\s*[$a-zA-Z_0-9\\\x7f-\xff]*$', '', '')
 	let context = substitute(context, '\s\+\([\-:]\)', '\1', '')
 

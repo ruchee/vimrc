@@ -42,9 +42,9 @@ class PHPID implements RpcHandler
         $this->_update($class_name, $parent, $interfaces);
     }
 
-    private function _update($class_name, $parent, $interfaces)
+    private function _update($class_name, $parents, $interfaces)
     {
-        if ($parent) {
+        foreach ($parents as $parent) {
             $this->updateParentIndex($parent, $class_name);
         }
         foreach ($interfaces as $interface) {
@@ -98,9 +98,12 @@ class PHPID implements RpcHandler
         $count = count($files);
         $last = 0;
         for ($i = 0; $i < $count; $i++) {
-             $classes = Parser::getParentAndInterfaces($files[$i]);
-             foreach ($classes as $name => $class) {
-                 $this->_update($name, $class['extends'], $class['implements']);
+             $name = Parser::getClassName($files[$i]);
+             try {
+                 $interfaces = class_implements($name) ?: [];
+                 $parents = class_parents($name) ?: [];
+                 $this->_update($name, $parents, $interfaces);
+             } catch (\Throwable $ignore) {
              }
 
              $percent = number_format(($i + 1) / $count * 100);
