@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-03-09 09:52:31
+" -----------------    Date: 2018-03-17 20:24:37
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -1121,10 +1121,13 @@ vmap <leader>rr <esc>:call Compile_Run_Code()<cr>
 
 " ======= Vimwiki ======= "
 
-let g:vimwiki_w32_dir_enc     = 'utf-8' " 设置编码
-let g:vimwiki_use_mouse       = 1       " 使用鼠标映射
+let g:vimwiki_w32_dir_enc              = 'utf-8'         " 设置编码
+let g:vimwiki_use_mouse                = 1               " 使用鼠标映射
+let g:vimwiki_code_highlight_tag_begin = '<pre><code>'   " 自定义生成的代码区块头部标签
+let g:vimwiki_code_highlight_tag_end   = '</code></pre>' " 自定义生成的代码区块尾部标签
+
 " 声明可以在 wiki 里面使用的 HTML 标签
-let g:vimwiki_valid_html_tags = 'p,a,img,b,i,s,u,sub,sup,br,hr,div,del,code,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
+let g:vimwiki_valid_html_tags = 'p,a,b,i,s,u,br,hr,sub,sup,img,div,del,red,center,left,right,h1,h2,h3,h4,h5,h6,pre,code,script,style,span'
 
 let blog = {}
 if g:isWIN

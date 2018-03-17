@@ -1193,6 +1193,23 @@ Result of HTML export: >
 This might be useful for coloring program code with external JS tools
 such as Google's syntax highlighter.
 
+If you want to use with PrismJS, you can set `let g:vimwiki_code_highlight_tag_begin = '<pre><code>'`
+and `let g:vimwiki_code_highlight_tag_end = '</code></pre>'`
+
+Example
+{{{class="language-python" >
+ def hello(world):
+     for x in range(10):
+         print("Hello {0} number {1}".format(world, x))
+}}}
+
+Result of HTML export: >
+ <pre><code class="language-python">
+ def hello(world):
+     for x in range(10):
+         print("Hello {0} number {1}".format(world, x))
+ </code></pre>
+
 You can setup Vimwiki to highlight code snippets in preformatted text.
 See |vimwiki-option-nested_syntaxes| and
 |vimwiki-option-automatic_nested_syntaxes|.
