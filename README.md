@@ -3,8 +3,8 @@
 ----
 #### macOS
 
-1. `brew install ctags git`
-2. 下载安装 MacVim 的官方发行版（不推荐使用 brew install macvim 的方式安装） [ MacVim 官方下载地址 [https://github.com/macvim-dev/macvim/releases](https://github.com/macvim-dev/macvim/releases)]
+1. `brew cask install macvim`
+2. `brew install ctags git`
 3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
 4. 使用 Git 下载本项目，然后将项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc` ]
 5. 指定在终端使用 MacVim [ 命令为 `ln -s /Applications/MacVim.app/Contents/bin/* /usr/local/bin` ]
