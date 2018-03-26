@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-03-17 22:52:10
+" -----------------    Date: 2018-03-26 21:03:26
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -83,6 +83,7 @@
 "
 " \pcf                       格式化当前 PHP 文件              [Normal 模式] [php-cs-fixer 插件]
 " \pcd                       格式化当前目录下的所有 PHP 文件  [Normal 模式] [php-cs-fixer 插件]
+" \fc                        格式化当前文件的代码             [Normal 模式] [主要针对前端代码文件] [需要安装 prettier 可执行文件]
 "
 " ---------- 查看命令 ----------
 "
@@ -785,6 +786,11 @@ let g:rubycomplete_load_gemfile      = 1
 " javascript-libraries-syntax                      指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux,d3'
 
+" prettier            格式化代码 [主要针对前端代码文件]
+let g:prettier#config#print_width = 100            " 单行最大字符数
+let g:prettier#config#tab_width = 4                " 缩进空格的个数
+let g:prettier#config#semi = 'true'                " 语句末尾添加逗号
+
 
 " ======= 自定义快捷键 ======= "
 
@@ -866,6 +872,9 @@ nmap <leader>ss :Ack! '\b<c-r><c-w>\b'<cr>
 
 " \ff                 搜索当前文件中的类、方法、函数名 [ctrlp-funky 插件]
 nmap <leader>ff :CtrlPFunky<cr>
+
+" \fc                 格式化当前文件的代码 [prettier 插件]
+nmap <leader>fc :PrettierAsync<cr>
 
 " \rb                 一键去除全部尾部空白
 imap <leader>rb <esc>:let _s=@/<bar>:%s/\s\+$//e<bar>:let @/=_s<bar>:nohl<cr>

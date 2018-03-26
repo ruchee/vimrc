@@ -1,0 +1,184 @@
+*vim-prettier.txt*        A prettier plugin for vim.
+
+           -------------------------------------------------------
+                 vim-prettier: plugin wrapper for prettier
+           -------------------------------------------------------
+
+Author: Mitermayer Reis <mitermayer.reis@gmail.com>
+WebSite: https://prettier.io/
+Repository: https://github.com/prettier/vim-prettier
+License: MIT style license
+Version: 0.2.6
+
+==============================================================================
+CONTENTS                                                *vim-prettier-contents*
+
+Introduction                                       |vim-prettier-introduction|
+Install                                            |vim-prettier-install|
+Usage                                              |vim-prettier-usage|
+Configuration                                      |vim-prettier-configuration|
+Requirements                                       |vim-prettier-requirements|
+
+==============================================================================
+INTRODUCTION                                        *vim-prettier-introduction*
+
+A vim plugin wrapper for prettier, pre-configured with 
+custom default prettier settings.
+
+By default it will auto format javascript, typescript, less, scss, css,
+json, and graphql files that have '@format' annotation in the header of the file.
+
+When installed via vim-plug, a default prettier executable is installed inside
+ vim-prettier.
+
+vim-prettier executable resolution:
+
+1. Look for user defined prettier cli path from vim configuration file
+2. Traverse parents and search for Prettier installation inside `node_modules`
+3. Look for a global prettier installation
+4. Use locally installed vim-prettier prettier executable
+
+==============================================================================
+INSTALL                                                  *vim-prettier-install*
+
+Install with [vim-plug](https://github.com/junegunn/vim-plug), assumes 
+node and yarn|npm installed globally.
+>
+  Plug 'prettier/vim-prettier', {
+	\ 'do': 'yarn install',
+	\ 'for': ['javascript', 'typescript', 'css',
+	\         'less', 'scss', 'json', 'graphql', 'markdown', 'vue'] }
+<
+or simply enable for all formats by:
+>
+  Plug 'prettier/vim-prettier', { 'do': 'yarn install' }
+<
+
+If using other vim plugin managers or doing manual setup make sure to have 
+`prettier` installed globally or go to your vim-prettier directory and 
+either do `npm install` or `yarn install` 
+
+==============================================================================
+USAGE                                                      *vim-prettier-usage*
+
+Prettier by default will run on auto save but can also 
+be manually triggered by:
+>
+  <Leader>p
+<
+or
+>
+  :Prettier
+<
+If your are on vim 8+ you can also trigger async formatting by:
+>
+  :PrettierAsync
+<
+You can check what is the `vim-prettier` plugin version by: 
+>
+  :PrettierVersion
+<
+You can send commands to the resolved `prettier` cli by:
+>
+  :PrettierCli <q-args>
+<
+You can check what is the resolved `prettier` cli path by:
+>
+  :PrettierCliPath
+<
+You can check what is the resolved `prettier` cli version by: 
+>
+  :PrettierCliVersion
+<
+==============================================================================
+CONFIGURATION                                       *vim-prettier-configuration*
+
+Disable auto formatting of files that have "@format" tag 
+>
+  let g:prettier#autoformat = 0
+<
+Set the prettier CLI executable path
+>
+  let g:prettier#exec_cmd_path = "~/path/to/cli/prettier"
+<
+The command `:Prettier` by default is synchronous but can also be forced async
+>
+  let g:prettier#exec_cmd_async = 1
+<
+By default parsing errors will open the quickfix but can also be disabled
+>
+  let g:prettier#quickfix_enabled  = 1
+<
+By default we auto focus on the quickfix when there are errors but can also be disabled
+>
+  let g:prettier#quickfix_auto_focus = 0
+<
+To enable vim-prettier to run in files without requiring the "@format" doc tag.
+First disable the default autoformat, then update to your own custom behaviour
+
+Running before saving sync:
+>
+  let g:prettier#autoformat = 0
+  autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue Prettier
+<
+Running before saving async (vim 8+):
+>
+  let g:prettier#autoformat = 0
+  autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
+<
+Running before saving, changing text or leaving insert mode: 
+>
+  " when running at every change you may want to disable quickfix
+  let g:prettier#quickfix_enabled = 0
+  let g:prettier#autoformat = 0
+  autocmd BufWritePre,TextChanged,InsertLeave *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
+<
+Overwrite default prettier configuration
+
+**Note:** vim-prettier default settings differ from prettier intentionally. 
+However they can be configured by:
+>
+  " max line length that prettier will wrap on
+  g:prettier#config#print_width = 80
+
+  " number of spaces per indentation level
+  g:prettier#config#tab_width = 2
+
+  " use tabs over spaces
+  g:prettier#config#use_tabs = 'false'
+
+  " print semicolons
+  g:prettier#config#semi = 'true'
+
+  " single quotes over double quotes
+  g:prettier#config#single_quote = 'true' 
+
+  " print spaces between brackets
+  g:prettier#config#bracket_spacing = 'false' 
+
+  " put > on the last line instead of new line
+  g:prettier#config#jsx_bracket_same_line = 'true'
+
+  " avoid|always
+  g:prettier#config#arrow_parens = 'always'
+
+  " none|es5|all
+  g:prettier#config#trailing_comma = 'all'
+
+  " flow|babylon|typescript|css|less|scss|json|graphql|markdown
+  g:prettier#config#parser = 'flow'
+
+  " cli-override|file-override|prefer-file
+  g:prettier#config#config_precedence = 'prefer-file'
+
+  " always|never|preserve
+  g:prettier#config#prose_wrap = 'preserve'
+<
+==============================================================================
+REQUIREMENT(S)                                      *vim-prettier-requirements*
+
+If prettier is not installed locally, globally or inside vim-prettier project 
+no code formatting will happen
+
+==============================================================================
+vim:tw=78:ts=4:ft=help:norl:noet:fen:noet:
