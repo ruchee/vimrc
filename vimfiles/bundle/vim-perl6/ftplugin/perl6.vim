@@ -34,7 +34,8 @@ endif
 " Provided by Ned Konz <ned at bike-nomad dot com>
 "---------------------------------------------
 setlocal include=\\<\\(use\\\|require\\)\\>
-setlocal includeexpr=substitute(substitute(v:fname,'::','/','g'),'$','.pm','')
+setlocal includeexpr=substitute(v:fname,'::','/','g')
+setlocal suffixesadd=.pm6,.pm
 setlocal define=[^A-Za-z_]
 
 " The following line changes a global variable but is necessary to make

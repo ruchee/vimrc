@@ -327,25 +327,49 @@ syn region perlQQ		matchgroup=perlStringStartEnd start=+\<\%(::\|'\|->\)\@<!qr\s
 " XXX Any statements after the identifier are in perlString colour (i.e.
 " 'if $a' in 'print <<EOF if $a'). This is almost impossible to get right it
 " seems due to the 'auto-extending nature' of regions.
-syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\z(\I\i*\)+  end=+$+     contains=@perlTop oneline
-syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+$+ contains=@perlTop oneline
-syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+$+ contains=@perlTop oneline
-syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*""+       end=+$+     contains=@perlTop oneline
-syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*''+       end=+$+     contains=@perlTop oneline
+" XXX Indented heredocs are not perfect - they sometimes seem to take a moment
+"     to update if switched from double to single quotes and vice versa.
+
+syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\z(\I\i*\)+                        end=+$+     contains=@perlTop oneline
+syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+$+     contains=@perlTop oneline
+syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+$+     contains=@perlTop oneline
+syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*""+                             end=+$+     contains=@perlTop oneline
+syn region perlHereDocStart	matchgroup=perlStringStartEnd start=+<<\s*''+                             end=+$+     contains=@perlTop oneline
 if get(g:, 'perl_fold', 0)
-  syn region perlHereDoc	start=+<<\z(\I\i*\)+ matchgroup=perlStringStartEnd      end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ fold extend
+  syn region perlHereDoc	start=+<<\z(\I\i*\)+                        matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ fold extend
   syn region perlHereDoc	start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ fold extend
   syn region perlHereDoc	start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpSQ fold extend
-  syn region perlHereDoc	start=+<<\s*""+ matchgroup=perlStringStartEnd           end=+^$+    contains=perlHereDocStart,@perlInterpDQ,perlNotEmptyLine fold extend
-  syn region perlHereDoc	start=+<<\s*''+ matchgroup=perlStringStartEnd           end=+^$+    contains=perlHereDocStart,@perlInterpSQ,perlNotEmptyLine fold extend
+  syn region perlHereDoc	start=+<<\s*""+                             matchgroup=perlStringStartEnd end=+^$+    contains=perlHereDocStart,@perlInterpDQ,perlNotEmptyLine fold extend
+  syn region perlHereDoc	start=+<<\s*''+                             matchgroup=perlStringStartEnd end=+^$+    contains=perlHereDocStart,@perlInterpSQ,perlNotEmptyLine fold extend
   syn region perlAutoload	matchgroup=perlStringStartEnd start=+<<\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\z1$+ contains=ALL fold extend
 else
-  syn region perlHereDoc	start=+<<\z(\I\i*\)+ matchgroup=perlStringStartEnd      end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ
+  syn region perlHereDoc	start=+<<\z(\I\i*\)+                        matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ
   syn region perlHereDoc	start=+<<\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpDQ
   syn region perlHereDoc	start=+<<\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=perlStringStartEnd end=+^\z1$+ contains=perlHereDocStart,@perlInterpSQ
-  syn region perlHereDoc	start=+<<\s*""+ matchgroup=perlStringStartEnd           end=+^$+    contains=perlHereDocStart,@perlInterpDQ,perlNotEmptyLine
-  syn region perlHereDoc	start=+<<\s*''+ matchgroup=perlStringStartEnd           end=+^$+    contains=perlHereDocStart,@perlInterpSQ,perlNotEmptyLine
+  syn region perlHereDoc	start=+<<\s*""+                             matchgroup=perlStringStartEnd end=+^$+    contains=perlHereDocStart,@perlInterpDQ,perlNotEmptyLine
+  syn region perlHereDoc	start=+<<\s*''+                             matchgroup=perlStringStartEnd end=+^$+    contains=perlHereDocStart,@perlInterpSQ,perlNotEmptyLine
   syn region perlAutoload	matchgroup=perlStringStartEnd start=+<<\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\z1$+ contains=ALL
+endif
+
+syn region perlIndentedHereDocStart	matchgroup=perlStringStartEnd start=+<<\~\z(\I\i*\)+                        end=+$+        contains=@perlTop oneline
+syn region perlIndentedHereDocStart	matchgroup=perlStringStartEnd start=+<<\~\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ end=+$+        contains=@perlTop oneline
+syn region perlIndentedHereDocStart	matchgroup=perlStringStartEnd start=+<<\~\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ end=+$+        contains=@perlTop oneline
+syn region perlIndentedHereDocStart	matchgroup=perlStringStartEnd start=+<<\~\s*""+                             end=+$+        contains=@perlTop oneline
+syn region perlIndentedHereDocStart	matchgroup=perlStringStartEnd start=+<<\~\s*''+                             end=+$+        contains=@perlTop oneline
+if exists("perl_fold")
+  syn region perlIndentedHereDoc	start=+<<\~\z(\I\i*\)+                        matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpDQ fold extend
+  syn region perlIndentedHereDoc	start=+<<\~\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpDQ fold extend
+  syn region perlIndentedHereDoc	start=+<<\~\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpSQ fold extend
+  syn region perlIndentedHereDoc	start=+<<\~\s*""+                             matchgroup=perlStringStartEnd end=+^$+       contains=perlIndentedHereDocStart,@perlInterpDQ,perlNotEmptyLine fold extend
+  syn region perlIndentedHereDoc	start=+<<\~\s*''+                             matchgroup=perlStringStartEnd end=+^$+       contains=perlIndentedHereDocStart,@perlInterpSQ,perlNotEmptyLine fold extend
+  syn region perlIndentedAutoload	matchgroup=perlStringStartEnd start=+<<\~\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\s*\z1$+ contains=ALL fold extend
+else
+  syn region perlIndentedHereDoc	start=+<<\~\z(\I\i*\)+                        matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpDQ
+  syn region perlIndentedHereDoc	start=+<<\~\s*"\z([^\\"]*\%(\\.[^\\"]*\)*\)"+ matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpDQ
+  syn region perlIndentedHereDoc	start=+<<\~\s*'\z([^\\']*\%(\\.[^\\']*\)*\)'+ matchgroup=perlStringStartEnd end=+^\s*\z1$+ contains=perlIndentedHereDocStart,@perlInterpSQ
+  syn region perlIndentedHereDoc	start=+<<\~\s*""+                             matchgroup=perlStringStartEnd end=+^$+       contains=perlIndentedHereDocStart,@perlInterpDQ,perlNotEmptyLine
+  syn region perlIndentedHereDoc	start=+<<\~\s*''+                             matchgroup=perlStringStartEnd end=+^$+       contains=perlIndentedHereDocStart,@perlInterpSQ,perlNotEmptyLine
+  syn region perlIndentedAutoload	matchgroup=perlStringStartEnd start=+<<\~\s*\(['"]\=\)\z(END_\%(SUB\|OF_FUNC\|OF_AUTOLOAD\)\)\1+ end=+^\s*\z1$+ contains=ALL
 endif
 
 
@@ -425,7 +449,6 @@ if get(g:, 'perl_fold', 0)
     syn region perlBlockFold start="^\z(\s*\)\%(do\|else\)\%(\s*{\)\=\s*\%(#.*\)\=$" end="^\z1}\s*while" end="^\z1}\s*;\=\%(#.*\)\=$" transparent fold keepend
   endif
 
-  setlocal foldmethod=syntax
   syn sync fromstart
 else
   " fromstart above seems to set minlines even if perl_fold is not set.
@@ -477,7 +500,8 @@ hi def link perlVarSimpleMemberName 	perlString
 hi def link perlVarNotInMatches	perlIdentifier
 hi def link perlVarSlash		perlIdentifier
 hi def link perlQQ			perlString
-hi def link perlHereDoc		perlString
+hi def link perlHereDoc			perlString
+hi def link perlIndentedHereDoc		perlString
 hi def link perlStringUnexpanded	perlString
 hi def link perlSubstitutionSQ	perlString
 hi def link perlSubstitutionGQQ	perlString

@@ -127,6 +127,15 @@ function! s:PackageMap() abort
   return [v:true, map]
 endfunction
 
+" Toggle whether dartfmt is run on save or not.
+function! dart#ToggleFormatOnSave() abort
+  if get(g:, "dart_format_on_save", 0)
+    let g:dart_format_on_save = 0
+    return
+  endif
+  let g:dart_format_on_save = 1
+endfunction
+
 " Finds a file name '.packages' in the cwd, or in any directory above the open
 " file.
 "
@@ -148,4 +157,13 @@ function! s:DotPackagesFile() abort
     let dir_path = parent
   endwhile
   return [v:false, '']
+endfunction
+
+" Prevent writes to files in the pub cache.
+function! dart#setModifiable() abort
+  let full_path = expand('%:p')
+  if full_path =~# '.pub-cache' ||
+      \ full_path =~# 'Pub\Cache'
+    setlocal nomodifiable
+  endif
 endfunction
