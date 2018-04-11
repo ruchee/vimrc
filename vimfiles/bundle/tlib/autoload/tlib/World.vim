@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1476
+" @Revision:    1481
 
 
 " :filedoc:
@@ -167,7 +167,7 @@ if g:tlib#input#format_filename ==# 'r'
         endif
         let max = self.fmt_options.maxlen
         if len(a:file) > max
-            let filename = '...' . strpart(a:file, len(a:file) - max + 3)
+            let filename = '...' . tlib#string#Strcharpart(a:file, len(a:file) - max + 3)
         else
             let filename = printf('% '. max .'s', a:file)
         endif
@@ -239,11 +239,11 @@ else
             let dname = a:file
         else
             let fname = strpart(a:file, split)
-            " let dname = strpart(a:file, 0, split - 1)
+            " let dname = tlib#string#Strcharpart(a:file, 0, split - 1)
             let dname = a:file
         endif
         if strwidth(fname) > width
-            let fname = strpart(fname, 0, width - 3) .'...'
+            let fname = tlib#string#Strcharpart(fname, 0, width - 3) .'...'
         endif
         let dnmax = &columns - max([width, strwidth(fname)]) - 8 - self.index_width - &foldcolumn
         let use_indicators = self.UseFilenameIndicators()
@@ -292,7 +292,7 @@ else
             let dnmax -= len(markers)
         endif
         if strwidth(dname) > dnmax
-            let dname = '...'. strpart(dname, len(dname) - dnmax)
+            let dname = '...'. tlib#string#Strcharpart(dname, len(dname) - dnmax)
         endif
         return printf('%-*s %s %s',
                     \ self.width_filename + len(fname) - strwidth(fname),
@@ -1168,7 +1168,7 @@ function! s:prototype.DisplayList(...) dict abort "{{{3
             let lines = map(lines, 'substitute(v:val, ''[[:cntrl:][:space:]]'', " ", "g")')
             let w = winwidth(0) - &fdc
             " let w = winwidth(0) - &fdc - 1
-            let lines = map(lines, 'printf("%-'. w .'.'. w .'s", v:val)')
+            let lines = map(lines, 'printf("%-'. w .'.'. w .'S", v:val)')
             Tlibtrace 'tlib', lines
             call append(0, lines)
             call tlib#normal#WithRegister('G"tddgg', 't')

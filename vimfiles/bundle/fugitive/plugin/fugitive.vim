@@ -1064,9 +1064,10 @@ endfunction
 
 " Section: Gcommit
 
-call s:command("-nargs=? -complete=customlist,s:CommitComplete Gcommit :execute s:Commit(<q-args>)")
+call s:command("-nargs=? -complete=customlist,s:CommitComplete Gcommit :execute s:Commit('<mods>', <q-args>)")
 
-function! s:Commit(args, ...) abort
+function! s:Commit(mods, args, ...) abort
+  let mods = s:gsub(a:mods ==# '<mods>' ? '' : a:mods, '<tab>', '-tab')
   let repo = a:0 ? a:1 : s:repo()
   let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
   let dir = getcwd()
@@ -1119,15 +1120,15 @@ function! s:Commit(args, ...) abort
           let args = '--cleanup=strip '.args
         endif
         if bufname('%') == '' && line('$') == 1 && getline(1) == '' && !&mod
-          execute 'keepalt edit '.s:fnameescape(msgfile)
-        elseif a:args =~# '\%(^\| \)-\%(-verbose\|\w*v\)\>'
-          execute 'keepalt -tabedit '.s:fnameescape(msgfile)
+          execute mods 'keepalt edit' s:fnameescape(msgfile)
+        elseif a:args =~# '\%(^\| \)-\w*v' || mods =~# '\<tab\>'
+          execute mods 'keepalt -tabedit' s:fnameescape(msgfile)
         elseif s:buffer().type() ==# 'index'
-          execute 'keepalt edit '.s:fnameescape(msgfile)
+          execute mods 'keepalt edit' s:fnameescape(msgfile)
           execute (search('^#','n')+1).'wincmd+'
           setlocal nopreviewwindow
         else
-          execute 'keepalt split '.s:fnameescape(msgfile)
+          execute mods 'keepalt split' s:fnameescape(msgfile)
         endif
         let b:fugitive_commit_arguments = args
         setlocal bufhidden=wipe filetype=gitcommit
@@ -1163,7 +1164,7 @@ function! s:FinishCommit() abort
   let args = getbufvar(+expand('<abuf>'),'fugitive_commit_arguments')
   if !empty(args)
     call setbufvar(+expand('<abuf>'),'fugitive_commit_arguments','')
-    return s:Commit(args, s:repo(getbufvar(+expand('<abuf>'),'git_dir')))
+    return s:Commit('', args, s:repo(getbufvar(+expand('<abuf>'),'git_dir')))
   endif
   return ''
 endfunction
@@ -3085,38 +3086,42 @@ augroup END
 function! fugitive#foldtext() abort
   if &foldmethod !=# 'syntax'
     return foldtext()
-  elseif getline(v:foldstart) =~# '^diff '
+  endif
+
+  let line_foldstart = getline(v:foldstart)
+  if line_foldstart =~# '^diff '
     let [add, remove] = [-1, -1]
     let filename = ''
     for lnum in range(v:foldstart, v:foldend)
-      if filename ==# '' && getline(lnum) =~# '^[+-]\{3\} [abciow12]/'
-        let filename = getline(lnum)[6:-1]
+      let line = getline(lnum)
+      if filename ==# '' && line =~# '^[+-]\{3\} [abciow12]/'
+        let filename = line[6:-1]
       endif
-      if getline(lnum) =~# '^+'
+      if line =~# '^+'
         let add += 1
-      elseif getline(lnum) =~# '^-'
+      elseif line =~# '^-'
         let remove += 1
-      elseif getline(lnum) =~# '^Binary '
+      elseif line =~# '^Binary '
         let binary = 1
       endif
     endfor
     if filename ==# ''
-      let filename = matchstr(getline(v:foldstart), '^diff .\{-\} [abciow12]/\zs.*\ze [abciow12]/')
+      let filename = matchstr(line_foldstart, '^diff .\{-\} [abciow12]/\zs.*\ze [abciow12]/')
     endif
     if filename ==# ''
-      let filename = getline(v:foldstart)[5:-1]
+      let filename = line_foldstart[5:-1]
     endif
     if exists('binary')
       return 'Binary: '.filename
     else
       return (add<10&&remove<100?' ':'') . add . '+ ' . (remove<10&&add<100?' ':'') . remove . '- ' . filename
     endif
-  elseif getline(v:foldstart) =~# '^# .*:$'
+  elseif line_foldstart =~# '^# .*:$'
     let lines = getline(v:foldstart, v:foldend)
     call filter(lines, 'v:val =~# "^#\t"')
-    cal map(lines,'s:sub(v:val, "^#\t%(modified: +|renamed: +)=", "")')
-    cal map(lines,'s:sub(v:val, "^([[:alpha:] ]+): +(.*)", "\\2 (\\1)")')
-    return getline(v:foldstart).' '.join(lines, ', ')
+    cal map(lines, "s:sub(v:val, '^#\t%(modified: +|renamed: +)=', '')")
+    cal map(lines, "s:sub(v:val, '^([[:alpha:] ]+): +(.*)', '\\2 (\\1)')")
+    return line_foldstart.' '.join(lines, ', ')
   endif
   return foldtext()
 endfunction

@@ -306,7 +306,7 @@ section.
   variable names                default contents
   ----------------------------------------------------------------------------
   let g:airline_section_a       (mode, crypt, paste, spell, iminsert)
-  let g:airline_section_b       (hunks, branch)
+  let g:airline_section_b       (hunks, branch)[*]
   let g:airline_section_c       (bufferline or filename)
   let g:airline_section_gutter  (readonly, csv)
   let g:airline_section_x       (tagbar, filetype, virtualenv)
@@ -315,6 +315,9 @@ section.
   let g:airline_section_error   (ycm_error_count, syntastic-err, eclim)
   let g:airline_section_warning (ycm_warning_count, syntastic-warn, whitespace)
 
+  " [*] This section needs at least the fugitive extension or else
+  "     it will remain empty
+  "
   " here is an example of how you could replace the branch indicator with
   " the current working directory (limited to 10 characters),
   " followed by the filename.
@@ -400,9 +403,16 @@ vim-bufferline <https://github.com/bling/vim-bufferline>
 * determine whether bufferline will overwrite customization variables >
   let g:airline#extensions#bufferline#overwrite_variables = 1
 <
+-------------------------------------                   *airline-nerdtree*
+NerdTree <https://github.com/scrooloose/nerdtree.git>
+
+Airline displays the Nerdtree specific statusline (which can be configured using
+the |'NerdTreeStatusline'|variable.
+
 -------------------------------------                   *airline-fugitiveline*
 This extension hides the fugitive://**// part of the buffer names, to only
 show the file name as if it were in the current working tree.
+It is deactivated by default if |airline-bufferline| is activated.
 
 * enable/disable bufferline integration >
   let g:airline#extensions#fugitiveline#enabled = 1
@@ -455,6 +465,23 @@ notexists symbol will be displayed after the branch name.
 <
 * truncate sha1 commits at this number of characters  >
   let g:airline#extensions#branch#sha1_len = 10
+
+* customize branch name retrieval for any version control system >
+  let g:airline#extensions#branch#custom_head = 'GetScmBranch'
+  function! GetScmBranch()
+    if !exists('b:perforce_client')
+      let b:perforce_client = system('p4 client -o | grep Client')
+      " Invalidate cache to prevent stale data when switching clients. Use a
+      " buffer-unique group name to prevent clearing autocmds for other
+      " buffers.
+      exec 'augroup perforce_client-'. bufnr("%")
+          au!
+          autocmd BufWinLeave <buffer> silent! unlet! b:perforce_client
+      augroup END
+    endif
+    return b:perforce_client
+  endfunction
+
 <
 -------------------------------------                    *airline-syntastic*
 syntastic <https://github.com/vim-syntastic/syntastic>
@@ -522,7 +549,7 @@ vimagit <https://github.com/jreybert/vimagit>
   let g:airline#extensions#vimagit#enabled = 1
 <
 -------------------------------------                        *airline-ctrlp*
-ctrlp <https://github.com/kien/ctrlp.vim>
+ctrlp <https://github.com/ctrlpvim/ctrlp.vim>
 
 * configure which mode colors should ctrlp window use (takes effect
   only if the active airline theme doesn't define ctrlp colors) >
@@ -652,18 +679,25 @@ are supported!
 
 * enable/disable displaying open splits per tab (only when tabs are opened). >
   let g:airline#extensions#tabline#show_splits = 1
-    *
+
 * switch position of buffers and tabs on splited tabline (c)
   (only supported for ctrlspace plugin). >
   let g:airline#extensions#tabline#switch_buffers_and_tabs = 0
 <
 * enable/disable displaying buffers with a single tab. (c) >
   let g:airline#extensions#tabline#show_buffers = 1
-<
 
 Note: If you are using neovim (has('tablineat') = 1), then you can click
 on the tabline with the left mouse button to switch to that buffer, and
 with the middle mouse button to delete that buffer.
+
+* if you want to show the current active buffer like this:
+  ----------------------
+  buffer <buffer> buffer `
+>
+ let g:airline#extensions#tabline#alt_sep = 1
+< Only makes sense, if g:airline_right_sep is not empty.
+ default: 0
 
 * enable/disable displaying tabs, regardless of number. (c) >
   let g:airline#extensions#tabline#show_tabs = 1
@@ -678,21 +712,32 @@ with the middle mouse button to delete that buffer.
   let g:airline#extensions#tabline#tab_nr_type = 0 " # of splits (default)
   let g:airline#extensions#tabline#tab_nr_type = 1 " tab number
   let g:airline#extensions#tabline#tab_nr_type = 2 " splits and tab number
+  let g:airline#extensions#tabline#tabnr_formatter = 'tabnr'
+
+  Note: last option can be used to specify a different formatter for
+  displaying the numbers. By default tabline/formatter/tabnr.vim is used
 <
 * enable/disable displaying tab number in tabs mode. >
   let g:airline#extensions#tabline#show_tab_nr = 1
 
-* enable/disable displaying tab type (far right) >
+* enable/disable displaying tab type (e.g. [buffers]/[tabs]) >
   let g:airline#extensions#tabline#show_tab_type = 1
 
-  Note: The tab-type will only be displayed in tab-mode,
-  if there are no splits shown. (See: g:airline#extensions#tabline#show_splits)
+* show buffer label at first position: >
+  let g:airline#extensions#tabline#buf_label_first = 1
 
 * rename label for buffers (default: 'buffers') (c) >
   let g:airline#extensions#tabline#buffers_label = 'b'
 
 * rename label for tabs (default: 'tabs') (c) >
   let g:airline#extensions#tabline#tabs_label = 't'
+
+* change the symbol for skipped tabs/buffers (default '...') >
+  let g:airline#extensions#tabline#overflow_marker = '…'
+
+* always show current tabpage/buffer first >
+  let airline#extensions#tabline#current_first = 1
+<  default: 0
 
 * enable/disable displaying index of the buffer.
 
@@ -712,7 +757,7 @@ with the middle mouse button to delete that buffer.
   nmap <leader>9 <Plug>AirlineSelectTab9
   nmap <leader>- <Plug>AirlineSelectPrevTab
   nmap <leader>+ <Plug>AirlineSelectNextTab
-
+<
   Note: Mappings will be ignored within "g:airline#extensions#tabline#keymap_ignored_filetypes".
 
   Note: In buffer_idx_mode these mappings won't change the
@@ -720,7 +765,7 @@ with the middle mouse button to delete that buffer.
   Use |gt| for switching tabs.
   In tabmode, those mappings will switch to the specified tab.
 
-* define the set of filetypes which are ignored selectTab keymappings
+* define the set of filetypes which are ignored selectTab keymappings >
   let g:airline#extensions#tabline#keymap_ignored_filetypes = ['vimfiler', 'nerdtree']
 
 * change the display format of the buffer index >
@@ -821,7 +866,6 @@ Note: Enabling this extension will modify 'showtabline' and 'guioptions'.
   let airline#extensions#tabline#disable_refresh = 0
 
 * preserve windows when closing a buffer from the bufferline (default: 0) >
-
   let airline#extensions#tabline#middle_click_preserves_windows = 1
 <
 -------------------------------------                     *airline-tmuxline*
@@ -866,6 +910,12 @@ NrrwRgn <https://github.com/chrisbra/NrrwRgn>
 
 * enable/disable NrrwRgn integration >
   let g:airline#extensions#nrrwrgn#enabled = 1
+
+-------------------------------------                     *airline-gutentags*
+vim-gutentags <https://github.com/ludovicchabant/vim-gutentags>
+
+* enable/disable vim-gutentags integration >
+  let g:airline#extensions#gutentags#enabled = 1
 
 -------------------------------------                     *airline-capslock*
 vim-capslock <https://github.com/tpope/vim-capslock>
@@ -979,7 +1029,7 @@ State indicators:
 * single compilation is running >
   let g:airline#extensions#vimtex#compiled = "c₁"
 
-* continuousr compilation is running >
+* continuous compilation is running >
   let g:airline#extensions#vimtex#continuous = "c"
 
 * viewer is opened >
@@ -996,6 +1046,9 @@ ale <https://github.com/w0rp/ale>
 <
 * ale warning >
   let airline#extensions#ale#warning_symbol = 'W:'
+
+* ale show_line_numbers >
+  let airline#extensions#ale#show_line_numbers = 1
 <
 * ale open_lnum_symbol >
   let airline#extensions#ale#open_lnum_symbol = '(L'
@@ -1015,6 +1068,37 @@ neomake <https://github.com/neomake/neomake>
 * neomake warning >
   let airline#extensions#neomake#warning_symbol = 'W:'
 <
+-------------------------------------                    *airline-localsearch*
+localsearch <https://github.com/mox-mox/localsearch>
+
+* enable/disable localsearch indicator integration >
+  let g:airline#extensions#localsearch#enabled = 1
+
+-------------------------------------                    *airline-cursormode*
+cursormode <https://github.com/vheon/vim-cursormode>
+
+Built-in extension to displays cursor in different colors depending on the
+current mode (only works in terminals iTerm, AppleTerm and xterm)
+
+* enable cursormode integration >
+  let g:airline#extensions#cursormode#enabled = 1
+
+* mode function. Return value is used as key for the color mapping. Default is
+  |mode()|
+  `let g:cursormode_mode_func = 'mode'`
+
+* color mapping. Keys come from `g:cursormode_mode_func` (background value can
+  be appended)
+  `let g:cursormode_color_map = {`
+    `\   "nlight": '#000000',`
+    `\   "ndark": '#BBBBBB',`
+    `\   "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],`
+    `\   "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],`
+    `\   "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],`
+    `\   "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],`
+    `\   "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],`
+    `\ }`
+
 ==============================================================================
 ADVANCED CUSTOMIZATION                      *airline-advanced-customization*
 

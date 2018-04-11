@@ -1,12 +1,8 @@
-" MIT License. Copyright (c) 2013-2016 Bailey Ling.
+" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
 
-let s:formatter = get(g:, 'airline#extensions#tabline#formatter', 'default')
-let s:show_buffers = get(g:, 'airline#extensions#tabline#show_buffers', 1)
-let s:show_tabs = get(g:, 'airline#extensions#tabline#show_tabs', 1)
-let s:ignore_bufadd_pat = get(g:, 'airline#extensions#tabline#ignore_bufadd_pat', '\c\vgundo|undotree|vimfiler|tagbar|nerd_tree')
 
 let s:taboo = get(g:, 'airline#extensions#taboo#enabled', 1) && get(g:, 'loaded_taboo', 0)
 if s:taboo
@@ -52,13 +48,15 @@ function! s:update_tabline()
     return
   endif
   let match = expand('<afile>')
+  let ignore_bufadd_pat = get(g:, 'airline#extensions#tabline#ignore_bufadd_pat',
+        \ '\c\vgundo|undotree|vimfiler|tagbar|nerd_tree')
   if pumvisible()
     return
   elseif !get(g:, 'airline#extensions#tabline#enabled', 0)
     return
   " return, if buffer matches ignore pattern or is directory (netrw)
   elseif empty(match)
-        \ || match(match, s:ignore_bufadd_pat) > -1
+        \ || match(match, ignore_bufadd_pat) > -1
         \ || isdirectory(expand("<afile>"))
     return
   endif
@@ -73,47 +71,53 @@ function! airline#extensions#tabline#load_theme(palette)
     return
   endif
   let colors    = get(a:palette, 'tabline', {})
+  let tablabel  = get(colors, 'airline_tablabel', a:palette.normal.airline_b)
   " Theme for tabs on the left
-  let l:tab     = get(colors, 'airline_tab', a:palette.normal.airline_b)
-  let l:tabsel  = get(colors, 'airline_tabsel', a:palette.normal.airline_a)
-  let l:tabtype = get(colors, 'airline_tabtype', a:palette.visual.airline_a)
-  let l:tabfill = get(colors, 'airline_tabfill', a:palette.normal.airline_c)
-  let l:tabmod  = get(colors, 'airline_tabmod', a:palette.insert.airline_a)
-  let l:tabhid  = get(colors, 'airline_tabhid', a:palette.normal.airline_c)
+  let tab     = get(colors, 'airline_tab', a:palette.normal.airline_b)
+  let tabsel  = get(colors, 'airline_tabsel', a:palette.normal.airline_a)
+  let tabtype = get(colors, 'airline_tabtype', a:palette.visual.airline_a)
+  let tabfill = get(colors, 'airline_tabfill', a:palette.normal.airline_c)
+  let tabmod  = get(colors, 'airline_tabmod', a:palette.insert.airline_a)
+  let tabhid  = get(colors, 'airline_tabhid', a:palette.normal.airline_c)
   if has_key(a:palette, 'normal_modified') && has_key(a:palette.normal_modified, 'airline_c')
-    let l:tabmodu = get(colors, 'airline_tabmod_unsel', a:palette.normal_modified.airline_c)
+    let tabmodu = get(colors, 'airline_tabmod_unsel', a:palette.normal_modified.airline_c)
   else
     "Fall back to normal airline_c if modified airline_c isn't present
-    let l:tabmodu = get(colors, 'airline_tabmod_unsel', a:palette.normal.airline_c)
+    let tabmodu = get(colors, 'airline_tabmod_unsel', a:palette.normal.airline_c)
   endif
-  call airline#highlighter#exec('airline_tab', l:tab)
-  call airline#highlighter#exec('airline_tabsel', l:tabsel)
-  call airline#highlighter#exec('airline_tabtype', l:tabtype)
-  call airline#highlighter#exec('airline_tabfill', l:tabfill)
-  call airline#highlighter#exec('airline_tabmod', l:tabmod)
-  call airline#highlighter#exec('airline_tabmod_unsel', l:tabmodu)
-  call airline#highlighter#exec('airline_tabhid', l:tabhid)
+  call airline#highlighter#exec('airline_tablabel', tablabel)
+  call airline#highlighter#exec('airline_tab', tab)
+  call airline#highlighter#exec('airline_tabsel', tabsel)
+  call airline#highlighter#exec('airline_tabtype', tabtype)
+  call airline#highlighter#exec('airline_tabfill', tabfill)
+  call airline#highlighter#exec('airline_tabmod', tabmod)
+  call airline#highlighter#exec('airline_tabmod_unsel', tabmodu)
+  call airline#highlighter#exec('airline_tabhid', tabhid)
 
   " Theme for tabs on the right
-  let l:tabsel_right  = get(colors, 'airline_tabsel_right', a:palette.normal.airline_a)
-  let l:tab_right     = get(colors, 'airline_tab_right',    a:palette.inactive.airline_c)
-  let l:tabmod_right  = get(colors, 'airline_tabmod_right', a:palette.insert.airline_a)
-  let l:tabhid_right  = get(colors, 'airline_tabhid_right', a:palette.normal.airline_c)
+  let tabsel_right  = get(colors, 'airline_tabsel_right', a:palette.normal.airline_a)
+  let tab_right     = get(colors, 'airline_tab_right',    a:palette.inactive.airline_c)
+  let tabmod_right  = get(colors, 'airline_tabmod_right', a:palette.insert.airline_a)
+  let tabhid_right  = get(colors, 'airline_tabhid_right', a:palette.normal.airline_c)
   if has_key(a:palette, 'normal_modified') && has_key(a:palette.normal_modified, 'airline_c')
-    let l:tabmodu_right = get(colors, 'airline_tabmod_unsel_right', a:palette.normal_modified.airline_c)
+    let tabmodu_right = get(colors, 'airline_tabmod_unsel_right', a:palette.normal_modified.airline_c)
   else
     "Fall back to normal airline_c if modified airline_c isn't present
-    let l:tabmodu_right = get(colors, 'airline_tabmod_unsel_right', a:palette.normal.airline_c)
+    let tabmodu_right = get(colors, 'airline_tabmod_unsel_right', a:palette.normal.airline_c)
   endif
-  call airline#highlighter#exec('airline_tab_right',    l:tab_right)
-  call airline#highlighter#exec('airline_tabsel_right', l:tabsel_right)
-  call airline#highlighter#exec('airline_tabmod_right', l:tabmod_right)
-  call airline#highlighter#exec('airline_tabhid_right', l:tabhid_right)
-  call airline#highlighter#exec('airline_tabmod_unsel_right', l:tabmodu_right)
+  call airline#highlighter#exec('airline_tab_right',    tab_right)
+  call airline#highlighter#exec('airline_tabsel_right', tabsel_right)
+  call airline#highlighter#exec('airline_tabmod_right', tabmod_right)
+  call airline#highlighter#exec('airline_tabhid_right', tabhid_right)
+  call airline#highlighter#exec('airline_tabmod_unsel_right', tabmodu_right)
 endfunction
 
 let s:current_tabcnt = -1
+
 function! airline#extensions#tabline#get()
+  let show_buffers = get(g:, 'airline#extensions#tabline#show_buffers', 1)
+  let show_tabs = get(g:, 'airline#extensions#tabline#show_tabs', 1)
+
   let curtabcnt = tabpagenr('$')
   if curtabcnt != s:current_tabcnt
     let s:current_tabcnt = curtabcnt
@@ -127,7 +131,7 @@ function! airline#extensions#tabline#get()
   endif
   if s:ctrlspace
     return airline#extensions#tabline#ctrlspace#get()
-  elseif s:show_buffers && curtabcnt == 1 || !s:show_tabs
+  elseif show_buffers && curtabcnt == 1 || !show_tabs
     return airline#extensions#tabline#buffers#get()
   else
     return airline#extensions#tabline#tabs#get()
@@ -158,7 +162,8 @@ endfunction
 
 function! airline#extensions#tabline#get_buffer_name(nr, ...)
   let buffers = a:0 ? a:1 : airline#extensions#tabline#buflist#list()
-  return airline#extensions#tabline#formatters#{s:formatter}#format(a:nr, buffers)
+  let formatter = get(g:, 'airline#extensions#tabline#formatter', 'default')
+  return airline#extensions#tabline#formatters#{formatter}#format(a:nr, buffers)
 endfunction
 
 function! airline#extensions#tabline#new_builder()
@@ -176,7 +181,7 @@ function! airline#extensions#tabline#new_builder()
     let builder_context.left_alt_sep = get(g:, 'airline#extensions#tabline#left_alt_sep' , '|')
   endif
 
-  return airline#builder#new(builder_context)
+  return airline#extensions#tabline#builder#new(builder_context)
 endfunction
 
 function! airline#extensions#tabline#group_of_bufnr(tab_bufs, bufnr)
@@ -197,4 +202,11 @@ function! airline#extensions#tabline#group_of_bufnr(tab_bufs, bufnr)
     endif
   endif
   return group
+endfunction
+
+function! airline#extensions#tabline#add_label(dict, type)
+  if get(g:, 'airline#extensions#tabline#show_tab_type', 1)
+    call a:dict.add_section_spaced('airline_tablabel',
+          \ get(g:, 'airline#extensions#tabline#'.a:type.'_label', a:type))
+  endif
 endfunction

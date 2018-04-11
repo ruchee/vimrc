@@ -4,6 +4,50 @@ This is the Changelog for the vim-airline project.
 
 ## [Unreleased]
 
+## [0.9] - 2018-01-15
+- Changes
+  - Look of default Airline Symbols has been improved [#1397](https://github.com/vim-airline/vim-airline/issues/1397)
+  - Airline does now set `laststatus=2` if needed
+  - Syntastic extension now displays warnings and errors separately
+  - Updates on Resize and SessionLoad events
+  - Add `maxlinenr` symbol to `airline_section_z`
+  - Add quickfix title to inactive windows
+- Improvements
+  - Many performance improvements (using caching and async feature when possible)
+  - Cache changes to highlighting groups if `g:airline_highlighting_cache = 1` is set
+  - Allow to skip empty sections by setting `g:airline_skip_empty_sections` variable
+  - Make use of improved Vim Script API, if available (e.g. getwininfo())
+  - Support for Vims terminal feature (very experimental since it hasn't been stabilized yet)
+  - More configuration for the tabline extension (with clickable buffers for Neovim)
+  - Works better on smaller window sizes
+  - Make airline aware of git worktrees
+  - Improvements to the fugitive extension [#1603](https://github.com/vim-airline/vim-airline/issues/1603)
+  - Allows for configurable fileformat output if `g:airline#parts#ffenc#skip_expected_string` is set
+  - Improvements to the documentation
+- New features
+  - Full async support for Vim 8 and Neovim
+  - Extensions:
+    - [vim-bufmru](https://github.com/mildred/vim-bufmru)
+    - [xkb-switch](https://github.com/ierton/xkb-switch)
+    - [input-source-switcher](https://github.com/vovkasm/input-source-switcher)
+    - [vimagit](https://github.com/jreybert/vimagit)
+    - [denite](https://github.com/Shougo/denite.nvim)
+    - [dein](https://github.com/Shougo/dein.vim)
+    - [vimtex](https://github.com/lervag/vimtex)
+    - [minpac](https://github.com/k-takata/minpac/)
+    - [vim-cursormode](https://github.com/vheon/vim-cursormode)
+    - [Neomake](https://github.com/neomake/neomake)
+    - [Ale](https://github.com/w0rp/ale)
+    - [vim-obsession](https://github.com/tpope/vim-obsession)
+    - spell (can also display Spell language)
+    - keymap
+  - Formatters:
+    - Formatters for JavaScript [#1617](https://github.com/vim-airline/vim-airline/issues/1617)
+    - Tabline: Allow for custom formatter for `tab_nr_type` [#1418](https://github.com/vim-airline/vim-airline/issues/1418)
+    - Customizable wordcount formatter [#1584](https://github.com/vim-airline/vim-airline/issues/1584)
+  - Add User autocommand for Theme changing [#1226](https://github.com/vim-airline/vim-airline/issues/1226)
+  - Shows mercurial mq status if hg mq extension is enabled
+
 ## [0.8] - 2016-03-09
 - Changes
   - Airline converted to an organization and moved to new [repository](https://github.com/vim-airline/vim-airline)
@@ -109,7 +153,8 @@ This is the Changelog for the vim-airline project.
   - integration with other plugins: netrw, unite, nerdtree, undotree, gundo, tagbar, minibufexplr, ctrlp
   - support for themes: 8 included
 
-[Unreleased]: https://github.com/vim-airline/vim-airline/compare/v0.8...HEAD
+[Unreleased]: https://github.com/vim-airline/vim-airline/compare/v0.9...HEAD
+[0.9]: https://github.com/vim-airline/vim-airline/compare/v0.8...v0.9
 [0.8]: https://github.com/vim-airline/vim-airline/compare/v0.7...v0.8
 [0.7]: https://github.com/vim-airline/vim-airline/compare/v0.6...v0.7
 [0.6]: https://github.com/vim-airline/vim-airline/compare/v0.5...v0.6

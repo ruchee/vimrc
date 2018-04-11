@@ -80,7 +80,7 @@ except ImportError:
 __version__ = '2.3.1'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
-DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503'
+DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'
 try:
     if sys.platform == 'win32':
         USER_CONFIG = os.path.expanduser(r'~\.pycodestyle')
@@ -869,7 +869,8 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
     r"""Don't use spaces around the '=' sign in function arguments.
 
     Don't use spaces around the '=' sign when used to indicate a
-    keyword argument or a default parameter value.
+    keyword argument or a default parameter value, except when using a type
+    annotation.
 
     Okay: def complex(real, imag=0.0):
     Okay: return magic(r=real, i=imag)
@@ -882,13 +883,18 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
 
     E251: def complex(real, imag = 0.0):
     E251: return magic(r = real, i = imag)
+    E252: def complex(real, image: float=0.0):
     """
     parens = 0
     no_space = False
+    require_space = False
     prev_end = None
     annotated_func_arg = False
     in_def = bool(STARTSWITH_DEF_REGEX.match(logical_line))
+
     message = "E251 unexpected spaces around keyword / parameter equals"
+    missing_message = "E252 missing whitespace around parameter equals"
+
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.NL:
             continue
@@ -896,6 +902,10 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
             no_space = False
             if start != prev_end:
                 yield (prev_end, message)
+        if require_space:
+            require_space = False
+            if start == prev_end:
+                yield (prev_end, missing_message)
         if token_type == tokenize.OP:
             if text in '([':
                 parens += 1
@@ -905,10 +915,15 @@ def whitespace_around_named_parameter_equals(logical_line, tokens):
                 annotated_func_arg = True
             elif parens and text == ',' and parens == 1:
                 annotated_func_arg = False
-            elif parens and text == '=' and not annotated_func_arg:
-                no_space = True
-                if start != prev_end:
-                    yield (prev_end, message)
+            elif parens and text == '=':
+                if not annotated_func_arg:
+                    no_space = True
+                    if start != prev_end:
+                        yield (prev_end, message)
+                else:
+                    require_space = True
+                    if start == prev_end:
+                        yield (prev_end, missing_message)
             if not parens:
                 annotated_func_arg = False
 
@@ -1135,34 +1150,26 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
-@register_check
-def break_around_binary_operator(logical_line, tokens):
-    r"""
-    Avoid breaks before binary operators.
+def _is_binary_operator(token_type, text):
+    is_op_token = token_type == tokenize.OP
+    is_conjunction = text in ['and', 'or']
+    # NOTE(sigmavirus24): Previously the not_a_symbol check was executed
+    # conditionally. Since it is now *always* executed, text may be None.
+    # In that case we get a TypeError for `text not in str`.
+    not_a_symbol = text and text not in "()[]{},:.;@=%~"
+    # The % character is strictly speaking a binary operator, but the
+    # common usage seems to be to put it next to the format parameters,
+    # after a line break.
+    return ((is_op_token or is_conjunction) and not_a_symbol)
 
-    The preferred place to break around a binary operator is after the
-    operator, not before it.
 
-    W503: (width == 0\n + height == 0)
-    W503: (width == 0\n and height == 0)
+def _break_around_binary_operators(tokens):
+    """Private function to reduce duplication.
 
-    Okay: (width == 0 +\n height == 0)
-    Okay: foo(\n    -x)
-    Okay: foo(x\n    [])
-    Okay: x = '''\n''' + ''
-    Okay: foo(x,\n    -y)
-    Okay: foo(x,  # comment\n    -y)
-    Okay: var = (1 &\n       ~2)
-    Okay: var = (1 /\n       -2)
-    Okay: var = (1 +\n       -1 +\n       -2)
+    This factors out the shared details between
+    :func:`break_before_binary_operator` and
+    :func:`break_after_binary_operator`.
     """
-    def is_binary_operator(token_type, text):
-        # The % character is strictly speaking a binary operator, but the
-        # common usage seems to be to put it next to the format parameters,
-        # after a line break.
-        return ((token_type == tokenize.OP or text in ['and', 'or']) and
-                text not in "()[]{},:.;@=%~")
-
     line_break = False
     unary_context = True
     # Previous non-newline token types and text
@@ -1174,15 +1181,76 @@ def break_around_binary_operator(logical_line, tokens):
         if ('\n' in text or '\r' in text) and token_type != tokenize.STRING:
             line_break = True
         else:
-            if (is_binary_operator(token_type, text) and line_break and
-                    not unary_context and
-                    not is_binary_operator(previous_token_type,
-                                           previous_text)):
-                yield start, "W503 line break before binary operator"
+            yield (token_type, text, previous_token_type, previous_text,
+                   line_break, unary_context, start)
             unary_context = text in '([{,;'
             line_break = False
             previous_token_type = token_type
             previous_text = text
+
+
+@register_check
+def break_before_binary_operator(logical_line, tokens):
+    r"""
+    Avoid breaks before binary operators.
+
+    The preferred place to break around a binary operator is after the
+    operator, not before it.
+
+    W503: (width == 0\n + height == 0)
+    W503: (width == 0\n and height == 0)
+    W503: var = (1\n       & ~2)
+    W503: var = (1\n       / -2)
+    W503: var = (1\n       + -1\n       + -2)
+
+    Okay: foo(\n    -x)
+    Okay: foo(x\n    [])
+    Okay: x = '''\n''' + ''
+    Okay: foo(x,\n    -y)
+    Okay: foo(x,  # comment\n    -y)
+    """
+    for context in _break_around_binary_operators(tokens):
+        (token_type, text, previous_token_type, previous_text,
+         line_break, unary_context, start) = context
+        if (_is_binary_operator(token_type, text) and line_break and
+                not unary_context and
+                not _is_binary_operator(previous_token_type,
+                                        previous_text)):
+            yield start, "W503 line break before binary operator"
+
+
+@register_check
+def break_after_binary_operator(logical_line, tokens):
+    r"""
+    Avoid breaks after binary operators.
+
+    The preferred place to break around a binary operator is before the
+    operator, not after it.
+
+    W504: (width == 0 +\n height == 0)
+    W504: (width == 0 and\n height == 0)
+    W504: var = (1 &\n       ~2)
+
+    Okay: foo(\n    -x)
+    Okay: foo(x\n    [])
+    Okay: x = '''\n''' + ''
+    Okay: x = '' + '''\n'''
+    Okay: foo(x,\n    -y)
+    Okay: foo(x,  # comment\n    -y)
+
+    The following should be W504 but unary_context is tricky with these
+    Okay: var = (1 /\n       -2)
+    Okay: var = (1 +\n       -1 +\n       -2)
+    """
+    for context in _break_around_binary_operators(tokens):
+        (token_type, text, previous_token_type, previous_text,
+         line_break, unary_context, start) = context
+        if (_is_binary_operator(previous_token_type, previous_text) and
+                line_break and
+                not unary_context and
+                not _is_binary_operator(token_type, text)):
+            error_pos = (start[0] - 1, start[1])
+            yield error_pos, "W504 line break after binary operator"
 
 
 @register_check
@@ -1439,6 +1507,60 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
                     pos = string.find('\\', pos + 1)
 
 
+@register_check
+def python_3000_async_await_keywords(logical_line, tokens):
+    """'async' and 'await' are reserved keywords starting with Python 3.7
+
+    W606: async = 42
+    W606: await = 42
+    Okay: async def read_data(db):\n    data = await db.fetch('SELECT ...')
+    """
+    # The Python tokenize library before Python 3.5 recognizes async/await as a
+    # NAME token. Therefore, use a state machine to look for the possible
+    # async/await constructs as defined by the Python grammar:
+    # https://docs.python.org/3/reference/grammar.html
+
+    state = None
+    for token_type, text, start, end, line in tokens:
+        error = False
+
+        if state is None:
+            if token_type == tokenize.NAME:
+                if text == 'async':
+                    state = ('async_stmt', start)
+                elif text == 'await':
+                    state = ('await', start)
+        elif state[0] == 'async_stmt':
+            if token_type == tokenize.NAME and text in ('def', 'with', 'for'):
+                # One of funcdef, with_stmt, or for_stmt. Return to looking
+                # for async/await names.
+                state = None
+            else:
+                error = True
+        elif state[0] == 'await':
+            if token_type in (tokenize.NAME, tokenize.NUMBER, tokenize.STRING):
+                # An await expression. Return to looking for async/await names.
+                state = None
+            else:
+                error = True
+
+        if error:
+            yield (
+                state[1],
+                "W606 'async' and 'await' are reserved keywords starting with "
+                "Python 3.7",
+            )
+            state = None
+
+    # Last token
+    if state is not None:
+        yield (
+            state[1],
+            "W606 'async' and 'await' are reserved keywords starting with "
+            "Python 3.7",
+        )
+
+
 ##############################################################################
 # Helper functions
 ##############################################################################
@@ -1538,7 +1660,9 @@ def parse_udiff(diff, patterns=None, parent='.'):
             rv[path].update(range(row, row + nrows))
         elif line[:3] == '+++':
             path = line[4:].split('\t', 1)[0]
-            if path[:2] == 'b/':
+            # Git diff will use (i)ndex, (w)ork tree, (c)ommit and (o)bject
+            # instead of a/b/c/d as prefixes for patches
+            if path[:2] in ('b/', 'w/', 'i/'):
                 path = path[2:]
             rv[path] = set()
     return dict([(os.path.join(parent, path), rows)

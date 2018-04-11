@@ -192,4 +192,51 @@ foreach ($blocks as $blockName => $blockLines) {
     );
 }
 
+$template = preg_replace_callback(
+    '/
+        (?<begin>"\s*@copy\s+(?<copy>[a-zA-Z0-9_]+)(?<processors>(\s+(strip_maximum_size))+)?)
+        (?<script>.*?)
+        (?<end>"\s*@end\s+([a-zA-Z0-9_]+))
+    /sx',
+    function (array $groups) use ($template) {
+        $copy = preg_quote($groups['copy'], /* $delimiter = */ '/');
+
+        $processors = array_filter(array_map('trim', preg_split('{[;, ]+}', $groups['processors'])));
+
+        preg_match("/
+            \"\\s*@begin\\s+{$copy}\b
+            (?<script>.*?)
+            \"\\s*@end\\s+{$copy}\b
+        /sx", $template, $captures);
+
+        if (! isset($captures['script'])) {
+            file_put_contents(
+                'php://stderr',
+                "[ERROR] The block referenced by '{$groups['begin']}' was not found." . PHP_EOL
+            );
+
+            return $groups['begin'] . $groups['script'] . $groups['end'];
+        }
+
+        $script = $captures['script'];
+
+        foreach ($processors as $processor) {
+            switch ($processor) {
+            case 'strip_maximum_size':
+                $script = preg_replace('{\\\\@\d+}', '\@', $script);
+                break;
+
+            default:
+                file_put_contents(
+                    'php://stderr',
+                    "[ERROR] The processor \"{$processor}\" is not supported, found in '{$groups['begin']}'." . PHP_EOL
+                );
+            }
+        }
+
+        return $groups['begin'] . $script . $groups['end'];
+    },
+    $template
+);
+
 print $template;

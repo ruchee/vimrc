@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    352
+" @Revision:    356
 
 " :filedoc:
 " Various agents for use as key handlers in tlib#input#List()
@@ -683,7 +683,7 @@ function! tlib#agent#Complete(world, selected) abort "{{{3
     Tlibtrace 'tlib', 0, completions
     while len(completions) > 1
         let nchar = strwidth(completions[0]) - 1
-        let completions = map(completions, 'strpart(v:val, 0, nchar)')
+        let completions = map(completions, 'tlib#string#Strcharpart(v:val, 0, nchar)')
         Tlibtrace 'tlib', 'reduce', completions
         let completions = tlib#list#Uniq(completions)
         Tlibtrace 'tlib', 'unique', len(completions), completions

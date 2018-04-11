@@ -116,6 +116,26 @@ Separators can be configured independently for the tabline, so here is how you c
     let g:airline#extensions#tabline#left_sep = ' '
     let g:airline#extensions#tabline#left_alt_sep = '|'
 
+In addition, you can also choose which path formatter airline uses. This affects how file paths are
+displayed in each individual tab as well as the current buffer indicator in the upper right.
+To do so, set the `formatter` field with:
+
+    let g:airline#extensions#tabline#formatter = 'default'
+
+Here is a complete list of formatters with screenshots:
+
+#### `default`
+![image](https://user-images.githubusercontent.com/2652762/34422844-1d005efa-ebe6-11e7-8053-c784c0da7ba7.png)
+
+#### `jsformatter`
+![image](https://user-images.githubusercontent.com/2652762/34422843-1cf6a4d2-ebe6-11e7-810a-07e6eb08de24.png)
+
+#### `unique_tail`
+![image](https://user-images.githubusercontent.com/2652762/34422841-1ce5b4ec-ebe6-11e7-86e9-3d45c876068b.png)
+
+#### `unique_tail_improved`
+![image](https://user-images.githubusercontent.com/2652762/34422842-1cee23f2-ebe6-11e7-962d-97e068873077.png)
+
 ## Seamless integration
 
 vim-airline integrates with a variety of plugins out of the box.  These extensions will be lazily loaded if and only if you have the other plugins installed (and of course you can turn them off).
@@ -161,6 +181,9 @@ vim-airline integrates with a variety of plugins out of the box.  These extensio
 
 #### [vimtex][53]
 ![image](https://cloud.githubusercontent.com/assets/1798172/25799740/e77d5c2e-33ee-11e7-8660-d34ce4c5f13f.png)
+
+#### [localsearch][54]
+![image](https://raw.githubusercontent.com/mox-mox/vim-localsearch/master/vim-airline-localsearch-indicator.png)
 
 ## Extras
 
@@ -213,7 +236,7 @@ This plugin follows the standard runtime path structure, and as such it can be i
 | [Plug][40] | `Plug 'vim-airline/vim-airline'` |
 | [VAM][22] | `call vam#ActivateAddons([ 'vim-airline' ])` |
 | [Dein][52] | `call dein#add('vim-airline/vim-airline')` |
-| [minpac][54] | `call minpac#add('vim-airline/vim-airline')` |
+| [minpac][55] | `call minpac#add('vim-airline/vim-airline')` |
 | pack feature (native Vim 8 package feature)| `git clone https://github.com/vim-airline/vim-airline ~/.vim/pack/dist/start/vim-airline`<br/>Remember to run `:helptags` to generate help tags |
 | manual | copy all of the files into your `~/.vim` directory |
 
@@ -245,7 +268,7 @@ If you don't want all the bells and whistles enabled by default, you can define 
 
 Also, you can enable caching of the various syntax highlighting groups. This will try to prevent some of the more expensive `:hi` calls in Vim, which seem to be expensive in the Vim core at the expense of possibly not being hunderet percent correct all the times (especially if you often change highlighting groups yourself using `:hi` commands). To set this up do `:let g:airline_highlighting_cache = 1`. A `:AirlineRefresh` will however clear the cache.
 
-In addition you might want to check out the [dark_minimal theme][55], which does not change highlighting groups once they are defined. Also please check the [FAQ][27] for more information on how to diagnose and fix the problem.
+In addition you might want to check out the [dark_minimal theme][56], which does not change highlighting groups once they are defined. Also please check the [FAQ][27] for more information on how to diagnose and fix the problem.
 
 # Screenshots
 
@@ -314,5 +337,6 @@ MIT License. Copyright (c) 2013-2017 Bailey Ling & Contributors.
 [51]: https://github.com/Shougo/denite.nvim
 [52]: https://github.com/Shougo/dein.vim
 [53]: https://github.com/lervag/vimtex
-[54]: https://github.com/k-takata/minpac/
-[55]: https://github.com/vim-airline/vim-airline-themes/blob/master/autoload/airline/themes/dark_minimal.vim
+[54]: https://github.com/mox-mox/vim-localsearch
+[55]: https://github.com/k-takata/minpac/
+[56]: https://github.com/vim-airline/vim-airline-themes/blob/master/autoload/airline/themes/dark_minimal.vim

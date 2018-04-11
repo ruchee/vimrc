@@ -1,5 +1,7 @@
-" MIT License. Copyright (c) 2013-2017 C.Brabandt
+" MIT License. Copyright (c) 2013-2018 C.Brabandt et al.
 " vim: et ts=2 sts=2 sw=2
+
+scriptencoding utf-8
 
 let s:untracked_jobs = {}
 let s:mq_jobs        = {}
@@ -53,6 +55,8 @@ endfunction
 
 if v:version >= 800 && has("job")
   " Vim 8.0 with Job feature
+  " TODO: Check if we need the cwd option for the job_start() functions
+  "       (only works starting with Vim 8.0.0902)
 
   function! s:on_stdout(channel, msg) dict abort
     let self.buf .= a:msg
@@ -238,7 +242,12 @@ function! airline#async#nvim_vcs_untracked(cfg, file, vcs)
       " still running
       return
     endif
+    try
     let id = jobstart(cmd, config)
+    catch
+      " catch-all, jobstart() failed, fall back to system()
+      let id=-1
+    endtry
     let s:untracked_jobs[a:file] = id
   endif
   " vim without job feature or nvim jobstart failed

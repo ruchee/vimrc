@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2017 Cimbali.
+" MIT License. Copyright (c) 2017-2018 Cimbali et al
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -15,15 +15,22 @@ else
 endif
 
 function! airline#extensions#fugitiveline#bufname()
-  try
-    let buffer = fugitive#buffer()
-    if buffer.type('blob')
-      return fnamemodify(buffer.repo().translate(buffer.path()), s:fmod)
-    endif
-  catch
-  endtry
+  if !exists('b:fugitive_name')
+    let b:fugitive_name = ''
+    try
+      let buffer = fugitive#buffer()
+      if buffer.type('blob')
+        let b:fugitive_name = buffer.repo().translate(buffer.path())
+      endif
+    catch
+    endtry
+  endif
 
-  return fnamemodify(bufname('%'), s:fmod)
+  if empty(b:fugitive_name)
+    return fnamemodify(bufname('%'), s:fmod)
+  else
+    return fnamemodify(b:fugitive_name, s:fmod)
+  endif
 endfunction
 
 function! airline#extensions#fugitiveline#init(ext)
@@ -33,5 +40,6 @@ function! airline#extensions#fugitiveline#init(ext)
   else
     call airline#parts#define_raw('file', '%<%{airline#extensions#fugitiveline#bufname()}%m')
   endif
+  autocmd ShellCmdPost,CmdwinLeave * unlet! b:fugitive_name
+  autocmd User AirlineBeforeRefresh unlet! b:fugitive_name
 endfunction
-

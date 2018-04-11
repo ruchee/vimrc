@@ -42,6 +42,22 @@ Features:
  * Add VdebugStart command (thanks @blueyed, #132)
  * Sleep for 100ms in wait loop, don't consume as much CPU (thanks @blueyed, #133)
 
+=== Vdebug 1.4.2a / 2013-11-11
+
+Bug fixes:
+ * Add compatibility fix for Python debugging (due to incorrect "file:/" prefix) (issue #68, #102)
+ * Fix remote path slash replacement (issue #94)
+ * Fix rendering of unicode in watch window (issue #95)
+ * Stop errors being thrown on Vim 7.4 (issue #98, #96, #99)
+ * Fix error message on plugin reload, from function definition (thanks @glittershark, #106)
+
+Documentation:
+ * Correct minor spelling and grammar errors in help doc (thanks @dkinzer, #108)
+ * Change the description for setting up the python debugger in the docs
+
+Other:
+ * Add cucumber for integration tests, and add lots of features
+
 === Vdebug 1.4.1 / 2013-06-09
 
 Bug fixes:

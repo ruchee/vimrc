@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-06-30.
-" @Last Change: 2017-08-13.
-" @Revision:    119.1.243
+" @Last Change: 2017-09-28.
+" @Revision:    120.1.243
 
 
 " The cache directory. If empty, use |tlib#dir#MyRuntime|.'/cache'.
@@ -346,7 +346,7 @@ function! tlib#cache#Purge() "{{{3
     try
         for file in files
             if isdirectory(file)
-                if empty(filter(copy(newer), 'strpart(v:val, 0, len(file)) ==# file'))
+                if empty(filter(copy(newer), 'tlib#string#Strcharpart(v:val, 0, len(file)) ==# file'))
                     call add(deldir, file)
                 endif
             else
@@ -441,7 +441,7 @@ function! tlib#cache#ListFilesInCache(...) "{{{3
     endif
     let files = reverse(split(filess, '\n'))
     let pos0 = len(tlib#dir#CanonicName(dir))
-    call filter(files, 's:ShouldPurge(strpart(v:val, pos0))')
+    call filter(files, 's:ShouldPurge(tlib#string#Strcharpart(v:val, pos0))')
     return files
 endf
 

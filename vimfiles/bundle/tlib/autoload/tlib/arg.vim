@@ -1,8 +1,8 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2017-03-07.
-" @Revision:    272
+" @Last Change: 2017-09-28.
+" @Revision:    273
 
 
 " :def: function! tlib#arg#Get(n, var, ?default="", ?test='')
@@ -281,7 +281,7 @@ function! tlib#arg#CComplete(def, ArgLead) abort "{{{3
             " TLogVAR a:ArgLead, lead
             if !empty(lead)
                 let nchar = len(lead)
-                call filter(words, 'strpart(v:val, 0, nchar) ==# lead')
+                call filter(words, 'tlib#string#Strcharpart(v:val, 0, nchar) ==# lead')
             endif
             let words = map(words, 'prefix . v:val')
             return sort(words)
@@ -310,7 +310,7 @@ function! tlib#arg#CComplete(def, ArgLead) abort "{{{3
     endif
     let nchar = len(a:ArgLead)
     if nchar > 0
-        call filter(cs, 'strpart(v:key, 0, nchar) ==# a:ArgLead')
+        call filter(cs, 'tlib#string#Strcharpart(v:key, 0, nchar) ==# a:ArgLead')
     endif
     return sort(keys(cs))
 endf

@@ -1248,7 +1248,7 @@ tlib#string#Chomp(string, ?max=0)
     "%" can be inserted as "%%".
 
     Examples:
-      echo tlib#string#Format("foo %{bar} foo", {'bar': 123})
+      echo tlib#string#Format("foo %{bar} foo", {'bar': 123}, ?prefix='%')
       => foo 123 foo
 
                                                     *tlib#string#Printf1()*

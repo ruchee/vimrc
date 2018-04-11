@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2008-09-19.
-" @Last Change: 2016-06-28.
-" @Revision:    2.3.19
+" @Last Change: 2017-09-28.
+" @Revision:    3.3.19
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -24,7 +24,7 @@ function! tlib#notify#Echo(text, ...)
         if !empty(style)
             exec 'echohl' style
         endif
-        echo strpart(text, 0, &columns - 1)
+        echo tlib#string#Strcharpart(text, 0, &columns - 1)
     finally
         if !empty(style)
             echohl None
@@ -93,8 +93,8 @@ function! tlib#notify#TrimMessage(message) "{{{3
         let front = to_fill / 2 - 1
         let back  = front 
         if to_fill % 2 == 0 | let back -= 1 | endif
-        return strpart(a:message, 0, front) . filler .
-                    \strpart(a:message, strlen(a:message) - back)
+        return tlib#string#Strcharpart(a:message, 0, front) . filler .
+                    \ tlib#string#Strcharpart(a:message, strlen(a:message) - back)
     else
         return a:message
     endif

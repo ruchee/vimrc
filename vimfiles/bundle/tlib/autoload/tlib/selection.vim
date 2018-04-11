@@ -1,8 +1,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2016-01-03
-" @Revision:    3
+" @Last Change: 2017-09-28
+" @Revision:    4
 
 
 " :display: tlib#selection#GetSelection(mode, ?mbeg="'<", ?mend="'>", ?opmode='selection')
@@ -26,13 +26,13 @@ function! tlib#selection#GetSelection(mode, ...) range "{{{3
     " TLogVAR len(text[-1])
     if opmode == 'block'
         let clen = c1 - c0
-        call map(text, 'strpart(v:val, c0, clen)')
+        call map(text, 'tlib#string#Strcharpart(v:val, c0, clen)')
     elseif opmode == 'selection'
         if c1 > 1
-            let text[-1] = strpart(text[-1], 0, c1 - (a:mode == 'o' || c1 > len(text[-1]) ? 0 : 1))
+            let text[-1] = tlib#string#Strcharpart(text[-1], 0, c1 - (a:mode == 'o' || c1 > len(text[-1]) ? 0 : 1))
         endif
         if c0 > 1
-            let text[0] = strpart(text[0], c0 - 1)
+            let text[0] = tlib#string#Strcharpart(text[0], c0 - 1)
         endif
     endif
     return text

@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2016 Kevin Sapper
+" MIT License. Copyright (c) 2016-2018 Kevin Sapper et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -6,12 +6,6 @@ scriptencoding utf-8
 let s:current_bufnr = -1
 let s:current_tabnr = -1
 let s:current_tabline = ''
-
-let s:buffers_label = get(g:, 'airline#extensions#tabline#buffers_label', 'buffers')
-let s:tabs_label = get(g:, 'airline#extensions#tabline#tabs_label', 'tabs')
-let s:switch_buffers_and_tabs = get(g:, 'airline#extensions#tabline#switch_buffers_and_tabs', 0)
-let s:show_buffers = get(g:, 'airline#extensions#tabline#show_buffers', 1)
-let s:show_tabs = get(g:, 'airline#extensions#tabline#show_tabs', 1)
 
 function! airline#extensions#tabline#ctrlspace#off()
   augroup airline_tabline_ctrlspace
@@ -107,8 +101,15 @@ endfunction
 
 function! airline#extensions#tabline#ctrlspace#get()
   let cur_buf = bufnr('%')
+  let buffer_label = get(g:, 'airline#extensions#tabline#buffers_label', 'buffers')
+  let tab_label = get(g:, 'airline#extensions#tabline#tabs_label', 'tabs')
+  let switch_buffers_and_tabs = get(g:, 'airline#extensions#tabline#switch_buffers_and_tabs', 0)
 
-  call airline#extensions#tabline#tabs#map_keys()
+  try
+    call airline#extensions#tabline#tabs#map_keys()
+  catch
+    " no-op
+  endtry
   let s:tab_list = ctrlspace#api#TabList()
   for tab in s:tab_list
     if tab.current
@@ -123,24 +124,24 @@ function! airline#extensions#tabline#ctrlspace#get()
   let builder = airline#extensions#tabline#new_builder()
 
   " Add left tabline content
-  if s:show_buffers == 0
+  if get(g:, 'airline#extensions#tabline#show_buffers', 1) == 0
       call airline#extensions#tabline#ctrlspace#add_tab_section(builder, 0)
-  elseif s:show_tabs == 0
+  elseif get(g:, 'airline#extensions#tabline#show_tabs', 1) == 0
       " add by tenfy(tenfyzhong@qq.com)
       " if current buffer no in the buffer list, does't update tabline
       if airline#extensions#tabline#ctrlspace#add_buffer_section(builder, cur_tab, cur_buf, 0) == 0
         return s:current_tabline
       endif
   else
-    if s:switch_buffers_and_tabs == 0
-      call builder.add_section_spaced('airline_tabtype', s:buffers_label)
+    if switch_buffers_and_tabs == 0
+      call builder.add_section_spaced('airline_tabtype', buffer_label)
       " add by tenfy(tenfyzhong@qq.com)
       " if current buffer no in the buffer list, does't update tabline
       if airline#extensions#tabline#ctrlspace#add_buffer_section(builder, cur_tab, cur_buf, 0) == 0
         return s:current_tabline
       endif
     else
-      call builder.add_section_spaced('airline_tabtype', s:tabs_label)
+      call builder.add_section_spaced('airline_tabtype', tab_label)
       call airline#extensions#tabline#ctrlspace#add_tab_section(builder, 0)
     endif
   endif
@@ -150,21 +151,21 @@ function! airline#extensions#tabline#ctrlspace#get()
   call builder.add_section('airline_tabfill', '')
 
   " Add right tabline content
-  if s:show_buffers == 0
-      call builder.add_section_spaced('airline_tabtype', s:tabs_label)
-  elseif s:show_tabs == 0
-      call builder.add_section_spaced('airline_tabtype', s:buffers_label)
+  if get(g:, 'airline#extensions#tabline#show_buffers', 1) == 0
+      call builder.add_section_spaced('airline_tabtype', tab_label)
+  elseif get(g:, 'airline#extensions#tabline#show_tabs', 1) == 0
+      call builder.add_section_spaced('airline_tabtype', buffer_label)
   else
-    if s:switch_buffers_and_tabs == 0
+    if switch_buffers_and_tabs == 0
       call airline#extensions#tabline#ctrlspace#add_tab_section(builder, 1)
-      call builder.add_section_spaced('airline_tabtype', s:tabs_label)
+      call builder.add_section_spaced('airline_tabtype', tab_label)
     else
       " add by tenfy(tenfyzhong@qq.com)
       " if current buffer no in the buffer list, does't update tabline
-      if airline#extensions#tabline#ctrlspace#add_buffer_section(builder, cur_tab, cur_buf, 0) == 0
+      if airline#extensions#tabline#ctrlspace#add_buffer_section(builder, cur_tab, cur_buf, 1) == 0
         return s:current_tabline
       endif
-      call builder.add_section_spaced('airline_tabtype', s:buffers_label)
+      call builder.add_section_spaced('airline_tabtype', buffer_label)
     endif
   endif
 

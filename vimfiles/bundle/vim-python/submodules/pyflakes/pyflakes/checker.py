@@ -38,9 +38,16 @@ if PY2:
     def getNodeType(node_class):
         # workaround str.upper() which is locale-dependent
         return str(unicode(node_class.__name__).upper())
+
+    def get_raise_argument(node):
+        return node.type
+
 else:
     def getNodeType(node_class):
         return node_class.__name__.upper()
+
+    def get_raise_argument(node):
+        return node.exc
 
     # Silence `pyflakes` from reporting `undefined name 'unicode'` in Python 3.
     unicode = str
@@ -136,6 +143,10 @@ def convert_to_value(item):
         return item.value
     else:
         return UnhandledKeyType()
+
+
+def is_notimplemented_name_node(node):
+    return isinstance(node, ast.Name) and getNodeName(node) == 'NotImplemented'
 
 
 class Binding(object):
@@ -679,8 +690,9 @@ class Checker(object):
                     self.report(messages.RedefinedInListComp,
                                 node, value.name, existing.source)
                 elif not existing.used and value.redefines(existing):
-                    self.report(messages.RedefinedWhileUnused,
-                                node, value.name, existing.source)
+                    if value.name != '_' or isinstance(existing, Importation):
+                        self.report(messages.RedefinedWhileUnused,
+                                    node, value.name, existing.source)
 
             elif isinstance(existing, Importation) and value.redefines(existing):
                 existing.redefined.append(node)
@@ -709,10 +721,14 @@ class Checker(object):
 
         # try enclosing function scopes and global scope
         for scope in self.scopeStack[-1::-1]:
-            # only generators used in a class scope can access the names
-            # of the class. this is skipped during the first iteration
-            if in_generators is False and isinstance(scope, ClassScope):
-                continue
+            if isinstance(scope, ClassScope):
+                if not PY2 and name == '__class__':
+                    return
+                elif in_generators is False:
+                    # only generators used in a class scope can access the
+                    # names of the class. this is skipped during the first
+                    # iteration
+                    continue
 
             try:
                 scope[name].used = (self.scope, node)
@@ -922,12 +938,45 @@ class Checker(object):
         self.popScope()
         self.scopeStack = saved_stack
 
+    def handleAnnotation(self, annotation, node):
+        if isinstance(annotation, ast.Str):
+            # Defer handling forward annotation.
+            def handleForwardAnnotation():
+                try:
+                    tree = ast.parse(annotation.s)
+                except SyntaxError:
+                    self.report(
+                        messages.ForwardAnnotationSyntaxError,
+                        node,
+                        annotation.s,
+                    )
+                    return
+
+                body = tree.body
+                if len(body) != 1 or not isinstance(body[0], ast.Expr):
+                    self.report(
+                        messages.ForwardAnnotationSyntaxError,
+                        node,
+                        annotation.s,
+                    )
+                    return
+
+                parsed_annotation = tree.body[0].value
+                for descendant in ast.walk(parsed_annotation):
+                    ast.copy_location(descendant, annotation)
+
+                self.handleNode(parsed_annotation, node)
+
+            self.deferFunction(handleForwardAnnotation)
+        else:
+            self.handleNode(annotation, node)
+
     def ignore(self, node):
         pass
 
     # "stmt" type nodes
     DELETE = PRINT = FOR = ASYNCFOR = WHILE = IF = WITH = WITHITEM = \
-        ASYNCWITH = ASYNCWITHITEM = RAISE = TRYFINALLY = EXEC = \
+        ASYNCWITH = ASYNCWITHITEM = TRYFINALLY = EXEC = \
         EXPR = ASSIGN = handleChildren
 
     PASS = ignore
@@ -950,6 +999,19 @@ class Checker(object):
         BITOR = BITXOR = BITAND = FLOORDIV = INVERT = NOT = UADD = USUB = \
         EQ = NOTEQ = LT = LTE = GT = GTE = IS = ISNOT = IN = NOTIN = \
         MATMULT = ignore
+
+    def RAISE(self, node):
+        self.handleChildren(node)
+
+        arg = get_raise_argument(node)
+
+        if isinstance(arg, ast.Call):
+            if is_notimplemented_name_node(arg.func):
+                # Handle "raise NotImplemented(...)"
+                self.report(messages.RaiseNotImplemented, node)
+        elif is_notimplemented_name_node(arg):
+            # Handle "raise NotImplemented"
+            self.report(messages.RaiseNotImplemented, node)
 
     # additional node types
     COMPREHENSION = KEYWORD = FORMATTEDVALUE = JOINEDSTR = handleChildren
@@ -1160,9 +1222,11 @@ class Checker(object):
                 if arg in args[:idx]:
                     self.report(messages.DuplicateArgument, node, arg)
 
-        for child in annotations + defaults:
-            if child:
-                self.handleNode(child, node)
+        for annotation in annotations:
+            self.handleAnnotation(annotation, node)
+
+        for default in defaults:
+            self.handleNode(default, node)
 
         def runFunction():
 
@@ -1375,7 +1439,7 @@ class Checker(object):
             # Otherwise it's not really ast.Store and shouldn't silence
             # UndefinedLocal warnings.
             self.handleNode(node.target, node)
-        self.handleNode(node.annotation, node)
+        self.handleAnnotation(node.annotation, node)
         if node.value:
             # If the assignment has value, handle the *value* now.
             self.handleNode(node.value, node)

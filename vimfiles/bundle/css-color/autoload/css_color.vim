@@ -178,27 +178,24 @@ function! s:create_syn_match()
 endfunction
 
 function! s:clear_matches()
-	if exists('w:color_match_id')
-		call filter(w:color_match_id, 'matchdelete(v:val)')
-		unlet w:color_match_id
-	endif
+	call map(get(w:, 'css_color_match_id', []), 'matchdelete(v:val)')
+	let w:css_color_match_id = []
 endfunction
 
 function! s:create_matches()
+	call s:clear_matches()
 	if ! &l:cursorline | return | endif
 	" adds matches based that duplicate the highlighted colors on the current line
 	let lnr = line('.')
 	let group = ''
 	let groupstart = 0
 	let endcol = col('$')
-	let w:color_match_id = []
 	for col in range( 1, endcol )
 		let nextgroup = col < endcol ? synIDattr( synID( lnr, col, 1 ), 'name' ) : ''
 		if group == nextgroup | continue | endif
 		if group =~ '^BG\x\{6}$'
 			let regex = '\%'.lnr.'l\%'.groupstart.'c'.repeat( '.', col - groupstart )
-			let match = matchadd( group, regex, -1 )
-			let w:color_match_id += [ match ]
+			let w:css_color_match_id += [ matchadd( group, regex, -1 ) ]
 		endif
 		let group = nextgroup
 		let groupstart = col
@@ -221,7 +218,6 @@ let s:_csscolor   = s:_hexcolor . '\|' . s:_funcexpr
 "      match() and friends do not allow finding all matches in a single
 "      scan without examining the start of the string over and over
 function! s:parse_screen()
-	call s:clear_matches()
 	let leftcol = winsaveview().leftcol
 	let left = max([ leftcol - 15, 0 ])
 	let width = &columns * 4

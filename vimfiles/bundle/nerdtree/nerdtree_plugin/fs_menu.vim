@@ -29,6 +29,11 @@ if has("gui_mac") || has("gui_macvim") || has("mac")
     call NERDTreeAddMenuItem({'text': '(q)uicklook the current node', 'shortcut': 'q', 'callback': 'NERDTreeQuickLook'})
 endif
 
+if executable("xdg-open")
+    call NERDTreeAddMenuItem({'text': '(r)eveal the current node in file manager', 'shortcut': 'r', 'callback': 'NERDTreeRevealFileLinux'})
+    call NERDTreeAddMenuItem({'text': '(o)pen the current node with system editor', 'shortcut': 'o', 'callback': 'NERDTreeExecuteFileLinux'})
+endif
+
 if g:NERDTreePath.CopyingSupported()
     call NERDTreeAddMenuItem({'text': '(c)opy the current node', 'shortcut': 'c', 'callback': 'NERDTreeCopyNode'})
 endif
@@ -175,7 +180,8 @@ function! NERDTreeDeleteNode()
     let currentNode = g:NERDTreeFileNode.GetSelected()
     let confirmed = 0
 
-    if currentNode.path.isDirectory && currentNode.getChildCount() > 0
+    if currentNode.path.isDirectory && ((currentNode.isOpen && currentNode.getChildCount() > 0) ||
+                                      \ (len(currentNode._glob('*', 1)) > 0))
         let choice =input("Delete the current node\n" .
                          \ "==========================================================\n" .
                          \ "STOP! Directory is not empty! To delete, type 'yes'\n" .
@@ -336,4 +342,22 @@ function! NERDTreeExecuteFile()
     endif
 endfunction
 
+" FUNCTION: NERDTreeRevealFileLinux() {{{1
+function! NERDTreeRevealFileLinux()
+    let treenode = g:NERDTreeFileNode.GetSelected()
+    let parentnode = treenode.parent
+    if parentnode != {}
+        call system("xdg-open '" . parentnode.path.str() . "' &")
+    endif
+endfunction
+
+" FUNCTION: NERDTreeExecuteFileLinux() {{{1
+function! NERDTreeExecuteFileLinux()
+    let treenode = g:NERDTreeFileNode.GetSelected()
+    if treenode != {}
+        call system("xdg-open '" . treenode.path.str() . "' &")
+    endif
+endfunction
+
 " vim: set sw=4 sts=4 et fdm=marker:
+

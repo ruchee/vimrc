@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    143
+" @Revision:    148
 
 
 " :def: function! tlib#string#RemoveBackslashes(text, ?chars=' ')
@@ -26,13 +26,17 @@ endf
 " "%" can be inserted as "%%".
 "
 " Examples:
-"   echo tlib#string#Format("foo %{bar} foo", {'bar': 123})
+"   echo tlib#string#Format("foo %{bar} foo", {'bar': 123}, ?prefix='%')
 "   => foo 123 foo
-function! tlib#string#Format(template, dict) "{{{3
-    let parts = split(a:template, '\ze%\({.\{-}}\|.\)')
+function! tlib#string#Format(template, dict, ...) "{{{3
+    let prefix = a:0 >= 1 ? a:1 : '%'
+    let pesc = prefix . prefix
+    let prx = tlib#rx#Escape(prefix)
+    let parts = split(a:template, '\ze'. prx .'\({.\{-}}\|.\)')
+    let partrx = '^'. prx .'\({\(.\{-}\)}\|\(.\)\)\(.*\)$'
     let out = []
     for part in parts
-        let ml   = matchlist(part, '^%\({\(.\{-}\)}\|\(.\)\)\(.*\)$')
+        let ml   = matchlist(part, partrx)
         if empty(ml)
             let rest = part
         else
@@ -40,8 +44,8 @@ function! tlib#string#Format(template, dict) "{{{3
             let rest = ml[4]
             if has_key(a:dict, var)
                 call add(out, a:dict[var])
-            elseif var ==# '%%'
-                call add(out, '%')
+            elseif var ==# pesc
+                call add(out, prefix)
             else
                 call add(out, ml[1])
             endif
@@ -191,4 +195,14 @@ function! tlib#string#MatchAll(string, regexp, ...) abort "{{{3
     endfor
     return ms
 endf
+
+if exists('*strcharpart')
+    function! tlib#string#Strcharpart(...) abort "{{{3
+        return call(function('strcharpart'), a:000)
+    endf
+else
+    function! tlib#string#Strcharpart(...) abort "{{{3
+        return call(function('strpart'), a:000)
+    endf
+endif
 

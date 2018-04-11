@@ -92,12 +92,12 @@ help packages` in vim for details.
     cd python-mode
     git submodule update --init --recursive
 
-
 ## Using pathogen
 
     cd ~/.vim
     mkdir -p bundle && cd bundle
-    git clone https://github.com/python-mode/python-mode.git
+    git clone --recursive https://github.com/python-mode/python-mode.git
+
 
 Enable [pathogen](https://github.com/tpope/vim-pathogen) in your `~/.vimrc`:
 
@@ -109,6 +109,13 @@ Enable [pathogen](https://github.com/tpope/vim-pathogen) in your `~/.vimrc`:
 
     filetype plugin indent on
     syntax on
+
+## Using vim-plug
+
+Include the following in the [vim-plug](https://github.com/junegunn/vim-plug)
+section of your `~/.vimrc`:
+
+    Plug 'python-mode/python-mode', { 'branch': 'develop' }
 
 ## Manually
 

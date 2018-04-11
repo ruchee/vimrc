@@ -1,5 +1,36 @@
 ## unplanned
 
+FEATURES:
+
+* Add `:GoPointsTo` to show all variables to which the pointer under the cursor
+  may point to.
+  [[GH-1751]](https://github.com/fatih/vim-go/pull/1751)
+* Add `:GoReportGitHubIssue` to initialize a new GitHub issue with as much data
+  that our template requests as possible.
+  [[GH-1738]](https://github.com/fatih/vim-go/pull/1738)
+
+IMPROVEMENTS:
+
+* Add build tags (with `g:go_build_tags`) to all commands that support it.
+  [[GH-1705]](https://github.com/fatih/vim-go/pull/1705)
+* Some command which operate on files (rather than Vim buffers) will now show a
+  warning if there are unsaved buffers, similar to Vim's `:make`.
+  [[GH-1754]](https://github.com/fatih/vim-go/pull/1754)
+
+BUG FIXES:
+
+* Update the correct window's location list after a long running async job
+  completes, even when the user changes their window layout while the job is
+  running.
+  [[GH-1734]](https://github.com/fatih/vim-go/pull/1734)
+* Apply debugger mappings only for Go buffers, and not all buffers.
+  [[GH-1696]](https://github.com/fatih/vim-go/pull/1696)
+* The `gohtmltmpl` filetype will now highlight `{{ .. }}` syntax HTML attributes
+  and some other locations.
+  [[GH-1790]](https://github.com/fatih/vim-go/pull/1790)
+
+BACKWARDS INCOMPATIBILITIES:
+
 ## 1.17 - (March 27, 2018)
 
 FEATURES:

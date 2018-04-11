@@ -1,8 +1,8 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     https://github.com/tomtom
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Last Change: 2017-02-23
-" @Revision:    66
+" @Last Change: 2018-02-08
+" @Revision:    69
 
 " :nodoc:
 TLet g:tlib#qfl#world = {
@@ -29,7 +29,10 @@ TLet g:tlib#qfl#world = {
 
 function! tlib#qfl#FormatQFLE(qfe) dict abort "{{{3
     let filename = tlib#qfl#QfeFilename(a:qfe)
-    if get(self, 'qfl_short_filename', '')
+    let short_filename = get(self, 'qfl_short_filename', '')
+    if short_filename ==# 'basename'
+        let filename = matchstr(filename, '[^\\/]\+$')
+    elseif !empty(short_filename)
         let filename = pathshorten(filename)
     endif
     return printf("%s|%d| %s", filename, a:qfe.lnum, get(a:qfe, "text"))

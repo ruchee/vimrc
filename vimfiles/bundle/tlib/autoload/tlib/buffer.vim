@@ -3,8 +3,8 @@
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
 " @Created:     2007-06-30.
-" @Last Change: 2017-03-26.
-" @Revision:    11.1.352
+" @Last Change: 2017-09-28.
+" @Revision:    12.1.352
 
 
 " Where to display the line when using |tlib#buffer#ViewLine|.
@@ -307,7 +307,7 @@ function! tlib#buffer#InsertText(text, ...) abort "{{{3
 			" norm! a
 			" "norm! o
 			" " TAssertExec redraw | sleep 3
-			" let idt = strpart(getline('.'), 0, keyargs.col('.') + keyargs.shift)
+			" let idt = tlib#string#Strcharpart(getline('.'), 0, keyargs.col('.') + keyargs.shift)
 			" " TLogVAR idt
 			" let idtl = len(idt)
 			" -1,.delete

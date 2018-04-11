@@ -1,17 +1,9 @@
-" MIT License. Copyright (c) 2013-2016 Bailey Ling.
+" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
 
-let s:show_close_button = get(g:, 'airline#extensions#tabline#show_close_button', 1)
-let s:show_tab_type = get(g:, 'airline#extensions#tabline#show_tab_type', 1)
-let s:show_tab_nr = get(g:, 'airline#extensions#tabline#show_tab_nr', 1)
-let s:tab_nr_type = get(g:, 'airline#extensions#tabline#tab_nr_type', 0)
-let s:close_symbol = get(g:, 'airline#extensions#tabline#close_symbol', 'X')
-let s:tabs_label = get(g:, 'airline#extensions#tabline#tabs_label', 'tabs')
-let s:show_splits = get(g:, 'airline#extensions#tabline#show_splits', 1)
 let s:spc = g:airline_symbols.space
-
 let s:current_bufnr = -1
 let s:current_tabnr = -1
 let s:current_modified = 0
@@ -36,8 +28,12 @@ endfunction
 function! airline#extensions#tabline#tabs#get()
   let curbuf = bufnr('%')
   let curtab = tabpagenr()
-  call airline#extensions#tabline#tabs#map_keys()
-  if curbuf == s:current_bufnr && curtab == s:current_tabnr
+  try
+    call airline#extensions#tabline#tabs#map_keys()
+  catch
+    " no-op
+  endtry
+  if curbuf == s:current_bufnr && curtab == s:current_tabnr && &columns == s:column_width
     if !g:airline_detect_modified || getbufvar(curbuf, '&modified') == s:current_modified
       return s:current_tabline
     endif
@@ -45,53 +41,61 @@ function! airline#extensions#tabline#tabs#get()
 
   let b = airline#extensions#tabline#new_builder()
 
-  for i in range(1, tabpagenr('$'))
-    if i == curtab
+  call airline#extensions#tabline#add_label(b, 'tabs')
+
+  function! b.get_group(i) dict
+    let curtab = tabpagenr()
+    let group = 'airline_tab'
+    if a:i == curtab
       let group = 'airline_tabsel'
       if g:airline_detect_modified
-        for bi in tabpagebuflist(i)
+        for bi in tabpagebuflist(curtab)
           if getbufvar(bi, '&modified')
             let group = 'airline_tabmod'
           endif
         endfor
       endif
       let s:current_modified = (group == 'airline_tabmod') ? 1 : 0
-    else
-      let group = 'airline_tab'
     endif
+    return group
+  endfunction
+
+  function! b.get_title(i) dict
     let val = '%('
-    if s:show_tab_nr
-      if s:tab_nr_type == 0
-        let val .= (g:airline_symbols.space).'%{len(tabpagebuflist('.i.'))}'
-      elseif s:tab_nr_type == 1
-        let val .= (g:airline_symbols.space).i
-      else "== 2
-        let val .= (g:airline_symbols.space).i.'.%{len(tabpagebuflist('.i.'))}'
-      endif
+
+    if get(g:, 'airline#extensions#tabline#show_tab_nr', 1)
+      let tab_nr_type = get(g:, 'airline#extensions#tabline#tab_nr_type', 0)
+      let val .= airline#extensions#tabline#tabs#tabnr_formatter(tab_nr_type, a:i)
     endif
-    call b.add_section(group, val.'%'.i.'T %{airline#extensions#tabline#title('.i.')} %)')
-  endfor
+
+    return val.'%'.a:i.'T %{airline#extensions#tabline#title('.a:i.')} %)'
+  endfunction
+
+  call b.insert_titles(curtab, 1, tabpagenr('$'))
 
   call b.add_section('airline_tabfill', '')
   call b.split()
   call b.add_section('airline_tabfill', '')
 
-  if s:show_close_button
-    call b.add_section('airline_tab_right', ' %999X'.s:close_symbol.' ')
+  if get(g:, 'airline#extensions#tabline#show_close_button', 1)
+    call b.add_section('airline_tab_right', ' %999X'.
+          \ get(g:, 'airline#extensions#tabline#close_symbol', 'X').' ')
   endif
 
-  if s:show_splits == 1
+  if get(g:, 'airline#extensions#tabline#show_splits', 1) == 1
     let buffers = tabpagebuflist(curtab)
     for nr in buffers
       let group = airline#extensions#tabline#group_of_bufnr(buffers, nr) . "_right"
       call b.add_section_spaced(group, '%(%{airline#extensions#tabline#get_buffer_name('.nr.')}%)')
     endfor
-  elseif s:show_tab_type == 1
-    call b.add_section_spaced('airline_tabtype', s:tabs_label)
+    if get(g:, 'airline#extensions#tabline#show_buffers', 1)
+      call airline#extensions#tabline#add_label(b, 'buffers')
+    endif
   endif
 
   let s:current_bufnr = curbuf
   let s:current_tabnr = curtab
+  let s:column_width = &columns
   let s:current_tabline = b.build()
   return s:current_tabline
 endfunction
@@ -113,4 +117,9 @@ function! airline#extensions#tabline#tabs#map_keys()
   " tabn {count} goes to count tab does not go {count} tab pages forward!
   noremap <silent> <Plug>AirlineSelectNextTab :<C-U>exe repeat(':tabn\|', v:count1)<cr>
   let s:airline_tabline_map_key = 1
+endfunction
+
+function! airline#extensions#tabline#tabs#tabnr_formatter(nr, i)
+  let formatter = get(g:, 'airline#extensions#tabline#tabnr_formatter', 'tabnr')
+  return airline#extensions#tabline#formatters#{formatter}#format(a:nr, a:i)
 endfunction

@@ -151,6 +151,25 @@ class Test(TestCase):
         def a(): pass
         ''', m.RedefinedWhileUnused)
 
+    def test_redefinedUnderscoreFunction(self):
+        """
+        Test that shadowing a function definition named with underscore doesn't
+        raise anything.
+        """
+        self.flakes('''
+        def _(): pass
+        def _(): pass
+        ''')
+
+    def test_redefinedUnderscoreImportation(self):
+        """
+        Test that shadowing an underscore importation raises a warning.
+        """
+        self.flakes('''
+        from .i18n import _
+        def _(): pass
+        ''', m.RedefinedWhileUnused)
+
     def test_redefinedClassFunction(self):
         """
         Test that shadowing a function definition in a class suite with another
@@ -1890,3 +1909,94 @@ class TestAsyncStatements(TestCase):
             class C:
                 foo: not_a_real_type = None
         ''', m.UndefinedName)
+        self.flakes('''
+        from foo import Bar
+        bar: Bar
+        ''')
+        self.flakes('''
+        from foo import Bar
+        bar: 'Bar'
+        ''')
+        self.flakes('''
+        import foo
+        bar: foo.Bar
+        ''')
+        self.flakes('''
+        import foo
+        bar: 'foo.Bar'
+        ''')
+        self.flakes('''
+        from foo import Bar
+        def f(bar: Bar): pass
+        ''')
+        self.flakes('''
+        from foo import Bar
+        def f(bar: 'Bar'): pass
+        ''')
+        self.flakes('''
+        from foo import Bar
+        def f(bar) -> Bar: return bar
+        ''')
+        self.flakes('''
+        from foo import Bar
+        def f(bar) -> 'Bar': return bar
+        ''')
+        self.flakes('''
+        bar: 'Bar'
+        ''', m.UndefinedName)
+        self.flakes('''
+        bar: 'foo.Bar'
+        ''', m.UndefinedName)
+        self.flakes('''
+        from foo import Bar
+        bar: str
+        ''', m.UnusedImport)
+        self.flakes('''
+        from foo import Bar
+        def f(bar: str): pass
+        ''', m.UnusedImport)
+        self.flakes('''
+        def f(a: A) -> A: pass
+        class A: pass
+        ''', m.UndefinedName, m.UndefinedName)
+        self.flakes('''
+        def f(a: 'A') -> 'A': return a
+        class A: pass
+        ''')
+        self.flakes('''
+        a: A
+        class A: pass
+        ''', m.UndefinedName)
+        self.flakes('''
+        a: 'A'
+        class A: pass
+        ''')
+        self.flakes('''
+        a: 'A B'
+        ''', m.ForwardAnnotationSyntaxError)
+        self.flakes('''
+        a: 'A; B'
+        ''', m.ForwardAnnotationSyntaxError)
+        self.flakes('''
+        a: '1 + 2'
+        ''')
+        self.flakes('''
+        a: 'a: "A"'
+        ''', m.ForwardAnnotationSyntaxError)
+
+    def test_raise_notimplemented(self):
+        self.flakes('''
+        raise NotImplementedError("This is fine")
+        ''')
+
+        self.flakes('''
+        raise NotImplementedError
+        ''')
+
+        self.flakes('''
+        raise NotImplemented("This isn't gonna work")
+        ''', m.RaiseNotImplemented)
+
+        self.flakes('''
+        raise NotImplemented
+        ''', m.RaiseNotImplemented)
