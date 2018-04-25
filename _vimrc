@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-04-25 20:27:15
+" -----------------    Date: 2018-04-25 20:40:46
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -726,6 +726,14 @@ let g:promptline_preset = {
             \'y'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
             \'warn' : [ promptline#slices#last_exit_code() ]
             \}                                 " 自定义命令行显示
+let g:promptline_symbols = {
+            \ 'left'       : '',
+            \ 'left_alt'   : '>',
+            \ 'dir_sep'    : ' / ',
+            \ 'truncation' : '...',
+            \ 'vcs_branch' : '',
+            \ 'space'      : ' '
+            \}                                 " 自定义符号
 
 " GitGutter           Git辅助插件
 let g:gitgutter_enabled               = 0      " 默认不开启
