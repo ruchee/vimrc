@@ -42,6 +42,9 @@ snippet f       函数
 	}
 snippet ff      函数原型
 	(${1}) -> ${0}
+snippet fff     闭包
+	(${1}) -> ${2} in
+	${0}
 snippet fi      构造函数
 	init (${1}) {
 	    ${0}
@@ -137,6 +140,8 @@ snippet pu      公共
 	public ${0}
 snippet pr      私有
 	private ${0}
+snippet gu      guard
+	guard ${0}
 snippet s       self
 	self${0}
 snippet v       定义变量
@@ -163,6 +168,8 @@ snippet rv      rawValue
 	rawValue${0}
 snippet mu      标记可变
 	mutating ${0}
+snippet in      标记指针
+	indirect ${0}
 # 特殊常量
 # 数据类型
 snippet _i      Int
@@ -197,6 +204,12 @@ snippet _b      Bool
 	Bool${0}
 snippet _e      Error
 	Error${0}
+snippet _ar     Array
+	Array<${0}>
+snippet _di     Dictionary
+	Dictionary<${1}, ${0}>
+snippet _se     Set
+	Set<${0}>
 # 输入输出
 snippet p       输出
 	print(${0})
