@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-03-26 21:03:26
+" -----------------    Date: 2018-04-25 20:27:15
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -720,9 +720,10 @@ let g:airline_powerline_fonts = 0              " 关闭自定义字体
 " Promptline          终端辅助工具               此插件和 Vim 本身的使用没多大关系，将其生成的文件加载到 .bashrc，可达到美化终端的效果。比如说进入一个 Git 工程会自动显示当前分支情况
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
 let g:promptline_preset = {
-            \'a'    : [ '\u' ],
-            \'b'    : [ '\W' ],
-            \'c'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
+            \'a'    : [ promptline#slices#host() ],
+            \'b'    : [ promptline#slices#user() ],
+            \'c'    : [ promptline#slices#cwd() ],
+            \'y'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
             \'warn' : [ promptline#slices#last_exit_code() ]
             \}                                 " 自定义命令行显示
 
