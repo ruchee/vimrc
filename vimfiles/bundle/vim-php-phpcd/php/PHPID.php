@@ -205,7 +205,7 @@ class PHPID implements RpcHandler
             $interfaces = array_keys($reflection->getInterfaces());
 
             return [$parent, $interfaces];
-        } catch (\ReflectionException $e) {
+        } catch (\Exception $e) {
             return [null, []];
         }
     }

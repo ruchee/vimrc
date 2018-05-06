@@ -87,22 +87,22 @@ function s:SynAt(l,c)
 endfunction
 
 function s:ParseCino(f)
-  let [divider, n, cstr] = [0] + matchlist(&cino,
-        \ '\%(.*,\)\=\%(\%d'.char2nr(a:f).'\(-\)\=\([.s0-9]*\)\)\=')[1:2]
-  for c in split(cstr,'\zs')
-    if c == '.' && !divider
+  let [s, n, divider] = [strridx(&cino, a:f)+1, '', 0]
+  while s && &cino[ s ] =~ '[^,]'
+    if &cino[ s ] == '.'
       let divider = 1
-    elseif c ==# 's'
+    elseif &cino[ s ] ==# 's'
       if n !~ '\d'
         return n . s:sw() + 0
       endif
       let n = str2nr(n) * s:sw()
       break
     else
-      let [n, divider] .= [c, 0]
+      let [n, divider] .= [&cino[ s ], 0]
     endif
-  endfor
-  return str2nr(n) / max([str2nr(divider),1])
+    let s += 1
+  endwhile
+  return str2nr(n) / max([divider, 1])
 endfunction
 
 " Optimized {skip} expr, only callable from the search loop which
@@ -311,8 +311,8 @@ function s:IsContOne(cont)
 endfunction
 
 function s:IsSwitch()
-  return search('\m\C\%'.join(b:js_cache[1:],'l\%').
-        \ 'c{\_s*\%(\%(\/\/.*\_$\|\/\*\_.\{-}\*\/\)\@>\_s*\)*\%(case\|default\)\>','nW'.s:z)
+  return search(printf('\m\C\%%%dl\%%%dc%s',b:js_cache[1],b:js_cache[2],
+        \ '{\_s*\%(\%(\/\/.*\_$\|\/\*\_.\{-}\*\/\)\@>\_s*\)*\%(case\|default\)\>'),'nW'.s:z)
 endfunction
 
 " https://github.com/sweet-js/sweet.js/wiki/design#give-lookbehind-to-the-reader
@@ -371,7 +371,7 @@ function GetJavascriptIndent()
   let [l:lnum, lcol, pline] = getpos('.')[1:2] + [getline('.')[:col('.')-1]]
 
   let l:line = substitute(l:line,'^\s*','','')
-  let l:line_raw = l:line
+  let l:line_s = l:line[0]
   if l:line[:1] == '/*'
     let l:line = substitute(l:line,'^\%(\/\*.\{-}\*\/\s*\)*','','')
   endif
@@ -445,7 +445,7 @@ function GetJavascriptIndent()
     let pval = s:ParseCino('(')
     if !pval
       let [Wval, vcol] = [s:ParseCino('W'), virtcol('.')]
-      if search('\m\S','W',num)
+      if search('\m'.get(g:,'javascript_indent_W_pat','\S'),'W',num)
         return s:ParseCino('w') ? vcol : virtcol('.')-1
       endif
       return Wval ? s:Nat(num_ind + Wval) : vcol
@@ -455,7 +455,7 @@ function GetJavascriptIndent()
 
   " main return
   if l:line =~ '^[])}]\|^|}'
-    if l:line_raw[0] == ')'
+    if l:line_s == ')'
       if s:ParseCino('M')
         return indent(l:lnum)
       elseif num && &cino =~# 'm' && !s:ParseCino('m')

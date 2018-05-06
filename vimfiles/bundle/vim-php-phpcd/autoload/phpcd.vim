@@ -22,6 +22,10 @@ function! phpcd#CompletePHP(findstart, base) " {{{
 		let b:phpbegin = phpbegin
 		let b:compl_context = phpcd#GetCurrentInstruction(line('.'), max([0, col('.') - 2]), phpbegin)
 
+		if b:compl_context =~ 'new\s\+\\'
+			let start = start + 1
+		endif
+
 		return start
 	endif " }}}
 
@@ -46,17 +50,18 @@ function! phpcd#CompletePHP(findstart, base) " {{{
 	try " {{{
 		let winheight = winheight(0)
 		let winnr = winnr()
-		if context =~? '^namespace'
-			return phpcd#GetPsrNamespace()
-		endif
 
-		if context =~? '\v^(abstract\s+)?(class|interface|trait)'
+		if context =~? '^namespace' "{{{
+			return phpcd#GetPsrNamespace()
+		endif "}}}
+
+		if context =~? '\v^((abstract|final)\s+)?(class|interface|trait)' "{{{
 			return [expand('%:t:r')]
-		end
+		end "}}}
 
 		let [current_namespace, imports] = phpcd#GetCurrentNameSpace()
 
-		if context =~? '\v^use\s*' " {{{
+		if context =~# '\v^(use$|use+\s.*)' " {{{
 			return rpc#request(g:phpcd_channel_id, 'classmap', a:base)
 		endif " }}}
 
@@ -64,21 +69,20 @@ function! phpcd#CompletePHP(findstart, base) " {{{
 			let classname = phpcd#GetClassName(line('.'), context, current_namespace, imports)
 
 			" TODO Fix it for variables with reference to $this etc.
-			let public_only = (context !~# '^\(\$this\|self\|static\|parent\)' )
-
+			let public_only = (context !~# '^\(\$this\|self\|static\|parent\)')
 			let is_static = 'only_nonstatic'
 
-			if strridx(context, '::') == strlen(context) - 2 " context =~ '::$'
+			if strridx(context, '::') == strlen(context) - 2 " context =~ '::$' {{{
 				if stridx(context, 'parent') != 0
 					let is_static = 'only_static'
 				else
 					let is_static = 'both'
 				endif
-			endif
+			endif" }}}
 
-			if get(g:, 'phpcd_disable_static_filter', 0)
+			if get(g:, 'phpcd_disable_static_filter', 0) "{{{
 					let is_static = 'both'
-			endif
+			endif "}}}
 
 			return rpc#request(g:phpcd_channel_id, 'info', classname, a:base, is_static, public_only)
 		elseif context =~? 'implements'
@@ -91,8 +95,8 @@ function! phpcd#CompletePHP(findstart, base) " {{{
 			" special case when you've typed the class keyword and the name too,
 			" only extends and implements allowed there
 			return filter(['extends', 'implements'], 'stridx(v:val, a:base) == 0')
-		elseif context =~? 'new'
-			" TODO complete $foo = new
+		elseif context =~? 'new\s\+\\'
+			return rpc#request(g:phpcd_channel_id, 'classes', a:base)
 		endif " }}}
 
 		if a:base =~ '^[^$]' " {{{
@@ -115,8 +119,8 @@ endfunction " }}}
 function! phpcd#CompleteGeneral(base, current_namespace, imports) " {{{
 	let base = substitute(a:base, '^\\', '', '')
 	let [pattern, namespace] = phpcd#ExpandClassName(a:base, a:current_namespace, a:imports)
-	return rpc#request(g:phpcd_channel_id, 'keyword')
-				\ + rpc#request(g:phpcd_channel_id, 'info', '', pattern)
+	return rpc#request(g:phpcd_channel_id, 'keyword', pattern)
+				\ + rpc#request(g:phpcd_channel_id, 'info', '', pattern, 'both', 1)
 endfunction " }}}
 
 function! phpcd#JumpToDefinition(mode) " {{{
@@ -292,12 +296,9 @@ function! phpcd#LocateSymbol(symbol, symbol_context, symbol_namespace, current_i
 		if a:symbol =~ '\v\C^[A-Z]'
 			let [classname, namespace] = phpcd#ExpandClassName(a:symbol, a:symbol_namespace, a:current_imports)
 			let full_classname = s:GetFullName(namespace, classname)
-			let [path, line] = rpc#request(g:phpcd_channel_id, 'location', full_classname)
+			let [path, line] = rpc#request(g:phpcd_channel_id, 'location', full_classname, '')
 		else
-			let [path, line] = rpc#request(g:phpcd_channel_id, 'location', '', a:symbol_namespace.'\'.a:symbol)
-			if path == ''
-				let [path, line] = rpc#request(g:phpcd_channel_id, 'location', '', a:symbol)
-			endif
+			let [path, line] = rpc#request(g:phpcd_channel_id, 'location', '', a:symbol)
 		end
 
 		return [path, line, 0]
@@ -559,7 +560,7 @@ function! phpcd#GetCallChainReturnType(classname_candidate, class_candidate_name
 		let return_types = rpc#request(g:phpcd_channel_id, 'functype', full_classname, method, expand('%:p'))
 	else
 		let prop = matchstr(methodstack[0], '\v^\$*\zs[^[(]+\ze')
-		let return_types = rpc#request(g:phpcd_channel_id, 'proptype', full_classname, prop)
+		let return_types = rpc#request(g:phpcd_channel_id, 'proptype', full_classname, prop, expand('%:p'))
 	endif
 
 	if len(return_types) > 0
@@ -646,9 +647,9 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 	let class_candidate_imports = a:imports
 	let methodstack = phpcd#GetMethodStack(a:context) " }}}
 
-	if empty(methodstack)
+	if empty(methodstack) "{{{
 		return ''
-	endif
+	endif "}}}
 
 	if methodstack[-1] =~# '\vmake|app|get' " {{{
 		" just for laravel and container-interop
@@ -816,7 +817,14 @@ function! phpcd#GetClassName(start_line, context, current_namespace, imports) " 
 			" function declaration line
 			if line =~? 'function\s\+'.function_name_pattern.'\s*(.\{-\}\s*'.object " {{{
 				let nsuse = rpc#request(g:phpcd_channel_id, 'nsuse', expand('%:p'))
-				let classname = nsuse.namespace.'\'.nsuse.class
+
+				let line_no = a:start_line - i
+				if line_no > nsuse.start_line && line_no < nsuse.end_line
+					let classname = nsuse.namespace.'\'.nsuse.class
+				else
+					let classname = ''
+				endif
+
 				let funcname = matchstr(line, '\cfunction\s\+\zs'.function_name_pattern.'\ze')
 				let argtypes = rpc#request(g:phpcd_channel_id, 'argtype', classname, funcname, object, expand('%:p'))
 
@@ -993,6 +1001,9 @@ function! phpcd#GetCallChainReturnTypeAt(line) " {{{
 	finally
 		q
 	endtry
+	if classname[0] != '\'
+		let classname = '\'.classname
+	endif
 	return classname
 endfunction " }}}
 

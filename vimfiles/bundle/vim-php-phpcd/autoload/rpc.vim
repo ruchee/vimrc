@@ -1,9 +1,15 @@
 function! rpc#request(...) " {{{
+	let args = a:000[:]
+
+	if args[1] == 'location' || args[1] == 'info'
+		call add(args, expand('%:p'))
+	endif
+
 	if has('nvim')
-		return call('rpcrequest', a:000)
+		return call('rpcrequest', args)
 	else
-		let channel = job_getchannel(a:1)
-		let request = [0, 1, a:2, a:000[2:]]
+		let channel = job_getchannel(args[0])
+		let request = [0, 1, args[1], args[2:]]
 		let [type, msgid, error, response] = json_decode(ch_evalraw(channel, json_encode(request)."\n"))
 		if error
 			throw error
@@ -21,6 +27,12 @@ function! rpc#notify(...) " {{{
 		call ch_sendraw(channel, json_encode(notice)."\n")
 	end
 endfunction " }}}
+
+function! s:warn(k, v) abort
+	echohl WarningMsg
+	echom a:v
+	echohl None
+endfunction
 
 function! s:OnCall(status, response) " {{{
 	let msg = json_decode(a:response)
@@ -41,12 +53,11 @@ function! s:OnError(a, b, c) " {{{
 	if msg =~# '^PHP Parse' && len(a:b) > 1
 		let msg = a:b[1]
 	endif
-
-	echo substitute(msg, escape(getcwd() . '/', '.'), '', 'g')
+	call map(split(substitute(msg, escape(getcwd() . '/', '.'), '', 'g'), "\n"), function('s:warn'))
 endfunction
 
 function! s:OnError2(a, b)
-	echo a:b
+	call map(split(a:b, "\n"), function('s:warn'))
 endfunction " }}}
 
 function! rpc#start(...) " {{{
