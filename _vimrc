@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-04-25 20:40:46
+" -----------------    Date: 2018-05-23 08:08:14
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -325,6 +325,9 @@ set list                     " 显示特殊字符，其中Tab使用高亮~代替
 set listchars=tab:\~\ ,trail:.
 set expandtab                " 将 Tab 自动转化成空格 [需要输入真正的 Tab 符时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
+
+" 使用 vimdiff 时，长行自动换行
+autocmd FilterWritePre * if &diff | setlocal wrap< | endif
 
 syntax enable                " 打开语法高亮
 syntax on                    " 开启文件类型侦测
