@@ -45,6 +45,11 @@ nnoremap <silent><leader>pcd :call PhpCsFixerFixDirectory()<CR>
 nnoremap <silent><leader>pcf :call PhpCsFixerFixFile()<CR>
 ```
 
+If you want to add **fix on save** functionality, add this string to the end of ~/.vimrc:
+```viml
+autocmd BufWritePost *.php silent! call PhpCsFixerFixFile()
+```
+
 # Installation
 
 Via **[Vundle](https://github.com/gmarik/vundle)**, add:

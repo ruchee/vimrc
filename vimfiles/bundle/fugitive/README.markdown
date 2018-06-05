@@ -45,7 +45,7 @@ providers such as [GitHub][rhubarb.vim], [GitLab][fugitive-gitlab.vim], and
 [fugitive-gitlab.vim]: https://github.com/shumphrey/fugitive-gitlab.vim
 [fubitive.vim]: https://github.com/tommcdo/vim-fubitive
 
-Add `%{fugitive#statusline()}` to `'statusline'` to get an indicator
+Add `%{FugitiveStatusline()}` to `'statusline'` to get an indicator
 with the current branch in (surprise!) your statusline.
 
 Last but not least, there's `:Git` for running any arbitrary command,
@@ -75,24 +75,11 @@ other Git niceties.
 
 ## FAQ
 
-> I installed the plugin and started Vim.  Why don't any of the commands
-> exist?
+> Why don't any of the commands exist?
 
-Fugitive cares about the current file, not the current working
-directory.  Edit a file from the repository.
-
-> I opened a new tab.  Why don't any of the commands exist?
-
-Fugitive cares about the current file, not the current working
-directory.  Edit a file from the repository.
-
-> Why is `:Gbrowse` not using the right browser?
-
-`:Gbrowse` delegates to `git web--browse`, which is less than perfect
-when it comes to finding the right browser.  You can tell it the correct
-browser to use with `git config --global web.browser ...`.  On macOS, for
-example, you might want to set this to `open`.  See `git web--browse --help`
-for details.
+Fugitive cares about the current file, not the current working directory.
+Edit a file from the repository.  To avoid the blank window problem, favor
+commands like `:split` and `:tabedit` over commands like `:new` and `:tabnew`.
 
 > Here's a patch that automatically opens the quickfix window after
 > `:Ggrep`.

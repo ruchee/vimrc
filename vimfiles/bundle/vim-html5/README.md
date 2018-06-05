@@ -73,9 +73,9 @@ THE SOFTWARE.
 
 ## References
  
-1. [HTML5.2 Spec][1]
+1. [HTML5.2 Spec](https://www.w3.org/TR/html52/)
 2. [HTML5 Markup][2]
-3. [Custom Data Attributes][3]
+3. [Custom Data Attributes](https://www.w3.org/TR/html52/dom.html#embedding-custom-non-visible-data-with-the-data-attributes)
 4. [microdata][4]
 5. [RDFa 1.0 Rec][5]
 6. [RDFa 1.1 Core WD][6]
@@ -85,6 +85,8 @@ THE SOFTWARE.
 10. [SVG 1.0 Spec][10]
 11. [SVG 2.0 Spec][11]
 12. [MathML 3.0 Spec][12]
+13. [DPUB WAI-ARIA 1.0][13]
+14. [WAI-ARIA Graphics Module][14]
 
 
 <a href='https://ko-fi.com/H2H3782K' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi4.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
@@ -95,9 +97,7 @@ THE SOFTWARE.
 [RDFa]:https://www.w3.org/TR/rdfa-syntax/
 [aria]:https://www.w3.org/TR/wai-aria-1.1/
 
-[1]:http://w3c.github.io/html/
 [2]:http://dev.w3.org/html5/markup/
-[3]:http://w3c.github.io/html/dom.html#embedding-custom-non-visible-data-with-the-data-attributes
 [4]:https://www.w3.org/TR/microdata/
 [5]:https://www.w3.org/TR/rdfa-syntax/#s_syntax
 [6]:https://www.w3.org/TR/rdfa-core/
@@ -107,3 +107,5 @@ THE SOFTWARE.
 [10]:http://www.w3.org/TR/SVG/
 [11]:https://www.w3.org/TR/SVG2/
 [12]:https://www.w3.org/TR/MathML3/
+[13]:https://www.w3.org/TR/dpub-aria-1.0/
+[14]:https://www.w3.org/TR/graphics-aria-1.0/

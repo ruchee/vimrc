@@ -1,0 +1,10 @@
+language: generic
+sudo: false
+git:
+  depth: 10
+
+script:
+  - uname -a
+  - which -a vim
+  - vim --cmd version --cmd quit
+  - make test

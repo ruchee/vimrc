@@ -19,6 +19,7 @@ let g:indentLine_enabled = get(g:, 'indentLine_enabled', 1)
 let g:indentLine_fileType = get(g:, 'indentLine_fileType', [])
 let g:indentLine_fileTypeExclude = get(g:, 'indentLine_fileTypeExclude', [])
 let g:indentLine_bufNameExclude = get(g:, 'indentLine_bufNameExclude', [])
+let g:indentLine_bufTypeExclude = get(g:, 'indentLine_bufTypeExclude', [])
 let g:indentLine_showFirstIndentLevel = get(g:, 'indentLine_showFirstIndentLevel', 0)
 let g:indentLine_maxLines = get(g:, 'indentLine_maxLines', 3000)
 let g:indentLine_setColors = get(g:, 'indentLine_setColors', 1)
@@ -84,10 +85,20 @@ function! s:SetConcealOption()
     if !g:indentLine_setConceal
         return
     endif
-    if !exists("b:indentLine_ConcealOptionSet")
+    if !(exists("b:indentLine_ConcealOptionSet") && b:indentLine_ConcealOptionSet)
         let b:indentLine_ConcealOptionSet = 1
+        let b:indentLine_original_concealcursor = &l:concealcursor
+        let b:indentLine_original_conceallevel = &l:conceallevel
         let &l:concealcursor = exists("g:indentLine_concealcursor") ? g:indentLine_concealcursor : "inc"
         let &l:conceallevel = exists("g:indentLine_conceallevel") ? g:indentLine_conceallevel : "2"
+    endif
+endfunction
+
+function! s:ResetConcealOption()
+    if exists("b:indentLine_ConcealOptionSet") && b:indentLine_ConcealOptionSet
+        let &l:concealcursor = b:indentLine_original_concealcursor
+        let &l:conceallevel = b:indentLine_original_conceallevel
+        let b:indentLine_ConcealOptionSet = 0
     endif
 endfunction
 
@@ -161,6 +172,7 @@ function! s:IndentLinesDisable()
             let w:indentLine_indentLineId = []
         endif
 
+        call s:ResetConcealOption()
         return
     endif
 
@@ -207,6 +219,10 @@ endfunction
 "{{{1 function! s:Filter()
 function! s:Filter()
     if index(g:indentLine_fileTypeExclude, &filetype) != -1
+        return 0
+    endif
+
+    if index(g:indentLine_bufTypeExclude, &buftype) != -1
         return 0
     endif
 

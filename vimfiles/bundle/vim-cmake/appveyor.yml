@@ -1,0 +1,10 @@
+os: Visual Studio 2015
+
+install:
+  - cinst vim
+  - cinst cmake
+  - set PATH=%PATH%;C:\Program Files\CMake\bin
+  - git clone https://github.com/junegunn/vader.vim
+
+build_script:
+  - vim -Nu test/.vimrc -c 'Vader! test/cmake.vader' --not-a-term

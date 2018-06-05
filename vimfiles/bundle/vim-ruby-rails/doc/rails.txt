@@ -533,13 +533,23 @@ be found at http://www.vim.org/.
 			(defaults to $RAILS_ENV or development) from
 			config/database.yml and uses it to configure dbext.
 			The configuration is cached on a per application
-			basis.  With dbext version 8.00 and newer, this
-			command is called automatically when needed.  When
-			dbext is configured, you can execute SQL directly from
-			Vim: >
+			basis.  The development environment is loaded
+			automatically.  When dbext is configured, you can
+			execute SQL directly from Vim: >
 				:Select * from posts order by id desc
 				:Update comments set author_id = 1
 <
+						*rails-dadbod*
+Created by yours truly, dadbod.vim is a modern take on a Vim database plugin.
+This plugin sets the dadbod.vim default to the application's development
+database, and also provides an interface for accessing any environment of any
+Rails app:
+>
+  :DB rails:#production
+  :DB rails:/path/to/app
+  :DB rails:/path/to/app#production
+<
+
 						*rails-surround*
 The |surround| plugin available from vim.org enables adding and removing
 "surroundings" like parentheses, quotes, and HTML tags.  Even by itself, it is
@@ -709,12 +719,14 @@ The full list of available options is as follows:
 						*rails-projection-alternate*
 "alternate" ~
 	Determines the destination of the |rails-:A| command.  If this is a
-	list, the first readable file will be used.
+	list, the first readable file will be used.  For a related file, as
+	with :.A and :R, {lnum} and {define} expand to the current line number
+	or 'define' match.
 						*rails-projection-related*
 "related" ~
-	Determines the destination of the |rails-:R| and :.A commands.  In
-	addition to the standard placeholders, {define} can be used for the
-	current 'define' match (typically a method).
+	Deprecated in favor of "alternate" with either a {lnum} or {define}.
+	Use {lnum|nothing} to force a file not to match a plain :A without
+	interpolating anything.
 						*rails-projection-test*
 "test" ~
 	Determines the default test file to run with |:Rails| and
@@ -758,6 +770,11 @@ The full list of available options is as follows:
 	If you provide a ! after the argument to the navigation command (that
 	is, :Euploader foo!, NOT :Euploader! foo), and a new file is created,
 	this will be used as an array of lines to populate the body.
+						*rails-projection-params*
+"railsParams" ~
+	Provides a dictionary of defaults for URL parameters for
+	|rails-:Preview|, for example {"user_id": "2"}.  The fallback for
+	unspecified parameters is "1".
 
 CONFIGURATION					*rails-configuration*
 
@@ -833,7 +850,9 @@ bundled (requires bundler.vim).
 	      \   "spec/fabricators/*_fabricator.rb": {
 	      \     "command": "fabricator",
 	      \     "affinity": "model",
-	      \     "alternate": "app/models/{}.rb",
+	      \     "alternate": [
+	      \       "db/schema.rb#{plural}{lnum|nothing}",
+	      \       "app/models/{}.rb"],
 	      \     "related": "db/schema.rb#{plural}",
 	      \     "test": "spec/models/{}_spec.rb",
 	      \     "template": "Fabricator :{} do\nend"}}}

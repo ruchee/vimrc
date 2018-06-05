@@ -45,7 +45,7 @@ fu! <sid>Warn(mess) "{{{3
     echohl Normal
 endfu
 
-fu! <sid>Init(startline, endline, ...) "{{{3
+fu! <sid>Init(start, end, ...) "{{{3
     " if a:1 is set, keep the b:delimiter
     let keep = exists("a:1") && a:1
     " Hilight Group for Columns
@@ -64,7 +64,7 @@ fu! <sid>Init(startline, endline, ...) "{{{3
     " Determine default Delimiter
     if !keep
         if !exists("g:csv_delim")
-            let b:delimiter=<SID>GetDelimiter(a:startline, a:endline)
+            let b:delimiter=<SID>GetDelimiter(a:start, a:end, get(g:, 'csv_delim_test', ''))
         else
             let b:delimiter=g:csv_delim
         endif
@@ -229,8 +229,9 @@ fu! <sid>DoAutoCommands() "{{{3
         HiColumn!
     endif
     " undo autocommand:
-    let b:undo_ftplugin .= '| exe "sil! au! CSV_HI CursorMoved <buffer> "'
-    let b:undo_ftplugin .= '| exe "sil! aug! CSV_HI" |exe "sil! HiColumn!"'
+    let b:undo_ftplugin .= '| exe "sil! au! CSV_HI'.bufnr('').' CursorMoved <buffer> "'
+    let b:undo_ftplugin .= '| exe "sil! aug! CSV_HI'.bufnr('').'"'
+    let b:undo_ftplugin = 'exe "sil! HiColumn!" |' . b:undo_ftplugin
 
     if has("gui_running") && !exists("#CSV_Menu#FileType")
         augroup CSV_Menu
@@ -439,18 +440,31 @@ fu! <sid>HiCol(colnr, bang) "{{{3
         exe ":2match " . s:hiGroup . ' /' . pat . '/'
     endif
 endfu
-fu! <sid>GetDelimiter(first, last) "{{{3
+fu! <sid>GetDelimiter(first, last, ...) "{{{3
     if !exists("b:csv_fixed_width_cols")
         let _cur = getpos('.')
         let _s   = @/
-        let Delim= {0: ';', 1:  ',', 2: '|', 3: '	', 4: '\^'}
+        " delimiters to try matching in the file
+        if len(a:000) && !empty(a:1)
+            let j=0
+            let Delim={}
+            for i in split(a:1, '\zs')
+                let Delim[j] = i
+                let j+=1
+            endfor
+        else
+            let Delim= {0: ',', 1:  ';', 2: '|', 3: '	', 4: '^', 5: ':'}
+        endif
         let temp = {}
+        let last = a:last > line('$') ? line('$') : a:last
+        let first = a:first > line('$') ? line('$') : a:first
         " :silent :s does not work with lazyredraw
         let _lz  = &lz
         set nolz
-        for i in  values(Delim)
+        for i in values(Delim)
             redir => temp[i]
-            exe "silent! ". a:first. ",". a:last. "s/" . i . "/&/nge"
+            " use very non-magic
+            exe ":silent! :". first. ",". last. 's/\V' . i . "/&/nge"
             redir END
         endfor
         let &lz = _lz
@@ -1401,6 +1415,7 @@ fu! <sid>SumColumn(list) "{{{3
     " specified, assume POSIX format (without thousand separator) If Vim has
     " does not support floats, simply sum up only the integer part
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
         let sum = has("float") ? 0.0 : 0
@@ -1422,17 +1437,20 @@ fu! <sid>SumColumn(list) "{{{3
             let sum += (has("float") ? str2float(nr) : (nr + 0))
         endfor
         if has("float")
+            let b:csv_result = string(float2nr(sum))
             if float2nr(sum) == sum
                 return float2nr(sum)
             else
                 return printf("%.2f", sum)
             endif
         endif
+        let b:csv_result = string(sum)
         return sum
     endif
 endfu
 fu! <sid>AvgColumn(list) "{{{3
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
         let cnt = 0
@@ -1456,8 +1474,10 @@ fu! <sid>AvgColumn(list) "{{{3
             let cnt += 1
         endfor
         if has("float")
-            return printf("%.2f", sum/cnt)
+            let b:csv_result = printf("%.2f", sum/cnt)
+            return b:csv_result
         else
+            let b:csv_result = printf("%s", sum/cnt)
             return sum/cnt
         endif
     endif
@@ -1491,8 +1511,10 @@ fu! <sid>VarianceColumn(list, is_population) "{{{3
             let cnt = cnt-1
         endif
         if has("float")
-            return printf("%.2f", sum/cnt)
+            let b:csv_result = printf("%.2f", sum/cnt)
+            return b:csv_result
         else
+            let b:csv_result = printf("%s", sum/cnt)
             return sum/(cnt)
         endif
     endif
@@ -1500,6 +1522,7 @@ endfu
 
 fu! <sid>SmplVarianceColumn(list) "{{{2
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
         return <sid>VarianceColumn(a:list, 0)
@@ -1508,6 +1531,7 @@ endfu
 
 fu! <sid>PopVarianceColumn(list) "{{{2
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
         return <sid>VarianceColumn(a:list, 1)
@@ -1516,24 +1540,30 @@ endfu
 
 fu! <sid>SmplStdDevColumn(list) "{{{2
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
-        return sqrt(str2float(<sid>VarianceColumn(a:list, 0)))
+        let result = sqrt(str2float(<sid>VarianceColumn(a:list, 0)))
+        let b:csv_result = string(result)
+        return result
     endif
 endfu
 
 fu! <sid>PopStdDevColumn(list) "{{{2
     if empty(a:list)
+        let b:csv_result = '0'
         return 0
     else
-        return sqrt(str2float(<sid>VarianceColumn(a:list, 1)))
+        let result = sqrt(str2float(<sid>VarianceColumn(a:list, 1)))
+        let b:csv_result = string(result)
+        return result
     endif
 endfu
 
 fu! <sid>MaxColumn(list) "{{{3
     " Sum a list of values, but only consider the digits within each value
     " parses the digits according to the given format (if none has been
-    " specified, assume POSIX format (without thousand separator) If Vim has
+    " specified, assume POSIX format (without thousand separator) If Vim
     " does not support floats, simply sum up only the integer part
     if empty(a:list)
         return 0
@@ -2940,6 +2970,7 @@ fu! csv#EvalColumn(nr, func, first, last, ...) range "{{{3
     endif
     try
         let result=call(function(a:func), [column])
+        let b:csv_result = string(result)
         return result
     catch
         " Evaluation of expression failed
@@ -3137,8 +3168,11 @@ fu! CSV_WCol(...) "{{{3
 endfun
 
 " Initialize Plugin "{{{2
-let b:csv_start = exists("b:csv_start") ? b:csv_start : 1
-let b:csv_end   = exists("b:csv_end") ? b:csv_end : line('$')
+" useful for configuring how many lines to analyze,
+" set if you notice a slowdown
+let b:csv_start = get(g:, 'csv_start', 1)
+let b:csv_end   = get(g:, 'csv_end', line('$'))
+let b:csv_result = ''
 
 call <SID>Init(b:csv_start, b:csv_end)
 let &cpo = s:cpo_save

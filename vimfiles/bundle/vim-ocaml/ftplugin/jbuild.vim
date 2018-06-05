@@ -4,3 +4,5 @@ endif
 let b:did_ftplugin=1
 
 set lisp
+
+setl iskeyword+=#,?,.,/

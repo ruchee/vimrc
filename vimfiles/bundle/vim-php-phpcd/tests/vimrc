@@ -1,6 +1,0 @@
-filetype plugin indent on
-syntax on
-set virtualedit+=onemore
-
-let p = fnamemodify(expand('%:p:h'), ':h')
-exe 'set rtp='.p.'/,'.p.'/../vimunit/,'.&rtp

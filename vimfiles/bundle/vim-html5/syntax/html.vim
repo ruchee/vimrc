@@ -77,6 +77,7 @@ syn keyword htmlTagName contained uplimit variance vector vectorproduct xor
 
 " Custom Element
 syn match htmlTagName contained "\<[a-z][-.0-9_a-z]*-[-.0-9_a-z]*\>"
+syn match htmlTagName contained "[.0-9_a-z]\@<=-[-.0-9_a-z]*\>"
 
 " HTML 5 arguments
 " Core Attributes
@@ -126,6 +127,8 @@ syn keyword htmlArg contained prefetch
 " syn keyword htmlArg contained preload
 " <img>
 syn keyword htmlArg contained decoding
+" https://w3c.github.io/selection-api/#extensions-to-globaleventhandlers
+syn keyword htmlArg contained onselectstart onselectionchange
 
 " Custom Data Attributes
 " http://w3c.github.io/html/single-page.html#embedding-custom-non-visible-data-with-the-data-attributes

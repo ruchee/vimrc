@@ -161,10 +161,12 @@ Enable pymode indentation                                     *'g:pymode_indent'
 2.3 Python folding ~
                                                                  *pymode-folding*
 
-Fast and usual python folding in Vim.
 Enable pymode folding                                        *'g:pymode_folding'*
 >
-    let g:pymode_folding = 1
+    let g:pymode_folding = 0
+
+Currently folding is considered experimental. There are several issues with
+its implementation.
 
 -------------------------------------------------------------------------------
 2.4 Vim motion ~
@@ -353,7 +355,7 @@ Pymode has the ability to set code checkers options from pymode variables:
 Set PEP8 options                                   *'g:pymode_lint_options_pep8'*
 >
     let g:pymode_lint_options_pep8 =
-        \ {'max_line_length': g:pymode_options_max_line_length})
+        \ {'max_line_length': g:pymode_options_max_line_length}
 
 See https://pep8.readthedocs.org/en/1.4.6/intro.html#configuration for more
 info.
@@ -373,7 +375,7 @@ Set pep257 options                               *'g:pymode_lint_options_pep257'
 Set pylint options                               *'g:pymode_lint_options_pylint'*
 >
     let g:pymode_lint_options_pylint =
-        \ {'max-line-length': g:pymode_options_max_line_length})
+        \ {'max-line-length': g:pymode_options_max_line_length}
 
 See http://docs.pylint.org/features.html#options for more info.
 

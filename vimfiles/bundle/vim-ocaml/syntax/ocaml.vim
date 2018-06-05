@@ -109,6 +109,10 @@ endif
 " "if"
 syn region   ocamlNone matchgroup=ocamlKeyword start="\<if\>" matchgroup=ocamlKeyword end="\<then\>" contains=ALLBUT,@ocamlContained,ocamlThenErr
 
+"" PPX nodes
+
+syn match ocamlPpxIdentifier /\(\[@\{1,3\}\)\@<=\w\+\(\.\w\+\)*/
+syn region ocamlPpx matchgroup=ocamlPpxEncl start="\[@\{1,3\}" contains=TOP end="\]"
 
 "" Modules
 
@@ -161,7 +165,7 @@ syn keyword  ocamlKeyword  exception external fun
 syn keyword  ocamlKeyword  in inherit initializer
 syn keyword  ocamlKeyword  land lazy let match
 syn keyword  ocamlKeyword  method mutable new nonrec of
-syn keyword  ocamlKeyword  parser private raise rec
+syn keyword  ocamlKeyword  parser private rec
 syn keyword  ocamlKeyword  try type
 syn keyword  ocamlKeyword  virtual when while with
 
@@ -178,7 +182,7 @@ syn keyword  ocamlType     array bool char exn float format format4
 syn keyword  ocamlType     int int32 int64 lazy_t list nativeint option
 syn keyword  ocamlType     string unit
 
-syn keyword  ocamlOperator asr lnot lor lsl lsr lxor mod not
+syn keyword  ocamlOperator asr lor lsl lsr lxor mod
 
 syn match    ocamlConstructor  "(\s*)"
 syn match    ocamlConstructor  "\[\s*\]"
@@ -328,6 +332,8 @@ if version >= 508 || !exists("did_ocaml_syntax_inits")
   HiLink ocamlTodo	   Todo
 
   HiLink ocamlEncl	   Keyword
+
+  HiLink ocamlPpxEncl       ocamlEncl
 
   delcommand HiLink
 endif

@@ -552,10 +552,11 @@ function! go#debug#Start(is_test, ...) abort
     let l:cmd = [
           \ dlv,
           \ (a:is_test ? 'test' : 'debug'),
+          \ l:pkgname,
           \ '--output', tempname(),
           \ '--headless',
           \ '--api-version', '2',
-          \ '--log',
+          \ '--log', 'debugger',
           \ '--listen', go#config#DebugAddress(),
           \ '--accept-multiclient',
     \]

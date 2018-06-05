@@ -49,9 +49,8 @@
 2. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 set relativenumber 一项，以使用绝对行号
 3. 如果条件允许，最好用 universal-ctags 替代老旧的 ctags
 4. 部分插件需要脚本语言的支持，如果条件允许，请安装 Lua、PHP7、Python3、Ruby 等语言的运行环境
-5. phpcd 补全插件需要一个特殊的 PHP 扩展，该扩展不支持 Windows，导致在 Windows 下无法使用此插件。所以，在 Windows 系统下使用本配置时请删除 bundle/vim-php-phpcd 文件夹，否则会出现无法正常打开 PHP 源文件的情况
-6. 本配置集成了 vim-sync 插件，可以和远程服务器相互传输文件，使用此功能需要先配置项目的 .sync，详情请参考 [https://github.com/eshion/vim-sync/issues/10](https://github.com/eshion/vim-sync/issues/10)
-7. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
+5. 本配置集成了 vim-sync 插件，可以和远程服务器相互传输文件，使用此功能需要先配置项目的 .sync，详情请参考 [https://github.com/eshion/vim-sync/issues/10](https://github.com/eshion/vim-sync/issues/10)
+6. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
 
 ----
 

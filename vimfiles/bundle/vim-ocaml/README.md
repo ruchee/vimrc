@@ -14,6 +14,11 @@ Depending on your plugin manager:
 Plugin 'rgrinberg/vim-ocaml'
 ```
 
-```
+```vim
 NeoBundleInstall 'rgrinberg/vim-ocaml'
+
+" or use NeoBundleLazy
+NeoBundleLazy 'rgrinberg/vim-ocaml', {'autoload' : {'filetypes' :
+    \ ['ocaml', 'jbuild', 'opam', 'oasis', 'omake', 'ocamlbuild_tags', 'sexplib']}}
 ```
+

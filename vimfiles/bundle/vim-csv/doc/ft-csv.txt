@@ -57,6 +57,7 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     4.10 Number format..........................|csv-nrformat|
     4.11 Move folded lines......................|csv-move-folds|
     4.12 Using Comments.........................|csv-comments|
+    4.13 Size and performance considerations....|csv-size|
 5. Functions....................................|CSV-Functions|
     5.1 CSVPat()................................|CSVPat()|
     5.2 CSVField()..............................|CSVField()|
@@ -74,6 +75,7 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     6.4 Autocommand on opening/closing files....|csv-arrange-autocmd|
     6.5 CSV Syntax error........................|csv-syntax-error|
     6.6 Calculating new column values...........|csv-calculate-column|
+    6.7 Using the result of an evaluation.......|b:csv_result|
 7. CSV Changelog................................|csv-changelog|
 
 ==============================================================================
@@ -319,6 +321,7 @@ will then delete all columns that match the pattern: >
 will delete all columns where the pattern "foobar" matches.
 
                                                                 *:CSVInit*
+                                                                *:InitCSV*
 3.8 CSVInit
 -----------
 Reinitialize the Plugin. Use this, if you have changed the configuration
@@ -334,7 +337,7 @@ that holds a small fraction of the csv file. This is useful, if the first line
 contains some kind of a heading and you want always to display it. This works
 similar to fixing a certain line at the top. As optional argument, you can
 give the number of columns from the top, that shall be displayed. By default,
-1 is used (You can define youre own default by setting the b:csv_headerline
+1 is used (You can define your own default by setting the b:csv_headerline
 variable, see |csv-header|). Use the '!' to close this window. So this >
 
     :Header 3
@@ -716,6 +719,8 @@ Now Vim will fold away all lines, that don't have the same value in this
 particular row. Note, that leading blanks and the delimiter is removed and the
 value is used literally when comparing with other values. If you press <Space>
 on the value, all fields having the same value will be folded away.
+Pressing <BS> will remove the last item from the dynamic filter. To remove all
+filters, keep pressing <BS> until no more filters are present.
 
 The way this is done is, that the value from the column is extracted and a
 regular expression for that field is generated from it. In the end this
@@ -915,7 +920,7 @@ for every match ('g' flag) and asks for confirmation ('c' flag).
 Substitutes in each column starting from the third each number and appends the
 EURO suffix to it.
 
-3.26 Count Values inside a Column      				 *CountCol_CSV*
+3.26 Count Values inside a Column      				 *Count_CSV*
 ---------------------------------
 You can let Vim output the number of values inside a column using the `:CSVCountCol` 
 command >
@@ -926,8 +931,9 @@ This outputs the number of [distinct] values visible in the column [nr]
 If [distinct] is not given, count's all values. Note, header rows and folded
 rows won't be counted.
 
-See also |csv-aggregate-functions|
+The result is also available in the buffer-local variable `b:csv_result`.
 
+See also |csv-aggregate-functions|
 
                                                                 *MinCol_CSV*
 3.27 Maximum/Minimum value of a Column 				*MaxCol_CSV*
@@ -967,6 +973,8 @@ Note, if you Vim is compiled without floating point number format (|+float|),
 Vim will only aggregate the integer part and therefore won't use the 'y'
 argument in the /format/ specifier.
 
+The result is also available in the buffer-local variable `b:csv_result`.
+
 3.28 Average value of a Column 				*AvgCol_CSV*
 ------------------------------
 You can let Vim output the value of a column using the `:CSVAvgCol` command >
@@ -980,6 +988,8 @@ delimiter will be stripped away from each value and also empty values won't be
 considered.
 
 For the [/format/] part, see |MaxCol_CSV|.
+
+The result is also available in the buffer-local variable `b:csv_result`.
 
 See also |csv-aggregate-functions|
 
@@ -995,6 +1005,8 @@ is given, this will calculate the statistical variance of the whole column. If <
 given, this calculates the variance for the column the cursor is on. Note, that the delimiter
 will be stripped away from each value and also empty values won't be considered.
 
+The result is also available in the buffer-local variable `b:csv_result`.
+
 3.30 Standard Deviation of a Column 				*StdDevCol_CSV*
 ___________________________________
 
@@ -1006,6 +1018,8 @@ This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the standard deviation of the whole column. If <nr> is not
 given, this calculates the standard deviation for the column the cursor is on. Note, that
 the delimiter will be stripped away from each value and also empty values won't be considered.
+
+The result is also available in the buffer-local variable `b:csv_result`.
 
                                                             *:CSVDupColumn*
 3.31 Duplicate columns                                       *DupColumn_CSV*
@@ -1047,13 +1061,15 @@ For the [/format/] part, see |MaxCol_CSV|.
 
 The CSV plugin tries to automatically detect the field delimiter for your
 file, cause although often the file is called CSV (comma separated values), a
-semicolon is actually used. The column separator is stored in the buffer-local
-variable b:delimiter. This delimiter is heavily used, because you need
-it to define a column. Almost all commands use this variable therefore.
+semicolon is actually used. By default the plugin tries the following
+delimiters: ',', ';', '|', '\t', '^', ':'. 
+The column separator is stored in the buffer-local variable b:delimiter. This
+delimiter is heavily used, because you need it to define a column. Almost all
+commands use this variable therefore.
 
-4.1 Delimiter							*csv-delimiter*
+4.1 Delimiter				              	*csv-delimiter*
 -------------
-To override the automatic detection of the plugin and define the separator
+To override the automatic detection of the delimiter and define the separator
 manually, use: >
 
     :let g:csv_delim=','
@@ -1068,8 +1084,16 @@ If you changed the delimiter, you should reinitialize the plugin using
 |InitCSV|
 
 Note: the delimiter will be used to generate a regular expression that matches
-a column. Therefore, you need to escape special characters. So instead of '^'
-use '\^'.
+a column. Internally the plugin uses the very-nomagic setting for the
+delimiter, so escaping is not neccessary.
+
+If you want to override which delimiters are probed automatically, set the
+g:csv_delim_test variable like this: >
+        :let g:csv_delim_test = ',;|'
+
+This will only make the plugin test the possible delimiters ',', ';' and '|'.
+This will also make the automatic detection a bit faster, since it does not
+need to test that many delimiters.
 
 4.2 Column							*csv-column*
 ----------
@@ -1371,6 +1395,24 @@ set the variable `g:csv_disable_fdt` in your |.vimrc| >
 
     :let g:csv_disable_fdt = 1
 
+4.13 Size and performance considerations                            *csv-size*
+----------------------------------------
+By default, the csv plugin will analyze the whole file to determine which
+delimiter to use. Beside specifying the the actual delimiter to use
+(|csv-delimiter|) you can restrict analyzing the plugin to consider only a
+certain part of the file. This should make loading huge csv files a log
+faster. To only consider the first 100 rows set the `g:csv_start` and
+`g:csv_end` variables in your |.vimrc| like this >
+
+  :let g:csv_start = 1
+  :let g:csv_end = 100
+
+Also note, you can use the Large File plugin
+(http://www.drchip.org/astronaut/vim/index.html#LARGEFILE) which however will
+disable syntax highlighting and the filetype commands for very large csv files
+(by default larger than 100 MB).
+
+See also |csv-slow|
 ==============================================================================
 5. Functions                                                    *CSV-Functions*
 
@@ -1648,6 +1690,17 @@ Note: Enter as single line. The result will be this: >
 Index;Value1;Value2~
 1;100;3;300.00 `
 2;20;4;80.00 `
+
+6.7 Using the result of an evaluation in insert mode              *b:csv_result*
+----------------------------------------------------
+The result of the last evaluation like e.g. |SumCol_CSV| will be available in
+the buffer-local variable `b:csv_result`. This allows to easily enter the
+result in a new new cell while in insert mode, using |i_CTRL-R|(e.g. in insert
+mode press Ctrl-R followed by "=b:csv_result<enter>".
+
+You can also easily copy and paste it into e.g. the system clipboard using >
+        :let @+=b:csv_result
+
 ==============================================================================
 7. CSV Changelog					       *csv-changelog*
 

@@ -461,6 +461,8 @@ function! s:CurrentBlockHxml(hxml_str)
         let result = result .  "\n-D no-copt"
     endif
 
+    let result = result . "\n-D --no-output"
+
     return s:SanitizeHxml(result)
 endfunction
 
@@ -506,6 +508,12 @@ function! vaxe#CurrentBuildPlatform()
       return "swf"
    elseif (block =~ "-php")
       return "php"
+   elseif (block =~ "-py")
+      return "python"
+   elseif (block =~ "-lua")
+      return "lua"
+   elseif (block =~ "-hl")
+      return "hashlink"
    elseif (block =~ "-neko" || block =~ "-x ")
       return "neko"
    else

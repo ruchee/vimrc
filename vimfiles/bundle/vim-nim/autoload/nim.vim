@@ -140,16 +140,24 @@ fun! NimComplete(findstart, base)
     if synIDattr(synIDtrans(synID(line("."),col("."),1)), "name") == 'Comment'
       return -1
     endif
-    return col('.')
+    let line = getline('.')
+    let start = col('.') - 1
+    while start > 0 && line[start - 1] =~? '\w'
+      let start -= 1
+    endwhile
+    return start
   else
     let result = []
     let sugOut = NimExec("--suggest")
     for line in split(sugOut, '\n')
       let lineData = split(line, '\t')
       if len(lineData) > 0 && lineData[0] == "sug"
-        let kind = get(g:nim_symbol_types, lineData[1], '')
-        let c = { 'word': lineData[2], 'kind': kind, 'menu': lineData[3], 'dup': 1 }
-        call add(result, c)
+        let word = split(lineData[2], '\.')[-1]
+        if a:base ==? '' || word =~# '^' . a:base
+          let kind = get(g:nim_symbol_types, lineData[1], '')
+          let c = { 'word': word, 'kind': kind, 'menu': lineData[3], 'dup': 1 }
+          call add(result, c)
+        endif
       endif
     endfor
     return result

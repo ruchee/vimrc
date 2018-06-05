@@ -1,0 +1,67 @@
+*cmake.txt*  Vim plugin to make working with CMake a little nicer
+
+Authors:  Dirk Van Haerenborgh <http://vhdirk.github.com/>
+          Steven Batchelor <http://SteveDeFacto.github.com/>
+          Jonathan Hale <http://github.com/Squareys/>
+License: Same terms as Vim itself (see |license|)
+
+
+INTRODUCTION                                    *cmake*
+
+When working on a CMake project, this plugin provides a single command that
+changes the makeprg make command's working directory to the closest 'build'
+directory (see g:cmake_build_dir) upwards
+
+COMMANDS                                        *cmake-commands*
+
+:CMake [args]           Runs the cmake command as 'cmake ..', starting in
+                        first directory called 'build', found in an upwards
+                        search. All arguments are directly passed on to CMake.
+                        Also modifies the :make command to build in
+                        that directory.
+
+:CMakeClean             deletes all files in the build directory. You can
+                        think of this as a CMake version of make clean.
+
+:CMakeFindBuildDir      resets the build directory path set for the current buffer
+                        and then tries to find a new one. Useful if it previously
+                        found a wrong path to then reset it after a new build folder
+                        has been created for example.
+
+VARIABLES                                        *cmake-variables*
+
+g:cmake_install_prefix           same as -DCMAKE_INSTALL_PREFIX
+
+g:cmake_build_type               same as -DCMAKE_BUILD_TYPE
+
+g:cmake_cxx_compiler             same as -DCMAKE_CXX_COMPILER, however, this will have
+                                 no effect until you run :CMakeClean and :CMake.
+
+g:cmake_c_compiler               same as -DCMAKE_C_COMPILER, however, this will have
+                                 no effect until you run :CMakeClean and :CMake.
+
+g:cmake_build_shared_libs        same as -DBUILD_SHARED_LIBS
+
+g:cmake_build_dir                set the cmake 'build' directory, default: 'build'
+
+g:cmake_project_generator        set project generator, however, this will have
+                                 no effect until you run :CMakeClean and :CMake.
+
+g:cmake_usr_args                 custom user arguments. Ex: 'let g:cmake_usr_args="-DDEBUG=YES"'
+
+b:build_dir                      the path to the cmake build directory for the current buffer.
+                                 This variable is set with the first :CMake or :CMakeFindBuildDir call.
+                                 Once found, it will not be searched for again unless you call
+                                 :CMakeFindBuildDir. If automatic finding is not sufficient you can set
+                                 this variable manually to the build dir of your choice.
+
+OPTIONS                                        *cmake-options*
+
+g:cmake_export_compile_commands  same as -DCMAKE_EXPORT_COMPILE_COMMANDS=ON, useful for
+                                 exporting a compilation database to be used with YCM
+                                 (https://github.com/Valloric/YouCompleteMe#c-family-semantic-completion)
+                                 CMake only supports this flag with Ninja and Makefile generators.
+
+g:cmake_ycm_symlinks             create a symlink to the compile_commands.json file in the
+                                 root of the project (build/..) if the file is found.
+

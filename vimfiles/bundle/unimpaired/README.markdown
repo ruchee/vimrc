@@ -33,22 +33,20 @@ linewise mappings as well if you install
 
 ## Installation
 
-If you don't have a preferred installation method, I recommend
-installing [pathogen.vim](https://github.com/tpope/vim-pathogen), and
-then simply copy and paste:
+Install using your favorite package manager, or use Vim's built-in package
+support:
 
-    cd ~/.vim/bundle
-    git clone git://github.com/tpope/vim-unimpaired.git
-
-Once help tags have been generated, you can view the manual with
-`:help unimpaired`.
+    mkdir -p ~/.vim/pack/tpope/start
+    cd ~/.vim/pack/tpope/start
+    git clone https://tpope.io/vim/unimpaired.git
+    vim -u NONE -c "helptags unimpaired/doc" -c q
 
 ## FAQ
 
 > My non-US keyboard makes it hard to type `[` and `]`.  Can I configure
 > different prefix characters?
 
-Not en masse, but you can just map to `[` and `]` directly:
+The easiest solution is to map to `[` and `]` directly:
 
     nmap < [
     nmap > ]
@@ -60,7 +58,7 @@ Not en masse, but you can just map to `[` and `]` directly:
 Note we're not using the `noremap` family because we *do* want to recursively
 invoke unimpaired.vim's maps.
 
-There are also `<Plug>` maps if you want a more granular approach.
+See `:help unimpaired-customization` for more advanced options.
 
 ## Contributing
 

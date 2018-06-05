@@ -124,15 +124,8 @@ endif
 " Folding support
 
 " Get the modeline because folding depends on indentation
-let s:s = line2byte(line('.'))+col('.')-1
-if search('^\s*(\*:o\?caml:')
-  let s:modeline = getline(".")
-else
-  let s:modeline = ""
-endif
-if s:s > 0
-  exe 'goto' s:s
-endif
+let lnum = search('^\s*(\*:o\?caml:', 'n')
+let s:modeline = lnum? getline(lnum): ""
 
 " Get the indentation params
 let s:m = matchstr(s:modeline,'default\s*=\s*\d\+')

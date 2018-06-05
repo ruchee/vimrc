@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-05-23 08:08:14
+" -----------------    Date: 2018-06-05 15:54:54
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -240,8 +240,8 @@ set shiftwidth=4
 set tabstop=4
 
 " 对部分语言设置单独的缩进 [两空格缩进]
-au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set shiftwidth=2
-au FileType scheme,racket,newlisp,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set tabstop=2
+au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set shiftwidth=2
+au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set tabstop=2
 
 " 配置 Rust 支持 [需要使用 cargo 安装 racer 和 rustfmt 才能正常工作，RUST_SRC_PATH 需要自己下载 Rust 源码并指定好正确的路径]
 let $RUST_SRC_PATH                 = $HOME.'/code/data/sources/languages/rust/src'
@@ -262,7 +262,6 @@ au BufRead,BufNewFile *.i        set ft=c
 au BufRead,BufNewFile *.m        set ft=objc
 au BufRead,BufNewFile *.di       set ft=d
 au BufRead,BufNewFile *.ss       set ft=scheme
-au BufRead,BufNewFile *.lsp      set ft=newlisp
 au BufRead,BufNewFile *.cl       set ft=lisp
 au BufRead,BufNewFile *.phpt     set ft=php
 au BufRead,BufNewFile *.inc      set ft=php
@@ -1039,8 +1038,6 @@ func! Compile_Run_Code()
         else
             exec '!valac %:t && ./%:r'
         endif
-    elseif &filetype == 'red'
-        exec '!red %:t'
     elseif &filetype == 'java'
         exec '!javac %:t && java %:r'
     elseif &filetype == 'groovy'
@@ -1073,8 +1070,6 @@ func! Compile_Run_Code()
         exec '!chez %:t'
     elseif &filetype == 'racket'
         exec '!racket -fi %:t'
-    elseif &filetype == 'newlisp'
-        exec '!newlisp %:t'
     elseif &filetype == 'lisp'
         exec '!sbcl --load %:t'
     elseif &filetype == 'ocaml'

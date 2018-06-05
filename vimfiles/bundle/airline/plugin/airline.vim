@@ -95,6 +95,14 @@ function! s:airline_toggle()
       autocmd CmdwinLeave * call airline#remove_statusline_func('airline#cmdwinenter')
 
       autocmd GUIEnter,ColorScheme * call <sid>on_colorscheme_changed()
+      if exists("##OptionSet")
+        " Make sure that g_airline_gui_mode is refreshed
+        autocmd OptionSet termguicolors call <sid>on_colorscheme_changed()
+      endif
+      if exists("##TerminalOpen")
+        " Make sure that g_airline_gui_mode is refreshed
+        autocmd TerminalOpen * call <sid>on_colorscheme_changed()
+      endif
       " Refresh airline for :syntax off
       autocmd SourcePre */syntax/syntax.vim
             \ call airline#extensions#tabline#buffers#invalidate()

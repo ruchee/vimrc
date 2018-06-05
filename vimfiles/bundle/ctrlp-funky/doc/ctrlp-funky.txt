@@ -36,6 +36,7 @@ Currently, |ctrlp-funky| supports following file types:
 * elixir
 * elm
 * go (Golang)
+* graphql
 * groovy
 * haskell
 * html/xhtml
@@ -433,6 +434,12 @@ THANKS						*ctrlp-funky-thanks*
 
 ==============================================================================
 CHANGELOG 					*ctrlp-funky-changelog*
+
+2 May 2018~
+  + Add support for GraphQL (#114) by |timfeirg|
+
+30 Apr 2018~
+  + Improve filters for Golang (#113) by |timfeirg|
 
 21 Aug 2017~
   + Add basic Groovy support

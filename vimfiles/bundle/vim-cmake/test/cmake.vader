@@ -1,0 +1,65 @@
+Before:
+  " Ensure we are in the test directory
+  if isdirectory("test")
+    cd test
+  endif
+
+  if !exists("test_dir")
+    let test_dir = fnamemodify(getcwd(), ':p')
+  endif
+
+  Assert !isdirectory("test project/tmp-build"), "TEST ERROR: build directory was not properly deleted"
+  echo system("mkdir 'test project/tmp-build'")
+  Assert isdirectory("test project/tmp-build"), "TEST ERROR: build directory was not created"
+
+  " Under travis CI the entire project is in a build/ directory
+  " which will make the search from cwd always return a result.
+  " To be able to test searching build dir from current file, the
+  " build dir needs to be named differently as a workaround.
+  let g:cmake_build_dir = "tmp-build"
+After:
+  exec "cd" fnameescape(test_dir)
+  echo system("rm -rf 'test project/tmp-build'")
+  echo system("rm -f 'test project/compile_commands.json'")
+
+Execute (Find build directory from working dir):
+  cd test\ project
+  CMake
+
+  Assert filereadable("tmp-build/CMakeCache.txt"), "CMakeCache.txt should be generated"
+  Assert !filereadable("tmp-build/compile_commands.json"), "Compile commands should not be exported by default"
+
+Execute (Find build directory from currently open file):
+  e test\ project/CMakeLists.txt
+  CMake
+  Assert filereadable("test project/tmp-build/CMakeCache.txt"), "CMakeCache.txt should be generated"
+
+Execute (Create symlink to compilation database):
+  let g:cmake_export_compile_commands = 1
+  let g:cmake_ycm_symlinks = 1
+  cd test\ project
+  CMake
+
+  " Exporting compile commands does not work with Visual Studio generator
+  if !has("win32") && !has("win32unix")
+    Assert filereadable("tmp-build/compile_commands.json"), "Compile commands should be exported"
+    Assert filereadable(resolve("compile_commands.json")), "A symlink should be generated"
+  endif
+
+Execute (Open already configured cmake project):
+  cd test\ project/tmp-build
+  silent !cmake .. -DWITH_BYE=ON
+  e ../CMakeLists.txt
+  CMake
+  silent make
+
+  enew
+  if has("win32") || has("win32unix")
+    read !Debug/hello.exe
+  else
+    read !./hello
+  endif
+Expect:
+
+  Hello World
+  Bye World
