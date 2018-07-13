@@ -90,7 +90,11 @@ function! s:on_exit(job_id, exit_status, event) dict abort
 
     call win_gotoid(self.winid)
 
-    call go#list#Populate(l:listtype, errors, self.cmd)
+    let title = self.cmd
+    if type(title) == v:t_list
+      let title = join(self.cmd)
+    endif
+    call go#list#Populate(l:listtype, errors, title)
     call go#list#Window(l:listtype, len(errors))
     if !self.bang
       call go#list#JumpToFirst(l:listtype)

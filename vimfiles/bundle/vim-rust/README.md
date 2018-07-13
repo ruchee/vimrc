@@ -7,38 +7,39 @@ This is a Vim plugin that provides [Rust][r] file detection, syntax highlighting
 
 ## Installation
 
-### Using [Vundle][v]
-
-1. Add `Plugin 'rust-lang/rust.vim'` to `~/.vimrc`
-2. `:PluginInstall` or `$ vim +PluginInstall +qall`
-
-*Note:* Vundle will not automatically detect Rust files properly if `filetype
+* [Vim8 packages][vim8pack]:
+  * `git clone https://github.com/rust-lang/rust.vim ~/.vim/pack/plugins/start/rust.vim`
+* [Vundle][v]:
+  * Add `Plugin 'rust-lang/rust.vim'` to `~/.vimrc`
+  * `:PluginInstall` or `$ vim +PluginInstall +qall`
+  * *Note:* Vundle will not automatically detect Rust files properly if `filetype
 on` is executed before Vundle. Please check the [quickstart][vqs] for more
-details.
-
-### Using [Pathogen][p]
-
-```shell
-git clone --depth=1 https://github.com/rust-lang/rust.vim.git ~/.vim/bundle/rust.vim
-```
-
-### Using [NeoBundle][nb]
-
-1. Add `NeoBundle 'rust-lang/rust.vim'` to `~/.vimrc`
-2. Re-open vim or execute `:source ~/.vimrc`
-
-### Using [vim-plug][vp]
-
-1. Add `Plug 'rust-lang/rust.vim'` to `~/.vimrc`
-2. `:PlugInstall` or `$ vim +PlugInstall +qall`
+details. Errors such as `Not an editor command: RustFmt` may occur if Vundle
+is misconfigured with this plugin.
+* [Pathogen][p]:
+  * `git clone --depth=1 https://github.com/rust-lang/rust.vim.git ~/.vim/bundle/rust.vim`
+* [vim-plug][vp]:
+  * Add `Plug 'rust-lang/rust.vim'` to `~/.vimrc`
+  * `:PlugInstall` or `$ vim +PlugInstall +qall`
+* [dein.vim][d]:
+  * Add `call dein#add('rust-lang/rust.vim')` to `~/.vimrc`
+  * `:call dein#install()`
+* [NeoBundle][nb]:
+  * Add `NeoBundle 'rust-lang/rust.vim'` to `~/.vimrc`
+  * Re-open vim or execute `:source ~/.vimrc`
 
 ## Features
 
 ### Error checking with [Syntastic][syn]
 
-`rust.vim` automatically registers `rustc` as a syntax checker
-with [Syntastic][syn]. Check Syntastic's documentation for
-information on how to customize its behaviour.
+`rust.vim` automatically registers `cargo` as a syntax checker with
+[Syntastic][syn], if nothing else is specified. See `:help rust-syntastic`
+for more details.
+
+### Source browsing with [Tagbar][tgbr]
+
+`rust.vim` has builtin `ctags/` definitions for [Tagbar][tgbr] which
+are loaded if Tagbar is installed.
 
 ### Formatting with [rustfmt][rfmt]
 
@@ -68,8 +69,6 @@ If you set g:rust_clip_command RustPlay will copy the url to the clipboard.
 
         let g:rust_clip_command = 'xclip -selection clipboard'
 
-[rfmt]: https://crates.io/crates/rustfmt/
-
 ## Help
 
 Further help can be found in the documentation with `:Helptags` then `:help rust`.
@@ -91,7 +90,10 @@ LICENSE-MIT for details.
 [p]: https://github.com/tpope/vim-pathogen
 [nb]: https://github.com/Shougo/neobundle.vim
 [vp]: https://github.com/junegunn/vim-plug
+[d]: https://github.com/Shougo/dein.vim
 [rfmt]: https://github.com/rust-lang-nursery/rustfmt
 [syn]: https://github.com/scrooloose/syntastic
+[tgbr]: https://github.com/majutsushi/tagbar
 [wav]: https://github.com/mattn/webapi-vim
 [pp]: https://play.rust-lang.org/
+[vim8pack]: http://vimhelp.appspot.com/repeat.txt.html#packages

@@ -1,6 +1,6 @@
 " fugitive.vim - A Git wrapper so awesome, it should be illegal
 " Maintainer:   Tim Pope <http://tpo.pe/>
-" Version:      2.3
+" Version:      2.4
 " GetLatestVimScripts: 2975 1 :AutoInstall: fugitive.vim
 
 if exists('g:loaded_fugitive')
@@ -59,8 +59,8 @@ endfunction
 
 function! FugitiveExtractGitDir(path) abort
   let path = s:shellslash(a:path)
-  if path =~# '^fugitive://.*//'
-    return matchstr(path, '\C^fugitive://\zs.\{-\}\ze//')
+  if path =~# '^fugitive:'
+    return matchstr(path, '\C^fugitive:\%(//\)\=\zs.\{-\}\ze\%(//\|::\|$\)')
   elseif isdirectory(path)
     let path = fnamemodify(path, ':p:s?/$??')
   else
@@ -138,14 +138,39 @@ function! FugitiveHead(...) abort
   return fugitive#repo().head(a:0 ? a:1 : 0)
 endfunction
 
+function! FugitivePath(...) abort
+  let file = fnamemodify(a:0 ? a:1 : @%, ':p')
+  if file =~? '^fugitive:'
+    return fugitive#Path(file)
+  else
+    return file
+  endif
+endfunction
+
+function! FugitiveReal(...) abort
+  return call('FugitivePath', a:000)
+endfunction
+
 augroup fugitive
   autocmd!
 
   autocmd BufNewFile,BufReadPost * call FugitiveDetect(expand('%:p'))
   autocmd FileType           netrw call FugitiveDetect(fnamemodify(get(b:, 'netrw_curdir', @%), ':p'))
-  autocmd User NERDTreeInit,NERDTreeNewRoot call FugitiveDetect(b:NERDTree.root.path.str())
+  autocmd User NERDTreeInit,NERDTreeNewRoot
+        \ if exists('b:NERDTree.root.path.str') |
+        \   call FugitiveDetect(b:NERDTree.root.path.str()) |
+        \ endif
   autocmd VimEnter * if expand('<amatch>')==''|call FugitiveDetect(getcwd())|endif
   autocmd CmdWinEnter * call FugitiveDetect(expand('#:p'))
+
+  autocmd FileType git
+        \ if exists('b:git_dir') |
+        \  call fugitive#MapJumps() |
+        \ endif
+  autocmd FileType git,gitcommit,gitrebase
+        \ if exists('b:git_dir') |
+        \   call fugitive#MapCfile() |
+        \ endif
 
   autocmd BufReadCmd  index{,.lock}
         \ if FugitiveIsGitDir(expand('<amatch>:p:h')) |

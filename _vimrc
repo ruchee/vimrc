@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-06-05 15:54:54
+" -----------------    Date: 2018-07-13 21:22:24
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -39,7 +39,7 @@
 " \gi                        开启或关闭 GitGutter     [Normal 模式可用]
 " \gd                        打开 Git 文件对比模式    [Normal 模式可用] [竖直]
 " \gs                        打开 Git 文件对比模式    [Normal 模式可用] [水平]
-" \gl                        查看 Git 提交日志        [Normal 模式可用]
+" \gl                        调用 Tig 查看提交日志    [Normal 模式可用]
 "
 " \il                        显示/关闭对齐线          [Normal 模式可用]
 " \bb                        按 = 号对齐代码          [Normal 模式可用]
@@ -875,8 +875,8 @@ nmap <leader>gd :Gdiff<cr>
 " \gs                 打开 Git 文件对比模式 [水平] [GitGutter 插件]
 nmap <leader>gs :Gsdiff<cr>
 
-" \gl                 查看 Git 提交日志 [gitv 插件]
-nmap <leader>gl :Gitv<cr>
+" \gl                 调用 Tig 查看提交日志 [tig-explorer 插件]
+nmap <leader>gl :TigOpenCurrentFile<cr>
 
 " \ss                 搜索当前光标下的单词 [ack 插件]
 nmap <leader>ss :Ack! '\b<c-r><c-w>\b'<cr>
