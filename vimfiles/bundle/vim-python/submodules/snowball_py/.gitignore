@@ -1,4 +1,5 @@
 *.py[cod]
+__pycache__
 *.sw?
 *~
 .DS_Store

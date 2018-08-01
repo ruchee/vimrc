@@ -67,7 +67,7 @@ except NameError:
     unicode = str
 
 
-__version__ = '1.3.4'
+__version__ = '1.4a1'
 
 
 CR = '\r'
@@ -76,9 +76,9 @@ CRLF = '\r\n'
 
 
 PYTHON_SHEBANG_REGEX = re.compile(r'^#!.*\bpython[23]?\b\s*$')
-LAMBDA_REGEX = re.compile(r'([\w.]+)\s=\slambda\s*([\(\)\w,\s.]*):')
-COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+([^][)(}{]+)\s+(in|is)\s')
-COMPARE_NEGATIVE_REGEX_THROUGH = re.compile(r'\b(not\s+in)\s')
+LAMBDA_REGEX = re.compile(r'([\w.]+)\s=\slambda\s*([\(\)=\w,\s.]*):')
+COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+([^][)(}{]+?)\s+(in|is)\s')
+COMPARE_NEGATIVE_REGEX_THROUGH = re.compile(r'\b(not\s+in|is\s+not)\s')
 BARE_EXCEPT_REGEX = re.compile(r'except\s*:')
 STARTSWITH_DEF_REGEX = re.compile(r'^(async\s+def|def)\s.*\):')
 
@@ -407,7 +407,7 @@ class FixPEP8(object):
         - e211
         - e221,e222,e223,e224,e225
         - e231
-        - e251
+        - e251,e252
         - e261,e262
         - e271,e272,e273,e274
         - e301,e302,e303,e304,e306
@@ -463,6 +463,7 @@ class FixPEP8(object):
         self.fix_e228 = self.fix_e225
         self.fix_e241 = self.fix_e271
         self.fix_e242 = self.fix_e224
+        self.fix_e252 = self.fix_e225
         self.fix_e261 = self.fix_e262
         self.fix_e272 = self.fix_e271
         self.fix_e273 = self.fix_e271
@@ -1085,16 +1086,34 @@ class FixPEP8(object):
 
     def fix_e714(self, result):
         """Fix object identity should be 'is not' case."""
-        (line_index, _, target) = get_index_offset_contents(result,
-                                                            self.source)
+        (line_index, offset, target) = get_index_offset_contents(result,
+                                                                 self.source)
+
+        # to convert once 'is not' -> 'is'
+        before_target = target[:offset]
+        target = target[offset:]
+        match_isnot = COMPARE_NEGATIVE_REGEX_THROUGH.search(target)
+        isnot_pos_start, isnot_pos_end = 0, 0
+        if match_isnot:
+            isnot_pos_start = match_isnot.start(1)
+            isnot_pos_end = match_isnot.end()
+            target = '{}{} {}'.format(
+                target[:isnot_pos_start], 'in', target[isnot_pos_end:])
 
         match = COMPARE_NEGATIVE_REGEX.search(target)
         if match:
-            if match.group(3) == 'is':
+            if match.group(3).startswith('is'):
                 pos_start = match.start(1)
-                self.source[line_index] = '{}{} {} {} {}'.format(
+                new_target = '{5}{0}{1} {2} {3} {4}'.format(
                     target[:pos_start], match.group(2), match.group(3),
-                    match.group(1), target[match.end():])
+                    match.group(1), target[match.end():], before_target)
+                if match_isnot:
+                    # revert 'is' -> 'is not'
+                    pos_start = isnot_pos_start + offset
+                    pos_end = isnot_pos_end + offset - 4     # len('not ')
+                    new_target = '{}{} {}'.format(
+                        new_target[:pos_start], 'is not', new_target[pos_end:])
+                self.source[line_index] = new_target
 
     def fix_e722(self, result):
         """fix bare except"""
@@ -1147,7 +1166,7 @@ class FixPEP8(object):
         if not _is_binary_operator(ts[0][0], one_string_token):
             return
         # find comment
-        comment_index = None
+        comment_index = 0
         for i in range(5):
             # NOTE: try to parse code in 5 times
             if (line_index - i) < 0:
@@ -1168,19 +1187,16 @@ class FixPEP8(object):
                 tts = ts[newline_index[-3]:]
             else:
                 tts = ts
-            old = None
+            old = []
             for t in tts:
-                if tokenize.COMMENT == t[0]:
-                    if old is None:
-                        comment_index = 0
-                    else:
-                        comment_index = old[3][1]
+                if tokenize.COMMENT == t[0] and old:
+                    comment_index = old[3][1]
                     break
                 old = t
             break
         i = target.index(one_string_token)
         self.source[line_index] = '{}{}'.format(
-            target[:i], target[i + len(one_string_token):])
+            target[:i], target[i + len(one_string_token):].lstrip())
         nl = find_newline(self.source[line_index - 1:line_index])
         before_line = self.source[line_index - 1]
         bl = before_line.index(nl)
@@ -1191,6 +1207,48 @@ class FixPEP8(object):
         else:
             self.source[line_index - 1] = '{} {}{}'.format(
                 before_line[:bl], one_string_token, before_line[bl:])
+
+    def fix_w605(self, result):
+        (line_index, _, target) = get_index_offset_contents(result,
+                                                            self.source)
+        tokens = list(generate_tokens(target))
+        for (pos, _msg) in get_w605_position(tokens):
+            self.source[line_index] = '{}r{}'.format(
+                    target[:pos], target[pos:])
+
+
+def get_w605_position(tokens):
+    """workaround get pointing out position by W605."""
+    # TODO: When this PR(*) change is released, use pos of pycodestyle
+    # *: https://github.com/PyCQA/pycodestyle/pull/747
+    valid = [
+        '\n', '\\', '\'', '"', 'a', 'b', 'f', 'n', 'r', 't', 'v',
+        '0', '1', '2', '3', '4', '5', '6', '7', 'x',
+
+        # Escape sequences only recognized in string literals
+        'N', 'u', 'U',
+    ]
+
+    for token_type, text, start, end, line in tokens:
+        if token_type == tokenize.STRING:
+            quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
+            # Extract string modifiers (e.g. u or r)
+            quote_pos = text.index(quote)
+            prefix = text[:quote_pos].lower()
+            start = quote_pos + len(quote)
+            string = text[start:-len(quote)]
+
+            if 'r' not in prefix:
+                pos = string.find('\\')
+                while pos >= 0:
+                    pos += 1
+                    if string[pos] not in valid:
+                        yield (
+                            line.find(text),
+                            "W605 invalid escape sequence '\\%s'" %
+                            string[pos],
+                        )
+                    pos = string.find('\\', pos + 1)
 
 
 def get_index_offset_contents(result, source):
@@ -1407,7 +1465,9 @@ def fix_e265(source, aggressive=False):  # pylint: disable=unused-argument
                             if c != '#'))
                 if (
                     # Leave multiple spaces like '#    ' alone.
-                    (line[:pos].count('#') > 1 or line[1].isalnum()) and
+                    (line[:pos].count('#') > 1 or line[1].isalnum() or
+                        not line[1].isspace()) and
+                    line[1] not in ':!' and
                     # Leave stylistic outlined blocks alone.
                     not line.rstrip().endswith('#')
                 ):
@@ -2889,7 +2949,7 @@ def check_syntax(code):
     """Return True if syntax is okay."""
     try:
         return compile(code, '<string>', 'exec', dont_inherit=True)
-    except (SyntaxError, TypeError, UnicodeDecodeError):
+    except (SyntaxError, TypeError, ValueError):
         return False
 
 
@@ -3695,7 +3755,7 @@ def line_shortening_rank(candidate, indent_word, max_line_length,
 
 
 def standard_deviation(numbers):
-    """Return standard devation."""
+    """Return standard deviation."""
     numbers = list(numbers)
     if not numbers:
         return 0

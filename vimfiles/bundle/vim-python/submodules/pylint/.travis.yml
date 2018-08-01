@@ -1,0 +1,54 @@
+language: python
+
+stages:
+  - prechecks
+  - tests-cpython
+  - tests-pypy
+
+# 3.5-dev because of http://bugs.python.org/issue25131
+jobs:
+  include:
+    - stage: prechecks
+      python: 3.5
+      env: TOXENV=pylint
+    - stage: tests-cpython
+      python: 3.4
+      env: TOXENV=py34
+    - python: 3.5-dev
+      env: TOXENV=py35
+    - python: 3.6
+      env: TOXENV=py36
+    - python: 3.7
+      env: TOXENV=py37
+      dist: xenial
+    - stage: tests-pypy
+      python: pypy3.5-5.8.0
+      env: TOXENV=pypy
+before_install:
+  - python --version
+  - uname -a
+  - lsb_release -a
+  - sudo apt-get -qq update
+  - sudo apt-get install -y enchant
+install:
+  - pip install -U setuptools
+  - pip install tox coverage coveralls
+  - virtualenv --version
+  - easy_install --version
+  - pip --version
+  - tox --version
+  - coverage --version
+script:
+    # Test install with current version of setuptools
+  - pip install .
+  - tox -e coverage-erase,$TOXENV
+after_success:
+  - tox -e coveralls
+after_failure:
+  - more .tox/log/* | cat
+  - more .tox/*/log/* | cat
+notifications:
+  email:
+    on_success: always
+    on_failure: always
+

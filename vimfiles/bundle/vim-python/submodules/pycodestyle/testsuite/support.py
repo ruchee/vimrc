@@ -83,6 +83,26 @@ class TestReport(StandardReport):
         print("Test failed." if self.total_errors else "Test passed.")
 
 
+class InMemoryReport(BaseReport):
+    """
+    Collect the results in memory, without printing anything.
+    """
+
+    def __init__(self, options):
+        super(InMemoryReport, self).__init__(options)
+        self.in_memory_errors = []
+
+    def error(self, line_number, offset, text, check):
+        """
+        Report an error, according to options.
+        """
+        code = text[:4]
+        self.in_memory_errors.append('%s:%s:%s' % (
+            code, line_number, offset + 1))
+        return super(InMemoryReport, self).error(
+            line_number, offset, text, check)
+
+
 def selftest(options):
     """
     Test all check functions with test cases in docstrings.
@@ -131,11 +151,11 @@ def init_tests(pep8style):
 
     A test file can provide many tests.  Each test starts with a
     declaration.  This declaration is a single line starting with '#:'.
-    It declares codes of expected failures, separated by spaces or 'Okay'
-    if no failure is expected.
+    It declares codes of expected failures, separated by spaces or
+    'Okay' if no failure is expected.
     If the file does not contain such declaration, it should pass all
-    tests.  If the declaration is empty, following lines are not checked,
-    until next declaration.
+    tests.  If the declaration is empty, following lines are not
+    checked, until next declaration.
 
     Examples:
 

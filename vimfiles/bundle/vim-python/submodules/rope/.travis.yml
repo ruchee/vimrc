@@ -1,0 +1,19 @@
+language: python
+sudo: false
+python:
+  - "2.6"
+  - "2.7"
+  - "pypy"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "pypy3"
+matrix:
+  allow_failures:
+    - python: "pypy"
+    - python: "pypy3"
+install:
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install importlib unittest2; fi
+notifications:
+    irc: "chat.freenode.net#rope"
+script: python setup.py test

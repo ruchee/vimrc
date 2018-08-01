@@ -58,6 +58,10 @@ class UnitTests(unittest.TestCase):
 
     maxDiff = None
 
+    def test_compile_value_error(self):
+        source = '"\\xhh" \\'
+        self.assertFalse(autopep8.check_syntax(source))
+
     def test_find_newline_only_cr(self):
         source = ['print 1\r', 'print 2\r', 'print3\r']
         self.assertEqual(autopep8.CR, autopep8.find_newline(source))
@@ -214,6 +218,10 @@ def foo():
         self.assertEqual(
             '# abc "# noqa"',
             autopep8.fix_e265('# abc "# noqa"'))
+
+        self.assertEqual(
+            '# *abc',
+            autopep8.fix_e265('#*abc'))
 
     def test_format_block_comments_should_leave_outline_alone(self):
         line = """\
@@ -560,6 +568,7 @@ sys.maxint
         self.assertEqual('  #\nif True:\n    pass\n',
                          reindenter.run())
 
+    @unittest.skipIf('AUTOPEP8_COVERAGE' in os.environ, 'exists form-feed')
     def test_reindenter_not_affect_with_formfeed(self):
         lines = """print('hello')
 
@@ -1957,13 +1966,13 @@ class Foo():
 class Foo(object):
 
   def bar(self):
-    return self.elephant is not None
+    return self.elephant!='test'
 """
         fixed = """\
 class Foo(object):
 
     def bar(self):
-        return self.elephant is not None
+        return self.elephant != 'test'
 """
         with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
@@ -2073,6 +2082,24 @@ bar[zap[0][0]:zig[0][0], :]
         line = 'foo(bar\n=None)\n'
         fixed = 'foo(bar=None)\n'
         with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e252(self):
+        line = 'def a(arg1: int=1, arg2: int =1, arg3: int= 1):\n    print arg\n'
+        fixed = 'def a(arg1: int = 1, arg2: int = 1, arg3: int = 1):\n    print arg\n'
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e252_with_argument_on_next_line(self):
+        line = 'def a(arg: int\n=1):\n    print arg\n'
+        fixed = 'def a(arg: int\n= 1):\n    print arg\n'
+        with autopep8_context(line, options=['--select=E252']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e252_with_escaped_newline(self):
+        line = 'def a(arg: int\\\n=1):\n    print arg\n'
+        fixed = 'def a(arg: int\\\n= 1):\n    print arg\n'
+        with autopep8_context(line, options=['--select=E252']) as result:
             self.assertEqual(fixed, result)
 
     def test_e261(self):
@@ -3483,12 +3510,13 @@ class AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA(
     def test_e501_aggressive_long_comment_and_long_line(self):
         line = """\
 def foo():
-    #. This is not a novel to be tossed aside lightly. It should be throw with great force.
+    # This is not a novel to be tossed aside lightly. It should be throw with great force.
     self.xxxxxxxxx(_('yyyyyyyyyyyyy yyyyyyyyyyyy yyyyyyyy yyyyyyyy y'), 'zzzzzzzzzzzzzzzzzzz', bork='urgent')
 """
         fixed = """\
 def foo():
-    #. This is not a novel to be tossed aside lightly. It should be throw with great force.
+    # This is not a novel to be tossed aside lightly. It should be throw with
+    # great force.
     self.xxxxxxxxx(
         _('yyyyyyyyyyyyy yyyyyyyyyyyy yyyyyyyy yyyyyyyy y'),
         'zzzzzzzzzzzzzzzzzzz',
@@ -3885,6 +3913,13 @@ MY_CONST = [
                               options=['-aa', '--select=E713']) as result:
             self.assertEqual(fixed, result)
 
+    def test_e713_with_in(self):
+        line = 'if not "." in y and "," in y:\n    pass\n'
+        fixed = 'if "." not in y and "," in y:\n    pass\n'
+        with autopep8_context(line,
+                              options=['-aa', '--select=E713']) as result:
+            self.assertEqual(fixed, result)
+
     def test_e713_with_tuple(self):
         line = """
 if not role in ("domaincontroller_master",
@@ -3927,9 +3962,30 @@ if role not in ("domaincontroller_master",
                               options=['-aa', '--select=E713']) as result:
             self.assertEqual(fixed, result)
 
+    def test_e713_chain4(self):
+        line = 'if not "." in y and not "," in y:\n    pass\n'
+        fixed = 'if "." not in y and "," not in y:\n    pass\n'
+        with autopep8_context(line,
+                              options=['-aa', '--select=E713']) as result:
+            self.assertEqual(fixed, result)
+
     def test_e714(self):
         line = 'if not x is y:\n    pass\n'
         fixed = 'if x is not y:\n    pass\n'
+        with autopep8_context(line,
+                              options=['-aa', '--select=E714']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e714_with_is(self):
+        line = 'if not x is y or x is z:\n    pass\n'
+        fixed = 'if x is not y or x is z:\n    pass\n'
+        with autopep8_context(line,
+                              options=['-aa', '--select=E714']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e714_chain(self):
+        line = 'if not x is y or not x is z:\n    pass\n'
+        fixed = 'if x is not y or x is not z:\n    pass\n'
         with autopep8_context(line,
                               options=['-aa', '--select=E714']) as result:
             self.assertEqual(fixed, result)
@@ -4035,6 +4091,12 @@ if role not in ("domaincontroller_master",
     def test_e731_with_select_option(self):
         line = 'a = lambda x: x * 2\n'
         fixed = 'def a(x): return x * 2\n'
+        with autopep8_context(line, options=['--select=E731']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e731_with_default_arguments(self):
+        line = 'a = lambda k, d=None: bar.get("%s/%s" % (prefix, k), d)\n'
+        fixed = 'def a(k, d=None): return bar.get("%s/%s" % (prefix, k), d)\n'
         with autopep8_context(line, options=['--select=E731']) as result:
             self.assertEqual(fixed, result)
 
@@ -4185,6 +4247,32 @@ else:
     1111 and  # C1
     22222222 and  # C2
     333333333333  # C3
+)
+"""
+        with autopep8_context(line, options=['-aaa']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_over_5lines(self):
+        line = """\
+X = (
+    1  # 1
+    + 2  # 2
+    + 3  # 3
+    + 4  # 4
+    + 5  # 5
+    + 6  # 6
+    + 7  # 7
+)
+"""
+        fixed = """\
+X = (
+    1 +  # 1
+    2 +  # 2
+    3 +  # 3
+    4 +  # 4
+    5 +  # 5
+    6 +  # 6
+    7  # 7
 )
 """
         with autopep8_context(line, options=['-aaa']) as result:
@@ -4464,6 +4552,12 @@ raise ValueError("error")
     def test_w604_with_multiple_lines(self):
         line = '`(1\n      )`\n'
         fixed = 'repr((1\n      ))\n'
+        with autopep8_context(line, options=['--aggressive']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w605_simple(self):
+        line = "escape = '\.jpg'\n"
+        fixed = "escape = r'\.jpg'\n"
         with autopep8_context(line, options=['--aggressive']) as result:
             self.assertEqual(fixed, result)
 

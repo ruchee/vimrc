@@ -81,7 +81,6 @@ class Test(TestCase):
         (1 for a, b in [(1, 2)])
         ''')
 
-    @skipIf(version_info < (2, 7), "Python >= 2.7 only")
     def test_redefinedInSetComprehension(self):
         """
         Test that reusing a variable in a set comprehension does not raise
@@ -111,7 +110,6 @@ class Test(TestCase):
         {1 for a, b in [(1, 2)]}
         ''')
 
-    @skipIf(version_info < (2, 7), "Python >= 2.7 only")
     def test_redefinedInDictComprehension(self):
         """
         Test that reusing a variable in a dict comprehension does not raise
@@ -279,7 +277,6 @@ class Test(TestCase):
             a = classmethod(a)
         ''')
 
-    @skipIf(version_info < (2, 6), "Python >= 2.6 only")
     def test_modernProperty(self):
         self.flakes("""
         class A:
@@ -1162,6 +1159,37 @@ class Test(TestCase):
         def g(): foo = 'anything'; foo.is_used()
         ''')
 
+    def test_function_arguments(self):
+        """
+        Test to traverse ARG and ARGUMENT handler
+        """
+        self.flakes('''
+        def foo(a, b):
+            pass
+        ''')
+
+        self.flakes('''
+        def foo(a, b, c=0):
+            pass
+        ''')
+
+        self.flakes('''
+        def foo(a, b, c=0, *args):
+            pass
+        ''')
+
+        self.flakes('''
+        def foo(a, b, c=0, *args, **kwargs):
+            pass
+        ''')
+
+    @skipIf(version_info < (3, 3), "Python >= 3.3 only")
+    def test_function_arguments_python3(self):
+        self.flakes('''
+        def foo(a, b, c=0, *args, d=0, **kwargs):
+            pass
+        ''')
+
 
 class TestUnusedAssignment(TestCase):
     """
@@ -1177,6 +1205,16 @@ class TestUnusedAssignment(TestCase):
         def a():
             b = 1
         ''', m.UnusedVariable)
+
+    def test_unusedUnderscoreVariable(self):
+        """
+        Don't warn when the magic "_" (underscore) variable is unused.
+        See issue #202.
+        """
+        self.flakes('''
+        def a(unused_param):
+            _ = unused_param
+        ''')
 
     def test_unusedVariableAsLocals(self):
         """
@@ -1584,7 +1622,6 @@ class TestUnusedAssignment(TestCase):
             pass
         ''', m.UndefinedName)
 
-    @skipIf(version_info < (2, 7), "Python >= 2.7 only")
     def test_dictComprehension(self):
         """
         Dict comprehensions are properly handled.
@@ -1593,7 +1630,6 @@ class TestUnusedAssignment(TestCase):
         a = {1: x for x in range(10)}
         ''')
 
-    @skipIf(version_info < (2, 7), "Python >= 2.7 only")
     def test_setComprehensionAndLiteral(self):
         """
         Set comprehensions are properly handled.
@@ -1604,17 +1640,16 @@ class TestUnusedAssignment(TestCase):
         ''')
 
     def test_exceptionUsedInExcept(self):
-        as_exc = ', ' if version_info < (2, 6) else ' as '
         self.flakes('''
         try: pass
-        except Exception%se: e
-        ''' % as_exc)
+        except Exception as e: e
+        ''')
 
         self.flakes('''
         def download_review():
             try: pass
-            except Exception%se: e
-        ''' % as_exc)
+            except Exception as e: e
+        ''')
 
     @skipIf(version_info < (3,),
             "In Python 2 exception names stay bound after the exception handler")
@@ -1625,12 +1660,11 @@ class TestUnusedAssignment(TestCase):
         ''', m.UnusedVariable)
 
     def test_exceptionUnusedInExceptInFunction(self):
-        as_exc = ', ' if version_info < (2, 6) else ' as '
         self.flakes('''
         def download_review():
             try: pass
-            except Exception%se: pass
-        ''' % as_exc, m.UnusedVariable)
+            except Exception as e: pass
+        ''', m.UnusedVariable)
 
     def test_exceptWithoutNameInFunction(self):
         """

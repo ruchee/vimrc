@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-07-13 21:22:24
+" -----------------    Date: 2018-08-01 23:30:34
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -589,8 +589,8 @@ let g:haskell_enable_static_pointers      = 1  " 高亮 Haskell static
 if has('python3')
     command! -nargs=1 Py py3 <args>
     if g:isMAC
-        set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.6/Python
-        set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.6
+        set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.7/Python
+        set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.7
     endif
 else
     command! -nargs=1 Py py <args>
@@ -601,6 +601,9 @@ else
 endif
 let g:pymode_python = 'python3'                " 使用 Python3 语法检查 [Python-Mode]
 let g:pymode_options_colorcolumn = 0           " 关闭右侧的单行字符长度标尺
+let g:pymode_virtualenv = 0                    " 关闭 virtualenv 检测
+let g:pymode_init = 0                          " 关闭 init
+let g:pymode_lint = 0                          " 关闭 lint
 
 " 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [默认高亮为 HTML] [js-pretty-template 插件]
 " 可用形如 :JsPreTmpl xml 的命令临时修改模版字符串的高亮语法
