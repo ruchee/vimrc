@@ -15,7 +15,6 @@ Author:  Tim Pope <http://tpo.pe/>
 |rails-integration|             Integration
 |rails-vim-integration|             Integration with the Vim Universe
 |rails-rails-integration|           Integration with the Rails Universe
-|rails-abbreviations|           Abbreviations
 |rails-syntax|                  Syntax Highlighting
 |rails-projections|             Projections
 |rails-configuration|           Configuration
@@ -385,7 +384,6 @@ File                            Task when given range ~
 test/*_test.rb                  test TEST=test/*_test.rb TESTOPTS=-n<method>
 spec/*_spec.rb                  spec SPEC=spec/*_spec.rb:<line>
 features/*.feature              cucumber FEATURE=features/*.feature:<line>
-app/controllers/*_controller.rb routes -c *
 test/fixtures/*.yml             db:fixtures:identify LABEL=<label>
 db/migrate/*_*.rb               db:migrate:down VERSION=*
 lib/tasks/*.rake                <try to guess currently edited task>
@@ -505,10 +503,9 @@ MISCELLANEOUS COMMANDS				*rails-misc*
 :Rrefresh!		As above, and also reloads rails.vim.
 
 						*rails-:Cd* *rails-:Rcd*
-:Cd [{directory}]	|:cd| to /path/to/railsapp/{directory}.
-
 						*rails-:Lcd* *rails-:Rlcd*
-:Lcd [{directory}]	|:lcd| to /path/to/railsapp/{directory}.
+:Cd [{directory}]	These have been removed.  Install projectionist.vim
+:Lcd [{directory}]	for a replacement.
 
 						*rails-:Ctags* *rails-:Rtags*
 :Ctags			Calls ctags -R on the current application root.
@@ -527,18 +524,6 @@ Integration with the Vim Universe ~
 A handful of Vim plugins are enhanced by rails.vim.  All plugins mentioned can
 be found at http://www.vim.org/.
 
-						*rails-:Rdbext* *rails-dbext*
-:Rdbext [{environment}] This command is only provided when the |dbext| plugin
-			is installed.  Loads the {environment} configuration
-			(defaults to $RAILS_ENV or development) from
-			config/database.yml and uses it to configure dbext.
-			The configuration is cached on a per application
-			basis.  The development environment is loaded
-			automatically.  When dbext is configured, you can
-			execute SQL directly from Vim: >
-				:Select * from posts order by id desc
-				:Update comments set author_id = 1
-<
 						*rails-dadbod*
 Created by yours truly, dadbod.vim is a modern take on a Vim database plugin.
 This plugin sets the dadbod.vim default to the application's development
@@ -549,6 +534,9 @@ Rails app:
   :DB rails:/path/to/app
   :DB rails:/path/to/app#production
 <
+						*rails-:Rdbext* *rails-dbext*
+Native support for dbext has been removed.  Install dadbod.vim and enable
+|g:dadbod_manage_dbext| to achieve the same effect.
 
 						*rails-surround*
 The |surround| plugin available from vim.org enables adding and removing
@@ -596,55 +584,7 @@ controller/mailer specs respectively.  For everything else, you can use
 
 ABBREVIATIONS				*rails-abbreviations* *rails-snippets*
 
-Abbreviations are "snippets lite".  They may later be extracted into a
-separate plugin, or removed entirely.
-
-						*rails-:Rabbrev*
-:Rabbrev		List all Rails abbreviations.
-
-:Rabbrev {abbr} {expn} [{extra}]
-			Define a new Rails abbreviation. {extra} is permitted
-			if and only if {expn} ends with "(".
-
-						*rails-:Rabbrev!*
-:Rabbrev! {abbr}	Remove an abbreviation.
-
-Rails abbreviations differ from regular abbreviations in that they only expand
-after a <C-]> (see |i_CTRL-]|) or a <Tab> (if <Tab> does not work, it is
-likely mapped by another plugin).  If the abbreviation ends in certain
-punctuation marks, additional expansions are possible.  A few examples will
-hopefully clear this up (all of the following are enabled by default in
-appropriate file types).
-
-Command				Sequence typed		Resulting text ~
-Rabbrev rp( render :partial\ =>	rp(			render(:partial =>
-Rabbrev rp( render :partial\ =>	rp<Tab>			render :partial =>
-Rabbrev vs( validates_size_of	vs(			validates_size_of(
-Rabbrev pa[ params		pa[:id]			params[:id]
-Rabbrev pa[ params		pa<C-]>			params
-Rabbrev pa[ params		pa.inspect		params.inspect
-Rabbrev AR:: ActionRecord	AR::Base		ActiveRecord::Base
-
-In short, ( expands on (, :: expands on . and :, and [ expands on . and [.
-These trailing punctuation marks are NOT part of the final abbreviation, and
-you cannot have two mappings that differ only by punctuation.
-
-You must escape spaces in your expansion, either as "\ " or as "<Space>".  For
-an abbreviation ending with "(", you may define where to insert the
-parenthesis by splitting the expansion into two parts (divided by an unescaped
-space).
-
-You can also define abbreviations as a hash in |g:rails_abbreviations| or by
-using |rails-projection-abbreviations|:
->
-	let g:rails_abbreviations = {
-		\ "AE::": "ActiveResource",
-		\ "p[": "params",
-		\ "rj(": ["render", "json: "]}
-<
-Many abbreviations are provided by default: use :Rabbrev to list them.  They
-vary depending on the type of file (models have different abbreviations than
-controllers).
+Abbreviations have been removed without replacement.
 
 SYNTAX HIGHLIGHTING				*rails-syntax*
 
@@ -693,7 +633,7 @@ Vim syntax looks a lot like JSON, but with funky |line-continuation|:
 	      \     "test/unit/{}_uploader_test.rb",
 	      \     "spec/models/{}_uploader_spec.rb"
 	      \   ],
-	      \   "keywords": "process version"
+	      \   "rubyMacro": ["process", "version"]
 	      \ },
 	      \ "features/support/*.rb": {"command": "support"},
 	      \ "features/support/env.rb": {"command": "support"}}
@@ -737,17 +677,8 @@ The full list of available options is as follows:
 	to substitute the current line number or 'define' match (typically a
 	method), or just a bare % (like |:_%|) to substitute the current file
 	name.
-						*rails-projection-compiler*
-"compiler" ~
-	Determines the |:compiler| plugin to use with |rails-:Runner|.
-						*rails-projection-keywords*
 "keywords" ~
-	Provides a whitespace delimited list of keywords to syntax highlight.
-						*rails-projection-abbreviations*
-"abbreviations" ~
-	Provides a dictionary of abbreviations to define.  See
-	|rails-abbreviations|.  You might consider setting this in a "*"
-	projection.
+	Obsolete: see rubyMacro, rubyAction, and rubyHelper below.
 						*rails-projection-command*
 "command" ~
 	Names a navigation command to be created.  Use the same name on
@@ -770,11 +701,29 @@ The full list of available options is as follows:
 	If you provide a ! after the argument to the navigation command (that
 	is, :Euploader foo!, NOT :Euploader! foo), and a new file is created,
 	this will be used as an array of lines to populate the body.
-						*rails-projection-params*
+						*rails-projection-railsParams*
 "railsParams" ~
 	Provides a dictionary of defaults for URL parameters for
 	|rails-:Preview|, for example {"user_id": "2"}.  The fallback for
 	unspecified parameters is "1".
+						*rails-projection-compiler*
+						*rails-projection-railsRunner*
+"railsRunner" ~
+	Determines the command (and |:compiler| plugin) to use with
+	|rails-:Runner| in lieu of a literal `rails runner`.  Can be
+	"minitest", "rspec", or "cucumber".
+						*rails-projection-rubyMacro*
+"rubyMacro" ~
+	List of keywords to highlight as class declarations (like
+	before_action or validates_presence_of).
+						*rails-projection-rubyAction*
+"rubyAction" ~
+	List of keywords to highlight as imperative methods (like
+	redirect_to or create_table).
+						*rails-projection-rubyHelper*
+"rubyHelper" ~
+	List of keywords to highlight as functional methods (like
+	params or any view helper).
 
 CONFIGURATION					*rails-configuration*
 
@@ -786,7 +735,6 @@ configuration.
 If you would like to set your own custom Vim settings whenever a Rails file is
 loaded, you can use an autocommand like the following in your vimrc: >
 
-	autocmd User Rails		silent! Lcd
 	autocmd User Rails		map <buffer> <F9> :Rails<CR>
 
 There used to be autocommands that fire based on the "type" or file name of
@@ -800,27 +748,9 @@ can be placed in a "macros/rails.vim" file in the 'runtimepath' (for example,
 "~/.vim/macros/rails.vim").  This file is sourced by rails.vim each time a
 Rails file is loaded.
 
-						*config/rails.vim*
-This file used to be sourced automatically from the root of the application,
-but has been superseded by |rails-projections|.
-
-						*rails-:Rnavcommand*
-:Rnavcommand		This command has been superseded by
-			|rails-projections|.
-
-						*rails-:Rset*
-:Rset			This command has been superseded by
-			|rails-projections|.
-
 GLOBAL SETTINGS					*rails-global-settings*
 
 When all else fails, set a global.
-
-						*g:rails_abbreviations*
-Dictionary of additional abbreviations.  See |rails-abbreviations|.
-
-This variable was formerly used to globally disable abbreviations.  Use
-g:rails_no_abbreviations if you want to do that.
 
 						*g:rails_ctags_arguments*
 Additional arguments to pass to ctags from |:rails-Ctags|.  Defaults to
@@ -853,7 +783,6 @@ bundled (requires bundler.vim).
 	      \     "alternate": [
 	      \       "db/schema.rb#{plural}{lnum|nothing}",
 	      \       "app/models/{}.rb"],
-	      \     "related": "db/schema.rb#{plural}",
 	      \     "test": "spec/models/{}_spec.rb",
 	      \     "template": "Fabricator :{} do\nend"}}}
 <
@@ -872,7 +801,7 @@ The latest stable version can be found at
 Bugs can be reported and the very latest development version can be retrieved
 from GitHub:
 	https://github.com/tpope/vim-rails >
-	git clone git://github.com/tpope/vim-rails.git
+	git clone https://github.com/tpope/vim-rails.git
 <
 						*rails-license*
 Copyright (c) Tim Pope.  Distributed under the same terms as Vim itself.

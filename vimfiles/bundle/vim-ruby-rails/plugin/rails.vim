@@ -26,7 +26,18 @@ function! RailsDetect(...) abort
     return 1
   endif
   let fn = fnamemodify(a:0 ? a:1 : expand('%'), ':p')
-  if fn =~# ':[\/]\{2\}'
+  let ns = matchstr(fn, '^\a\a\+\ze:')
+  if len(ns) && exists('*' . ns . '#filereadable') && exists('*' . ns . '#isdirectory') && !get(g:, 'projectionist_ignore_' . ns)
+    let fn = substitute(fn, '[^:\/#]*$', '', '')
+    while fn =~# '^\a\a\+:.'
+      if {ns}#filereadable(fn . 'config/environment.rb') && {ns}#isdirectory(fn . 'app')
+        let b:rails_root = substitute(fn, '[:\/#]$', '', '')
+        return 1
+      endif
+      let fn = substitute(fn, '[^:\/#]*[:\/#][^:\/#]*$', '', '')
+    endwhile
+    return 0
+  elseif len(ns) || fn =~# ':[\/]\{2\}'
     return 0
   endif
   if !isdirectory(fn)
@@ -70,8 +81,6 @@ endfunction
 
 augroup railsPluginDetect
   autocmd!
-  autocmd BufEnter * if exists("b:rails_root")|call s:doau_user('BufEnterRails')|endif
-  autocmd BufLeave * if exists("b:rails_root")|call s:doau_user('BufLeaveRails')|endif
 
   autocmd BufNewFile,BufReadPost *
         \ if RailsDetect(expand("<afile>:p")) && empty(&filetype) |
@@ -101,7 +110,7 @@ augroup railsPluginDetect
   autocmd User ProjectionistDetect
         \ if RailsDetect(get(g:, 'projectionist_file', '')) |
         \   call projectionist#append(b:rails_root,
-        \     {'*': {"start": rails#app().static_rails_command('server')}}) |
+        \     {'*': {"console": rails#app().static_rails_command('console')}}) |
         \ endif
 augroup END
 

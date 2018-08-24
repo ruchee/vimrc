@@ -263,11 +263,16 @@ function! s:wrap(string,char,type,removed,special)
     elseif keeper =~ '\n$' && after =~ '^\n'
       let after = strpart(after,1)
     endif
-    if before !~ '\n\s*$'
+    if keeper !~ '^\n' && before !~ '\n\s*$'
       let before .= "\n"
       if a:special
         let before .= "\t"
       endif
+    elseif keeper =~ '^\n' && before =~ '\n\s*$'
+      let keeper = strcharpart(keeper,1)
+    endif
+    if type ==# 'V' && keeper =~ '\n\s*\n$'
+      let keeper = strcharpart(keeper,0,strchars(keeper) - 1)
     endif
   endif
   if type ==# 'V'
@@ -573,7 +578,7 @@ nnoremap <silent> <Plug>SurroundRepeat .
 nnoremap <silent> <Plug>Dsurround  :<C-U>call <SID>dosurround(<SID>inputtarget())<CR>
 nnoremap <silent> <Plug>Csurround  :<C-U>call <SID>changesurround()<CR>
 nnoremap <silent> <Plug>CSurround  :<C-U>call <SID>changesurround(1)<CR>
-nnoremap <expr>   <Plug>Yssurround <SID>opfunc('setup').'g_'
+nnoremap <expr>   <Plug>Yssurround '^'.v:count1.<SID>opfunc('setup').'g_'
 nnoremap <expr>   <Plug>YSsurround <SID>opfunc2('setup').'_'
 nnoremap <expr>   <Plug>Ysurround  <SID>opfunc('setup')
 nnoremap <expr>   <Plug>YSurround  <SID>opfunc2('setup')

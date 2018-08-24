@@ -276,6 +276,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
                 target.name for target in else_branch.targets
                 if isinstance(target, astroid.AssignName)
             ]
+            if not first_branch_targets or not else_branch_targets:
+                return
             if sorted(first_branch_targets) != sorted(else_branch_targets):
                 return
 
@@ -344,7 +346,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         if not isinstance(scope, astroid.FunctionDef):
             return
 
-        for defined_argument in scope.args.nodes_of_class(astroid.AssignName):
+        for defined_argument in scope.args.nodes_of_class(astroid.AssignName,
+                                                          skip_klass=(astroid.Lambda, )):
             if defined_argument.name == name_node.name:
                 self.add_message('redefined-argument-from-local',
                                  node=name_node,
@@ -808,10 +811,8 @@ class RefactoringChecker(checkers.BaseTokenChecker):
         return condition, true_value, false_value
 
     def visit_functiondef(self, node):
-        self._return_nodes[node.name] = []
-        return_nodes = node.nodes_of_class(astroid.Return)
-        self._return_nodes[node.name] = [_rnode for _rnode in return_nodes
-                                         if _rnode.frame() == node.frame()]
+        self._return_nodes[node.name] = list(
+            node.nodes_of_class(astroid.Return, skip_klass=astroid.FunctionDef))
 
     def _check_consistent_returns(self, node):
         """Check that all return statements inside a function are consistent.
@@ -1241,9 +1242,11 @@ def is_trailing_comma(tokens, index):
             if token.type in (tokenize.NEWLINE, tokenize.NL):
                 return index - subindex
         return 0
+
     curline_start = get_curline_index_start()
+    expected_tokens = {'return', 'yield'}
     for prevtoken in tokens[curline_start:index]:
-        if '=' in prevtoken.string or prevtoken.string == 'return':
+        if '=' in prevtoken.string or prevtoken.string in expected_tokens:
             return True
     return False
 

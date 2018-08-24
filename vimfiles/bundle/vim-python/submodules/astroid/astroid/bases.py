@@ -143,12 +143,15 @@ def _infer_method_result_truth(instance, method_name, context):
     if meth and hasattr(meth, 'infer_call_result'):
         if not meth.callable():
             return util.Uninferable
-        for value in meth.infer_call_result(instance, context=context):
-            if value is util.Uninferable:
-                return value
+        try:
+            for value in meth.infer_call_result(instance, context=context):
+                if value is util.Uninferable:
+                    return value
 
-            inferred = next(value.infer(context=context))
-            return inferred.bool_value()
+                inferred = next(value.infer(context=context))
+                return inferred.bool_value()
+        except exceptions.InferenceError:
+            pass
     return util.Uninferable
 
 
@@ -343,7 +346,7 @@ class UnboundMethod(Proxy):
         which is incorrect for the argument in general.
         If no context is given the ``object.__new__`` call argument will
         correctly inferred except when inside a call that requires
-        the additonal context (such as a classmethod) of the boundnode
+        the additional context (such as a classmethod) of the boundnode
         to determine which class the method was called from
         """
 
@@ -447,7 +450,7 @@ class BoundMethod(UnboundMethod):
                 and self.bound.name == 'type'
                 and self.name == '__new__'
                 and len(caller.args) == 4):
-            # Check if we have an ``type.__new__(mcs, name, bases, attrs)`` call.
+            # Check if we have a ``type.__new__(mcs, name, bases, attrs)`` call.
             new_cls = self._infer_type_new_call(caller, context)
             if new_cls:
                 return iter((new_cls, ))

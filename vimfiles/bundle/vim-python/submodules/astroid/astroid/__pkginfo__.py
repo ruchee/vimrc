@@ -21,7 +21,7 @@ distname = 'astroid'
 
 modname = 'astroid'
 
-version = '2.0.1'
+version = '2.0.2'
 numversion = tuple(int(elem) for elem in version.split('.') if elem.isdigit())
 
 extras_require = {}
@@ -42,7 +42,7 @@ author_email = 'code-quality@python.org'
 mailinglist = "mailto://%s" % author_email
 web = 'https://github.com/PyCQA/astroid'
 
-description = "A abstract syntax tree for Python with inference support."
+description = "An abstract syntax tree for Python with inference support."
 
 classifiers = ["Topic :: Software Development :: Libraries :: Python Modules",
                "Topic :: Software Development :: Quality Assurance",

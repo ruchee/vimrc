@@ -1,6 +1,6 @@
 " Language: Crystal
 " Based on Ruby syntax highlight
-" which is made by Mirko Nasato and Doug Kearns
+" which was made by Mirko Nasato and Doug Kearns
 " ---------------------------------------------
 
 if exists('b:current_syntax')
@@ -64,9 +64,9 @@ syn match  crystalRegexpSpecial	"\\k'\%([a-z_]\w*\|-\=\d\+\)\%([+-]\d\+\)\='" co
 syn match  crystalRegexpSpecial	"\\g<\%([a-z_]\w*\|-\=\d\+\)>" contained display
 syn match  crystalRegexpSpecial	"\\g'\%([a-z_]\w*\|-\=\d\+\)'" contained display
 
-syn cluster crystalStringSpecial	      contains=crystalInterpolation,crystalNoInterpolation,crystalStringEscape
+syn cluster crystalStringSpecial	 contains=crystalInterpolation,crystalNoInterpolation,crystalStringEscape
 syn cluster crystalExtendedStringSpecial contains=@crystalStringSpecial,crystalNestedParentheses,crystalNestedCurlyBraces,crystalNestedAngleBrackets,crystalNestedSquareBrackets
-syn cluster crystalRegexpSpecial	      contains=crystalInterpolation,crystalNoInterpolation,crystalStringEscape,crystalRegexpSpecial,crystalRegexpEscape,crystalRegexpBrackets,crystalRegexpCharClass,crystalRegexpDot,crystalRegexpQuantifier,crystalRegexpAnchor,crystalRegexpParens,crystalRegexpComment
+syn cluster crystalRegexpSpecial	 contains=crystalInterpolation,crystalNoInterpolation,crystalStringEscape,crystalRegexpSpecial,crystalRegexpEscape,crystalRegexpBrackets,crystalRegexpCharClass,crystalRegexpDot,crystalRegexpQuantifier,crystalRegexpAnchor,crystalRegexpParens,crystalRegexpComment
 
 " Numbers and ASCII Codes
 syn match crystalASCIICode	"\%(\w\|[]})\"'/]\)\@<!\%(?\%(\\M-\\C-\|\\C-\\M-\|\\M-\\c\|\\c\\M-\|\\c\|\\C-\|\\M-\)\=\%(\\\o\{1,3}\|\\x\x\{1,2}\|\\\=\S\)\)"
@@ -127,7 +127,7 @@ syn region crystalString matchgroup=crystalStringDelimiter start="\"" end="\"" s
 syn region crystalString matchgroup=crystalStringDelimiter start="`"	end="`"  skip="\\\\\|\\`"  contains=@crystalStringSpecial fold
 
 " Character
-syn match crystalCharLiteral "'\%([^\\]\|\\[abefnrstv'\\]\|\\\o\{1,3}\|\\x\x\{1,2}\|\\u\x\{4}\)'" contained display
+syn match crystalCharLiteral "'\%([^\\]\|\\[abefnrstv'\\]\|\\\o\{1,3}\|\\x\x\{1,2}\|\\u\x\{4}\)'" contains=crystalStringEscape display
 
 " Generalized Single Quoted String, Symbol and Array of Strings
 syn region crystalString matchgroup=crystalStringDelimiter start="%[qwi]\z([~`!@#$%^&*_\-+=|\:;"',.?/]\)" end="\z1" skip="\\\\\|\\\z1" fold
@@ -230,11 +230,13 @@ if !exists('b:crystal_no_expensive') && !exists('g:crystal_no_expensive')
   syn region crystalArrayLiteral	matchgroup=crystalArrayDelimiter	    start="\%(\w\|[\]})]\)\@<!\[" end="]"	contains=ALLBUT,@crystalNotTop fold
 
   " statements without 'do'
-  syn region crystalBlockExpression       matchgroup=crystalControl	  start="\<begin\>" end="\<end\>" contains=ALLBUT,@crystalNotTop fold
-  syn region crystalCaseExpression	       matchgroup=crystalConditional start="\<case\>"  end="\<end\>" contains=ALLBUT,@crystalNotTop fold
+  syn region crystalBlockExpression  matchgroup=crystalControl     start="\<begin\>"  end="\<end\>" contains=ALLBUT,@crystalNotTop fold
+  syn region crystalCaseExpression   matchgroup=crystalConditional start="\<case\>"   end="\<end\>" contains=ALLBUT,@crystalNotTop fold
+  syn region crystalSelectExpression matchgroup=crystalConditional start="\<select\>" end="\<end\>" contains=ALLBUT,@crystalNotTop fold
   syn region crystalConditionalExpression matchgroup=crystalConditional start="\%(\%(^\|\.\.\.\=\|[{:,;([<>~\*/%&^|+=-]\|\%(\<[_[:lower:]][_[:alnum:]]*\)\@<![?!]\)\s*\)\@<=\%(if\|ifdef\|unless\)\>" end="\%(\%(\%(\.\@<!\.\)\|::\)\s*\)\@<!\<end\>" contains=ALLBUT,@crystalNotTop fold
 
-  syn match crystalConditional "\<\%(then\|else\|when\)\>[?!]\@!"	contained containedin=crystalCaseExpression
+  syn match crystalConditional "\<\%(then\|else\|when\)\>[?!]\@!"  contained containedin=crystalCaseExpression
+  syn match crystalConditional "\<\%(when\|else\)\>[?!]\@!"        contained containedin=crystalSelectExpression
   syn match crystalConditional "\<\%(then\|else\|elsif\)\>[?!]\@!" contained containedin=crystalConditionalExpression
 
   syn match crystalExceptional	  "\<\%(\%(\%(;\|^\)\s*\)\@<=rescue\|else\|ensure\)\>[?!]\@!" contained containedin=crystalBlockExpression
@@ -272,7 +274,8 @@ syn match crystalLinkAttr "]" contained containedin=crystalLinkAttrRegion displa
 if !exists('g:crystal_no_special_methods')
   syn keyword crystalAccess    protected private
   " attr is a common variable name
-  syn keyword crystalAttribute getter setter property abstract
+  syn keyword crystalAttribute abstract
+  syn match   crystalAttribute "\<\%(class_\)\=\%(getter\|setter\|property\)[!?]\=\s" display
   syn match   crystalControl   "\<\%(abort\|at_exit\|exit\|fork\|loop\)\>[?!]\@!" display
   syn keyword crystalException raise
   " false positive with 'include?'

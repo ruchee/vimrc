@@ -50,6 +50,19 @@ function! s:shellslash(path) abort
   endif
 endfunction
 
+function! s:fcall(fn, path, ...) abort
+  let ns = matchstr(a:path, '^\a\a\+\ze:')
+  if len(ns) && exists('*' . ns . '#' . a:fn)
+    return call(ns . '#' . a:fn, [a:path] + a:000)
+  else
+    return call(a:fn, [a:path] + a:000)
+  endif
+endfunction
+
+function! s:filereadable(path) abort
+  return s:fcall('filereadable', a:path)
+endfunction
+
 function! s:completion_filter(results,A) abort
   let results = sort(copy(a:results))
   call filter(results,'v:val !~# "\\~$"')
@@ -180,10 +193,10 @@ function! s:FindBundlerLock(path) abort
   let ofn = ""
   let nfn = fn
   while fn !=# ofn && fn !=# '.'
-    if filereadable(fn.'/Gemfile.lock') && filereadable(fn.'/Gemfile')
-      return s:sub(simplify(fnamemodify(fn,':p')),'[\\/]$','/Gemfile.lock')
-    elseif filereadable(fn.'/gems.locked') && filereadable(fn.'/gems.rb')
-      return s:sub(simplify(fnamemodify(fn,':p')),'[\\/]$','/gems.locked')
+    if s:filereadable(fn . '/Gemfile.lock') && s:filereadable(fn . '/Gemfile')
+      return s:sub(fnamemodify(fn,':p'), '[\\/]=$', '/Gemfile.lock')
+    elseif s:filereadable(fn . '/gems.locked') && s:filereadable(fn . '/gems.rb')
+      return s:sub(fnamemodify(fn,':p'), '[\\/]=$', '/gems.locked')
     endif
     let ofn = fn
     let fn = fnamemodify(ofn,':h')
@@ -221,7 +234,7 @@ function! s:ProjectionistDetect() abort
   if s:Detect(get(g:, 'projectionist_file', '')) && !exists('b:bundler_gem')
     let dir = fnamemodify(b:bundler_lock, ':h')
     call projectionist#append(dir, {
-          \ '*': filereadable(dir . '/config/environment.rb') ? {} :
+          \ '*': s:filereadable(dir . '/config/environment.rb') ? {} :
           \ {'console': 'bundle console'},
           \ 'Gemfile': {'dispatch': 'bundle --gemfile={file}', 'alternate': 'Gemfile.lock'},
           \ 'gems.rb': {'dispatch': 'bundle --gemfile={file}', 'alternate': 'gems.locked'},
@@ -255,12 +268,12 @@ let s:projects = {}
 function! bundler#project(...) abort
   if !a:0
     let lock = !empty(get(b:, 'bundler_lock', '')) ? b:bundler_lock : s:FindBundlerLock(expand('%:p'))
-  elseif filereadable(a:1)
-    let lock = a:1
-  elseif filereadable(a:1 . '/Gemfile')
+  elseif s:filereadable(a:1 . '/Gemfile.lock')
     let lock = a:1 . '/Gemfile.lock'
-  elseif filereadable(a:1 . '/gems.locked')
+  elseif s:filereadable(a:1 . '/gems.locked')
     let lock = a:1 . '/gems.locked'
+  elseif s:filereadable(a:1)
+    let lock = a:1
   else
     let lock = ''
   endif
@@ -285,8 +298,16 @@ function! s:project(...) abort
   endif
 endfunction
 
-function! s:project_path(...) dict abort
-  return join([self.root]+a:000,'/')
+function! s:project_real(...) dict abort
+  let path = join([self.root]+a:000,'/')
+  let pre = substitute(matchstr(path, '^\a\a\+\ze:'), '^\a', '\u&', 'g')
+  if len(pre) && exists('*' . pre . 'Real')
+    return call(pre . 'Real', [path])
+  elseif len(pre) && exists('*' . pre . 'Path')
+    return call(pre . 'Path', [path])
+  else
+    return resolve(path)
+  endif
 endfunction
 
 function! s:project_lock() dict abort
@@ -297,18 +318,18 @@ function! s:project_manifest() dict abort
   return substitute(substitute(self._lock, '\.locked$', '.rb', ''), '\.lock$', '', '')
 endfunction
 
-call s:add_methods('project',['path', 'lock', 'manifest'])
+call s:add_methods('project',['real', 'lock', 'manifest'])
 
 function! s:project_locked() dict abort
   let lock_file = self.lock()
-  let time = getftime(lock_file)
+  let time = s:fcall('getftime', lock_file)
   if time != -1 && time != get(self,'_lock_time',-1)
     let self._locked = {'git': [], 'gem': [], 'path': []}
     let self._versions = {}
     let self._dependencies = {}
     let section = ''
 
-    for line in readfile(lock_file)
+    for line in s:fcall('readfile', lock_file)
       if line =~# '^\S'
         let section = tr(tolower(line), ' ', '_')
         let properties = {'versions': {}}
@@ -357,7 +378,7 @@ function! s:project_paths(...) dict abort
     endif
 
     try
-      exe chdir s:fnameescape(self.path())
+      exe chdir s:fnameescape(self.real())
 
       if empty(gem_paths)
         let gem_paths = split(system(prefix.'ruby -rrbconfig -rrubygems -e '.s:shellesc('print(([RbConfig::CONFIG["ruby_version"]] + Gem.path).join(%(;)))')), ';')
@@ -372,15 +393,15 @@ function! s:project_paths(...) dict abort
       exe chdir s:fnameescape(cwd)
     endtry
 
-    for config in [expand('~/.bundle/config'), self.path('.bundle/config')]
+    for config in [expand('~/.bundle/config'), self.real('.bundle/config')]
       if filereadable(config)
         let body = join(readfile(config), "\n")
         let bundle_path = matchstr(body, "\\C\\<BUNDLE_PATH: [\"']\\=\\zs[^\n'\"]*")
         if !empty(bundle_path)
           if body =~# '\C\<BUNDLE_DISABLE_SHARED_GEMS:'
-            let gem_paths = [self.path(bundle_path, 'ruby', abi_version)]
+            let gem_paths = [self.real(bundle_path, 'ruby', abi_version)]
           else
-            let gem_paths = [self.path(bundle_path)]
+            let gem_paths = [self.real(bundle_path)]
           endif
         endif
       endif
@@ -413,7 +434,7 @@ function! s:project_paths(...) dict abort
         if source.remote =~# '^\~/'
           let local = expand(source.remote)
         elseif source.remote !~# '^/'
-          let local = simplify(self.path(source.remote))
+          let local = simplify(self.real(source.remote))
         else
           let local = source.remote
         endif
@@ -453,7 +474,7 @@ function! s:project_paths(...) dict abort
     let self._path_time = time
     let self._paths = paths
     let self._sorted = sort(values(paths))
-    let index = index(self._sorted, self.path())
+    let index = index(self._sorted, fnamemodify(self.lock(), ':h'))
     if index > 0
       call insert(self._sorted, remove(self._sorted,index))
     endif
@@ -552,7 +573,7 @@ function! s:buffer_setvar(var,value) dict abort
 endfunction
 
 function! s:buffer_project() dict abort
-  return s:project(fnamemodify(self.getvar('bundler_lock'), ':h'))
+  return s:project(self.getvar('bundler_lock'))
 endfunction
 
 call s:add_methods('buffer',['getvar','setvar','project'])
@@ -563,7 +584,7 @@ function! s:push_chdir() abort
   if !exists("s:command_stack") | let s:command_stack = [] | endif
   let chdir = exists("*haslocaldir") && haslocaldir() ? "lchdir " : "chdir "
   call add(s:command_stack,chdir.s:fnameescape(getcwd()))
-  exe chdir.'`=s:project().path()`'
+  exe chdir.'`=s:project().real()`'
 endfunction
 
 function! s:pop_command() abort
@@ -579,12 +600,12 @@ function! s:Bundle(bang,arg) abort
   let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
   let cwd = getcwd()
   try
-    execute cd fnameescape(s:project().path())
+    execute cd fnameescape(s:project().real())
     if a:arg =~# '^\s*console\>'
       let arg = substitute(a:arg, '^\s*console\s*', '', '')
       if exists(':Start') > 1
         execute 'Start'.a:bang '-title=' .
-              \ escape(fnamemodify(s:project().path(), ':t'), ' ') .
+              \ escape(fnamemodify(s:project().real(), ':t'), ' ') .
               \ '\ console bundle console' arg
       else
         execute '!bundle console' arg
@@ -670,7 +691,7 @@ function! s:Open(cmd,gem,lcd) abort
       endif
       return 'echoerr v:errmsg'
     endif
-    let path = fnameescape(bundler#buffer().project().paths()[a:gem])
+    let path = fnameescape(s:project().paths()[a:gem])
     let exec = a:cmd.' '.path
     if a:cmd =~# '^pedit' && a:lcd
       let exec .= '|wincmd P|lcd '.path.'|wincmd p'

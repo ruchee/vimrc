@@ -238,7 +238,8 @@ class MessageDefinition:
         desc = _normalize_text(' '.join(desc.split()), indent='  ')
         if title != '%s':
             title = title.splitlines()[0]
-            return ':%s: *%s*\n%s' % (msgid, title, desc)
+
+            return ':%s: *%s*\n%s' % (msgid, title.rstrip(" "), desc)
         return ':%s:\n%s' % (msgid, desc)
 
 
@@ -397,16 +398,17 @@ class MessagesHandlerMixIn:
             # This happens for example with a commented line at the end of a module.
             max_line_number = self.file_state.get_effective_max_line_number()
             if (max_line_number and line > max_line_number):
-                return msgid not in self.file_state._raw_module_msgs_state
+                fallback = msgid not in self.file_state._raw_module_msgs_state
+                return self._msgs_state.get(msgid, fallback)
             return self._msgs_state.get(msgid, True)
 
     def add_message(self, msg_descr, line=None, node=None, args=None, confidence=UNDEFINED,
                     col_offset=None):
         """Adds a message given by ID or name.
 
-        If provided, the message string is expanded using args
+        If provided, the message string is expanded using args.
 
-        AST checkers should must the node argument (but may optionally
+        AST checkers must provide the node argument (but may optionally
         provide line if the line number is different), raw and token checkers
         must provide the line argument.
         """
@@ -535,32 +537,33 @@ class MessagesHandlerMixIn:
         options = info.get('options')
         reports = info.get('reports')
 
-        title = '%s checker' % (checker_name.replace("_", " ").title())
+        checker_title = '%s checker' % (checker_name.replace("_", " ").title())
 
         if module:
             # Provide anchor to link against
             print(".. _%s:\n" % module, file=stream)
-        print(title, file=stream)
-        print('~' * len(title), file=stream)
+        print(checker_title, file=stream)
+        print('~' * len(checker_title), file=stream)
         print("", file=stream)
         if module:
             print("This checker is provided by ``%s``." % module, file=stream)
         print("Verbatim name of the checker is ``%s``." % checker_name, file=stream)
         print("", file=stream)
         if doc:
-            title = 'Documentation'
+            # Provide anchor to link against
+            title = '{} Documentation'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             print(cleandoc(doc), file=stream)
             print("", file=stream)
         if options:
-            title = 'Options'
+            title = '{} Options'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             _rest_format_section(stream, None, options)
             print("", file=stream)
         if msgs:
-            title = 'Messages'
+            title = '{} Messages'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             for msgid, msg in sorted(msgs.items(),
@@ -569,7 +572,7 @@ class MessagesHandlerMixIn:
                 print(msg.format_help(checkerref=False), file=stream)
             print("", file=stream)
         if reports:
-            title = 'Reports'
+            title = '{} Reports'.format(checker_title)
             print(title, file=stream)
             print('^' * len(title), file=stream)
             for report in reports:

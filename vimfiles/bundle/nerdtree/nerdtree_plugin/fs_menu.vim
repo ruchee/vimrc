@@ -164,7 +164,7 @@ function! NERDTreeMoveNode()
         "if the node is open in a buffer, ask the user if they want to
         "close that buffer
         if bufnum != -1
-            let prompt = "\nNode renamed.\n\nThe old file is open in buffer ". bufnum . (bufwinnr(bufnum) ==# -1 ? " (hidden)" : "") .". Replace this buffer with a new file? (yN)"
+            let prompt = "\nNode renamed.\n\nThe old file is open in buffer ". bufnum . (bufwinnr(bufnum) ==# -1 ? " (hidden)" : "") .". Replace this buffer with the new file? (yN)"
             call s:promptToRenameBuffer(bufnum,  prompt, newNodePath)
         endif
 
@@ -225,10 +225,11 @@ endfunction
 function! NERDTreeListNode()
     let treenode = g:NERDTreeFileNode.GetSelected()
     if !empty(treenode)
-        if has("osx")
+        let s:uname = system("uname")
+        let stat_cmd = 'stat -c "%s" ' 
+        
+        if s:uname =~? "Darwin"                
             let stat_cmd = 'stat -f "%z" '
-        else
-            let stat_cmd = 'stat -c "%s" '
         endif
 
         let cmd = 'size=$(' . stat_cmd . shellescape(treenode.path.str()) . ') && ' .

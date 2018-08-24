@@ -563,7 +563,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
     def test_method_argument(self):
         code = '''
             class ErudiEntitySchema:
-                """a entity has a type, a set of subject and or object relations"""
+                """an entity has a type, a set of subject and or object relations"""
                 def __init__(self, e_type, **kwargs):
                     kwargs['e_type'] = e_type.capitalize().encode()
 
@@ -1184,7 +1184,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
     @test_utils.require_version(minver='3.5')
     def test_nonregr_layed_dictunpack(self):
         """Regression test for https://github.com/PyCQA/astroid/issues/483
-        Make sure mutliple dictunpack references are inferable
+        Make sure multiple dictunpack references are inferable
         """
         code = """
         base = {'data': 0}
@@ -1212,6 +1212,37 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         orig_offset = cdef.col_offset
         call.inferred()
         self.assertEqual(cdef.col_offset, orig_offset)
+
+    def test_no_runtime_error_in_repeat_inference(self):
+        """ Stop repeat inference attempt causing a RuntimeError in Python3.7
+
+        See https://github.com/PyCQA/pylint/issues/2317
+        """
+        code = """
+
+        class ContextMixin:
+            def get_context_data(self, **kwargs):
+                return kwargs
+
+        class DVM(ContextMixin):
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                return ctx
+
+
+        class IFDVM(DVM):
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx['bar'] = 'foo'
+                ctx #@
+                return ctx
+        """
+        node = extract_node(code)
+        result = node.inferred()
+        assert len(result) == 2
+        assert isinstance(result[0], nodes.Dict)
+        assert result[1] is util.Uninferable
+
 
     def test_python25_no_relative_import(self):
         ast = resources.build_file('data/package/absimport.py')
@@ -2810,7 +2841,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         inferred = next(node.infer())
         self.assertEqual(inferred, util.Uninferable)
 
-    def test_binop_inferrence_errors(self):
+    def test_binop_inference_errors(self):
         ast_nodes = extract_node('''
         from unknown import Unknown
         class A(object):
@@ -4691,7 +4722,7 @@ def test_limit_inference_result_amount():
     assert len(result) == 16
     with patch('astroid.node_classes.MANAGER.max_inferable_values', 4):
         result_limited = extract_node(code).inferred()
-    # Can't guarentee exact size
+    # Can't guarantee exact size
     assert len(result_limited) < 16
     # Will not always be at the end
     assert util.Uninferable in result_limited

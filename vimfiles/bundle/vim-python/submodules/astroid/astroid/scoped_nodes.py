@@ -261,7 +261,7 @@ class LocalsDictNodeNG(node_classes.LookupMixIn,
     def items(self):
         """Get the names of the locals and the node that defines the local.
 
-        :returns: The names of locals and their asociated node.
+        :returns: The names of locals and their associated node.
         :rtype: list(tuple(str, NodeNG))
         """
         return list(zip(self.keys(), self.values()))
@@ -1029,7 +1029,7 @@ def _infer_decorator_callchain(node):
         return None
     try:
         result = next(node.infer_call_result(node.parent))
-    except (StopIteration, exceptions.InferenceError):
+    except exceptions.InferenceError:
         return None
     if isinstance(result, bases.Instance):
         result = result._proxied
@@ -1718,7 +1718,7 @@ def _class_type(klass, ancestors=None):
     """return a ClassDef node type to differ metaclass and exception
     from 'regular' classes
     """
-    # XXX we have to store ancestors in case we have a ancestor loop
+    # XXX we have to store ancestors in case we have an ancestor loop
     if klass._type is not None:
         return klass._type
     if _is_metaclass(klass):
@@ -2453,7 +2453,10 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG,
         new_context = contextmod.bind_context_to_node(context, self)
         new_context.callcontext = contextmod.CallContext(args=[index])
 
-        return next(method.infer_call_result(self, new_context))
+        try:
+            return next(method.infer_call_result(self, new_context))
+        except exceptions.InferenceError:
+            return util.Uninferable
 
     def methods(self):
         """Iterate over all of the method defined in this class and its parents.

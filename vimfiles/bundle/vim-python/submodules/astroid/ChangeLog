@@ -5,7 +5,22 @@ astroid's ChangeLog
 What's New in astroid 2.0.2?
 ============================
 
-Release Date: |TBA|
+Release Date: 2018-08-01
+
+   * Stop repeat inference attempt causing a RuntimeError in Python3.7
+
+     Close PyCQA/pylint#2317
+
+   *  infer_call_result can raise InferenceError so make sure to handle that for the call sites
+      where it is used
+
+     infer_call_result started recently to raise InferenceError for objects for which it
+     could not find any returns. Previously it was silently raising a StopIteration,
+     which was especially leaking when calling builtin methods.
+     Since it is after all an inference method, it is expected that it
+     could raise an InferenceError rather than returning nothing.
+
+     Close PyCQA/pylint#2350
 
 
 What's New in astroid 2.0.1?
@@ -587,7 +602,7 @@ Release Date: 2015-11-29
       will not work with the new approach, because .mro() only
       retrieves the first value inferred from a base.
 
-    * Expose a implicit_metaclass() method in Class. This will return
+    * Expose an implicit_metaclass() method in Class. This will return
       a builtins.type instance for newstyle classes. 
 
     * Add two new exceptions for handling MRO error cases. DuplicateBasesError
@@ -797,7 +812,7 @@ Release Date: 2015-11-29
 
       Closes issue #137.
 
-    * Add proper grammatical names for `infered` and `ass_type` methods,
+    * Add proper grammatical names for `inferred` and `ass_type` methods,
       namely `inferred` and `assign_type`.
 
       The old methods will raise PendingDeprecationWarning, being slated

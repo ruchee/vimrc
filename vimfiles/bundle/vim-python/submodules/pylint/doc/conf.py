@@ -133,7 +133,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -237,3 +237,7 @@ intersphinx_mapping = {
     'astroid': ('http://astroid.readthedocs.io/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
 }
+
+# Prevent label issues due to colliding section names
+# through including mulitple documents
+autosectionlabel_prefix_document = True

@@ -55,11 +55,11 @@ endif
 "=================================================
 " Help text
 let s:helpmore = ['"    ===== Marks ===== ',
-            \'" >num< : current change',
-            \'" {num} : change to redo',
-            \'" [num] : the last change',
-            \'"   s   : saved changes',
-            \'"   S   : last saved change',
+            \'" >num< : The current state',
+            \'" {num} : The next redo state',
+            \'" [num] : The latest state',
+            \'"   s   : Saved states',
+            \'"   S   : The last saved state',
             \'"   ===== Hotkeys =====']
 if !g:undotree_HelpLine
     let s:helpless = []
@@ -80,19 +80,19 @@ endif
 let s:keymap = []
 " action, key, help.
 let s:keymap += [['Help','?','Toggle quick help']]
-let s:keymap += [['Close','q','Close this panel']]
-let s:keymap += [['FocusTarget','<tab>','Set Focus to editor']]
-let s:keymap += [['ClearHistory','C','Clear undo history']]
+let s:keymap += [['Close','q','Close undotree panel']]
+let s:keymap += [['FocusTarget','<tab>','Set Focus back to the editor']]
+let s:keymap += [['ClearHistory','C','Clear undo history (with confirmation)']]
 let s:keymap += [['TimestampToggle','T','Toggle relative timestamp']]
-let s:keymap += [['DiffToggle','D','Toggle diff panel']]
-let s:keymap += [['GoNextState','K','Revert to next state']]
-let s:keymap += [['GoPreviousState','J','Revert to previous state']]
-let s:keymap += [['GoNextSaved','>','Revert to next saved state']]
-let s:keymap += [['GoPreviousSaved','<','Revert to previous saved state']]
+let s:keymap += [['DiffToggle','D','Toggle the diff panel']]
+let s:keymap += [['NextState','K','Move to the next undo state']]
+let s:keymap += [['PreviousState','J','Move to the previous undo state']]
+let s:keymap += [['NextSavedState','>','Move to the next saved state']]
+let s:keymap += [['PreviousSavedState','<','Move to the previous saved state']]
 let s:keymap += [['Redo','<c-r>','Redo']]
 let s:keymap += [['Undo','u','Undo']]
-let s:keymap += [['Enter','<2-LeftMouse>','Revert to current']]
-let s:keymap += [['Enter','<cr>','Revert to current']]
+let s:keymap += [['Enter','<2-LeftMouse>','Move to the current state']]
+let s:keymap += [['Enter','<cr>','Move to the current state']]
 
 "=================================================
 function! s:new(obj)
@@ -168,7 +168,7 @@ function! s:getUniqueID()
     return s:cntr
 endfunction
 
-" Debug...
+" Set to 1 to enable debug log
 let s:debug = 0
 let s:debugfile = $HOME.'/undotree_debug.log'
 " If debug file exists, enable debug output.
@@ -307,12 +307,12 @@ endfunction
 
 function! s:undotree.Action(action)
     call s:log("undotree.Action() ".a:action)
-    if !self.IsVisible() || bufname("%") != self.bufname
-        echoerr "Fatal: window does not exists."
+    if !self.IsVisible() || !exists('b:isUndotreeBuffer')
+        echoerr "Fatal: window does not exist."
         return
     endif
     if !has_key(self,'Action'.a:action)
-        echoerr "Fatal: Action does not exists!"
+        echoerr "Fatal: Action does not exist!"
         return
     endif
     silent exec 'call self.Action'.a:action.'()'
@@ -366,19 +366,19 @@ function! s:undotree.ActionRedo()
     call self.ActionInTarget("redo")
 endfunction
 
-function! s:undotree.ActionGoPreviousState()
+function! s:undotree.ActionPreviousState()
     call self.ActionInTarget('earlier')
 endfunction
 
-function! s:undotree.ActionGoNextState()
+function! s:undotree.ActionNextState()
     call self.ActionInTarget('later')
 endfunction
 
-function! s:undotree.ActionGoPreviousSaved()
+function! s:undotree.ActionPreviousSavedState()
     call self.ActionInTarget('earlier 1f')
 endfunction
 
-function! s:undotree.ActionGoNextSaved()
+function! s:undotree.ActionNextSavedState()
     call self.ActionInTarget('later 1f')
 endfunction
 
@@ -441,16 +441,26 @@ function! s:undotree.SetTargetFocus()
 endfunction
 
 function! s:undotree.Toggle()
+    "Global auto commands to keep undotree up to date.
+    let auEvents = "BufEnter,InsertLeave,CursorMoved,BufWritePost"
+
     call s:log(self.bufname." Toggle()")
     if self.IsVisible()
         call self.Hide()
         call t:diffpanel.Hide()
         call self.SetTargetFocus()
+        augroup Undotree
+            autocmd!
+        augroup END
     else
         call self.Show()
         if !g:undotree_SetFocusWhenToggle
             call self.SetTargetFocus()
         endif
+        augroup Undotree
+            au!
+            exec "au! ".auEvents." * call undotree#UndotreeUpdate()"
+        augroup END
     endif
 endfunction
 
@@ -489,6 +499,11 @@ function! s:undotree.Show()
     endif
     call s:exec("silent keepalt ".cmd)
     call self.SetFocus()
+
+    " We need a way to tell if the buffer is belong to undotree,
+    " bufname() is not always reliable.
+    let b:isUndotreeBuffer = 1
+
     setlocal winfixwidth
     setlocal noswapfile
     setlocal buftype=nowrite
@@ -528,8 +543,7 @@ function! s:undotree.Update()
         return
     endif
     " do nothing if we're in the undotree or diff panel
-    let bufname = bufname('%')
-    if bufname == self.bufname || bufname == t:diffpanel.bufname
+    if exists('b:isUndotreeBuffer')
         return
     endif
     if (&bt != '' && &bt != 'acwrite') || (&modifiable == 0) || (mode() != 'n')
@@ -1161,6 +1175,8 @@ function! s:diffpanel.Show()
         let cmd = 'botright '.g:undotree_DiffpanelHeight.'new '.self.bufname
     endif
     call s:exec_silent(cmd)
+
+    let b:isUndotreeBuffer = 1
 
     setlocal winfixwidth
     setlocal winfixheight

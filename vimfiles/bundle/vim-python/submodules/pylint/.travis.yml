@@ -11,6 +11,8 @@ jobs:
     - stage: prechecks
       python: 3.5
       env: TOXENV=pylint
+    - python: 3.5
+      env: TOXENV=docs
     - stage: tests-cpython
       python: 3.4
       env: TOXENV=py34
