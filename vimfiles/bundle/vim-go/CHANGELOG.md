@@ -13,6 +13,8 @@ IMPROVEMENTS:
   [[GH-1894]](https://github.com/fatih/vim-go/pull/1894)
 * Install keyify from its canonical import path.
   [[GH-1924]](https://github.com/fatih/vim-go/pull/1924)
+* Update the tested version of Neovim to v0.3.1.
+  [[GH-1923]](https://github.com/fatih/vim-go/pull/1923)
 
 BUG FIXES:
 * Fix `:GoRun %` on Windows.
@@ -23,10 +25,15 @@ BUG FIXES:
   [[GH-1895]](https://github.com/fatih/vim-go/pull/1895)
 * Fix `:GoInfo` when `g:go_info_mode` is `gocode`
   [[GH-1915]](https://github.com/fatih/vim-go/pull/1915)
+* Fix highlighting of pointer type in var blocks.
+  [[GH-1794]](https://github.com/fatih/vim-go/pull/1794)
 
 BACKWARDS INCOMPATIBILITIES:
 * Bump minimum required version of Vim to 7.4.2009.
   [[GH-1899]](https://github.com/fatih/vim-go/pull/1899)
+* Switch gocode to github.com/mdempsky/gocode. Several gocode options have been
+  removed and a new one has been added.
+  [[GH-1853]](https://github.com/fatih/vim-go/pull/1853)
 
 ## 1.18 - (July 18, 2018)
 
