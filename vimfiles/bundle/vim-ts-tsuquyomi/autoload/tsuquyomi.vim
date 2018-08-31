@@ -440,9 +440,9 @@ function! tsuquyomi#gotoDefinition(tsClientFunction, splitMode)
   let l:res_list = a:tsClientFunction(l:file, l:line, l:offset)
   let l:definition_split = a:splitMode > 0 ? a:splitMode : g:tsuquyomi_definition_split
 
-  if(len(l:res_list) == 1)
-    " If get result, go to the location.
-    let l:info = l:res_list[0]
+  if(len(l:res_list) > 0)
+    " If get result, go to last location.
+    let l:info = l:res_list[len(l:res_list) - 1]
     if a:splitMode == 0 && l:file == l:info.file
       " Same file without split
       call tsuquyomi#bufManager#winPushNavDef(bufwinnr(bufnr('%')), l:file, {'line': l:line, 'col': l:offset})
@@ -857,8 +857,8 @@ endfunction
 " #### Navto {{{
 function! tsuquyomi#navto(term, kindModifiers, matchKindType)
 
-  if len(a:term) < 3
-    echom "[Tsuquyomi] search term's length should be greater than 3."
+  if len(a:term) < g:tsuquyomi_search_term_min_length
+    echom "[Tsuquyomi] search term's length should be greater than ".g:tsuquyomi_search_term_min_length."."
     return [[], 0]
   endif
 
@@ -982,8 +982,12 @@ function! tsuquyomi#getSupportedCodeFixes()
   if len(s:supportedCodeFixes)
     return s:supportedCodeFixes
   endif
-  let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
-  return s:supportedCodeFixes
+  try
+    let s:supportedCodeFixes = tsuquyomi#tsClient#tsGetSupportedCodeFixes()
+    return s:supportedCodeFixes
+  catch
+    return []
+  endtry
 endfunction
 
 function! tsuquyomi#quickFix()

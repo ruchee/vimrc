@@ -76,20 +76,39 @@ function! tsuquyomi#config#tssargs()
   return join(args, ' ')
 endfunction
 
+" Search from cwd upward looking for first directory with package.json
+function! tsuquyomi#config#_path2project_directory_ts()
+  let parent = getcwd()
+
+  while 1
+    let path = parent . '/package.json'
+    if filereadable(path)
+      return parent
+    endif
+    let next = fnamemodify(parent, ':h')
+    if next == parent
+      return ''
+    endif
+    let parent = next
+  endwhile
+endfunction
+
 function! tsuquyomi#config#tsscmd()
   if s:tss_cmd !=# ''
     return s:tss_cmd
   endif
   if g:tsuquyomi_use_local_typescript != 0
-    let l:prj_dir = s:Prelude.path2project_directory(getcwd(), 1)
+    let l:prj_dir = tsuquyomi#config#_path2project_directory_ts()
+
+    if l:prj_dir == ''
+      " Fallback to generic project root search
+      let l:prj_dir = s:Prelude.path2project_directory(getcwd(), 1)
+    endif
+
     if l:prj_dir !=# ''
       let l:searched_tsserver_path = s:Filepath.join(l:prj_dir, 'node_modules/typescript/bin/tsserver')
       if filereadable(l:searched_tsserver_path)
-        if !s:is_vim8
-          return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
-        else
-          return g:tsuquyomi_nodejs_path.' '.l:searched_tsserver_path
-        endif
+        return g:tsuquyomi_nodejs_path.' "'.l:searched_tsserver_path.'"'
       endif
     endif
   endif
