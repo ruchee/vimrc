@@ -18,6 +18,8 @@ snippet vrq     导入包到变量
 	var ${1} = require('${2}')${0}
 snippet lrq     导入包到变量
 	let ${1} = require('${2}')${0}
+snippet crq     导入包到常量
+	const ${1} = require('${2}')${0}
 snippet irq     导入包
 	import ${1} = require('${2}')${0}
 snippet im      导入模块 [ES6新增]
@@ -68,10 +70,10 @@ snippet f       常规函数
 	}
 snippet ff      匿名函数 [ES5语法]
 	function(${1})${2} {${0}}
-snippet fff     匿名函数 [箭头函数，无自己的this]（带括号） [ES6语法]
-	(${1}) => ${0}
 snippet la      匿名函数 [单一参数箭头函数，行内直接return] [ES6语法]
 	${1} => ${0}
+snippet la.     匿名函数 [箭头函数，无自己的this]（带括号） [ES6语法]
+	(${1}) => ${0}
 snippet of      对象中的方法
 	${1}: function(${2}) {
 	    ${0}
@@ -241,6 +243,8 @@ snippet tr      去除头尾空白字符
 # 输出
 snippet p       终端输出
 	console.log(${0})
+snippet e       标准错误输出
+	console.error(${0})
 snippet dw      文本打印
 	document.writeln(${0})
 snippet al      弹出框
