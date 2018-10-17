@@ -215,3 +215,11 @@ contributors:
 * Kosarchuk Sergey: contributor
 
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
+
+* Marcus Näslund (naslundx): contributor 
+
+* Natalie Serebryakova: contributor
+
+* Caio Carrara: contributor
+
+* Roberto Leinardi: PyCharm plugin maintainer

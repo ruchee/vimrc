@@ -412,22 +412,83 @@ function! rust#Play(count, line1, line2, ...) abort
         call setreg('"', save_regcont, save_regtype)
     endif
 
-    let body = l:rust_playpen_url."?code=".webapi#http#encodeURI(content)
+    let url = l:rust_playpen_url."?code=".webapi#http#encodeURI(content)
 
-    if strlen(body) > 5000
-        echohl ErrorMsg | echomsg 'Buffer too large, max 5000 encoded characters ('.strlen(body).')' | echohl None
+    if strlen(url) > 5000
+        echohl ErrorMsg | echomsg 'Buffer too large, max 5000 encoded characters ('.strlen(url).')' | echohl None
         return
     endif
 
-    let payload = "format=simple&url=".webapi#http#encodeURI(body)
+    let payload = "format=simple&url=".webapi#http#encodeURI(url)
     let res = webapi#http#post(l:rust_shortener_url.'create.php', payload, {})
-    let url = res.content
-
-    if exists('g:rust_clip_command')
-        call system(g:rust_clip_command, url)
+    if res.status[0] ==# '2'
+        let url = res.content
     endif
 
-    redraw | echomsg 'Done: '.url
+    let footer = ''
+    if exists('g:rust_clip_command')
+        call system(g:rust_clip_command, url)
+        if !v:shell_error
+            let footer = ' (copied to clipboard)'
+        endif
+    endif
+    redraw | echomsg 'Done: '.url.footer
+endfunction
+
+" Run a test under the cursor or all tests {{{1
+
+" Finds a test function name under the cursor. Returns empty string when a
+" test function is not found.
+function! s:SearchTestFunctionNameUnderCursor() abort
+    let cursor_line = line('.')
+
+    " Find #[test] attribute
+    if search('#\[test]', 'bcW') is 0
+        return ''
+    endif
+
+    " Move to an opening brace of the test function
+    let test_func_line = search('^\s*fn\s\+\h\w*\s*(.\+{$', 'eW')
+    if test_func_line is 0
+        return ''
+    endif
+
+    " Search the end of test function (closing brace) to ensure that the
+    " cursor position is within function definition
+    normal! %
+    if line('.') < cursor_line
+        return ''
+    endif
+
+    return matchstr(getline(test_func_line), '^\s*fn\s\+\zs\h\w*')
+endfunction
+
+function! rust#Test(all, options) abort
+    let pwd = expand('%:p:h')
+    if findfile('Cargo.toml', pwd . ';') ==# ''
+        return rust#Run(1, '--test ' . a:options)
+    endif
+
+    let pwd = shellescape(pwd)
+
+    if a:all
+        execute '!cd ' . pwd . ' && cargo test ' . a:options
+        return
+    endif
+
+    let saved = getpos('.')
+    try
+        let func_name = s:SearchTestFunctionNameUnderCursor()
+        if func_name ==# ''
+            echohl ErrorMsg
+            echo 'No test function was found under the cursor. Please add ! to command if you want to run all tests'
+            echohl None
+            return
+        endif
+        execute '!cd ' . pwd . ' && cargo test ' . func_name . ' ' . a:options
+    finally
+        call setpos('.', saved)
+    endtry
 endfunction
 
 " }}}1

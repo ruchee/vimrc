@@ -51,8 +51,8 @@ OPTIONS = (
      dict(short="A", default=None,
           help="show all ancestors off all classes in <projects>")),
     ("show-associated",
-     dict(short='s', action="store", metavar='<ass_level>', type='int',
-          help='show <ass_level> levels of associated classes not in <projects>')),
+     dict(short='s', action="store", metavar='<association_level>', type='int',
+          help='show <association_level> levels of associated classes not in <projects>')),
     ("all-associated",
      dict(short='S', default=None,
           help='show recursively all associated off all associated classes')),
@@ -100,7 +100,7 @@ def _check_graphviz_available(output_format):
 class Run(ConfigurationMixIn):
     """base class providing common behaviour for pyreverse commands"""
 
-    options = OPTIONS
+    options = OPTIONS    # type: ignore
 
     def __init__(self, args):
         ConfigurationMixIn.__init__(self, usage=__doc__)

@@ -36,17 +36,22 @@ function! airline#init#bootstrap()
   call s:check_defined('g:airline_mode_map', {})
   call extend(g:airline_mode_map, {
         \ '__' : '------',
-        \ 'n'  : 'NORMAL',
-        \ 'i'  : 'INSERT',
-        \ 'R'  : 'REPLACE',
-        \ 'v'  : 'VISUAL',
-        \ 'V'  : 'V-LINE',
         \ 'c'  : 'COMMAND',
-        \ '' : 'V-BLOCK',
+        \ 'i'  : 'INSERT',
+        \ 'ic' : 'INSERT COMPL',
+        \ 'ix' : 'INSERT COMPL',
+        \ 'n'  : 'NORMAL',
+        \ 'ni' : '(INSERT)',
+        \ 'no' : 'OP PENDING',
+        \ 'R'  : 'REPLACE',
+        \ 'Rv' : 'V REPLACE',
         \ 's'  : 'SELECT',
         \ 'S'  : 'S-LINE',
         \ '' : 'S-BLOCK',
         \ 't'  : 'TERMINAL',
+        \ 'v'  : 'VISUAL',
+        \ 'V'  : 'V-LINE',
+        \ '' : 'V-BLOCK',
         \ }, 'keep')
 
   call s:check_defined('g:airline_theme_map', {})
@@ -148,9 +153,11 @@ function! airline#init#bootstrap()
   call airline#parts#define_empty(['hunks', 'branch', 'obsession', 'tagbar',
         \ 'syntastic-warn', 'syntastic-err', 'eclim', 'whitespace','windowswap',
         \ 'ycm_error_count', 'ycm_warning_count', 'neomake_error_count',
-        \ 'neomake_warning_count', 'ale_error_count', 'ale_warning_count'])
+        \ 'neomake_warning_count', 'ale_error_count', 'ale_warning_count',
+        \ 'languageclient_error_count', 'languageclient_warning_count'])
   call airline#parts#define_text('capslock', '')
   call airline#parts#define_text('gutentags', '')
+  call airline#parts#define_text('grepper', '')
   call airline#parts#define_text('xkblayout', '')
   call airline#parts#define_text('keymap', '')
 
@@ -180,7 +187,7 @@ function! airline#init#sections()
     let g:airline_section_gutter = airline#section#create(['%='])
   endif
   if !exists('g:airline_section_x')
-    let g:airline_section_x = airline#section#create_right(['tagbar', 'gutentags', 'filetype'])
+    let g:airline_section_x = airline#section#create_right(['tagbar', 'gutentags', 'grepper', 'filetype'])
   endif
   if !exists('g:airline_section_y')
     let g:airline_section_y = airline#section#create_right(['ffenc'])
@@ -193,9 +200,9 @@ function! airline#init#sections()
     endif
   endif
   if !exists('g:airline_section_error')
-    let g:airline_section_error = airline#section#create(['ycm_error_count', 'syntastic-err', 'eclim', 'neomake_error_count', 'ale_error_count'])
+    let g:airline_section_error = airline#section#create(['ycm_error_count', 'syntastic-err', 'eclim', 'neomake_error_count', 'ale_error_count', 'languageclient_error_count'])
   endif
   if !exists('g:airline_section_warning')
-    let g:airline_section_warning = airline#section#create(['ycm_warning_count',  'syntastic-warn', 'neomake_warning_count', 'ale_warning_count', 'whitespace'])
+    let g:airline_section_warning = airline#section#create(['ycm_warning_count',  'syntastic-warn', 'neomake_warning_count', 'ale_warning_count', 'languageclient_warning_count', 'whitespace'])
   endif
 endfunction

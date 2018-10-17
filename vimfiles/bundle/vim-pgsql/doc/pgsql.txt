@@ -77,6 +77,11 @@ example:
 
 See the source code for the available highlight groups.
 
+To recognize `\'` as an escape sequences in all strings, set
+|g:pgsql_backslash_quote| to 1. By default, `\'` is treated as an
+escape sequence only in “escape” strings constants, i.e., strings
+enclosed in `E''`.
+
 ====================================================================
 Section 3: Autocompletion                     *pgsql-autocompletion*
 

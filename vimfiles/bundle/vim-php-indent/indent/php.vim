@@ -1,10 +1,10 @@
 " Vim indent file
 " Language:	PHP
 " Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
-" URL:		http://www.2072productions.com/vim/indent/php.vim
+" URL:		https://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2018 May 18th
-" Version:	1.66
+" Last Change:	2018 June 28th
+" Version:	1.67
 "
 "
 "	Type :help php-indent for available options
@@ -19,7 +19,7 @@
 
 " NOTE: This script must be used with PHP syntax ON and with the php syntax
 "	script by Lutz Eymers (http://www.isp.de/data/php.vim ) or with the
-"	script by Peter Hodge (http://www.vim.org/scripts/script.php?script_id=1571 )
+"	script by Peter Hodge (https://www.vim.org/scripts/script.php?script_id=1571 )
 "	the later is bunbdled by default with Vim 7.
 "
 "
@@ -40,6 +40,9 @@
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
 "
+"
+" Changes: 1.67         - Fix #67: chained calls indentation was aligning on the
+"			  first matching '->' instead of the last one.
 "
 " Changes: 1.66         - Add support for return type declaration on multi-line
 "		          function declarations (issue #64)
@@ -222,7 +225,7 @@
 "
 "
 " Changes: 1.24		- Added compatibility with the latest version of
-"			  php.vim syntax file by Peter Hodge (http://www.vim.org/scripts/script.php?script_id=1571)
+"			  php.vim syntax file by Peter Hodge (https://www.vim.org/scripts/script.php?script_id=1571)
 "			  This fixes wrong indentation and ultra-slow indenting
 "			  on large php files...
 "			- Fixed spelling in comments.
@@ -739,8 +742,8 @@ endfun
 
 function! FindArrowIndent (lnum)  " {{{
     " - 1 The previous line contains another '->':
-    "    we just need to return the position of this arrow if the
-    "    PHP_noArrowMatching is not set, just add an &sw otherwise.
+    "    we just need to return the position of the last arrow if the
+    "    PHP_noArrowMatching is not set. Just add an &sw otherwise.
     "
     " - 2 The previous line doesn't contain an '->'
     "     - 2.1 It's a ')$'
@@ -761,18 +764,19 @@ function! FindArrowIndent (lnum)  " {{{
 	    break
 	else
 	    " search the position of the arrow
-	    call cursor(lnum, 1)
 	    let cleanedLnum = StripEndlineComments(last_line)
 	    if cleanedLnum =~ '->'
 		if ! b:PHP_noArrowMatching
-		    let parrentArrowPos = searchpos('->', 'W', lnum)[1] - 1
-		    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returning arrow searchposition")
+		    call cursor(lnum, strwidth(cleanedLnum))
+		    let parrentArrowPos = searchpos('->', 'cWb', lnum)[1] - 1
+		    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returning arrow searchposition on: " . lnum)
 		else
 		    let parrentArrowPos = indent(lnum) + shiftwidth()
 		    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returning default indent as PHP_noArrowMatching is set")
 		endif
 		break
 	    elseif cleanedLnum =~ ')'.s:endline && BalanceDirection(last_line) < 0
+		call cursor(lnum, 1)
 		call searchpos(')'.s:endline, 'cW', lnum)
 		let openedparent = searchpair('(', '', ')', 'bW', 'Skippmatch()')
 		if openedparent != lnum
@@ -960,7 +964,7 @@ endfunc
 call ResetPhpOptions()
 
 function! GetPhpIndentVersion()
-    return "1.66"
+    return "1.67"
 endfun
 
 function! GetPhpIndent()

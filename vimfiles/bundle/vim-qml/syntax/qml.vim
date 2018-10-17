@@ -33,8 +33,8 @@ syn match   qmlLineComment       "\/\/.*" contains=@Spell,qmlCommentTodo
 syn match   qmlCommentSkip       "^[ \t]*\*\($\|[ \t]\+\)"
 syn region  qmlComment           start="/\*"  end="\*/" contains=@Spell,qmlCommentTodo fold
 syn match   qmlSpecial           "\\\d\d\d\|\\."
-syn region  qmlStringD           start=+"+  skip=+\\\\\|\\"\|\\$+  end=+"\|$+  contains=qmlSpecial,@htmlPreproc,@Spell
-syn region  qmlStringS           start=+'+  skip=+\\\\\|\\'\|\\$+  end=+'\|$+  contains=qmlSpecial,@htmlPreproc,@Spell
+syn region  qmlStringD           start=+"+  skip=+\\\\\|\\"\|\\$+  end=+"+  keepend  contains=qmlSpecial,@htmlPreproc,@Spell
+syn region  qmlStringS           start=+'+  skip=+\\\\\|\\'\|\\$+  end=+'+  keepend  contains=qmlSpecial,@htmlPreproc,@Spell
 
 syn match   qmlCharacter         "'\\.'"
 syn match   qmlNumber            "-\=\<\d\+L\=\>\|0[xX][0-9a-fA-F]\+\>"
@@ -57,7 +57,7 @@ syn keyword qmlLabel             case default
 syn keyword qmlException         try catch finally throw
 syn keyword qmlMessage           alert confirm prompt status
 syn keyword qmlGlobal            self
-syn keyword qmlDeclaration       property signal
+syn keyword qmlDeclaration       property signal readonly
 syn keyword qmlReserved          abstract boolean byte char class const debugger enum export extends final float goto implements import interface long native package pragma private protected public short static super synchronized throws transient volatile
 
 if get(g:, 'qml_fold', 0)

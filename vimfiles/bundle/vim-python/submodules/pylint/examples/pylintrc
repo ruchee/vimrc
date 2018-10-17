@@ -68,7 +68,6 @@ disable=print-statement,
         raw-checker-failed,
         bad-inline-option,
         locally-disabled,
-        locally-enabled,
         file-ignored,
         suppressed-message,
         useless-suppression,
@@ -295,7 +294,7 @@ expected-line-ending-format=
 # Regexp for a line that is allowed to be longer than the limit.
 ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
-# Number of spaces of indent required inside a hanging  or continued line.
+# Number of spaces of indent required inside a hanging or continued line.
 indent-after-paren=4
 
 # String used as indentation unit. This is usually "    " (4 spaces) or "\t" (1

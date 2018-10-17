@@ -3,24 +3,22 @@ vim-jsx-typescript
 
 Syntax highlighting for JSX in Typescript.
 
-vim-jsx-typescript is _not_ a JavaScript syntax package, so in order to use it, you will
-also need to choose a base JS highlighter. [leafgarland/typescript-vim][1] is the
-recommended package.
+`vim-jsx-typescript` works with a typescript syntax highlighter for TSX highlighting. The recommended TypeScript syntax highlighter is `leafgarland/typescript-vim`[1].
 
 
-![alt tag](./screenshot.jpg)
-![alt tag](./screenshot2.png)
+![alt tag](./screen1.jpg)
+![alt tag](./screen2.jpg)
 
 
 ## Installation
 
-You can also add vim-jsx using [Vundle] or junegunn/vim-plug---just add the following lines to
+You need to install [Vundle] or [vim-plug]: `https://github.com/junegunn/vim-plug` --- just add the following lines to
 your `~/.vimrc`:
 
 ### Vundle:
 
 ```
-Plugin 'pangloss/vim-javascript'
+Plugin 'leafgarland/typescript-vim'
 Plugin 'peitalin/vim-jsx-typescript'
 ```
 
@@ -33,34 +31,65 @@ Plug 'peitalin/vim-jsx-typescript'
 
 To install from within vim, use the commands below.
 ```
-    :so ~/.vimrc
-    :PluginInstall
+:so ~/.vimrc
+:PluginInstall
 
-OR for vim-plug:
-    :PlugInstall
-
-```
-
-You will also need to set .tsx files as filetype=typescript.jsx, since leafgarland/typescript-vim
-sets .tsx files as "typescript".
+" OR for vim-plug:
+:so ~/.vimrc
+:PlugInstall
 
 ```
-" set filetypes as typescript.jsx
-autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.jsx
+
+Note you can include .jsx files as typescript.tsx files for syntax highlighting.
 ```
-
-Note you can include .jsx and .js files as typescript.jsx files for syntax highlighting.
-
-
-Set jsx-tag colors in vimrc:
-```
-" light blues
-hi xmlTagName guifg=#59ACE5
-hi xmlTag guifg=#59ACE5
-
-" dark blues
-hi xmlEndTag guifg=#2974a1
+" set filetypes as typescript.tsx
+autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescript.tsx
 ```
 
 
+Set jsx-tag colors in vimrc, for example:
+```
+" dark red
+hi tsxTagName guifg=#E06C75
+
+" orange
+hi tsxCloseString guifg=#F99575
+hi tsxCloseTag guifg=#F99575
+hi tsxAttributeBraces guifg=#F99575
+hi tsxEqual guifg=#F99575
+
+" yellow
+hi tsxAttrib guifg=#F8BD7F cterm=italic
+```
+
+
+![alt tag](./screen4.jpg)
+
+Or use the blue-green [Original] colorscheme
+```
+" light blue
+hi tsxTagName guifg=#59ACE5
+" dark blue
+hi tsxCloseString guifg=#2974a1
+hi tsxCloseTag guifg=#2974a1
+hi tsxAttributeBraces guifg=#2974a1
+hi tsxEqual guifg=#2974a1
+" green
+hi tsxAttrib guifg=#1BD1C1
+
+```
+
+
+![alt tag](./screen3.jpg)
+
+
+Other keywords you can change coloring:
+```
+hi ReactState guifg=#C176A7
+hi ReactProps guifg=#D19A66
+hi Events ctermfg=204 guifg=#56B6C2
+hi ReduxKeywords ctermfg=204 guifg=#C678DD
+hi WebBrowser ctermfg=204 guifg=#56B6C2
+hi ReactLifeCycleMethods ctermfg=204 guifg=#D19A66
+```
 

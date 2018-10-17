@@ -52,8 +52,10 @@ endf
 augroup NimVim
   au!
   au BufEnter log://nim call s:UpdateNimLog()
-  " au QuitPre * :py nimTerminateAll()
-  au VimLeavePre * :py nimTerminateAll()
+  if has("python3") || has("python")
+    " au QuitPre * :py nimTerminateAll()
+    au VimLeavePre * :py nimTerminateAll()
+  endif
 augroup END
 
 command! NimLog :e log://nim

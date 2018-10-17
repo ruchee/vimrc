@@ -8,4 +8,4 @@ have made contributions:
 
 _EOF
 
-git shortlog -s | gawk '{$1=""; print "*" $0}' >> CONTRIBUTORS.md
+git shortlog -s | gawk '{$1=""; print "*" $0}' | sort -u >> CONTRIBUTORS.md

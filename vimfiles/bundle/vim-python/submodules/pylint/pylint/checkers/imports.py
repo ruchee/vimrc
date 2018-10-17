@@ -123,6 +123,7 @@ def _ignore_import_failure(node, modname, ignored_modules):
 
 # utilities to represents import dependencies as tree and dot graph ###########
 
+
 def _make_tree_defs(mod_files_list):
     """get a list of 2-uple (module, list_of_files_which_import_this_module),
     it will return a dictionary to represent this as a tree
@@ -200,8 +201,8 @@ MSGS = {
               'in the current package.'),
     'R0401': ('Cyclic import (%s)',
               'cyclic-import',
-              'Used when a cyclic import between two or more modules is \
-              detected.'),
+              'Used when a cyclic import between two or more modules is '
+              'detected.'),
 
     'W0401': ('Wildcard import %s',
               'wildcard-import',
@@ -223,8 +224,8 @@ MSGS = {
 
     'W0410': ('__future__ import is not the first non docstring statement',
               'misplaced-future',
-              'Python 2.5 and greater require __future__ import to be the \
-              first non docstring statement in the module.'),
+              'Python 2.5 and greater require __future__ import to be the '
+              'first non docstring statement in the module.'),
 
     'C0410': ('Multiple imports on one line (%s)',
               'multiple-imports',
@@ -303,31 +304,32 @@ class ImportsChecker(BaseChecker):
                 {'default': DEFAULT_STANDARD_LIBRARY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of'
-                         ' the standard compatibility libraries.'}
-               ),
+                 'help': 'Force import order to recognize a module as part of '
+                         'the standard compatibility libraries.'}
+                ),
                ('known-third-party',
                 {'default': DEFAULT_KNOWN_THIRD_PARTY,
                  'type': 'csv',
                  'metavar': '<modules>',
-                 'help': 'Force import order to recognize a module as part of'
-                         ' a third party library.'}
-               ),
+                 'help': 'Force import order to recognize a module as part of '
+                         'a third party library.'}
+                ),
                ('analyse-fallback-blocks',
                 {'default': False,
                  'type': 'yn',
                  'metavar': '<y_or_n>',
                  'help': 'Analyse import fallback blocks. This can be used to '
-                         'support both Python 2 and 3 compatible code, which means that '
-                         'the block might have code that exists only in one or another '
-                         'interpreter, leading to false positives when analysed.'},
-               ),
+                         'support both Python 2 and 3 compatible code, which '
+                         'means that the block might have code that exists '
+                         'only in one or another interpreter, leading to false '
+                         'positives when analysed.'},
+                ),
                ('allow-wildcard-with-all',
                 {'default': False,
                  'type': 'yn',
                  'metavar': '<y_or_n>',
                  'help': 'Allow wildcard imports from modules that define __all__.'}),
-              )
+               )
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)
@@ -340,7 +342,7 @@ class ImportsChecker(BaseChecker):
                          self._report_external_dependencies),
                         ('RP0402', 'Modules dependencies graph',
                          self._report_dependencies_graph),
-                       )
+                        )
 
         self._site_packages = self._compute_site_packages()
 
@@ -586,7 +588,7 @@ class ImportsChecker(BaseChecker):
         std_imports = []
         third_party_imports = []
         first_party_imports = []
-        # need of a list that holds third or first party ordered import
+        # need of a list that holds third or first party ordered import
         external_imports = []
         local_imports = []
         third_party_not_ignored = []
@@ -671,9 +673,9 @@ class ImportsChecker(BaseChecker):
         if not self.linter.is_message_enabled('relative-import'):
             return None
         if importedmodnode.file is None:
-            return False # built-in module
+            return False  # built-in module
         if modnode is importedmodnode:
-            return False # module importing itself
+            return False  # module importing itself
         if modnode.absolute_import_activated() or getattr(importnode, 'level', None):
             return False
         if importedmodnode.name != importedasname:
@@ -732,10 +734,14 @@ class ImportsChecker(BaseChecker):
                 return
 
             real_name = name[0]
-            packages = real_name.rsplit('.', 1)
-            real_name = packages[1] if len(packages) == 2 else packages[0]
+            splitted_packages = real_name.rsplit('.')
+            real_name = splitted_packages[-1]
             imported_name = name[1]
-            if real_name == imported_name:
+            # consider only following cases
+            # import x as x
+            # and ignore following
+            # import x.y.z as z
+            if real_name == imported_name and len(splitted_packages) == 1:
                 self.add_message('useless-import-alias', node=node)
 
     def _check_reimport(self, node, basename=None, level=None):

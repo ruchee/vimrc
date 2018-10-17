@@ -89,11 +89,13 @@ def run(path='', code=None, rootdir=CURDIR, options=None):
     if code and errors:
         errors = filter_skiplines(code, errors)
 
-    def key(e): return e.lnum
     if options and options.sort:
         sort = dict((v, n) for n, v in enumerate(options.sort, 1))
 
         def key(e): return (sort.get(e.type, 999), e.lnum)
+    else:
+        def key(e): return e.lnum
+
     return sorted(errors, key=key)
 
 
@@ -191,12 +193,12 @@ class CodeContext(object):
         if self.code is None:
             LOGGER.info("File is reading: %s", self.path)
             if sys.version_info >= (3, ):
-                # 'U' mode is deprecated in python 3
-                mode = 'r'
+                self._file = open(self.path, encoding='utf-8')
             else:
-                mode = 'rU'
-            self._file = open(self.path, mode)
+                self._file = open(self.path, 'rU')
+
             self.code = self._file.read()
+
         return self
 
     def __exit__(self, t, value, traceback):

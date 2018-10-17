@@ -29,14 +29,14 @@ class NimThread(threading.Thread):
        universal_newlines = True,
        bufsize = 1)
  
-  def postNimCmd(self, msg, async = True):
-    self.tasks.put((msg, async))
-    if not async:
+  def postNimCmd(self, msg, async_ = True):
+    self.tasks.put((msg, async_))
+    if not async_:
       return self.responses.get()
 
   def run(self):
     while True:
-      (msg, async) = self.tasks.get()
+      (msg, async_) = self.tasks.get()
 
       if msg == "quit":
         self.nim.terminate()
@@ -49,7 +49,7 @@ class NimThread(threading.Thread):
         line = self.nim.stdout.readline()
         result += line
         if line == "\n":
-          if not async:
+          if not async_:
             self.responses.put(result)
           else:
             self.asyncOpComplete(msg, result)
@@ -81,16 +81,16 @@ def nimRestartService(project):
   nimTerminateService(project)
   nimStartService(project)
 
-def nimExecCmd(project, cmd, async = True):
+def nimExecCmd(project, cmd, async_ = True):
   target = None
   if NimProjects.has_key(project):
     target = NimProjects[project]
   else:
     target = nimStartService(project)
   
-  result = target.postNimCmd(cmd, async)
+  result = target.postNimCmd(cmd, async_)
   
-  if not async:
+  if not async_:
     vim.command('let l:py_res = "' + nimVimEscape(result) + '"')
 
 def nimTerminateAll():

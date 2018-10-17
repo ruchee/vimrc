@@ -1,6 +1,8 @@
 A Personal Wiki For Vim
 ==============================================================================
 
+[中文](README-cn.md)
+
 ![screenshot1](doc/screenshot_1.png)
 ![screenshot2](doc/screenshot_2.png) *
 
@@ -140,7 +142,7 @@ Installation using [Vim-Plug](https://github.com/junegunn/vim-plug)
 
 Add the following to the plugin-configuration in your vimrc:
 
-    Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+    Plug 'vimwiki/vimwiki'
 
 Then run `:PlugInstall`.
 

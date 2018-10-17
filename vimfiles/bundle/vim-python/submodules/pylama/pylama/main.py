@@ -7,7 +7,7 @@ from os import walk, path as op
 
 from .config import parse_options, CURDIR, setup_logger
 from .core import LOGGER, run
-from .async import check_async
+from .check_async import check_async
 
 
 def check_path(options, rootdir=None, candidates=None, code=None):
@@ -25,7 +25,8 @@ def check_path(options, rootdir=None, candidates=None, code=None):
             path = op.abspath(path_)
             if op.isdir(path):
                 for root, _, files in walk(path):
-                    candidates += [op.relpath(op.join(root, f), CURDIR) for f in files]
+                    candidates += [op.relpath(op.join(root, f), CURDIR)
+                                   for f in files]
             else:
                 candidates.append(path)
 
@@ -35,7 +36,8 @@ def check_path(options, rootdir=None, candidates=None, code=None):
     paths = []
     for path in candidates:
 
-        if not options.force and not any(l.allow(path) for _, l in options.linters):
+        if not options.force and not any(l.allow(path)
+                                         for _, l in options.linters):
             continue
 
         if not op.exists(path):
@@ -43,7 +45,7 @@ def check_path(options, rootdir=None, candidates=None, code=None):
 
         paths.append(path)
 
-    if options.async:
+    if options.concurrent:
         return check_async(paths, options, rootdir)
 
     errors = []

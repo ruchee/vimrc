@@ -2041,12 +2041,9 @@ plperlu_validator()
 plpgsql_call_handler()
 plpgsql_inline_handler()
 plpgsql_validator()
-plpython2_call_handler()
-plpython2_inline_handler()
-plpython2_validator()
-plpython_call_handler()
-plpython_inline_handler()
-plpython_validator()
+plpython3_call_handler()
+plpython3_inline_handler()
+plpython3_validator()
 pltcl_call_handler()
 pltclu_call_handler()
 point()
@@ -2706,10 +2703,10 @@ xmlexists()
 xmlvalidate()
 xpath()
 xpath_exists()
--- Extension: 
+-- Extension: refint
 check_foreign_key() -- function
 check_primary_key() -- function
--- Extension: 
+-- Extension: postgis
 addauth() -- function
 addgeometrycolumn() -- function
 addoverviewconstraints() -- function
@@ -3326,11 +3323,11 @@ geography_columns -- view
 geometry_columns -- view
 raster_columns -- view
 raster_overviews -- view
--- Extension: 
+-- Extension: unaccent
 unaccent() -- function
 unaccent_init() -- function
 unaccent_lexize() -- function
--- Extension: 
+-- Extension: btree_gin
 gin_btree_consistent() -- function
 gin_compare_prefix_anyenum() -- function
 gin_compare_prefix_bit() -- function
@@ -3406,11 +3403,11 @@ gin_extract_value_timestamptz() -- function
 gin_extract_value_timetz() -- function
 gin_extract_value_varbit() -- function
 gin_numeric_cmp() -- function
--- Extension: 
-plpython2_call_handler() -- function
-plpython2_inline_handler() -- function
-plpython2_validator() -- function
--- Extension: 
+-- Extension: plpython3u
+plpython3_call_handler() -- function
+plpython3_inline_handler() -- function
+plpython3_validator() -- function
+-- Extension: ltree
 index() -- function
 lca() -- function
 lquery_in() -- function
@@ -3456,11 +3453,9 @@ lquery -- type
 ltree -- type
 ltree_gist -- type
 ltxtquery -- type
--- Extension: 
+-- Extension: tsm_system_rows
 system_rows() -- function
--- Extension: 
-ltree_to_plpython() -- function
--- Extension: 
+-- Extension: adminpack
 pg_file_length() -- function
 pg_file_read() -- function
 pg_file_rename() -- function
@@ -3468,17 +3463,17 @@ pg_file_unlink() -- function
 pg_file_write() -- function
 pg_logdir_ls() -- function
 pg_logfile_rotate() -- function
--- Extension: 
+-- Extension: dict_xsyn
 dxsyn_init() -- function
 dxsyn_lexize() -- function
--- Extension: 
+-- Extension: address_standardizer
 parse_address() -- function
 standardize_address() -- function
 stdaddr -- type
--- Extension: 
+-- Extension: hstore_plperlu
 hstore_to_plperlu() -- function
 plperlu_to_hstore() -- function
--- Extension: 
+-- Extension: xml2
 xml_encode_special_chars() -- function
 xml_valid() -- function
 xpath_bool() -- function
@@ -3488,7 +3483,7 @@ xpath_number() -- function
 xpath_string() -- function
 xpath_table() -- function
 xslt_process() -- function
--- Extension: 
+-- Extension: hstore
 akeys() -- function
 avals() -- function
 defined() -- function
@@ -3543,14 +3538,14 @@ svals() -- function
 tconvert() -- function
 ghstore -- type
 hstore -- type
--- Extension: 
+-- Extension: pg_visibility
 pg_check_frozen() -- function
 pg_check_visible() -- function
 pg_truncate_visibility_map() -- function
 pg_visibility() -- function
 pg_visibility_map() -- function
 pg_visibility_map_summary() -- function
--- Extension: 
+-- Extension: cube
 cube() -- function
 cube_cmp() -- function
 cube_contained() -- function
@@ -3587,7 +3582,7 @@ g_cube_picksplit() -- function
 g_cube_same() -- function
 g_cube_union() -- function
 cube -- type
--- Extension: 
+-- Extension: postgis_tiger_geocoder
 count_words() -- function
 create_census_base_tables() -- function
 cull_null() -- function
@@ -3671,7 +3666,7 @@ zip_lookup_base -- table
 zip_state -- table
 zip_state_loc -- table
 norm_addy -- type
--- Extension: 
+-- Extension: seg
 gseg_compress() -- function
 gseg_consistent() -- function
 gseg_decompress() -- function
@@ -3702,14 +3697,14 @@ seg_size() -- function
 seg_union() -- function
 seg_upper() -- function
 seg -- type
--- Extension: 
+-- Extension: intagg
 int_agg_final_array() -- function
 int_agg_state() -- function
 int_array_aggregate() -- function
 int_array_enum() -- function
--- Extension: 
+-- Extension: tcn
 triggered_change_notification() -- function
--- Extension: 
+-- Extension: isn
 btean13cmp() -- function
 btisbn13cmp() -- function
 btisbncmp() -- function
@@ -3760,15 +3755,15 @@ ismn13 -- type
 issn -- type
 issn13 -- type
 upc -- type
--- Extension: 
+-- Extension: tsm_system_time
 system_time() -- function
--- Extension: 
+-- Extension: lo
 lo_manage() -- function
 lo_oid() -- function
 lo -- type
--- Extension: 
+-- Extension: pgrowlocks
 pgrowlocks() -- function
--- Extension: 
+-- Extension: sslinfo
 ssl_cipher() -- function
 ssl_client_cert_present() -- function
 ssl_client_dn() -- function
@@ -3779,30 +3774,30 @@ ssl_is_used() -- function
 ssl_issuer_dn() -- function
 ssl_issuer_field() -- function
 ssl_version() -- function
--- Extension: 
+-- Extension: pgstattuple
 pg_relpages() -- function
 pgstatginindex() -- function
 pgstathashindex() -- function
 pgstatindex() -- function
 pgstattuple() -- function
 pgstattuple_approx() -- function
--- Extension: 
+-- Extension: chkpass
 chkpass_in() -- function
 chkpass_out() -- function
 eq() -- function
 ne() -- function
 raw() -- function
 chkpass -- type
--- Extension: 
+-- Extension: autoinc
 autoinc() -- function
--- Extension: 
+-- Extension: address_standardizer_data_us
 us_gaz -- table
 us_lex -- table
 us_rules -- table
--- Extension: 
-hstore_to_plpython2() -- function
-plpython2_to_hstore() -- function
--- Extension: 
+-- Extension: hstore_plpython3u
+hstore_to_plpython3() -- function
+plpython3_to_hstore() -- function
+-- Extension: postgis_topology
 addedge() -- function
 addface() -- function
 addnode() -- function
@@ -3874,15 +3869,15 @@ topoelement -- type
 topoelementarray -- type
 topogeometry -- type
 validatetopology_returntype -- type
--- Extension: 
+-- Extension: pg_freespacemap
 pg_freespace() -- function
--- Extension: 
+-- Extension: file_fdw
 file_fdw_handler() -- function
 file_fdw_validator() -- function
--- Extension: 
+-- Extension: pg_buffercache
 pg_buffercache_pages() -- function
 pg_buffercache -- view
--- Extension: 
+-- Extension: dblink
 dblink() -- function
 dblink_build_sql_delete() -- function
 dblink_build_sql_insert() -- function
@@ -3905,15 +3900,15 @@ dblink_is_busy() -- function
 dblink_open() -- function
 dblink_send_query() -- function
 dblink_pkey_results -- type
--- Extension: 
+-- Extension: pg_stat_statements
 pg_stat_statements() -- function
 pg_stat_statements_reset() -- function
 pg_stat_statements -- view
--- Extension: 
+-- Extension: insert_username
 insert_username() -- function
--- Extension: 
+-- Extension: pg_prewarm
 pg_prewarm() -- function
--- Extension: 
+-- Extension: pgtap
 is() -- function
 add_result() -- function
 alike() -- function
@@ -4119,7 +4114,7 @@ views_are() -- function
 volatility_is() -- function
 pg_all_foreign_keys -- view
 tap_funky -- view
--- Extension: 
+-- Extension: earthdistance
 earth() -- function
 earth_box() -- function
 earth_distance() -- function
@@ -4130,7 +4125,7 @@ ll_to_earth() -- function
 longitude() -- function
 sec_to_gc() -- function
 earth -- type
--- Extension: 
+-- Extension: uuid-ossp
 uuid_generate_v1() -- function
 uuid_generate_v1mc() -- function
 uuid_generate_v3() -- function
@@ -4141,11 +4136,11 @@ uuid_ns_dns() -- function
 uuid_ns_oid() -- function
 uuid_ns_url() -- function
 uuid_ns_x500() -- function
--- Extension: 
+-- Extension: plperlu
 plperlu_call_handler() -- function
 plperlu_inline_handler() -- function
 plperlu_validator() -- function
--- Extension: 
+-- Extension: intarray
 boolop() -- function
 bqarr_in() -- function
 bqarr_out() -- function
@@ -4182,7 +4177,7 @@ subarray() -- function
 uniq() -- function
 intbig_gkey -- type
 query_int -- type
--- Extension: 
+-- Extension: pg_trgm
 gin_extract_query_trgm() -- function
 gin_extract_value_trgm() -- function
 gin_trgm_consistent() -- function
@@ -4209,13 +4204,13 @@ word_similarity_dist_commutator_op() -- function
 word_similarity_dist_op() -- function
 word_similarity_op() -- function
 gtrgm -- type
--- Extension: 
+-- Extension: dict_int
 dintdict_init() -- function
 dintdict_lexize() -- function
--- Extension: 
+-- Extension: amcheck
 bt_index_check() -- function
 bt_index_parent_check() -- function
--- Extension: 
+-- Extension: btree_gist
 cash_dist() -- function
 date_dist() -- function
 float4_dist() -- function
@@ -4400,7 +4395,7 @@ gbtreekey32 -- type
 gbtreekey4 -- type
 gbtreekey8 -- type
 gbtreekey_var -- type
--- Extension: 
+-- Extension: pageinspect
 brin_metapage_info() -- function
 brin_page_items() -- function
 brin_page_type() -- function
@@ -4423,18 +4418,14 @@ heap_page_items() -- function
 page_checksum() -- function
 page_header() -- function
 tuple_data_split() -- function
--- Extension: 
+-- Extension: pltclu
 pltclu_call_handler() -- function
--- Extension: 
+-- Extension: hstore_plperl
 hstore_to_plperl() -- function
 plperl_to_hstore() -- function
--- Extension: 
+-- Extension: moddatetime
 moddatetime() -- function
--- Extension: 
-plpython_call_handler() -- function
-plpython_inline_handler() -- function
-plpython_validator() -- function
--- Extension: 
+-- Extension: fuzzystrmatch
 difference() -- function
 dmetaphone() -- function
 dmetaphone_alt() -- function
@@ -4443,9 +4434,9 @@ levenshtein_less_equal() -- function
 metaphone() -- function
 soundex() -- function
 text_soundex() -- function
--- Extension: 
-ltree_to_plpython2() -- function
--- Extension: 
+-- Extension: ltree_plpython3u
+ltree_to_plpython3() -- function
+-- Extension: pgrouting
 pgr_alphashape() -- function
 pgr_analyzegraph() -- function
 pgr_analyzeoneway() -- function
@@ -4490,6 +4481,7 @@ pgr_kdijkstrapath() -- function
 pgr_ksp() -- function
 pgr_labelgraph() -- function
 pgr_linegraph() -- function
+pgr_linegraphfull() -- function
 pgr_maxcardinalitymatch() -- function
 pgr_maxflow() -- function
 pgr_maxflowboykovkolmogorov() -- function
@@ -4522,7 +4514,7 @@ pgr_withpointsksp() -- function
 pgr_costresult -- type
 pgr_costresult3 -- type
 pgr_geomresult -- type
--- Extension: 
+-- Extension: pldbgapi
 pldbg_abort_target() -- function
 pldbg_attach_to_port() -- function
 pldbg_continue() -- function
@@ -4549,7 +4541,7 @@ frame -- type
 proxyinfo -- type
 targetinfo -- type
 var -- type
--- Extension: 
+-- Extension: pgcrypto
 armor() -- function
 crypt() -- function
 dearmor() -- function
@@ -4572,7 +4564,7 @@ pgp_sym_decrypt() -- function
 pgp_sym_decrypt_bytea() -- function
 pgp_sym_encrypt() -- function
 pgp_sym_encrypt_bytea() -- function
--- Extension: 
+-- Extension: postgis_sfcgal
 postgis_sfcgal_scripts_installed() -- function
 postgis_sfcgal_version() -- function
 st_3darea() -- function
@@ -4590,15 +4582,15 @@ st_orientation() -- function
 st_straightskeleton() -- function
 st_tesselate() -- function
 st_volume() -- function
--- Extension: 
+-- Extension: timetravel
 get_timetravel() -- function
 set_timetravel() -- function
 timetravel() -- function
--- Extension: 
+-- Extension: plperl
 plperl_call_handler() -- function
 plperl_inline_handler() -- function
 plperl_validator() -- function
--- Extension: 
+-- Extension: tablefunc
 connectby() -- function
 crosstab() -- function
 crosstab2() -- function
@@ -4608,17 +4600,14 @@ normal_rand() -- function
 tablefunc_crosstab_2 -- type
 tablefunc_crosstab_3 -- type
 tablefunc_crosstab_4 -- type
--- Extension: 
+-- Extension: postgres_fdw
 postgres_fdw_handler() -- function
 postgres_fdw_validator() -- function
--- Extension: 
+-- Extension: bloom
 blhandler() -- function
--- Extension: 
+-- Extension: pltcl
 pltcl_call_handler() -- function
--- Extension: 
-hstore_to_plpython() -- function
-plpython_to_hstore() -- function
--- Extension: 
+-- Extension: citext
 citext() -- function
 citext_cmp() -- function
 citext_eq() -- function
@@ -4650,10 +4639,28 @@ texticregexeq() -- function
 texticregexne() -- function
 translate() -- function
 citext -- type
--- Extension: 
+-- Extension: plpgsql
 plpgsql_call_handler() -- function
 plpgsql_inline_handler() -- function
 plpgsql_validator() -- function
+-- Extension: plpythonu
+plpython_call_handler() -- function
+plpython_inline_handler() -- function
+plpython_validator() -- function
+-- Extension: plpython2u
+plpython2_call_handler() -- function
+plpython2_inline_handler() -- function
+plpython2_validator() -- function
+-- Extension: hstore_plpythonu
+hstore_to_plpython() -- function
+plpython_to_hstore() -- function
+-- Extension: hstore_plpython2u
+hstore_to_plpython2() -- function
+plpython2_to_hstore() -- function
+-- Extension: ltree_plpythonu
+ltree_to_plpython() -- function
+-- Extension: ltree_plpython2u
+ltree_to_plpython2() -- function
 -- Extensions names
 address_standardizer
 address_standardizer_data_us
@@ -4675,16 +4682,14 @@ fuzzystrmatch
 hstore
 hstore_plperl
 hstore_plperlu
-hstore_plpython2u
-hstore_plpythonu
+hstore_plpython3u
 insert_username
 intagg
 intarray
 isn
 lo
 ltree
-ltree_plpython2u
-ltree_plpythonu
+ltree_plpython3u
 moddatetime
 pageinspect
 pg_buffercache
@@ -4702,8 +4707,7 @@ pldbgapi
 plperl
 plperlu
 plpgsql
-plpython2u
-plpythonu
+plpython3u
 pltcl
 pltclu
 postgis
@@ -4721,6 +4725,13 @@ tsm_system_rows
 tsm_system_time
 unaccent
 xml2
+-- Lgeacy extensions names
+hstore_plpython2u
+hstore_plpythonu
+ltree_plpython2u
+ltree_plpythonu
+plpython2u
+plpythonu
 -- Catalog tables
 administrable_role_authorizations
 applicable_roles
@@ -5265,6 +5276,112 @@ yes
 -- Additional constants
 information_schema
 pg_catalog
+-- Operators
+!
+!!
+!~
+!~*
+!~~
+!~~*
+#
+##
+#-
+#<
+#<#
+#<=
+#<=#
+#<>
+#=
+#>
+#>#
+#>=
+#>=#
+#>>
+%
+%#
+%%
+%>
+&
+&&
+&&&
+&<
+&<|
+&>
+*
+*<
+*<=
+*<>
+*=
+*>
+*>=
++
+-
+->
+->>
+-|-
+/
+<
+<#>
+<%
+<->
+<->>
+<<
+<<->
+<<->>
+<<=
+<<|
+<=
+<=>
+<>
+<?>
+<@
+<@>
+<^
+=
+>
+>=
+>>
+>>=
+>^
+?
+?#
+?&
+?-
+?-|
+?<@
+?@
+?@>
+?|
+?||
+?~
+@
+@-@
+@>
+@@
+@@@
+^
+^<@
+^?
+^@
+^@>
+^~
+|
+|&>
+|/
+|=|
+|>>
+||
+||/
+~
+~*
+~<=~
+~<~
+~=
+~>
+~>=~
+~>~
+~~
+~~*
 -- Error codes
 active_sql_transaction
 admin_shutdown
@@ -5397,6 +5514,7 @@ invalid_name
 invalid_object_definition
 invalid_parameter_value
 invalid_password
+invalid_preceding_or_following_size
 invalid_prepared_statement_definition
 invalid_recursion
 invalid_regular_expression
@@ -5501,3 +5619,34 @@ windowing_error
 with_check_option_violation
 wrong_object_type
 zero_length_character_string
+
+--
+-- More checks
+--
+
+-- See https://github.com/lifepillar/pgsql.vim/issues/4
+where cast(t.data #>> '{user,id_str}' as bigint) = 123;
+
+-- Backslashes and quotes are not special in identifiers:
+select "a\" from T;
+select "a\\" from T;
+select "a""" from T;
+select "a'" from T;
+select "a\'" from T;
+
+-- Backslashes and quotes are not special in strings:
+select '\';
+select '\\';
+select '\''';
+select '''' || 'ok';
+select '"';
+select '""';
+select '\"';
+
+-- Quoted identifiers including escaped Unicode characters identified by their code points
+select U&"\0441\043B\043E\043D" from T;
+select U&"d!0061t!+000061" uescape '!' from T;
+
+-- String constants with C-style escapes
+select E'\b\f\n\r\t''abc\FF\'abc\'';
+

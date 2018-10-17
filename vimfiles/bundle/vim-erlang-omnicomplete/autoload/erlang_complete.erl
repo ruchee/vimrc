@@ -527,6 +527,7 @@ load_makefiles([Makefile|_Rest]) ->
     {opts, [{i, absname(Path, "include")},
             {i, absname(Path, "deps")}]}.
 
+-compile({nowarn_deprecated_function, [{filename, find_src, 1}]}).
 
 module_edoc(Mod) ->
     File = case filename:find_src(Mod) of

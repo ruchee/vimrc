@@ -1,13 +1,23 @@
-WebAssembly S-Expression Syntax Support for Vim
-===============================================
+WebAssembly Text Format Syntax Support for Vim
+==============================================
 
-This Vim plugin provides a [WebAssembly](https://github.com/WebAssembly/design) filetype support; syntax, filetype detection, and indentation.
+[vim-wasm][] provides a [WebAssembly][] filetype support; syntax, filetype detection, and indentation.
+This filetype plugin defines highlights based on [WebAssembly text format spec][].
+
+Now this plugin is included in [official Vim release][vim runtime dir]. This repository is for development.
+Unless you want to use HEAD version, you don't need to install this plugin.
+
+[vim-wasm]: https://github.com/rhysd/vim-wasm
+[WebAssembly]: https://webassembly.org/
+[WebAssembly text format spec]: https://webassembly.github.io/spec/core/text/index.html
+[vim runtime dir]: https://github.com/vim/vim/tree/master/runtime
 
 
 ## Installation and Usage
 
-Copy all directories into your `~/.vim` directory or use your favorite plugin manager to install.
-This plugin automatically detects `*.wast` files.
+Copy `ftdetect`, `ftplugin`, `indent` and `syntax` directories into your `~/.vim` directory or use your
+favorite plugin manager to install.
+This plugin automatically detects `*.wast` files as WebAssembly text format.
 
 | `set filetype=wast` | `set filetype=lisp` |
 |---------------------|---------------------|

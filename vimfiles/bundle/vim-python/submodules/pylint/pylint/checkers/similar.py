@@ -217,9 +217,9 @@ class LineSet:
 
 MSGS = {'R0801': ('Similar lines in %s files\n%s',
                   'duplicate-code',
-                  'Indicates that a set of similar lines has been detected \
-                  among multiple file. This usually means that the code should \
-                  be refactored to avoid this duplication.')}
+                  'Indicates that a set of similar lines has been detected '
+                  'among multiple file. This usually means that the code should '
+                  'be refactored to avoid this duplication.')}
 
 def report_similarities(sect, stats, old_stats):
     """make a layout with some stats about duplication"""
@@ -244,7 +244,7 @@ class SimilarChecker(BaseChecker, Similar):
     msgs = MSGS
     # configuration options
     # for available dict keys/values see the optik parser 'add_option' method
-    options = (('min-similarity-lines',
+    options = (('min-similarity-lines',  # type: ignore
                 {'default' : 4, 'type' : "int", 'metavar' : '<int>',
                  'help' : 'Minimum lines number of a similarity.'}),
                ('ignore-comments',
@@ -261,7 +261,7 @@ class SimilarChecker(BaseChecker, Similar):
                ),
               )
     # reports
-    reports = (('RP0801', 'Duplication', report_similarities),)
+    reports = (('RP0801', 'Duplication', report_similarities),)  # type: ignore
 
     def __init__(self, linter=None):
         BaseChecker.__init__(self, linter)

@@ -55,6 +55,29 @@ begin
 end;
 $$;
 
+create or replace function vim_format_operators(
+  _keywords text[],
+  _kind text,
+  _wrap integer default 50)
+returns setof text
+language plpgsql stable
+set search_path to "public" as
+$$
+begin
+  return query
+    with T as (
+      select sum(char_length(keyword)) over (order by char_length(keyword) desc, keyword) as num, keyword
+        from unnest(_keywords) K(keyword)
+    )
+    select format('syn match sql%s contained "\%%(%s\)\ze\%%([^!?~#^@<=>%%&|*/+-]\|$\)"',
+                   _kind,
+                   string_agg(regexp_replace(keyword, '[~^*#]', E'\\\\\\&', 'g'), '\|'))
+      from T
+     group by num / (_wrap - 1)
+     order by num / (_wrap - 1);
+  return;
+end;
+$$;
 
 -- Define keywords for all extensions
 create or replace function vim_format_extensions(
@@ -90,6 +113,29 @@ begin
 
   end loop;
 
+  for _ext in select extname from legacy_extension_names() loop
+
+    return query
+    select format('" Extension: %s', _ext.extname);
+
+    return query
+    select format('if index(get(g:, ''pgsql_disabled_extensions'', []), ''%s'') == -1', _ext.extname);
+
+    return query
+    with T as (
+      select sum(char_length(synkeyword)) over (partition by synclass order by synkeyword) num, synclass, synkeyword
+        from get_legacy_extension_objects(_ext.extname)
+      )
+      select format('  syn keyword sql%s contained %s', initcap(synclass), string_agg(regexp_replace(synkeyword, '^\w+\.|"', '', 'g'), ' ')) -- remove schema name and double quotes
+        from T
+      group by synclass, num / (_wrap - 1)
+      order by synclass, num / (_wrap - 1);
+
+    return query
+      select format('endif " %s', _ext.extname);
+
+  end loop;
+
   return;
 end;
 $$;
@@ -104,7 +150,7 @@ select
 $HERE$" Vim syntax file
 " Language:     SQL (PostgreSQL dialect), PL/pgSQL, PL/…, PostGIS, …
 " Maintainer:   Lifepillar
-" Version:      2.1.0
+" Version:      2.1.1
 " License:      This file is placed in the public domain.
 $HERE$;
 
@@ -121,8 +167,8 @@ syn case ignore
 syn sync minlines=100
 syn iskeyword @,48-57,192-255,_
 
-syn match sqlIsKeyword  /\<\h\w*\>/   contains=sqlStatement,sqlKeyword,sqlCatalog,sqlConstant,sqlOperator,sqlSpecial,sqlOption,sqlErrorCode,sqlType
-syn match sqlIsFunction /\<\h\w*\ze(/ contains=sqlFunction
+syn match sqlIsKeyword  /\<\h\w*\>/   contains=sqlStatement,sqlKeyword,sqlCatalog,sqlConstant,sqlSpecial,sqlOption,sqlErrorCode,sqlType,sqlTable,sqlView
+syn match sqlIsFunction /\<\h\w*\ze(/ contains=sqlFunction,sqlKeyword
 syn region sqlIsPsql    start=/^\s*\\/ end=/\n/ oneline contains=sqlPsqlCommand,sqlPsqlKeyword,sqlNumber,sqlString
 
 syn keyword sqlSpecial contained false null true
@@ -135,35 +181,58 @@ select vim_format(array(select get_types()), 'Type');
 select 'syn match sqlType /pg_toast_\d\+/';
 select '" Additional types';
 select vim_format(array(select get_additional_types()), 'Type');
+select '" Keywords';
+select vim_format(array(select get_keywords()), 'Keyword');
+select vim_format(array(select get_additional_constants()), 'Constant');
 select '" Built-in functions';
 select vim_format(array(select get_builtin_functions()), 'Function');
 select '" Extensions names';
 select vim_format(array(select extname from extension_names() where not extname ~* '-'), 'Constant');
+select '" Legacy extensions names';
+select vim_format(array(select extname from legacy_extension_names() where not extname ~* '-'), 'Constant');
 select vim_format_extensions();
 select '" Catalog tables';
 select vim_format(array(select get_catalog_tables()), 'Catalog');
-select '" Keywords';
-select vim_format(array(select get_keywords()), 'Keyword');
-select vim_format(array(select get_additional_constants()), 'Constant');
 select  '" Error codes (Appendix A, Table A-1)';
 select vim_format(array(select get_errcodes()), 'ErrorCode');
 
 select
 $HERE$
+" Legacy error codes
+syn keyword sqlErrorCode contained invalid_preceding_following_size
+
 " Numbers
-syn match sqlNumber "-\=\<\d*\.\=[0-9_]\>"
+syn match sqlNumber "\<\d*\.\=[0-9_]\>"
 
 " Variables (identifiers starting with an underscore)
 syn match sqlVariable "\<_[A-Za-z0-9][A-Za-z0-9_]*\>"
 
 " Strings
-syn region sqlIdentifier start=+"+  skip=+\\\\\|\\"+  end=+"+
-syn region sqlString     start=+'+  skip=+\\\\\|\\'+  end=+'+ contains=@Spell
-syn region sqlString     start=+\$HERE\$+ end=+\$HERE\$+
 
+if get(g:, 'pgsql_backslash_quote', 0)
+  syn region sqlString start=+E\?'+ skip=+\\\\\|\\'\|''+ end=+'+ contains=@Spell
+  syn region sqlString start=+\$HERE\$+ end=+\$HERE\$+ contains=@Spell
+else
+  syn region sqlString start=+E'+ skip=+\\\\\|\\'\|''+ end=+'+ contains=@Spell
+  syn region sqlString start=+'+ skip=+''+ end=+'+ contains=@Spell
+  syn region sqlString start=+\$HERE\$+ end=+\$HERE\$+ contains=@Spell
+endif
+" Escape String Constants
+" Identifiers
+syn region sqlIdentifier start=+\%(U&\)\?"+ end=+"+
+syn keyword sqlConstant UESCAPE
+
+" Operators
+syn match sqlIsOperator "\%(^\|[^!?~#^@<=>%&|*/+-]\)\zs[!?~#^@<=>%&|*/+-]\+" contains=sqlOperator
+$HERE$;
+
+select vim_format_operators(array(select get_operators()), 'Operator');
+
+select
+$HERE$
 " Comments
 syn region sqlComment    start="/\*" end="\*/" contains=sqlTodo,@Spell
-syn match  sqlComment    "#.*$"                contains=sqlTodo,@Spell
+syn match  sqlComment    "#\s.*$"              contains=sqlTodo,@Spell
 syn match  sqlComment    "--.*$"               contains=sqlTodo,@Spell
 
 " Options

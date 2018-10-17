@@ -1,2 +1,2 @@
-au BufNewFile,BufRead *.nim,*.nims set filetype=nim
+au BufNewFile,BufRead *.nim,*.nims,*.nimble set filetype=nim
 

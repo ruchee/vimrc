@@ -4,7 +4,7 @@
 
 function! ctrlp#funky#ft#objc#filters()
   let filters = [
-        \ { 'pattern': '\m\C^\(-\|+\)\s*([a-zA-Z0-9 *]\+)\s*.*',
+        \ { 'pattern': '\m\C^\(-\|+\)\s*([a-zA-Z0-9<> *]\+)\s*.*',
         \   'formatter': [] }
   \ ]
 

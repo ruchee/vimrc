@@ -8,5 +8,7 @@ if exists("b:did_indent")
   finish
 endif
 
-" Use HTML formatting rules.
-runtime! indent/html.vim
+" Use HTML formatting rules for filetypes in `ftdetect/jinja.vim`
+if expand('%:e') =~ 'htm\|nunj|jinja\|j2'
+  runtime! indent/html.vim
+endif

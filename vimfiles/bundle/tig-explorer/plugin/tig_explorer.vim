@@ -11,11 +11,11 @@ if exists('g:loaded_tig_explorer')
 endif
 let g:loaded_tig_explorer = 1
 
-let s:save_cpo = &cpo
-set cpo&vim
+let s:save_cpo = &cpoptions
+set cpoptions&vim
 
 command! -nargs=? Tig
-      \  call tig_explorer#call(<q-args>)
+      \  call tig_explorer#open(<q-args>)
 
 command! TigOpenCurrentFile
       \  call tig_explorer#open_current_file()
@@ -29,5 +29,8 @@ command! -nargs=? TigGrep
 command! TigBlame
       \  call tig_explorer#blame()
 
-let &cpo = s:save_cpo
+command! TigGrepResume
+      \  call tig_explorer#grep_resume()
+
+let &cpoptions = s:save_cpo
 unlet s:save_cpo

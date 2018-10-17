@@ -25,8 +25,11 @@ from os.path import join
 
 modname = distname = 'pylint'
 
-numversion = (2, 1, 0)
-version = '.'.join(str(num) for num in numversion)
+numversion = (2, 2, 0)
+dev_version = 'dev'
+string_version = '.'.join(str(num) for num in numversion)
+
+version = string_version + '-' + dev_version
 
 install_requires = [
     'astroid>=2.0.0',
@@ -34,8 +37,7 @@ install_requires = [
     'mccabe',
 ]
 
-dependency_links = [
-]
+dependency_links = []   # type: ignore
 
 extras_require = {}
 extras_require[':sys_platform=="win32"'] = ['colorama']

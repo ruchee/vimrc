@@ -1151,6 +1151,7 @@ fu! ctrlp#acceptfile(...)
 			\ md == 't' || s:splitwin == 1 ? ( useb ? 'tab sb' : 'tabe' ) :
 			\ md == 'h' || s:splitwin == 2 ? ( useb ? 'sb' : 'new' ) :
 			\ md == 'v' || s:splitwin == 3 ? ( useb ? 'vert sb' : 'vne' ) :
+			\ &bt == 'help' ? 'b' :
 			\ call('ctrlp#normcmd', useb ? ['b', 'bo vert sb'] : ['e'])
 		" Reset &switchbuf option
 		let [swb, &swb] = [&swb, '']
@@ -1590,7 +1591,7 @@ fu! s:formatline(str)
 		let bufnr = s:bufnrfilpath(str)[0]
 		let parts = s:bufparts(bufnr)
 		let str = printf('%'.s:bufnr_width.'s', bufnr)
-		if s:has_conceal
+		if s:has_conceal && has('syntax_items')
 			let str .= printf(' %-13s %s%-36s',
 				\ '<bi>'.parts[0].'</bi>',
 				\ '<bn>'.parts[1], '{'.parts[2].'}</bn>')
@@ -2595,6 +2596,20 @@ fu! s:ExitIfSingleCandidate()
 	return 0
 endfu
 
+fu! s:IsBuiltin()
+	let builtins = ['tag', 'dir', 'bft', 'rts', 'bkd', 'lns', 'chs', 'mix', 'udo', 'qfx']
+	let curtype = s:getextvar('sname')
+	return s:itemtype < len(s:coretypes) || index(builtins, curtype) > -1
+endfu
+
+fu! s:DetectFileType(type, ft)
+	if s:IsBuiltin() || empty(a:ft) || a:ft ==# 'ctrlp'
+		retu 'ctrlp'
+	el
+		retu 'ctrlp.' . a:ft
+	en
+endfu
+
 fu! ctrlp#init(type, ...)
 	if exists('s:init') || s:iscmdwin() | retu | en
 	let [s:ermsg, v:errmsg] = [v:errmsg, '']
@@ -2618,6 +2633,7 @@ fu! ctrlp#init(type, ...)
 		en
 	en
 	cal ctrlp#setlines(s:settype(type))
+	let &filetype = s:DetectFileType(type, &filetype)
 	cal ctrlp#syntax()
 	cal s:SetDefTxt()
 	let curName = s:CurTypeName()

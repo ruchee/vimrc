@@ -67,7 +67,7 @@ import os
 try:
     import multiprocessing
 except ImportError:
-    multiprocessing = None
+    multiprocessing = None  # type: ignore
 import sys
 import tokenize
 import warnings
@@ -187,10 +187,6 @@ MSGS = {
     'I0011': ('Locally disabling %s (%s)',
               'locally-disabled',
               'Used when an inline option disables a message or a messages '
-              'category.'),
-    'I0012': ('Locally enabling %s (%s)',
-              'locally-enabled',
-              'Used when an inline option enables a message or a messages '
               'category.'),
     'I0013': ('Ignoring entire file',
               'file-ignored',

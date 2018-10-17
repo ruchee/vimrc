@@ -24,7 +24,7 @@ if !exists('g:elm_syntastic_show_warnings')
 endif
 
 if !exists('g:elm_format_autosave')
-	let g:elm_format_autosave = 0
+	let g:elm_format_autosave = 1
 endif
 
 if !exists('g:elm_format_fail_silently')
@@ -50,6 +50,18 @@ command -buffer ElmShowDocs call elm#ShowDocs()
 command -buffer ElmBrowseDocs call elm#BrowseDocs()
 command -buffer ElmFormat call elm#Format()
 
+" Commands cleanup
+let b:undo_ftplugin = "
+      \ delcommand ElmMake
+      \|delcommand ElmMakeMain
+      \|delcommand ElmTest
+      \|delcommand ElmRepl
+      \|delcommand ElmErrorDetail
+      \|delcommand ElmShowDocs
+      \|delcommand ElmBrowseDocs
+      \|delcommand ElmFormat
+      \"
+
 if get(g:, 'elm_setup_keybindings', 1)
   nmap <buffer> <LocalLeader>m <Plug>(elm-make)
   nmap <buffer> <LocalLeader>b <Plug>(elm-make-main)
@@ -61,7 +73,7 @@ if get(g:, 'elm_setup_keybindings', 1)
 endif
 
 " Better gf command
-nmap gf :call elm#util#GoToModule(expand('<cfile>'))<CR>
+nmap <buffer> gf :call elm#util#GoToModule(expand('<cfile>'))<CR>
 
 " Elm code formatting on save
 if get(g:, 'elm_format_autosave', 1)

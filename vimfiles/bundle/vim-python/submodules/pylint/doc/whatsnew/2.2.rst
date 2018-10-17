@@ -1,0 +1,38 @@
+**************************
+ What's New in Pylint 2.2
+**************************
+
+:Release: 2.2
+:Date: TBA 
+
+Summary -- Release highlights
+=============================
+
+
+New checkers
+============
+
+
+Other Changes
+=============
+
+* Ignore import x.y.z as z cases for checker `useless-import-alias`.
+
+* `unnecessary-pass` is now also emitted when a function or class contains only docstring and pass statement, 
+  in which case, docstring is enough for empty definition.
+
+* Fix false positive ``undefined-variable`` and ``used-before-assignment`` with nonlocal keyword usage.
+
+* Fix exceptions being raised when one of the params is not a ClassDef for :func:`checkers.utils.is_subclass_of`.
+
+* ``pylint`` now picks the latest value from the inferred values of the exception that gets
+  raised, when looking for ``raising-non-exception``. This helps when reusing a variable name
+  for multiple types, since ``pylint`` was picking just the first inferred value, leading
+  to spurious false positives.
+
+  Close #2431
+
+* ``pylint`` used to emit a ``not-an-iterable`` error when looking at coroutines built
+  with ``asyncio.coroutine``. This is no longer the case as we handle coroutines explicitly.
+
+  Close #996

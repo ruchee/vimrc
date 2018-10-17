@@ -1,21 +1,21 @@
-# pylint: disable=R0903,import-error,missing-docstring,wrong-import-position,useless-super-delegation, useless-object-inheritance
+# pylint: disable=R0903,import-error,missing-docstring,wrong-import-position,useless-super-delegation, useless-object-inheritance, unnecessary-pass
 """test for __init__ not called
 """
 from __future__ import print_function
 
-class AAAA:  # <3.0:[old-style-class]
+class AAAA:
     """ancestor 1"""
 
     def __init__(self):
         print('init', self)
 
-class BBBB:  # <3.0:[old-style-class]
+class BBBB:
     """ancestor 2"""
 
     def __init__(self):
         print('init', self)
 
-class CCCC:  # <3.0:[old-style-class,no-init]
+class CCCC:
     """ancestor 3"""
 
 

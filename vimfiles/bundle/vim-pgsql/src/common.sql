@@ -13,6 +13,18 @@ create table errcodes (
 
 \copy errcodes from program 'cat errcodes.txt | awk -F "[ ]+" ''{ if ($1 != "#" && $4 != "-" && $4 != "") { print $4 } }'' | sort | uniq'
 
+create or replace function legacy_extension_names()
+returns table (extname name)
+language sql immutable as
+$$
+  values ('plpythonu'::name),
+         ('plpython2u'::name),
+         ('hstore_plpythonu'::name),
+         ('hstore_plpython2u'::name),
+         ('ltree_plpythonu'::name),
+         ('ltree_plpython2u'::name);
+$$;
+
 
 create or replace function extension_names()
 returns table (
@@ -24,11 +36,10 @@ set search_path to "pg_catalog" as
 $$
   select name, default_version from pg_available_extensions()
    where name not in ( -- Extensions to skip
-    'citus',
-    'hstore_plpython3u',
-    'ltree_plpython3u',
-    'plr' -- Not available for PostgreSQL 9.6?
-  );
+                       'citus',
+                       'plr' -- Not available for PostgreSQL 9.6 or later?
+                     )
+     and name not in (select extname::name from public.legacy_extension_names());
 $$;
 
 
@@ -99,6 +110,20 @@ $$
 $$;
 
 
+create or replace function get_operators()
+returns table(keyword text)
+language sql stable
+set search_path to "pg_catalog", "public" as
+$$
+  -- Query adapted from \doS
+  select distinct o.oprname::text as keyword
+    from pg_catalog.pg_operator o
+    left join pg_catalog.pg_namespace n
+      on n.oid = o.oprnamespace
+   where pg_catalog.pg_operator_is_visible(o.oid)
+   order by keyword;
+$$;
+
 create or replace function get_types()
 returns table ("type" text)
 language sql stable
@@ -143,6 +168,44 @@ $$
    select "type" from get_additional_types());
 $$;
 
+create or replace function get_legacy_extension_objects(_extname name)
+returns table (
+          synclass text,
+          synkeyword text
+        )
+language plpgsql immutable as
+$$
+begin
+  case _extname
+  when 'plpythonu' then
+    return query
+    values ('function', 'plpython_call_handler'),
+           ('function', 'plpython_inline_handler'),
+           ('function', 'plpython_validator');
+  when 'plpython2u' then
+    return query
+    values ('function', 'plpython2_call_handler'),
+           ('function', 'plpython2_inline_handler'),
+           ('function', 'plpython2_validator');
+  when 'hstore_plpythonu' then
+    return query
+    values ('function', 'hstore_to_plpython'),
+           ('function', 'plpython_to_hstore');
+  when 'hstore_plpython2u' then 
+    return query
+    values ('function', 'hstore_to_plpython2'),
+           ('function', 'plpython2_to_hstore');
+  when 'ltree_plpythonu' then
+    return query
+    values ('function', 'ltree_to_plpython');
+  when 'ltree_plpython2u' then
+    return query
+    values ('function', 'ltree_to_plpython2');
+  else
+    raise exception 'Unknown legacy extension %', _extname;
+  end case;
+end;
+$$;
 
 -- Get the list of functions, tables, types and views installed by a given extension.
 -- Query adapted from psql (\set ECHO_HIDDEN ON and \dx+ <extname> to see the query).

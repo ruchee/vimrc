@@ -91,7 +91,7 @@ MSGS = {
     'C0302': ('Too many lines in module (%s/%s)',  # was W0302
               'too-many-lines',
               'Used when a module has too many lines, reducing its readability.'
-             ),
+              ),
     'C0303': ('Trailing whitespace',
               'trailing-whitespace',
               'Used when there is whitespace between the end of a line and the '
@@ -114,8 +114,8 @@ MSGS = {
               'Used when there are some mixed tabs and spaces in a module.'),
     'W0301': ('Unnecessary semicolon',  # was W0106
               'unnecessary-semicolon',
-              'Used when a statement is ended by a semi-colon (";"), which \
-              isn\'t necessary (that\'s python, not C ;).'),
+              'Used when a statement is ended by a semi-colon (";"), which '
+              'isn\'t necessary (that\'s python, not C ;).'),
     'C0321': ('More than one statement on a single line',
               'multiple-statements',
               'Used when more than on statement are found on the same line.',
@@ -131,12 +131,6 @@ MSGS = {
               {'old_names': [('C0323', 'no-space-after-operator'),
                              ('C0324', 'no-space-after-comma'),
                              ('C0322', 'no-space-before-operator')]}),
-    'W0332': ('Use of "l" as long integer identifier',
-              'lowercase-l-suffix',
-              'Used when a lower case "l" is used to mark a long integer. You '
-              'should use an upper case "L" since the letter "l" looks too much '
-              'like the digit "1"',
-              {'maxversion': (3, 0)}),
     'C0327': ('Mixed line endings LF and CRLF',
               'mixed-line-endings',
               'Used when there are mixed (LF and CRLF) newline signs in a file.'),
@@ -541,13 +535,13 @@ class FormatChecker(BaseTokenChecker):
                ('indent-after-paren',
                 {'type': 'int', 'metavar': '<int>', 'default': 4,
                  'help': 'Number of spaces of indent required inside a hanging '
-                         ' or continued line.'}),
+                         'or continued line.'}),
                ('expected-line-ending-format',
                 {'type': 'choice', 'metavar': '<empty or LF or CRLF>', 'default': '',
                  'choices': ['', 'LF', 'CRLF'],
                  'help': ('Expected format of line ending, '
                           'e.g. empty (any line ending), LF or CRLF.')}),
-              )
+               )
 
     def __init__(self, linter=None):
         BaseTokenChecker.__init__(self, linter)
@@ -906,7 +900,7 @@ class FormatChecker(BaseTokenChecker):
             else:
                 handler(tokens, idx)
 
-        line_num -= 1 # to be ok with "wc -l"
+        line_num -= 1  # to be ok with "wc -l"
         if line_num > self.config.max_module_lines:
             # Get the line where the too-many-lines (or its message id)
             # was disabled or default to 1.
@@ -976,7 +970,10 @@ class FormatChecker(BaseTokenChecker):
                 and tokens.token_indent(next_idx) in valid_indentations):
             self._current_line.add_block_warning(next_idx, state, valid_indentations)
         elif tokens.token_indent(next_idx) not in valid_indentations:
-            self._add_continuation_message(state, valid_indentations, tokens, next_idx)
+            length_indentation = len(tokens.token_indent(next_idx))
+            if not any(length_indentation == 2 * len(indentation)
+                       for indentation in valid_indentations):
+                self._add_continuation_message(state, valid_indentations, tokens, next_idx)
 
     def _add_continuation_message(self, state, indentations, tokens, position):
         readable_type, readable_position = _CONTINUATION_MSG_PARTS[state.context_type]
@@ -994,7 +991,7 @@ class FormatChecker(BaseTokenChecker):
         if not node.is_statement:
             return
         if not node.root().pure_python:
-            return # XXX block visit of child nodes
+            return  # XXX block visit of child nodes
         prev_sibl = node.previous_sibling()
         if prev_sibl is not None:
             prev_line = prev_sibl.fromlineno
@@ -1115,7 +1112,7 @@ class FormatChecker(BaseTokenChecker):
         """return the indent level of the string
         """
         indent = self.config.indent_string
-        if indent == '\\t': # \t is not interpreted in the configuration file
+        if indent == '\\t':  # \t is not interpreted in the configuration file
             indent = '\t'
         level = 0
         unit_size = len(indent)

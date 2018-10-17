@@ -134,8 +134,9 @@ Command line options
       --report REPORT, -r REPORT
                             Send report to file [REPORT]
       --hook                Install Git (Mercurial) hook.
-      --async               Enable async mode. Useful for checking a lot of
-                            files. Unsupported with pylint.
+      --concurrent, --async
+                            Enable async mode. Useful for checking a lot of files.
+                            Unsupported with pylint.
       --options FILE, -o FILE
                             Specify configuration file. Looks for pylama.ini,
                             setup.cfg, tox.ini, or pytest.ini in the current
@@ -149,7 +150,7 @@ Command line options
 File modelines
 --------------
 
-You can set options for **Pylama** inside a source files. Use
+You can set options for **Pylama** inside a source file. Use
 pylama *modeline* for this.
 
 Format: ::
@@ -168,14 +169,14 @@ Disable code checking for current file: ::
      .. Somethere in code
      # pylama:skip=1
 
-The options have a must higher priority.
+Those options have a higher priority.
 
 .. _skiplines:
 
 Skip lines (noqa)
 -----------------
 
-Just add `# noqa` in end of line for ignore.
+Just add `# noqa` in end of line to ignore.
 
 ::
 
@@ -188,8 +189,11 @@ Just add `# noqa` in end of line for ignore.
 Configuration file
 ------------------
 
-Pylama looks for a configuration file in the current directory, using the
-following names by default: ::
+**Pylama** looks for a configuration file in the current directory.
+
+The program searches for the first matching ini-style configuration file in
+the directories of command line argument. Pylama looks for the configuration
+in this order: ::
 
     pylama.ini
     setup.cfg
@@ -198,7 +202,7 @@ following names by default: ::
 
 The "--option" / "-o" argument can be used to specify a configuration file.
 
-From the configuration file sections starting with `pylama` are read.
+Pylama searches for sections whose names start with `pylama`.
 
 The "pylama" section configures global options like `linters` and `skip`.
 
@@ -227,7 +231,7 @@ You could set options for special code checker with pylama configurations.
     max_line_length = 100
     disable = R
 
-See code checkers documentation for more info.
+See code-checkers' documentation for more info.
 
 
 Set options for file (group of files)
@@ -254,7 +258,7 @@ The options have a higher priority than in the `pylama` section.
 Pytest integration
 ==================
 
-Pylama have Pytest_ support. The package automatically register self as pytest
+Pylama has Pytest_ support. The package automatically registers itself as a pytest
 plugin during installation. Pylama also supports `pytest_cache` plugin.
 
 Check files with pylama ::
@@ -271,7 +275,7 @@ Writing a linter
 You can write a custom extension for Pylama.
 Custom linter should be a python module. Name should be like 'pylama_<name>'.
 
-In 'setup.py' should be defined 'pylama.linter' entry point. ::
+In 'setup.py', 'pylama.linter' entry point should be defined. ::
 
     setup(
         # ...
@@ -282,10 +286,10 @@ In 'setup.py' should be defined 'pylama.linter' entry point. ::
     )
 
 'Linter' should be instance of 'pylama.lint.Linter' class.
-Must implemented two methods:
+Must implement two methods:
 
-'allow' take a path and returned true if linter could check this file for errors.
-'run' take a path and meta keywords params and return list of errors.
+'allow' takes a path and returns true if linter can check this file for errors.
+'run' takes a path and meta keywords params and returns a list of errors.
 
 Example:
 --------
@@ -329,10 +333,23 @@ Run pylama from python code
 
     from pylama.main import check_path, parse_options
 
-    my_redefined_options = {...}
+    # Use and/or modify 0 or more of the options defined as keys in the variable my_redefined_options below.
+    # To use defaults for any option, remove that key completely.
+    my_redefined_options = {
+        'linters': ['pep257', 'pydocstyle', 'pycodestyle', 'pyflakes' ...],
+        'ignore': ['D203', 'D213', 'D406', 'D407', 'D413' ...],
+        'select': ['R1705' ...],
+        'sort': 'F,E,W,C,D,...',
+        'skip': '*__init__.py,*/test/*.py,...',
+        'async': True,
+        'force': True
+        ...
+    }
+    # relative path of the directory in which pylama should check
     my_path = '...'
+
     options = parse_options([my_path], **my_redefined_options)
-    errors = check_path(options)
+    errors = check_path(options, rootdir='.')
 
 
 .. _bagtracker:

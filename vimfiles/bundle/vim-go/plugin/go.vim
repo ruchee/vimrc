@@ -4,32 +4,43 @@ if exists("g:go_loaded_install")
 endif
 let g:go_loaded_install = 1
 
-" Not using the has('patch-7.4.2009') syntax because that wasn't added until
-" 7.4.237, and we want to be sure this works for everyone (this is also why
-" we're not using utils#EchoError()).
-"
-" Version 7.4.2009 was chosen because that's greater than what the most recent Ubuntu LTS
-" release (16.04) uses and has a couple of features we need (e.g. execute()
-" and :message clear).
-if
-      \ go#config#VersionWarning() != 0 &&
-      \ (v:version < 704 || (v:version == 704 && !has('patch2009')))
-      \ && !has('nvim')
-  echohl Error
-  echom "vim-go requires Vim 7.4.2009 or Neovim, but you're using an older version."
-  echom "Please update your Vim for the best vim-go experience."
-  echom "If you really want to continue you can set this to make the error go away:"
-  echom "    let g:go_version_warning = 0"
-  echom "Note that some features may error out or behave incorrectly."
-  echom "Please do not report bugs unless you're using Vim 7.4.2009 or newer."
-  echohl None
+function! s:checkVersion() abort
+  " Not using the has('patch-7.4.2009') syntax because that wasn't added until
+  " 7.4.237, and we want to be sure this works for everyone (this is also why
+  " we're not using utils#EchoError()).
+  "
+  " Version 7.4.2009 was chosen because that's greater than what the most recent Ubuntu LTS
+  " release (16.04) uses and has a couple of features we need (e.g. execute()
+  " and :message clear).
 
-  " Make sure people see this.
-  sleep 2
-endif
+  let l:unsupported = 0
+  if go#config#VersionWarning() != 0
+    if has('nvim')
+      let l:unsupported = !has('nvim-0.3.1')
+    else
+      let l:unsupported = (v:version < 704 || (v:version == 704 && !has('patch2009')))
+    endif
+
+    if l:unsupported == 1
+      echohl Error
+      echom "vim-go requires Vim 7.4.2009 or Neovim 0.3.1, but you're using an older version."
+      echom "Please update your Vim for the best vim-go experience."
+      echom "If you really want to continue you can set this to make the error go away:"
+      echom "    let g:go_version_warning = 0"
+      echom "Note that some features may error out or behave incorrectly."
+      echom "Please do not report bugs unless you're using Vim 7.4.2009 or newer or Neovim 0.3.1."
+      echohl None
+
+      " Make sure people see this.
+      sleep 2
+    endif
+  endif
+endfunction
+
+call s:checkVersion()
 
 " these packages are used by vim-go and can be automatically installed if
-" needed by the user with GoInstallBinaries
+" needed by the user with GoInstallBinaries.
 let s:packages = {
       \ 'asmfmt':        ['github.com/klauspost/asmfmt/cmd/asmfmt'],
       \ 'dlv':           ['github.com/derekparker/delve/cmd/dlv'],
@@ -39,7 +50,7 @@ let s:packages = {
       \ 'godef':         ['github.com/rogpeppe/godef'],
       \ 'gogetdoc':      ['github.com/zmb3/gogetdoc'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports'],
-      \ 'golint':        ['github.com/golang/lint/golint'],
+      \ 'golint':        ['golang.org/x/lint/golint'],
       \ 'gometalinter':  ['github.com/alecthomas/gometalinter'],
       \ 'gomodifytags':  ['github.com/fatih/gomodifytags'],
       \ 'gorename':      ['golang.org/x/tools/cmd/gorename'],
@@ -99,9 +110,9 @@ function! s:GoInstallBinaries(updateBinaries, ...)
     set noshellslash
   endif
 
-  let l:cmd = ['go', 'get', '-v']
+  let l:dl_cmd = ['go', 'get', '-v', '-d']
   if get(g:, "go_get_update", 1) != 0
-    let l:cmd += ['-u']
+    let l:dl_cmd += ['-u']
   endif
 
   " Filter packages from arguments (if any).
@@ -127,16 +138,21 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   for [binary, pkg] in items(l:packages)
     let l:importPath = pkg[0]
 
-    let l:run_cmd = copy(l:cmd)
+    let l:run_cmd = copy(l:dl_cmd)
     if len(l:pkg) > 1 && get(l:pkg[1], l:platform, '') isnot ''
       let l:run_cmd += get(l:pkg[1], l:platform, '')
     endif
 
-    let binname = "go_" . binary . "_bin"
+    let bin_setting_name = "go_" . binary . "_bin"
 
-    let bin = binary
-    if exists("g:{binname}")
-      let bin = g:{binname}
+    if exists("g:{bin_setting_name}")
+      let bin = g:{bin_setting_name}
+    else
+      if go#util#IsWin()
+        let bin = binary . '.exe'
+      else
+        let bin = binary
+      endif
     endif
 
     if !executable(bin) || a:updateBinaries == 1
@@ -146,7 +162,15 @@ function! s:GoInstallBinaries(updateBinaries, ...)
         echo "vim-go: ". binary ." not found. Installing ". importPath . " to folder " . go_bin_path
       endif
 
+      " first download the binary
       let [l:out, l:err] = go#util#Exec(l:run_cmd + [l:importPath])
+      if l:err
+        echom "Error downloading " . l:importPath . ": " . l:out
+      endif
+
+      " and then build and install it
+      let l:build_cmd = ['go', 'build', '-o', go_bin_path . go#util#PathSep() . bin, l:importPath]
+      let [l:out, l:err] = go#util#Exec(l:build_cmd + [l:importPath])
       if l:err
         echom "Error installing " . l:importPath . ": " . l:out
       endif
@@ -157,6 +181,12 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   let $PATH = old_path
   if resetshellslash
     set shellslash
+  endif
+
+  if a:updateBinaries == 1
+    call go#util#EchoInfo('updating finished!')
+  else
+    call go#util#EchoInfo('installing finished!')
   endif
 endfunction
 
@@ -201,14 +231,14 @@ endfunction
 function! s:auto_type_info()
   " GoInfo automatic update
   if get(g:, "go_auto_type_info", 0)
-    call go#tool#Info()
+    call go#tool#Info(0)
   endif
 endfunction
 
 function! s:auto_sameids()
   " GoSameId automatic update
   if get(g:, "go_auto_sameids", 0)
-    call go#guru#SameIds()
+    call go#guru#SameIds(0)
   endif
 endfunction
 
@@ -223,6 +253,13 @@ function! s:asmfmt_autosave()
   " Go asm formatting on save
   if get(g:, "go_asmfmt_autosave", 0)
     call go#asmfmt#Format()
+  endif
+endfunction
+
+function! s:modfmt_autosave()
+  " go.mod code formatting on save
+  if get(g:, "go_mod_fmt_autosave", 1)
+    call go#mod#Format()
   endif
 endfunction
 
@@ -253,6 +290,7 @@ augroup vim-go
   endif
 
   autocmd BufWritePre *.go call s:fmt_autosave()
+  autocmd BufWritePre *.mod call s:modfmt_autosave()
   autocmd BufWritePre *.s call s:asmfmt_autosave()
   autocmd BufWritePost *.go call s:metalinter_autosave()
   autocmd BufNewFile *.go call s:template_autocreate()

@@ -73,6 +73,7 @@ from pylint.utils import get_global_option
 
 BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
+ASYNCIO_COROUTINE = 'asyncio.coroutines.coroutine'
 
 
 def _unflatten(iterable):
@@ -220,7 +221,7 @@ MSGS = {
               'not-callable',
               'Used when an object being called has been inferred to a non '
               'callable object.'),
-    'E1111': ('Assigning to function call which doesn\'t return',
+    'E1111': ('Assigning result of a function call, where the function has no return',
               'assignment-from-no-return',
               'Used when an assignment is done on a function call but the '
               'inferred function doesn\'t return anything.'),
@@ -253,7 +254,7 @@ MSGS = {
               'invalid-slice-index',
               'Used when a slice index is not an integer, None, or an object '
               'with an __index__ method.'),
-    'E1128': ('Assigning to function call which only returns None',
+    'E1128': ('Assigning result of a function call, where the function returns None',
               'assignment-from-none',
               'Used when an assignment is done on a function call but the '
               'inferred function returns nothing but None.',
@@ -824,8 +825,9 @@ accessed. Python regular expressions are accepted.'}
             astroid.UnboundMethod,
             astroid.BoundMethod,
         )
-        if not (isinstance(function_node, funcs) and
-                function_node.root().fully_defined()):
+        if not (isinstance(function_node, funcs)
+                and function_node.root().fully_defined()
+                and not function_node.decorators):
             return
         if (function_node.is_generator()
                 or function_node.is_abstract(pass_is_abstract=False)):
@@ -1386,15 +1388,32 @@ class IterableChecker(BaseChecker):
                       'mapping is expected'),
            }
 
+    @staticmethod
+    def _is_asyncio_coroutine(node):
+        if not isinstance(node, astroid.Call):
+            return False
+
+        inferred_func = safe_infer(node.func)
+        if not isinstance(inferred_func, astroid.FunctionDef):
+            return False
+        if not inferred_func.decorators:
+            return False
+        for decorator in inferred_func.decorators.nodes:
+            inferred_decorator = safe_infer(decorator)
+            if not isinstance(inferred_decorator, astroid.FunctionDef):
+                continue
+            if inferred_decorator.qname() != ASYNCIO_COROUTINE:
+                continue
+            return True
+        return False
+
     def _check_iterable(self, node, check_async=False):
-        if is_inside_abstract_class(node):
+        if is_inside_abstract_class(node) or is_comprehension(node):
             return
-        if is_comprehension(node):
+        inferred = safe_infer(node)
+        if not inferred:
             return
-        infered = safe_infer(node)
-        if infered is None or infered is astroid.Uninferable:
-            return
-        if not is_iterable(infered, check_async=check_async):
+        if not is_iterable(inferred, check_async=check_async):
             self.add_message('not-an-iterable',
                              args=node.as_string(),
                              node=node)
@@ -1422,6 +1441,9 @@ class IterableChecker(BaseChecker):
 
     @check_messages('not-an-iterable')
     def visit_yieldfrom(self, node):
+        # TODO: hack which can be removed once we support decorators inference
+        if self._is_asyncio_coroutine(node.value):
+            return
         self._check_iterable(node.value)
 
     @check_messages('not-an-iterable', 'not-a-mapping')

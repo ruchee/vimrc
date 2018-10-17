@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-08-01 23:30:34
+" -----------------    Date: 2018-10-17 11:55:56
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -798,7 +798,7 @@ let g:rubycomplete_rails             = 1
 let g:rubycomplete_load_gemfile      = 1
 
 " javascript-libraries-syntax                      指定需要高亮的JS库
-let g:used_javascript_libs = 'jquery,requirejs,underscore,handlebars,vue,angularjs,angularui,angularuirouter,react,flux,d3'
+let g:used_javascript_libs = 'jquery,underscore,handlebars,vue,react,d3'
 
 " prettier            格式化代码 [主要针对前端代码文件]
 let g:prettier#config#print_width = 100            " 单行最大字符数

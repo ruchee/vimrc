@@ -3,7 +3,7 @@
 
 This is the official PHP indentation plug-in for VIm (version 1.39 is bundled with VIm 7.4).
 
-Please, visit [the homepage](http://www.2072productions.com/to/phpindent.txt) of the PHP indentation script to see all the details about its features and capabilities.
+Please, visit [the homepage](https://www.2072productions.com/to/phpindent.txt) of the PHP indentation script to see all the details about its features and capabilities.
 
 ### Options
 

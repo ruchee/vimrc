@@ -3,8 +3,11 @@
 CONTENTS                                             *vim-erlang-omnicomplete*
 
     1. Introduction.....................|vim-erlang-omnicomplete-intro|
-    2. Credits..........................|vim-erlang-omnicomplete-credits|
-    3. Contributing.....................|vim-erlang-omnicomplete-contributing|
+    2. Commands.........................|vim-erlang-omnicomplete-commands|
+    3. Configuration....................|vim-erlang-omnicomplete-config|
+      3.1 Configuration Rebar3..........|vim-erlang-omnicomplete-config-rebar3|
+    4. Credits..........................|vim-erlang-omnicomplete-credits|
+    5. Contributing.....................|vim-erlang-omnicomplete-contributing|
 
 ==============================================================================
 INTRODUCTION                                   *vim-erlang-omnicomplete-intro*
@@ -55,6 +58,57 @@ the module being edited, and uses the directories in rebar.config to find the
 possible module and function names. The plugin does not support rebar.script
 files though.
 
+The plugin has a basic support for rebar3. It is aware of rebar3 when a
+rebar.lock is found inside the project. In the moment of syntax check, the
+plugin discovers all the dependencies invoking the "rebar3 as default path"
+command in background. The rebar executable is looked up inside the root
+directory of the project and, if it's not found, through the current execution
+path.
+
+==============================================================================
+COMMANDS                                    *vim-erlang-omnicomplete-commands*
+
+                                                *:ErlangCompleteClearAllCache*
+:ErlangCompleteClearAllCache
+        Clear the completion cache. This can be used if a module has changed
+        but the plugin have not noticed that and still completes the previous
+        function names.
+
+==============================================================================
+CONFIGURATION                                 *vim-erlang-omnicomplete-config*
+
+The vim-erlang-omnicomplete plugin's behaviour can be configured by setting
+the global variables below from the |vimrc| file and restarting Vim.
+
+CONFIGURATION OPTIONS                        *vim-erlang-omnicomplete-options*
+
+g:erlang_completion_cache                          *g:erlang_completion_cache*
+        Determines whether the functions exported from available modules
+        should be cached. If `1`, caching is enabled; if `0`, caching is
+        disabled. The default value is `1`.
+
+g:erlang_completion_preview_help            *g:erlang_completion_preview_help*
+        Determines whether a help message about the preview window should
+        appear in the preview window after the completion information. If `1`,
+        the help message appears; if `0`, it does not appear. The default
+        value is `1`.
+
+==============================================================================
+CONFIGURATION REBAR3                   *vim-erlang-omnicomplete-config-rebar3*
+
+If you want to make the syntax check of the current project under a different
+profile (see rebar3 profiles), you can easily instruct rebar3 by adding a
+special configuration item in your rebar.config file.
+
+By default, if nothing is specified, the plugin will assume you chose the
+`default` profile.
+
+E.g. to use the "test" profile: >
+
+    {vim_erlang_compiler, [
+      {profile, "test"}
+    ]}.
+<
 ==============================================================================
 CREDITS                                      *vim-erlang-omnicomplete-credits*
 
@@ -70,6 +124,7 @@ Contributors: Pawel 'kTT' Salata (http://github.com/kTT)
               Ignas Vyšniauskas (https://github.com/yfyf)
               Adam Rutkowski <hq@mtod.org>
               Csaba Hoch <csaba.hoch@gmail.com>
+              Zengda <zengda@yunba.io>
 License:      Vim License (see |license|)
 
 ==============================================================================

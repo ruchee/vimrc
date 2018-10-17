@@ -42,6 +42,7 @@ import collections
 import itertools
 import sys
 import re
+from typing import Pattern
 
 import astroid
 import astroid.bases
@@ -62,12 +63,12 @@ class NamingStyle:
     # has multiple "accepted" forms of regular expressions,
     # but we need to special-case stuff like dunder names
     # in method names.
-    CLASS_NAME_RGX = None
-    MOD_NAME_RGX = None
-    CONST_NAME_RGX = None
-    COMP_VAR_RGX = None
-    DEFAULT_NAME_RGX = None
-    CLASS_ATTRIBUTE_RGX = None
+    CLASS_NAME_RGX = None   # type: Pattern[str]
+    MOD_NAME_RGX = None # type: Pattern[str]
+    CONST_NAME_RGX = None   # type: Pattern[str]
+    COMP_VAR_RGX = None # type: Pattern[str]
+    DEFAULT_NAME_RGX = None # type: Pattern[str]
+    CLASS_ATTRIBUTE_RGX = None  # type: Pattern[str]
 
     @classmethod
     def get_regex(cls, name_type):
@@ -531,13 +532,23 @@ class BasicErrorChecker(_BasicChecker):
                            retnode.value.value is not None:
                         self.add_message('return-arg-in-generator', node=node,
                                          line=retnode.fromlineno)
-        # Check for duplicate names
-        args = set()
-        for name in node.argnames():
-            if name in args:
-                self.add_message('duplicate-argument-name', node=node, args=(name,))
-            else:
-                args.add(name)
+        # Check for duplicate names by clustering args with same name for detailed report
+        arg_clusters = collections.defaultdict(list)
+        arguments = filter(None, [node.args.args, node.args.kwonlyargs])
+
+        for arg in itertools.chain.from_iterable(arguments):
+            arg_clusters[arg.name].append(arg)
+
+        # provide detailed report about each repeated argument
+        for argument_duplicates in arg_clusters.values():
+            if len(argument_duplicates) != 1:
+                for argument in argument_duplicates:
+                    self.add_message(
+                        'duplicate-argument-name',
+                        line=argument.lineno,
+                        node=argument,
+                        args=(argument.name,),
+                    )
 
     visit_asyncfunctiondef = visit_functiondef
 
@@ -1710,39 +1721,10 @@ class PassChecker(_BasicChecker):
 
     @utils.check_messages('unnecessary-pass')
     def visit_pass(self, node):
-        if len(node.parent.child_sequence(node)) > 1:
+        if (len(node.parent.child_sequence(node)) > 1 or
+                (isinstance(node.parent, (astroid.ClassDef, astroid.FunctionDef)) and
+                 (node.parent.doc is not None))):
             self.add_message('unnecessary-pass', node=node)
-
-
-class LambdaForComprehensionChecker(_BasicChecker):
-    """check for using a lambda where a comprehension would do.
-
-    See <http://www.artima.com/weblogs/viewpost.jsp?thread=98196>
-    where GvR says comprehensions would be clearer.
-    """
-
-    msgs = {'W0110': ('map/filter on lambda could be replaced by comprehension',
-                      'deprecated-lambda',
-                      'Used when a lambda is the first argument to "map" or '
-                      '"filter". It could be clearer as a list '
-                      'comprehension or generator expression.',
-                      {'maxversion': (3, 0)}),
-           }
-
-    @utils.check_messages('deprecated-lambda')
-    def visit_call(self, node):
-        """visit a Call node, check if map or filter are called with a
-        lambda
-        """
-        if not node.args:
-            return
-        if not isinstance(node.args[0], astroid.Lambda):
-            return
-        infered = utils.safe_infer(node.func)
-        if (utils.is_builtin_object(infered)
-                and infered.name in ['map', 'filter']):
-            self.add_message('deprecated-lambda', node=node)
-
 
 def _is_one_arg_pos_call(call):
     """Is this a call with exactly 1 argument,
@@ -1942,5 +1924,4 @@ def register(linter):
     linter.register_checker(NameChecker(linter))
     linter.register_checker(DocStringChecker(linter))
     linter.register_checker(PassChecker(linter))
-    linter.register_checker(LambdaForComprehensionChecker(linter))
     linter.register_checker(ComparisonChecker(linter))

@@ -60,7 +60,6 @@ Wxapp.vim 专为微信小程序开发的插件，它提供以下主要功能：
     https://chemzqm.me/vim-dictionary
 3. 启动，刷新和重建项目的开发者工具快捷命令
 4. wxml 和 javscript 的 |Ultisnips| 插件 snippets
-5. wxml 和 wxss 的 |Neomake| 插件 maker 进行语法检测
 6. omnicomplete 智能补全支持
 
 自动刷新开发者工具需要让开发者工具保持后台运行，一个解决办法是修改开发者工具源
@@ -83,10 +82,6 @@ REQUIREMENT				*wxapp-requirement*
 如果需要文档块补全功能，需要首先安装|Ultisnips|
 
 https://github.com/SirVer/ultisnips
-
-如果需要 wxml 和 wxss 语法检测支持，需要安装|Neomake|
-
-https://github.com/neomake/neomake
 
 插件提供的刷新、重建微信web开发者工具使用 mac 独有的 applescript，在其它系统无
 法正常使用。

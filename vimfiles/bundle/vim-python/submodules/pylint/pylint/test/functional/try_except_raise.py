@@ -1,5 +1,5 @@
-# pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except
-
+# pylint:disable=missing-docstring, unreachable, bad-except-order, bare-except, unnecessary-pass
+# pylint: disable=undefined-variable
 try:
     int("9a")
 except:  # [try-except-raise]
@@ -73,3 +73,33 @@ except:  # [try-except-raise]
     raise
 except RuntimeError:
     print("a failure")
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except OSError:
+    print("a failure")
+
+# also consider tuples for subsequent exception handler instead of just bare except handler
+try:
+    pass
+except (FileNotFoundError, PermissionError):
+    raise
+except (OverflowError, OSError):
+    print("a failure")
+
+try:
+    pass
+except (FileNotFoundError, PermissionError):  # [try-except-raise]
+    raise
+except (OverflowError, ZeroDivisionError):
+    print("a failure")
+
+
+try:
+    pass
+except invalid_name:  # [try-except-raise]
+    raise
+except TypeError:
+    pass

@@ -23,8 +23,8 @@ if !exists("main_syntax")
   if version < 600
     syntax clear
   elseif exists("b:current_syntax")
-  finish
-endif
+    finish
+  endif
   let main_syntax = 'jinja'
 endif
 
@@ -33,7 +33,13 @@ if g:jinja_syntax_html
   if version < 600
     so <sfile>:p:h/html.vim
   else
-    runtime! syntax/html.vim
+    let ext = expand('%:e')
+    if ext !~ 'htm\|nunj|jinja\|j2' &&
+          \ findfile(ext . '.vim', $VIMRUNTIME . '/syntax') != ''
+      execute 'runtime! syntax/' . ext . '.vim'
+    else
+      runtime! syntax/html.vim
+    endif
     unlet b:current_syntax
   endif
 endif
@@ -81,7 +87,7 @@ syn region jinjaVarBlock matchgroup=jinjaVarDelim start=/{{-\?/ end=/-\?}}/ cont
 syn region jinjaRaw matchgroup=jinjaRawDelim start="{%\s*raw\s*%}" end="{%\s*endraw\s*%}" containedin=ALLBUT,jinjaTagBlock,jinjaVarBlock,jinjaString,jinjaComment
 
 " Jinja comments
-syn region jinjaComment matchgroup=jinjaCommentDelim start="{#" end="#}" containedin=ALLBUT,jinjaTagBlock,jinjaVarBlock,jinjaString
+syn region jinjaComment matchgroup=jinjaCommentDelim start="{#" end="#}" containedin=ALLBUT,jinjaTagBlock,jinjaVarBlock,jinjaString,jinjaComment
 
 " Block start keywords.  A bit tricker.  We only highlight at the start of a
 " tag block and only if the name is not followed by a comma or equals sign

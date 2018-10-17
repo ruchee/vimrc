@@ -5,9 +5,11 @@ have made contributions:
 
 * Alejandro Exojo
 * Luis Gabriel Lima
+* NaKyle
 * N.Sukegawa
 * Paul Lesur
 * Peter Hoeg
+* pylipp
 * Ryan Neph
 * Sam Nguyen
 * Thomas Perl

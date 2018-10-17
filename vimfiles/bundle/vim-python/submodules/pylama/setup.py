@@ -5,12 +5,13 @@
 import re
 import sys
 from os import path as op
+from io import open
 
 from setuptools import setup, find_packages
 
 
 _read = lambda f: open(
-    op.join(op.dirname(__file__), f)).read() if op.exists(f) else ''
+    op.join(op.dirname(__file__), f), encoding='utf-8').read() if op.exists(f) else ''
 
 _meta = _read('pylama/__init__.py')
 _license = re.search(r'^__license__\s*=\s*"(.*)"', _meta, re.M).group(1)
@@ -19,7 +20,7 @@ _version = re.search(r'^__version__\s*=\s*"(.*)"', _meta, re.M).group(1)
 
 install_requires = [
     l.replace('==', '>=') for l in _read('requirements.txt').split('\n')
-    if l and not l.startswith('#') and not l.startswith('-')]
+    if l and not l.startswith(('#', '-'))]
 
 meta = dict(
     name=_project,

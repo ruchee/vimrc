@@ -1,5 +1,5 @@
 "============================================================================
-"    Copyright: Copyright (c) 2001-2017, Jeff Lanzarotta
+"    Copyright: Copyright (c) 2001-2018, Jeff Lanzarotta
 "               All rights reserved.
 "
 "               Redistribution and use in source and binary forms, with or
@@ -36,7 +36,7 @@
 " Name Of File: bufexplorer.vim
 "  Description: Buffer Explorer Vim Plugin
 "   Maintainer: Jeff Lanzarotta (delux256-vim at outlook dot com)
-" Last Changed: Monday, 18 September 2017
+" Last Changed: Thursday, 19 January 2018
 "      Version: See g:bufexplorer_version for version number.
 "        Usage: This file should reside in the plugin directory and be
 "               automatically sourced.
@@ -74,14 +74,20 @@ endif
 "1}}}
 
 " Version number
-let g:bufexplorer_version = "7.4.19"
+let g:bufexplorer_version = "7.4.20"
 
 " Plugin Code {{{1
 " Check for Vim version {{{2
+if !exists("g:bufExplorerVersionWarn")
+    let g:bufExplorerVersionWarn = 1
+endif
+
 if v:version < 700
-    echohl WarningMsg
-    echo "Sorry, bufexplorer ".g:bufexplorer_version." required Vim 7.0 or greater."
-    echohl None
+    if g:bufExplorerVersionWarn
+        echohl WarningMsg
+        echo "Sorry, bufexplorer ".g:bufexplorer_version." required Vim 7.0 or greater."
+        echohl None
+    endif
     finish
 endif
 " Check to see if the version of Vim has the correct patch applied, if not, do
@@ -89,9 +95,11 @@ endif
 if v:version > 703 || v:version == 703 && has('patch1261') && has('patch1264')
     " We are good to go.
 else
-    echohl WarningMsg
-    echo "Sorry, bufexplorer ".g:bufexplorer_version." required Vim 7.3 or greater with patch1261 and patch1264."
-    echohl None
+    if g:bufExplorerVersionWarn
+        echohl WarningMsg
+        echo "Sorry, bufexplorer ".g:bufexplorer_version." required Vim 7.3 or greater with patch1261 and patch1264."
+        echohl None
+    endif
     finish
 endif
 
@@ -942,6 +950,8 @@ function! s:RemoveBuffer(mode)
         return
     endif
 
+    let mode = a:mode
+
     " Do not allow this buffer to be deleted if it is the last one.
     if len(s:MRUList) == 1
         call s:Error("Sorry, you are not allowed to delete the last buffer")
@@ -956,12 +966,26 @@ function! s:RemoveBuffer(mode)
     let _bufNbr = str2nr(getline('.'))
 
     if getbufvar(_bufNbr, '&modified') == 1
-        call s:Error("Sorry, no write since last change for buffer "._bufNbr.", unable to delete")
-        return
-    else
-        " Okay, everything is good, delete or wipe the buffer.
-        call s:DeleteBuffer(_bufNbr, a:mode)
+        " Calling confirm() requires Vim built with dialog option
+        if !has("dialog_con") && !has("dialog_gui")
+            call s:Error("Sorry, no write since last change for buffer "._bufNbr.", unable to delete")
+            return
+        endif
+
+        let answer = confirm('No write since last change for buffer '._bufNbr.'. Delete anyway?', "&Yes\n&No", 2)
+
+        if a:mode == "delete" && answer == 1
+            let mode = "force_delete"
+        elseif a:mode == "wipe" && answer == 1
+            let mode = "force_wipe"
+        else
+            return
+        endif
+
     endif
+
+    " Okay, everything is good, delete or wipe the buffer.
+    call s:DeleteBuffer(_bufNbr, mode)
 
     " Reactivate winmanager autocommand activity.
     if exists("b:displayMode") && b:displayMode == "winmanager"
@@ -977,6 +1001,10 @@ function! s:DeleteBuffer(buf, mode)
         " Wipe/Delete buffer from Vim.
         if a:mode == "wipe"
             execute "silent bwipe" a:buf
+        elseif a:mode == "force_wipe"
+            execute "silent bwipe!" a:buf
+        elseif a:mode == "force_delete"
+            execute "silent bdelete!" a:buf
         else
             execute "silent bdelete" a:buf
         endif

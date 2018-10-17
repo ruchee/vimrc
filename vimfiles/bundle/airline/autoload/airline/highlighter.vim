@@ -53,15 +53,16 @@ function! airline#highlighter#reset_hlcache()
 endfunction
 
 function! airline#highlighter#get_highlight(group, ...)
+  let reverse = get(g:, 'airline_gui_mode', '') ==# 'gui'
+      \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
+      \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
+      \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
   if get(g:, 'airline_highlighting_cache', 0) && has_key(s:hl_groups, a:group)
-    return s:hl_groups[a:group]
+    let res = s:hl_groups[a:group]
+    return reverse ? [ res[1], res[0], res[3], res[2], res[4] ] : res
   else
     let fg = s:get_syn(a:group, 'fg')
     let bg = s:get_syn(a:group, 'bg')
-    let reverse = g:airline_gui_mode ==# 'gui'
-          \ ? synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'gui')
-          \ : synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'cterm')
-          \|| synIDattr(synIDtrans(hlID(a:group)), 'reverse', 'term')
     let bold = synIDattr(synIDtrans(hlID(a:group)), 'bold')
     let opts = a:000
     if bold
@@ -165,9 +166,9 @@ function! s:exec_separator(dict, from, to, inverse, suffix)
   if pumvisible()
     return
   endif
+  let group = a:from.'_to_'.a:to.a:suffix
   let l:from = airline#themes#get_highlight(a:from.a:suffix)
   let l:to = airline#themes#get_highlight(a:to.a:suffix)
-  let group = a:from.'_to_'.a:to.a:suffix
   if a:inverse
     let colors = [ l:from[1], l:to[1], l:from[3], l:to[3] ]
   else
@@ -223,11 +224,6 @@ function! airline#highlighter#highlight(modes, ...)
   let mapped = map(a:modes, 'v:val == a:modes[0] ? v:val : a:modes[0]."_".v:val')
   let suffix = a:modes[0] == 'inactive' ? '_inactive' : ''
   for mode in mapped
-    if mode == 'inactive' && winnr('$') == 1
-      " there exist no inactive windows, don't need to create all those
-      " highlighting groups
-      continue
-    endif
     if exists('g:airline#themes#{g:airline_theme}#palette[mode]')
       let dict = g:airline#themes#{g:airline_theme}#palette[mode]
       for kvp in items(dict)

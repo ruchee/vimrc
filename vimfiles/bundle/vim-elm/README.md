@@ -18,7 +18,7 @@ Check out this [ElmCast video](https://vimeo.com/132107269) for more detail.
 
 If you don't have a preferred installation method, I recommend installing [vim-plug](https://github.com/junegunn/vim-plug), and then simply add `Plug 'elmcast/elm-vim'` to your plugin section:
 
-Once help tags have been generated, you can view the manual with :help elm-vim.
+*NOTE:* If you are using [vim-polyglot](https://github.com/sheerun/vim-polyglot), you need to disable its default elm plugin by adding `let g:polyglot_disabled = ['elm']` to your config file.
 
 ### Requirements
 
@@ -40,10 +40,10 @@ For code completion and doc lookups, install [elm-oracle](https://github.com/elm
 npm install -g elm-oracle
 ```
 
-To automatically format your code, install `elm-format` from its [github page](https://github.com/avh4/elm-format).
+To automatically format your code, install [elm-format](https://github.com/avh4/elm-format).
 
-```vim
-let g:elm_format_autosave = 1
+```
+npm install -g elm-format
 ```
 
 ## Mappings
@@ -68,6 +68,10 @@ let g:elm_setup_keybindings = 0
 ```
 
 ## Integration
+
+### [Ale](https://github.com/w0rp/ale)
+
+The preferred linter to use with elm-vim is Ale. It should work out of the box.
 
 ### [Syntastic](https://github.com/scrooloose/syntastic)
 
@@ -110,7 +114,7 @@ let g:elm_make_show_warnings = 0
 let g:elm_syntastic_show_warnings = 0
 let g:elm_browser_command = ""
 let g:elm_detailed_complete = 0
-let g:elm_format_autosave = 0
+let g:elm_format_autosave = 1
 let g:elm_format_fail_silently = 0
 let g:elm_setup_keybindings = 1
 ```
@@ -128,7 +132,7 @@ let g:elm_setup_keybindings = 1
 * `:ElmShowDocs` queries elm-oracle, then echoes the type and docs for the word under the cursor.
 
 * `:ElmBrowseDocs` queries elm-oracle, then opens docs web page for the word under the cursor.
-*
+
 * `:ElmFormat` formats the current buffer with elm-format.
 
 ## Screenshots

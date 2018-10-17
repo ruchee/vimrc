@@ -31,7 +31,7 @@ syn keyword racketSyntax lambda case-lambda let let* letrec
 syn keyword racketSyntax let-values let*-values let-syntax letrec-syntax
 syn keyword racketSyntax let-syntaxes letrec-syntaxes letrec-syntaxes+values
 syn keyword racketSyntax local shared
-syn keyword racketSyntax if cond and or case define
+syn keyword racketSyntax if cond and or case define else =>
 syn keyword racketSyntax define define-values define-syntax define-syntaxes
 syn keyword racketSyntax define-for-syntax define-require-syntax define-provide-syntax
 syn keyword racketSyntax define-syntax-rule
@@ -61,6 +61,18 @@ syn keyword racketSyntax match-lambda match-lambda* match-lambda**
 syn keyword racketSyntax match-let match-let* match-let-values match-let*-values
 syn keyword racketSyntax match-letrec match-define match-define-values
 
+" 10.2.3 Handling Exceptions
+syn keyword racketSyntax with-handlers with-handlers*
+
+" 10.4 Continuations
+syn keyword racketSyntax let/cc let/ec
+
+" 10.4.1 Additional Control Operators
+syn keyword racketSyntax % prompt control prompt-at control-at reset shift
+syn keyword racketSyntax reset-at shift-at prompt0 reset0 control0 shift0
+syn keyword racketSyntax prompt0-at reset0-at control0-at shift0-at
+syn keyword racketSyntax set cupto
+
 " 12.5 Writing
 syn keyword racketSyntax write display displayln print
 syn keyword racketSyntax fprintf printf eprintf format
@@ -69,7 +81,6 @@ syn keyword racketSyntax print-graph print-struct print-box print-vector-length 
 syn keyword racketSyntax print-boolean-long-form print-reader-abbreviations print-as-expression print-syntax-width
 syn keyword racketSyntax current-write-relative-directory port-write-handler port-display-handler
 syn keyword racketSyntax port-print-handler global-port-print-handler
-
 
 " 13.7 Custodians
 syn keyword racketSyntax custodian? custodian-memory-accounting-available? custodian-box?
@@ -144,8 +155,8 @@ syn keyword racketFunc flreal-part flimag-part
 " 3.2.3.2 Flonum Vectors
 syn keyword racketFunc flvector? flvector make-flvector flvector-length
 syn keyword racketFunc flvector-ref flvector-set! flvector-copy in-flvector
-syn keyword racketFunc for/flvector for*/flvector
 syn keyword racketFunc shared-flvector make-shared-flvector
+syn keyword racketSyntax for/flvector for*/flvector
 
 " 3.2.4 Fixnums
 syn keyword racketFunc fx+ fx- fx* fxquotient fxremainder fxmodulo fxabs
@@ -364,6 +375,49 @@ syn keyword racketFunc generic send-generic make-generic
 " 9.1 Multiple Values
 syn keyword racketFunc values call-with-values
 
+" 10.2.2 Raising Exceptions
+syn keyword racketFunc raise error raise-user-error raise-argument-error
+syn keyword racketFunc raise-result-error raise-argument-error raise-range-error
+syn keyword racketFunc raise-type-error raise-mismatch-error raise-arity-error
+syn keyword racketFunc raise-syntax-error
+
+" 10.2.3 Handling Exceptions
+syn keyword racketFunc call-with-exception-handler uncaught-exception-handler
+
+" 10.2.4 Configuring Default Handlers
+syn keyword racketFunc error-escape-handler error-display-handler error-print-width
+syn keyword racketFunc error-print-context-length error-values->string-handler
+syn keyword racketFunc error-print-source-location
+
+" 10.2.5 Built-in Exception Types
+syn keyword racketFunc exn exn:fail exn:fail:contract exn:fail:contract:arity
+syn keyword racketFunc exn:fail:contract:divide-by-zero exn:fail:contract:non-fixnum-result
+syn keyword racketFunc exn:fail:contract:continuation exn:fail:contract:variable
+syn keyword racketFunc exn:fail:syntax exn:fail:syntax:unbound exn:fail:syntax:missing-module
+syn keyword racketFunc exn:fail:read exn:fail:read:eof exn:fail:read:non-char
+syn keyword racketFunc exn:fail:filesystem exn:fail:filesystem:exists
+syn keyword racketFunc exn:fail:filesystem:version exn:fail:filesystem:errno
+syn keyword racketFunc exn:fail:filesystem:missing-module
+syn keyword racketFunc exn:fail:network exn:fail:network:errno exn:fail:out-of-memory
+syn keyword racketFunc exn:fail:unsupported exn:fail:user
+syn keyword racketFunc exn:break exn:break:hang-up exn:break:terminate
+
+" 10.3 Delayed Evaluation
+syn keyword racketFunc promise? delay lazy force promise-forced? promise-running?
+
+" 10.3.1 Additional Promise Kinds
+syn keyword racketFunc delay/name promise/name delay/strict delay/sync delay/thread delay/idle
+
+" 10.4 Continuations
+syn keyword racketFunc call-with-continuation-prompt abort-current-continuation make-continuation-prompt-tag
+syn keyword racketFunc default-continuation-prompt-tag call-with-current-continuation call/cc
+syn keyword racketFunc call-with-composable-continuation call-with-escape-continuation call/ec
+syn keyword racketFunc call-with-continuation-barrier continuation-prompt-available
+syn keyword racketFunc continuation? continuation-prompt-tag dynamic-wind
+
+" 10.4.1 Additional Control Operators
+syn keyword racketFunc call/prompt abort/cc call/comp abort fcontrol spawn splitter new-prompt
+
 " 14.1.1 Manipulating Paths
 syn keyword racketFunc path? path-string? path-for-some-system? string->path path->string path->bytes
 syn keyword racketFunc string->path-element bytes->path-element path-element->string path-element->bytes
@@ -421,8 +475,8 @@ syn cluster racketQuotedOrNormal  add=racketString
 " #x, #i, or #e, is an error
 syn match racketNumberError         "\<#[xdobie]\k*"
 
-syn match racketContainedNumberError   "\<#o\k*[^-+0-7delfinas#./@]"
-syn match racketContainedNumberError   "\<#b\k*[^-+01delfinas#./@]"
+syn match racketContainedNumberError   "\<#o\k*[^-+0-7delfinas#./@]\>"
+syn match racketContainedNumberError   "\<#b\k*[^-+01delfinas#./@]\>"
 syn match racketContainedNumberError   "\<#[ei]#[ei]"
 syn match racketContainedNumberError   "\<#[xdob]#[xdob]"
 
@@ -493,22 +547,22 @@ syn region racketQuoted matchgroup=Delimiter start="['`]" end=![ \t()\[\]";]!me=
 syn region racketQuoted matchgroup=Delimiter start="['`](" matchgroup=Delimiter end=")" contains=@racketQuotedStuff,@racketQuotedOrNormal
 syn region racketQuoted matchgroup=Delimiter start="['`]\?#(" matchgroup=Delimiter end=")" contains=@racketQuotedStuff,@racketQuotedOrNormal
 
-syn region racketUnquote matchgroup=Delimiter start="\<#,"rs=s+2 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<#,@"rs=s+3 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<#,("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<#,@("rs=s+4 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<#,\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<#,@\["rs=s+4 end="\]"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,"rs=s+1 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,@"rs=s+2 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,("rs=s+2 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,@("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,#("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,@#("rs=s+4 end=")"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,\["rs=s+2 end="\]"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,@\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,#\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
-syn region racketUnquote matchgroup=Delimiter start="\<,@#\["rs=s+4 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,"rs=s+2 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,@"rs=s+3 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,@("rs=s+4 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start="#,@\["rs=s+4 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=","rs=s+1 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",@"rs=s+2 end=![ \t\[\]()";]!re=e-1,me=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",("rs=s+2 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",@("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",#("rs=s+3 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",@#("rs=s+4 end=")"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",\["rs=s+2 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",@\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",#\["rs=s+3 end="\]"re=e-1 contained contains=@racketNormal
+syn region racketUnquote matchgroup=Delimiter start=",@#\["rs=s+4 end="\]"re=e-1 contained contains=@racketNormal
 
 syn cluster racketQuotedStuff add=racketUnquote
 
@@ -516,8 +570,11 @@ syn region racketQuoted matchgroup=Delimiter start="#['`]"rs=s+2 end=![ \t()\[\]
 syn region racketQuoted matchgroup=Delimiter start="#['`]("rs=s+3 matchgroup=Delimiter end=")"re=e-1 contains=@racketQuotedStuff,@racketQuotedOrNormal
 
 " Comments
-syn match racketComment /;.*$/ contains=@Spell
-syn region racketMultilineComment start=/#|/ end=/|#/ contains=racketMultilineComment,@Spell
+syn match racketComment /;.*$/ contains=racketTodo,racketNote,@Spell
+syn region racketMultilineComment start=/#|/ end=/|#/ contains=racketMultilineComment,racketTodo,racketNote,@Spell
+
+syn keyword racketTodo FIXME TODO XXX contained
+syntax match racketNote /\CNOTE\ze:\?/ contained
 
 syn cluster racketNormal  add=racketQuoted,racketComment,racketMultilineComment
 syn cluster racketQuotedOrNormal  add=racketComment,racketMultilineComment
@@ -558,6 +615,8 @@ if version >= 508 || !exists("did_racket_syntax_inits")
 
   HiLink racketComment            Comment
   HiLink racketMultilineComment   Comment
+  HiLink racketTodo               Todo
+  HiLink racketNote               SpecialComment
   HiLink racketError              Error
 
   HiLink racketExtSyntax          Type

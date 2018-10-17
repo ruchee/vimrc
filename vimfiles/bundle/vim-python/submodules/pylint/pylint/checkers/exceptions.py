@@ -72,8 +72,8 @@ MSGS = {
               'some exceptions may not be caught by the most specific handler.'),
     'E0702': ('Raising %s while only classes or instances are allowed',
               'raising-bad-type',
-              'Used when something which is neither a class, an instance or a \
-              string is raised (i.e. a `TypeError` will be raised).'),
+              'Used when something which is neither a class, an instance or a '
+              'string is raised (i.e. a `TypeError` will be raised).'),
     'E0703': ('Exception context set to something which is not an '
               'exception, nor None',
               'bad-exception-context',
@@ -90,24 +90,24 @@ MSGS = {
               'nevertheless a code smell that must not be relied upon.'),
     'E0710': ('Raising a new style class which doesn\'t inherit from BaseException',
               'raising-non-exception',
-              'Used when a new style class which doesn\'t inherit from \
-               BaseException is raised.'),
+              'Used when a new style class which doesn\'t inherit from '
+              'BaseException is raised.'),
     'E0711': ('NotImplemented raised - should raise NotImplementedError',
               'notimplemented-raised',
-              'Used when NotImplemented is raised instead of \
-              NotImplementedError'),
+              'Used when NotImplemented is raised instead of '
+              'NotImplementedError'),
     'E0712': ('Catching an exception which doesn\'t inherit from Exception: %s',
               'catching-non-exception',
-              'Used when a class which doesn\'t inherit from \
-               Exception is used as an exception in an except clause.'),
+              'Used when a class which doesn\'t inherit from '
+              'Exception is used as an exception in an except clause.'),
     'W0702': ('No exception type(s) specified',
               'bare-except',
-              'Used when an except clause doesn\'t specify exceptions type to \
-              catch.'),
+              'Used when an except clause doesn\'t specify exceptions type to '
+              'catch.'),
     'W0703': ('Catching too general exception %s',
               'broad-except',
-              'Used when an except catches a too general exception, \
-              possibly burying unrelated errors.'),
+              'Used when an except catches a too general exception, '
+              'possibly burying unrelated errors.'),
     'W0705': ('Catching previously caught exception type %s',
               'duplicate-except',
               'Used when an except catches a type that was already caught by '
@@ -118,21 +118,16 @@ MSGS = {
               'operator. This is useless because it raises back the exception '
               'immediately. Remove the raise operator or the entire '
               'try-except-raise block!'),
-    'W0710': ('Exception doesn\'t inherit from standard "Exception" class',
-              'nonstandard-exception',
-              'Used when a custom exception class is raised but doesn\'t \
-              inherit from the builtin "Exception" class.',
-              {'maxversion': (3, 0)}),
     'W0711': ('Exception to catch is the result of a binary "%s" operation',
               'binary-op-exception',
-              'Used when the exception to catch is of the form \
-              "except A or B:".  If intending to catch multiple, \
-              rewrite as "except (A, B):"'),
+              'Used when the exception to catch is of the form '
+              '"except A or B:".  If intending to catch multiple, '
+              'rewrite as "except (A, B):"'),
     'W0715': ('Exception arguments suggest string formatting might be intended',
               'raising-format-tuple',
-              'Used when passing multiple arguments to an exception \
-              constructor, the first of them a string literal containing what \
-              appears to be placeholders intended for formatting'),
+              'Used when passing multiple arguments to an exception '
+              'constructor, the first of them a string literal containing what '
+              'appears to be placeholders intended for formatting'),
     }
 
 
@@ -269,15 +264,15 @@ class ExceptionsChecker(checkers.BaseChecker):
             self._check_bad_exception_context(node)
 
         expr = node.exc
-        try:
-            inferred_value = next(expr.infer())
-        except astroid.InferenceError:
-            inferred_value = None
-
         ExceptionRaiseRefVisitor(self, node).visit(expr)
 
-        if inferred_value:
-            ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
+        try:
+            inferred_value = expr.inferred()[-1]
+        except astroid.InferenceError:
+            pass
+        else:
+            if inferred_value:
+                ExceptionRaiseLeafVisitor(self, node).visit(inferred_value)
 
     def _check_misplaced_bare_raise(self, node):
         # Filter out if it's present in __exit__.
@@ -358,31 +353,48 @@ class ExceptionsChecker(checkers.BaseChecker):
                                  args=(exc.name, ))
 
     def _check_try_except_raise(self, node):
+
+        def gather_exceptions_from_handler(handler):
+            exceptions = []
+            if handler.type:
+                exceptions_in_handler = utils.safe_infer(handler.type)
+                if isinstance(exceptions_in_handler, astroid.Tuple):
+                    exceptions = {exception
+                                  for exception in exceptions_in_handler.elts
+                                  if isinstance(exception, astroid.Name)}
+                elif exceptions_in_handler:
+                    exceptions = [exceptions_in_handler]
+            return exceptions
+
         bare_raise = False
         handler_having_bare_raise = None
-        handler_type_having_bare_raise = None
+        excs_in_bare_handler = []
         for handler in node.handlers:
             if bare_raise:
                 # check that subsequent handler is not parent of handler which had bare raise.
                 # since utils.safe_infer can fail for bare except, check it before.
                 # also break early if bare except is followed by bare except.
 
-                if (not handler.type or
-                        handler_type_having_bare_raise and
-                        utils.is_subclass_of(handler_type_having_bare_raise,
-                                             utils.safe_infer(handler.type))):
+                excs_in_current_handler = gather_exceptions_from_handler(handler)
+                if not excs_in_current_handler:
                     bare_raise = False
                     break
+
+                for exc_in_current_handler in excs_in_current_handler:
+                    inferred_current = utils.safe_infer(exc_in_current_handler)
+                    if any(utils.is_subclass_of(utils.safe_infer(exc_in_bare_handler),
+                                                inferred_current)
+                           for exc_in_bare_handler in excs_in_bare_handler):
+                        bare_raise = False
+                        break
+
             # `raise` as the first operator inside the except handler
             if utils.is_raising([handler.body[0]]):
                 # flags when there is a bare raise
                 if handler.body[0].exc is None:
                     bare_raise = True
                     handler_having_bare_raise = handler
-                    if handler_having_bare_raise.type:
-                        handler_type_having_bare_raise = utils.safe_infer(
-                            handler_having_bare_raise.type)
-
+                    excs_in_bare_handler = gather_exceptions_from_handler(handler)
         if bare_raise:
             self.add_message('try-except-raise', node=handler_having_bare_raise)
 

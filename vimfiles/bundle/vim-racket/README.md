@@ -1,6 +1,15 @@
 # vim-racket
 
-Module for use in [pathogen](https://github.com/tpope/vim-pathogen).
+Installation
+------------
+
+Module requires [pathogen.vim](https://github.com/tpope/vim-pathogen).
+
+    cd ~/.vim/bundle
+    git clone https://github.com/wlangstroth/vim-racket.git
+    
+Re-open your file(s) and benefit from the features of _vim-racket_.
+
 
 ## Thanks
 
