@@ -5,6 +5,7 @@
 /vimfiles/.vim
 /vimfiles/init.vim
 /vimfiles/.init.vim-rplugin~
+/vimfiles/view
 
 /vimfiles/bundle/YouCompleteMe
 /vimfiles/bundle/YCM-Generator
