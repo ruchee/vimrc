@@ -135,6 +135,10 @@ function! go#config#SetGuruScope(scope) abort
   endif
 endfunction
 
+function! go#config#GocodeUnimportedPackages() abort
+  return get(g:, 'go_gocode_unimported_packages', 0)
+endfunction
+
 let s:sock_type = (has('win32') || has('win64')) ? 'tcp' : 'unix'
 function! go#config#GocodeSocketType() abort
   return get(g:, 'go_gocode_socket_type', s:sock_type)
@@ -145,7 +149,7 @@ function! go#config#GocodeProposeBuiltins() abort
 endfunction
 
 function! go#config#GocodeProposeSource() abort
-  return get(g:, 'go_gocode_propose_source', 1)
+  return get(g:, 'go_gocode_propose_source', 0)
 endfunction
 
 function! go#config#EchoCommandInfo() abort
@@ -352,6 +356,10 @@ function! go#config#BinPath() abort
   return get(g:, "go_bin_path", "")
 endfunction
 
+function! go#config#SearchBinPathFirst() abort
+  return get(g:, 'go_search_bin_path_first', 1)
+endfunction
+
 function! go#config#HighlightArrayWhitespaceError() abort
   return get(g:, 'go_highlight_array_whitespace_error', 0)
 endfunction
@@ -418,6 +426,10 @@ endfunction
 
 function! go#config#HighlightVariableDeclarations() abort
   return get(g:, 'go_highlight_variable_declarations', 0)
+endfunction
+
+function! go#config#HighlightDebug() abort
+  return get(g:, 'go_highlight_debug', 1)
 endfunction
 
 function! go#config#FoldEnable(...) abort

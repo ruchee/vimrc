@@ -1,5 +1,18 @@
 ## unplanned
 
+IMPROVEMENTS:
+* disable `g:go_gocode_propose_source` by default.
+  [[GH-2050]](https://github.com/fatih/vim-go/pull/2050)
+
+BUG FIXES:
+* Fix opening of non-existent file from `:GoDeclsDir` when the current
+  directory is not the directory containing the current buffer.
+  [[GH-2048]](https://github.com/fatih/vim-go/pull/2048)
+* Fix jumping to an identifier with godef from a modified buffer.
+  [[GH-2054]](https://github.com/fatih/vim-go/pull/2054)
+
+## 1.19 - (November 4, 2018)
+
 FEATURES:
 
 * **go.mod file support!** This is the first feature for upcoming Go modules
@@ -59,7 +72,13 @@ IMPROVEMENTS:
   [[GH-2007]](https://github.com/fatih/vim-go/pull/2007)
 * color the statusline for termguicolors and Neovim.
   [[GH-2014]](https://github.com/fatih/vim-go/pull/2014)
-
+* add an option to disable highlighting of breakpoints and the current line
+  when debugging.
+  [[GH-2025]](https://github.com/fatih/vim-go/pull/2025)
+* Update autocompletion to work with Go modules.
+  [[GH-1988]](https://github.com/fatih/vim-go/pull/1988)
+* Add an option to search $GOPATH/bin or $GOBIN _after_ $PATH.
+  [[GH-2041]](https://github.com/fatih/vim-go/pull/2041)
 
 BUG FIXES:
 * Fix `:GoRun %` on Windows.
