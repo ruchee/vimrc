@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-10-17 11:55:56
+" -----------------    Date: 2018-11-24 21:54:25
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -243,8 +243,8 @@ set tabstop=4
 au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set shiftwidth=2
 au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set tabstop=2
 
-" 配置 Rust 支持 [需要使用 cargo 安装 racer 和 rustfmt 才能正常工作，RUST_SRC_PATH 需要自己下载 Rust 源码并指定好正确的路径]
-let $RUST_SRC_PATH                 = $HOME.'/code/data/sources/languages/rust/src'
+" 配置 Rust 支持 [需要安装 rustup 相关工具链才能正常工作]
+" [ rustup install nightly && rustup default nightly && rustup component add rust-src && cargo install racer --force ]
 let g:racer_experimental_completer = 1  " 补全时显示完整的函数定义
 let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
 
