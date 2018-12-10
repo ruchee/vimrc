@@ -26,13 +26,12 @@ class Buffer
     with_file do
       @vim.normal 'gg'
 
-      content.each_line.each_with_index do |line, index|
-        if index.zero?
-          @vim.type("i#{line.strip}")
-        else
-          @vim.normal 'o'
-          @vim.type(line.strip)
-        end
+      lines = content.each_line
+      count = lines.count
+      @vim.type("i")
+      lines.each_with_index do |line, index|
+        @vim.type("#{line.strip}")
+        @vim.type("<CR>") if index < count - 1
       end
     end
   end
@@ -59,6 +58,18 @@ class Buffer
     # From: "['elixirRecordDeclaration', 'elixirAtom']"
     # To:   ["elixirRecordDeclaration", "elixirAtom"]
     syngroups.gsub!(/["'\[\]]/, '').split(', ')
+  end
+
+  def fold_and_delete(content, opts)
+    start_line = opts[:on_line]
+    with_file content do
+      @vim.command("set foldmethod=syntax")
+
+      @vim.normal("zO")
+      @vim.normal("#{start_line}G")
+      @vim.normal("zc")
+      @vim.normal("dd")
+    end
   end
 
   private
@@ -193,6 +204,31 @@ end
   end
 end
 
+RSpec::Matchers.define :fold_lines do |lines, opts|
+  buffer = Buffer.new(VIM, :ex)
+  opts ||= {}
+  start_line = opts[:on_line] ||= 1
+
+  after = nil
+
+  match do |code|
+    after = buffer.fold_and_delete(code, opts)
+
+    code.lines.count - after.lines.count == lines
+  end
+
+  failure_message do |code|
+    <<~EOF
+    expected
+    #{code}
+    to fold #{lines} lines at line #{start_line},
+    but after folding at line #{start_line} and deleting a line I got
+    #{after}
+    back
+    EOF
+  end
+end
+
 Vimrunner::RSpec.configure do |config|
   config.reuse_server = true
 
@@ -202,7 +238,8 @@ Vimrunner::RSpec.configure do |config|
     VIM.command('filetype off')
     VIM.command('filetype plugin indent on')
     VIM.command('autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o') # disable automatic comment continuation
-    VIM.normal(":set ignorecase<CR>") # make sure we test ignorecase
+    VIM.command("set ignorecase") # make sure we test ignorecase
+    VIM.command("set formatoptions-=cro") # disable auto comments on <CR>
     VIM
   end
 end

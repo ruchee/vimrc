@@ -23,7 +23,7 @@ function! s:init()
     try
       let palette = g:airline#themes#{g:airline_theme}#palette
     catch
-      echom 'Could not resolve airline theme "' . g:airline_theme . '". Themes have been migrated to github.com/vim-airline/vim-airline-themes.'
+      call airline#util#warning(printf('Could not resolve airline theme "%s". Themes have been migrated to github.com/vim-airline/vim-airline-themes.', g:airline_theme))
       let g:airline_theme = 'dark'
     endtry
     silent call airline#switch_theme(g:airline_theme)
@@ -102,9 +102,6 @@ function! s:airline_toggle()
         " Make sure that g_airline_gui_mode is refreshed
         autocmd OptionSet termguicolors call <sid>on_colorscheme_changed()
       endif
-      if exists("##TerminalOpen")
-        autocmd TerminalOpen * call <sid>on_colorscheme_changed()
-      endif
       " Set all statuslines to inactive
       autocmd FocusLost * call airline#update_statusline_focuslost()
       " Refresh airline for :syntax off
@@ -121,7 +118,21 @@ function! s:airline_toggle()
             \ |   call <sid>on_window_changed()
             \ | endif
 
-      autocmd VimResized,FocusGained * unlet! w:airline_lastmode | :call <sid>airline_refresh()
+      autocmd VimResized * unlet! w:airline_lastmode | :call <sid>airline_refresh()
+      if exists('*timer_start') && exists('*funcref')
+        " do not trigger FocusGained on startup, it might erase the intro screen (see #1817)
+        " needs funcref() (needs 7.4.2137) and timers (7.4.1578)
+        let Handler=funcref('<sid>FocusGainedHandler')
+        let s:timer=timer_start(5000, Handler)
+      else
+        autocmd FocusGained * unlet! w:airline_lastmode | :call <sid>airline_refresh()
+      endif
+
+      if exists("##TerminalOpen")
+        " Using the same function with the TermOpen autocommand
+        " breaks for Neovim see #1828, looks like a neovim bug.
+        autocmd TerminalOpen * :call airline#load_theme() " reload current theme for Terminal, forces the terminal extension to be loaded
+      endif
       autocmd TabEnter * :unlet! w:airline_lastmode | let w:airline_active=1
       autocmd BufWritePost */autoload/airline/themes/*.vim
             \ exec 'source '.split(globpath(&rtp, 'autoload/airline/themes/'.g:airline_theme.'.vim', 1), "\n")[0]
@@ -140,13 +151,15 @@ function! s:airline_toggle()
 endfunction
 
 function! s:get_airline_themes(a, l, p)
-  let files = split(globpath(&rtp, 'autoload/airline/themes/'.a:a.'*'), "\n")
-  return map(files, 'fnamemodify(v:val, ":t:r")')
+  return airline#util#themes(a:a)
 endfunction
 
 function! s:airline_theme(...)
   if a:0
-    call airline#switch_theme(a:1)
+    try
+      call airline#switch_theme(a:1)
+    catch " discard error
+    endtry
   else
     echo g:airline_theme
   endif
@@ -163,10 +176,33 @@ function! s:airline_refresh()
   call airline#update_statusline()
 endfunction
 
+function! s:FocusGainedHandler(timer)
+  if exists("s:timer") && a:timer == s:timer
+    augroup airline
+      au FocusGained * unlet! w:airline_lastmode | :call <sid>airline_refresh()
+    augroup END
+  endif
+endfu
+
+function! s:airline_extensions()
+  let loaded = airline#extensions#get_loaded_extensions()
+  let files = split(globpath(&rtp, "autoload/airline/extensions/*.vim"), "\n")
+  call map(files, 'fnamemodify(v:val, ":t:r")')
+  if !empty(files)
+    echohl Title
+    echo printf("%-15s\t%s", "Extension", "Status")
+    echohl Normal
+  endif
+  for ext in sort(files)
+    echo printf("%-15s\t%sloaded", ext, (index(loaded, ext) == -1 ? 'not ' : ''))
+  endfor
+endfunction
+
 command! -bar -nargs=? -complete=customlist,<sid>get_airline_themes AirlineTheme call <sid>airline_theme(<f-args>)
 command! -bar AirlineToggleWhitespace call airline#extensions#whitespace#toggle()
-command! -bar AirlineToggle call s:airline_toggle()
+command! -bar AirlineToggle  call s:airline_toggle()
 command! -bar AirlineRefresh call s:airline_refresh()
+command! AirlineExtensions   call s:airline_extensions()
 
 call airline#init#bootstrap()
 call s:airline_toggle()

@@ -32,7 +32,7 @@ if (!run_once)
                      \. ' %f%m'
          endif
       endfunction
-      call add(g:airline_statusline_funcrefs, function('AirlineBuild'))
+      " call add(g:airline_statusline_funcrefs, function('AirlineBuild'))
    endif
 endif
 
