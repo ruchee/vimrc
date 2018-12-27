@@ -12,6 +12,9 @@ IMPROVEMENTS:
   [[GH-2070]](https://github.com/fatih/vim-go/pull/2070)
 * Detach from and shutdown dlv correctly.
   [[GH-2075]](https://github.com/fatih/vim-go/pull/2075)
+* Do not require `'autowrite'` or `'autowriteall'` to be set when using
+  autocompletion in module mode.
+  [[GH-2091]](https://github.com/fatih/vim-go/pull/2091)
 
 BUG FIXES:
 * Fix opening of non-existent file from `:GoDeclsDir` when the current
@@ -25,6 +28,9 @@ BUG FIXES:
   [[GH-2075]](https://github.com/fatih/vim-go/pull/2075)
 * Fix `:GoSameIdsToggle`.
   [[GH-2086]](https://github.com/fatih/vim-go/pull/2086)
+* Do not set fileencoding or fileformat options or populate from template when
+  the buffer is not modifiable.
+  [[GH-2097]](https://github.com/fatih/vim-go/pull/2097)
 
 ## 1.19 - (November 4, 2018)
 

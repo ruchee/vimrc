@@ -78,8 +78,8 @@ function! go#lint#Gometa(bang, autosave, ...) abort
     echon "vim-go: " | echohl Function | echon "[metalinter] PASS" | echohl None
   else
     " GoMetaLinter can output one of the two, so we look for both:
-    "   <file>:<line>:[<column>]: <message> (<linter>)
-    "   <file>:<line>:: <message> (<linter>)
+    "   <file>:<line>:<column>:<severity>: <message> (<linter>)
+    "   <file>:<line>::<severity>: <message> (<linter>)
     " This can be defined by the following errorformat:
     let errformat = "%f:%l:%c:%t%*[^:]:\ %m,%f:%l::%t%*[^:]:\ %m"
 
@@ -123,7 +123,9 @@ endfunction
 function! go#lint#Vet(bang, ...) abort
   call go#cmd#autowrite()
 
-  call go#util#EchoProgress('calling vet...')
+  if go#config#EchoCommandInfo()
+    call go#util#EchoProgress('calling vet...')
+  endif
 
   if a:0 == 0
     let [l:out, l:err] = go#util#Exec(['go', 'vet', go#package#ImportPath()])
@@ -140,7 +142,6 @@ function! go#lint#Vet(bang, ...) abort
     if !empty(errors) && !a:bang
       call go#list#JumpToFirst(l:listtype)
     endif
-    call go#util#EchoError('[vet] FAIL')
   else
     call go#list#Clean(l:listtype)
     call go#util#EchoSuccess('[vet] PASS')
