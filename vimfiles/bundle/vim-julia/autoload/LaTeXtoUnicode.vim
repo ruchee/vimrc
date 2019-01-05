@@ -19,6 +19,9 @@ function! s:L2U_Setup()
   if !has_key(b:, "l2u_cmdtab_set")
     let b:l2u_cmdtab_set = 0
   endif
+  if !has_key(b:, "l2u_keymap_set")
+    let b:l2u_keymap_set = 0
+  endif
 
   " Did we activate the L2U as-you-type substitutions?
   if !has_key(b:, "l2u_autosub_set")
@@ -74,11 +77,7 @@ function! s:L2U_SetupGlobal()
   " A hack to forcibly get out of completion mode: feed
   " this string with feedkeys()
   if has("win32") || has("win64")
-    if has("gui_running")
-      let s:l2u_esc_sequence = "\u0006"
-    else
-      let s:l2u_esc_sequence = "\u0006\b"
-    endif
+    let s:l2u_esc_sequence = "\u0006"
   else
     let s:l2u_esc_sequence = "\u0091\b"
   end
@@ -407,8 +406,8 @@ function! LaTeXtoUnicode#FallbackCallback()
   return
 endfunction
 
-" This is the function which is mapped to <S-Tab> in command-line mode
-function! LaTeXtoUnicode#CmdTab()
+" This is the function that performs the substitution in command-line mode
+function! LaTeXtoUnicode#CmdTab(triggeredbytab)
   " first stage
   " analyse command line
   let col1 = getcmdpos() - 1
@@ -417,6 +416,9 @@ function! LaTeXtoUnicode#CmdTab()
   let b:l2u_singlebslash = (match(l[0:col1-1], '\\$') >= 0)
   " completion not found
   if col0 == -1
+    if a:triggeredbytab
+      call feedkeys("\<Tab>", 'nt') " fall-back to the default <Tab>
+    endif
     return l
   endif
   let base = l[col0 : col1-1]
@@ -432,6 +434,9 @@ function! LaTeXtoUnicode#CmdTab()
     endif
   endfor
   if len(partmatches) == 0
+    if a:triggeredbytab
+      call feedkeys("\<Tab>", 'nt') " fall-back to the default <Tab>
+    endif
     return l
   endif
   " exact matches are replaced with Unicode
@@ -461,8 +466,13 @@ endfunction
 " Setup the L2U tab mapping
 function! s:L2U_SetTab(wait_insert_enter)
   if !b:l2u_cmdtab_set && get(g:, "latex_to_unicode_tab", 1) && b:l2u_enabled
-    cmap <buffer> <S-Tab> <Plug>L2UCmdTab
-    cnoremap <buffer> <Plug>L2UCmdTab <C-\>eLaTeXtoUnicode#CmdTab()<CR>
+    let b:l2u_cmdtab_keys = get(g:, "latex_to_unicode_cmd_mapping", ['<Tab>','<S-Tab>'])
+    if type(b:l2u_cmdtab_keys) != type([]) " avoid using v:t_list for backward compatibility
+      let b:l2u_cmdtab_keys = [b:l2u_cmdtab_keys]
+    endif
+    for k in b:l2u_cmdtab_keys
+      exec 'cnoremap <buffer> '.k.' <C-\>eLaTeXtoUnicode#CmdTab('.(k ==? '<Tab>').')<CR>'
+    endfor
     let b:l2u_cmdtab_set = 1
   endif
   if b:l2u_tab_set
@@ -498,7 +508,9 @@ endfunction
 " Revert the LaTeX-to-Unicode tab mapping settings
 function! s:L2U_UnsetTab()
   if b:l2u_cmdtab_set
-    cunmap <buffer> <S-Tab>
+    for k in b:l2u_cmdtab_keys
+      exec 'cunmap <buffer> '.k
+    endfor
     let b:l2u_cmdtab_set = 0
   endif
   if !b:l2u_tab_set
@@ -591,6 +603,21 @@ function! s:L2U_UnsetAutoSub()
   let b:l2u_autosub_set = 0
 endfunction
 
+function! s:L2U_SetKeymap()
+  if !b:l2u_keymap_set && get(g:, "latex_to_unicode_keymap", 0) && b:l2u_enabled
+    setlocal keymap=latex2unicode
+    let b:l2u_keymap_set = 1
+  endif
+endfunction
+
+function! s:L2U_UnsetKeymap()
+  if !b:l2u_keymap_set
+    return
+  endif
+  setlocal keymap=
+  let b:l2u_keymap_set = 0
+endfunction
+
 " Initialization. Can be used to re-init when global settings have changed.
 function! LaTeXtoUnicode#Init(...)
   let wait_insert_enter = a:0 > 0 ? a:1 : 1
@@ -603,9 +630,11 @@ function! LaTeXtoUnicode#Init(...)
 
   call s:L2U_UnsetTab()
   call s:L2U_UnsetAutoSub()
+  call s:L2U_UnsetKeymap()
 
   call s:L2U_SetTab(wait_insert_enter)
   call s:L2U_SetAutoSub(wait_insert_enter)
+  call s:L2U_SetKeymap()
 endfunction
 
 function! LaTeXtoUnicode#Toggle()

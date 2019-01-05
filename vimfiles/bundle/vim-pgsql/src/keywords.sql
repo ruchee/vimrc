@@ -77,12 +77,10 @@ box2d
 box2df
 box3d
 bpchar
-breakpoint
 bytea
 cardinal_number
 char
 character_data
-chkpass
 cid
 cidr
 circle
@@ -112,7 +110,6 @@ featnames
 featnames_gid_seq
 float4
 float8
-frame
 gbtreekey16
 gbtreekey32
 gbtreekey4
@@ -185,7 +182,6 @@ pg_dependencies
 pg_lsn
 pg_ndistinct
 pg_node_tree
-pgis_abs
 pgr_costresult
 pgr_costresult3
 pgr_geomresult
@@ -194,7 +190,6 @@ place_gid_seq
 place_lookup
 point
 polygon
-proxyinfo
 query_int
 rastbandarg
 raster
@@ -232,7 +227,6 @@ tablefunc_crosstab_2
 tablefunc_crosstab_3
 tablefunc_crosstab_4
 tap_funky
-targetinfo
 text
 tid
 time
@@ -265,7 +259,6 @@ us_rules_id_seq
 uuid
 valid_detail
 validatetopology_returntype
-var
 varbit
 varchar
 void
@@ -419,6 +412,7 @@ big5_to_euc_tw()
 big5_to_mic()
 big5_to_utf8()
 binary_upgrade_create_empty_extension()
+binary_upgrade_set_missing_value()
 binary_upgrade_set_next_array_pg_type_oid()
 binary_upgrade_set_next_heap_pg_class_oid()
 binary_upgrade_set_next_index_pg_class_oid()
@@ -972,10 +966,7 @@ ginarrayextract()
 ginarraytriconsistent()
 ginhandler()
 ginqueryarrayextract()
-gist_box_compress()
 gist_box_consistent()
-gist_box_decompress()
-gist_box_fetch()
 gist_box_penalty()
 gist_box_picksplit()
 gist_box_same()
@@ -993,7 +984,6 @@ gist_poly_distance()
 gisthandler()
 gtsquery_compress()
 gtsquery_consistent()
-gtsquery_decompress()
 gtsquery_penalty()
 gtsquery_picksplit()
 gtsquery_same()
@@ -1020,26 +1010,46 @@ has_table_privilege()
 has_tablespace_privilege()
 has_type_privilege()
 hash_aclitem()
+hash_aclitem_extended()
 hash_array()
+hash_array_extended()
 hash_numeric()
+hash_numeric_extended()
 hash_range()
+hash_range_extended()
 hashbpchar()
+hashbpcharextended()
 hashchar()
+hashcharextended()
 hashenum()
+hashenumextended()
 hashfloat4()
+hashfloat4extended()
 hashfloat8()
+hashfloat8extended()
 hashhandler()
 hashinet()
+hashinetextended()
 hashint2()
+hashint2extended()
 hashint4()
+hashint4extended()
 hashint8()
+hashint8extended()
 hashmacaddr()
 hashmacaddr8()
+hashmacaddr8extended()
+hashmacaddrextended()
 hashname()
+hashnameextended()
 hashoid()
+hashoidextended()
 hashoidvector()
+hashoidvectorextended()
 hashtext()
+hashtextextended()
 hashvarlena()
+hashvarlenaextended()
 height()
 host()
 hostmask()
@@ -1051,13 +1061,13 @@ icregexeqjoinsel()
 icregexeqsel()
 icregexnejoinsel()
 icregexnesel()
+in_range()
 index_am_handler_in()
 index_am_handler_out()
 inet_client_addr()
 inet_client_port()
 inet_gist_compress()
 inet_gist_consistent()
-inet_gist_decompress()
 inet_gist_fetch()
 inet_gist_penalty()
 inet_gist_picksplit()
@@ -1282,6 +1292,7 @@ interval_eq()
 interval_ge()
 interval_gt()
 interval_hash()
+interval_hash_extended()
 interval_in()
 interval_larger()
 interval_le()
@@ -1349,6 +1360,7 @@ json_send()
 json_strip_nulls()
 json_to_record()
 json_to_recordset()
+json_to_tsvector()
 json_typeof()
 jsonb_agg()
 jsonb_agg_finalfn()
@@ -1377,6 +1389,7 @@ jsonb_extract_path_text()
 jsonb_ge()
 jsonb_gt()
 jsonb_hash()
+jsonb_hash_extended()
 jsonb_in()
 jsonb_insert()
 jsonb_le()
@@ -1399,6 +1412,7 @@ jsonb_set()
 jsonb_strip_nulls()
 jsonb_to_record()
 jsonb_to_recordset()
+jsonb_to_tsvector()
 jsonb_typeof()
 justify_days()
 justify_hours()
@@ -1785,8 +1799,6 @@ pg_event_trigger_table_rewrite_reason()
 pg_export_snapshot()
 pg_extension_config_dump()
 pg_extension_update_paths()
-pg_file_length()
-pg_file_read()
 pg_file_rename()
 pg_file_unlink()
 pg_file_write()
@@ -1828,6 +1840,7 @@ pg_is_in_recovery()
 pg_is_other_temp_schema()
 pg_is_wal_replay_paused()
 pg_isolation_test_session_is_blocked()
+pg_jit_available()
 pg_last_committed_xact()
 pg_last_wal_receive_lsn()
 pg_last_wal_replay_lsn()
@@ -1835,7 +1848,6 @@ pg_last_xact_replay_timestamp()
 pg_listening_channels()
 pg_lock_status()
 pg_logdir_ls()
-pg_logfile_rotate()
 pg_logical_emit_message()
 pg_logical_slot_get_binary_changes()
 pg_logical_slot_get_changes()
@@ -1849,6 +1861,7 @@ pg_lsn_eq()
 pg_lsn_ge()
 pg_lsn_gt()
 pg_lsn_hash()
+pg_lsn_hash_extended()
 pg_lsn_in()
 pg_lsn_le()
 pg_lsn_lt()
@@ -1877,6 +1890,7 @@ pg_prepared_statement()
 pg_prepared_xact()
 pg_read_binary_file()
 pg_read_file()
+pg_read_file_old()
 pg_relation_filenode()
 pg_relation_filepath()
 pg_relation_is_publishable()
@@ -1894,7 +1908,9 @@ pg_replication_origin_session_reset()
 pg_replication_origin_session_setup()
 pg_replication_origin_xact_reset()
 pg_replication_origin_xact_setup()
+pg_replication_slot_advance()
 pg_rotate_logfile()
+pg_rotate_logfile_old()
 pg_safe_snapshot_blocking_pids()
 pg_sequence_last_value()
 pg_sequence_parameters()
@@ -2092,6 +2108,8 @@ positionsel()
 postgresql_fdw_validator()
 pow()
 power()
+prefixjoinsel()
+prefixsel()
 prsd_end()
 prsd_headline()
 prsd_lextype()
@@ -2118,10 +2136,7 @@ range_contains()
 range_contains_elem()
 range_eq()
 range_ge()
-range_gist_compress()
 range_gist_consistent()
-range_gist_decompress()
-range_gist_fetch()
 range_gist_penalty()
 range_gist_picksplit()
 range_gist_same()
@@ -2241,8 +2256,13 @@ row_security_active()
 row_to_json()
 rpad()
 rtrim()
+satisfies_hash_partition()
+scalargejoinsel()
+scalargesel()
 scalargtjoinsel()
 scalargtsel()
+scalarlejoinsel()
+scalarlesel()
 scalarltjoinsel()
 scalarltsel()
 scale()
@@ -2257,6 +2277,10 @@ set_masklen()
 setseed()
 setval()
 setweight()
+sha224()
+sha256()
+sha384()
+sha512()
 shell_in()
 shell_out()
 shift_jis_2004_to_euc_jis_2004()
@@ -2274,6 +2298,7 @@ smgreq()
 smgrin()
 smgrne()
 smgrout()
+spg_bbox_quad_config()
 spg_box_quad_choose()
 spg_box_quad_config()
 spg_box_quad_inner_consistent()
@@ -2283,6 +2308,7 @@ spg_kd_choose()
 spg_kd_config()
 spg_kd_inner_consistent()
 spg_kd_picksplit()
+spg_poly_quad_compress()
 spg_quad_choose()
 spg_quad_config()
 spg_quad_inner_consistent()
@@ -2301,6 +2327,7 @@ spg_text_picksplit()
 spghandler()
 split_part()
 sqrt()
+starts_with()
 statement_timestamp()
 stddev()
 stddev_pop()
@@ -2369,6 +2396,7 @@ time_eq()
 time_ge()
 time_gt()
 time_hash()
+time_hash_extended()
 time_in()
 time_larger()
 time_le()
@@ -2401,6 +2429,7 @@ timestamp_gt()
 timestamp_gt_date()
 timestamp_gt_timestamptz()
 timestamp_hash()
+timestamp_hash_extended()
 timestamp_in()
 timestamp_izone_transform()
 timestamp_larger()
@@ -2466,6 +2495,7 @@ timetz_eq()
 timetz_ge()
 timetz_gt()
 timetz_hash()
+timetz_hash_extended()
 timetz_in()
 timetz_larger()
 timetz_le()
@@ -2628,6 +2658,7 @@ uuid_eq()
 uuid_ge()
 uuid_gt()
 uuid_hash()
+uuid_hash_extended()
 uuid_in()
 uuid_le()
 uuid_lt()
@@ -2667,6 +2698,7 @@ void_in()
 void_out()
 void_recv()
 void_send()
+websearch_to_tsquery()
 width()
 width_bucket()
 win1250_to_latin2()
@@ -2766,8 +2798,10 @@ geometry_above() -- function
 geometry_analyze() -- function
 geometry_below() -- function
 geometry_cmp() -- function
+geometry_contained_3d() -- function
 geometry_contained_by_raster() -- function
 geometry_contains() -- function
+geometry_contains_3d() -- function
 geometry_distance_box() -- function
 geometry_distance_centroid() -- function
 geometry_distance_centroid_nd() -- function
@@ -2791,6 +2825,7 @@ geometry_gist_same_nd() -- function
 geometry_gist_union_2d() -- function
 geometry_gist_union_nd() -- function
 geometry_gt() -- function
+geometry_hash() -- function
 geometry_in() -- function
 geometry_le() -- function
 geometry_left() -- function
@@ -2799,6 +2834,7 @@ geometry_out() -- function
 geometry_overabove() -- function
 geometry_overbelow() -- function
 geometry_overlaps() -- function
+geometry_overlaps_3d() -- function
 geometry_overlaps_nd() -- function
 geometry_overleft() -- function
 geometry_overright() -- function
@@ -2807,7 +2843,20 @@ geometry_raster_overlap() -- function
 geometry_recv() -- function
 geometry_right() -- function
 geometry_same() -- function
+geometry_same_3d() -- function
 geometry_send() -- function
+geometry_spgist_choose_2d() -- function
+geometry_spgist_choose_3d() -- function
+geometry_spgist_compress_2d() -- function
+geometry_spgist_compress_3d() -- function
+geometry_spgist_config_2d() -- function
+geometry_spgist_config_3d() -- function
+geometry_spgist_inner_consistent_2d() -- function
+geometry_spgist_inner_consistent_3d() -- function
+geometry_spgist_leaf_consistent_2d() -- function
+geometry_spgist_leaf_consistent_3d() -- function
+geometry_spgist_picksplit_2d() -- function
+geometry_spgist_picksplit_3d() -- function
 geometry_typmod_in() -- function
 geometry_typmod_out() -- function
 geometry_within() -- function
@@ -2829,11 +2878,12 @@ overlaps_2d() -- function
 overlaps_geog() -- function
 overlaps_nd() -- function
 path() -- function
-pgis_abs_in() -- function
-pgis_abs_out() -- function
 pgis_asgeobuf_finalfn() -- function
 pgis_asgeobuf_transfn() -- function
+pgis_asmvt_combinefn() -- function
+pgis_asmvt_deserialfn() -- function
 pgis_asmvt_finalfn() -- function
+pgis_asmvt_serialfn() -- function
 pgis_asmvt_transfn() -- function
 pgis_geometry_accum_finalfn() -- function
 pgis_geometry_accum_transfn() -- function
@@ -2852,6 +2902,7 @@ postgis_constraint_dims() -- function
 postgis_constraint_srid() -- function
 postgis_constraint_type() -- function
 postgis_dropbbox() -- function
+postgis_extensions_upgrade() -- function
 postgis_full_version() -- function
 postgis_gdal_version() -- function
 postgis_geos_version() -- function
@@ -2917,6 +2968,7 @@ st_addband() -- function
 st_addmeasure() -- function
 st_addpoint() -- function
 st_affine() -- function
+st_angle() -- function
 st_approxcount() -- function
 st_approxhistogram() -- function
 st_approxquantile() -- function
@@ -2932,6 +2984,7 @@ st_asgeobuf() -- function
 st_asgeojson() -- function
 st_asgml() -- function
 st_ashexewkb() -- function
+st_ashexwkb() -- function
 st_asjpeg() -- function
 st_askml() -- function
 st_aslatlontext() -- function
@@ -2944,9 +2997,12 @@ st_assvg() -- function
 st_astext() -- function
 st_astiff() -- function
 st_astwkb() -- function
+st_aswkb() -- function
 st_asx3d() -- function
 st_azimuth() -- function
 st_band() -- function
+st_bandfilesize() -- function
+st_bandfiletimestamp() -- function
 st_bandisnodata() -- function
 st_bandmetadata() -- function
 st_bandnodatavalue() -- function
@@ -2960,6 +3016,7 @@ st_box2dfromgeohash() -- function
 st_buffer() -- function
 st_buildarea() -- function
 st_centroid() -- function
+st_chaikinsmoothing() -- function
 st_cleangeometry() -- function
 st_clip() -- function
 st_clipbybox2d() -- function
@@ -3014,6 +3071,7 @@ st_estimatedextent() -- function
 st_expand() -- function
 st_extent() -- function
 st_exteriorring() -- function
+st_filterbym() -- function
 st_find_extent() -- function
 st_findextent() -- function
 st_flipcoordinates() -- function
@@ -3060,6 +3118,7 @@ st_geomfromwkb() -- function
 st_georeference() -- function
 st_geotransform() -- function
 st_gmltosql() -- function
+st_grayscale() -- function
 st_hasarc() -- function
 st_hasnoband() -- function
 st_hausdorffdistance() -- function
@@ -3098,6 +3157,7 @@ st_linefrommultipoint() -- function
 st_linefromtext() -- function
 st_linefromwkb() -- function
 st_lineinterpolatepoint() -- function
+st_lineinterpolatepoints() -- function
 st_linelocatepoint() -- function
 st_linemerge() -- function
 st_linestringfromwkb() -- function
@@ -3168,6 +3228,7 @@ st_numpatches() -- function
 st_numpoints() -- function
 st_offsetcurve() -- function
 st_orderingequals() -- function
+st_orientedenvelope() -- function
 st_overlaps() -- function
 st_patchn() -- function
 st_perimeter() -- function
@@ -3198,10 +3259,13 @@ st_polygonfromwkb() -- function
 st_polygonize() -- function
 st_project() -- function
 st_quantile() -- function
+st_quantizecoordinates() -- function
 st_range4ma() -- function
 st_rastertoworldcoord() -- function
 st_rastertoworldcoordx() -- function
 st_rastertoworldcoordy() -- function
+st_rastfromhexwkb() -- function
+st_rastfromwkb() -- function
 st_reclass() -- function
 st_relate() -- function
 st_relatematch() -- function
@@ -3224,8 +3288,10 @@ st_scale() -- function
 st_scalex() -- function
 st_scaley() -- function
 st_segmentize() -- function
+st_setbandindex() -- function
 st_setbandisnodata() -- function
 st_setbandnodatavalue() -- function
+st_setbandpath() -- function
 st_seteffectivearea() -- function
 st_setgeoreference() -- function
 st_setgeotransform() -- function
@@ -3311,7 +3377,6 @@ geometry -- type
 geometry_dump -- type
 geomval -- type
 gidx -- type
-pgis_abs -- type
 rastbandarg -- type
 raster -- type
 reclassarg -- type
@@ -3331,6 +3396,8 @@ unaccent_lexize() -- function
 gin_btree_consistent() -- function
 gin_compare_prefix_anyenum() -- function
 gin_compare_prefix_bit() -- function
+gin_compare_prefix_bool() -- function
+gin_compare_prefix_bpchar() -- function
 gin_compare_prefix_bytea() -- function
 gin_compare_prefix_char() -- function
 gin_compare_prefix_cidr() -- function
@@ -3345,6 +3412,7 @@ gin_compare_prefix_interval() -- function
 gin_compare_prefix_macaddr() -- function
 gin_compare_prefix_macaddr8() -- function
 gin_compare_prefix_money() -- function
+gin_compare_prefix_name() -- function
 gin_compare_prefix_numeric() -- function
 gin_compare_prefix_oid() -- function
 gin_compare_prefix_text() -- function
@@ -3352,10 +3420,13 @@ gin_compare_prefix_time() -- function
 gin_compare_prefix_timestamp() -- function
 gin_compare_prefix_timestamptz() -- function
 gin_compare_prefix_timetz() -- function
+gin_compare_prefix_uuid() -- function
 gin_compare_prefix_varbit() -- function
 gin_enum_cmp() -- function
 gin_extract_query_anyenum() -- function
 gin_extract_query_bit() -- function
+gin_extract_query_bool() -- function
+gin_extract_query_bpchar() -- function
 gin_extract_query_bytea() -- function
 gin_extract_query_char() -- function
 gin_extract_query_cidr() -- function
@@ -3370,6 +3441,7 @@ gin_extract_query_interval() -- function
 gin_extract_query_macaddr() -- function
 gin_extract_query_macaddr8() -- function
 gin_extract_query_money() -- function
+gin_extract_query_name() -- function
 gin_extract_query_numeric() -- function
 gin_extract_query_oid() -- function
 gin_extract_query_text() -- function
@@ -3377,9 +3449,12 @@ gin_extract_query_time() -- function
 gin_extract_query_timestamp() -- function
 gin_extract_query_timestamptz() -- function
 gin_extract_query_timetz() -- function
+gin_extract_query_uuid() -- function
 gin_extract_query_varbit() -- function
 gin_extract_value_anyenum() -- function
 gin_extract_value_bit() -- function
+gin_extract_value_bool() -- function
+gin_extract_value_bpchar() -- function
 gin_extract_value_bytea() -- function
 gin_extract_value_char() -- function
 gin_extract_value_cidr() -- function
@@ -3394,6 +3469,7 @@ gin_extract_value_interval() -- function
 gin_extract_value_macaddr() -- function
 gin_extract_value_macaddr8() -- function
 gin_extract_value_money() -- function
+gin_extract_value_name() -- function
 gin_extract_value_numeric() -- function
 gin_extract_value_oid() -- function
 gin_extract_value_text() -- function
@@ -3401,6 +3477,7 @@ gin_extract_value_time() -- function
 gin_extract_value_timestamp() -- function
 gin_extract_value_timestamptz() -- function
 gin_extract_value_timetz() -- function
+gin_extract_value_uuid() -- function
 gin_extract_value_varbit() -- function
 gin_numeric_cmp() -- function
 -- Extension: plpython3u
@@ -3455,14 +3532,17 @@ ltree_gist -- type
 ltxtquery -- type
 -- Extension: tsm_system_rows
 system_rows() -- function
+-- Extension: temporal_tables
+set_system_time() -- function
+versioning() -- function
+-- Extension: jsonb_plperl
+jsonb_to_plperl() -- function
+plperl_to_jsonb() -- function
 -- Extension: adminpack
-pg_file_length() -- function
-pg_file_read() -- function
 pg_file_rename() -- function
 pg_file_unlink() -- function
 pg_file_write() -- function
 pg_logdir_ls() -- function
-pg_logfile_rotate() -- function
 -- Extension: dict_xsyn
 dxsyn_init() -- function
 dxsyn_lexize() -- function
@@ -3573,9 +3653,7 @@ cube_union() -- function
 cube_ur_coord() -- function
 distance_chebyshev() -- function
 distance_taxicab() -- function
-g_cube_compress() -- function
 g_cube_consistent() -- function
-g_cube_decompress() -- function
 g_cube_distance() -- function
 g_cube_penalty() -- function
 g_cube_picksplit() -- function
@@ -3667,9 +3745,7 @@ zip_state -- table
 zip_state_loc -- table
 norm_addy -- type
 -- Extension: seg
-gseg_compress() -- function
 gseg_consistent() -- function
-gseg_decompress() -- function
 gseg_penalty() -- function
 gseg_picksplit() -- function
 gseg_same() -- function
@@ -3763,6 +3839,9 @@ lo_oid() -- function
 lo -- type
 -- Extension: pgrowlocks
 pgrowlocks() -- function
+-- Extension: jsonb_plpython3u
+jsonb_to_plpython3() -- function
+plpython3_to_jsonb() -- function
 -- Extension: sslinfo
 ssl_cipher() -- function
 ssl_client_cert_present() -- function
@@ -3781,13 +3860,6 @@ pgstathashindex() -- function
 pgstatindex() -- function
 pgstattuple() -- function
 pgstattuple_approx() -- function
--- Extension: chkpass
-chkpass_in() -- function
-chkpass_out() -- function
-eq() -- function
-ne() -- function
-raw() -- function
-chkpass -- type
 -- Extension: autoinc
 autoinc() -- function
 -- Extension: address_standardizer_data_us
@@ -3907,6 +3979,8 @@ pg_stat_statements -- view
 -- Extension: insert_username
 insert_username() -- function
 -- Extension: pg_prewarm
+autoprewarm_dump_now() -- function
+autoprewarm_start_worker() -- function
 pg_prewarm() -- function
 -- Extension: pgtap
 is() -- function
@@ -3977,6 +4051,7 @@ has_foreign_table() -- function
 has_function() -- function
 has_group() -- function
 has_index() -- function
+has_inherited_tables() -- function
 has_language() -- function
 has_leftop() -- function
 has_materialized_view() -- function
@@ -4007,6 +4082,7 @@ hasnt_foreign_table() -- function
 hasnt_function() -- function
 hasnt_group() -- function
 hasnt_index() -- function
+hasnt_inherited_tables() -- function
 hasnt_language() -- function
 hasnt_materialized_view() -- function
 hasnt_opclass() -- function
@@ -4031,18 +4107,25 @@ index_is_unique() -- function
 index_owner_is() -- function
 indexes_are() -- function
 is_aggregate() -- function
+is_ancestor_of() -- function
 is_clustered() -- function
 is_definer() -- function
+is_descendent_of() -- function
 is_empty() -- function
 is_indexed() -- function
 is_member_of() -- function
+is_partition_of() -- function
+is_partitioned() -- function
 is_strict() -- function
 is_superuser() -- function
 isa_ok() -- function
 isnt() -- function
 isnt_aggregate() -- function
+isnt_ancestor_of() -- function
 isnt_definer() -- function
+isnt_descendent_of() -- function
 isnt_empty() -- function
+isnt_partitioned() -- function
 isnt_strict() -- function
 isnt_superuser() -- function
 language_is_trusted() -- function
@@ -4060,6 +4143,7 @@ opclass_owner_is() -- function
 opclasses_are() -- function
 operators_are() -- function
 os_name() -- function
+partitions_are() -- function
 pass() -- function
 performs_ok() -- function
 performs_within() -- function
@@ -4067,6 +4151,9 @@ pg_version() -- function
 pg_version_num() -- function
 pgtap_version() -- function
 plan() -- function
+policies_are() -- function
+policy_cmd_is() -- function
+policy_roles_are() -- function
 relation_owner_is() -- function
 results_eq() -- function
 results_ne() -- function
@@ -4198,6 +4285,11 @@ show_trgm() -- function
 similarity() -- function
 similarity_dist() -- function
 similarity_op() -- function
+strict_word_similarity() -- function
+strict_word_similarity_commutator_op() -- function
+strict_word_similarity_dist_commutator_op() -- function
+strict_word_similarity_dist_op() -- function
+strict_word_similarity_op() -- function
 word_similarity() -- function
 word_similarity_commutator_op() -- function
 word_similarity_dist_commutator_op() -- function
@@ -4514,33 +4606,6 @@ pgr_withpointsksp() -- function
 pgr_costresult -- type
 pgr_costresult3 -- type
 pgr_geomresult -- type
--- Extension: pldbgapi
-pldbg_abort_target() -- function
-pldbg_attach_to_port() -- function
-pldbg_continue() -- function
-pldbg_create_listener() -- function
-pldbg_deposit_value() -- function
-pldbg_drop_breakpoint() -- function
-pldbg_get_breakpoints() -- function
-pldbg_get_proxy_info() -- function
-pldbg_get_source() -- function
-pldbg_get_stack() -- function
-pldbg_get_target_info() -- function
-pldbg_get_variables() -- function
-pldbg_oid_debug() -- function
-pldbg_select_frame() -- function
-pldbg_set_breakpoint() -- function
-pldbg_set_global_breakpoint() -- function
-pldbg_step_into() -- function
-pldbg_step_over() -- function
-pldbg_wait_for_breakpoint() -- function
-pldbg_wait_for_target() -- function
-plpgsql_oid_debug() -- function
-breakpoint -- type
-frame -- type
-proxyinfo -- type
-targetinfo -- type
-var -- type
 -- Extension: pgcrypto
 armor() -- function
 crypt() -- function
@@ -4586,6 +4651,9 @@ st_volume() -- function
 get_timetravel() -- function
 set_timetravel() -- function
 timetravel() -- function
+-- Extension: jsonb_plperlu
+jsonb_to_plperlu() -- function
+plperlu_to_jsonb() -- function
 -- Extension: plperl
 plperl_call_handler() -- function
 plperl_inline_handler() -- function
@@ -4618,6 +4686,11 @@ citext_larger() -- function
 citext_le() -- function
 citext_lt() -- function
 citext_ne() -- function
+citext_pattern_cmp() -- function
+citext_pattern_ge() -- function
+citext_pattern_gt() -- function
+citext_pattern_le() -- function
+citext_pattern_lt() -- function
 citext_smaller() -- function
 citextin() -- function
 citextout() -- function
@@ -4661,6 +4734,38 @@ plpython2_to_hstore() -- function
 ltree_to_plpython() -- function
 -- Extension: ltree_plpython2u
 ltree_to_plpython2() -- function
+-- Extension: pldbgapi
+pldbg_abort_target() -- function
+pldbg_attach_to_port() -- function
+pldbg_continue() -- function
+pldbg_create_listener() -- function
+pldbg_deposit_value() -- function
+pldbg_drop_breakpoint() -- function
+pldbg_get_breakpoints() -- function
+pldbg_get_proxy_info() -- function
+pldbg_get_source() -- function
+pldbg_get_stack() -- function
+pldbg_get_target_info() -- function
+pldbg_get_variables() -- function
+pldbg_oid_debug() -- function
+pldbg_select_frame() -- function
+pldbg_set_breakpoint() -- function
+pldbg_set_global_breakpoint() -- function
+pldbg_step_into pldbg_step_over() -- function
+pldbg_wait_for_breakpoint() -- function
+pldbg_wait_for_target() -- function
+plpgsql_oid_debug() -- function
+breakpoint -- type
+frame -- type
+proxyinfo -- type
+targetinfo -- type
+var -- type
+-- Extension: chkpass
+chkpass_in() -- function
+chkpass_out() -- function
+eq() -- function
+ne() -- function
+raw() -- function
 -- Extensions names
 address_standardizer
 address_standardizer_data_us
@@ -4670,7 +4775,6 @@ autoinc
 bloom
 btree_gin
 btree_gist
-chkpass
 citext
 cube
 dblink
@@ -4687,6 +4791,9 @@ insert_username
 intagg
 intarray
 isn
+jsonb_plperl
+jsonb_plperlu
+jsonb_plpython3u
 lo
 ltree
 ltree_plpython3u
@@ -4703,7 +4810,6 @@ pgrouting
 pgrowlocks
 pgstattuple
 pgtap
-pldbgapi
 plperl
 plperlu
 plpgsql
@@ -4720,16 +4826,19 @@ seg
 sslinfo
 tablefunc
 tcn
+temporal_tables
 timetravel
 tsm_system_rows
 tsm_system_time
 unaccent
 xml2
 -- Lgeacy extensions names
+chkpass
 hstore_plpython2u
 hstore_plpythonu
 ltree_plpython2u
 ltree_plpythonu
+pldbgapi
 plpython2u
 plpythonu
 -- Catalog tables
@@ -4946,6 +5055,7 @@ binary
 both
 by
 cache
+call
 called
 cascade
 cascaded
@@ -5040,6 +5150,7 @@ granted
 greatest
 group
 grouping
+groups
 handler
 having
 header
@@ -5052,6 +5163,7 @@ immediate
 immutable
 implicit
 in
+include
 including
 increment
 index
@@ -5129,6 +5241,7 @@ options
 or
 order
 ordinality
+others
 out
 outer
 over
@@ -5154,6 +5267,7 @@ prior
 privileges
 procedural
 procedure
+procedures
 program
 publication
 quote
@@ -5176,6 +5290,8 @@ returns
 right
 role
 rollup
+routine
+routines
 row
 rows
 rule
@@ -5221,6 +5337,7 @@ temp
 template
 temporary
 then
+ties
 to
 trailing
 transform
@@ -5301,9 +5418,11 @@ pg_catalog
 %#
 %%
 %>
+%>>
 &
 &&
 &&&
+&/&
 &<
 &<|
 &>
@@ -5325,10 +5444,14 @@ pg_catalog
 <%
 <->
 <->>
+<->>>
 <<
+<<%
 <<->
 <<->>
+<<<->
 <<=
+<<@
 <<|
 <=
 <=>
@@ -5357,6 +5480,7 @@ pg_catalog
 @
 @-@
 @>
+@>>
 @@
 @@@
 ^
@@ -5377,6 +5501,7 @@ pg_catalog
 ~<=~
 ~<~
 ~=
+~==
 ~>
 ~>=~
 ~>~
@@ -5612,6 +5737,7 @@ undefined_object
 undefined_parameter
 undefined_table
 unique_violation
+unsafe_new_enum_value_usage
 unterminated_c_string
 untranslatable_character
 warning

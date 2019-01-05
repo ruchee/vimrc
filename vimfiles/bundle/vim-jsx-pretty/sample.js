@@ -18,8 +18,14 @@ class App extends Component {
     var e = a>c
     var bar = arr[1] < foo;
 
+    if (foo
+      < arr) {
+
+    }
+
     if (a<b && a<d || a>c){
-      return <a></a>
+      return <a>
+      </a>
     }
 
     if (a < b ) {
@@ -38,6 +44,8 @@ class Hoge extends React.Component {
       return <  div style={{margin:0}}>
         <div>hello, world</div>
         <table.row hello="world">
+          plain text
+          <div></div>
         </table.row>
       </ div>
     }
@@ -45,10 +53,22 @@ class Hoge extends React.Component {
 
   hoge() {
     Hoge.poge(
-      <div disabled>
+      <div disabled >
+        <div></div>
         <div></div>
         {this.hoge}
         <div></div>
+        {
+          <div></div>
+        }
+        {
+          a > 0
+            ? (
+              <div></div>
+            )
+            : <div>
+            </div>
+        }
       </div>
     );
   }
@@ -57,12 +77,21 @@ class Hoge extends React.Component {
     return (
       <div
         foo={
-          <bar foo='aaa' >
-            <div
+          <bar foo = 'aaa'
+          >
+            <foo
+              attr={"test"} />
+            <bar
+              hoge={
+                <div
+                  hoge={'aaa'}>
+                </div>
+              }
               hoge={
                 <div
                   hoge={'aaa'}
-                ></div>
+                >
+                </div>
               }
             />
           </bar>
@@ -84,31 +113,49 @@ class Hoge extends React.Component {
 
   render() {
     return (
-      <div className="aaa, aaaa">
-        <div className="aaa, aaaa, aaaaaa">
-
+      <>
+        <div className="aaa, aaaa">
+          <div className="aaa, aaaa, aaaaaa">
+            <>
+              <div></div>
+            </>
+          </div>
         </div>
-      </div>
 
-      <div>
-        {(hoge => {
-          if (hoge) {
-            return <div foo-bar foo/>;
-          }
-        })()}
-      </div>
+        <div>
+          {(hoge => {
+            if (hoge) {
+              var a = <div foo>
+              </div>
+              return <div foo-bar foo />;
+            }
+          })()}
+        </div>
+      </>
     );
   }
+}
+
+function test2() {
+  return (
+    <div
+      foo="bar"
+    >
+      <div>child</div>
+    </div>
+  );
 }
 
 export const Hoge = () => (
   <div>
     <div
       hoge
-      hoge={aaa}
-      hoge={aaa}
+      hoge={aaa} // inline comment
+      hoge={aaa} /* multiline comment */
       hoge
-    ></div>
+    >
+      {<div></div>}
+    </div>
     <div
       hoge={aaa}
       hoge={aaa}
@@ -123,13 +170,13 @@ ReactDOM.render(
     <div></div>
     <div></div>
   </div>,
-  document.getElementById('body');
+  document.getElementById('body')
 )
 
 const hoge = () => {
   ReactDOM.render(
     <div></div>,
-    document.getElementById('body');
+    document.getElementById('body')
   );
 }
 
@@ -140,6 +187,42 @@ const SearchBar = ({
 }) => {
   const a = 'hi';
   console.log(a);
+}
+
+const fragment = (
+  <>
+    <em>hello</em>
+    <span>fragment</span>
+  </>
+);
+
+function tagFollowsPlainText() {
+  return (
+    <div>
+      plain text<br />
+    </div>
+  );
+}
+
+class Test extends React.Component {
+  render() {
+    // shouldn't get a jsxComponentName on just Line here
+    let x = <flatLine />
+    return (
+      <FlatList
+        data={[{ key: "test", icon: <Icon style={APPICON} icon="test" /> }]}
+        numColumns={4}
+        horizontal={false}
+        renderItem={({ item }) => (
+          <View>
+            <View.Icon>
+              {item.icon}
+            </View.Icon>
+          </View>
+        )}
+      />
+    )
+  }
 }
 
 export default Hoge;

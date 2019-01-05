@@ -50,7 +50,7 @@ def run(path='', code=None, rootdir=CURDIR, options=None):
             for item in params.get('linters') or linters:
 
                 if not isinstance(item, tuple):
-                    item = (item, LINTERS.get(item))
+                    item = item, LINTERS.get(item)
 
                 lname, linter = item
 
@@ -60,19 +60,23 @@ def run(path='', code=None, rootdir=CURDIR, options=None):
                 lparams = linters_params.get(lname, dict())
                 LOGGER.info("Run %s %s", lname, lparams)
 
+                ignore, select = merge_params(params, lparams)
+
                 linter_errors = linter.run(
-                    path, code=code, ignore=params.get("ignore", set()),
-                    select=params.get("select", set()), params=lparams)
-                if linter_errors:
-                    for er in linter_errors:
-                        errors.append(Error(filename=path, linter=lname, **er))
+                    path, code=code, ignore=ignore, select=select, params=lparams)
+                if not linter_errors:
+                    continue
+
+                errors += filter_errors([
+                    Error(filename=path, linter=lname, **er) for er in linter_errors
+                ], ignore=ignore, select=select)
 
     except IOError as e:
-        LOGGER.debug("IOError %s", e)
+        LOGGER.error("IOError %s", e)
         errors.append(Error(text=str(e), filename=path, linter=lname))
 
     except SyntaxError as e:
-        LOGGER.debug("SyntaxError %s", e)
+        LOGGER.error("SyntaxError %s", e)
         errors.append(
             Error(linter='pylama', lnum=e.lineno, col=e.offset,
                   text='E0100 SyntaxError: {}'.format(e.args[0]),
@@ -80,9 +84,7 @@ def run(path='', code=None, rootdir=CURDIR, options=None):
 
     except Exception as e:  # noqa
         import traceback
-        LOGGER.info(traceback.format_exc())
-
-    errors = filter_errors(errors, **params)  # noqa
+        LOGGER.error(traceback.format_exc())
 
     errors = list(remove_duplicates(errors))
 
@@ -92,9 +94,11 @@ def run(path='', code=None, rootdir=CURDIR, options=None):
     if options and options.sort:
         sort = dict((v, n) for n, v in enumerate(options.sort, 1))
 
-        def key(e): return (sort.get(e.type, 999), e.lnum)
+        def key(e):
+            return (sort.get(e.type, 999), e.lnum)
     else:
-        def key(e): return e.lnum
+        def key(e):
+            return e.lnum
 
     return sorted(errors, key=key)
 
@@ -177,6 +181,19 @@ def filter_skiplines(code, errors):
         errors = [er for er in errors if er.lnum not in removed]
 
     return errors
+
+
+def merge_params(params, lparams):
+    """Merge global ignore/select with linter local params."""
+    ignore = params.get('ignore', set())
+    if 'ignore' in lparams:
+        ignore = ignore | set(lparams['ignore'])
+
+    select = params.get('select', set())
+    if 'select' in lparams:
+        select = select | set(lparams['select'])
+
+    return ignore, select
 
 
 class CodeContext(object):

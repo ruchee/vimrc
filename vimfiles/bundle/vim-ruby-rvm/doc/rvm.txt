@@ -1,0 +1,35 @@
+*rvm.txt*  Switch Ruby versions from inside Vim
+
+Author:  Tim Pope <http://tpo.pe/>
+License: Same terms as Vim itself (see |license|)
+
+This plugin is only available if 'compatible' is not set.
+
+COMMANDS                                        *:Rvm*
+
+:Rvm                    Set the current Ruby version to the version found in
+                        the .rvmrc for the current buffer.  If no .rvmrc is
+                        found, set it to the default version.
+
+:Rvm {version}          Set the current Ruby version to {version}.
+
+:Rvm use [version]      As above, but echo the version chosen.
+
+:Rvm {command}          Run rvm with arbitrary arguments.
+
+To automatically switch Ruby versions when switching buffers:
+>
+        autocmd BufEnter * Rvm
+
+STATUSLINE                                      *rvm#statusline()*
+
+Add rvm#statusline() to 'statusline' (or 'titlestring') to see the current
+version in your statusline (or title bar).
+
+ABOUT                                           *rvm-about*
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/tpope/vim-rvm
+
+ vim:tw=78:et:ft=help:norl:

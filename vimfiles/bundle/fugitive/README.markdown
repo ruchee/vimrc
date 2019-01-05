@@ -11,7 +11,7 @@ Vim's diff handling capabilities to stage a subset of the file's
 changes.
 
 Bring up the output of `git status` with `:Gstatus`.  Press `-` to
-`add`/`reset` a file's changes, or `p` to `add`/`reset` `--patch`.  Use
+`add`/`reset` a file's changes, or `P` to `add`/`reset` `--patch`.  Use
 `:Gcommit %` to commit the current file, editing the commit message inside
 the currently running Vim.
 
@@ -39,11 +39,13 @@ making it like `git add` when called from a work tree file and like
 Use `:Gbrowse` to open the current file on the web front-end of your favorite
 hosting provider, with optional line range (try it in visual mode!).  Plugins
 are available for popular providers such as [GitHub][rhubarb.vim],
-[GitLab][fugitive-gitlab.vim], and [Bitbucket][fubitive.vim].
+[GitLab][fugitive-gitlab.vim], [Bitbucket][fubitive.vim], 
+and [Gitee][fugitive-gitee.vim].
 
 [rhubarb.vim]: https://github.com/tpope/vim-rhubarb
 [fugitive-gitlab.vim]: https://github.com/shumphrey/fugitive-gitlab.vim
 [fubitive.vim]: https://github.com/tommcdo/vim-fubitive
+[fugitive-gitee.vim]: https://github.com/linuxsuren/fugitive-gitee.vim
 
 Add `%{FugitiveStatusline()}` to `'statusline'` to get an indicator
 with the current branch in (surprise!) your statusline.

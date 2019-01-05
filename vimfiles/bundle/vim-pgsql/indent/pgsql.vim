@@ -20,6 +20,17 @@ setlocal indentkeys-=:
 setlocal indentkeys-=0#
 setlocal indentkeys-=e
 
+if has('patch-7.3.694') || (v:version == 703 && has('patch694'))
+    fun! s:shiftwidth()
+        return shiftwidth()
+    endf
+
+else
+    fun! s:shiftwidth()
+        return &sw
+    endf
+endif
+
 " This indicates formatting should take place when one of these
 " expressions is used.  These expressions would normally be something
 " you would type at the BEGINNING of a line
@@ -44,68 +55,80 @@ set cpo&vim
 " IS is excluded, since it is difficult to determine when the
 " ending block is (especially for procedures/functions).
 let s:SQLBlockStart = '^\s*\%('.
-                \ 'if\|else\|elseif\|elsif\|'.
-                \ 'while\|loop\|do\|for\|'.
-                \ 'declare\|begin\|'.
-                \ 'case\|when\|merge\|exception'.
+                \ 'if\>.*\<then\|'.
+                \ 'then\|'.
+                \ 'else\|'.
+                \ 'elseif\>.*\<then\|'.
+                \ 'elsif\>.*\<then\|'.
+                \ 'while\>.*\<loop\|'.
+                \ 'for\>.*\<loop\|'.
+                \ 'foreach\>.*\<loop\|'.
+                \ 'loop\|'.
+                \ 'do\|'.
+                \ 'declare\|'.
+                \ 'begin\|'.
+                \ 'case\|'.
+                \ 'when\|'.
+                \ 'merge\|'.
+                \ 'exception'.
                 \ '\)\>'
 let s:SQLBlockEnd = '^\s*\(end\)\>'
 
-" The indent level is also based on unmatched paranethesis
+" The indent level is also based on unmatched parentheses
 " If a line has an extra "(" increase the indent
 " If a line has an extra ")" decrease the indent
-function! s:CountUnbalancedParan( line, paran_to_check )
+function! s:CountUnbalancedParen( line, paren_to_check )
     let l = a:line
     let lp = substitute(l, '[^(]', '', 'g')
     let l = a:line
     let rp = substitute(l, '[^)]', '', 'g')
 
-    if a:paran_to_check =~ ')'
-        " echom 'CountUnbalancedParan ) returning: ' .
+    if a:paren_to_check =~ ')'
+        " echom 'CountUnbalancedParen ) returning: ' .
         " \ (strlen(rp) - strlen(lp))
         return (strlen(rp) - strlen(lp))
-    elseif a:paran_to_check =~ '('
-        " echom 'CountUnbalancedParan ( returning: ' .
+    elseif a:paren_to_check =~ '('
+        " echom 'CountUnbalancedParen ( returning: ' .
         " \ (strlen(lp) - strlen(rp))
         return (strlen(lp) - strlen(rp))
     else
-        " echom 'CountUnbalancedParan unknown paran to check: ' .
-        " \ a:paran_to_check
+        " echom 'CountUnbalancedParen unknown paren to check: ' .
+        " \ a:paren_to_check
         return 0
     endif
 endfunction
 
 " Unindent commands based on previous indent level
-function! s:CheckToIgnoreRightParan( prev_lnum, num_levels )
+function! s:CheckToIgnoreRightParen( prev_lnum, num_levels )
     let lnum = a:prev_lnum
     let line = getline(lnum)
     let ends = 0
-    let num_right_paran = a:num_levels
-    let ignore_paran = 0
+    let num_right_paren = a:num_levels
+    let ignore_paren = 0
     let vircol = 1
 
-    while num_right_paran > 0
+    while num_right_paren > 0
         silent! exec 'norm! '.lnum."G\<bar>".vircol."\<bar>"
-        let right_paran = search( ')', 'W' )
-        if right_paran != lnum
+        let right_paren = search( ')', 'W' )
+        if right_paren != lnum
             " This should not happen since there should be at least
-            " num_right_paran matches for this line
+            " num_right_paren matches for this line
             break
         endif
         let vircol      = virtcol(".")
 
         " if getline(".") =~ '^)'
-        let matching_paran = searchpair('(', '', ')', 'bW',
+        let matching_paren = searchpair('(', '', ')', 'bW',
                     \ 's:IsColComment(line("."), col("."))')
 
-        if matching_paran < 1
+        if matching_paren < 1
             " No match found
             " echom 'CTIRP - no match found, ignoring'
             break
         endif
 
-        if matching_paran == lnum
-            " This was not an unmatched parantenses, start the search again
+        if matching_paren == lnum
+            " This was not an unmatched parenthesis, start the search again
             " again after this column
             " echom 'CTIRP - same line match, ignoring'
             continue
@@ -113,23 +136,23 @@ function! s:CheckToIgnoreRightParan( prev_lnum, num_levels )
 
         " echom 'CTIRP - match: ' . line(".") . '  ' . getline(".")
 
-        if getline(matching_paran) =~? '\(if\|while\)\>'
+        if getline(matching_paren) =~? '\(if\|while\)\>'
             " echom 'CTIRP - if/while ignored: ' . line(".") . '  ' . getline(".")
-            let ignore_paran = ignore_paran + 1
+            let ignore_paren = ignore_paren + 1
         endif
 
         " One match found, decrease and check for further matches
-        let num_right_paran = num_right_paran - 1
+        let num_right_paren = num_right_paren - 1
 
     endwhile
 
     " Fallback - just move back one
-    " return a:prev_indent - &sw
-    return ignore_paran
+    " return a:prev_indent - s:shiftwidth()
+    return ignore_paren
 endfunction
 
 " Based on the keyword provided, loop through previous non empty
-" non comment lines to find the statement that initated the keyword.
+" non comment lines to find the statement that initiated the keyword.
 " Return its indent level
 "    CASE ..
 "    WHEN ...
@@ -143,7 +166,7 @@ function! s:GetStmtStarterIndent( keyword, curr_lnum )
     let lnum  = a:curr_lnum
 
     " Default - reduce indent by 1
-    let ind = indent(a:curr_lnum) - &sw
+    let ind = indent(a:curr_lnum) - s:shiftwidth()
 
     if a:keyword =~? 'end'
         exec 'normal! ^'
@@ -207,7 +230,7 @@ function! s:ModuloIndent(ind)
     let ind = a:ind
 
     if ind > 0
-        let modulo = ind % &shiftwidth
+        let modulo = ind % s:shiftwidth()
 
         if modulo > 0
             let ind = ind - modulo
@@ -268,30 +291,30 @@ function! GetSQLIndent()
     " where END IF, END, should decrease the indent.
     if prevline =~? s:SQLBlockStart
         " Move indent in
-        let ind = ind + &sw
+        let ind = ind + s:shiftwidth()
         " echom 'prevl - SQLBlockStart - indent ' . ind . '  line: ' . prevline
     elseif prevline =~ '[()]'
         if prevline =~ '('
-            let num_unmatched_left = s:CountUnbalancedParan( prevline, '(' )
+            let num_unmatched_left = s:CountUnbalancedParen( prevline, '(' )
         else
             let num_unmatched_left = 0
         endif
         if prevline =~ ')'
-            let num_unmatched_right  = s:CountUnbalancedParan( prevline, ')' )
+            let num_unmatched_right  = s:CountUnbalancedParen( prevline, ')' )
         else
             let num_unmatched_right  = 0
-            " let num_unmatched_right  = s:CountUnbalancedParan( prevline, ')' )
+            " let num_unmatched_right  = s:CountUnbalancedParen( prevline, ')' )
         endif
         if num_unmatched_left > 0
-            " There is a open left paranethesis
+            " There is a open left parenthesis
             " increase indent
-            let ind = ind + ( &sw * num_unmatched_left )
+            let ind = ind + ( s:shiftwidth() * num_unmatched_left )
         elseif num_unmatched_right > 0
-            " if it is an unbalanced paranethesis only unindent if
+            " if it is an unbalanced parenthesis only unindent if
             " it was part of a command (ie create table(..)  )
             " instead of part of an if (ie if (....) then) which should
             " maintain the indent level
-            let ignore = s:CheckToIgnoreRightParan( prevlnum, num_unmatched_right )
+            let ignore = s:CheckToIgnoreRightParen( prevlnum, num_unmatched_right )
             " echom 'prevl - ) unbalanced - CTIRP - ignore: ' . ignore
 
             if prevline =~ '^\s*)'
@@ -300,7 +323,7 @@ function! GetSQLIndent()
             endif
 
             if (num_unmatched_right - ignore) > 0
-                let ind = ind - ( &sw * (num_unmatched_right - ignore) )
+                let ind = ind - ( s:shiftwidth() * (num_unmatched_right - ignore) )
             endif
 
         endif
@@ -316,12 +339,12 @@ function! GetSQLIndent()
     if line =~? '^\s*els'
         " Any line when you type else will automatically back up one
         " ident level  (ie else, elseif, elsif)
-        let ind = ind - &sw
+        let ind = ind - s:shiftwidth()
         " echom 'curr - else - indent ' . ind
     elseif line =~? '^\s*end\>'
         let ind = s:GetStmtStarterIndent('end', v:lnum)
         " General case for end
-        " let ind = ind - &sw
+        " let ind = ind - s:shiftwidth()
         " echom 'curr - end - indent ' . ind
     elseif line =~? '^\s*when\>'
         let ind = s:GetStmtStarterIndent('when', v:lnum)
@@ -329,13 +352,13 @@ function! GetSQLIndent()
         " clause, do not change the indent level, since these
         " statements do not have a corresponding END statement.
         " if stmt_starter =~? 'case'
-        "    let ind = ind - &sw
+        "    let ind = ind - s:shiftwidth()
         " endif
         " elseif line =~ '^\s*)\s*;\?\s*$'
         " elseif line =~ '^\s*)'
     elseif line =~ '^\s*)'
-        let num_unmatched_right  = s:CountUnbalancedParan( line, ')' )
-        let ignore = s:CheckToIgnoreRightParan( v:lnum, num_unmatched_right )
+        let num_unmatched_right  = s:CountUnbalancedParen( line, ')' )
+        let ignore = s:CheckToIgnoreRightParen( v:lnum, num_unmatched_right )
         " If the line ends in a ), then reduce the indent
         " This catches items like:
         " CREATE TABLE T1(
@@ -345,17 +368,17 @@ function! GetSQLIndent()
         " But we do not want to unindent a line like:
         " IF ( c1 = 1
         " AND  c2 = 3 ) THEN
-        " let num_unmatched_right  = s:CountUnbalancedParan( line, ')' )
+        " let num_unmatched_right  = s:CountUnbalancedParen( line, ')' )
         " if num_unmatched_right > 0
         " elseif strpart( line, strlen(line)-1, 1 ) =~ ')'
-        " let ind = ind - &sw
+        " let ind = ind - s:shiftwidth()
         if line =~ '^\s*)'
             " let ignore = ignore + 1
             " echom 'curr - begins ) unbalanced ignore: ' . ignore
         endif
 
         if (num_unmatched_right - ignore) > 0
-            let ind = ind - ( &sw * (num_unmatched_right - ignore) )
+            let ind = ind - ( s:shiftwidth() * (num_unmatched_right - ignore) )
         endif
         " endif
     endif

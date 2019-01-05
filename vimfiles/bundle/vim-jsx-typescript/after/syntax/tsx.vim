@@ -149,13 +149,6 @@ highlight def link tsxAttributeComment Comment
 
 
 
-" JSX Dark Blue and Neon Green highlights
-hi xmlEndTag guifg=#2974a1
-hi tsxCloseString guifg=#2974a1
-hi htmlTag guifg=#2974a1
-hi htmlEndTag guifg=#2974a1
-hi htmlTagName guifg=#59ACE5
-hi tsxAttrib guifg=#1BD1C1
 
 
 " Custom React Highlights

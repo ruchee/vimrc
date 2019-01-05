@@ -1,6 +1,18 @@
 vim-jsx-pretty
 =======
 
+The React syntax highlighting and indenting plugin for vim. Also supports the typescript tsx file.
+
+Features
+---
+
+- Support JSX highlighting and indenting out of the box. No dependencies.
+- Fully implemented the JSX syntax specification. [https://github.com/facebook/jsx](https://github.com/facebook/jsx)
+- Support React syntax highlighting and indenting for JSX and typescript TSX files.
+- Support JSX syntax highlighting and indenting inside the [tagged template](https://github.com/developit/htm) string.
+- Many more [corner test cases](test.js) covered.
+- [Reasonable syntax highlight groups](#syntax-group-list), easy for customization.
+
 Demo
 ---
 
@@ -10,7 +22,7 @@ Demo
 |---|---|---|
 |![vim-jsx-pretty colorful](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty-colorful.png)|![vim-jsx-pretty](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty.png)|![vim-jsx](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx.png)|
 
-- auto indent (**with vim-javascript**)
+- auto indent
 
 ![Auto indent demo](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/auto-indent.gif)
 
@@ -18,7 +30,7 @@ Demo
 
 ![typescript demo](https://user-images.githubusercontent.com/9594376/32855974-beb2432a-ca86-11e7-99a4-85c2630aa5d5.png)
 
-Requirement
+Optional Dependencies
 ---
 
 - [**pangloss/vim-javascript**](https://github.com/pangloss/vim-javascript)
@@ -34,9 +46,16 @@ Installation
 
 your `~/.vimrc`:
 
+- No dependencies
+
+    ```vim
+    Plug 'maxmellon/vim-jsx-pretty'
+    ```
+
 - with: vim-javascript (**Recommendation**)
 
     ```vim
+    " pangloss/vim-javascript is optional
     Plug 'pangloss/vim-javascript'
     Plug 'maxmellon/vim-jsx-pretty'
     ```
@@ -48,20 +67,13 @@ your `~/.vimrc`:
     Plug 'maxmellon/vim-jsx-pretty'
     ```
 
-- with: yajs.vim (If you use neovim, doesn't work.)
+- with: yajs.vim
 
     ```vim
+    " othree/yajs.vim is optional
     Plug 'othree/yajs.vim'
     Plug 'maxmellon/vim-jsx-pretty'
     ```
-
-  If you want to use `yajs.vim`, you have to manually install indent config.
-  Because, `yajs.vim` not include indent config.
-
-  ```bash
-  $ mkdir -p ~/.vim/after/indent # if you use `nvim`, then ~/.config/nvim/after/indent
-  $ wget https://github.com/pangloss/vim-javascript/blob/master/indent/javascript.vim -O ~/.vim/after/indent/javascript.vim
-  ```
 
 - Execute command in vim:
 
@@ -70,39 +82,37 @@ your `~/.vimrc`:
     :PlugInstall
     ```
 
+### Syntax group list
+
+|name|place|
+|---|---|
+|jsxElement| `<tag id="sample">text</tag>`<br />`~~~~~~~~~~~~~~~~~~~~~~~~~~~`|
+|jsxTag| `<tag id="sample">`<br />`~~~~~~~~~~~~~~~~~`|
+|jsxTagName| `<tag id="sample">`<br />`_~~~_____________`|
+|jsxComponentName| `<Capitals>`<br />`_~~~~~~~~_` |
+|jsxAttrib| `<tag id="sample">`<br />`_____~~__________`|
+|jsxEqual| `<tag id="sample">`<br />`_______~_________`|
+|jsxString| `<tag id="sample">`<br />`________~~~~~~~~_`|
+|jsxCloseTag| `</tag>`<br />`~~~~~~` |
+|jsxCloseString| `<tag />`<br />`_____~~` |
+|jsxDot| `<Parent.Child>`<br />`_______~______` |
+|jsxNamespace| `<foo:bar>`<br />`____~____` |
+|jsxPunct| `<tag></tag>`<br />`~___~~~___~` |
+
+
 Configuration
 ---
 
 |name|default|description|
 |---|---|---|
-|`g:vim_jsx_pretty_enable_jsx_highlight`|1|jsx highlight flag|
+|`g:vim_jsx_pretty_template_tags`|`['html', 'raw']`|highlight JSX inside the tagged template string, set it to `[]` to disable this feature|
 |`g:vim_jsx_pretty_colorful_config`|0|colorful config flag|
-
-
-If you set `g:vim_jsx_pretty_enable_jsx_highlight`, Disable jsx highlight.
-But highlight group is set to jsx syntax. So you should set manual
-highlight setting.
-
-```vim
-let g:vim_jsx_pretty_enable_jsx_highlight = 0 " default 1
-```
 
 Colorful style (**vim-javascript only**)
 
 ```vim
 let g:vim_jsx_pretty_colorful_config = 1 " default 0
 ```
-
-### Syntax group list
-
-|name|place|
-|---|---|
-|jsxTag| `<tag id="sample">`<br />`~~~~~~~~~~~~~~~~~`|
-|jsxTagName| `<tag id="sample">`<br />`_~~~_____________`|
-|jsxjsxAttrib| `<tag id="sample">`<br />`_____~~__________`|
-|jsxEqual| `<tag id="sample">`<br />`_______~_________`|
-|jsxString| `<tag id="sample">`<br />`________~~~~~~~~_`|
-|jsxCloseTag| `</tag> ｜ <tag />`<br />`~~~~~~ ｜  _____~~` |
 
 Inspiration
 ---

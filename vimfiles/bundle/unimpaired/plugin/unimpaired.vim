@@ -367,12 +367,13 @@ function! s:string_decode(str) abort
 endfunction
 
 function! s:url_encode(str) abort
-  return substitute(a:str,'[^A-Za-z0-9_.~-]','\="%".printf("%02X",char2nr(submatch(0)))','g')
+  " iconv trick to convert utf-8 bytes to 8bits indiviual char.
+  return substitute(iconv(a:str, 'latin1', 'utf-8'),'[^A-Za-z0-9_.~-]','\="%".printf("%02X",char2nr(submatch(0)))','g')
 endfunction
 
 function! s:url_decode(str) abort
   let str = substitute(substitute(substitute(a:str,'%0[Aa]\n$','%0A',''),'%0[Aa]','\n','g'),'+',' ','g')
-  return substitute(str,'%\(\x\x\)','\=nr2char("0x".submatch(1))','g')
+  return iconv(substitute(str,'%\(\x\x\)','\=nr2char("0x".submatch(1))','g'), 'utf-8', 'latin1')
 endfunction
 
 " HTML entities {{{2

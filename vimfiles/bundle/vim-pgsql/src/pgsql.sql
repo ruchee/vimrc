@@ -108,6 +108,21 @@ begin
       group by synclass, num / (_wrap - 1)
       order by synclass, num / (_wrap - 1);
 
+      if _ext.extname = 'postgis' then
+        return query
+        select '  syn keyword sqlFunction contained geometry_eq pgis_abs_in pgis_abs_out pgis_abs';
+      end if;
+
+      if _ext.extname = 'cube' then
+        return query
+        select '  syn keyword sqlFunction contained g_cube_compress g_cube_decompress';
+      end if;
+
+      if _ext.extname = 'seg' then
+        return query
+        select '  syn keyword sqlFunction contained gseg_compress gseg_decompress';
+      end if;
+
     return query
       select format('endif " %s', _ext.extname);
 
@@ -150,7 +165,7 @@ select
 $HERE$" Vim syntax file
 " Language:     SQL (PostgreSQL dialect), PL/pgSQL, PL/…, PostGIS, …
 " Maintainer:   Lifepillar
-" Version:      2.1.1
+" Version:      2.2.0
 " License:      This file is placed in the public domain.
 $HERE$;
 
@@ -198,25 +213,28 @@ select vim_format(array(select get_errcodes()), 'ErrorCode');
 
 select
 $HERE$
+" Legacy keywords
+syn keyword sqlFunction contained gist_box_compress gist_box_decompress gist_box_fetch
+syn keyword sqlFunction contained gtsquery_decompress inet_gist_decompress
+syn keyword sqlFunction contained pg_file_length pg_file_read pg_logfile_rotate
+syn keyword sqlFunction contained range_gist_compress range_gist_decompress range_gist_fetch
+
 " Legacy error codes
 syn keyword sqlErrorCode contained invalid_preceding_following_size
 
 " Numbers
 syn match sqlNumber "\<\d*\.\=[0-9_]\>"
 
-" Variables (identifiers starting with an underscore)
-syn match sqlVariable "\<_[A-Za-z0-9][A-Za-z0-9_]*\>"
-
 " Strings
-
 if get(g:, 'pgsql_backslash_quote', 0)
   syn region sqlString start=+E\?'+ skip=+\\\\\|\\'\|''+ end=+'+ contains=@Spell
-  syn region sqlString start=+\$HERE\$+ end=+\$HERE\$+ contains=@Spell
 else
   syn region sqlString start=+E'+ skip=+\\\\\|\\'\|''+ end=+'+ contains=@Spell
   syn region sqlString start=+'+ skip=+''+ end=+'+ contains=@Spell
-  syn region sqlString start=+\$HERE\$+ end=+\$HERE\$+ contains=@Spell
 endif
+" Multi-line strings ("here" documents)
+syn region sqlString start='\$\z(\w\+\)\$' end='\$\z1\$' contains=@Spell
+
 " Escape String Constants
 " Identifiers
 syn region sqlIdentifier start=+\%(U&\)\?"+ end=+"+
@@ -279,14 +297,26 @@ syn keyword sqlPlpgsqlKeyword contained tg_level tg_name tg_nargs tg_op tg_relid
 syn keyword sqlPlpgsqlKeyword contained tg_table_name tg_table_schema tg_tag tg_when then type using
 syn keyword sqlPlpgsqlKeyword contained while
 
+" Variables (identifiers conventionally starting with an underscore)
+syn match sqlPlpgsqlVariable "\<_[A-Za-z0-9][A-Za-z0-9_]*\>" contained
+" Numbered arguments
+syn match sqlPlpgsqlVariable "\$\d\+" contained
+" @ arguments
+syn match sqlPlpgsqlVariable ".\zs@[A-z0-9_]\+" contained
+
 syn region plpgsql matchgroup=sqlString start=+\$pgsql\$+ end=+\$pgsql\$+ keepend contains=ALL
-syn region plpgsql matchgroup=sqlString start=+\$\$+ end=+\$\$+ keepend contains=ALL
+syn region plpgsql matchgroup=sqlString start=+\$body\$+ end=+\$body\$+ keepend contains=ALL
+if get(g:, 'pgsql_dollar_strings', 0)
+  syn region sqlString start=+\$\$+ end=+\$\$+ contains=@Spell
+else
+  syn region plpgsql matchgroup=sqlString start=+\$\$+ end=+\$\$+ keepend contains=ALL
+endif
 
 " PL/<any other language>
 fun! s:add_syntax(s)
   execute 'syn include @PL' . a:s . ' syntax/' . a:s . '.vim'
   unlet b:current_syntax
-  execute 'syn region pgsqlpl' . a:s . ' start=+\$' . a:s . '\$+ end=+\$' . a:s . '\$+ keepend contains=@PL' . a:s
+  execute 'syn region pgsqlpl' . a:s . ' matchgroup=sqlString start=+\$' . a:s . '\$+ end=+\$' . a:s . '\$+ keepend contains=@PL' . a:s
 endf
 
 for pl in get(b:, 'pgsql_pl', get(g:, 'pgsql_pl', []))
@@ -301,7 +331,8 @@ hi def link sqlErrorCode      Special
 hi def link sqlFunction       Function
 hi def link sqlIdentifier     Identifier
 hi def link sqlKeyword        sqlSpecial
-hi def link sqlplpgsqlKeyword sqlSpecial
+hi def link sqlPlpgsqlKeyword sqlSpecial
+hi def link sqlPlpgsqlVariable Identifier
 hi def link sqlNumber         Number
 hi def link sqlOperator       sqlStatement
 hi def link sqlOption         Define
@@ -312,7 +343,6 @@ hi def link sqlTable          Identifier
 hi def link sqlType           Type
 hi def link sqlView           sqlTable
 hi def link sqlTodo           Todo
-hi def link sqlVariable       Identifier
 hi def link sqlPsqlCommand    SpecialKey
 hi def link sqlPsqlKeyword    Keyword
 

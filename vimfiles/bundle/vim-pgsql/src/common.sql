@@ -22,7 +22,9 @@ $$
          ('hstore_plpythonu'::name),
          ('hstore_plpython2u'::name),
          ('ltree_plpythonu'::name),
-         ('ltree_plpython2u'::name);
+         ('ltree_plpython2u'::name),
+         ('pldbgapi'::name),
+         ('chkpass'::name);
 $$;
 
 
@@ -37,6 +39,9 @@ $$
   select name, default_version from pg_available_extensions()
    where name not in ( -- Extensions to skip
                        'citus',
+                       'jsonb_plpythonu',
+                       'jsonb_plpython2u',
+                       'pldbgapi', -- Not available for PostgreSQL 11 or later?
                        'plr' -- Not available for PostgreSQL 9.6 or later?
                      )
      and name not in (select extname::name from public.legacy_extension_names());
@@ -47,7 +52,7 @@ create or replace function recommended_extensions()
 returns table (extname text)
 language sql immutable as
 $$
-  values ('pgrouting'), ('pgtap'), ('pldbgapi'), ('postgis'), ('postgis_topology');
+  values ('pgrouting'), ('pgtap'), ('postgis'), ('postgis_topology'), ('temporal_tables');
 $$;
 
 
@@ -191,7 +196,7 @@ begin
     return query
     values ('function', 'hstore_to_plpython'),
            ('function', 'plpython_to_hstore');
-  when 'hstore_plpython2u' then 
+  when 'hstore_plpython2u' then
     return query
     values ('function', 'hstore_to_plpython2'),
            ('function', 'plpython2_to_hstore');
@@ -201,6 +206,40 @@ begin
   when 'ltree_plpython2u' then
     return query
     values ('function', 'ltree_to_plpython2');
+  when 'pldbgapi' then
+    return query
+    values ('function', 'pldbg_abort_target'),
+           ('function', 'pldbg_attach_to_port'),
+           ('function', 'pldbg_continue'),
+           ('function', 'pldbg_create_listener'),
+           ('function', 'pldbg_deposit_value'),
+           ('function', 'pldbg_drop_breakpoint'),
+           ('function', 'pldbg_get_breakpoints'),
+           ('function', 'pldbg_get_proxy_info'),
+           ('function', 'pldbg_get_source'),
+           ('function', 'pldbg_get_stack'),
+           ('function', 'pldbg_get_target_info'),
+           ('function', 'pldbg_get_variables'),
+           ('function', 'pldbg_oid_debug'),
+           ('function', 'pldbg_select_frame'),
+           ('function', 'pldbg_set_breakpoint'),
+           ('function', 'pldbg_set_global_breakpoint'),
+           ('function', 'pldbg_step_into pldbg_step_over'),
+           ('function', 'pldbg_wait_for_breakpoint'),
+           ('function', 'pldbg_wait_for_target'),
+           ('function', 'plpgsql_oid_debug'),
+           ('type', 'breakpoint'),
+           ('type', 'frame'),
+           ('type', 'proxyinfo'),
+           ('type', 'targetinfo'),
+           ('type', 'var');
+  when 'chkpass' then
+    return query
+    values ('function', 'chkpass_in'),
+           ('function', 'chkpass_out'),
+           ('function', 'eq'),
+           ('function', 'ne'),
+           ('function', 'raw');
   else
     raise exception 'Unknown legacy extension %', _extname;
   end case;

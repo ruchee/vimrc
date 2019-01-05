@@ -328,9 +328,18 @@ function! s:project_locked() dict abort
     let self._versions = {}
     let self._dependencies = {}
     let section = ''
+    let conflict = 0
 
     for line in s:fcall('readfile', lock_file)
-      if line =~# '^\S'
+      if line =~# '^[=|]'
+        let conflict = 1
+        continue
+      elseif line =~# '^>'
+        let conflict = 0
+        continue
+      elseif line =~# '^<' || conflict
+        continue
+      elseif line =~# '^\S'
         let section = tr(tolower(line), ' ', '_')
         let properties = {'versions': {}}
         if type(get(self._locked, section)) ==# type([])
@@ -383,7 +392,7 @@ function! s:project_paths(...) dict abort
       if empty(gem_paths)
         let gem_paths = split(system(prefix.'ruby -rrbconfig -rrubygems -e '.s:shellesc('print(([RbConfig::CONFIG["ruby_version"]] + Gem.path).join(%(;)))')), ';')
 
-        let abi_version = remove(gem_paths, 0)
+        let abi_version = empty(gem_paths) ? '' : remove(gem_paths, 0)
       else
         let abi_version = system(prefix.'ruby -rrbconfig -e '.s:shellesc('print RbConfig::CONFIG["ruby_version"]'))
       endif

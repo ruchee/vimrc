@@ -19,6 +19,8 @@ fun! nim#init()
   let cmd = printf("nim --dump.format:json --verbosity:0 dump %s", s:CurrentNimFile())
   let raw_dumpdata = system(cmd)
   if !v:shell_error && expand("%:e") == "nim"
+    let false = 0 " Needed for eval of json
+    let true = 1 " Needed for eval of json
     let dumpdata = eval(substitute(raw_dumpdata, "\n", "", "g"))
     
     let b:nim_project_root = dumpdata['project_path']
@@ -236,12 +238,3 @@ if exists("g:SyntasticRegistry")
       \ 'filetype': 'nim',
       \ 'name': 'nim'})
 endif
-
-if !exists("g:quickrun_config")
-  let g:quickrun_config = {}
-endif
-
-if !exists("g:quickrun_config.nim")
-  let g:quickrun_config.nim = { "exec": "nim c --run --verbosity:0 %S" }
-endif
-
