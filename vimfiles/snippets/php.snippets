@@ -303,7 +303,7 @@ snippet dpbe    打印程序调用栈，并终止执行
 	debug_print_backtrace(); exit();${0}
 # 超全局变量
 snippet glo     全局变量
-	$GLOBALS['${0}']
+	$_GLOBALS['${0}']
 snippet env     环境变量
 	$_ENV['${0}']
 snippet ser     服务器环境变量
