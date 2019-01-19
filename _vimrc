@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2018-11-24 21:54:25
+" -----------------    Date: 2019-01-20 00:03:26
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -247,6 +247,11 @@ au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim
 " [ rustup install nightly && rustup default nightly && rustup component add rust-src && cargo install racer --force ]
 let g:racer_experimental_completer = 1  " 补全时显示完整的函数定义
 let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
+
+au FileType rust nmap gd <Plug>(rust-def)
+au FileType rust nmap gs <Plug>(rust-def-split)
+au FileType rust nmap gx <Plug>(rust-def-vertical)
+au FileType rust nmap <leader>gd <Plug>(rust-doc)
 
 " 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装]
 au FileType go nmap <c-[> :GoInfo<cr>
