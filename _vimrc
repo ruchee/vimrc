@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2019-01-20 00:03:26
+" -----------------    Date: 2019-02-12 22:53:48
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -731,7 +731,7 @@ let g:airline_powerline_fonts = 0              " 关闭自定义字体
 let g:promptline_powerline_symbols = 0         " 关闭特殊符号
 let g:promptline_preset = {
             \'a'    : [ promptline#slices#host() ],
-            \'b'    : [ promptline#slices#user() ],
+            \'b'    : [ promptline#slices#user(), '\t' ],
             \'c'    : [ promptline#slices#cwd() ],
             \'y'    : [ promptline#slices#vcs_branch(), promptline#slices#git_status() ],
             \'warn' : [ promptline#slices#last_exit_code() ]

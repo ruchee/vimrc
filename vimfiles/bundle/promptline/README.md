@@ -21,7 +21,7 @@ Simple shell prompt generator with support for powerline symbols and airline int
 - **Very fast prompt.** No external binaries are spawned to render the prompt (no python, not even grep or sed)
 - **Use [vim-airline][1]/[lightline.vim][8] colors**, so the prompt shares the same colors with vim's statusline
 - **Preloaded with stock themes and presets**, which can be combined in multiple ways
-- **Configure the prompt with a simple hash**, in case stock presets don't meet your needs
+- **Configure the prompt with a simple associative array**, in case stock presets don't meet your needs
 - **Preloaded with commonly used prompt sections** e.g. branch name, last exit code (if not zero)
 
 The plugin has been tested in bash, zsh and fish
@@ -30,18 +30,18 @@ More screenshots can be found in the [wiki](https://github.com/edkolev/promptlin
 
 #### Quick Start with airline installed
 
-1. In vim `:PromptlineSnapshot ~/.shell_prompt.sh airline`
-2. In bash/zsh `source ~/.shell_prompt.sh`
+1. In vim `:PromptlineSnapshot ~/.promptline.sh airline`
+2. In bash/zsh `source ~/.promptline.sh`
 
 #### Quick Start with lightline installed
 
-1. In vim `:PromptlineSnapshot ~/.shell_prompt.sh lightline`
-2. In bash/zsh `source ~/.shell_prompt.sh`
+1. In vim `:PromptlineSnapshot ~/.promptline.sh lightline`
+2. In bash/zsh `source ~/.promptline.sh`
 
 #### Quick Start
 
-1. In vim `:PromptlineSnapshot ~/.shell_prompt.sh`
-2. In bash/zsh `source ~/.shell_prompt.sh`
+1. In vim `:PromptlineSnapshot ~/.promptline.sh`
+2. In bash/zsh `source ~/.promptline.sh`
 
 ## Usage
 
@@ -311,7 +311,7 @@ The only external process, spawned by promptline-generated prompt, is used to ge
 
 ## License
 
-MIT License. Copyright (c) 2013-2014 Evgeni Kolev.
+MIT License. Copyright (c) 2013-2018 Evgeni Kolev.
 
 [1]: https://github.com/bling/vim-airline
 [2]: https://github.com/Lokaltog/powerline
