@@ -29,6 +29,10 @@ endfunction
 
 function! cs#get_net_compiler(compiler)
 
+    if g:isMAC
+        return '/Library/Frameworks/Mono.framework/Versions/Current/Commands/' . split(a:compiler, '\.')[0]
+    endif
+
     if exists("g:net_framework_version")
         let msbuild = s:get_net_framework_dir(g:net_framework_version) . a:compiler
         return msbuild
