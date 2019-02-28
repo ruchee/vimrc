@@ -1,10 +1,10 @@
 " Vim indent file
 " Language:	PHP
-" Author:	John Wellesz <John.wellesz (AT) teaser (DOT) fr>
+" Author:	John Wellesz <John.wellesz (AT) gmail (DOT) com>
 " URL:		https://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2018 June 28th
-" Version:	1.67
+" Last Change:	2018 December 27th
+" Version:	1.68
 "
 "
 "	Type :help php-indent for available options
@@ -40,6 +40,9 @@
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
 "
+" Changes: 1.68         - Fix #68: end(if|for|foreach|while|switch)
+"			  identifiers were treated as her doc ending indentifiers and set at column 0.
+"			- WIP: More work on #67: arrow matching involving () not behaving as expected (better but not perfect).
 "
 " Changes: 1.67         - Fix #67: chained calls indentation was aligning on the
 "			  first matching '->' instead of the last one.
@@ -520,7 +523,7 @@ endif
 " disable debug calls: :%s /^\s*\zs\zecall DebugPrintReturn/" DEBUG /g
 
 let s:PHP_validVariable = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
-let s:notPhpHereDoc = '\%(break\|return\|continue\|exit\|die\|else\)'
+let s:notPhpHereDoc = '\%(break\|return\|continue\|exit\|die\|else\|end\%(if\|while\|for\|foreach\|switch\)\)'
 let s:blockstart = '\%(\%(\%(}\s*\)\=else\%(\s\+\)\=\)\=if\>\|\%(}\s*\)\?else\>\|do\>\|while\>\|switch\>\|case\>\|default\>\|for\%(each\)\=\>\|declare\>\|class\>\|trait\>\|use\>\|interface\>\|abstract\>\|final\>\|try\>\|\%(}\s*\)\=catch\>\|\%(}\s*\)\=finally\>\)'
 let s:functionDecl = '\<function\>\%(\s\+&\='.s:PHP_validVariable.'\)\=\s*(.*'
 let s:endline = '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
@@ -753,48 +756,71 @@ function! FindArrowIndent (lnum)  " {{{
     "     - 2.2 It's a non-terminated line or anything else (first '->' or not a chained call)
     "         just return the indent of the previous line + &sw (normal indent)
 
-    let parrentArrowPos = 0
+    let parrentArrowPos = -1
+    let cursorPos = -1
     let lnum = a:lnum
     while lnum > 1
 	let last_line = getline(lnum)
 	" the simple case
 	if last_line =~ '^\s*->'
 	    let parrentArrowPos = indent(a:lnum)
-		" DEBUG call DebugPrintReturn(767 . "FindArrowIndent simple case")
+	    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent simple case")
 	    break
 	else
-	    " search the position of the arrow
-	    let cleanedLnum = StripEndlineComments(last_line)
-	    if cleanedLnum =~ '->'
-		if ! b:PHP_noArrowMatching
-		    call cursor(lnum, strwidth(cleanedLnum))
-		    let parrentArrowPos = searchpos('->', 'cWb', lnum)[1] - 1
-		    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returning arrow searchposition on: " . lnum)
-		else
-		    let parrentArrowPos = indent(lnum) + shiftwidth()
-		    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returning default indent as PHP_noArrowMatching is set")
-		endif
-		break
-	    elseif cleanedLnum =~ ')'.s:endline && BalanceDirection(last_line) < 0
-		call cursor(lnum, 1)
-		call searchpos(')'.s:endline, 'cW', lnum)
-		let openedparent = searchpair('(', '', ')', 'bW', 'Skippmatch()')
-		if openedparent != lnum
-		    let lnum = openedparent
-		else
-		    let openedparent = -1
-		endif
-		" DEBUG call DebugPrintReturn(767 . "FindArrowIndent skipped a () block: new lnum=".lnum)
 
+	    if b:PHP_noArrowMatching
+		" DEBUG call DebugPrintReturn(768 . "FindArrowIndent returning default indent as PHP_noArrowMatching is set")
+		break
+	    endif
+
+	    let cleanedLnum = StripEndlineComments(last_line)
+
+	    " the previous line ends with a )
+	    if cleanedLnum =~ ')'.s:endline
+		" the () are balanced or more ) than (
+		if BalanceDirection(cleanedLnum) <= 0
+		    " DEBUG call DebugPrintReturn(776 . "XXXXX")
+		    call cursor(lnum, 1)
+		    call searchpos(')'.s:endline, 'cW', lnum)
+		    let openedparent =  searchpair('(', '', ')', 'bW', 'Skippmatch()')
+		    let cursorPos = col(".")
+		    if openedparent != lnum
+			let lnum = openedparent
+			" DEBUG call DebugPrintReturn(784 . "FindArrowIndent skipped a () block: new lnum=".lnum)
+			continue
+		    else
+			" else, searchpair positioned the cursor just at the (
+			" DEBUG call DebugPrintReturn(784 . "FindArrowIndent skipped a same line () block")
+		    endif
+		    " on the same line
+		else
+		    " if the () are imbalanced just resort to default
+		    let parrentArrowPos = -1
+		    " DEBUG call DebugPrintReturn(780 . "FindArrowIndent default +&sw (arrow was inside matching ())")
+		    break
+		end
+	    endif
+
+	    " the previous line does contain an arrow
+	    if cleanedLnum =~ '->'
+		call cursor(lnum, cursorPos == -1 ? strwidth(cleanedLnum) : cursorPos)
+		let parrentArrowPos = searchpos('->', 'cWb', lnum)[1] - 1
+		" DEBUG call DebugPrintReturn(792 . "FindArrowIndent returning arrow searchposition on: " . lnum . "  xxx adjust is " . col("."))
+
+		break
 	    else
-		let parrentArrowPos = indent(lnum) + shiftwidth()
-		" DEBUG call DebugPrintReturn(767 . "FindArrowIndent default +&sw")
+		let parrentArrowPos = -1
+		" DEBUG call DebugPrintReturn(808 . "FindArrowIndent default +&sw")
 		break
 	    endif
 	endif
     endwhile
 
-    " DEBUG call DebugPrintReturn(767 . "FindArrowIndent returns: " . parrentArrowPos)
+    if parrentArrowPos == -1
+	let parrentArrowPos = indent(lnum) + shiftwidth()
+    end
+
+    " DEBUG call DebugPrintReturn(818 . "FindArrowIndent returns: " . parrentArrowPos)
     return parrentArrowPos
 endfun "}}}
 

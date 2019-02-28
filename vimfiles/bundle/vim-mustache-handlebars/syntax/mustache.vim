@@ -2,8 +2,8 @@
 " Language:	Mustache, Handlebars
 " Maintainer:	Juvenn Woo <machese@gmail.com>
 " Screenshot:   http://imgur.com/6F408
-" Version:	2
-" Last Change:  Oct 26th 2013
+" Version:	5
+" Last Change:  Nov 23rd 2018
 " Remark:
 "   It lexically hilights embedded mustaches (exclusively) in html file.
 "   While it was written for Ruby-based Mustache template system, it should
@@ -41,15 +41,17 @@ endif
 
 syntax match mustacheError '}}}\?'
 syntax match mustacheInsideError '{{[{$#<>=!\/]\?'
-syntax region mustacheInside start=/{{[^!]/ end=/}}}\?/ keepend containedin=TOP,@htmlMustacheContainer
-syntax match mustacheOperators '=\|\.\|/' contained containedin=mustacheInside,@htmlMustacheContainer
-syntax region mustacheSection start='{{[$#^/]'lc=2 end=/}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
+syntax region mustacheInside start=/{{[^!][$#^/]\?/ end=/}}}\?/ keepend containedin=TOP,@htmlMustacheContainer
+syntax match mustacheOperators '=\|\.\|/' contained containedin=mustacheInside,mustacheParam
+syntax region mustacheHtmlValue start=/={{[^!][$#^/]\?/rs=s+1,hs=s+1 end=/}}/ oneline keepend contained containedin=htmlTag contains=mustacheInside
 syntax region mustachePartial start=/{{[<>]/lc=2 end=/}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
 syntax region mustacheMarkerSet start=/{{=/lc=2 end=/=}}/me=e-2 contained containedin=mustacheInside,@htmlMustacheContainer
 syntax match mustacheHandlebars '{{\|}}' contained containedin=mustacheInside,@htmlMustacheContainer
 syntax match mustacheUnescape '{{{\|}}}' contained containedin=mustacheInside,@htmlMustacheContainer
-syntax match mustacheConditionals '\([/#]\(if\|unless\)\|else\)' contained containedin=mustacheInside
-syntax match mustacheHelpers '[/#]\(with\|each\)' contained containedin=mustacheSection
+syntax match mustacheConditionals '\([/#]\?if\|unless\|else\)' contained containedin=mustacheInside
+syntax match mustacheHelpers '[/#]\?\(with\|link\-to\|each\(\-in\)\?\)' contained containedin=mustacheInside
+syntax match mustacheHelpers 'else \(if\|unless\|with\|link\-to\|each\(\-in\)\?\)' contained containedin=mustacheInside
+syntax match mustacheParam /[a-z@_-]\+=/he=e-1 contained containedin=mustacheInside
 syntax region mustacheComment      start=/{{!/rs=s+2   skip=/{{.\{-}}}/ end=/}}/re=e-2   contains=Todo contained containedin=TOP,mustacheInside,@htmlMustacheContainer
 syntax region mustacheBlockComment start=/{{!--/rs=s+2 skip=/{{.\{-}}}/ end=/--}}/re=e-2 contains=Todo contained extend containedin=TOP,mustacheInside,@htmlMustacheContainer
 syntax region mustacheQString start=/'/ skip=/\\'/ end=/'/ contained containedin=mustacheInside
@@ -65,8 +67,8 @@ syntax cluster htmlMustacheContainer add=htmlHead,htmlTitle,htmlString,htmlH1,ht
 HtmlHiLink mustacheVariable Number
 HtmlHiLink mustacheVariableUnescape Number
 HtmlHiLink mustachePartial Number
-HtmlHiLink mustacheSection Number
 HtmlHiLink mustacheMarkerSet Number
+HtmlHiLink mustacheParam htmlArg
 
 HtmlHiLink mustacheComment Comment
 HtmlHiLink mustacheBlockComment Comment

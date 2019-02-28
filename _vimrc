@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2019-02-12 22:53:48
+" -----------------    Date: 2019-02-28 14:02:38
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -570,11 +570,7 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let g:cpp_class_scope_highlight           = 1  " 高亮 C++ class scope
-let g:cpp_class_decl_highlight            = 1  " 高亮 C++ class decl
-let g:cpp_member_variable_highlight       = 1  " 高亮 C++ member variables
-let g:cpp_experimental_template_highlight = 1  " 高亮 C++ template functions
-let g:cpp_concepts_highlight              = 1  " 高亮 C++ library concepts
+let g:cpp_named_requirements_highlight    = 1  " 高亮 C++ named requirements
 
 let g:go_template_autocreate              = 0  " 关闭自动生成模版代码
 let g:go_auto_type_info                   = 0  " 关闭 Go 语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]
@@ -719,7 +715,7 @@ let g:ackprg = 'ag --nogroup --nocolor --column'
 
 " indentLine          显示对齐线
 let g:indentLine_enabled    = 0                " 默认关闭
-let g:indentLine_char       = '┆'              " 设置对齐线字符
+let g:indentLine_char_list = ['|', '¦', '┆', '┊']  " 设置对齐线字符，每个层级都可以不一样
 let g:indentLine_color_term = 239              " 设置非 GUI 线条颜色
 let g:indentLine_color_gui  = '#A4E57E'        " 设置 GUI 线条颜色
 

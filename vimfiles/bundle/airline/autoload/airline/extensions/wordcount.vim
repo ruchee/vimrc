@@ -68,16 +68,15 @@ function! s:update_wordcount(force_update)
   endif
 endfunction
 
-let s:visual_active = 0  " Boolean: for when to get visual wordcount
 function airline#extensions#wordcount#get()
-  if s:visual_active
+  if get(g:, 'airline#visual_active', 0)
     return s:format_wordcount(s:get_wordcount(1))
   else
-    if b:airline_changedtick != b:changedtick
+    if get(b:, 'airline_changedtick', 0) != b:changedtick
       call s:update_wordcount(0)
       let b:airline_changedtick = b:changedtick
     endif
-    return b:airline_wordcount
+    return get(b:, 'airline_wordcount', '')
   endif
 endfunction
 
@@ -109,9 +108,5 @@ function! airline#extensions#wordcount#apply(...)
 endfunction
 
 function! airline#extensions#wordcount#init(ext)
-  augroup airline_wordcount
-    autocmd! User AirlineModeChanged nested
-          \ let s:visual_active = (mode() ==? 'v' || mode() ==? 's')
-  augroup END
   call a:ext.add_statusline_func('airline#extensions#wordcount#apply')
 endfunction

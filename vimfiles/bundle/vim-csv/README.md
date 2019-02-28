@@ -9,6 +9,8 @@ This is a filetype plugin for CSV files. It was heavily influenced by
 the [Vim Wiki Tip667](http://vim.wikia.com/wiki/VimTip667), though it
 works differently. 
 
+It will make use of the [vartab](http://vimhelp.appspot.com/options.txt.html#'vartabstop') feature for tab delimited files.
+
 ![Screenshot](http://www.256bit.org/~chrisbra/csv.gif)
 
 # Table of Contents
@@ -286,7 +288,7 @@ reasons, it won't be considered.
 
 Note, arranging the columns can be very slow on large files or many columns (see
 [Slow CSV plugin](#slow-csv-plugin) on how to increase performance for this command). For large files,
-calculating the column width can take long and take a consierable amount of
+calculating the column width can take long and take a considerable amount of
 memory. Therefore, the csv plugin will at most check 10.000 lines for the
 width. Set the variable b:csv_arrange_use_all_rows to 1 to use all records: 
 
@@ -305,7 +307,7 @@ additional redraws are needed).
 
 Note: this command does not work for fixed width columns [Fixed width columns](#fixed-width-columns)
 
-See also [Autocommand on opening/closing files](#autocommand-on-openingclosing-files) on how to have vim automaticaly arrange a CSV
+See also [Autocommand on opening/closing files](#autocommand-on-openingclosing-files) on how to have vim automatically arrange a CSV
 file upon entering it.
 
 ## UnArrangeColumn
@@ -572,6 +574,11 @@ Key | Effect
 `<Enter>` | Dynamically fold all lines away, that don't match the value in the current column. See [Dynamic filters](#dynamic-filters) In [`Replace-mode`](http://vimhelp.appspot.com/insert.txt.html#Replace-mode) and [`Virtual-Replace-mode`](http://vimhelp.appspot.com/insert.txt.html#Virtual-Replace-mode) does not create a new row, but instead moves the cursor to the beginning of the same column, one more line below.  
 `<Space>` | Dynamically fold all lines away, that match the value in the current column. See [Dynamic filters](#dynamic-filters)
 `<BS>` | Remove last item from the dynamic filter. See [Dynamic filters](#dynamic-filters)
+
+The upwards and downwards motions try to keep the cursor in the relative
+position within the cell when changing lines. That is not a guaranteed to work
+and will fail if the upper/lower cell is of a different width than the
+starting cell.
 
 Note how the mapping of 'H' differs from 'E'
 
@@ -937,6 +944,12 @@ leftaligned.
 
 Note: Each row must contain exactly as many fields as columns.
 
+This command is available as default plugin. To disable this feature, set the 
+variable g:csv_disable_table_command to 1:
+```vim
+    :let g:csv_disable_table_command = 1
+```
+
 ## Add new empty columns
 
 If you want to add new empty columns to your file you can use the
@@ -966,7 +979,7 @@ If you want to substitute only in specific columns, you can use the
 ```
 
 This means in the range and within the given columns replace pattern by
-string. This works bascially like the [`:s`](http://vimhelp.appspot.com/change.txt.html#%3As) command, except that you MUST use
+string. This works basically like the [`:s`](http://vimhelp.appspot.com/change.txt.html#%3As) command, except that you MUST use
 forward slashes / to delimit the command. The optional part `[column/]` can
 take either the form of an address or if you leave it out, substitution will
 only happen in the current column. Additionally, you can use the `1,5/` form

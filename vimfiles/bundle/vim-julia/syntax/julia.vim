@@ -156,7 +156,7 @@ syntax region  juliaCurBraBlock		matchgroup=juliaParDelim start="{" end="}" cont
 
 " This is really ugly. It would be better to mask most keywords when a dot is
 " found, introducing some kind of dot-environment
-let s:nodot = '\%(\.\)\@1<!'
+let s:nodot = '\%(\.\)\@'.s:d(1).'1<!'
 
 exec 'syntax match   juliaKeyword		display "'.s:nodot.'\<\%(return\|local\|global\|import\%(all\)\?\|export\|using\|const\|where\)\>"'
 syntax match   juliaInfixKeyword	display "\%(=\s*\)\@<!\<\%(in\|isa\)\>\S\@!\%(\s*=\)\@!"
@@ -221,7 +221,7 @@ syntax match   juliaBaseTypeRange	display "\<\%(Dims\|RangeIndex\|\%(Ordinal\|St
 syntax match   juliaBaseTypeRange06	display "\<Range\>"
 syntax match   juliaBaseTypeRange1011	display "\<\(Abstract\|Lin\)Range\>"
 syntax match   juliaBaseTypeRegex	display "\<Regex\%(Match\)\?\>"
-syntax match   juliaBaseTypeFact	display "\<Factorization\>"
+syntax match   juliaBaseTypeFact	display "\<\%(Factorization\|BunchKaufman\|\%(Cholesky\|QR\)\%(Pivoted\)\?\|\%(Generalized\)\?\%(Eigen\|SVD\|Schur\)\|Hessenberg\|LDLt\|LQ\|LU\)\>"
 syntax match   juliaBaseTypeSort	display "\<\%(Insertion\|\(Partial\)\?Quick\|Merge\)Sort\>"
 syntax match   juliaBaseTypeRound	display "\<Round\%(ingMode\|FromZero\|Down\|Nearest\%(Ties\%(Away\|Up\)\)\?\|ToZero\|Up\)\>"
 syntax match   juliaBaseTypeSpecial	display "\<\%(LocalProcess\|ClusterManager\)\>"

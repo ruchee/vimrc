@@ -3,9 +3,9 @@
 " Filenames:    *.sexp
 " Maintainers:  Markus Mottl      <markus.mottl@gmail.com>
 " URL:          http://www.ocaml.info/vim/syntax/sexplib.vim
-" Last Change:  2012 Jun 20 - Fixed a block comment highlighting bug (MM)
+" Last Change:  2017 Apr 11 - Improved matching of negative numbers (MM)
+"               2012 Jun 20 - Fixed a block comment highlighting bug (MM)
 "               2012 Apr 24 - Added support for new comment styles (MM)
-"               2009 Apr 02 - First release (MM)
 
 " For version 5.x: Clear all syntax items
 " For version 6.x: Quit when a syntax file was already loaded
@@ -30,11 +30,11 @@ syn match    sexplibComment ";.*" contains=sexplibTodo
 " Atoms
 syn match    sexplibUnquotedAtom /\([^;()" \t#|]\|#[^;()" \t|]\||[^;()" \t#]\)[^;()" \t]*/
 syn region   sexplibQuotedAtom    start=+"+ skip=+\\\\\|\\"+ end=+"+
-syn match    sexplibNumber        "\<-\=\d\(_\|\d\)*[l|L|n]\?\>"
-syn match    sexplibNumber        "\<-\=0[x|X]\(\x\|_\)\+[l|L|n]\?\>"
-syn match    sexplibNumber        "\<-\=0[o|O]\(\o\|_\)\+[l|L|n]\?\>"
-syn match    sexplibNumber        "\<-\=0[b|B]\([01]\|_\)\+[l|L|n]\?\>"
-syn match    sexplibFloat         "\<-\=\d\(_\|\d\)*\.\?\(_\|\d\)*\([eE][-+]\=\d\(_\|\d\)*\)\=\>"
+syn match    sexplibNumber        "-\=\<\d\(_\|\d\)*[l|L|n]\?\>"
+syn match    sexplibNumber        "-\=\<0[x|X]\(\x\|_\)\+[l|L|n]\?\>"
+syn match    sexplibNumber        "-\=\<0[o|O]\(\o\|_\)\+[l|L|n]\?\>"
+syn match    sexplibNumber        "-\=\<0[b|B]\([01]\|_\)\+[l|L|n]\?\>"
+syn match    sexplibFloat         "-\=\<\d\(_\|\d\)*\.\?\(_\|\d\)*\([eE][-+]\=\d\(_\|\d\)*\)\=\>"
 
 " Lists
 syn region   sexplibEncl transparent matchgroup=sexplibEncl start="(" matchgroup=sexplibEncl end=")" contains=ALLBUT,sexplibParenErr

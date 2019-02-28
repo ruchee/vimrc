@@ -1,7 +1,7 @@
 " @Author:      Tom Link (mailto:micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    85
+" @Revision:    86
 
 let s:id = 0
 let s:ids = []
@@ -52,11 +52,11 @@ function! tlib#progressbar#Restore(...) "{{{3
     if a:0 >= 1
         let sl = a:1
         let idx = index(s:ids, sl.id)
-        let &l:statusline = sl.statusline
+        let &statusline = sl.statusline
         let &laststatus = sl.laststatus
     else
         let idx = 0
-        let &l:statusline = remove(s:statusline, idx)
+        let &statusline = remove(s:statusline, idx)
         let &laststatus = remove(s:laststatus, idx)
     endif
     call remove(s:ids, idx)
@@ -84,7 +84,7 @@ function! tlib#progressbar#Display(value, ...) "{{{3
         let pbl = repeat('#', val)
         let pbr = repeat('.', s:width[0] - val)
         let txt = printf(s:format[0], '['.pbl.pbr.']') . extra
-        let &l:statusline = txt
+        let &statusline = txt
         " TLogDBG txt
         redrawstatus
         " redraw

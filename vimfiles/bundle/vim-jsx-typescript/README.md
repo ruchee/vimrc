@@ -7,7 +7,7 @@ Syntax highlighting for JSX in Typescript.
 
 
 ![alt tag](./screen1.jpg)
-![alt tag](./screen2.jpg)
+![alt tag](./screen2c.jpg)
 
 
 ## Installation

@@ -4,8 +4,8 @@
 " Version:      2.2.0
 " License:      This file is placed in the public domain.
 
-" Based on PostgreSQL 11.1
-" Automatically generated on 2018-12-12 at 21:27:42
+" Based on PostgreSQL 11.2
+" Automatically generated on 2019-02-25 at 08:57:58
 
 if exists("b:current_syntax")
   finish
@@ -682,7 +682,7 @@ syn keyword sqlConstant contained ltree_plpythonu pldbgapi plpython2u plpythonu
 if index(get(g:, 'pgsql_disabled_extensions', []), 'refint') == -1
   syn keyword sqlFunction contained check_foreign_key check_primary_key
 endif " refint
-" Extension: postgis (v2.5.0)
+" Extension: postgis (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'postgis') == -1
   syn keyword sqlFunction contained addauth addgeometrycolumn
   syn keyword sqlFunction contained addoverviewconstraints addrasterconstraints box box2d
@@ -1027,7 +1027,7 @@ endif " adminpack
 if index(get(g:, 'pgsql_disabled_extensions', []), 'dict_xsyn') == -1
   syn keyword sqlFunction contained dxsyn_init dxsyn_lexize
 endif " dict_xsyn
-" Extension: address_standardizer (v2.5.0)
+" Extension: address_standardizer (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'address_standardizer') == -1
   syn keyword sqlFunction contained parse_address standardize_address
   syn keyword sqlType contained stdaddr
@@ -1085,7 +1085,7 @@ if index(get(g:, 'pgsql_disabled_extensions', []), 'cube') == -1
   syn keyword sqlType contained cube
   syn keyword sqlFunction contained g_cube_compress g_cube_decompress
 endif " cube
-" Extension: postgis_tiger_geocoder (v2.5.0)
+" Extension: postgis_tiger_geocoder (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'postgis_tiger_geocoder') == -1
   syn keyword sqlFunction contained count_words create_census_base_tables
   syn keyword sqlFunction contained cull_null diff_zip
@@ -1193,7 +1193,7 @@ endif " pgstattuple
 if index(get(g:, 'pgsql_disabled_extensions', []), 'autoinc') == -1
   syn keyword sqlFunction contained autoinc
 endif " autoinc
-" Extension: address_standardizer_data_us (v2.5.0)
+" Extension: address_standardizer_data_us (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'address_standardizer_data_us') == -1
   syn keyword sqlTable contained us_gaz us_lex us_rules
 endif " address_standardizer_data_us
@@ -1201,7 +1201,7 @@ endif " address_standardizer_data_us
 if index(get(g:, 'pgsql_disabled_extensions', []), 'hstore_plpython3u') == -1
   syn keyword sqlFunction contained hstore_to_plpython3 plpython3_to_hstore
 endif " hstore_plpython3u
-" Extension: postgis_topology (v2.5.0)
+" Extension: postgis_topology (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'postgis_topology') == -1
   syn keyword sqlFunction contained addedge addface addnode
   syn keyword sqlFunction contained addtopogeometrycolumn addtosearchpath asgml
@@ -1562,7 +1562,7 @@ if index(get(g:, 'pgsql_disabled_extensions', []), 'pgcrypto') == -1
   syn keyword sqlFunction contained pgp_sym_decrypt_bytea pgp_sym_encrypt
   syn keyword sqlFunction contained pgp_sym_encrypt_bytea
 endif " pgcrypto
-" Extension: postgis_sfcgal (v2.5.0)
+" Extension: postgis_sfcgal (v2.5.1)
 if index(get(g:, 'pgsql_disabled_extensions', []), 'postgis_sfcgal') == -1
   syn keyword sqlFunction contained postgis_sfcgal_scripts_installed
   syn keyword sqlFunction contained postgis_sfcgal_version st_3darea st_3ddifference

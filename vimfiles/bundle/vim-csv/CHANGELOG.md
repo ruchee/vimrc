@@ -101,7 +101,18 @@
   the delimiter (default: all lines)
 - Make `b:csv_result` available as result of last evaluation (Sum, Max, Deviation, etc..)
   (suggested by serrussel in https://github.com/chrisbra/csv.vim/issues/127 thanks!)
-
+- Make plugin autoloadable (https://github.com/chrisbra/csv.vim/pull/130 done by jeetsukumaran, thanks!)
+- Determining the delimiter automatically depends on the locale, therefore use explicitly the
+  C locale to parse the output of the `:s/<del>/<del>/nge` command
+- Calculate Max columns per current line for Movements correctly
+  (https://github.com/chrisbra/csv.vim/issues/141)
+- Adjust positions within cell after movement only if starting and
+  end cells have the same width, document this as best effort approach.
+  (https://github.com/chrisbra/csv.vim/issues/139)
+- Do not beep on custom movements commands
+  (https://github.com/chrisbra/csv.vim/issues/140)
+- Make H/L work consistently with regards to empty cells
+  (https://github.com/chrisbra/csv.vim/issues/138)
 
 ## 0.31 Jan 15, 2015
 - supports for Vim 7.3 dropped

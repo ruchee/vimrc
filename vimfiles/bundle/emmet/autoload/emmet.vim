@@ -378,7 +378,10 @@ function! emmet#getFileType(...) abort
   let flg = get(a:000, 0, 0)
   
   if has_key(s:emmet_settings, &filetype)
-    return &filetype
+    let type = &filetype
+    if emmet#getResource(type, 'ignore_embeded_filetype', 0)
+      return type 
+    endif
   endif 
 
   let pos = emmet#util#getcurpos()
@@ -391,6 +394,10 @@ function! emmet#getFileType(...) abort
     let type = 'jsx'
   elseif type =~? '^js\w' || type =~? '^javascript'
     let type = 'javascript'
+  elseif type =~? '^tsx'
+    let type = 'tsx'
+  elseif type =~? '^ts\w' || type =~? '^typescript'
+    let type = 'typescript'
   elseif type =~? '^xml'
     let type = 'xml'
   else
@@ -1641,6 +1648,7 @@ let s:emmet_settings = {
 \           "wfsm:n": "-webkit-font-smoothing:none;"
 \        },
 \        'filters': 'fc',
+\        'ignore_embeded_filetype': 1,
 \    },
 \    'sass': {
 \        'extends': 'css',
@@ -1987,6 +1995,9 @@ let s:emmet_settings = {
 \        'attribute_name': {'class': 'className', 'for': 'htmlFor'},
 \        'empty_element_suffix': ' />',
 \    },
+\    'tsx': {
+\        'extends': 'jsx',
+\    },
 \    'xslt': {
 \        'extends': 'xsl',
 \    },
@@ -2016,6 +2027,7 @@ let s:emmet_settings = {
 \                    ."\tbody\n"
 \                    ."\t\t${child}|\n",
 \        },
+\        'ignore_embeded_filetype': 1,
 \    },
 \    'xhtml': {
 \        'extends': 'html'

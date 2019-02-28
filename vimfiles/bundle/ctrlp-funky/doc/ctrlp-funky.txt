@@ -389,51 +389,63 @@ THANKS						*ctrlp-funky-thanks*
 
   * *kien* <github.com/kien> - the author of ctrlp.vim
 
-  * *pydave*          <github.com/pydave>
-  * *curist*          <github.com/curist>
-  * *Benoit*          <github.com/saalaa>
-  * *tokorom*         <github.com/tokorom>
-  * *robmiller*       <github.com/robmiller>
-  * *unc0*            <github.com/unc0>
-  * *hlissner*        <github.com/hlissner>
-  * *mephux*          <github.com/mephux>
-  * *dusans*          <github.com/dusans>
-  * *kirstein*        <github.com/kirstein>
-  * *mmazer*          <github.com/mmazer>
-  * *vitalk*          <github.com/vitalk>
-  * *dingmingxin*     <github.com/dingmingxin>
-  * *dictav*          <github.com/dictav>
-  * *axehead*         <github.com/axehead>
-  * *walkingsparrow*  <github.com/walkingsparrow>
-  * *huaihuaiVV*      <github.com/huaihuaiVV>
-  * *rendon*          <github.com/rendon>
-  * *kshenoy*         <github.com/kshenoy>
-  * *mattiaslundberg* <github.com/mattiaslundberg>
-  * *prabirshrestha*  <github.com/prabirshrestha>
-  * *siadat*          <github.com/siadat>
-  * *jean*            <github.com/jean>
-  * *Komnomnomnom*    <github.com/Komnomnomnom>
-  * *timfeirg*        <github.com/timfeirg>
-  * *h14i*            <github.com/h14i>
-  * *ggVGc*           <github.com/ggVGc>
-  * *senft*           <github.com/senft>
-  * *bmenant*         <github.com/bmenant>
-  * *fufler*          <github.com/fufler>
-  * *metainfa*        <github.com/metainfa>
-  * *svenwin*         <github.com/svenwin>
-  * *anstosa*         <github.com/anstosa>
-  * *imran-uk*        <github.com/imran-uk>
-  * *francescarpi*    <github.com/francescarpi>
-  * *somini*          <github.com/somini>
-  * *zaynetro*        <github.com/zaynetro>
-  * *lorenzo*         <github.com/lorenzo>
-  * *minhajuddin*     <github.com/minhajuddin>
-  * *mklinga*         <github.com/mklinga>
-  * *jagtesh*         <github.com/jagtesh>
+  * *pydave*          <https://github.com/pydave>
+  * *curist*          <https://github.com/curist>
+  * *Benoit*          <https://github.com/saalaa>
+  * *tokorom*         <https://github.com/tokorom>
+  * *robmiller*       <https://github.com/robmiller>
+  * *unc0*            <https://github.com/unc0>
+  * *hlissner*        <https://github.com/hlissner>
+  * *mephux*          <https://github.com/mephux>
+  * *dusans*          <https://github.com/dusans>
+  * *kirstein*        <https://github.com/kirstein>
+  * *mmazer*          <https://github.com/mmazer>
+  * *vitalk*          <https://github.com/vitalk>
+  * *dingmingxin*     <https://github.com/dingmingxin>
+  * *dictav*          <https://github.com/dictav>
+  * *axehead*         <https://github.com/axehead>
+  * *walkingsparrow*  <https://github.com/walkingsparrow>
+  * *huaihuaiVV*      <https://github.com/huaihuaiVV>
+  * *rendon*          <https://github.com/rendon>
+  * *kshenoy*         <https://github.com/kshenoy>
+  * *mattiaslundberg* <https://github.com/mattiaslundberg>
+  * *prabirshrestha*  <https://github.com/prabirshrestha>
+  * *siadat*          <https://github.com/siadat>
+  * *jean*            <https://github.com/jean>
+  * *Komnomnomnom*    <https://github.com/Komnomnomnom>
+  * *timfeirg*        <https://github.com/timfeirg>
+  * *h14i*            <https://github.com/h14i>
+  * *ggVGc*           <https://github.com/ggVGc>
+  * *senft*           <https://github.com/senft>
+  * *bmenant*         <https://github.com/bmenant>
+  * *fufler*          <https://github.com/fufler>
+  * *metainfa*        <https://github.com/metainfa>
+  * *svenwin*         <https://github.com/svenwin>
+  * *anstosa*         <https://github.com/anstosa>
+  * *imran-uk*        <https://github.com/imran-uk>
+  * *francescarpi*    <https://github.com/francescarpi>
+  * *somini*          <https://github.com/somini>
+  * *zaynetro*        <https://github.com/zaynetro>
+  * *lorenzo*         <https://github.com/lorenzo>
+  * *minhajuddin*     <https://github.com/minhajuddin>
+  * *mklinga*         <https://github.com/mklinga>
+  * *jagtesh*         <https://github.com/jagtesh>
+  * *haifengkao*      <https://github.com/haifengkao>
+  * *feiyuw*          <https://github.com/feiyuw>
+  * *holybreath*      <https://github.com/holybreath>
 
 
 ==============================================================================
 CHANGELOG 					*ctrlp-funky-changelog*
+
+22 Nov 2018~
+  + Fix javascript support to avoid showing up `for`(#83) reported by |holybreath|
+
+20 Oct 2018~
+  + Add async def support for Python (#120) by |feiyuw|
+
+28 Jul 2018~
+  + Add support for objc lightweight generic (#118) by |haifengkao|
 
 2 May 2018~
   + Add support for GraphQL (#114) by |timfeirg|

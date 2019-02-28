@@ -22,7 +22,7 @@ Plug 'iberianpig/tig-explorer.vim'
 NeoBundle 'iberianpig/tig-explorer.vim'
 ```
 
-**NOTE: If you use neovim, you have to add the dependency to the plugin bclose.vim:**
+**NOTE: If you use Neovim, you have to add the dependency to the plugin bclose.vim:**
 
 ```vim
 " vim-plug
@@ -47,6 +47,14 @@ e, <Ctrl-o>: edit on existing tab
 <Ctrl-s>   : edit with split window
 ```
 
+##### Customize Keymap on Tig
+Following keymap is defined as defaut
+```vim
+let g:tig_explorer_keymap_edit    = '<C-o>'
+let g:tig_explorer_keymap_tabedit = '<C-t>'
+let g:tig_explorer_keymap_split   = '<C-s>'
+let g:tig_explorer_keymap_vsplit  = '<C-v>'
+```
 
 #### Keymap on Vim
 
@@ -54,10 +62,10 @@ Add following script to ~/.vimrc
 
 ```vim
 " open tig with current file
-nnoremap <Leader>t :TigOpenCurrentFile<CR>
+nnoremap <Leader>T :TigOpenCurrentFile<CR>
 
 " open tig with Project root path
-nnoremap <Leader>T :TigOpenProjectRootDir<CR>
+nnoremap <Leader>t :TigOpenProjectRootDir<CR>
 
 " open tig grep
 nnoremap <Leader>g :TigGrep<CR>

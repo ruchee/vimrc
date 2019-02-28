@@ -15,18 +15,44 @@ if exists('g:loaded_syntastic_html_w3_checker')
 endif
 let g:loaded_syntastic_html_w3_checker = 1
 
-if !exists('g:syntastic_html_w3_api')
-    let g:syntastic_html_w3_api = 'http://validator.w3.org/check'
-endif
-
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! SyntaxCheckers_html_w3_GetLocList() dict
+" Constants {{{1
+
+let s:DEFAULTS = {
+    \ 'html': {
+        \ 'ctype':   'text/html',
+        \ 'doctype': 'HTML5' },
+    \ 'svg': {
+        \ 'ctype':   'image/svg+xml',
+        \ 'doctype': 'SVG 1.1' },
+    \ 'xhtml': {
+        \ 'ctype':   'application/xhtml+xml',
+        \ 'doctype': 'XHTML 1.1' } }
+
+" }}}1
+
+" @vimlint(EVL101, 1, l:ctype)
+" @vimlint(EVL101, 1, l:doctype)
+function! SyntaxCheckers_html_w3_GetLocList() dict " {{{1
     let buf = bufnr('')
-    let makeprg = self.getExecEscaped() . ' -q -L -s -F output=json ' .
-        \ '-F uploaded_file=@' . syntastic#util#shescape(fnamemodify(bufname(buf), ':p')) . '\;type=text/html ' .
-        \ g:syntastic_html_w3_api
+    let type = self.getFiletype()
+    let fname = syntastic#util#shescape(fnamemodify(bufname(buf), ':p'))
+    let api = syntastic#util#var(type . '_w3_api', 'https://validator.w3.org/check')
+
+    for key in keys(s:DEFAULTS[type])
+        let l:{key} = syntastic#util#var(type . '_w3_' . key, get(s:DEFAULTS[type], key))
+    endfor
+
+    " vint: -ProhibitUsingUndeclaredVariable
+    let makeprg = self.getExecEscaped() . ' -q -L -s --compressed -F output=json' .
+        \ (doctype !=# '' ? ' -F doctype=' . syntastic#util#shescape(doctype) : '') .
+        \ ' -F uploaded_file=@' . fname .
+            \ '\;type=' . ctype .
+            \ '\;filename=' . fname .
+        \ ' ' . api
+    " vint: ProhibitUsingUndeclaredVariable
 
     let errorformat =
         \ '%A %\+{,' .
@@ -50,7 +76,9 @@ function! SyntaxCheckers_html_w3_GetLocList() dict
     endfor
 
     return loclist
-endfunction
+endfunction " }}}1
+" @vimlint(EVL104, 0, l:doctype)
+" @vimlint(EVL101, 0, l:ctype)
 
 call g:SyntasticRegistry.CreateAndRegisterChecker({
     \ 'filetype': 'html',

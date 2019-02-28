@@ -11,12 +11,12 @@ source ../plugin/targets.vim
 
 function! s:execute(operation, motions)
     if a:operation == 'c'
-        execute "normal " . a:operation . a:motions . "_"
+        execute "normal" a:operation . a:motions . "_"
     elseif a:operation == 'v'
-        execute "normal " . a:operation . a:motions
+        execute "normal" a:operation . a:motions
         normal r_
     else
-        execute "normal " . a:operation . a:motions
+        execute "normal" a:operation . a:motions
     endif
     if a:operation == 'y'
         execute "normal A\<Tab>'\<C-R>\"'"
@@ -61,6 +61,13 @@ function! s:testBasic()
         for op in [ 'c', 'd', 'y', 'v' ]
             for cnt in [ '', '1', '2' ]
                 for ln in [ 'l', '', 'n' ]
+                    " this is not supported and somehow gets handled
+                    " unexpectedly in these tests, works fine in practice
+                    " though (nothing happens)
+                    if ln == '' && cnt == '2'
+                        continue
+                    endif
+
                     for iaIA in [ 'I', 'i', 'a', 'A' ]
                         execute "normal \"lpfx"
                         call s:execute(op, cnt . iaIA . ln . del)
@@ -80,6 +87,13 @@ function! s:testBasic()
         for op in [ 'c', 'd', 'y', 'v' ]
             for cnt in [ '', '1', '2' ]
                 for ln in [ 'l', '', 'n' ]
+                    " this is not supported and somehow gets handled
+                    " unexpectedly in these tests, works fine in practice
+                    " though (nothing happens)
+                    if ln == '' && cnt == '2'
+                        continue
+                    endif
+
                     for iaIA in [ 'I', 'i', 'a', 'A' ]
                         execute "normal \"lpfx"
                         call s:execute(op, cnt . iaIA . ln . del)
@@ -178,6 +192,11 @@ function s:testVisual()
         normal +
     endfor
 
+    execute "normal /X\<CR>"
+    execute "normal VjIbc.\<Esc>"
+
+    execute "normal /Y\<CR>"
+    execute "normal \<C-V>jIbc.\<Esc>"
 
     write! test4.out
 endfunction
@@ -218,10 +237,17 @@ function s:testQuotes()
 
         for cnt in [ '', '1', '2' ]
             for ln in [ 'l', '', 'n' ]
+                " this is not supported and somehow gets handled
+                " unexpectedly in these tests, works fine in practice
+                " though (nothing happens)
+                if ln == '' && cnt == '2'
+                    continue
+                endif
+
                 for iaIA in [ 'I', 'i', 'a', 'A' ]
                     execute "normal \"pPnw"
                     let command = "v" . cnt . iaIA . ln . "'"
-                    execute "normal " . command . "r_A " . command . "\<Esc>}"
+                    execute "normal" command . "r_A" command . "\<Esc>}"
                 endfor
             endfor
         endfor
@@ -243,6 +269,65 @@ function s:testReselect()
     write! test8.out
 endfunction
 
+function s:testGrow()
+    edit! test9.in
+    normal gg0
+
+    " from x, select an argument, grow it
+    normal fxvaaaar_
+
+    normal +
+
+    " from x, select last argument, grow it
+    normal fxvalaaar_
+
+    normal +
+
+    " from x, select inner argument, select an argument (shouldn't grow)
+    normal fxviaaar_
+
+    normal +
+
+    " from x, select inner argument, select secound outer argument (shouldn't grow extra)
+    normal fxvia2aar_
+
+    normal +
+
+    " from x, select argument, grow, select next (should shrink)
+    normal fxvaaaaanar_
+
+    normal +
+
+    " from x, select argument, grow, switch to start, select last (should shrink)
+    normal fxvaaaaoalar_
+
+    normal +
+
+    " grow between characterwise and linewise selections
+    execute "normal /X\<CR>"
+    normal vibibibibibibr_
+
+    write! test9.out
+endfunction
+
+function s:testMotionForce()
+    edit! test10.in
+
+    execute "normal /X1\<CR>"
+    execute "normal di-"
+
+    execute "normal /X2\<CR>"
+    execute "normal dvi-"
+
+    execute "normal /X3\<CR>"
+    execute "normal dVi-"
+
+    execute "normal /X4\<CR>"
+    execute "normal d\<C-V>i-"
+
+    write! test10.out
+endfunction
+
 redir >> testM.out
 
 call s:testBasic()
@@ -253,6 +338,8 @@ call s:testModifiers()
 call s:testEmpty()
 call s:testQuotes()
 call s:testReselect()
+call s:testGrow()
+call s:testMotionForce()
 
 redir END
 " remove blank messages and trailing whitespace

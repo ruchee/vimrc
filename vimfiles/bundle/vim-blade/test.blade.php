@@ -169,3 +169,29 @@ do_not_highlight@php.net
         Title goes here
     @endslot
 @endcomponent
+
+@json($foo)
+
+@isset($foo)
+    records
+@endisset
+
+@empty($foo)
+    records
+@endempty
+
+@auth('admin')
+    authenticated
+@endauth
+
+@guest('admin')
+    not authenticated
+@endguest
+
+@switch($i)
+    @case(1)
+        case code
+        @break
+@endswitch
+
+@includeFirst

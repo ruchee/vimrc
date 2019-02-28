@@ -1,13 +1,16 @@
+" gen gets injected later
 function! targets#target#new(sl, sc, el, ec, error)
     return {
         \ 'error': a:error,
-        \ 'sl': a:sl,
-        \ 'sc': a:sc,
-        \ 'el': a:el,
-        \ 'ec': a:ec,
+        \ 'sl':    a:sl,
+        \ 'sc':    a:sc,
+        \ 'el':    a:el,
+        \ 'ec':    a:ec,
+        \ 'gen':   {},
         \ 'linewise': 0,
         \
         \ 'copy': function('targets#target#copy'),
+        \ 'equal': function('targets#target#equal'),
         \ 'setS': function('targets#target#setS'),
         \ 'setE': function('targets#target#setE'),
         \ 's': function('targets#target#s'),
@@ -34,15 +37,29 @@ function! targets#target#fromValues(sl, sc, el, ec)
     return targets#target#new(a:sl, a:sc, a:el, a:ec, '')
 endfunction
 
-function! targets#target#fromVisualSelection(selection)
+" optional parameter: selection (values: 'inclusive' (default) or 'exclusive')
+function! targets#target#fromVisualSelection(...)
+    let selection = a:0 == 1 ? a:1 : 'inclusive'
+
     let [sl, sc] = getpos("'<")[1:2]
     let [el, ec] = getpos("'>")[1:2]
 
-    if a:selection ==# 'exclusive'
+    if selection ==# 'exclusive'
         let ec -= 1
     endif
 
-    return targets#target#fromValues(sl, sc, el, ec)
+    let target = targets#target#fromValues(sl, sc, el, ec)
+
+    " reselect, save mode and go back to normal mode
+    normal! gv
+    if mode() ==# 'V'
+        let target.linewise = 1
+        normal! V
+    else
+        normal! v
+    endif
+
+    return target
 endfunction
 
 function! targets#target#withError(error)
@@ -50,15 +67,50 @@ function! targets#target#withError(error)
 endfunction
 
 function! targets#target#copy() dict
-    return targets#target#fromValues(self.sl, self.sc, self.el, self.ec)
+    let target = targets#target#fromValues(self.sl, self.sc, self.el, self.ec)
+    let target['gen'] = self.gen
+    return target
 endfunction
 
-function! targets#target#setS(line, column) dict
-    let [self.sl, self.sc] = [a:line, a:column]
+function! targets#target#equal(t) dict
+    " NOTE: linewise targets are equal even if their columns are different
+    " this is important because fromVisualSelection will get 'a large number'
+    " for ec; see :h getpos()
+
+    " all of these must be equal
+    if
+                \ self.error    != a:t.error ||
+                \ self.sl       != a:t.sl    ||
+                \ self.el       != a:t.el    ||
+                \ self.linewise != a:t.linewise
+        return 0
+    endif
+
+    " if targets are linewise, ignore columns
+    if self.linewise
+        return 1
+    endif
+
+    " if characterwise, columns must be equal
+    return
+                \ self.sc == a:t.sc &&
+                \ self.ec == a:t.ec
 endfunction
 
-function! targets#target#setE(line, column) dict
-    let [self.el, self.ec] = [a:line, a:column]
+function! targets#target#setS(...) dict
+    if a:0 == 2 " line and column
+        let [self.sl, self.sc] = [a:1, a:2]
+    elseif a:0 == 0 " use current position
+        let [self.sl, self.sc] = getpos('.')[1:2]
+    endif
+endfunction
+
+function! targets#target#setE(...) dict
+    if a:0 == 2 " line and column
+        let [self.el, self.ec] = [a:1, a:2]
+    elseif a:0 == 0 " use current position
+        let [self.el, self.ec] = getpos('.')[1:2]
+    endif
 endfunction
 
 function! targets#target#s() dict
@@ -91,16 +143,14 @@ function! targets#target#getcharE() dict
     return getline(self.el)[self.ec-1]
 endfunction
 
-" args (mark = '.')
 function! targets#target#getposS(...) dict
-    let mark = a:0 > 0 ? a:1 : '.'
-    let [self.sl, self.sc] = getpos(mark)[1:2]
+    call self.cursorS()
+    return getpos('.')
 endfunction
 
-" args (mark = '.')
 function! targets#target#getposE(...) dict
-    let mark = a:0 > 0 ? a:1 : '.'
-    let [self.el, self.ec] = getpos(mark)[1:2]
+    call self.cursorE()
+    return getpos('.')
 endfunction
 
 function! targets#target#cursorS() dict
@@ -130,56 +180,63 @@ function! targets#target#state() dict
     endif
 endfunction
 
-function! targets#target#range(cursor, min, max) dict
+" returns range characters and min distance to cursor (lines; characters)
+function! targets#target#range(context) dict
     if self.error != ''
-        return ''
+        return ['', 1/0, 1/0]
     endif
 
-    let positionS = s:position(self.sl, self.sc, a:cursor, a:min, a:max, 'c')
-    let positionE = s:position(self.el, self.ec, a:cursor, a:min, a:max, 'c')
-    return positionS . positionE
+    let [positionS, linesS, charsS] = s:position(self.sl, self.sc, a:context)
+    let [positionE, linesE, charsE] = s:position(self.el, self.ec, a:context)
+    return [positionS . positionE, min([linesS, linesE]), min([charsS, charsE])]
 endfunction
 
-function! s:position(line, column, cursor, min, max, tie)
-    let cursorLine = a:cursor[1]
+" returns position character and distances to cursor (lines; characters)
+function! s:position(line, column, context)
+    let [cursorLine, cursorColumn] = a:context.oldpos[1:2]
 
     if a:line == cursorLine " cursor line
-        let cursorColumn = a:cursor[2]
         if a:column == cursorColumn " same column
-            return a:tie
+            return ['c', 0, 0]
         elseif a:column < cursorColumn " left of cursor
-            return 'l'
+            return ['l', 0, cursorColumn - a:column]
         else " a:column > cursorColumn " right of cursor
-            return 'r'
+            return ['r', 0, a:column - cursorColumn]
         endif
 
     elseif a:line < cursorLine
-        if a:line >= a:min " above on screen
-            return 'a'
+        if a:line >= a:context.minline " above on screen
+            return ['a', cursorLine - a:line, -a:column]
         else " above off screen
-            return 'A'
+            return ['A', cursorLine - a:line, -a:column]
         endif
 
     else " a:line > cursorLine
-        if a:line <= a:max " below on screen
-            return 'b'
+        if a:line <= a:context.maxline " below on screen
+            return ['b', a:line - cursorLine, a:column]
         else " below off screen
-            return 'B'
+            return ['B', a:line - cursorLine, a:column]
         endif
     endif
 endfunction
 
 " visually select the target
 function! targets#target#select() dict
-    call cursor(self.s())
+    call self.cursorS()
 
-    if self.linewise
-        silent! normal! V
+    let mode = mode(1)
+    if len(mode) >= 3 && mode[0:1] ==# 'no'
+        " apply motion force
+        let selectMode = mode[2]
+    elseif self.linewise
+        let selectMode = 'V'
     else
-        silent! normal! v
+        let selectMode = 'v'
     endif
 
-    call cursor(self.e())
+    silent! execute 'normal!' selectMode
+
+    call self.cursorE()
 endfunction
 
 function! targets#target#string() dict
@@ -187,5 +244,21 @@ function! targets#target#string() dict
         return '[err:' . self.error . ']'
     endif
 
-    return '[' . self.sl . ' ' . self.sc . '; ' . self.el . ' ' . self.ec . ']'
+    let text = ''
+    if self.sl == self.el
+        let text = getline(self.sl)[self.sc-1:self.ec-1]
+    else
+        let text = getline(self.sl)[self.sc-1 :] . '...' . getline(self.el)[: self.ec-1]
+    endif
+
+    if has_key(self, 'gen')
+        if has_key(self.gen, 'source')
+            let text .= ' ' . self.gen.source
+        endif
+        if has_key(self.gen, 'which')
+            let text .= ' ' . self.gen.which
+        endif
+    endif
+
+    return text . ' ' . '[' . self.sl . ' ' . self.sc . '; ' . self.el . ' ' . self.ec . ']'
 endfunction

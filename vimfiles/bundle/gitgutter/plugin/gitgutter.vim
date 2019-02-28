@@ -34,9 +34,9 @@ if g:gitgutter_sign_column_always && exists('&signcolumn')
   call gitgutter#utility#warn('please replace "let g:gitgutter_sign_column_always=1" with "set signcolumn=yes"')
 endif
 call s:set('g:gitgutter_override_sign_column_highlight', 1)
-call s:set('g:gitgutter_sign_added',                '+')
-call s:set('g:gitgutter_sign_modified',             '~')
-call s:set('g:gitgutter_sign_removed',              '_')
+call s:set('g:gitgutter_sign_added',                   '+')
+call s:set('g:gitgutter_sign_modified',                '~')
+call s:set('g:gitgutter_sign_removed',                 '_')
 
 if gitgutter#utility#supports_overscore_sign()
   call s:set('g:gitgutter_sign_removed_first_line', '‾')
@@ -44,14 +44,15 @@ else
   call s:set('g:gitgutter_sign_removed_first_line', '_^')
 endif
 
-call s:set('g:gitgutter_sign_modified_removed',    '~_')
-call s:set('g:gitgutter_git_args',                   '')
-call s:set('g:gitgutter_diff_args',                  '')
-call s:set('g:gitgutter_diff_base',                  '')
-call s:set('g:gitgutter_map_keys',                    1)
-call s:set('g:gitgutter_terminal_reports_focus',      1)
-call s:set('g:gitgutter_async',                       1)
-call s:set('g:gitgutter_log',                         0)
+call s:set('g:gitgutter_sign_removed_above_and_below', '[')
+call s:set('g:gitgutter_sign_modified_removed',       '~_')
+call s:set('g:gitgutter_git_args',                      '')
+call s:set('g:gitgutter_diff_args',                     '')
+call s:set('g:gitgutter_diff_base',                     '')
+call s:set('g:gitgutter_map_keys',                       1)
+call s:set('g:gitgutter_terminal_reports_focus',         1)
+call s:set('g:gitgutter_async',                          1)
+call s:set('g:gitgutter_log',                            0)
 
 call s:set('g:gitgutter_git_executable', 'git')
 if !executable(g:gitgutter_git_executable)
@@ -95,6 +96,10 @@ command! -bar GitGutter    call gitgutter#process_buffer(bufnr(''), 1)
 command! -bar GitGutterDisable call gitgutter#disable()
 command! -bar GitGutterEnable  call gitgutter#enable()
 command! -bar GitGutterToggle  call gitgutter#toggle()
+
+command! -bar GitGutterBufferDisable call gitgutter#buffer_disable()
+command! -bar GitGutterBufferEnable  call gitgutter#buffer_enable()
+command! -bar GitGutterBufferToggle  call gitgutter#buffer_toggle()
 
 " }}}
 
@@ -161,6 +166,12 @@ endfunction
 
 " }}}
 
+" Folds {{{
+
+command! -bar GitGutterFold call gitgutter#fold#toggle()
+
+" }}}
+
 command! -bar GitGutterDebug call gitgutter#debug#debug()
 
 " Maps {{{
@@ -202,6 +213,7 @@ augroup gitgutter
   autocmd VimEnter * if winnr() != winnr('$') | call gitgutter#all(0) | endif
 
   autocmd FocusGained,ShellCmdPost * call gitgutter#all(1)
+  autocmd WinLeave * if bufname('') =~ '^term://' | call gitgutter#all(1) | endif
 
   if exists('##VimResume')
     autocmd VimResume * call gitgutter#all(1)

@@ -276,9 +276,14 @@ augroup fugitive
         \   let b:git_dir = s:Slash(expand('<amatch>:p:h')) |
         \   exe fugitive#BufReadStatus() |
         \ elseif filereadable(expand('<amatch>')) |
-        \   read <amatch> |
+        \   silent doautocmd BufReadPre |
+        \   keepalt read <amatch> |
         \   1delete_ |
+        \   silent doautocmd BufReadPost |
+        \ else |
+        \   silent doautocmd BufNewFile |
         \ endif
+
   autocmd BufReadCmd    fugitive://*//*             exe fugitive#BufReadCmd()
   autocmd BufWriteCmd   fugitive://*//[0-3]/*       exe fugitive#BufWriteCmd()
   autocmd FileReadCmd   fugitive://*//*             exe fugitive#FileReadCmd()

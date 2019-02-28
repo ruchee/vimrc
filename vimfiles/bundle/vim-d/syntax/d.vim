@@ -1,20 +1,9 @@
-" Vim syntax file for the D programming language (version 1.076 and 2.063).
+" Vim syntax file for the D programming language (version 1.076 and 2.069).
 "
 " Language:     D
 " Maintainer:   Jesse Phillips <Jesse.K.Phillips+D@gmail.com>
-" Last Change:  2014 June 6
-" Version:      0.27
-"
-" Contributors:
-"   - Jason Mills: original Maintainer
-"   - Kirk McDonald
-"   - Tim Keating
-"   - Frank Benoit
-"   - Shougo Matsushita
-"   - Ellery Newcomer
-"   - Steven N. Oliver
-"   - Sohgo Takeuchi
-"   - Robert Clipsham
+" Last Change:  2016 Feb 2
+" Version:      0.28
 "
 " Please submit bugs/comments/suggestions to the github repo: 
 " https://github.com/JesseKPhillips/d.vim
@@ -27,6 +16,9 @@
 "
 "   d_hl_object_types - Set to highlight some common types from object.di.
 
+"load the ddoc syntax
+runtime! /syntax/ddoc.vim
+
 " Quit when a syntax file was already loaded
 if exists("b:current_syntax")
   finish
@@ -38,6 +30,7 @@ set cpo&vim
 
 " Set the current syntax to be known as d
 let b:current_syntax = "d"
+
 
 " Keyword definitions
 "
@@ -114,17 +107,19 @@ syn keyword dTraitsIdentifier      contained isIntegral isScalar isStaticArray
 syn keyword dTraitsIdentifier      contained isUnsigned isVirtualFunction
 syn keyword dTraitsIdentifier      contained isVirtualMethod isAbstractFunction
 syn keyword dTraitsIdentifier      contained isFinalFunction isStaticFunction
+syn keyword dTraitsIdentifier      contained isOverrideFunction isTemplate
 syn keyword dTraitsIdentifier      contained isRef isOut isLazy hasMember
-syn keyword dTraitsIdentifier      contained identifier getAttributes getMember
-syn keyword dTraitsIdentifier      contained getOverloads getProtection
-syn keyword dTraitsIdentifier      contained getVirtualFunctions
-syn keyword dTraitsIdentifier      contained getVirtualMethods parent
-syn keyword dTraitsIdentifier      contained classInstanceSize allMembers
+syn keyword dTraitsIdentifier      contained identifier getAliasThis
+syn keyword dTraitsIdentifier      contained getAttributes getFunctionAttributes getMember
+syn keyword dTraitsIdentifier      contained getOverloads getPointerBitmap getProtection
+syn keyword dTraitsIdentifier      contained getVirtualFunctions getVirtualIndex
+syn keyword dTraitsIdentifier      contained getVirtualMethods getUnitTests
+syn keyword dTraitsIdentifier      contained parent classInstanceSize allMembers
 syn keyword dTraitsIdentifier      contained derivedMembers isSame compiles
-syn keyword dPragmaIdentifier      contained lib msg startaddress GNU_asm
-syn keyword dExternIdentifier      contained Windows Pascal Java System D
+syn keyword dPragmaIdentifier      contained inline lib mangle msg startaddress GNU_asm
+syn keyword dExternIdentifier      contained C C++ D Windows Pascal System Objective-C
 syn keyword dAttribute             contained safe trusted system
-syn keyword dAttribute             contained property disable
+syn keyword dAttribute             contained property disable nogc
 syn keyword dVersionIdentifier     contained DigitalMars GNU LDC SDC D_NET
 syn keyword dVersionIdentifier     contained X86 X86_64 ARM PPC PPC64 IA64 MIPS MIPS64 Alpha
 syn keyword dVersionIdentifier     contained SPARC SPARC64 S390 S390X HPPA HPPA64 SH SH64
@@ -134,7 +129,7 @@ syn keyword dVersionIdentifier     contained Cygwin MinGW
 syn keyword dVersionIdentifier     contained LittleEndian BigEndian
 syn keyword dVersionIdentifier     contained D_InlineAsm_X86 D_InlineAsm_X86_64
 syn keyword dVersionIdentifier     contained D_Version2 D_Coverage D_Ddoc D_LP64 D_PIC
-syn keyword dVersionIdentifier     contained unittest none all
+syn keyword dVersionIdentifier     contained unittest assert none all
 
 syn cluster dComment contains=dNestedComment,dBlockComment,dLineComment
 
@@ -212,13 +207,18 @@ syn region dBlockComment	start="/\*"  end="\*/" contains=dBlockCommentString,dTo
 syn region dNestedComment	start="/+"  end="+/" contains=dNestedComment,dNestedCommentString,dTodo,@Spell fold
 syn match  dLineComment	"//.*" contains=dLineCommentString,dTodo,@Spell
 
+syn cluster ddocComment contains=ddocBlockComment,ddocNestedComment,ddocLineComment
+syn region ddocBlockComment  start="/\*\*" end="\*/" contains=dBlockCommentString,dTodo,dCommentStartError,@Spell fold
+syn region ddocNestedComment start="/++"   end="+/"  contains=ddocNestedComment,dNestedCommentString,dTodo,@Spell fold
+syn match  ddocLineComment   "///.*"                 contains=dLineCommentString,dTodo,@Spell
+
 hi link dLineCommentString	dBlockCommentString
 hi link dBlockCommentString	dString
 hi link dNestedCommentString	dString
 hi link dCommentStar		dBlockComment
 hi link dCommentPlus		dNestedComment
 
-syn cluster dTokens add=dBlockComment,dNestedComment,dLineComment
+syn cluster dTokens add=dBlockComment,dNestedComment,dLineComment,ddocBlockComment,ddocNestedComment,ddocLineComment
 
 " /+ +/ style comments and strings that span multiple lines can cause
 " problems. To play it safe, set minlines to a large number.
@@ -375,6 +375,9 @@ hi def link dType                Type
 hi def link dLineComment         Comment
 hi def link dBlockComment        Comment
 hi def link dNestedComment       Comment
+hi def link ddocLineComment      Comment
+hi def link ddocBlockComment     Comment
+hi def link ddocNestedComment    Comment
 hi def link dCommentError        Error
 hi def link dNestedCommentError  Error
 hi def link dCommentStartError   Error
@@ -392,7 +395,7 @@ hi def link dPragmaIdentifier    Identifier
 hi def link dExtern              dExternal
 hi def link dExternIdentifier    Identifier
 
-" Marks contents of the asm statment body as special
+" Marks contents of the asm statement body as special
 
 syn match dAsmStatement "\<asm\>"
 syn region dAsmBody start="asm[\n]*\s*{"hs=e+1 end="}"he=e-1 contains=dAsmStatement,dAsmOpCode,@dComment,DUserLabel

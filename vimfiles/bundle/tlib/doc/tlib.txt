@@ -35,6 +35,8 @@ Contents~
         :TVarArg ................................ |:TVarArg|
         :TBrowseOutput .......................... |:TBrowseOutput|
         :TBrowseScriptnames ..................... |:TBrowseScriptnames|
+        :Texecqfl ............................... |:Texecqfl|
+        :Texecloc ............................... |:Texecloc|
         :Tlibtrace .............................. |:Tlibtrace|
         :Tlibtraceset ........................... |:Tlibtraceset|
         tlib#Filter_cnf#New ..................... |tlib#Filter_cnf#New()|
@@ -266,6 +268,14 @@ Contents~
     EXAMPLES: >
       TBrowseScriptnames 
 <
+
+                                                    *:Texecqfl*
+:Texecqfl CMD
+    Run CMD and display the quickfix list.
+
+                                                    *:Texecloc*
+:Texecloc CMD
+    Run CMD and display the quickfix list.
 
                                                     *:Tlibtrace*
 :Tlibtrace GUARD, VAR1, VAR2...

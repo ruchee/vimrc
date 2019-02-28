@@ -10,6 +10,7 @@ unlet! b:current_syntax
 setlocal commentstring=#\ %s
 
 syntax keyword rspecGroupMethods
+      \ aggregate_failures
       \ context
       \ describe
       \ example
@@ -60,6 +61,7 @@ syntax keyword rspecMocks
       \ spy
       \ stub
       \ stub_chain
+      \ stub_const
 
 syntax keyword rspecMockMethods
       \ and_call_original
@@ -108,6 +110,7 @@ syntax keyword rspecMatchers
       \ raise_exception
       \ receive
       \ receive_messages
+      \ receive_message_chain
       \ respond_to
       \ satisfy
       \ throw_symbol
@@ -173,6 +176,7 @@ syntax keyword rspecMessageExpectation
       \ with
 
 syntax match rspecMatchers /\<\(be\|have\)_\w\+\>/
+syntax match rspecGroupMethods /\.describe/
 
 highlight link rspecGroupMethods Statement
 highlight link rspecBeforeAndAfter Identifier

@@ -1,7 +1,7 @@
-*bufexplorer.txt*              Buffer Explorer       Last Change: 18 Jan 2018
+*bufexplorer.txt*              Buffer Explorer       Last Change: 08 Dec 2018
 
 Buffer Explorer                                *buffer-explorer* *bufexplorer*
-                                Version 7.4.20
+                                Version 7.4.21
 
 Plugin for easily exploring (or browsing) Vim|:buffers|.
 
@@ -53,7 +53,7 @@ If you would like to use something other than the default leader key - '\' -
 you may simply change the leader (see |mapleader|).
 
 When <Leader>bs or <Leader>bv is issued, bufexplorer opens in either a
-horizontally or vertically split window.  By issusing either of these commands,
+horizontally or vertically split window.  By issuing either of these commands,
 the user is telling bufexplorer that they want to split the window and have
 bufexplorer show the buffer they are about to select (from the bufexplorer
 windows) in the newly split window.  When <Leader>be is issued, bufexplorer
@@ -250,12 +250,12 @@ The default is to use the global &splitright.
 
                                                    *g:bufExplorerSplitVertSize*
 To control the size of the new vertical split window, use: >
-  let g:bufExplorerVertSize=n          " New split window is n columns wide.
-  let g:bufExplorerVertSize=0          " New split windows size set by Vim.
+  let g:bufExplorerSplitVertSize=n          " New split window is n columns wide.
+  let g:bufExplorerSplitVertSize=0          " New split windows size set by Vim.
 The default is 0, so that the size is set by Vim.
 
                                                    *g:bufExplorerVersionWarn*
-To control wether to warning about Vim version or not, use: >
+To control whether to warning about Vim version or not, use: >
   let g:bufExplorerVersionWarn=1       " Warn if version conflict.
   let g:bufExplorerVersionWarn=0       " Do not warn if version conflict.
 The default is 1.
@@ -263,6 +263,10 @@ The default is 1.
 ===============================================================================
 CHANGE LOG                                              *bufexplorer-changelog*
 
+7.4.21   December 8, 2018
+    - Merged in changes from adelarsq that introduced ryanoasis/vim-devicons
+      support.  If the global g:loaded_webdevicons has been set, bufexplorer
+      will now load the associated dev icons for each buffer.
 7.4.20   January 18, 2017
     - Thanks to jpflouret for supplying code that can remove the warning
       messages if you using this plugin on an older version of Vim.  The

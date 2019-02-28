@@ -39,6 +39,7 @@ $$
   select name, default_version from pg_available_extensions()
    where name not in ( -- Extensions to skip
                        'citus',
+                       'cstore_fdw',
                        'jsonb_plpythonu',
                        'jsonb_plpython2u',
                        'pldbgapi', -- Not available for PostgreSQL 11 or later?

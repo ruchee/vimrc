@@ -107,6 +107,7 @@ SYNTAX CHECKERS BY LANGUAGE                          *syntastic-checkers-lang*
     Solidity.................................|syntastic-checkers-solidity|
     SQL......................................|syntastic-checkers-sql|
     Stylus...................................|syntastic-checkers-stylus|
+    SVG......................................|syntastic-checkers-svg|
 
     Tcl......................................|syntastic-checkers-tcl|
     TeX......................................|syntastic-checkers-tex|
@@ -3132,6 +3133,13 @@ Sets the "nsfilter" for the parser. See:
 
     https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#nsfilter
 
+                                         *'g:syntastic_html_validator_schema'*
+Type: string
+Default: empty
+Sets the "schema" for the parser. See:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#schema
+
                                            *'g:syntastic_html_validator_exec'*
 Type: string
 Default: "curl"
@@ -3153,6 +3161,8 @@ You can lookup the meaning of these codes in cURL's manual:
     
     http://curl.haxx.se/docs/manpage.html#EXIT
 
+See also: |syntastic-svg-validator|, |syntastic-xhtml-validator|.
+
 ------------------------------------------------------------------------------
 10. W3                                                     *syntastic-html-w3*
 
@@ -3165,7 +3175,7 @@ details:
     https://validator.w3.org/source/
 
 As a syntastic linter, you can validate your files against the online service
-(see http://validator.w3.org/), or you can install it from sources and run it
+(see https://validator.w3.org/), or you can install it from sources and run it
 as a local service:
 
     https://github.com/w3c/markup-validator/
@@ -3174,16 +3184,36 @@ Requirement~
 
 This checker uses cURL:
 
-    http://curl.haxx.se/
+    https://curl.haxx.se/
 
 Checker options~
 
                                                    *'g:syntastic_html_w3_api'*
 Type: string
-Default: "http://validator.w3.org/check"
+Default: "https://validator.w3.org/check"
 URL of the service to use for checking. Leave it to the default to
-run the checks against "http://validator.w3.org/", or set it to
+run the checks against "https://validator.w3.org/", or set it to
 "http://localhost/w3c-validator/check" if you're running a local service.
+
+                                               *'g:syntastic_html_w3_doctype'*
+Type: string
+Default: "HTML5"
+Name of the document type definition to use for checking.  If unspecified, the
+type is detected from the file content.  Currently supported values for HTML:
+
+  - HTML5
+  - HTML 4.01 Strict
+  - HTML 4.01 Transitional
+  - HTML 4.01 Frameset
+  - HTML 4.01 + RDFa 1.1
+  - HTML 3.2
+  - HTML 2.0
+  - ISO/IEC 15445:2000 ("ISO HTML")
+
+References:
+
+    https://github.com/w3c/markup-validator/blob/master/htdocs/doctype-select.html
+    https://github.com/w3c/markup-validator/blob/master/htdocs/config/types.conf
 
                                                   *'g:syntastic_html_w3_exec'*
 Type: string
@@ -3200,11 +3230,13 @@ Note~
 
 Non-zero exit codes from "cURL" are typically network errors, and are signaled
 by syntastic with messages such as: >
-    syntastic: error: checker html/validator returned abnormal status 26
+    syntastic: error: checker html/w3 returned abnormal status 26
 <
 You can lookup the meaning of these codes in cURL's manual:
     
-    http://curl.haxx.se/docs/manpage.html#EXIT
+    https://curl.haxx.se/docs/manpage.html#EXIT
+
+See also: |syntastic-svg-w3|, |syntastic-xhtml-w3|.
 
 ==============================================================================
 SYNTAX CHECKERS FOR JAVA                             *syntastic-checkers-java*
@@ -6564,6 +6596,175 @@ You might also find useful the "vim-stylus" plugin:
     https://github.com/wavded/vim-stylus
 
 ==============================================================================
+SYNTAX CHECKERS FOR SVG                               *syntastic-checkers-svg*
+
+The following checkers are available for SVG (filetype "svg"):
+
+    1. Validator................|syntastic-svg-validator|
+    2. W3.......................|syntastic-svg-w3|
+
+------------------------------------------------------------------------------
+1. Validator                                         *syntastic-svg-validator*
+
+Name:        validator
+Maintainer:  LCD 47 <lcd047@gmail.com>
+
+"Validator" is a non-DTD-based HTML linter.  See the project's page for
+details:
+
+    http://validator.github.io/validator/
+
+As a syntastic linter, you can validate your files against the online service
+(see https://validator.nu/), or you can install "vnu.jar":
+
+    https://github.com/validator/validator/releases/latest
+
+then run it as a HTTP server: >
+    $ java -Xss512k -cp /path/to/vnu.jar nu.validator.servlet.Main 8888
+<
+Requirement~
+
+This checker uses cURL:
+
+    http://curl.haxx.se/
+
+Checker options~
+
+                                             *'g:syntastic_svg_validator_api'*
+Type: string
+Default: "http://validator.nu/"
+URL of the service to use for checking. Leave it to the default to run the
+checks against "https://validator.nu/", or set it to "http://localhost:8888/"
+if you have "vnu.jar" installed, and you're running it as a standalone HTTP
+server. See:
+
+    http://validator.github.io/validator/#standalone
+
+                                          *'g:syntastic_svg_validator_parser'*
+Type: string
+Default: empty
+Parser to use. Legal values are: "xml", "xmldtd", "html", "html5", "html4",
+and "html4tr". References:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#parser
+
+                                        *'g:syntastic_svg_validator_nsfilter'*
+Type: string
+Default: empty
+Sets the "nsfilter" for the parser. See:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#nsfilter
+
+                                          *'g:syntastic_svg_validator_schema'*
+Type: string
+Default: empty
+Sets the "schema" for the parser. See:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#schema
+
+                                            *'g:syntastic_svg_validator_exec'*
+Type: string
+Default: "curl"
+Path to the "cURL" executable. Override it with a full path if your "cURL" is
+not installed in a standard location.
+
+This checker doesn't call the "makeprgBuild()" function, and thus it ignores
+the usual 'g:syntastic_svg_validator_<option>' variables. The only exception
+is 'g:syntastic_svg_validator_exec', which can be used to override the path
+to the "cURL" executable.
+
+Note~
+
+Non-zero exit codes from "cURL" are typically network errors, and are signaled
+by syntastic with messages such as: >
+    syntastic: error: checker svg/validator returned abnormal status 26
+<
+You can lookup the meaning of these codes in cURL's manual:
+    
+    http://curl.haxx.se/docs/manpage.html#EXIT
+
+Example~
+>
+    let g:syntastic_svg_validator_parser = 'xml'
+    let g:syntastic_svg_validator_schema = 
+        \ 'http://s.validator.nu/svg-xhtml5-rdf-mathml.rnc ' .
+        \ 'http://s.validator.nu/html5/assertions.sch ' .
+        \ 'http://c.validator.nu/all/'
+<
+See also: |syntastic-html-validator|, |syntastic-xhtml-validator|.
+
+------------------------------------------------------------------------------
+2. W3                                                      *syntastic-svg-w3*
+
+Name:        w3
+Maintainer:  Kevin Locke <kevin@kevinlocke.name>
+
+"W3" is the W3C Markup Validator for SVG.  See the project's page for
+details:
+
+    https://validator.w3.org/source/
+
+As a syntastic linter, you can validate your files against the online service
+(see https://validator.w3.org/), or you can install it from sources and run it
+as a local service:
+
+    https://github.com/w3c/markup-validator/
+
+Requirement~
+
+This checker uses cURL:
+
+    http://curl.haxx.se/
+
+Checker options~
+
+                                                   *'g:syntastic_svg_w3_api'*
+Type: string
+Default: "https://validator.w3.org/check"
+URL of the service to use for checking. Leave it to the default to
+run the checks against "https://validator.w3.org/", or set it to
+"http://localhost/w3c-validator/check" if you're running a local service.
+
+                                                *'g:syntastic_svg_w3_doctype'*
+Type: string
+Default: "SVG 1.1"
+Name of the document type definition to use for checking. Currently supported
+values for SVG:
+
+  - SVG 1.0
+  - SVG 1.1
+  - SVG 1.1 Tiny
+  - SVG 1.1 Basic
+
+References:
+
+    https://github.com/w3c/markup-validator/blob/master/htdocs/doctype-select.html
+    https://github.com/w3c/markup-validator/blob/master/htdocs/config/types.conf
+
+                                                  *'g:syntastic_svg_w3_exec'*
+Type: string
+Default: "curl"
+Path to the "cURL" executable. Override it with a full path if your "cURL" is
+not installed in a standard location.
+
+This checker doesn't call the "makeprgBuild()" function, and thus it ignores
+the usual 'g:syntastic_svg_w3_<option>' variables. The only exception is
+'g:syntastic_svg_w3_exec', which can be used to override the path to the
+"cURL" executable.
+
+Note~
+
+Non-zero exit codes from "cURL" are typically network errors, and are signaled
+by syntastic with messages such as: >
+    syntastic: error: checker svg/w3 returned abnormal status 26
+<
+You can lookup the meaning of these codes in cURL's manual:
+    
+    http://curl.haxx.se/docs/manpage.svg#EXIT
+
+See also: |syntastic-html-w3|, |syntastic-xhtml-w3|.
+
+==============================================================================
 SYNTAX CHECKERS FOR TCL                               *syntastic-checkers-tcl*
 
 The following checkers are available for Tcl (filetype "tcl"):
@@ -7375,6 +7576,8 @@ The following checkers are available for xHTML (filetype "xhtml"):
     1. HTML Tidy................|syntastic-xhtml-tidy|
     2. jshint...................|syntastic-xhtml-jshint|
     3. proselint................|syntastic-xhtml-proselint|
+    4. Validator................|syntastic-xhtml-validator|
+    5. W3.......................|syntastic-xhtml-w3|
 
 ------------------------------------------------------------------------------
 1. HTML tidy                                            *syntastic-xhtml-tidy*
@@ -7469,6 +7672,174 @@ See also: |syntastic-asciidoc-proselint|, |syntastic-help-proselint|,
 |syntastic-nroff-proselint|, |syntastic-pod-proselint|,
 |syntastic-rst-proselint|, |syntastic-tex-proselint|,
 |syntastic-texinfo-proselint|, |syntastic-text-proselint|.
+
+------------------------------------------------------------------------------
+4. Validator                                       *syntastic-xhtml-validator*
+
+Name:        validator
+Maintainer:  LCD 47 <lcd047@gmail.com>
+
+"Validator" is a non-DTD-based HTML linter.  See the project's page for
+details:
+
+    http://validator.github.io/validator/
+
+As a syntastic linter, you can validate your files against the online service
+(see https://validator.nu/), or you can install "vnu.jar":
+
+    https://github.com/validator/validator/releases/latest
+
+then run it as a HTTP server: >
+    $ java -Xss512k -cp /path/to/vnu.jar nu.validator.servlet.Main 8888
+<
+Requirement~
+
+This checker uses cURL:
+
+    http://curl.haxx.se/
+
+Checker options~
+
+                                           *'g:syntastic_xhtml_validator_api'*
+Type: string
+Default: "http://validator.nu/"
+URL of the service to use for checking. Leave it to the default to run the
+checks against "https://validator.nu/", or set it to "http://localhost:8888/"
+if you have "vnu.jar" installed, and you're running it as a standalone HTTP
+server. See:
+
+    http://validator.github.io/validator/#standalone
+
+                                        *'g:syntastic_xhtml_validator_parser'*
+Type: string
+Default: empty
+Parser to use. Legal values are: "xml", "xmldtd", "html", "html5", "html4",
+and "html4tr". References:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#parser
+
+                                      *'g:syntastic_xhtml_validator_nsfilter'*
+Type: string
+Default: empty
+Sets the "nsfilter" for the parser. See:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#nsfilter
+
+                                        *'g:syntastic_xhtml_validator_schema'*
+Type: string
+Default: empty
+Sets the "schema" for the parser. See:
+
+    https://wiki.whatwg.org/wiki/Validator.nu_Common_Input_Parameters#schema
+
+                                          *'g:syntastic_xhtml_validator_exec'*
+Type: string
+Default: "curl"
+Path to the "cURL" executable. Override it with a full path if your "cURL" is
+not installed in a standard location.
+
+This checker doesn't call the "makeprgBuild()" function, and thus it ignores
+the usual 'g:syntastic_xhtml_validator_<option>' variables. The only exception
+is 'g:syntastic_xhtml_validator_exec', which can be used to override the path
+to the "cURL" executable.
+
+Note~
+
+Non-zero exit codes from "cURL" are typically network errors, and are signaled
+by syntastic with messages such as: >
+    syntastic: error: checker xhtml/validator returned abnormal status 26
+<
+You can lookup the meaning of these codes in cURL's manual:
+    
+    http://curl.haxx.se/docs/manpage.html#EXIT
+
+Example~
+>
+    let g:syntastic_xhtml_validator_parser = 'xmldtd'
+    let g:syntastic_xhtml_validator_schema = 
+        \ 'http://s.validator.nu/xhtml5.rnc ' .
+        \ 'http://s.validator.nu/html5/assertions.sch ' .
+        \ 'http://c.validator.nu/all/
+<
+See also: |syntastic-html-validator|, |syntastic-svg-validator|.
+
+------------------------------------------------------------------------------
+5. W3                                                     *syntastic-xhtml-w3*
+
+Name:        w3
+Maintainer:  Kevin Locke <kevin@kevinlocke.name>
+
+"W3" is the W3C Markup Validator for XHTML.  See the project's page for
+details:
+
+    https://validator.w3.org/source/
+
+As a syntastic linter, you can validate your files against the online service
+(see https://validator.w3.org/), or you can install it from sources and run it
+as a local service:
+
+    https://github.com/w3c/markup-validator/
+
+Requirement~
+
+This checker uses cURL:
+
+    https://curl.haxx.se/
+
+Checker options~
+
+                                                   *'g:syntastic_xhtml_w3_api'*
+Type: string
+Default: "https://validator.w3.org/check"
+URL of the service to use for checking. Leave it to the default to
+run the checks against "https://validator.w3.org/", or set it to
+"http://localhost/w3c-validator/check" if you're running a local service.
+
+                                              *'g:syntastic_xhtml_w3_doctype'*
+Type: string
+Default: "XHTML 1.1"
+Name of the document type definition to use for checking.  If unspecified, the
+type is detected from the file content.  Currently supported values for XHTML:
+
+  - XHTML 1.0 Strict
+  - XHTML 1.0 Transitional
+  - XHTML 1.0 Frameset
+  - XHTML 1.1
+  - XHTML + RDFa
+  - XHTML Basic 1.0
+  - XHTML Basic 1.1
+  - XHTML Mobile Profile 1.2
+  - XHTML-Print 1.0
+  - XHTML 1.1 plus MathML 2.0
+  - XHTML 1.1 plus MathML 2.0 plus SVG 1.1
+
+References:
+
+    https://github.com/w3c/markup-validator/blob/master/htdocs/doctype-select.html
+    https://github.com/w3c/markup-validator/blob/master/htdocs/config/types.conf
+
+                                                  *'g:syntastic_xhtml_w3_exec'*
+Type: string
+Default: "curl"
+Path to the "cURL" executable. Override it with a full path if your "cURL" is
+not installed in a standard location.
+
+This checker doesn't call the "makeprgBuild()" function, and thus it ignores
+the usual 'g:syntastic_xhtml_w3_<option>' variables. The only exception is
+'g:syntastic_xhtml_w3_exec', which can be used to override the path to the
+"cURL" executable.
+
+Note~
+
+Non-zero exit codes from "cURL" are typically network errors, and are signaled
+by syntastic with messages such as: >
+    syntastic: error: checker xhtml/w3 returned abnormal status 26
+<
+You can lookup the meaning of these codes in cURL's manual:
+    
+    https://curl.haxx.se/docs/manpage.xhtml#EXIT
+
+See also: |syntastic-html-w3|, |syntastic-svg-w3|.
 
 ==============================================================================
 SYNTAX CHECKERS FOR XML                               *syntastic-checkers-xml*

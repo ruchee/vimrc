@@ -93,6 +93,22 @@ function! s:current_hunk() abort
   return current_hunk
 endfunction
 
+" Returns truthy if the cursor is in two hunks (which can only happen if the
+" cursor is on the first line and lines above have been deleted and lines
+" immediately below have been deleted) or falsey otherwise.
+function! s:cursor_in_two_hunks()
+  let hunks = gitgutter#hunk#hunks(bufnr(''))
+
+  if line('.') == 1 && len(hunks) > 1 && hunks[0][2:3] == [0, 0] && hunks[1][2:3] == [1, 0]
+    return 1
+  endif
+
+  return 0
+endfunction
+
+" A line can be in 0 or 1 hunks, with the following exception: when the first
+" line(s) of a file has been deleted, and the new second line (and
+" optionally below) has been deleted, the new first line is in two hunks.
 function! gitgutter#hunk#cursor_in_hunk(hunk) abort
   let current_line = line('.')
 
@@ -106,6 +122,30 @@ function! gitgutter#hunk#cursor_in_hunk(hunk) abort
 
   return 0
 endfunction
+
+
+function! gitgutter#hunk#in_hunk(lnum)
+  " Hunks are sorted in the order they appear in the buffer.
+  for hunk in gitgutter#hunk#hunks(bufnr(''))
+    " if in a hunk on first line of buffer
+    if a:lnum == 1 && hunk[2] == 0
+      return 1
+    endif
+
+    " if in a hunk generally
+    if a:lnum >= hunk[2] && a:lnum < hunk[2] + (hunk[3] == 0 ? 1 : hunk[3])
+      return 1
+    endif
+
+    " if hunk starts after the given line
+    if a:lnum < hunk[2]
+      return 0
+    endif
+  endfor
+
+  return 0
+endfunction
+
 
 function! gitgutter#hunk#text_object(inner) abort
   let hunk = s:current_hunk()
@@ -158,6 +198,17 @@ function! s:hunk_op(op)
 
     if empty(s:current_hunk())
       call gitgutter#utility#warn('cursor is not in a hunk')
+    elseif s:cursor_in_two_hunks()
+      let choice = input('Choose hunk: upper or lower (u/l)? ')
+      " Clear input
+      normal! :<ESC>
+      if choice =~ 'u'
+        call a:op(gitgutter#diff#hunk_diff(bufnr, diff, 0))
+      elseif choice =~ 'l'
+        call a:op(gitgutter#diff#hunk_diff(bufnr, diff, 1))
+      else
+        call gitgutter#utility#warn('did not recognise your choice')
+      endif
     else
       call a:op(gitgutter#diff#hunk_diff(bufnr, diff))
     endif

@@ -2170,12 +2170,37 @@ def _handle_ns(packageName, path_item):
         return None
 
     if PY3:
-        loader = importer.find_module(packageName)
+        # For python:
+        # * since python 3.3, the `imp.find_module()` is deprecated
+        # * `importlib.util.find_spec()` is new in python 3.4
+        #
+        # For vim:
+        # * if it compiled with python 3.7 or newer, then the module 'vim' will
+        # use `find_spec` instead of `find_module` and `load_module`.
+        # * if it compiled with feature `+python3/dyn`, vim can load a python
+        # dynamically. The loaded python maybe has a different version compared
+        # with the python used when compiling vim.
+        #
+        # As these reason, it's hard to say we should use `find_spec` or
+        # `find_module`, so here use try/except for the sake of clearness of
+        # the logic.
+        #
+        # As `find_module` is deprecated for newer python, we try `find_spec`
+        # first.
+        try:
+            spec = importer.find_spec(packageName)
+            if spec:
+                loader = spec.loader
+            else:
+                return None
+        except AttributeError:
+            loader = importer.find_module(packageName)
     else:
         try:
             loader = importer.find_module(packageName)
         except ImportError:
-            loader = None
+            return None
+
     if loader is None:
         return None
 

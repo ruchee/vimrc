@@ -26,6 +26,7 @@ let acVersion = "0.34.0"
 Target "FSharp.AutoComplete" (fun _ ->
   CreateDir vimBinDir
   use client = new WebClient()
+  Net.ServicePointManager.SecurityProtocol <- Net.SecurityProtocolType.Tls12
   tracefn "Downloading version %s of FSharp.AutoComplete" acVersion
   client.DownloadFile(sprintf "https://github.com/fsharp/FSharp.AutoComplete/releases/download/%s/%s" acVersion acArchive, vimBinDir @@ acArchive)
   tracefn "Download complete"

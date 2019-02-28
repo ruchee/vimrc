@@ -89,9 +89,17 @@ function! s:KubeFileOp(op, wholeDir)
   endif
 endfunction
 
+fun! s:KubeRecreate()
+  let g:kubernetes_no_async="true"
+  call s:KubeFileOp('delete', 0)
+  unlet g:kubernetes_no_async
+  call s:KubeFileOp('create', 0)
+endf
+
 command! KubeApply call s:KubeFileOp('apply', 0)
 command! KubeDelete call s:KubeFileOp('delete', 0)
 command! KubeCreate call s:KubeFileOp('create', 0)
+command! KubeRecreate call s:KubeRecreate()
 
 command! KubeApplyDir call s:KubeFileOp('apply', 1)
 command! KubeDeleteDir call s:KubeFileOp('delete', 1)

@@ -734,7 +734,7 @@ function! s:MarkdownHighlightSources(force)
                 let include = '@' . toupper(filetype)
             endif
             let command = 'syntax region %s matchgroup=%s start="^\s*```\s*%s$" matchgroup=%s end="\s*```$" keepend contains=%s%s'
-            execute printf(command, group, startgroup, ft, endgroup, include, has('conceal') && get(g:, 'vim_markdown_conceal', 1) ? ' concealends' : '')
+            execute printf(command, group, startgroup, ft, endgroup, include, has('conceal') && get(g:, 'vim_markdown_conceal', 1) && get(g:, 'vim_markdown_conceal_code_blocks', 1) ? ' concealends' : '')
             execute printf('syntax cluster mkdNonListItem add=%s', group)
 
             let b:mkd_known_filetypes[ft] = 1
@@ -768,13 +768,13 @@ endfunction
 
 
 function! s:MarkdownRefreshSyntax(force)
-    if &filetype == 'markdown' && line('$') > 1
+    if &filetype =~ 'markdown' && line('$') > 1
         call s:MarkdownHighlightSources(a:force)
     endif
 endfunction
 
 function! s:MarkdownClearSyntaxVariables()
-    if &filetype == 'markdown'
+    if &filetype =~ 'markdown'
         unlet! b:mkd_included_filetypes
     endif
 endfunction

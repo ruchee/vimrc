@@ -26,6 +26,7 @@ function! s:Creator._bindMappings()
     command! -buffer -nargs=0 ClearAllBookmarks call g:NERDTreeBookmark.ClearAll() <bar> call b:NERDTree.render()
     command! -buffer -nargs=0 ReadBookmarks call g:NERDTreeBookmark.CacheBookmarks(0) <bar> call b:NERDTree.render()
     command! -buffer -nargs=0 WriteBookmarks call g:NERDTreeBookmark.Write()
+    command! -buffer -nargs=0 EditBookmarks call g:NERDTreeBookmark.Edit()
 endfunction
 
 " FUNCTION: s:Creator._broadcastInitEvent() {{{1
@@ -33,7 +34,7 @@ function! s:Creator._broadcastInitEvent()
     silent doautocmd User NERDTreeInit
 endfunction
 
-" FUNCTION: s:Creator.BufNamePrefix() {{{2
+" FUNCTION: s:Creator.BufNamePrefix() {{{1
 function! s:Creator.BufNamePrefix()
     return 'NERD_tree_'
 endfunction

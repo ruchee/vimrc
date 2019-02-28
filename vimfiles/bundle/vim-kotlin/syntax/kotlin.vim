@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language: Kotlin
 " Maintainer: Alexander Udalov
-" Latest Revision: 23 November 2017
+" Latest Revision: 14 January 2019
 
 if exists("b:current_syntax")
     finish
@@ -19,7 +19,7 @@ syn keyword ktException try catch finally throw
 syn keyword ktInclude import package
 
 syn keyword ktType Any Boolean Byte Char Double Float Int Long Nothing Short Unit
-syn keyword ktModifier annotation companion enum inner internal private protected public abstract final open override sealed vararg dynamic header impl expect actual
+syn keyword ktModifier annotation companion enum inner internal private protected public abstract final open override sealed vararg dynamic expect actual
 syn keyword ktStructure class object interface typealias fun val var constructor init
 
 syn keyword ktReservedKeyword typeof
@@ -34,6 +34,12 @@ syn match ktShebang "\v^#!.*$"
 syn match ktLineComment "\v//.*$" contains=ktTodo,@Spell
 syn region ktComment matchgroup=ktCommentMatchGroup start="/\*" end="\*/" contains=ktComment,ktTodo,@Spell
 
+syn region ktDocComment start="/\*\*" end="\*/" contains=ktDocTag,ktTodo,@Spell
+syn match ktDocTag "\v\@(author|constructor|receiver|return|since|suppress)>" contained
+syn match ktDocTag "\v\@(exception|param|property|throws|see|sample)>\s*\S+" contains=ktDocTagParam contained
+syn match ktDocTagParam "\v(\s|\[)\S+" contained
+syn match ktComment "/\*\*/"
+
 syn match ktSpecialCharError "\v\\." contained
 syn match ktSpecialChar "\v\\([tbnr'"$\\]|u\x{4})" contained
 syn region ktString start='"' skip='\\"' end='"' contains=ktSimpleInterpolation,ktComplexInterpolation,ktSpecialChar,ktSpecialCharError
@@ -47,11 +53,11 @@ syn match ktAnnotation "\v(\w)@<!\@[[:alnum:]_.]*(:[[:alnum:]_.]*)?"
 syn match ktLabel "\v\w+\@"
 
 syn match ktSimpleInterpolation "\v\$\h\w*" contained
-syn region ktComplexInterpolation matchgroup=ktComplexInterpolationBrace start="\v\$\{" end="\v\}" contains=ALLBUT,ktSimpleInterpolation
+syn region ktComplexInterpolation matchgroup=ktComplexInterpolationBrace start="\v\$\{" end="\v\}" contains=ALLBUT,ktSimpleInterpolation,ktTodo,ktSpecialCharError,ktSpecialChar,ktDocTag,ktDocTagParam
 
-syn match ktNumber "\v<\d+[_[:digit:]]*[LFf]?"
-syn match ktNumber "\v<0[Xx]\x+[_[:xdigit:]]*L?"
-syn match ktNumber "\v<0[Bb][01]+[_01]*L?"
+syn match ktNumber "\v<\d+[_[:digit:]]*(uL?|UL?|[LFf])?"
+syn match ktNumber "\v<0[Xx]\x+[_[:xdigit:]]*(uL?|UL?|L)?"
+syn match ktNumber "\v<0[Bb][01]+[_01]*(uL?|UL?|L)?"
 syn match ktFloat "\v<\d*(\d[eE][-+]?\d+|\.\d+([eE][-+]?\d+)?)[Ff]?"
 
 syn match ktEscapedName "\v`.*`"
@@ -84,6 +90,9 @@ hi link ktShebang Comment
 hi link ktLineComment Comment
 hi link ktComment Comment
 hi link ktCommentMatchGroup Comment
+hi link ktDocComment Comment
+hi link ktDocTag Special
+hi link ktDocTagParam Identifier
 
 hi link ktSpecialChar SpecialChar
 hi link ktSpecialCharError Error

@@ -104,21 +104,30 @@ function! airline#extensions#tabline#tabs#map_keys()
   if maparg('<Plug>AirlineSelectTab1', 'n') is# ':1tabn<CR>'
     return
   endif
-  noremap <silent> <Plug>AirlineSelectTab1 :1tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab2 :2tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab3 :3tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab4 :4tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab5 :5tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab6 :6tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab7 :7tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab8 :8tabn<CR>
-  noremap <silent> <Plug>AirlineSelectTab9 :9tabn<CR>
+  let bidx_mode = get(g:, 'airline#extensions#tabline#buffer_idx_mode', 1)
+  if bidx_mode == 1
+    for i in range(1, 9)
+      exe printf('noremap <silent> <Plug>AirlineSelectTab%d :%dtabn<CR>', i, i)
+    endfor
+  else
+      for i in range(11, 99)
+        exe printf('noremap <silent> <Plug>AirlineSelectTab%d :%dtabn<CR>', i, i-10)
+      endfor
+    endif
   noremap <silent> <Plug>AirlineSelectPrevTab gT
   " tabn {count} goes to count tab does not go {count} tab pages forward!
   noremap <silent> <Plug>AirlineSelectNextTab :<C-U>exe repeat(':tabn\|', v:count1)<cr>
 endfunction
 
-function! airline#extensions#tabline#tabs#tabnr_formatter(nr, i)
+function! airline#extensions#tabline#tabs#tabnr_formatter(nr, i) abort
   let formatter = get(g:, 'airline#extensions#tabline#tabnr_formatter', 'tabnr')
-  return airline#extensions#tabline#formatters#{formatter}#format(a:nr, a:i)
+  try
+    return airline#extensions#tabline#formatters#{formatter}#format(a:nr, a:i)
+  catch /^Vim\%((\a\+)\)\=:E117/	" catch E117, unknown function
+    " Function not found
+    return call(formatter, [a:nr, a:i])
+  catch
+    " something went wrong, return an empty string
+    return ""
+  endtry
 endfunction

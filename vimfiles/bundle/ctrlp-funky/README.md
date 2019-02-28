@@ -1,7 +1,6 @@
 ctrlp-funky
 ============
 A super simple function navigator for ctrlp.vim.  
-For lazy people who cannot wait until ctags finishes.
 
 SYNOPSIS
 ----------
@@ -26,7 +25,7 @@ INSTALLATION
 ----------
 
 ### Plugin managers
-It is recommended to install the plugin using plugin managers such as vim-plug, pathogen, Vundle, Dein.vim etc.
+It is recommended to install the plugin using plugin managers such as minpac, vim-plug, pathogen, Vundle, Dein.vim etc.
 You can copy/paste a line below if you use vim-plug:
 `Plug 'tacahiroy/ctrlp-funky'`
 

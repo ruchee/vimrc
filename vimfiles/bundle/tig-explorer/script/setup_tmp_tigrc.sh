@@ -1,27 +1,30 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]; then
-  echo "require 3 argument"
+if [ $# -ne 7 ]; then
+  echo "require 7 argument"
   exit 1
 fi
 orig_tigrc=$1
 tmp_tigrc=$2
 path_file=$3
+keymap_edit=$4
+keymap_tabedit=$5
+keymap_split=$6
+keymap_vsplit=$7
 
 # make temporary tigrc
 cp "$orig_tigrc" "$tmp_tigrc"
 
 # Overwriting temporary tigrc
 
-edit_cmd='edit' # edit on existing tab
-echo "bind generic e <sh -c \"echo $edit_cmd +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
-echo "bind generic <C-o> <sh -c \"echo $edit_cmd +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
+# $1: 'keymap'
+# $2: 'edit_cmd'
+function add_custom_command() {
+  echo "bind generic $1 <sh -c \"echo $2 +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
+}
 
-edit_cmd='tabedit' # edit on new tab
-echo "bind generic <C-t> <sh -c \"echo $edit_cmd +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
-
-edit_cmd='vsplit' # edit with vsplit
-echo "bind generic <C-v> <sh -c \"echo $edit_cmd +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
-
-edit_cmd='split' # edit with split
-echo "bind generic <C-s> <sh -c \"echo $edit_cmd +%(lineno) %(file) > $path_file\"" >> "$tmp_tigrc"
+add_custom_command "e"               "edit"
+add_custom_command "$keymap_edit"    "edit"
+add_custom_command "$keymap_tabedit" "tabedit"
+add_custom_command "$keymap_split"   "split"
+add_custom_command "$keymap_vsplit"  "vsplit"

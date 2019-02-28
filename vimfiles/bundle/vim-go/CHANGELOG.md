@@ -30,6 +30,13 @@ IMPROVEMENTS:
   [[GH-2122]](https://github.com/fatih/vim-go/pull/2122)
 * Highlight fields followed by an operator when `g:go_highlight_fields` is set.
   [[GH-1907]](https://github.com/fatih/vim-go/pull/1907)
+* Skip autosave actions when the buffer is not a readable file.
+  [[GH-2143]](https://github.com/fatih/vim-go/pull/2143)
+* Run `godef` from the current buffer's directory to make sure it works with modules.
+  [[GH-2150]](https://github.com/fatih/vim-go/pull/2150)
+* Add a function, `go#tool#DescribeBalloon`, to show information in a balloon
+  with `'balloonexpr`. (Vim8 only).
+  [[GH-1975]](https://github.com/fatih/vim-go/pull/1975)
 
 BUG FIXES:
 * Fix opening of non-existent file from `:GoDeclsDir` when the current
@@ -57,6 +64,8 @@ BUG FIXES:
   [[GH-2126]](https://github.com/fatih/vim-go/pull/2126)
 * Fix race conditions in `:GoDebugStop`.
   [[GH-2127]](https://github.com/fatih/vim-go/pull/2127)
+* Fix jumping to module or package using godef.
+  [[GH-2141]](https://github.com/fatih/vim-go/pull/2141)
 
 ## 1.19 - (November 4, 2018)
 
@@ -252,7 +261,7 @@ BUG FIXES:
 FEATURES:
 
 * **Debugger support!** Add integrated support for the
-  [`delve`](https://github.com/derekparker/delve) debugger. Use
+  [`delve`](https://github.com/go-delve/delve) debugger. Use
   `:GoInstallBinaries` to install `dlv`, and see `:help go-debug` to get
   started.
   [[GH-1390]](https://github.com/fatih/vim-go/pull/1390)

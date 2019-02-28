@@ -13,6 +13,7 @@ let g:indentLine_loaded = 1
 let g:indentLine_newVersion = get(g:,'indentLine_newVersion',v:version > 704 || v:version == 704 && has("patch792"))
 
 let g:indentLine_char = get(g:, 'indentLine_char', (&encoding ==# "utf-8" && &term isnot# "linux" ? '¦' : '|'))
+let g:indentLine_char_list = get(g:, 'indentLine_char_list', [])
 let g:indentLine_first_char = get(g:, 'indentLine_first_char', (&encoding ==# "utf-8" && &term isnot# "linux" ? '¦' : '|'))
 let g:indentLine_indentLevel = get(g:, 'indentLine_indentLevel', 20)
 let g:indentLine_enabled = get(g:, 'indentLine_enabled', 1)
@@ -48,8 +49,8 @@ function! s:InitColor()
 
     if g:indentLine_defaultGroup != ""
         let default_id = synIDtrans(hlID(g:indentLine_defaultGroup))
-        let default_term_fg = synIDattr(default_id, "fg", "term") == "" ? default_term_fg :  synIDattr(default_id, "fg", "term")
-        let default_term_bg = synIDattr(default_id, "bg", "term") == "" ? default_term_bg :  synIDattr(default_id, "bg", "term")
+        let default_term_fg = synIDattr(default_id, "fg", "cterm") == "" ? default_term_fg :  synIDattr(default_id, "fg", "cterm")
+        let default_term_bg = synIDattr(default_id, "bg", "cterm") == "" ? default_term_bg :  synIDattr(default_id, "bg", "cterm")
         let default_gui_fg = synIDattr(default_id, "fg", "gui") == "" ? default_gui_fg :  synIDattr(default_id, "fg", "gui")
         let default_gui_bg = synIDattr(default_id, "bg", "gui") == "" ? default_gui_bg :  synIDattr(default_id, "bg", "gui")
     endif
@@ -139,8 +140,16 @@ function! s:IndentLinesEnable()
         endif
 
         let space = &l:shiftwidth == 0 ? &l:tabstop : &l:shiftwidth
+        let n = len(g:indentLine_char_list)
+        let level = 0
         for i in range(space+1, space * g:indentLine_indentLevel + 1, space)
-            call add(w:indentLine_indentLineId, matchadd('Conceal', '^\s\+\zs\%'.i.'v ', 0, -1, {'conceal': g:indentLine_char}))
+            if n > 0
+                let char = g:indentLine_char_list[level % n]
+                let level += 1
+            else
+                let char = g:indentLine_char
+            endif
+            call add(w:indentLine_indentLineId, matchadd('Conceal', '^\s\+\zs\%'.i.'v ', 0, -1, {'conceal': char}))
         endfor
 
         return

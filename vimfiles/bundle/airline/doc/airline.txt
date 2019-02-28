@@ -143,7 +143,7 @@ values):
   let g:airline_inactive_collapse=1
 <
 * Use alternative seperators for the statusline of inactive windows >
-  let g:airline_inactive_alt_sep=1 
+  let g:airline_inactive_alt_sep=1
 <
 * themes are automatically selected based on the matching colorscheme. this
   can be overridden by defining a value. >
@@ -228,10 +228,22 @@ values):
 <
 * configure the fileformat output
   By default, it will display something like 'utf-8[unix]', however, you can
-  skip displaying it, if the output matches a configured string. To do so,
-  set >
+  skip displaying it, if the output matches a configured string. To do so, set >
   let g:airline#parts#ffenc#skip_expected_string='utf-8[unix]'
 <
+* Display the statusline in the tabline (first top line): >
+  let g:airline_statusline_ontop = 1
+<
+  Setting this option, allows to use the statusline option to be used by
+  a custom function or another plugin, since airline won't change it.
+
+  Note: This setting is experimental and works on a best effort approach.
+  Updating the statusline might not always happen as fast as needed, but that
+  is a limitation, that comes from Vim. airline tries to force an update if
+  needed, but it might not always work as expected.
+  To force updating the tabline on mode changes, call `airline#check_mode()`
+  in your custom statusline setting, so `:set stl=%!airline#check_mode(winnr())`
+  will correctly update the tabline on mode changes.
 ==============================================================================
 COMMANDS                                                  *airline-commands*
 
@@ -358,7 +370,7 @@ The "!" prevents terminal buffers to appear in the tabline.
 
                                 *airline#extensions#tabline#exclude_buffers*
 Buffer numbers to be excluded from showing in the tabline (similar to
-|airline#ignore_bufadd_pat|.
+|airline#ignore_bufadd_pat|).
 
 ==============================================================================
 EXTENSIONS                                              *airline-extensions*
@@ -599,6 +611,9 @@ It is deactivated by default if |airline-bufferline| is activated.
 * enable/disable bufferline integration >
   let g:airline#extensions#fugitiveline#enabled = 1
 <
+If enabled, the buffer that comes from fugitive, will have added a trailing
+"[git]" to be able do distinguish between fugitive and non-fugitive buffers.
+
 -------------------------------------                     *airline-grepper*
 vim-grepper <https://github.com/mhinz/vim-grepper>
 
@@ -616,6 +631,10 @@ vim-gitgutter <https://github.com/airblade/vim-gitgutter>
 vim-signify <https://github.com/mhinz/vim-signify>
 changesPlugin <https://github.com/chrisbra/changesPlugin>
 quickfixsigns <https://github.com/tomtom/quickfixsigns_vim>
+
+You can use `airline#extensions#hunks#get_raw_hunks()` to get the full hunks,
+without shortening. This allows for advanced customization, or a quick way of
+querying how many changes you got. It will return something like '+4 ~2 -1'.
 
 * enable/disable showing a summary of changed hunks under source control. >
   let g:airline#extensions#hunks#enabled = 1
@@ -755,13 +774,13 @@ syntastic <https://github.com/vim-syntastic/syntastic>
   let airline#extensions#syntastic#error_symbol = 'E:'
 <
 * syntastic statusline error format (see |syntastic_stl_format|) >
-  let airline#extensions#syntastic#stl_format_err = '%E{[%e(#%fe)]}'
+  let airline#extensions#syntastic#stl_format_err = '%E{[%fe(#%e)]}'
 
 * syntastic warning >
   let airline#extensions#syntastic#warning_symbol = 'W:'
 <
 * syntastic statusline warning format (see |syntastic_stl_format|) >
-  let airline#extensions#syntastic#stl_format_warn = '%W{[%w(#%fw)]}'
+  let airline#extensions#syntastic#stl_format_warn = '%W{[%fw(#%w)]}'
 <
 -------------------------------------                      *airline-tabline*
 Note: If you're using the ctrlspace tabline only the option marked with (c)
@@ -809,6 +828,13 @@ with the middle mouse button to delete that buffer.
 
   Note: last option can be used to specify a different formatter for
   displaying the numbers. By default tabline/formatter/tabnr.vim is used
+  The argument of that setting should either be a filename that exists
+  autoload/airline/extensions/tabline/formatter/ (without .vim extension)
+  and needs to provide a format() function. Alternatively you can use a
+  custom function name, that is defined e.g. in your .vimrc file. In any
+  case, the function needs to take 2 arguments, tab_nr_type and tabpage
+  number.
+  For an example, have a look at the default tabline/formatter/tabnr.vim
 <
 * enable/disable displaying tab number in tabs mode. >
   let g:airline#extensions#tabline#show_tab_nr = 1
@@ -837,9 +863,10 @@ with the middle mouse button to delete that buffer.
 
 * enable/disable displaying index of the buffer.
 
-  When enabled, numbers will be displayed in the tabline and mappings will be
-  exposed to allow you to select a buffer directly. Up to 11 mappings will be
-  exposed. >
+  `buffer_idx_mode` allows 2 different modes to access buffers from the
+  tabline. When enabled, numbers will be displayed in the tabline and mappings
+  will be exposed to allow you to select a buffer directly.
+  In default mode, when the variable is 1 Up to 11 mappings will be exposed: >
 
   let g:airline#extensions#tabline#buffer_idx_mode = 1
   nmap <leader>1 <Plug>AirlineSelectTab1
@@ -854,17 +881,34 @@ with the middle mouse button to delete that buffer.
   nmap <leader>- <Plug>AirlineSelectPrevTab
   nmap <leader>+ <Plug>AirlineSelectNextTab
 <
+  In mode 2, (when the variable is 2) 89 mappings will be exposed
+  (Note: To avoid ambiguity, there won't be <Plug>AirlineSelectTab1
+  - <Plug>AirlineSelectTab9 maps): >
+
+  let g:airline#extensions#tabline#buffer_idx_mode = 2
+  nmap <Leader>10 <Plug>AirlineSelectTab10
+  nmap <Leader>11 <Plug>AirlineSelectTab11
+  nmap <Leader>12 <Plug>AirlineSelectTab12
+  nmap <Leader>13 <Plug>AirlineSelectTab13
+  ...
+  nmap <Leader>99 <Plug>AirlineSelectTab99
+<
   The <Plug>AirlineSelect<Prev/Next>Tab mapping handles counts as well,
   so one can handle arbirtrarily number of buffers/tabs.
 
-  Note: Mappings will be ignored within "g:airline#extensions#tabline#keymap_ignored_filetypes".
+  Note: Mappings will be ignored for filetypes that match
+  `g:airline#extensions#tabline#keymap_ignored_filetypes`.
 
   Note: In buffer_idx_mode these mappings won't change the
-  current tab, but switch to the buffer visible in that tab.
+  current tab, but switch to the buffer `visible` in the current tab.
+  If you want to switch to a buffer, that is not visible use the
+  `AirlineSelectPrev/NextTab` mapping (it supports using a count).
   Use |gt| for switching tabs.
-  In tabmode, those mappings will switch to the specified tab.
+  In tabmode, those mappings will be exposed as well and will switch
+  to the specified tab.
 
-* define the set of filetypes which are ignored selectTab keymappings >
+* define the set of filetypes which are ignored for the selectTab
+  keymappings: >
   let g:airline#extensions#tabline#keymap_ignored_filetypes = ['vimfiler', 'nerdtree']
 
 * change the display format of the buffer index >
@@ -963,7 +1007,8 @@ Note: Enabling this extension will modify 'showtabline' and 'guioptions'.
    won't update airline on |:badd| commands) >
   let airline#extensions#tabline#disable_refresh = 0
 
-* preserve windows when closing a buffer from the bufferline (default: 0) >
+* preserve windows when closing a buffer from the bufferline (neovim specific,
+  only works with buffers and not real tabs, default: 0) >
   let airline#extensions#tabline#middle_click_preserves_windows = 1
 <
 -------------------------------------                        *airline-taboo*
@@ -1116,7 +1161,7 @@ virtualenv <https://github.com/jmcantrell/vim-virtualenv>
   " (see above at g:airline#extensions#whitespace#checks)
   " To disable mixed-indent-file for go files use:
   let g:airline#extensions#whitespace#skip_indent_check_ft = {'go': ['mixed-indent-file']}
-<  
+<
 -------------------------------------                   *airline-windowswap*
 vim-windowswap <https://github.com/wesQ3/vim-windowswap>
 
@@ -1548,6 +1593,6 @@ Contributions and pull requests are welcome.
 ==============================================================================
 LICENSE                                                    *airline-license*
 
-MIT License.  Copyright © 2013-2017 Bailey Ling, Christian Brabandt
+MIT License.  Copyright © 2013-2018 Bailey Ling, Christian Brabandt et al.
 
  vim:tw=78:ts=8:ft=help:norl:
