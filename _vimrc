@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2019-02-28 14:02:38
+" -----------------    Date: 2019-04-19 17:54:39
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -257,6 +257,9 @@ au FileType rust nmap <leader>gd <Plug>(rust-doc)
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
+
+" 忽略 Go 插件的版本警告
+let g:go_version_warning = 0
 
 " JSX 文件必须匹配完整的扩展名才以 JSX 语法渲染
 let g:jsx_ext_required = 1
