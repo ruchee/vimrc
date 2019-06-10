@@ -205,6 +205,42 @@ function! s:CygwinPath(path)
    return substitute(a:path, '\\', '/', "g")
 endfunction
 
+" go#path#ToURI converts path to a file URI. path should be an absolute path.
+" Relative paths cannot be properly converted to a URI; when path is a
+" relative path, the file scheme will not be prepended.
+function! go#path#ToURI(path)
+  let l:absolute = !go#util#IsWin() && a:path[0] is# '/'
+  let l:prefix = ''
+  let l:path = a:path
+
+  if go#util#IsWin() && l:path[1:2] is# ':\'
+    let l:absolute = 1
+    let l:prefix = '/' . l:path[0:1]
+    let l:path = l:path[2:]
+  endif
+
+  return substitute(
+  \   (l:absolute ? 'file://' : '') . l:prefix . go#uri#EncodePath(l:path),
+  \   '\\',
+  \   '/',
+  \   'g',
+  \)
+endfunction
+
+function! go#path#FromURI(uri) abort
+    let l:i = len('file://')
+    let l:encoded_path = a:uri[: l:i - 1] is# 'file://' ? a:uri[l:i :] : a:uri
+
+    let l:path = go#uri#Decode(l:encoded_path)
+
+    " If the path is like /C:/foo/bar, it should be C:\foo\bar instead.
+    if go#util#IsWin() && l:path =~# '^/[a-zA-Z]:'
+        let l:path = substitute(l:path[1:], '/', '\\', 'g')
+    endif
+
+    return l:path
+endfunction
+
 " restore Vi compatibility settings
 let &cpo = s:cpo_save
 unlet s:cpo_save

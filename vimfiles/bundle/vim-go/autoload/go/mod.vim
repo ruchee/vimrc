@@ -7,11 +7,15 @@ let s:go_major_version = ""
 function! go#mod#Format() abort
   " go mod only exists in `v1.11`
   if empty(s:go_major_version)
-    let tokens = matchlist(go#util#System("go version"), '\d\+.\(\d\+\)\(\.\d\+\)\? ')
-    let s:go_major_version = str2nr(tokens[1])
+    let tokens = matchlist(go#util#Exec(['go', 'version']), '\d\+.\(\d\+\)\(\.\d\+\)\? ')
+    if len(tokens) > 0
+      let s:go_major_version = str2nr(tokens[1])
+    else
+      let s:go_major_version = ""
+    endif
   endif
 
-  if s:go_major_version < "11" 
+  if !empty(s:go_major_version) && s:go_major_version < "11"
     call go#util#EchoError("Go v1.11 is required to format go.mod file")
     return
   endif

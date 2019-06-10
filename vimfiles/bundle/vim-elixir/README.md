@@ -9,8 +9,10 @@
 Features:
 
 * Syntax highlighting for Elixir and EEx files
-* Filetype detection for `.ex`, `.exs` and `.eex` files
+* Filetype detection for `.ex`, `.exs`, `.eex` and `.leex` files
 * Automatic indentation
+* Integration between Ecto projects and [vim-dadbod][] for running SQL queries
+  on defined Ecto repositories
 
 ## Installation
 
@@ -19,7 +21,7 @@ Features:
 ```bash
 # vim 8 native package loading
 # http://vimhelp.appspot.com/repeat.txt.html#packages
-git clone https://github.com/elixir-lang/vim-elixir.git ~/.vim/pack/my-packages/start
+git clone https://github.com/elixir-lang/vim-elixir.git ~/.vim/pack/my-packages/start/vim-elixir
 ```
 
 ```bash
@@ -53,4 +55,7 @@ We've decided not to include `mix format` integration into `vim-elixir`. If you'
 ## Development
 
 Run the tests: `bundle exec parallel_rspec spec`
-Spawn a vim instance with dev configs: `bin/spawn_vim`
+
+Spawn a container with vim and dev configs: `docker-compose build && docker-compose run vim`
+
+[vim-dadbod]: https://github.com/tpope/vim-dadbod

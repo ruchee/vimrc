@@ -2749,6 +2749,8 @@ details:
 
     http://community.haskell.org/~ndm/hlint/
 
+Syntastic requires "hlint" version 1.9.4 or later.
+
 Checker options~
 
 This checker is initialised using the "makeprgBuild()" function and thus it
@@ -4813,7 +4815,8 @@ project's page for details:
 
     http://rakudo.org/
 
-Syntastic requires Rakudo Star release 2017.01 or later.
+Syntastic requires Rakudo Star release 2018.08 or later. Syntastic can't
+enforce this, since it can't reliably compare Rakudo Star versions.
 
 Security~
 
@@ -4950,7 +4953,7 @@ Name:        phpstan
 Maintainer:  Przepompownia <przepompownia@users.noreply.github.com>
 
 "PHPStan" focuses on finding errors in your code without actually running it.
-See the project's page iat GitHub for details:
+See the project's page at GitHub for details:
 
     https://github.com/phpstan/phpstan
 

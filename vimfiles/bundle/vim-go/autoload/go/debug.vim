@@ -12,7 +12,6 @@ if !exists('s:state')
       \ 'localVars': {},
       \ 'functionArgs': {},
       \ 'message': [],
-      \ 'is_test': 0,
       \}
 
   if go#util#HasDebug('debugger-state')
@@ -282,7 +281,7 @@ function! go#debug#Stop() abort
   silent! exe bufwinnr(bufnr('__GODEBUG_OUTPUT__')) 'wincmd c'
 
   if has('balloon_eval')
-    let &noballooneval=s:ballooneval
+    let &ballooneval=s:ballooneval
     let &balloonexpr=s:balloonexpr
   endif
 
@@ -507,23 +506,7 @@ function! s:out_cb(ch, msg) abort
     if has('nvim')
       let s:state['data'] = []
       let l:state = {'databuf': ''}
-      function! s:on_data(ch, data, event) dict abort closure
-        let l:data = self.databuf
-        for msg in a:data
-          let l:data .= l:msg
-        endfor
 
-        try
-          let l:res = json_decode(l:data)
-          let s:state['data'] = add(s:state['data'], l:res)
-          let self.databuf = ''
-        catch
-          " there isn't a complete message in databuf: buffer l:data and try
-          " again when more data comes in.
-          let self.databuf = l:data
-        finally
-        endtry
-      endfunction
       " explicitly bind callback to state so that within it, self will
       " always refer to state. See :help Partial for more information.
       let l:state.on_data = function('s:on_data', [], l:state)
@@ -560,6 +543,24 @@ function! s:out_cb(ch, msg) abort
   endif
 endfunction
 
+function! s:on_data(ch, data, event) dict abort
+  let l:data = self.databuf
+  for l:msg in a:data
+    let l:data .= l:msg
+  endfor
+
+  try
+    let l:res = json_decode(l:data)
+    let s:state['data'] = add(s:state['data'], l:res)
+    let self.databuf = ''
+  catch
+    " there isn't a complete message in databuf: buffer l:data and try
+    " again when more data comes in.
+    let self.databuf = l:data
+  finally
+  endtry
+endfunction
+
 " Start the debug mode. The first argument is the package name to compile and
 " debug, anything else will be passed to the running program.
 function! go#debug#Start(is_test, ...) abort
@@ -587,50 +588,54 @@ function! go#debug#Start(is_test, ...) abort
   endif
 
   try
-    if len(a:000) > 0
-      let l:pkgname = a:1
-      if l:pkgname[0] == '.'
-        let l:pkgname = go#package#FromPath(l:pkgname)
-      endif
-    else
-      let l:pkgname = go#package#FromPath(getcwd())
-    endif
-
-    if l:pkgname is -1
-      call go#util#EchoError('could not determine package name')
-      return
-    endif
-
-    " cd in to test directory; this is also what running "go test" does.
-    if a:is_test
-      " TODO(bc): Either remove this if it's ok to do so or else record it and
-      " reset cwd after the job completes.
-      lcd %:p:h
-    endif
-
-    let s:state.is_test = a:is_test
-
-    let l:args = []
-    if len(a:000) > 1
-      let l:args = ['--'] + a:000[1:]
-    endif
-
     let l:cmd = [
           \ dlv,
           \ (a:is_test ? 'test' : 'debug'),
-          \ l:pkgname,
+     \]
+
+    " append the package when it's given.
+    if len(a:000) > 0
+      let l:pkgname = a:1
+      if l:pkgname[0] == '.'
+        let l:pkgabspath = fnamemodify(l:pkgname, ':p')
+
+        let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+        let l:dir = getcwd()
+        execute l:cd fnameescape(expand('%:p:h'))
+
+        try
+          let l:pkgname = go#package#FromPath(l:pkgabspath)
+          if type(l:pkgname) == type(0)
+            call go#util#EchoError('could not determine package name')
+            return
+          endif
+        finally
+          execute l:cd fnameescape(l:dir)
+        endtry
+      endif
+
+      let l:cmd += [l:pkgname]
+    endif
+
+    let l:cmd += [
           \ '--output', tempname(),
           \ '--headless',
           \ '--api-version', '2',
-          \ '--log', '--log-output', 'debugger,rpc',
           \ '--listen', go#config#DebugAddress(),
     \]
+    let l:debugLogOutput = go#config#DebugLogOutput()
+    if l:debugLogOutput != ''
+      let cmd += ['--log', '--log-output', l:debugLogOutput]
+    endif
 
-    let buildtags = go#config#BuildTags()
+    let l:buildtags = go#config#BuildTags()
     if buildtags isnot ''
       let l:cmd += ['--build-flags', '--tags=' . buildtags]
     endif
-    let l:cmd += l:args
+
+    if len(a:000) > 1
+      let l:cmd += ['--'] + a:000[1:]
+    endif
 
     let s:state['message'] = []
     let l:opts = {
