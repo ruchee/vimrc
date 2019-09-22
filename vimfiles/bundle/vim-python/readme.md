@@ -1,4 +1,4 @@
-![](https://travis-ci.org/python-mode/python-mode.svg?branch=develop)
+[![Build Status](https://travis-ci.org/python-mode/python-mode.svg?branch=develop)](https://travis-ci.org/python-mode/python-mode)
 
 ![](https://raw.github.com/python-mode/python-mode/develop/logo.png)
 # Python-mode, a Python IDE for Vim
@@ -10,9 +10,6 @@
 **Documentation:**
 - ``:help pymode``
 - <https://github.com/python-mode/python-mode/wiki>
-
-**Please use python-mode tag on Stackoverflow to ask questions:**
-<https://stackoverflow.com/questions/tagged/python-mode>
 
 -------------------------------------------------------------------------------
 
@@ -26,7 +23,7 @@ hard coding 3rd party libraries into its codebase. Please issue the command:
 inside your python-mode folder.
 
 If you are a new user please clone the repos using the recursive flag:
-`git clone --recursive https://github.com/python-mode/python-mode`
+`git clone --recurse-submodules https://github.com/python-mode/python-mode`
 
 -------------------------------------------------------------------------------
 
@@ -70,8 +67,9 @@ The plugin contains all you need to develop python applications in Vim.
 * Go to definition (`<C-c>g`)
 * And more, more ...
 
-See a screencast here: <http://www.youtube.com/watch?v=67OZNp9Z0CQ>
-Another old presentation here: <http://www.youtube.com/watch?v=YhqsjUUHj6g>
+See a screencast here: <http://www.youtube.com/watch?v=67OZNp9Z0CQ>.
+
+Another old presentation here: <http://www.youtube.com/watch?v=YhqsjUUHj6g>.
 
 **To read python-mode documentation in Vim, use** `:help pymode`.
 
@@ -88,14 +86,16 @@ As of vim8 there is an officially supported way of adding plugins. See `:tab
 help packages` in vim for details.
 
     cd ~/.vim/pack/python-mode/start
-    git clone --recursive https://github.com/python-mode/python-mode.git
+    git clone --recurse-submodules https://github.com/python-mode/python-mode.git
     cd python-mode
 
-## Using pathogen
+Note. Windows OS users need to add `-c core.symlinks=true`. See below.
+
+## pathogen
 
     cd ~/.vim
     mkdir -p bundle && cd bundle
-    git clone --recursive https://github.com/python-mode/python-mode.git
+    git clone --recurse-submodules https://github.com/python-mode/python-mode.git
 
 
 Enable [pathogen](https://github.com/tpope/vim-pathogen) in your `~/.vimrc`:
@@ -109,16 +109,24 @@ Enable [pathogen](https://github.com/tpope/vim-pathogen) in your `~/.vimrc`:
     filetype plugin indent on
     syntax on
 
-## Using vim-plug
+## vim-plug
 
 Include the following in the [vim-plug](https://github.com/junegunn/vim-plug)
 section of your `~/.vimrc`:
 
-    Plug 'python-mode/python-mode', { 'branch': 'develop' }
+    Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+
+## NeoBundle
+
+Add the following:
+
+    " python-mode: PyLint, Rope, Pydoc, breakpoints from box.
+    " https://github.com/python-mode/python-mode
+    NeoBundleLazy 'python-mode/python-mode', { 'on_ft': 'python' }
 
 ## Manually
 
-    % git clone --recursive https://github.com/python-mode/python-mode.git
+    % git clone --recurse-submodules https://github.com/python-mode/python-mode.git
     % cd python-mode
     % cp -R * ~/.vim
 
@@ -140,6 +148,7 @@ If your question is not described there then you already know what to do
 Nevertheless just a refresher on how to submit bugs:
 
 **(From the FAQ)**
+
 Clear all python cache/compiled files (`*.pyc` files and `__pycache__`
 directory and everything under it). In Linux/Unix/MacOS you can run:
 
@@ -159,6 +168,15 @@ plugin seems broken.
 
 ***Do check for sensitive information in the file before submitting.***
 
+Please, also provide more contextual information such as:
+
+* your Operational System (Linux, WIndows, Mac) and which version
+* the `vim --version` output
+* which is your default python (`python --version`)
+* the python version that vim has loaded in your tests:
+    * `:PymodePython import sys; print(sys.version_info)` output.
+* and if you are using virtualenvs and/or conda, also state that, please.
+
 # Frequent problems
 
 Read this section before opening an issue on the tracker.
@@ -171,6 +189,26 @@ checking (e.g. for async) add:
     let g:pymode_python = 'python3'
 
 To your vimrc or exrc file.
+
+## Symlinks on Windows
+
+Users on Windows OS might need to add `-c core.symlinks=true` switch to
+correctly clone / pull repository. Example: `git clone --recurse-submodules
+https://github.com/python-mode/python-mode -c core.symlinks=true`
+
+## Error updating the plugin
+
+If you are trying to update the plugin (using a plugin manager or manually) and
+you are seeing an error such as:
+
+> Server does not allow request for unadvertised object
+
+Then we probably changed some repo reference or some of our dependencies had a
+`git push --force` in its git history. So the best way for you to handle it is
+to run, inside the `python-mode` directory:
+
+`git submodule update --recursive --init --force`
+`git submodule sync --recursive`
 
 # Documentation
 

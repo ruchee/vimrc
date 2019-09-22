@@ -432,9 +432,7 @@ function! s:TreeDirNode._initChildren(silent)
 
     call self.sortChildren()
 
-    if !a:silent && len(files) > g:NERDTreeNotificationThreshold
-        call nerdtree#echo("Please wait, caching a large dir ... DONE (". self.getChildCount() ." nodes cached).")
-    endif
+    call nerdtree#echo("")
 
     if invalidFilesFound
         call nerdtree#echoWarning(invalidFilesFound . " file(s) could not be loaded into the NERD tree")
@@ -525,7 +523,8 @@ endfunction
 " Open an explorer window for this node in the previous window. The explorer
 " can be a NERDTree window or a netrw window.
 function! s:TreeDirNode.openExplorer()
-    call self.open({'where': 'p'})
+    execute "wincmd p"
+    execute "edit ".self.path.str({'format':'Edit'})
 endfunction
 
 " FUNCTION: TreeDirNode.openInNewTab(options) {{{1
@@ -622,6 +621,11 @@ function! s:TreeDirNode.reveal(path, ...)
 
     if self.path.equals(a:path.getParent())
         let n = self.findNode(a:path)
+        " We may be looking for a newly-saved file that isn't in the tree yet.
+        if n == {}
+            call self.refresh()
+            let n = self.findNode(a:path)
+        endif
         if has_key(opts, "open")
             call n.open()
         endif

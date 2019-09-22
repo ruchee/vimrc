@@ -98,6 +98,14 @@ endfunction
 function! s:on_exit(job_id, exit_status, event) dict abort
   let l:winid = win_getid(winnr())
   call win_gotoid(self.winid)
+
+  " change to directory where test were run. if we do not do this
+  " the quickfix items will have the incorrect paths. 
+  " see: https://github.com/fatih/vim-go/issues/2400
+  let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+  let l:dir = getcwd()
+  execute l:cd . fnameescape(expand("%:p:h"))
+
   let l:listtype = go#list#Type("_term")
 
   if a:exit_status == 0
@@ -130,8 +138,10 @@ function! s:on_exit(job_id, exit_status, event) dict abort
   endif
 
   " close terminal; we don't need it anymore
-  call win_gotoid(self.termwinid)
-  close!
+  if go#config#TermCloseOnExit()
+    call win_gotoid(self.termwinid)
+    close!
+  endif
 
   if self.bang
     call win_gotoid(l:winid)
@@ -140,6 +150,21 @@ function! s:on_exit(job_id, exit_status, event) dict abort
 
   call win_gotoid(self.winid)
   call go#list#JumpToFirst(l:listtype)
+
+  " change back to original working directory 
+  execute l:cd l:dir
+endfunction
+
+function! go#term#ToggleCloseOnExit() abort
+  if go#config#TermCloseOnExit()
+    call go#config#SetTermCloseOnExit(0)
+    call go#util#EchoProgress("term close on exit disabled")
+    return
+  endif
+
+  call go#config#SetTermCloseOnExit(1)
+  call go#util#EchoProgress("term close on exit enabled")
+  return
 endfunction
 
 " restore Vi compatibility settings

@@ -327,6 +327,9 @@ endfunction
 
 " Sets the makeprg
 function! vaxe#SetCompiler()
+    if !g:vaxe_set_makeprg
+       return
+    endif
     let abspath = []
     let escaped_wd = fnameescape(g:vaxe_working_directory)
     let dirs = split(&tags, ",")

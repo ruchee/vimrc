@@ -159,8 +159,8 @@ endfunction
 " FUNCTION: s:Edit() {{{1
 " opens the NERDTreeBookmarks file for manual editing
 function! s:Bookmark.Edit()
-    execute "wincmd w"
-    execute "edit ".g:NERDTreeBookmarksFile
+    call nerdtree#exec("wincmd w", 1)
+    call nerdtree#exec("edit ".g:NERDTreeBookmarksFile, 1)
 endfunction
 
 " FUNCTION: Bookmark.getNode(nerdtree, searchFromAbsoluteRoot) {{{1
@@ -256,7 +256,7 @@ endfunction
 function! s:Bookmark.open(nerdtree, ...)
     let opts = a:0 ? a:1 : {}
 
-    if and(g:NERDTreeQuitOnOpen,2)
+    if nerdtree#and(g:NERDTreeQuitOnOpen,2)
         call a:nerdtree.ui.toggleShowBookmarks()
     endif
 

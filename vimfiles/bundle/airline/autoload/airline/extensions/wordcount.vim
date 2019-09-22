@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2019 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2 fdm=marker
 
 scriptencoding utf-8
@@ -6,6 +6,9 @@ scriptencoding utf-8
 " get wordcount {{{1
 if exists('*wordcount')
   function! s:get_wordcount(visual_mode_active)
+    if get(g:, 'actual_curbuf', '') != bufnr('')
+      return
+    endif
     let query = a:visual_mode_active ? 'visual_words' : 'words'
     return get(wordcount(), query, 0)
   endfunction
@@ -41,7 +44,7 @@ endfunction
 " check user-defined formatter exists with appropriate functions, otherwise
 " fall back to default
 if s:formatter !=# 'default'
-  execute 'runtime! autoload/airline/extensions/wordcount/formatters/'.s:formatter
+  execute 'runtime! autoload/airline/extensions/wordcount/formatters/'.s:formatter.'.vim'
   if !exists('*airline#extensions#wordcount#formatters#{s:formatter}#to_string')
     if !exists('*airline#extensions#wordcount#formatters#{s:formatter}#format')
       let s:formatter = 'default'
@@ -82,13 +85,14 @@ endfunction
 
 " airline functions {{{1
 " default filetypes:
-let s:filetypes = ['help', 'markdown', 'rst', 'org', 'text', 'asciidoc', 'tex', 'mail']
 function! airline#extensions#wordcount#apply(...)
-  let filetypes = get(g:, 'airline#extensions#wordcount#filetypes', s:filetypes)
+  let filetypes = get(g:, 'airline#extensions#wordcount#filetypes', 
+    \ ['asciidoc', 'help', 'mail', 'markdown', 'org', 'rst', 'tex', 'text'])
+  " export current filetypes settings to global namespace
+  let g:airline#extensions#wordcount#filetypes = filetypes
 
   " Check if filetype needs testing
-  if did_filetype() || filetypes isnot s:filetypes
-    let s:filetypes = filetypes
+  if did_filetype()
 
     " Select test based on type of "filetypes": new=list, old=string
     if type(filetypes) == get(v:, 't_list', type([]))

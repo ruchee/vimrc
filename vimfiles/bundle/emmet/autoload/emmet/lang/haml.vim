@@ -155,7 +155,7 @@ function! emmet#lang#haml#imageSize() abort
   call setline('.', substitute(matchstr(line, '^\s*') . haml, "\n", '', 'g'))
 endfunction
 
-function! emmet#lang#haml#encodeImage() abort
+function! emmet#lang#haml#imageEncode() abort
 endfunction
 
 function! emmet#lang#haml#parseTag(tag) abort
@@ -331,4 +331,7 @@ function! emmet#lang#haml#removeTag() abort
   else
     exe sn ',' (n-1) 'delete'
   endif
+endfunction
+
+function! emmet#lang#haml#mergeLines() abort
 endfunction

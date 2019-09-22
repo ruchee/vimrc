@@ -89,7 +89,7 @@ Kyo Nagashima <hail2u@gmail.com> (https://kyonagashima.com/)
 LICENSE
 -------
 
-MIT: http://hail2u.mit-license.org/2011
+MIT License
 
 
 [1]: http://www.vim.org/

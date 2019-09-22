@@ -1,18 +1,58 @@
-# Vim RAML #
+# vim-raml
+Vim syntax and language settings for RAML
 
-Provides some basic syntax highlighing for RAML files.
-Nothing fancy.
+## About
 
-## Installation ##
+vim-raml is a superset of Vim's own syntax settings for YAML, as RAML itself is a superset of YAML. Obviously, filetype detection is provided for RAML files as well to make use of the expanded syntax, as well language formatting defaults.
 
-Installation can be done via Tim Pope's [pathogen.vim](https://github.com/tpope/vim-pathogen).
-Just put this project in your `~/.vim/bundle/` directory after installing pathogen.
+The best way to showcase vim-raml is really just to show it.
 
-## Contributing ##
+This is a RAML file highlighted with Vim's default YAML highlighting, using the popular solarized-dark theme.
 
-If you have suggestions for improvement, please submit an issue.
-Bonus points for submitting a pull request instead!
+<img src="https://github.com/IN3D/vim-raml/blob/master/screenshots/yaml_highlighting.png" height="575">
 
-## Credits ##
+And this is a RAML file highlighted with vim-raml:
 
-Some of the code used in this repository comes from [Kenneth Feng](https://github.com/kennethzfeng).
+<img src="https://github.com/IN3D/vim-raml/blob/master/screenshots/raml_highlighting.png" height="575">
+
+You'll notice several changes:
+ - The RAML version header, manditory in RAML now stands out brightly, rather than looking like a comment.
+ - Parameter interpolation i.e. ```<<thing>>``` is highlighted inside of blocks and values.
+ - Delimiters and blocks i.e. ```-, |, etc``` are consistently highlighted (flaky in YAML).
+ - HTTP verbs, response codes, data types, and route definitions are all colored separately from regular keys to help immediately distingush different levels of the data structure.
+   - HTTP verbs include all that are supported by RAML: get, post, put, delete, head, patch, and options
+   - Response codes e.g. 200, 201, 404, 401, etc are colored like numbers (for obvious reasons)
+   - Data types e.g. ```type: integer```. Supports all RAML datatypes. string, number, integer, date, boolean, and file.
+   - Route definitions: these include ```/posts:``` or ```/{id}:```
+
+## Installation
+
+vim-raml doesn't have any strange or esoteric requirements.
+Provided you're using Vundle, Pathogen or any of the other standard Vim plugin managers. You can install vim-raml exactly how you'd expect.
+
+For completeness, to install via Vundle just add the following into your .vimrc with your other plugins
+```viml
+Plugin 'IN3D/vim-raml'
+```
+Then run:
+```
+:source %
+:PluginInstall
+```
+
+Or for Pathogen:
+```bash
+cd ~/.vim/bundle
+git clone https://github.com/IN3D/vim-raml.git
+```
+And Pathogen should pick it up the next time Vim is started.
+
+
+## Questions, suggestions, and issues
+
+If you have a question, suggestion, or have found an issue with vim-raml. The best way to bring it to my attention is to open an issue at [https://github.com/IN3D/vim-raml/issues](https://github.com/IN3D/vim-raml/issues).
+
+## License
+
+Copyright (c) Eric Hopkins. Distributed under the same terms as Vim itself.
+See `:help license`.

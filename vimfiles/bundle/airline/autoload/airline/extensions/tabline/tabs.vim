@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2019 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -41,7 +41,7 @@ function! airline#extensions#tabline#tabs#get()
 
   let b = airline#extensions#tabline#new_builder()
 
-  call airline#extensions#tabline#add_label(b, 'tabs')
+  call airline#extensions#tabline#add_label(b, 'tabs', 0)
 
   function! b.get_group(i) dict
     let curtab = tabpagenr()
@@ -89,9 +89,10 @@ function! airline#extensions#tabline#tabs#get()
       call b.add_section_spaced(group, '%(%{airline#extensions#tabline#get_buffer_name('.nr.')}%)')
     endfor
     if get(g:, 'airline#extensions#tabline#show_buffers', 1)
-      call airline#extensions#tabline#add_label(b, 'buffers')
+      call airline#extensions#tabline#add_label(b, 'buffers', 1)
     endif
   endif
+  call airline#extensions#tabline#add_tab_label(b)
 
   let s:current_bufnr = curbuf
   let s:current_tabnr = curtab

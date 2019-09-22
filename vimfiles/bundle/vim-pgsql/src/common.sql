@@ -17,12 +17,18 @@ create or replace function legacy_extension_names()
 returns table (extname name)
 language sql immutable as
 $$
+  -- Python is here because it's sh... because Homebrew's PostgreSQL does not
+  -- come with Python extensions, and I'm lazy.
   values ('plpythonu'::name),
          ('plpython2u'::name),
+         ('plpython3u'::name),
          ('hstore_plpythonu'::name),
          ('hstore_plpython2u'::name),
+         ('hstore_plpython3u'::name),
+         ('jsonb_plpython3u'::name),
          ('ltree_plpythonu'::name),
          ('ltree_plpython2u'::name),
+         ('ltree_plpython3u'::name),
          ('pldbgapi'::name),
          ('chkpass'::name);
 $$;
@@ -40,9 +46,6 @@ $$
    where name not in ( -- Extensions to skip
                        'citus',
                        'cstore_fdw',
-                       'jsonb_plpythonu',
-                       'jsonb_plpython2u',
-                       'pldbgapi', -- Not available for PostgreSQL 11 or later?
                        'plr' -- Not available for PostgreSQL 9.6 or later?
                      )
      and name not in (select extname::name from public.legacy_extension_names());
@@ -80,7 +83,7 @@ create or replace function get_statements()
 returns table (stm text)
 language sql immutable as
 $$
-  values ('create'), ('select'), ('abort'), ('alter'), ('analyze'), ('begin'),
+  values ('add'), ('create'), ('select'), ('abort'), ('alter'), ('analyze'), ('begin'),
          ('checkpoint'), ('close'), ('cluster'), ('comment'), ('commit'), ('constraints'),
          ('copy'), ('deallocate'), ('declare'), ('delete'), ('discard'),
          ('do'), ('drop'), ('end'), ('execute'), ('explain'), ('fetch'), ('grant'),
@@ -127,6 +130,8 @@ $$
     left join pg_catalog.pg_namespace n
       on n.oid = o.oprnamespace
    where pg_catalog.pg_operator_is_visible(o.oid)
+   union
+   values ('=>') -- See https://www.postgresql.org/docs/current/functions-datetime.html (make_interval())
    order by keyword;
 $$;
 
@@ -154,8 +159,8 @@ $$
   values ('smallserial'), ('serial'), ('bigserial'), ('serial2'), ('serial4'), ('serial8'),
          ('array'), ('bigint'), ('bit'), ('boolean'), ('char'), ('character'), ('cube'), ('decimal'),
          ('double'), ('int'), ('integer'),
-         ('interval'), ('numeric'), ('precision'), ('real'), ('smallint'), ('text'), ('timestamp'),
-         ('varchar'), ('varying'), ('xml'), ('zone');
+         ('interval'), ('numeric'), ('precision'), ('real'), ('smallint'), ('timestamp'),
+         ('varchar'), ('varying'), ('xml'), ('at'), ('zone');
 $$;
 
 
@@ -166,6 +171,29 @@ language sql stable
 set search_path to "public", "pg_catalog" as
 $$
   select word from pg_get_keywords()
+  union -- https://www.postgresql.org/docs/current/functions-datetime.html
+  values ('century'), ('decade'), ('dow'), ('doy'), ('epoch'), ('isodow'), ('isoyear'),
+         ('microseconds'), ('millennium'), ('milliseconds'), ('quarter'),
+         ('timezone'), ('timezone_hour'), ('timezone_minute'), ('week')
+  union -- See CREATE AGGREGATE
+  values  ('basetype'), ('combinefunc'), ('deserialfunc'), ('finalfunc'),
+          ('finalfunc_extra'), ('finalfunc_modify'), ('hypothetical'), ('initcond'),
+          ('mfinalfunc'), ('mfinalfunc_extra'), ('mfinalfunc_modify'), ('minitcond'),
+          ('minvfunc'), ('msfunc'), ('msspace'), ('mstype'), ('readonly'),
+          ('read_write'), ('shareable'), ('serialfunc'), ('sfunc'), ('sortop'),
+          ('sspace'), ('stype')
+  union -- See CREATE COLLATION
+  values ('locale'), ('lc_collate'), ('lc_ctype'), ('provider')
+  union -- See CREATE FUNCTION's syntax (somehow, these are not returned by pg_get_keyword() as of v11.4)
+  values ('restricted'), ('safe'), ('unsafe')
+  union -- See CREATE POLICY
+  values ('permissive'), ('restrictive')
+  union -- See CREATE USER
+  values ('bypassrls'), ('createdb'), ('createrole'), ('login'), ('nobypassrls'),
+         ('nocreatedb'), ('nocreaterole'), ('noinherit'), ('nologin'),
+         ('noreplication'), ('nosuperuser'), ('replication'), ('superuser')
+  union -- See GRANT
+  values ('public'), ('usage')
   except
   (select stm from get_statements()
    union
@@ -193,6 +221,11 @@ begin
     values ('function', 'plpython2_call_handler'),
            ('function', 'plpython2_inline_handler'),
            ('function', 'plpython2_validator');
+  when 'plpython3u' then
+    return query
+    values ('function', 'plpython3_call_handler'),
+           ('function', 'plpython3_inline_handler'),
+           ('function', 'plpython3_validator');
   when 'hstore_plpythonu' then
     return query
     values ('function', 'hstore_to_plpython'),
@@ -201,12 +234,23 @@ begin
     return query
     values ('function', 'hstore_to_plpython2'),
            ('function', 'plpython2_to_hstore');
+  when 'hstore_plpython3u' then
+    return query
+    values ('function', 'hstore_to_plpython3'),
+           ('function', 'plpython3_to_hstore');
+  when 'jsonb_plpython3u' then
+    return query
+    values ('function', 'jsonb_to_plpython3'),
+           ('function', 'plpython3_to_jsonb');
   when 'ltree_plpythonu' then
     return query
     values ('function', 'ltree_to_plpython');
   when 'ltree_plpython2u' then
     return query
     values ('function', 'ltree_to_plpython2');
+  when 'ltree_plpython3u' then
+    return query
+    values ('function', 'ltree_to_plpython3');
   when 'pldbgapi' then
     return query
     values ('function', 'pldbg_abort_target'),

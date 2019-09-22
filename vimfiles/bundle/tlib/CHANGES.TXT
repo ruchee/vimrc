@@ -811,3 +811,99 @@ version: "1.22"
   MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
 version: "1.23"
 
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+
+  - bump version 1.23 + misc changes
+  - FIX #24: avoid vim8 features
+  - tlib#win#GetID(): Alternative implementation sets a window variable to identify the window
+  - tlib#arg#GetOpts(): If args is a dict, return it
+  - tlib#file#FilterFiles(): FIX typo
+  - tlib#trace#Set: Experimental support for log levels
+  - tlib#input#ListW: make sure to close scratch when <= 1 items are in the list
+  - FIX #25: set win_nr again; fix some lint warnings
+  - tlib#progressbar#Init(): returns a statusline definition that can be used for restor
+  MD5 checksum: c4d6e018cbbd3b286a9b1648b748c1f3
+version: "1.23"
+

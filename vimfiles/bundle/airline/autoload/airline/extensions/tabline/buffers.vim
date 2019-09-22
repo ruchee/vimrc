@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2019 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -69,7 +69,7 @@ function! airline#extensions#tabline#buffers#get()
     let show_buf_label_first = 1
   endif
   if show_buf_label_first
-    call airline#extensions#tabline#add_label(b, 'buffers')
+    call airline#extensions#tabline#add_label(b, 'buffers', 0)
   endif
 
   let b.tab_bufs = tabpagebuflist(tabpagenr())
@@ -137,12 +137,10 @@ function! airline#extensions#tabline#buffers#get()
   call b.split()
   call b.add_section('airline_tabfill', '')
   if !show_buf_label_first
-    call airline#extensions#tabline#add_label(b, 'buffers')
+    call airline#extensions#tabline#add_label(b, 'buffers', 1)
   endif
 
-  if tabpagenr('$') > 1
-    call b.add_section_spaced('airline_tabmod', printf('%s %d/%d', "tab", tabpagenr(), tabpagenr('$')))
-  endif
+  call airline#extensions#tabline#add_tab_label(b)
 
   let s:current_bufnr = cur
   let s:column_width = &columns

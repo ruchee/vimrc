@@ -54,6 +54,7 @@ correctly.
 	* [g:targets_nl](#gtargets_nl)
 	* [g:targets_seekRanges](#gtargets_seekranges)
 	* [g:targets_jumpRanges](#gtargets_jumpranges)
+	* [g:targets_gracious](#gtargets_gracious)
 	* [targets#mappings#extend](#targets#mappings#extend)
 * [Notes](#notes)
 * [Issues](#issues)
@@ -71,6 +72,7 @@ correctly.
 | [Vundle][vundle]       | `Bundle 'wellle/targets.vim'`                                                 |
 | [Vim-plug][vim-plug]   | `Plug 'wellle/targets.vim'`                                                   |
 | [Pathogen][pathogen]   | `git clone git://github.com/wellle/targets.vim.git ~/.vim/bundle/targets.vim` |
+| [Dein][dein]		     | `call dein#add('wellle/targets.vim')`					                     |
 
 ## Examples
 
@@ -662,6 +664,21 @@ Only add to jumplist if cursor was not inside the target:
 let g:targets_jumpRanges = 'rr rb rB bb bB BB ll al Al aa Aa AA'
 ```
 
+### g:targets_gracious
+
+Default:
+
+```vim
+let g:targets_gracious = 0
+```
+
+If enabled (set to `1`) , both growing and seeking will work on the largest
+available count if a too large count is given. For example:
+
+- `v100ab` will select the most outer block around the cursor
+- `v100inq` will select the most distant quote to the right/down
+  (the last one in the file)
+
 ### targets#mappings#extend
 
 This function can be used to modify an internal dictionary used to control the
@@ -824,6 +841,7 @@ next word or paragraph.
 [vundle]: https://github.com/gmarik/vundle
 [vim-plug]: https://github.com/junegunn/vim-plug
 [pathogen]: https://github.com/tpope/vim-pathogen
+[dein]: https://github.com/Shougo/dein.vim
 [repeatcount]: https://groups.google.com/forum/?fromgroups#!topic/vim_dev/G4SSgcRVN7g
 [emptyrange]: https://groups.google.com/forum/#!topic/vim_use/qialxUwdcMc
 [targets]: https://github.com/wellle/targets.vim

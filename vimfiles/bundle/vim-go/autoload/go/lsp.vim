@@ -7,7 +7,7 @@ scriptencoding utf-8
 let s:lspfactory = {}
 
 function! s:lspfactory.get() dict abort
-  if !has_key(self, 'current') || empty(self.current) || !has_key(self.current, 'job') || empty(self.current.job)
+  if empty(get(self, 'current', {})) || empty(get(self.current, 'job', {}))
     let self.current = s:newlsp()
   endif
 
@@ -55,6 +55,7 @@ function! s:newlsp() abort
         \ 'buf': '',
         \ 'handlers': {},
         \ 'workspaceDirectories': [],
+        \ 'wd' : '',
         \ }
 
   function! l:lsp.readMessage(data) dict abort
@@ -120,7 +121,7 @@ function! s:newlsp() abort
           else
             call self.handleNotification(l:message)
           endif
-        elseif has_key(l:message, 'result') ||  has_key(l:message, 'error')
+        elseif has_key(l:message, 'result') || has_key(l:message, 'error')
           call self.handleResponse(l:message)
         endif
       endfor
@@ -128,10 +129,20 @@ function! s:newlsp() abort
 
   function! l:lsp.handleRequest(req) dict abort
     if a:req.method == 'workspace/workspaceFolders'
-      let l:resp = go#lsp#message#workspaceFolders(self.workspaceDirectories)
+      let l:resp = go#lsp#message#WorkspaceFoldersResult(self.workspaceDirectories)
+    elseif a:req.method == 'workspace/configuration' && has_key(a:req, 'params') && has_key(a:req.params, 'items')
+      let l:resp = go#lsp#message#ConfigurationResult(a:req.params.items)
+    elseif a:req.method == 'client/registerCapability' && has_key(a:req, 'params') && has_key(a:req.params, 'registrations')
+      let l:resp = v:null
+    else
+      return
     endif
 
-    let l:msg = self.newResponse(l:resp)
+    if get(self, 'exited', 0)
+      return
+    endif
+
+    let l:msg = self.newResponse(a:req.id, l:resp)
     call self.write(l:msg)
   endfunction
 
@@ -181,9 +192,19 @@ function! s:newlsp() abort
   endfunction
 
   function! l:lsp.handleInitializeResult(result) dict abort
-    call go#util#EchoProgress("initialized gopls")
+    if go#config#EchoCommandInfo()
+      call go#util#EchoProgress("initialized gopls")
+    endif
+    let status = {
+          \ 'desc': '',
+          \ 'type': 'gopls',
+          \ 'state': 'initialized',
+        \ }
+    call go#statusline#Update(self.wd, status)
+
     let self.ready = 1
-    " TODO(bc): send initialized message to the server?
+    let  l:msg = self.newMessage(go#lsp#message#Initialized())
+    call self.write(l:msg)
 
     " send messages queued while waiting for ready.
     for l:item in self.queue
@@ -195,17 +216,7 @@ function! s:newlsp() abort
   endfunction
 
   function! l:lsp.sendMessage(data, handler) dict abort
-    " block while waiting on any in flight initializations to avoid race
-    " conditions initializing gopls.
-    while get(self, 'checkingmodule', 0)
-      sleep 50 m
-      redraw
-    endwhile
-
     if !self.last_request_id
-      call go#util#EchoProgress("initializing gopls")
-      " TODO(bc): run a server per module and one per GOPATH? (may need to
-      " keep track of servers by rootUri).
       let l:wd = go#util#ModuleRoot()
       if l:wd == -1
         call go#util#EchoError('could not determine appropriate working directory for gopls')
@@ -215,12 +226,25 @@ function! s:newlsp() abort
       if l:wd == ''
         let l:wd = getcwd()
       endif
+      let self.wd = l:wd
+
+      if go#config#EchoCommandInfo()
+        call go#util#EchoProgress("initializing gopls")
+      endif
+
+      let l:status = {
+            \ 'desc': '',
+            \ 'type': 'gopls',
+            \ 'state': 'initializing',
+          \ }
+      call go#statusline#Update(l:wd, l:status)
 
       let self.workspaceDirectories = add(self.workspaceDirectories, l:wd)
       let l:msg = self.newMessage(go#lsp#message#Initialize(l:wd))
 
       let l:state = s:newHandlerState('')
       let l:state.handleResult = funcref('self.handleInitializeResult', [], l:self)
+
       let self.handlers[l:msg.id] = l:state
 
       call l:state.start()
@@ -267,6 +291,8 @@ function! s:newlsp() abort
           \ 'id': a:id,
           \ 'result': a:result,
         \ }
+
+    return l:msg
   endfunction
 
   function! l:lsp.write(msg) dict abort
@@ -283,16 +309,38 @@ function! s:newlsp() abort
     call ch_sendraw(self.job, l:data)
   endfunction
 
-  function! l:lsp.exit_cb(job, exit_status) dict abort
+  function! l:lsp.exit_cb(job, exit_status) dict
+    let self.exited = 1
+    if !get(self, 'restarting', 0)
+      return
+    endif
+
+    let l:queue = self.queue
+
+    let l:workspaces = self.workspaceDirectories
+
     call s:lspfactory.reset()
+    let l:lsp = s:lspfactory.get()
+
+    " restore workspaces
+    call call('go#lsp#AddWorkspaceDirectory', l:workspaces)
+    " * send DidOpen messages for all buffers that have b:did_lsp_open set
+    " TODO(bc): check modifiable and filetype, too?
+    bufdo if get(b:, 'go_lsp_did_open', 0) | if &modified | call go#lsp#DidOpen(expand('%:p')) | else | call go#lsp#DidChange(expand('%:p')) | endif | endif
+    let l:lsp.queue = extend(l:lsp.queue, l:queue)
+    return
   endfunction
-  " explicitly bind close_cb to state so that within it, self will always refer
 
   function! l:lsp.close_cb(ch) dict abort
-    " TODO(bc): does anything need to be done here?
+    " TODO(bc): remove the buffer variables that indicate that gopls has been
+    " informed that the file is open
   endfunction
 
   function! l:lsp.err_cb(ch, msg) dict abort
+    if a:msg =~ '^\tPort = \d\+$' && !get(self, 'debugport', 0)
+      let self.debugport = substitute(a:msg, '^\tPort = \(\d\+\).*$', '\1', '')
+    endif
+
     call s:debug('stderr', a:msg)
   endfunction
 
@@ -315,9 +363,12 @@ function! s:newlsp() abort
     return
   endif
 
-  " TODO(bc): output a message indicating which directory lsp is going to
-  " start in.
-  let l:lsp.job = go#job#Start([l:bin_path], l:opts)
+  let l:cmd = [l:bin_path]
+  if go#util#HasDebug('lsp')
+    let l:cmd = extend(l:cmd, ['-debug', 'localhost:0'])
+  endif
+
+  let l:lsp.job = go#job#Start(l:cmd, l:opts)
 
   return l:lsp
 endfunction
@@ -409,7 +460,7 @@ endfunction
 function! s:definitionHandler(next, msg) abort dict
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
-  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, l:msg.range.start.character+1, 'lsp does not supply a description')]]
+  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
   call call(a:next, l:args)
 endfunction
 
@@ -431,7 +482,7 @@ endfunction
 function! s:typeDefinitionHandler(next, msg) abort dict
   " gopls returns a []Location; just take the first one.
   let l:msg = a:msg[0]
-  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, l:msg.range.start.character+1, 'lsp does not supply a description')]]
+  let l:args = [[printf('%s:%d:%d: %s', go#path#FromURI(l:msg.uri), l:msg.range.start.line+1, go#lsp#lsp#PositionOf(getline(l:msg.range.start.line+1), l:msg.range.start.character), 'lsp does not supply a description')]]
   call call(a:next, l:args)
 endfunction
 
@@ -465,11 +516,11 @@ function! go#lsp#DidChange(fname) abort
     return
   endif
 
-  call go#lsp#DidOpen(a:fname)
-
   if !filereadable(a:fname)
     return
   endif
+
+  call go#lsp#DidOpen(a:fname)
 
   let l:lsp = s:lspfactory.get()
   let l:msg = go#lsp#message#DidChange(fnamemodify(a:fname, ':p'), join(go#util#GetLines(), "\n") . "\n")
@@ -520,7 +571,7 @@ function! s:completionHandler(next, msg) abort dict
 
     let l:match = {'abbr': l:item.label, 'word': l:item.textEdit.newText, 'info': '', 'kind': go#lsp#completionitemkind#Vim(l:item.kind)}
     if has_key(l:item, 'detail')
-        let l:match.info = l:item.detail
+        let l:match.menu = l:item.detail
         if go#lsp#completionitemkind#IsFunction(l:item.kind) || go#lsp#completionitemkind#IsMethod(l:item.kind)
           let l:match.info = printf('%s %s', l:item.label, l:item.detail)
 
@@ -575,7 +626,7 @@ endfunction
 
 function! go#lsp#Info(showstatus)
   let l:fname = expand('%:p')
-  let [l:line, l:col] = getpos('.')[1:2]
+  let [l:line, l:col] = go#lsp#lsp#Position()
 
   call go#lsp#DidChange(l:fname)
 
@@ -595,7 +646,7 @@ endfunction
 
 function! go#lsp#GetInfo()
   let l:fname = expand('%:p')
-  let [l:line, l:col] = getpos('.')[1:2]
+  let [l:line, l:col] = go#lsp#lsp#Position()
 
   call go#lsp#DidChange(l:fname)
 
@@ -617,8 +668,8 @@ function! s:infoDefinitionHandler(next, showstatus, msg) abort dict
   let l:msg = a:msg[0]
 
   let l:fname = go#path#FromURI(l:msg.uri)
-  let l:line = l:msg.range.start.line+1
-  let l:col = l:msg.range.start.character+1
+  let l:line = l:msg.range.start.line
+  let l:col = l:msg.range.start.character
 
   let l:lsp = s:lspfactory.get()
   let l:msg = go#lsp#message#Hover(l:fname, l:line, l:col)
@@ -651,16 +702,6 @@ function! s:infoFromHoverContent(content) abort
 
   let l:content = a:content[0]
 
-  " strip godoc summary
-  " Hover content with godoc summary will have the godoc summary in the first
-  " line, and the second line will not have leading whitespace. When there is
-  " leading whitespace on the second line, then the hover content is for a
-  " struct or interface without godoc.
-  let l:lines = split(l:content, '\n')
-  if len(l:lines) > 1 && (l:lines[1] !~# '^\s')
-    let l:content = substitute(l:content, '^[^\n]\+\n', '', '')
-  endif
-
   " strip off the method set and fields of structs and interfaces.
   if l:content =~# '^\(type \)\?[^ ]\+ \(struct\|interface\)'
     let l:content = substitute(l:content, '{.*', '', '')
@@ -669,10 +710,12 @@ function! s:infoFromHoverContent(content) abort
   return l:content
 endfunction
 
-function! go#lsp#AddWorkspace(...) abort
+function! go#lsp#AddWorkspaceDirectory(...) abort
   if a:0 == 0
     return
   endif
+
+  call go#lsp#CleanWorkspaces()
 
   let l:workspaces = []
   for l:dir in a:000
@@ -688,10 +731,99 @@ function! go#lsp#AddWorkspace(...) abort
   let l:state = s:newHandlerState('')
   let l:state.handleResult = funcref('s:noop')
   let l:lsp.workspaceDirectories = extend(l:lsp.workspaceDirectories, l:workspaces)
-  let l:msg = go#lsp#message#AddWorkspaces(l:workspaces)
+  let l:msg = go#lsp#message#ChangeWorkspaceFolders(l:workspaces, [])
   call l:lsp.sendMessage(l:msg, l:state)
 
   return 0
+endfunction
+
+function! go#lsp#CleanWorkspaces() abort
+  let l:workspaces = []
+
+  let l:lsp = s:lspfactory.get()
+
+  let l:i = 0
+  let l:missing = []
+  for l:dir in l:lsp.workspaceDirectories
+    if !isdirectory(l:dir)
+      let l:missing = add(l:missing, l:dir)
+      call remove(l:lsp.workspaceDirectories, l:i)
+      continue
+    endif
+    let l:i += 1
+  endfor
+
+  if len(l:missing) == 0
+    return 0
+  endif
+
+  let l:state = s:newHandlerState('')
+  let l:state.handleResult = funcref('s:noop')
+  let l:msg = go#lsp#message#ChangeWorkspaceFolders([], l:missing)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  return 0
+endfunction
+
+" go#lsp#ResetWorkspaceDiretories removes and then re-adds all workspace
+" folders to cause gopls to send configuration requests for all of them again.
+" This is useful, for instance, when build tags have been added and gopls
+" needs to use them.
+function! go#lsp#ResetWorkspaceDirectories() abort
+  call go#lsp#CleanWorkspaces()
+
+  let l:lsp = s:lspfactory.get()
+
+  let l:state = s:newHandlerState('')
+  let l:state.handleResult = funcref('s:noop')
+  let l:msg = go#lsp#message#ChangeWorkspaceFolders(l:lsp.workspaceDirectories, l:lsp.workspaceDirectories)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  return 0
+endfunction
+
+function! go#lsp#DebugBrowser() abort
+  let l:lsp = s:lspfactory.get()
+  let l:port = get(l:lsp, 'debugport', 0)
+  if !l:port
+    call go#util#EchoError("gopls was not started with debugging enabled. See :help g:go_debug.")
+    return
+  endif
+
+  call go#util#OpenBrowser(printf('http://localhost:%d', l:port))
+endfunction
+
+function! go#lsp#Exit() abort
+  call s:exit(0)
+endfunction
+
+function! go#lsp#Restart() abort
+  call s:exit(1)
+endfunction
+
+function! s:exit(restart) abort
+  if !go#util#has_job() || len(s:lspfactory) == 0 || !has_key(s:lspfactory, 'current')
+    return
+  endif
+
+  let l:lsp = s:lspfactory.get()
+
+  " reset the factory so that future requests don't use the same instance of
+  " gopls.
+  call s:lspfactory.reset()
+
+  let l:lsp.restarting = a:restart
+
+  let l:state = s:newHandlerState('exit')
+
+  let l:msg = go#lsp#message#Shutdown()
+  let l:state.handleResult = funcref('s:noop')
+  let l:retval = l:lsp.sendMessage(l:msg, l:state)
+
+  let l:msg = go#lsp#message#Exit()
+  let l:retval = l:lsp.sendMessage(l:msg, l:state)
+
+  return l:retval
 endfunction
 
 function! s:debug(event, data) abort

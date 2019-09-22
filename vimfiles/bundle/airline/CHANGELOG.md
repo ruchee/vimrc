@@ -11,6 +11,16 @@ This is the Changelog for the vim-airline project.
       Set the `g:airline_statusline_ontop` to enable this experimental feature.
     - If `buffer_idx_mode=2`, up to 89 mappings will be exposed to access more
       buffers directly (issue #1823)
+    - Allow to use `random` as special theme name, which will switch to a random
+      airline theme (at least if a random number can be generated :()
+    - The branch extensions now also displays whether the repository is in a clean state
+      (will append a ! or ⚡if the repository is considered dirty).
+    - The whitespace extensions will also check for conflict markers
+    - `:AirlineRefresh` command now takes an additional `!` attribute, that **skips** 
+      recreating the highlighting groups (which might have a serious performance
+      impact if done very often, as might be the case when the configuration variable 
+      `airline_skip_empty_sections` is active).
+    - airline can now also detect multiple cursor mode (issue #1933)
 
 ## [0.10] - 2018-12-15
 - New features

@@ -31,7 +31,7 @@ function! emmet#lang#css#parseIntoTree(abbr, type) abort
   else
     for n in range(len(tokens))
       let token = tokens[n]
-      let prop = matchlist(token, '^\(-\{0,1}[a-zA-Z]\+\|[a-zA-Z0-9]\++\{0,1}\|([a-zA-Z0-9]\++\{0,1})\)\(\%([0-9.-]\+\%(p\|e\|em\|vh\|vw\|re\|rem\|%\)\{0,1}-\{0,1}\|-auto\)*\)$')
+      let prop = matchlist(token, '^\(-\{0,1}[a-zA-Z]\+\|[a-zA-Z0-9]\++\{0,1}\|([a-zA-Z0-9]\++\{0,1})\)\(\%([0-9.-]\+\%(p\|e\|em\|x\|vh\|vw\|re\|rem\|%\)\{0,}-\{0,1}\|-auto\)*\)$')
       if len(prop)
         let token = substitute(prop[1], '^(\(.*\))', '\1', '')
         if token =~# '^-'
@@ -39,38 +39,51 @@ function! emmet#lang#css#parseIntoTree(abbr, type) abort
           let token = token[1:]
         endif
         let value = ''
-        for v in split(prop[2], '\d\zs-')
-          if len(value) > 0
-            let value .= ' '
+        for vt in split(prop[2], '\a\+\zs')
+          let ut = matchstr(vt, '[a-z]\+$')
+          if ut == 'auto'
+            let ut = ''
           endif
-          if token =~# '^[z]'
-            " TODO
-            let value .= substitute(v, '[^0-9.]*$', '', '')
-          elseif v =~# 'p$'
-            let value .= substitute(v, 'p$', '%', '')
-          elseif v =~# '%$'
-            let value .= v
-          elseif v =~# 'e$'
-            let value .= substitute(v, 'e$', 'em', '')
-          elseif v =~# 'em$'
-            let value .= v
-          elseif v =~# 'vh$'
-            let value .= v
-          elseif v =~# 'vw$'
-            let value .= v
-          elseif v =~# 're$'
-            let value .= substitute(v, 're$', 'rem', '')
-          elseif v =~# 'rem$'
-            let value .= v
-          elseif v =~# '\.'
-            let value .= v . 'em'
-          elseif v ==# 'auto'
-            let value .= v
-          elseif v ==# '0'
-            let value .= '0'
-          else
-            let value .= v . 'px'
-          endif
+          for v in split(vt, '\d\zs-')
+            if len(value) > 0
+              let value .= ' '
+            endif
+            if v !~ '[a-z]\+$'
+              let v .= ut
+            endif
+            if token =~# '^[z]'
+              " TODO
+              let value .= substitute(v, '[^0-9.]*$', '', '')
+            elseif v =~# 'em$'
+              let value .= v
+            elseif v =~# 'ex$'
+              let value .= v
+            elseif v =~# 'vh$'
+              let value .= v
+            elseif v =~# 'vw$'
+              let value .= v
+            elseif v =~# 'rem$'
+              let value .= v
+            elseif v ==# 'auto'
+              let value .= v
+            elseif v =~# 'p$'
+              let value .= substitute(v, 'p$', '%', '')
+            elseif v =~# '%$'
+              let value .= v
+            elseif v =~# 'e$'
+              let value .= substitute(v, 'e$', 'em', '')
+            elseif v =~# 'x$'
+              let value .= substitute(v, 'x$', 'ex', '')
+            elseif v =~# 're$'
+              let value .= substitute(v, 're$', 'rem', '')
+            elseif v =~# '\.'
+              let value .= v . 'em'
+            elseif v ==# '0'
+              let value .= '0'
+            else
+              let value .= v . 'px'
+            endif
+          endfor
         endfor
       endif
 
@@ -255,7 +268,21 @@ function! emmet#lang#css#imageSize() abort
   call emmet#util#setContent(img_region, content)
 endfunction
 
-function! emmet#lang#css#encodeImage() abort
+function! emmet#lang#css#imageEncode() abort
+  let img_region = emmet#util#searchRegion('url(', ')')
+  if !emmet#util#regionIsValid(img_region) || !emmet#util#cursorInRegion(img_region)
+    return
+  endif
+  let content = emmet#util#getContent(img_region)
+  let fn = matchstr(content, '\<url(\zs[^)]\+\ze)')
+  let fn = substitute(fn, '[''" \t]', '', 'g')
+  if fn =~# '^\s*$'
+    return
+  elseif fn !~# '^\(/\|http\)'
+    let fn = simplify(expand('%:h') . '/' . fn)
+  endif
+  let encoded = emmet#util#imageEncodeDecode(fn, 0)
+  call emmet#util#setContent(img_region, 'url(' . encoded . ')')
 endfunction
 
 function! emmet#lang#css#parseTag(tag) abort
@@ -283,7 +310,9 @@ function! emmet#lang#css#toggleComment() abort
       let line = substitute(matchstr(line, mx), mx, '\2', '')
       let line = space . substitute(line, '^\s*\|\s*$', '\1', 'g')
     else
-      let mx = '^\(\s*\)\(.*\)\s*$'
+      let mx = '^\(\s*\)\(''[^'']*''\|[^'']*\|;\)\s*$'
+      " TODO multi-property
+      "let mx = '^\(\s*\)\(\%(''[^'']*''\|[^'';]\+\)*;\{0,1}\)'
       let line = substitute(line, mx, '\1/* \2 */', '')
     endif
     call setline('.', line)
@@ -339,13 +368,8 @@ function! emmet#lang#css#moveNextPrevItem(flag) abort
 endfunction
 
 function! emmet#lang#css#moveNextPrev(flag) abort
-  let pos = search('""\|()\|\(:\s*\zs$\)', a:flag ? 'Wbp' : 'Wp')
-  if pos == 2
-    startinsert!
-  else
-    silent! normal! l
-    startinsert
-  endif
+  call search('""\|()\|\(:\s*\zs;\{1,0}$\)', a:flag ? 'Wbp' : 'Wp')
+  return ''
 endfunction
 
 function! emmet#lang#css#splitJoinTag() abort
@@ -353,5 +377,9 @@ function! emmet#lang#css#splitJoinTag() abort
 endfunction
 
 function! emmet#lang#css#removeTag() abort
+  " nothing to do
+endfunction
+
+function! emmet#lang#css#mergeLines() abort
   " nothing to do
 endfunction

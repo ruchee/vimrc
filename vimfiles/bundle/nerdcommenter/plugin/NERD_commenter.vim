@@ -66,6 +66,7 @@ call s:InitVariable("g:NERDSpaceDelims", 0)
 call s:InitVariable("g:NERDDefaultAlign", "none")
 call s:InitVariable("g:NERDTrimTrailingWhitespace", 0)
 call s:InitVariable("g:NERDToggleCheckAllLines", 0)
+call s:InitVariable("g:NERDDisableTabsInBlockComm", 0)
 
 let s:NERDFileNameEscape="[]#*$%'\" ?`!&();<>\\"
 
@@ -132,7 +133,7 @@ let s:delimiterMap = {
     \ 'csp': { 'left': '--' },
     \ 'cterm': { 'left': '*' },
     \ 'cucumber': { 'left': '#' },
-    \ 'cuda': { 'left': '/*', 'right': '*/', 'leftAlt': '//' },
+    \ 'cuda': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'cvs': { 'left': 'CVS:' },
     \ 'cython': { 'left': '# ', 'leftAlt': '#' },
     \ 'd': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -180,11 +181,13 @@ let s:delimiterMap = {
     \ 'foxpro': { 'left': '*' },
     \ 'fsharp': { 'left': '(*', 'right': '*)', 'leftAlt': '//' },
     \ 'fstab': { 'left': '#' },
+    \ 'ftl': { 'left': '#', 'leftAlt': '##' },
     \ 'fvwm': { 'left': '#' },
     \ 'fx': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'gams': { 'left': '*' },
     \ 'gdb': { 'left': '#' },
     \ 'gdmo': { 'left': '--' },
+    \ 'gdscript3': { 'left': '# ', 'leftAlt': '#' },
     \ 'geek': { 'left': 'GEEK_COMMENT:' },
     \ 'genshi': { 'left': '<!--', 'right': '-->', 'leftAlt': '{#', 'rightAlt': '#}' },
     \ 'gentoo-conf-d': { 'left': '#' },
@@ -235,6 +238,7 @@ let s:delimiterMap = {
     \ 'java': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'javacc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'javascript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'javascriptreact': { 'left': '//', 'leftAlt': '{/*', 'rightAlt': '*/}' },
     \ 'javascript.jquery': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jess': { 'left': ';' },
     \ 'jgraph': { 'left': '(*', 'right': '*)' },
@@ -248,6 +252,7 @@ let s:delimiterMap = {
     \ 'lace': { 'left': '--' },
     \ 'laravel': { 'left': '{{--', 'right': '--}}' },
     \ 'ldif': { 'left': '#' },
+    \ 'ledger': { 'left': '#', 'leftAlt': ';' },
     \ 'less': { 'left': '/*', 'right': '*/' },
     \ 'lhaskell': { 'left': '>{-', 'right': '-}', 'leftAlt': '>-- ' },
     \ 'lilo': { 'left': '#' },
@@ -284,7 +289,6 @@ let s:delimiterMap = {
     \ 'mkd': { 'left': '<!---', 'right': '-->' },
     \ 'mma': { 'left': '(*', 'right': '*)' },
     \ 'model': { 'left': '$', 'right': '$' },
-    \ 'moduala.': { 'left': '(*', 'right': '*)' },
     \ 'modula2': { 'left': '(*', 'right': '*)' },
     \ 'modula3': { 'left': '(*', 'right': '*)' },
     \ 'molpro': { 'left': '!' },
@@ -343,6 +347,7 @@ let s:delimiterMap = {
     \ 'privoxy': { 'left': '#' },
     \ 'processing': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'prolog': { 'left': '%', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'proto': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'ps1': { 'left': '#' },
     \ 'psf': { 'left': '#' },
     \ 'ptcap': { 'left': '#' },
@@ -375,6 +380,7 @@ let s:delimiterMap = {
     \ 'scala': { 'left': '//', 'nested': 1, 'leftAlt': '/*', 'rightAlt': '*/', 'nestedAlt': 1 },
     \ 'scheme': { 'left': ';', 'nested': 1, 'leftAlt': '#|', 'rightAlt': '|#', 'nestedAlt': 1 },
     \ 'scilab': { 'left': '//' },
+    \ 'scilla': { 'left': '(*', 'right': '*)', 'nested': 1 },
     \ 'scons': { 'left': '#' },
     \ 'scsh': { 'left': ';' },
     \ 'scss': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -409,7 +415,7 @@ let s:delimiterMap = {
     \ 'spectre': { 'left': '//', 'leftAlt': '*' },
     \ 'spice': { 'left': '$' },
     \ 'spin': { 'left': '''', 'leftAlt': '{', 'rightAlt': '}' },
-    \ 'sql': { 'left': '-- ' },
+    \ 'sql': { 'left': '-- ', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'sqlforms': { 'left': '-- ' },
     \ 'sqlj': { 'left': '-- ' },
     \ 'sqr': { 'left': '!' },
@@ -447,6 +453,7 @@ let s:delimiterMap = {
     \ 'twig': { 'left': '{#', 'right': '#}' },
     \ 'txt2tags': { 'left': '%' },
     \ 'typescript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'typescriptreact': { 'left': '//', 'leftAlt': '{/*', 'rightAlt': '*/}' },
     \ 'uc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'uil': { 'left': '!' },
     \ 'upstart': { 'left': '#' },
@@ -998,7 +1005,11 @@ function s:CommentLinesSexy(topline, bottomline)
         " the lines down when we added the left delimiter
         call cursor(a:bottomline+1, 1)
         execute 'normal! o'
-        let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . right
+        if g:NERDDisableTabsInBlockComm
+          let theLine = repeat(' ', leftAlignIndx) . right
+        else
+          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . right
+        endif
 
         " Make sure tabs are respected
         if !&expandtab
@@ -1024,7 +1035,11 @@ function s:CommentLinesSexy(topline, bottomline)
         endif
 
         " add the sexyComMarker
-        let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . sexyComMarkerSpaced . strpart(theLine, leftAlignIndx)
+        if g:NERDDisableTabsInBlockComm
+          let theLine = repeat(' ', leftAlignIndx) . sexyComMarkerSpaced . strpart(theLine, leftAlignIndx)
+        else
+          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . sexyComMarkerSpaced . strpart(theLine, leftAlignIndx)
+        endif
 
         if lineHasTabs
             let theLine = s:ConvertLeadingSpacesToTabs(theLine)
@@ -1272,8 +1287,8 @@ function! NERDComment(mode, type) range
           let l:commentAllLines = 0
           for i in range(firstLine, lastLine)
             let theLine = getline(i)
-            " if have one line no comment, then comment all lines
-            if !s:IsInSexyComment(firstLine) && !s:IsCommentedFromStartOfLine(s:Left(), theLine) && !s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
+            " if have one line no comment(not include blank/whitespace-only lines), then comment all lines
+            if theLine =~ '[^ \t]\+' && !s:IsInSexyComment(firstLine) && !s:IsCommentedFromStartOfLine(s:Left(), theLine) && !s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
               let l:commentAllLines = 1
               break
             else

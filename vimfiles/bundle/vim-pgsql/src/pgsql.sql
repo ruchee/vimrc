@@ -165,7 +165,7 @@ select
 $HERE$" Vim syntax file
 " Language:     SQL (PostgreSQL dialect), PL/pgSQL, PL/…, PostGIS, …
 " Maintainer:   Lifepillar
-" Version:      2.2.0
+" Version:      2.2.2
 " License:      This file is placed in the public domain.
 $HERE$;
 
@@ -193,7 +193,12 @@ select '" Statements';
 select vim_format(array(select get_statements()), 'Statement');
 select '" Types';
 select vim_format(array(select get_types()), 'Type');
-select 'syn match sqlType /pg_toast_\d\+/';
+select 'syn match sqlType /\<pg_toast_\d\+\>/';
+select 'syn match sqlType /\<time\%[stamp]\s\+with\%[out]\>/';
+select 'syn match sqlKeyword /\<with\s\+grant\>/';
+select 'syn match sqlKeyword /\<on\s\+\%(tables\|sequences\|routines\)\>/';
+select 'syn match sqlType /\<text\>/';
+select 'syn match sqlKeyword /\<text\s\+search\>/';
 select '" Additional types';
 select vim_format(array(select get_additional_types()), 'Type');
 select '" Keywords';
@@ -253,6 +258,23 @@ syn region sqlComment    start="/\*" end="\*/" contains=sqlTodo,@Spell
 syn match  sqlComment    "#\s.*$"              contains=sqlTodo,@Spell
 syn match  sqlComment    "--.*$"               contains=sqlTodo,@Spell
 
+" CREATE TYPE statement
+syn region sqlCreateType start=+create\s\+type.*(+ end=+)+
+      \ contains=sqlIsKeyword,sqlCreateTypeKeyword,sqlIsOperator,sqlString,sqlComment,sqlNumber,sqlTodo
+syn keyword sqlCreateTypeKeyword contained input output receive send typmod_in typmod_out analyze internallength passedbyvalue
+syn keyword sqlCreateTypeKeyword contained alignment storage like category preferred default element delimiter collatable
+syn keyword sqlCreateTypeKeyword contained collate subtype subtype_opclass canonical subtype_diff
+
+" CREATE OPERATOR [CLASS] statements
+syn region sqlCreateOperator start=+create\s\+operator.*(+ end=+)+
+      \ contains=sqlIsKeyword,sqlCreateOperatorKeyword,sqlIsOperator,sqlString,sqlComment,sqlNumber,sqlTodo
+syn keyword sqlCreateOperatorKeyword contained function procedure leftarg rightarg commutator negator restrict join hashes merges
+
+" CREATE TEXT SEARCH statements
+syn region sqlCreateTextSearch start=+create\s\+text\s\+search.*(+ end=+)+
+      \ contains=sqlIsKeyword,sqlCreateTextSearchKeyword,sqlIsOperator,sqlString,sqlComment,sqlNumber,sqlTodo
+syn keyword sqlCreateTextSearchKeyword contained text parser copy template start gettoken end lextypes headline init lexize
+
 " Options
 syn keyword sqlOption contained client_min_messages search_path
 
@@ -303,13 +325,18 @@ syn match sqlPlpgsqlVariable "\<_[A-Za-z0-9][A-Za-z0-9_]*\>" contained
 syn match sqlPlpgsqlVariable "\$\d\+" contained
 " @ arguments
 syn match sqlPlpgsqlVariable ".\zs@[A-z0-9_]\+" contained
+" PL/pgSQL operators
+syn match sqlPlpgsqlOperator ":=" contained
 
-syn region plpgsql matchgroup=sqlString start=+\$pgsql\$+ end=+\$pgsql\$+ keepend contains=ALL
-syn region plpgsql matchgroup=sqlString start=+\$body\$+ end=+\$body\$+ keepend contains=ALL
+syn region plpgsql matchgroup=sqlString start=+\$pgsql\$+ end=+\$pgsql\$+ keepend
+  \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
+syn region plpgsql matchgroup=sqlString start=+\$body\$+ end=+\$body\$+ keepend
+  \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
 if get(g:, 'pgsql_dollar_strings', 0)
   syn region sqlString start=+\$\$+ end=+\$\$+ contains=@Spell
 else
-  syn region plpgsql matchgroup=sqlString start=+\$\$+ end=+\$\$+ keepend contains=ALL
+  syn region plpgsql matchgroup=sqlString start=+\$\$+ end=+\$\$+ keepend
+    \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
 endif
 
 " PL/<any other language>
@@ -333,6 +360,7 @@ hi def link sqlIdentifier     Identifier
 hi def link sqlKeyword        sqlSpecial
 hi def link sqlPlpgsqlKeyword sqlSpecial
 hi def link sqlPlpgsqlVariable Identifier
+hi def link sqlPlpgsqlOperator sqlOperator
 hi def link sqlNumber         Number
 hi def link sqlOperator       sqlStatement
 hi def link sqlOption         Define
@@ -345,6 +373,9 @@ hi def link sqlView           sqlTable
 hi def link sqlTodo           Todo
 hi def link sqlPsqlCommand    SpecialKey
 hi def link sqlPsqlKeyword    Keyword
+hi def link sqlCreateTypeKeyword sqlKeyword
+hi def link sqlCreateOperatorKeyword sqlKeyword
+hi def link sqlCreateTextSearchKeyword sqlKeyword
 
 let b:current_syntax = "sql"
 $HERE$;

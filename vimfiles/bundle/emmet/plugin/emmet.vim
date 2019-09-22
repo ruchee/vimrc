@@ -46,7 +46,7 @@
 " Tips:
 "
 "   You can customize behavior of expanding with overriding config.
-"   This configuration will be marged at loading plugin.
+"   This configuration will be merged at loading plugin.
 "
 "     let g:user_emmet_settings = {
 "     \  'indentation' : '  ',
@@ -106,13 +106,13 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'n', 'var': 'user_emmet_update_tag', 'key': 'u', 'plug': 'emmet-update-tag', 'func': ':call emmet#updateTag()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_balancetaginward_key', 'key': 'd', 'plug': 'emmet-balance-tag-inward', 'func': '<esc>:call emmet#balanceTag(1)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_balancetaginward_key', 'key': 'd', 'plug': 'emmet-balance-tag-inward', 'func': ':call emmet#balanceTag(1)<cr>'},
-  \ {'mode': 'v', 'var': 'user_emmet_balancetaginward_key', 'key': 'd', 'plug': 'emmet-balance-tag-inward', 'func': ':call emmet#balanceTag(2)<cr>'},
+  \ {'mode': 'v', 'var': 'user_emmet_balancetaginward_key', 'key': 'd', 'plug': 'emmet-balance-tag-inward', 'func': '<esc>:call emmet#balanceTag(1)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_balancetagoutward_key', 'key': 'D', 'plug': 'emmet-balance-tag-outword', 'func': '<esc>:call emmet#balanceTag(-1)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_balancetagoutward_key', 'key': 'D', 'plug': 'emmet-balance-tag-outword', 'func': ':call emmet#balanceTag(-1)<cr>'},
-  \ {'mode': 'v', 'var': 'user_emmet_balancetagoutward_key', 'key': 'D', 'plug': 'emmet-balance-tag-outword', 'func': ':call emmet#balanceTag(-2)<cr>'},
-  \ {'mode': 'i', 'var': 'user_emmet_next_key', 'key': 'n', 'plug': 'emmet-move-next', 'func': '<esc>:call emmet#moveNextPrev(0)<cr>'},
+  \ {'mode': 'v', 'var': 'user_emmet_balancetagoutward_key', 'key': 'D', 'plug': 'emmet-balance-tag-outword', 'func': '<esc>:call emmet#balanceTag(-1)<cr>'},
+  \ {'mode': 'i', 'var': 'user_emmet_next_key', 'key': 'n', 'plug': 'emmet-move-next', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#moveNextPrev(0)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_next_key', 'key': 'n', 'plug': 'emmet-move-next', 'func': ':call emmet#moveNextPrev(0)<cr>'},
-  \ {'mode': 'i', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': '<esc>:call emmet#moveNextPrev(1)<cr>'},
+  \ {'mode': 'i', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#moveNextPrev(1)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_prev_key', 'key': 'N', 'plug': 'emmet-move-prev', 'func': ':call emmet#moveNextPrev(1)<cr>'},
   \ {'mode': 'i', 'var': '', 'key': '', 'plug': 'emmet-move-next-item', 'func': '<esc>:call emmet#moveNextPrevItem(0)<cr>'},
   \ {'mode': 'n', 'var': '', 'key': '', 'plug': 'emmet-move-next-item', 'func': ':call emmet#moveNextPrevItem(0)<cr>'},
@@ -120,6 +120,8 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'n', 'var': '', 'key': '', 'plug': 'emmet-move-prev-item', 'func': ':call emmet#moveNextPrevItem(1)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#imageSize()<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_imagesize_key', 'key': 'i', 'plug': 'emmet-image-size', 'func': ':call emmet#imageSize()<cr>'},
+  \ {'mode': 'i', 'var': 'user_emmet_imageencode_key', 'key': 'I', 'plug': 'emmet-image-encode', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#imageEncode()<cr>'},
+  \ {'mode': 'n', 'var': 'user_emmet_imageencode_key', 'key': 'I', 'plug': 'emmet-image-encode', 'func': ':call emmet#imageEncode()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toggle-comment', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#toggleComment()<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_togglecomment_key', 'key': '/', 'plug': 'emmet-toggle-comment', 'func': ':call emmet#toggleComment()<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_splitjointag_key', 'key': 'j', 'plug': 'emmet-split-join-tag', 'func': '<esc>:call emmet#splitJoinTag()<cr>'},
@@ -130,7 +132,8 @@ function! s:install_plugin(mode, buffer)
   \ {'mode': 'n', 'var': 'user_emmet_anchorizeurl_key', 'key': 'a', 'plug': 'emmet-anchorize-url', 'func': ':call emmet#anchorizeURL(0)<cr>'},
   \ {'mode': 'i', 'var': 'user_emmet_anchorizesummary_key', 'key': 'A', 'plug': 'emmet-anchorize-summary', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#anchorizeURL(1)<cr>'},
   \ {'mode': 'n', 'var': 'user_emmet_anchorizesummary_key', 'key': 'A', 'plug': 'emmet-anchorize-summary', 'func': ':call emmet#anchorizeURL(1)<cr>'},
-  \ {'mode': 'v', 'var': 'user_emmet_mergelines_key', 'key': 'm', 'plug': 'emmet-merge-lines', 'func': ':call emmet#mergeLines()<cr>'},
+  \ {'mode': 'i', 'var': 'user_emmet_mergelines_key', 'key': 'm', 'plug': 'emmet-merge-lines', 'func': '<c-r>=emmet#util#closePopup()<cr><c-r>=emmet#mergeLines()<cr>'},
+  \ {'mode': 'n', 'var': 'user_emmet_mergelines_key', 'key': 'm', 'plug': 'emmet-merge-lines', 'func': ':call emmet#mergeLines()<cr>'},
   \ {'mode': 'v', 'var': 'user_emmet_codepretty_key', 'key': 'c', 'plug': 'emmet-code-pretty', 'func': ':call emmet#codePretty()<cr>'},
   \]
 

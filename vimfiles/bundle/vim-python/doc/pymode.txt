@@ -1,4 +1,4 @@
-*pymode.txt*     For Vim Version 8.0      Last change: 2017 November 20
+*pymode.txt*     For Vim Version 8.0      Last change: 2019 March 08
 
      ____  _  _  ____  _   _  _____  _  _     __  __  _____  ____  ____      ~
     (  _ \( \/ )(_  _)( )_( )(  _  )( \( )___(  \/  )(  _  )(  _ \( ___)     ~
@@ -6,7 +6,7 @@
     (__)   (__)  (__) (_) (_)(_____)(_)\_)   (_/\/\_)(_____)(____/(____)     ~
 
 
-                          Version: 0.9.4
+                          Version: 0.10.0
 
 ===============================================================================
 CONTENTS                                                        *pymode-contents*
@@ -483,6 +483,12 @@ your code. <C-X><C-O> and <C-P>/<C-N> works too.
 
 Autocompletion is also called by typing a period in |Insert| mode by default.
 
+If there's only one complete item, vim may be inserting it automatically
+instead of using a popup menu. If the complete item which inserted is not
+your wanted, you can roll it back use '<c-w>' in |Insert| mode or setup
+'completeopt' with `menuone` and `noinsert` in your vimrc. .e.g.
+>
+    set completeopt=menuone,noinsert
 
 Turn on code completion support in the plugin        *'g:pymode_rope_completion'*
 >
@@ -706,23 +712,28 @@ Highlight docstrings as pythonDocstring (otherwise as pythonString)
 1. Python-mode doesn't work
 ---------------------------
 
-Remember to get the latest and updated version of the project source code and
-also update the project submodules.
+First remember to get the latest and updated version of the project source
+code and also update the project submodules.
 
 Clear all python cache/compiled files (`*.pyc` files and `__pycache__`
 directory and everything under it). In Linux/Unix/MacOS you can run:
+
 `find . -type f -name '*.pyc' -delete && find . -type d -name '__pycache__' -delete`
 
 Then start python mode with:
 `vim -i NONE -u <path_to_pymode>/debugvimrc.vim`
+
 Reproduce the error and submit your python mode debug file. You can check its
 location with `:messages` for something like:
+
 `pymode debug msg 1: Starting debug on: 2017-11-18 16:44:13 with file /tmp/pymode_debug_file.txt`
+
 Please submit the entire content of the file along with a reasoning of why the
 plugin seems broken.
 
 	*Underlined	do check for sensitive information in the file before
 	*Underlined	submitting!
+
 
 
 2. Rope completion is very slow                                *pymode-rope-slow*

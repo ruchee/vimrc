@@ -3,7 +3,7 @@
 " Commit:       $Format:%H$
 " Licence:      The MIT License (MIT)
 
-if v:version < 700 || !( has('syntax') || has('gui_running') || has('nvim') || &t_Co==256 )
+if ! ( v:version >= 700 && has('syntax') && ( has('gui_running') || has('nvim') || &t_Co == 256 ) )
 	function! css_color#init(type, keywords, groups)
 	endfunction
 	function! css_color#extend(groups)
@@ -189,7 +189,7 @@ function! s:create_matches()
 	let lnr = line('.')
 	let group = ''
 	let groupstart = 0
-	let endcol = col('$')
+	let endcol = &l:synmaxcol ? &l:synmaxcol : col('$')
 	for col in range( 1, endcol )
 		let nextgroup = col < endcol ? synIDattr( synID( lnr, col, 1 ), 'name' ) : ''
 		if group == nextgroup | continue | endif
@@ -231,21 +231,31 @@ function! css_color#reinit()
 endfunction
 
 function! css_color#enable()
+	if ! b:css_color_off | return | endif
 	if len( b:css_color_grp ) | exe 'syn cluster colorableGroup add=' . join( b:css_color_grp, ',' ) | endif
-	autocmd CSSColor CursorMoved,CursorMovedI <buffer> call s:parse_screen() | call s:create_matches()
+	augroup CSSColor
+		autocmd! * <buffer>
+		if has('nvim-0.3.1')
+			autocmd CursorMoved,CursorMovedI <buffer> call s:parse_screen()
+		else
+			autocmd CursorMoved,CursorMovedI <buffer> call s:parse_screen() | call s:create_matches()
+			autocmd BufWinEnter <buffer> call s:create_matches()
+			autocmd BufWinLeave <buffer> call s:clear_matches()
+		endif
+		autocmd ColorScheme <buffer> call css_color#reinit()
+	augroup END
 	let b:css_color_off = 0
-	call s:parse_screen()
-	call s:create_matches()
+	doautocmd CSSColor CursorMoved
 endfunction
 
 function! css_color#disable()
+	if b:css_color_off | return | endif
 	if len( b:css_color_grp ) | exe 'syn cluster colorableGroup remove=' . join( b:css_color_grp, ',' ) | endif
-	autocmd! CSSColor CursorMoved,CursorMovedI <buffer>
+	autocmd! CSSColor * <buffer>
 	let b:css_color_off = 1
 endfunction
 
 function! css_color#toggle()
-	if ! exists('b:css_color_off') | return | endif
 	if b:css_color_off | call css_color#enable()
 	else               | call css_color#disable()
 	endif
@@ -262,13 +272,7 @@ function! css_color#init(type, keywords, groups)
 	let b:css_color_grp = extend( get( b:, 'css_color_grp', [] ), split( a:groups, ',' ), 0 )
 	let b:css_color_hi  = {}
 	let b:css_color_syn = {}
-
-	augroup CSSColor
-		autocmd! * <buffer>
-		autocmd ColorScheme <buffer> call css_color#reinit()
-		autocmd BufWinEnter <buffer> call s:create_matches()
-		autocmd BufWinLeave <buffer> call s:clear_matches()
-	augroup END
+	let b:css_color_off = 1
 
 	call css_color#enable()
 

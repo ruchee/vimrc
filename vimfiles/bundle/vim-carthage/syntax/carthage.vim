@@ -18,7 +18,7 @@ syntax match carthageComment "\v#.*$"
 
 " Operators
 syntax match carthageOperator "\v\>\="
-syntax match carthageOperator "\v\~>"
+syntax match carthageOperator "\v\~\>"
 syntax match carthageOperator "\v\=\="
 
 " Strings (version numbers, tags, etc.)

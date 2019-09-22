@@ -107,8 +107,7 @@ spec:
 	- port: ${7:80}
 		targetPort: $6
 	selector:
-		app: $1
-		tier: $3
+		$3
 endsnippet
 
 snippet depsvcing "Deployment, service, and ingress" !b
@@ -148,8 +147,7 @@ spec:
 	- port: ${7:80}
 		targetPort: $6
 	selector:
-		app: $1
-		tier: $3
+		$3
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -535,4 +533,82 @@ roleRef:
 	kind: $1Role #this must be Role or ClusterRole
 	name: $4 # this must match the name of the Role or ClusterRole you wish to bind to
 	apiGroup: rbac.authorization.k8s.io
+endsnippet
+
+snippet hpa "HorizontalPodAutoscaler" !b
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+	name: ${5:$1}
+spec:
+	scaleTargetRef:
+		apiVersion: apps/v1
+		kind: Deployment
+		name: ${1:mydeployment}
+	minReplicas: ${2:1}
+	maxReplicas: ${3:5}
+	targetCPUUtilizationPercentage: ${4:70}
+endsnippet
+
+snippet pvolm "Volume Mount and spec" !b
+	volumeMounts:
+	- name: ${1:volume}
+		mountPath: ${2:/etc/mount/path}
+		${3:subPath: ${4: key}}
+volumes: 
+- name: $1
+	${5:configMap}:
+		${6:name}: ${7:someName}
+endsnippet
+
+snippet volm "Volume Mount" !b
+- name: ${1:volume}
+	mountPath: ${2:/etc/mount/path}
+	${3:subPath: ${4: key}}
+$0
+endsnippet
+
+snippet prom "Prometheus annotations" !b
+annotations:
+	prometheus.io/scrape: "true"
+	prometheus.io/endpoint: "${1:/metrics}"
+	prometheus.io/port: "${2:8080}"
+endsnippet
+
+snippet aff "Affinitiy/Anti-Affinity" !b
+pod${1:Anti}Affinity:
+	${2:preferred|required}DuringSchedulingIgnoredDuringExecution:
+	- weight: 100
+		podAffinityTerm:
+			labelSelector:
+				matchExpressions:
+				- key: ${3:app}
+					operator: In
+					values:
+					- ${4:appname}
+			topologyKey: ${5:kubernetes.io/hostname}
+endsnippet 
+
+snippet hpa "Horizontal Pod Autoscaler" !b
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ${1:hpa-name}
+  namespace: ${2:default}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ${3:deployment-name}
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 10
+  - type: Resource
+    resource:
+    name: memory
+      targetAverageValue: 1000Mi
 endsnippet

@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    356
+" @Revision:    362
 
 " :filedoc:
 " Various agents for use as key handlers in tlib#input#List()
@@ -463,21 +463,6 @@ function! tlib#agent#EditFile(world, selected) "{{{3
 endf
 
 
-function! tlib#agent#EditFileInWindow(world, selected) "{{{3
-    Tlibtrace 'tlib', a:selected
-    if !empty(a:selected)
-        let back = a:world.SwitchWindow('win')
-        Tlibtrace 'tlib', back
-        for bufname in a:selected
-            let cmd = &modified && &nohidden ? 'sbuffer' : 'buffer'
-            exec cmd fnameescape(bufname)
-        endfor
-        " exec back
-    endif
-    return tlib#agent#Exit(a:world, a:selected)
-endf
-
-
 function! tlib#agent#EditFileInSplit(world, selected) "{{{3
     Tlibtrace 'tlib', a:selected
     call a:world.CloseScratch()
@@ -509,6 +494,15 @@ function! tlib#agent#EditFileInTab(world, selected) "{{{3
 endf
 
 
+function! tlib#agent#EditFileInWindow(world, selected) "{{{3
+    Tlibtrace 'tlib', a:selected
+    call a:world.CloseScratch()
+    call tlib#file#With('hide edit', 'hide buffer', a:selected, a:world, 1)
+    call a:world.SetOrigin(1)
+    return tlib#agent#Exit(a:world, a:selected)
+endf
+
+
 function! tlib#agent#ToggleScrollbind(world, selected) "{{{3
     Tlibtrace 'tlib', a:selected
     let a:world.scrollbind = get(a:world, 'scrollbind') ? 0 : 1
@@ -535,6 +529,21 @@ endf
 
 
 " Buffer related {{{1
+
+function! tlib#agent#ViewBufferInWindow(world, selected) "{{{3
+    Tlibtrace 'tlib', a:selected
+    if !empty(a:selected)
+        let back = a:world.SwitchWindow('win')
+        Tlibtrace 'tlib', back
+        for bufname in a:selected
+            let cmd = &modified && !&hidden ? 'sbuffer' : 'buffer'
+            exec cmd fnameescape(bufname)
+        endfor
+        " exec back
+    endif
+    return tlib#agent#Exit(a:world, a:selected)
+endf
+
 
 function! tlib#agent#PreviewLine(world, selected) "{{{3
     Tlibtrace 'tlib', a:selected

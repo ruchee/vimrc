@@ -1,7 +1,7 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    1481
+" @Revision:    1482
 
 
 " :filedoc:
@@ -1364,7 +1364,7 @@ function! s:prototype.SetOrigin(...) dict abort "{{{3
     if winview
         let self.winview = tlib#win#GetLayout()
     endif
-    Tlibtrace 'tlib', 'SetOrigin', self.win_id, self.bufnr, self.winview
+    Tlibtrace 'tlib', 'SetOrigin', self.win_id, self.bufnr, get(self,'winview','')
     return self
 endf
 

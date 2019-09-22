@@ -176,24 +176,26 @@ values):
 
   " or copy paste the following into your vimrc for shortform text
   let g:airline_mode_map = {
-      \ '__' : '-',
-      \ 'c'  : 'C',
-      \ 'i'  : 'I',
-      \ 'ic' : 'I',
-      \ 'ix' : 'I',
-      \ 'n'  : 'N',
-      \ 'ni' : 'N',
-      \ 'no' : 'N',
-      \ 'R'  : 'R',
-      \ 'Rv' : 'R',
-      \ 's'  : 'S',
-      \ 'S'  : 'S',
-      \ '' : 'S',
-      \ 't'  : 'T',
-      \ 'v'  : 'V',
-      \ 'V'  : 'V',
-      \ '' : 'V',
+      \ '__'     : '-',
+      \ 'c'      : 'C',
+      \ 'i'      : 'I',
+      \ 'ic'     : 'I',
+      \ 'ix'     : 'I',
+      \ 'n'      : 'N',
+      \ 'multi'  : 'M',
+      \ 'ni'     : 'N',
+      \ 'no'     : 'N',
+      \ 'R'      : 'R',
+      \ 'Rv'     : 'R',
+      \ 's'      : 'S',
+      \ 'S'      : 'S',
+      \ ''     : 'S',
+      \ 't'      : 'T',
+      \ 'v'      : 'V',
+      \ 'V'      : 'V',
+      \ ''     : 'V',
       \ }
+   Note: 'multi' is for displaying the multiple cursor mode
 <
 * define the set of filename match queries which excludes a window from having
   its statusline modified >
@@ -203,12 +205,27 @@ values):
   statusline modified >
   let g:airline_exclude_filetypes = [] " see source for current list
 <
+* define the set of names to be displayed instead of a specific filetypes (for
+  section a and b): >
+
+  let g:airline_filetype_overrides = {
+      \ 'defx':  ['defx', '%{b:defx.paths[0]}'],
+      \ 'gundo': [ 'Gundo', '' ],
+      \ 'help':  [ 'Help', '%f' ],
+      \ 'minibufexpl': [ 'MiniBufExplorer', '' ],
+      \ 'nerdtree': [ get(g:, 'NERDTreeStatusline', 'NERD'), '' ],
+      \ 'startify': [ 'startify', '' ],
+      \ 'vim-plug': [ 'Plugins', '' ],
+      \ 'vimfiler': [ 'vimfiler', '%{vimfiler#get_status_string()}' ],
+      \ 'vimshell': ['vimshell','%{vimshell#get_status_string()}'],
+      \ }
+<
 * defines whether the preview window should be excluded from have its window
   statusline modified (may help with plugins which use the preview window
   heavily) >
   let g:airline_exclude_preview = 0
 <
-* disable the Airline customization for selective windows (this is a
+* disable the Airline customization for selected windows (this is a
   window-local variable so you can disable it per-window) >
   let w:airline_disabled = 1
 
@@ -249,6 +266,7 @@ COMMANDS                                                  *airline-commands*
 
 :AirlineTheme {theme-name}                                   *:AirlineTheme*
   Displays or changes the current theme.
+  Note: `random` will switch to a random theme.
 
 :AirlineToggleWhitespace                          *:AirlineToggleWhitespace*
   Toggles whitespace detection.
@@ -256,11 +274,13 @@ COMMANDS                                                  *airline-commands*
 :AirlineToggle                                              *:AirlineToggle*
   Toggles between the standard 'statusline' and airline.
 
-:AirlineRefresh                                            *:AirlineRefresh*
-  Refreshes all highlight groups and redraws the statusline.
+:AirlineRefresh[!]                                            *:AirlineRefresh*
+  Refreshes all highlight groups and redraws the statusline. With the '!'
+  attribute, skips refreshing the highlighting groups.
 
 :AirlineExtensions                                       *:AirlineExtensions*
   Shows the status of all available airline extensions.
+  Extern means, the extensions does not come bundled with Airline.
 
 ==============================================================================
 AUTOCOMMANDS                                          *airline-autocommands*
@@ -317,6 +337,7 @@ its contents. >
   let g:airline_symbols.readonly = ''
   let g:airline_symbols.linenr = '☰'
   let g:airline_symbols.maxlinenr = ''
+  let g:airline_symbols.dirty=⚡
 
   " old vim-powerline symbols
   let g:airline_left_sep = '⮀'
@@ -336,6 +357,11 @@ entirely.  If you want to disable only certain parts of a section you can try
 using variables defined in the |airline-configuration| or |airline-extensions|
 section.
                                                     |airline-default-sections|
+The following table describes what sections are available by default, and
+which extensions/functions make use of it. Note: using `g:` (global) variable
+prefix means, those variables are defined for all windows. You can use `w:`
+(window local variables) instead to make this apply only to a particular
+window.
 >
   variable names                default contents
   ----------------------------------------------------------------------------
@@ -364,7 +390,7 @@ section.
 Determines a pattern to ignore a buffer name for various things (e.g. the
 tabline extension) or the read-only check. Default is
 `g:airline#extensions#tabline#ignore_bufadd_pat` (see below) or
-`'gundo|undotree|vimfiler|tagbar|nerd_tree|startify|!'` if it is unset.
+`'!|defx|gundo|nerd_tree|startify|tagbar|term://|undotree|vimfiler'` if it is unset.
 
 The "!" prevents terminal buffers to appear in the tabline.
 
@@ -422,7 +448,13 @@ ale <https://github.com/w0rp/ale>
 <
 * ale close_lnum_symbol >
   let airline#extensions#ale#close_lnum_symbol = ')'
-<
+
+-------------------------------------                       *airline-bookmark*
+vim-bookmark <https://github.com/MattesGroeger/vim-bookmarks>
+
+* enable/disable bookmark integration >
+  let g:airline#extensions#bookmark#enabled = 1
+
 -------------------------------------                       *airline-branch*
 vim-airline will display the branch-indicator together with the branch name in
 the statusline, if one of the following plugins is installed:
@@ -432,7 +464,11 @@ lawrencium   <https://bitbucket.org/ludovicchabant/vim-lawrencium>
 vcscommand   <http://www.vim.org/scripts/script.php?script_id=90>
 
 If a file is edited, that is not yet in the repository, the
-notexists symbol will be displayed after the branch name.
+notexists symbol will be displayed after the branch name. If the repository is
+not clean, the dirty symbol will be displayed after the branch name.
+
+Note: the branch extension will be disabled for windows smaller than 80
+characters.
 
 * enable/disable fugitive/lawrencium integration >
   let g:airline#extensions#branch#enabled = 1
@@ -486,6 +522,16 @@ notexists symbol will be displayed after the branch name.
     endif
     return b:perforce_client
   endfunction
+>
+* configure additional vcs checks to run
+  By default, vim-airline will check if the current edited file is untracked
+  in the repository. If so, it will append the `g:airline_symbols.notexists`
+  symbol to the branch name.
+  In addition, it will check if the repository is clean, else it will append
+  the `g:airline_symbols.dirty` symbol to the branch name (if the current file
+  is not untracked). Configure, by setting the following variable: >
+
+  let g:airline#extensions#branch#vcs_checks = ['untracked', 'dirty']
 <
 -------------------------------------                   *airline-bufferline*
 vim-bufferline <https://github.com/bling/vim-bufferline>
@@ -501,6 +547,24 @@ vim-capslock <https://github.com/tpope/vim-capslock>
 
 * enable/disable vim-capslock integration >
   let g:airline#extensions#capslock#enabled = 1
+
+-------------------------------------                    *airline-coc*
+coc <https://github.com/neoclide/coc.nvim>
+
+* enable/disable coc integration >
+  let g:airline#extensions#coc#enabled = 1
+<
+* change error symbol: >
+  let airline#extensions#coc#error_symbol = 'E:'
+<
+* change warning symbol: >
+  let airline#extensions#coc#warning_symbol = 'W:'
+<
+* change error format: >
+  let airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
+<
+* change warning format: >
+  let airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
 
 -------------------------------------                          *airline-csv*
 csv.vim <https://github.com/chrisbra/csv.vim>
@@ -813,6 +877,9 @@ with the middle mouse button to delete that buffer.
 
 * enable/disable displaying tabs, regardless of number. (c) >
   let g:airline#extensions#tabline#show_tabs = 1
+
+* enable/disable displaying number of tabs in the right side (c) >
+  let g:airline#extensions#tabline#show_tab_count = 1
 <
 * configure filename match rules to exclude from the tabline. >
   let g:airline#extensions#tabline#excludes = []
@@ -971,7 +1038,15 @@ with the middle mouse button to delete that buffer.
   " The `unique_tail_improved` - another algorithm, that will smartly uniquify
   " buffers names with similar filename, suppressing common parts of paths.
   let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
-<
+
+  " The `short_path` - is a simple formatter, that will show the
+  filename, with its extension, and the first parent directory only.
+
+  e.g.
+     /home/user/project/subdir/file.ext -> subdir/file.ext
+
+  let g:airline#extensions#tabline#formatter = 'short_path'
+
 * configure the minimum number of buffers needed to show the tabline. >
   let g:airline#extensions#tabline#buffer_min_count = 0
 <
@@ -1016,6 +1091,12 @@ taboo.vim <https://github.com/gcmt/taboo.vim>
 
 * enable/disable taboo.vim integration >
   let g:airline#extensions#taboo#enabled = 1
+<
+-------------------------------------                        *airline-tabws*
+vim-tabws <https://github.com/s1341/vim-tabws>
+
+* enable/disable tabws integration >
+  let g:airline#extensions#tabws#enabled = 1
 <
 -------------------------------------                       *airline-tagbar*
 tagbar <https://github.com/majutsushi/tagbar>
@@ -1092,6 +1173,12 @@ virtualenv <https://github.com/jmcantrell/vim-virtualenv>
 * enable/disable virtualenv integration >
   let g:airline#extensions#virtualenv#enabled = 1
 <
+-------------------------------------                   *airline-vista*
+vista.vim <https://github.com/liuchngxu/vista.vim>
+
+* enable/disable vista integration >
+  let g:airline#extensions#vista#enabled = 1
+
 -------------------------------------                   *airline-whitespace*
 * enable/disable detection of whitespace errors. >
   let g:airline#extensions#whitespace#enabled = 1
@@ -1121,10 +1208,11 @@ virtualenv <https://github.com/jmcantrell/vim-virtualenv>
   " long:   overlong lines
   " trailing: trailing whitespace
   " mixed-indent-file: different indentation in different lines
-  let g:airline#extensions#whitespace#checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file' ]
+  " conflicts: checks for conflict markers
+  let g:airline#extensions#whitespace#checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file', 'conflicts' ]
 
   " this can also be configured for an individual buffer
-  let b:airline_whitespace_checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file' ]
+  let b:airline_whitespace_checks = [ 'indent', 'trailing', 'long', 'mixed-indent-file', 'conflicts ]
 <
 * configure the maximum number of lines where whitespace checking is enabled. >
   let g:airline#extensions#whitespace#max_lines = 20000
@@ -1137,6 +1225,7 @@ virtualenv <https://github.com/jmcantrell/vim-virtualenv>
   let g:airline#extensions#whitespace#mixed_indent_format = 'mixed-indent[%s]'
   let g:airline#extensions#whitespace#long_format = 'long[%s]'
   let g:airline#extensions#whitespace#mixed_indent_file_format = 'mix-indent-file[%s]'
+  let g:airline#extensions#whitespace#conflicts_format = 'conflicts[%s]'
 
 * configure custom trailing whitespace regexp rule >
   let g:airline#extensions#whitespace#trailing_regexp = '\s$'
@@ -1177,9 +1266,9 @@ vim-windowswap <https://github.com/wesQ3/vim-windowswap>
 <
 * set list of filetypes for which word counting is enabled: >
   " The default value matches filetypes typically used for documentation
-  " such as markdown and help files.
+  " such as markdown and help files. Default is:
   let g:airline#extensions#wordcount#filetypes =
-    \ ['help', 'markdown', 'rst', 'org', 'text', 'asciidoc', 'tex', 'mail']
+    \ ['asciidoc', 'help', 'mail', 'markdown', 'org', 'rst', 'tex', 'text'])
   " Use ['all'] to enable for all filetypes.
 
 * defines the name of a formatter for word count will be displayed: >
@@ -1593,6 +1682,7 @@ Contributions and pull requests are welcome.
 ==============================================================================
 LICENSE                                                    *airline-license*
 
-MIT License.  Copyright © 2013-2018 Bailey Ling, Christian Brabandt et al.
+MIT License. Copyright © 2013-2019 Bailey Ling, Christian Brabandt, Mike
+Hartington et al.
 
  vim:tw=78:ts=8:ft=help:norl:

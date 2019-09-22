@@ -39,6 +39,8 @@ Contents~
         :Texecloc ............................... |:Texecloc|
         :Tlibtrace .............................. |:Tlibtrace|
         :Tlibtraceset ........................... |:Tlibtraceset|
+        :Tbrowseqfl ............................. |:Tbrowseqfl|
+        :Tbrowseloc ............................. |:Tbrowseloc|
         tlib#Filter_cnf#New ..................... |tlib#Filter_cnf#New()|
         tlib#Filter_cnfd#New .................... |tlib#Filter_cnfd#New()|
         tlib#Filter_fuzzy#New ................... |tlib#Filter_fuzzy#New()|
@@ -296,6 +298,14 @@ Contents~
     If no `+` or `-` is prepended, assume `+`.
 
     With the optional bang '!', reset any options.
+
+                                                    *:Tbrowseqfl*
+:Tlibtype val, 'type', ...
+    Browse the current |quickfix| list.
+
+                                                    *:Tbrowseloc*
+:Tbrowseloc
+    Browse the current |location-list|.
 
 
 ------------------------------------------------------------------------

@@ -32,7 +32,7 @@ function! s:maps() abort
       let tail = matchstr(head, '<[^<>]*>$\|.$') . tail
       let head = substitute(head, '<[^<>]*>$\|.$', '', '')
     endwhile
-    if head !=# '<skip>' && (flags !~? '<unique>' || empty(maparg(head.tail, mode)))
+    if head !=# '<skip>' && empty(maparg(head.tail, mode))
       exe mode.'map' flags head.tail rhs
     endif
   endfor
@@ -134,13 +134,17 @@ call s:map('n', '[f', '<Plug>unimpairedDirectoryPrevious')
 
 call s:map('n', '[n', '<Plug>unimpairedContextPrevious')
 call s:map('n', ']n', '<Plug>unimpairedContextNext')
+call s:map('x', '[n', '<Plug>unimpairedContextPrevious')
+call s:map('x', ']n', '<Plug>unimpairedContextNext')
 call s:map('o', '[n', '<Plug>unimpairedContextPrevious')
 call s:map('o', ']n', '<Plug>unimpairedContextNext')
 
-nnoremap <silent> <Plug>unimpairedContextPrevious :call <SID>Context(1)<CR>
-nnoremap <silent> <Plug>unimpairedContextNext     :call <SID>Context(0)<CR>
-onoremap <silent> <Plug>unimpairedContextPrevious :call <SID>ContextMotion(1)<CR>
-onoremap <silent> <Plug>unimpairedContextNext     :call <SID>ContextMotion(0)<CR>
+nnoremap <silent> <Plug>unimpairedContextPrevious :<C-U>call <SID>Context(1)<CR>
+nnoremap <silent> <Plug>unimpairedContextNext     :<C-U>call <SID>Context(0)<CR>
+xnoremap <silent> <Plug>unimpairedContextPrevious :<C-U>exe 'normal! gv'<Bar>call <SID>Context(1)<CR>
+xnoremap <silent> <Plug>unimpairedContextNext     :<C-U>exe 'normal! gv'<Bar>call <SID>Context(0)<CR>
+onoremap <silent> <Plug>unimpairedContextPrevious :<C-U>call <SID>ContextMotion(1)<CR>
+onoremap <silent> <Plug>unimpairedContextNext     :<C-U>call <SID>ContextMotion(0)<CR>
 
 function! s:Context(reverse) abort
   call search('^\(@@ .* @@\|[<=>|]\{7}[<=>|]\@!\)', a:reverse ? 'bW' : 'W')
@@ -289,11 +293,11 @@ function! s:legacy_option_map(letter) abort
   return y . 'o' . a:letter . ':echo "Use ' . y . 'o' . a:letter . ' instead"' . "\<CR>"
 endfunction
 
-if empty(maparg('co', 'n'))
+if empty(maparg('co', 'n')) && empty(maparg('c', 'n'))
   nmap <silent><expr> co <SID>legacy_option_map(nr2char(getchar()))
   nnoremap cop <Nop>
 endif
-if empty(maparg('=o', 'n'))
+if empty(maparg('=o', 'n')) && empty(maparg('=', 'n'))
   nmap <silent><expr> =o <SID>legacy_option_map(nr2char(getchar()))
   nnoremap =op <Nop>
 endif
@@ -332,23 +336,23 @@ function! s:putline(how, map) abort
     call setreg(v:register, body, 'l')
     exe 'normal! "'.v:register.a:how
     call setreg(v:register, body, type)
-    silent! call repeat#set("\<Plug>unimpairedPut".a:map)
   endif
+  silent! call repeat#set("\<Plug>unimpairedPut".a:map)
 endfunction
 
 nnoremap <silent> <Plug>unimpairedPutAbove :call <SID>putline('[p', 'Above')<CR>
 nnoremap <silent> <Plug>unimpairedPutBelow :call <SID>putline(']p', 'Below')<CR>
 
-call s:map('n', '[p', '<Plug>unimpairedPutAbove', '<unique>')
-call s:map('n', ']p', '<Plug>unimpairedPutBelow', '<unique>')
+call s:map('n', '[p', '<Plug>unimpairedPutAbove')
+call s:map('n', ']p', '<Plug>unimpairedPutBelow')
 call s:map('n', '[P', '<Plug>unimpairedPutAbove')
 call s:map('n', ']P', '<Plug>unimpairedPutBelow')
-call s:map('n', '>P', ":call <SID>putline('[p', 'Above')<CR>>']", '<silent>')
-call s:map('n', '>p', ":call <SID>putline(']p', 'Below')<CR>>']", '<silent>')
-call s:map('n', '<P', ":call <SID>putline('[p', 'Above')<CR><']", '<silent>')
-call s:map('n', '<p', ":call <SID>putline(']p', 'Below')<CR><']", '<silent>')
-call s:map('n', '=P', ":call <SID>putline('[p', 'Above')<CR>=']", '<silent>')
-call s:map('n', '=p', ":call <SID>putline(']p', 'Below')<CR>=']", '<silent>')
+call s:map('n', '>P', ":<C-U>call <SID>putline(v:count1 . '[p', 'Above')<CR>>']", '<silent>')
+call s:map('n', '>p', ":<C-U>call <SID>putline(v:count1 . ']p', 'Below')<CR>>']", '<silent>')
+call s:map('n', '<P', ":<C-U>call <SID>putline(v:count1 . '[p', 'Above')<CR><']", '<silent>')
+call s:map('n', '<p', ":<C-U>call <SID>putline(v:count1 . ']p', 'Below')<CR><']", '<silent>')
+call s:map('n', '=P', ":<C-U>call <SID>putline(v:count1 . '[p', 'Above')<CR>=']", '<silent>')
+call s:map('n', '=p', ":<C-U>call <SID>putline(v:count1 . ']p', 'Below')<CR>=']", '<silent>')
 
 " Section: Encoding and decoding
 
@@ -451,6 +455,7 @@ function! s:xml_encode(str) abort
   let str = substitute(str,'<','\&lt;','g')
   let str = substitute(str,'>','\&gt;','g')
   let str = substitute(str,'"','\&quot;','g')
+  let str = substitute(str,"'",'\&apos;','g')
   return str
 endfunction
 

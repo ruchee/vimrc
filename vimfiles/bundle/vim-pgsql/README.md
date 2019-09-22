@@ -73,8 +73,12 @@ cd src
 make install
 ```
 
-This will update `syntax/pgsql.vim`. The script has been tested in macOS, but it
-should work on any *nix system.
+This will update `syntax/pgsql.vim`. Note that you will need a working local
+PostgreSQL instance: `make` will create a database called `vim_pgsql_syntax` to
+extract all the keywords. You may then execute `make distclean` to drop the
+database.
+
+The script has been tested in macOS, but it should work on any *nix system.
 
 
 # Acknowledgments

@@ -73,7 +73,7 @@ select synfunction || '()' from get_builtin_functions() order by synfunction;
 select vim_extensions();
 select '-- Extensions names';
 select extname from extension_names() where not extname ~* '-' order by extname;
-select '-- Lgeacy extensions names';
+select '-- Legacy extensions names';
 select extname from legacy_extension_names() where not extname ~* '-' order by extname;
 select '-- Catalog tables';
 select table_name from get_catalog_tables() order by table_name;
@@ -117,7 +117,32 @@ select U&"d!0061t!+000061" uescape '!' from T;
 
 -- String constants with C-style escapes
 select E'\b\f\n\r\t''abc\FF\'abc\'';
+
+-- Datetime expressions (https://www.postgresql.org/docs/current/functions-datetime.html)
+select make_interval(days => 10);
+select timestamp with time zone '2005-04-02 12:00-07' + interval '1 day';
+select timestamp without time zone '2005-04-02 12:00-07' + interval '1 day'
+select extract(epoch from timestamptz '2013-07-01 12:00:00') -
+       extract(epoch from timestamptz '2013-03-01 12:00:00');
+select extract(century from timestamp '2000-12-16 12:21:13');
+select extract(day from timestamp '2000-12-16 12:21:13');
+select extract(decade from timestamp '2000-12-16 12:21:13');
+select extract(dow from timestamp '2000-12-16 12:21:13');
+select extract(doy from timestamp '2000-12-16 12:21:13');
+select extract(isodow from timestamp '2000-12-16 12:21:13');
+select extract(isoyear from timestamp '2000-12-16 12:21:13');
+select extract(microseconds from timestamp '2000-12-16 12:21:13');
+select extract(millennium from timestamp '2000-12-16 12:21:13');
+select extract(milliseconds from timestamp '2000-12-16 12:21:13');
+select extract(quarter from timestamp '2000-12-16 12:21:13');
+select extract(timezone from timestamp '2000-12-16 12:21:13');
+select extract(timezone_hour from timestamp '2000-12-16 12:21:13');
+select extract(timezone_minute from timestamp '2000-12-16 12:21:13');
+select extract(week from timestamp '2000-12-16 12:21:13');
+select timestamp '2001-02-16 20:38:40' at time zone 'America/Denver';
 $HERE$;
+
+
 
 \o
 select 'done!';

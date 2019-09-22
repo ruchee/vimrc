@@ -14,8 +14,8 @@ function! emmet#lang#less#imageSize() abort
   call emmet#lang#css#imageSize()
 endfunction
 
-function! emmet#lang#less#encodeImage() abort
-  return emmet#lang#css#encodeImage()
+function! emmet#lang#less#imageEncode() abort
+  return emmet#lang#css#imageEncode()
 endfunction
 
 function! emmet#lang#less#parseTag(tag) abort
@@ -44,4 +44,8 @@ endfunction
 
 function! emmet#lang#less#removeTag() abort
   call emmet#lang#css#removeTag()
+endfunction
+
+function! emmet#lang#less#mergeLines() abort
+  call emmet#lang#css#mergeLines()
 endfunction

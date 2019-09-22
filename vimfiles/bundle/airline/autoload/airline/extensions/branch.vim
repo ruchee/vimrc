@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2018 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2019 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -17,6 +17,7 @@ let s:vcs_config = {
 \  'git': {
 \    'exe': 'git',
 \    'cmd': 'git status --porcelain -- ',
+\    'dirty': 'git status -uno --porcelain --ignore-submodules',
 \    'untracked_mark': '??',
 \    'exclude': '\.git',
 \    'update_branch': 's:update_git_branch',
@@ -27,6 +28,7 @@ let s:vcs_config = {
 \  'mercurial': {
 \    'exe': 'hg',
 \    'cmd': 'hg status -u -- ',
+\    'dirty': 'hg status -mard',
 \    'untracked_mark': '?',
 \    'exclude': '\.hg',
 \    'update_branch': 's:update_hg_branch',
@@ -51,6 +53,7 @@ function! s:init_buffer()
     let b:buffer_vcs_config[vcs] = {
           \     'branch': '',
           \     'untracked': '',
+          \     'dirty': 0,
           \   }
   endfor
   unlet! b:airline_head
@@ -98,7 +101,7 @@ endfunction
 function! s:display_git_branch()
   let name = b:buffer_vcs_config['git'].branch
   try
-    let commit = fugitive#buffer().commit()
+    let commit = matchstr(FugitiveParse()[0], '^\x\+')
 
     if has_key(s:names, commit)
       let name = get(s:names, commit)."(".name.")"
@@ -172,11 +175,12 @@ endfunction
 
 function! s:update_untracked()
   let file = expand("%:p")
-  if empty(file) || isdirectory(file)
+  if empty(file) || isdirectory(file) || !empty(&buftype)
     return
   endif
 
   let needs_update = 1
+  let vcs_checks   = get(g:, "airline#extensions#branch#vcs_checks", ["untracked", "dirty"])
   for vcs in keys(s:vcs_config)
     if file =~ s:vcs_config[vcs].exclude
       " Skip check for files that live in the exclude directory
@@ -193,17 +197,25 @@ function! s:update_untracked()
   endif
 
   for vcs in keys(s:vcs_config)
+    " only check, for git, if fugitive is installed
+    " and for 'hg' if lawrencium is installed, else skip
+    if vcs is# 'git' && !airline#util#has_fugitive()
+      continue
+    elseif vcs is# 'mercurial' && !airline#util#has_lawrencium()
+      continue
+    endif
     let config = s:vcs_config[vcs]
-    if g:airline#init#vim_async
-      " Note that asynchronous update updates s:vcs_config only, and only
-      " s:update_untracked updates b:buffer_vcs_config. If s:vcs_config is
-      " invalidated again before s:update_untracked is called, then we lose the
-      " result of the previous call, i.e. the head string is not updated. It
-      " doesn't happen often in practice, so we let it be.
-      noa call airline#async#vim_vcs_untracked(config, file)
-    else
-      " nvim async or vim without job-feature
-      noa call airline#async#nvim_vcs_untracked(config, file, vcs)
+    " Note that asynchronous update updates s:vcs_config only, and only
+    " s:update_untracked updates b:buffer_vcs_config. If s:vcs_config is
+    " invalidated again before s:update_untracked is called, then we lose the
+    " result of the previous call, i.e. the head string is not updated. It
+    " doesn't happen often in practice, so we let it be.
+    if index(vcs_checks, 'untracked') > -1
+      call airline#async#vcs_untracked(config, file, vcs)
+    endif
+    " Check clean state of repo
+    if index(vcs_checks, 'dirty') > -1
+      call airline#async#vcs_clean(config.dirty, file, vcs)
     endif
   endfor
 endfunction
@@ -238,7 +250,13 @@ function! airline#extensions#branch#head()
       let b:airline_head .= s:vcs_config[vcs].exe .':'
     endif
     let b:airline_head .= s:format_name({s:vcs_config[vcs].display_branch}())
-    let b:airline_head .= b:buffer_vcs_config[vcs].untracked
+    let additional = b:buffer_vcs_config[vcs].untracked
+    if empty(additional) &&
+          \ has_key(b:buffer_vcs_config[vcs], 'dirty') &&
+          \ b:buffer_vcs_config[vcs].dirty
+      let additional = g:airline_symbols['dirty']
+    endif
+    let b:airline_head .= additional
   endfor
 
   if empty(heads)
@@ -261,8 +279,10 @@ function! airline#extensions#branch#head()
 
   if exists("g:airline#extensions#branch#displayed_head_limit")
     let w:displayed_head_limit = g:airline#extensions#branch#displayed_head_limit
-    if len(b:airline_head) > w:displayed_head_limit - 1
-      let b:airline_head = b:airline_head[0:(w:displayed_head_limit - 1)].(&encoding ==? 'utf-8' ?  '…' : '.')
+    if strwidth(b:airline_head) > w:displayed_head_limit - 1
+      let b:airline_head =
+            \ airline#util#strcharpart(b:airline_head, 0, w:displayed_head_limit - 1)
+            \ . (&encoding ==? 'utf-8' ?  '…' : '.')
     endif
   endif
 
@@ -274,10 +294,9 @@ function! airline#extensions#branch#get_head()
   let winwidth = get(airline#parts#get('branch'), 'minwidth', 120)
   let minwidth = empty(get(b:, 'airline_hunks', '')) ? 14 : 7
   let head = airline#util#shorten(head, winwidth, minwidth)
-  let empty_message = get(g:, 'airline#extensions#branch#empty_message', '')
   let symbol = get(g:, 'airline#extensions#branch#symbol', g:airline_symbols.branch)
   return empty(head)
-        \ ? empty_message
+        \ ? get(g:, 'airline#extensions#branch#empty_message', '')
         \ : printf('%s%s', empty(symbol) ? '' : symbol.(g:airline_symbols.space), head)
 endfunction
 

@@ -1,6 +1,7 @@
 " For debugging, inspired by https://github.com/w0rp/rust/blob/master/autoload/rust/debugging.vim
 
 let s:global_variable_list = [
+            \ '_rustfmt_autosave_because_of_config',
             \ 'ftplugin_rust_source_path',
             \ 'loaded_syntastic_rust_cargo_checker',
             \ 'loaded_syntastic_rust_filetype',
@@ -28,7 +29,6 @@ let s:global_variable_list = [
             \ 'rustc_makeprg_no_percent',
             \ 'rustc_path',
             \ 'rustfmt_autosave',
-            \ 'rustfmt_autosave_because_of_config',
             \ 'rustfmt_autosave_if_config_present',
             \ 'rustfmt_command',
             \ 'rustfmt_emit_files',
@@ -44,7 +44,9 @@ endfunction
 
 function! s:EchoGlobalVariables() abort
     for l:key in s:global_variable_list
-        call s:Echo('let g:' . l:key . ' = ' . string(get(g:, l:key, v:null)))
+        if l:key !~# '^_'
+            call s:Echo('let g:' . l:key . ' = ' . string(get(g:, l:key, v:null)))
+        endif
 
         if has_key(b:, l:key)
             call s:Echo('let b:' . l:key . ' = ' . string(b:[l:key]))

@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2017-2018 Cimbali et al
+" MIT License. Copyright (c) 2017-2019 Cimbali et al
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -7,13 +7,9 @@ if !airline#util#has_fugitive()
   finish
 endif
 
-
-let s:has_autochdir = exists("+autochdir") && &autochdir
-if s:has_autochdir
-  let s:fmod = ':p'
-else
-  let s:fmod = ':.'
-endif
+function! s:ModifierFlags()
+  return (exists("+autochdir") && &autochdir) ? ':p' : ':.'
+endfunction
 
 function! airline#extensions#fugitiveline#bufname()
   if !exists('b:fugitive_name')
@@ -21,7 +17,11 @@ function! airline#extensions#fugitiveline#bufname()
     try
       if bufname('%') =~? '^fugitive:' && exists('*FugitiveReal')
         let b:fugitive_name = FugitiveReal(bufname('%'))
-      elseif exists('b:git_dir')
+      elseif exists('b:git_dir') && exists('*fugitive#repo')
+        if get(b:, 'fugitive_type', '') is# 'blob'
+          let b:fugitive_name = fugitive#repo().translate(FugitivePath(@%, ''))
+        endif
+      elseif exists('b:git_dir') && !exists('*fugitive#repo')
         let buffer = fugitive#buffer()
         if buffer.type('blob')
           let b:fugitive_name = buffer.repo().translate(buffer.path('/'))
@@ -31,15 +31,16 @@ function! airline#extensions#fugitiveline#bufname()
     endtry
   endif
 
+  let fmod = s:ModifierFlags()
   if empty(b:fugitive_name)
-    return fnamemodify(bufname('%'), s:fmod)
+    return fnamemodify(bufname('%'), fmod)
   else
-    return fnamemodify(b:fugitive_name, s:fmod). " [git]"
+    return fnamemodify(b:fugitive_name, fmod). " [git]"
   endif
 endfunction
 
 function! airline#extensions#fugitiveline#init(ext)
-  if s:has_autochdir
+  if exists("+autochdir") && &autochdir
     " if 'acd' is set, vim-airline uses the path section, so we need to redefine this here as well
     call airline#parts#define_raw('path', '%<%{airline#extensions#fugitiveline#bufname()}%m')
   else

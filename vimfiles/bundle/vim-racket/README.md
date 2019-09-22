@@ -3,13 +3,12 @@
 Installation
 ------------
 
-Module requires [pathogen.vim](https://github.com/tpope/vim-pathogen).
+This module works with many Vim plugin managers. To use with pathogen, type the following into a terminal:
 
     cd ~/.vim/bundle
     git clone https://github.com/wlangstroth/vim-racket.git
-    
-Re-open your file(s) and benefit from the features of _vim-racket_.
 
+Re-open your file(s) and benefit from the features of _vim-racket_.
 
 ## Thanks
 

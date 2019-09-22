@@ -1,5 +1,6 @@
 -- Statements
 abort
+add
 alter
 analyze
 begin
@@ -274,6 +275,7 @@ zip_state
 zip_state_loc
 -- Additional types
 array
+at
 bigint
 bigserial
 bit
@@ -295,7 +297,6 @@ serial4
 serial8
 smallint
 smallserial
-text
 timestamp
 varchar
 varying
@@ -2057,9 +2058,6 @@ plperlu_validator()
 plpgsql_call_handler()
 plpgsql_inline_handler()
 plpgsql_validator()
-plpython3_call_handler()
-plpython3_inline_handler()
-plpython3_validator()
 pltcl_call_handler()
 pltclu_call_handler()
 point()
@@ -3480,10 +3478,6 @@ gin_extract_value_timetz() -- function
 gin_extract_value_uuid() -- function
 gin_extract_value_varbit() -- function
 gin_numeric_cmp() -- function
--- Extension: plpython3u
-plpython3_call_handler() -- function
-plpython3_inline_handler() -- function
-plpython3_validator() -- function
 -- Extension: ltree
 index() -- function
 lca() -- function
@@ -3839,9 +3833,6 @@ lo_oid() -- function
 lo -- type
 -- Extension: pgrowlocks
 pgrowlocks() -- function
--- Extension: jsonb_plpython3u
-jsonb_to_plpython3() -- function
-plpython3_to_jsonb() -- function
 -- Extension: sslinfo
 ssl_cipher() -- function
 ssl_client_cert_present() -- function
@@ -3866,9 +3857,6 @@ autoinc() -- function
 us_gaz -- table
 us_lex -- table
 us_rules -- table
--- Extension: hstore_plpython3u
-hstore_to_plpython3() -- function
-plpython3_to_hstore() -- function
 -- Extension: postgis_topology
 addedge() -- function
 addface() -- function
@@ -4526,8 +4514,6 @@ levenshtein_less_equal() -- function
 metaphone() -- function
 soundex() -- function
 text_soundex() -- function
--- Extension: ltree_plpython3u
-ltree_to_plpython3() -- function
 -- Extension: pgrouting
 pgr_alphashape() -- function
 pgr_analyzegraph() -- function
@@ -4724,16 +4710,28 @@ plpython_validator() -- function
 plpython2_call_handler() -- function
 plpython2_inline_handler() -- function
 plpython2_validator() -- function
+-- Extension: plpython3u
+plpython3_call_handler() -- function
+plpython3_inline_handler() -- function
+plpython3_validator() -- function
 -- Extension: hstore_plpythonu
 hstore_to_plpython() -- function
 plpython_to_hstore() -- function
 -- Extension: hstore_plpython2u
 hstore_to_plpython2() -- function
 plpython2_to_hstore() -- function
+-- Extension: hstore_plpython3u
+hstore_to_plpython3() -- function
+plpython3_to_hstore() -- function
+-- Extension: jsonb_plpython3u
+jsonb_to_plpython3() -- function
+plpython3_to_jsonb() -- function
 -- Extension: ltree_plpythonu
 ltree_to_plpython() -- function
 -- Extension: ltree_plpython2u
 ltree_to_plpython2() -- function
+-- Extension: ltree_plpython3u
+ltree_to_plpython3() -- function
 -- Extension: pldbgapi
 pldbg_abort_target() -- function
 pldbg_attach_to_port() -- function
@@ -4786,17 +4784,14 @@ fuzzystrmatch
 hstore
 hstore_plperl
 hstore_plperlu
-hstore_plpython3u
 insert_username
 intagg
 intarray
 isn
 jsonb_plperl
 jsonb_plperlu
-jsonb_plpython3u
 lo
 ltree
-ltree_plpython3u
 moddatetime
 pageinspect
 pg_buffercache
@@ -4813,7 +4808,6 @@ pgtap
 plperl
 plperlu
 plpgsql
-plpython3u
 pltcl
 pltclu
 postgis
@@ -4832,14 +4826,18 @@ tsm_system_rows
 tsm_system_time
 unaccent
 xml2
--- Lgeacy extensions names
+-- Legacy extensions names
 chkpass
 hstore_plpython2u
+hstore_plpython3u
 hstore_plpythonu
+jsonb_plpython3u
 ltree_plpython2u
+ltree_plpython3u
 ltree_plpythonu
 pldbgapi
 plpython2u
+plpython3u
 plpythonu
 -- Catalog tables
 administrable_role_authorizations
@@ -5029,7 +5027,6 @@ views
 absolute
 access
 action
-add
 admin
 after
 aggregate
@@ -5044,16 +5041,17 @@ asc
 assertion
 assignment
 asymmetric
-at
 attach
 attribute
 authorization
 backward
+basetype
 before
 between
 binary
 both
 by
+bypassrls
 cache
 call
 called
@@ -5062,6 +5060,7 @@ cascaded
 case
 cast
 catalog
+century
 chain
 characteristics
 check
@@ -5071,6 +5070,7 @@ collate
 collation
 column
 columns
+combinefunc
 comments
 committed
 concurrently
@@ -5082,6 +5082,8 @@ content
 continue
 conversion
 cost
+createdb
+createrole
 cross
 csv
 current
@@ -5098,6 +5100,7 @@ data
 database
 day
 dec
+decade
 default
 defaults
 deferrable
@@ -5107,18 +5110,22 @@ delimiter
 delimiters
 depends
 desc
+deserialfunc
 detach
 dictionary
 disable
 distinct
 document
 domain
+dow
+doy
 each
 else
 enable
 encoding
 encrypted
 enum
+epoch
 escape
 event
 except
@@ -5132,6 +5139,9 @@ extract
 false
 family
 filter
+finalfunc
+finalfunc_extra
+finalfunc_modify
 first
 float
 following
@@ -5156,6 +5166,7 @@ having
 header
 hold
 hour
+hypothetical
 identity
 if
 ilike
@@ -5170,6 +5181,7 @@ index
 indexes
 inherit
 inherits
+initcond
 initially
 inline
 inner
@@ -5182,13 +5194,17 @@ into
 invoker
 is
 isnull
+isodow
 isolation
+isoyear
 join
 key
 language
 large
 last
 lateral
+lc_collate
+lc_ctype
 leading
 leakproof
 least
@@ -5197,20 +5213,33 @@ level
 like
 limit
 local
+locale
 localtime
 localtimestamp
 location
 locked
 logged
+login
 mapping
 match
 materialized
 maxvalue
 method
+mfinalfunc
+mfinalfunc_extra
+mfinalfunc_modify
+microseconds
+millennium
+milliseconds
+minitcond
 minute
 minvalue
+minvfunc
 mode
 month
+msfunc
+msspace
+mstype
 name
 names
 national
@@ -5219,7 +5248,14 @@ nchar
 new
 next
 no
+nobypassrls
+nocreatedb
+nocreaterole
+noinherit
+nologin
 none
+noreplication
+nosuperuser
 not
 nothing
 notnull
@@ -5256,6 +5292,7 @@ partial
 partition
 passing
 password
+permissive
 placing
 plans
 policy
@@ -5269,10 +5306,15 @@ procedural
 procedure
 procedures
 program
+provider
+public
 publication
+quarter
 quote
 range
 read
+read_write
+readonly
 recheck
 recursive
 ref
@@ -5283,8 +5325,11 @@ rename
 repeatable
 replace
 replica
+replication
 restart
 restrict
+restricted
+restrictive
 returning
 returns
 right
@@ -5295,6 +5340,7 @@ routines
 row
 rows
 rule
+safe
 schema
 schemas
 scroll
@@ -5302,19 +5348,24 @@ search
 second
 sequence
 sequences
+serialfunc
 serializable
 server
 session
 session_user
 setof
 sets
+sfunc
 share
+shareable
 similar
 simple
 skip
 snapshot
 some
+sortop
 sql
+sspace
 stable
 standalone
 statement
@@ -5324,8 +5375,10 @@ stdout
 storage
 strict
 strip
+stype
 subscription
 substring
+superuser
 symmetric
 sysid
 system
@@ -5338,6 +5391,9 @@ template
 temporary
 then
 ties
+timezone
+timezone_hour
+timezone_minute
 to
 trailing
 transform
@@ -5355,7 +5411,9 @@ union
 unique
 unknown
 unlogged
+unsafe
 until
+usage
 user
 using
 valid
@@ -5368,6 +5426,7 @@ version
 view
 views
 volatile
+week
 when
 where
 whitespace
@@ -5461,6 +5520,7 @@ pg_catalog
 <@>
 <^
 =
+=>
 >
 >=
 >>
@@ -5551,6 +5611,7 @@ duplicate_cursor
 duplicate_database
 duplicate_file
 duplicate_function
+duplicate_json_object_key_value
 duplicate_object
 duplicate_prepared_statement
 duplicate_schema
@@ -5634,6 +5695,8 @@ invalid_function_definition
 invalid_grant_operation
 invalid_grantor
 invalid_indicator_parameter_value
+invalid_json_subscript
+invalid_json_text
 invalid_locator_specification
 invalid_name
 invalid_object_definition
@@ -5665,10 +5728,15 @@ invalid_xml_content
 invalid_xml_document
 invalid_xml_processing_instruction
 io_error
+json_array_not_found
+json_member_not_found
+json_number_not_found
+json_scalar_required
 locator_exception
 lock_file_exists
 lock_not_available
 modifying_sql_data_not_permitted
+more_than_one_json_item
 most_specific_type_mismatch
 name_too_long
 no_active_sql_transaction
@@ -5676,6 +5744,9 @@ no_active_sql_transaction_for_branch_transaction
 no_additional_dynamic_result_sets_returned
 no_data
 no_data_found
+no_json_item
+non_numeric_json_item
+non_unique_keys_in_json_object
 nonstandard_use_of_escape_character
 not_an_xml_document
 not_null_violation
@@ -5684,6 +5755,7 @@ null_value_no_indicator_parameter
 null_value_not_allowed
 numeric_value_out_of_range
 object_in_use
+object_not_found
 object_not_in_prerequisite_state
 operator_intervention
 out_of_memory
@@ -5703,6 +5775,7 @@ savepoint_exception
 schema_and_data_statement_mixing_not_supported
 sequence_generator_limit_exceeded
 serialization_failure
+singleton_json_item_required
 snapshot_too_old
 sql_routine_exception
 sql_statement_not_yet_complete
@@ -5722,6 +5795,8 @@ system_error
 too_many_arguments
 too_many_columns
 too_many_connections
+too_many_json_array_elements
+too_many_json_object_members
 too_many_rows
 transaction_integrity_constraint_violation
 transaction_resolution_unknown
@@ -5775,4 +5850,27 @@ select U&"d!0061t!+000061" uescape '!' from T;
 
 -- String constants with C-style escapes
 select E'\b\f\n\r\t''abc\FF\'abc\'';
+
+-- Datetime expressions (https://www.postgresql.org/docs/current/functions-datetime.html)
+select make_interval(days => 10);
+select timestamp with time zone '2005-04-02 12:00-07' + interval '1 day';
+select timestamp without time zone '2005-04-02 12:00-07' + interval '1 day'
+select extract(epoch from timestamptz '2013-07-01 12:00:00') -
+       extract(epoch from timestamptz '2013-03-01 12:00:00');
+select extract(century from timestamp '2000-12-16 12:21:13');
+select extract(day from timestamp '2000-12-16 12:21:13');
+select extract(decade from timestamp '2000-12-16 12:21:13');
+select extract(dow from timestamp '2000-12-16 12:21:13');
+select extract(doy from timestamp '2000-12-16 12:21:13');
+select extract(isodow from timestamp '2000-12-16 12:21:13');
+select extract(isoyear from timestamp '2000-12-16 12:21:13');
+select extract(microseconds from timestamp '2000-12-16 12:21:13');
+select extract(millennium from timestamp '2000-12-16 12:21:13');
+select extract(milliseconds from timestamp '2000-12-16 12:21:13');
+select extract(quarter from timestamp '2000-12-16 12:21:13');
+select extract(timezone from timestamp '2000-12-16 12:21:13');
+select extract(timezone_hour from timestamp '2000-12-16 12:21:13');
+select extract(timezone_minute from timestamp '2000-12-16 12:21:13');
+select extract(week from timestamp '2000-12-16 12:21:13');
+select timestamp '2001-02-16 20:38:40' at time zone 'America/Denver';
 

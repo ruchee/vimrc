@@ -105,15 +105,17 @@ Developing
 
 When you install `php.vim` using your preferred installation method, all the needed files are already in place.
 
-If you have a more recent version of PHP installed locally (with all of the PHP extensions you want/need), you may use the provided `Dockerfile` to rebuild the syntax file:
+If you wish to rebuild the syntax file with a more recent version of PHP available on the [Docker Hub], you should use the provided `Dockerfile` to do so:
 
 ```bash
-docker build -t stanangeloff/php.vim --no-cache --force-rm .
-docker run --rm -i -v "$PWD":/var/php -t stanangeloff/php.vim > /tmp/php.vim && cat /tmp/php.vim | sed 's/\x0D$//' > syntax/php.vim
-docker rmi stanangeloff/php.vim
+docker build --no-cache --force-rm -f attic/Dockerfile -t php.vim .
+cat syntax/php.vim | docker run --rm -i php.vim > syntax/php.vim.new
+docker rmi php.vim
+mv syntax/php.vim.new syntax/php.vim
 ```
 
-NOTE: The `sed` command strips out Windows line endings. If the updated syntax file fails to load and is corrupted, try loading `syntax/php.vim` in your favourite editor and ensure line endings are set to Unix.
+NOTE: If the updated syntax file fails to load and is corrupted, try loading `syntax/php.vim` in your favourite editor and ensure line endings are set to Unix `\n`.
+
 
   [php.vim-garvin]:  https://github.com/vim-scripts/php.vim--Garvin
   [php.vim-original]: http://www.vim.org/scripts/script.php?script_id=2874
@@ -123,3 +125,4 @@ NOTE: The `sed` command strips out Windows line endings. If the updated syntax f
   [php.vim-source]: https://github.com/StanAngeloff/php.vim/blob/master/syntax/php.vim#L35
   [Blade]: https://github.com/jwalton512/vim-blade
   [syntax-groups]: https://github.com/StanAngeloff/php.vim/blob/41c36f7f/syntax/php.vim#L804
+  [Docker Hub]: https://docs.docker.com/samples/library/php/

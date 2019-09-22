@@ -49,7 +49,7 @@ function! s:show_title(no, title)
   let width = &columns - 23
   echon "\r"
   echohl MoreMsg | call s:logn('testing #'.printf('%03d', a:no))
-  echohl None | call s:logn(': '.(len(title) < width ? (title.repeat(' ', width-len(title))) : strpart(title, 0, width)).' ... ')
+  echohl None | call s:logn(': '.(len(title) < width ? (title.' '.repeat('.', width-len(title)+1)) : strpart(title, 0, width+2)).'... ')
 endfunction
 
 function! s:show_skip(no, title)
@@ -57,7 +57,7 @@ function! s:show_skip(no, title)
   let width = &columns - 23
   echon "\r"
   echohl WarningMsg | call s:logn('skipped #'.printf('%03d', a:no))
-  echohl None | call s:logn(': '.(len(title) < width ? (title.repeat(' ', width-len(title))) : strpart(title, 0, width)).' ... ')
+  echohl None | call s:logn(': '.(len(title) < width ? (title.' '.repeat('.', width-len(title)+1)) : strpart(title, 0, width+2)).'... ')
   echo ''
 endfunction
 
@@ -1055,6 +1055,68 @@ finish
         {
           'query': "{(bg+)+c$$$$}",
           'result': "{background: $$$$#fff url() 0 0 no-repeat;\ncolor: #000;}",
+        },
+      ],
+    },
+  ],
+  'dummy': "}}}"},
+{ 'test-jade': "{{{",
+  'type': 'jade',
+  'categories': [
+    {
+      'name': 'expand abbreviation',
+      'tests': [
+        {
+          'query': "!!!$$$$\\<c-y>,$$$$",
+          'result': "doctype html\n\n",
+        },
+        {
+          'query': "span.my-span$$$$\\<c-y>,$$$$",
+          'result': "span.my-span",
+        },
+      ],
+    },
+  ],
+  'dummy': "}}}"},
+{ 'test-pug': "{{{",
+  'type': 'pug',
+  'categories': [
+    {
+      'name': 'expand abbreviation',
+      'tests': [
+        {
+          'query': "!!!$$$$\\<c-y>,$$$$",
+          'result': "doctype html\n\n",
+        },
+        {
+          'query': "span.my-span$$$$\\<c-y>,$$$$",
+          'result': "span.my-span",
+        },
+        {
+          'query': "input$$$$\\<c-y>,text$$$$",
+          'result': "input(type=\"text\")",
+        },
+      ],
+    },
+  ],
+  'dummy': "}}}"},
+{ 'test-jsx': "{{{",
+  'type': 'javascript.jsx',
+  'categories': [
+    {
+      'name': 'expand abbreviation',
+      'tests': [
+        {
+          'query': "img$$$$\\<c-y>,$$$$",
+          'result': "<img src=\"\" alt=\"\" />",
+        },
+        {
+          'query': "span.my-span$$$$\\<c-y>,$$$$",
+          'result': "<span className=\"my-span\"></span>",
+        },
+        {
+          'query': "function() { return span.my-span$$$$\\<c-y>,$$$$; }",
+          'result': "function() { return <span className=\"my-span\"></span>; }",
         },
       ],
     },

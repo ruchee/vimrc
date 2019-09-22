@@ -24,21 +24,21 @@ endif
 " refine the typescript line comment
 syntax region typescriptLineComment start=+//+ end=/$/ contains=@Spell,typescriptCommentTodo,typescriptRef extend keepend
 
-" add a typescriptBlock group for typescript
-syntax region typescriptBlock
-      \ contained
-      \ matchgroup=typescriptBraces
-      \ start="{"
-      \ end="}"
-      \ extend
-      \ contains=@typescriptAll,@typescriptExpression,typescriptBlock
-      \ fold
+if !hlexists('typescriptTypeCast')
+  " add a typescriptBlock group for typescript
+  syntax region typescriptBlock
+        \ matchgroup=typescriptBraces
+        \ start="{"
+        \ end="}"
+        \ contained
+        \ extend
+        \ contains=@typescriptExpression,typescriptBlock
+        \ fold
+endif
 
-" because this is autoloaded, when developing you're going to need to source
-" the autoload/jsx_pretty/*.vim file manually, or restart vim
-call jsx_pretty#syntax#highlight()
+syntax cluster typescriptExpression add=jsxRegion,typescriptParens
 
-syntax cluster typescriptExpression add=jsxRegion
+runtime syntax/jsx_pretty.vim
 
 let b:current_syntax = 'typescript.tsx'
 

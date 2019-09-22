@@ -132,7 +132,6 @@ function testComment() {
       hoge=<div>valid</div> // according to the jsx spec, this is equal to {<div></div>}
       hoge=<br /> // this is equal to {<br />}
       {...this.props}
-      {...this.props}
     >
       {...testComment()}
     </div>
@@ -191,4 +190,48 @@ function testLitSyntax({ logs = [], ...props }, { show }) {
   `;
 }
 
-export default <div>after default</div>;
+// #79
+const Foobar = () => {
+  return <div>
+    {(() => {
+      const foo="foo";
+      return <input className={"foo"}
+        value="bar"/>; // indent decreased!
+    })()}
+  </div>;
+};
+
+const Foobar = () => {
+  return <div>
+    {(() => {
+      return <input className="foo"
+        value="bar"/>;
+    })()}
+  </div>;
+};
+
+function testIndent() {
+  const a = <div>
+  </div>;
+  return <div>
+  </div>;
+}
+
+module.exports = <div>
+  <div>
+    {
+      var a = <div>
+      </div>;
+    }
+  </div>
+</div>;
+
+export default <cx>
+  <MyComponent
+    attr={1}
+  />
+
+  <OtherComponent
+    attr={2}
+  />
+</cx>

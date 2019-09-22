@@ -31,7 +31,11 @@ function! s:MenuController.showMenu()
         let l:done = 0
 
         while !l:done
-            redraw!
+            if has('nvim')
+                mode
+            else
+                redraw!
+            endif
             call self._echoPrompt()
 
             let l:key = nr2char(getchar())
@@ -58,13 +62,14 @@ function! s:MenuController._echoPrompt()
 
     if self.isMinimal()
         let selection = self.menuItems[self.selection].text
+        let keyword = matchstr(selection, "\([^ ]*")
 
         let shortcuts = map(copy(self.menuItems), "v:val['shortcut']")
-        let shortcuts[self.selection] = " " . split(selection)[0] . " "
+        let shortcuts[self.selection] = " " . keyword . " "
 
         echo "Menu: [" . join(shortcuts, ",") . "] (" . navHelp . " or shortcut): "
     else
-        echo "NERDTree Menu. " . navHelp . " . or the shortcuts indicated"
+        echo "NERDTree Menu. " . navHelp . ", or the shortcuts indicated"
         echo "========================================================="
 
         for i in range(0, len(self.menuItems)-1)

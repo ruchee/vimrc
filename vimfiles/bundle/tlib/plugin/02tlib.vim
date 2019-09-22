@@ -1,8 +1,8 @@
 " @Author:      Tom Link (micathom AT gmail com?subject=[vim])
 " @Created:     2007-04-10.
-" @Last Change: 2018-09-28.
+" @Last Change: 2019-04-09.
 " @License:     GPL (see http://www.gnu.org/licenses/gpl.txt)
-" @Revision:    832
+" @Revision:    836
 " @Website:     http://www.vim.org/account/profile.php?user_id=4037
 " GetLatestVimScripts: 1863 1 tlib.vim
 " tlib.vim -- Some utility functions
@@ -14,7 +14,7 @@ if v:version < 700 "{{{2
     echoerr "tlib requires Vim >= 7"
     finish
 endif
-let g:loaded_tlib = 126
+let g:loaded_tlib = 127
 
 let s:save_cpo = &cpo
 set cpo&vim
@@ -114,6 +114,12 @@ command! -nargs=+ -bang Tlibassert :
 " :display: :Tlibtype val, 'type', ...
 command! -nargs=+ Tlibtype :
 
+
+" Browse the current |quickfix| list.
+command! -bar Tbrowseqfl call tlib#qfl#Browse()
+
+" Browse the current |location-list|.
+command! -bar Tbrowseloc call tlib#loclist#Browse()
 
 
 let &cpo = s:save_cpo

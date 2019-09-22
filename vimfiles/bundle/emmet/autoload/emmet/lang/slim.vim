@@ -114,7 +114,7 @@ function! emmet#lang#slim#imageSize() abort
   call setline('.', substitute(matchstr(line, '^\s*') . slim, "\n", '', 'g'))
 endfunction
 
-function! emmet#lang#slim#encodeImage() abort
+function! emmet#lang#slim#imageEncode() abort
 endfunction
 
 function! emmet#lang#slim#parseTag(tag) abort
@@ -278,4 +278,7 @@ function! emmet#lang#slim#removeTag() abort
   else
     exe sn ',' (n-1) 'delete'
   endif
+endfunction
+
+function! emmet#lang#slim#mergeLines() abort
 endfunction

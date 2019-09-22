@@ -1,4 +1,4 @@
-*wxapp.txt*		微信小程序开发 vim 插件
+*wxapp.txt*		vim plugin for wechat mini program.
 
                                                       ,--.~
 ,--.   ,--.,--.  ,--.,--,--. ,---.  ,---.   ,--.  ,--.`--',--,--,--.~

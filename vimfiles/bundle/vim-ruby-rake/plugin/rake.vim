@@ -242,7 +242,8 @@ function! s:project_ruby_include_path() dict abort
     let cwd = getcwd()
     try
       execute cd fnameescape(self.real())
-      let self._ruby_include_path = system('ruby -rrbconfig -e "print RbConfig::CONFIG[\"rubyhdrdir\"] || RbConfig::CONFIG[\"topdir\"]"')
+      let self._ruby_include_path = system('ruby -rrbconfig -e ' . shellescape(
+            \ 'print RbConfig::CONFIG["rubyhdrdir"] || RbConfig::CONFIG["topdir"]'))
     finally
       execute cd fnameescape(cwd)
     endtry

@@ -34,22 +34,46 @@ endif
 " \@=     positive lookahead
 " \@!     negative lookahead
 
+
+"  <T1, T2>
+" s~~~~~~~e
+
+syntax case match
+
 "  <tag></tag>
 " s~~~~~~~~~~~e
 syntax region tsxRegion
-      \ start=+\(<>\|\%(<\|\w\)\@<!<\z([/a-zA-Z][a-zA-Z0-9:\-.]*\)\)+
-      \ skip=+<!--\_.\{-}-->+
-      \ end=+</\z1\_\s\{-}[^(=>)]>+
-      \ end=+>\n*\t*\s*[),]\@=+
-      \ end=+>[;]*\n*\t*\s*\([};]\n*\t*\s*\)\@=+
-      \ contains=tsxTag,tsxCloseTag,tsxComment,Comment,@Spell,jsBlock,tsxColon
-      \ keepend
+    \ start=+\(\([a-zA-Z]\)\@<!<>\|\(\s\|[(]\s*\)\@<=\z(<[/a-zA-Z],\@!\([a-zA-Z0-9:\-],\@!\)*\)\)+
+    \ skip=+<!--\_.\{-}-->+
+    \ end=+</\_.\{-}>+
+    \ end=+[a-zA-Z0-9.]*[/]*>\s*\n*\s*\n*\s*[});,]\@=+
+    \ contains=tsxTag,tsxCloseTag,tsxComment,Comment,@Spell,tsxColon,tsxIfOperator,tsxElseOperator,jsBlock
+    \ extend
+    \ keepend
+
+
+
+" Negative lookbacks for:
+" <> preceeded by [a-zA-Z]
+" <<Tag...
+" [a-zA-Z]<Tag
+
+" end 1): handle </NormalClosingTag>
+" end 2): handle <SelfClosingTags/>\s*\n*\s*\n*\s*)
+" \s => spaces/tabs
+" \n => end-of-line => \n only match end of line in the buffer.
+" \s*\n*\s*\n*\s* => handles arbitrary spacing between closing tsxTag </tag>
+" and the ending brace for the scope: `}` or `)`
+"
+" \z( pattern \) Braces can be used to make a pattern into an atom.
 
 " <tag>{content}</tag>
 "      s~~~~~~~e
-syn region jsBlock start=+{+ end=+}+
-  \ contained
-  \ contains=TOP
+syn region jsBlock
+    \ start=+{+
+    \ end=+}+
+    \ contained
+    \ contains=TOP
 
 " \@<=    positive lookbehind
 " \@<!    negative lookbehind
@@ -64,7 +88,7 @@ syn region jsBlock start=+{+ end=+}+
 "          s~~~~~~~~~~~~~~e
 syntax region tsxJsBlock
     \ matchgroup=tsxAttributeBraces start=+\([=]\|\s\)\@<={+
-    \ matchgroup=tsxAttributeBraces end=+}\(}\|)\)\@!+
+    \ matchgroup=tsxAttributeBraces end=+}\(\s*}\|)\)\@!+
     \ contained
     \ keepend
     \ extend
@@ -74,9 +98,28 @@ syntax region tsxJsBlock
 " s~~~~~~~~~~~~~~~e
 syntax region tsxTag
       \ start=+<[^ /!?<"'=:]\@=+
-      \ end=+\/\?>+
+      \ end=+[/]\{0,1}>+
       \ contained
-      \ contains=tsxTagName,tsxAttrib,tsxEqual,tsxString,tsxJsBlock,tsxAttributeComment,jsBlock
+      \ contains=tsxTagName,tsxAttrib,tsxEqual,tsxString,tsxJsBlock,tsxAttributeComment,jsBlock,tsxGenerics
+
+syntax region tsxGenerics
+    \ matchgroup=tsxTypeBraces start=+\([<][_\-\.:a-zA-Z0-9]*\|[<][_\-\.:a-zA-Z0-9]*\)\@<=\s*[<]+
+    \ matchgroup=tsxTypeBraces end=+>+
+    \ contains=tsxTypes,tsxGenerics
+    \ contained
+    \ extend
+
+syntax match tsxTypes /[_\.a-zA-Z0-9]/
+    \ contained
+
+
+" For Generics outside of tsxRegion
+" Must come after tsxRegion in this file
+syntax region tsGenerics
+    \ start=+<[A-Z0-9]\([A-Z0-9,]\|\s\)*>+
+    \ end=+>+
+    \ contains=tsxTypes,tsxGenerics
+    \ extend
 
 " </tag>
 " ~~~~~~
@@ -117,8 +160,9 @@ syntax match tsxTagName
 " <tag key={this.props.key}>
 "      ~~~
 syntax match tsxAttrib
-    \ +[-'"<]\@<!\<[a-zA-Z:_][-.0-9a-zA-Z0-9:_]*\>\(['">]\@!\|$\)+
+    \ +[-'"<]\@<!\<[a-zA-Z:_][-.0-9a-zA-Z0-9:_]*[/]\{0,1}\>\(['"]\@!\|$\)+
     \ contained
+    \ keepend
     \ contains=tsxAttribPunct,tsxAttribHook
     \ display
 
@@ -140,6 +184,7 @@ syntax region tsxString contained start=+`+ end=+`+ contains=tsxEntity,@Spell di
 syntax region tsxString contained start=+'+ end=+'+ contains=tsxEntity,@Spell display
 
 syntax match tsxIfOperator +?+
+syntax match tsxNotOperator +!+
 syntax match tsxElseOperator +:+
 
 " highlight def link tsxTagName htmlTagName
@@ -157,6 +202,15 @@ highlight def link tsxAttributeBraces htmlTag
 highlight def link tsxAttributeComment Comment
 highlight def link tsxColon typescriptEndColons
 
+highlight def link tsxGenerics typescriptEndColons
+highlight def link tsGenerics tsxTypeBraces
+
+highlight def link tsxIfOperator typescriptEndColons
+highlight def link tsxNotOperator typescriptEndColons
+highlight def link tsxElseOperator typescriptEndColons
+highlight def link tsxTypeBraces htmlTag
+highlight def link tsxTypes typescriptEndColons
+
 " Custom React Highlights
 syn keyword ReactState state nextState prevState setState
 " Then EITHER (define your own colour scheme):
@@ -165,6 +219,7 @@ syn keyword ReactState state nextState prevState setState
 syn keyword ReactProps props defaultProps ownProps nextProps prevProps
 syn keyword Events e event target value
 syn keyword ReduxKeywords dispatch payload
+syn keyword ReduxHooksKeywords useState useEffect useMemo useCallback
 syn keyword WebBrowser window localStorage
 syn keyword ReactLifeCycleMethods componentWillMount shouldComponentUpdate componentWillUpdate componentDidUpdate componentWillReceiveProps componentWillUnmount componentDidMount
 

@@ -182,7 +182,7 @@ functionality over a normal status line setting.  Airline support is provided by
 default in vaxe.  Current support enables the display of the current hxml build
 file.  The hxml name has an empty star if it's in default mode (☆ ), and a
 filled star if it's in project mode (★ ).  You can disable all of this by
-changing ```g:vaxe_enable_airline``` to 0.
+changing ```g:vaxe_enable_airline_defaults``` to 0.
 
 Personally, I'm perfectly happy using airline, but If you're looking for support
 for the original [powerline][github 4], you can

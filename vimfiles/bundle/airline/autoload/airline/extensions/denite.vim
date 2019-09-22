@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2017-2018 Thomas Dy et al.
+" MIT License. Copyright (c) 2017-2019 Thomas Dy et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -7,14 +7,20 @@ if !get(g:, 'loaded_denite', 0)
   finish
 endif
 
+let s:denite_ver = (exists('*denite#get_status_mode') ? 2 : 3)
 " Denite does not use vim's built-in modal editing but has a custom prompt
 " that implements its own insert/normal mode so we have to handle changing the
 " highlight
 function! airline#extensions#denite#check_denite_mode(bufnr)
-  if &filetype != 'denite'
+  if &filetype !=# 'denite' || &filetype !=# 'denite-filter'
     return ''
   endif
-  let mode = split(denite#get_status_mode(), ' ')
+
+  if s:denite_ver == 3
+    let mode = split(denite#get_status("mode"), ' ')
+  else
+    let mode = split(denite#get_status_mode(), ' ')
+  endif
   let mode = tolower(get(mode, 1, ''))
   if !exists('b:denite_mode_cache') || mode != b:denite_mode_cache
     call airline#highlighter#highlight([mode], a:bufnr)
@@ -24,13 +30,20 @@ function! airline#extensions#denite#check_denite_mode(bufnr)
 endfunction
 
 function! airline#extensions#denite#apply(...)
-  if &ft == 'denite'
+  if &filetype ==# 'denite' || &filetype ==# 'denite-filter'
     let w:airline_skip_empty_sections = 0
     call a:1.add_section('airline_a', ' Denite %{airline#extensions#denite#check_denite_mode('.a:2['bufnr'].')}')
-    call a:1.add_section('airline_c', ' %{denite#get_status_sources()}')
-    call a:1.split()
-    call a:1.add_section('airline_y', ' %{denite#get_status_path()} ')
-    call a:1.add_section('airline_z', ' %{denite#get_status_linenr()} ')
+    if s:denite_ver == 3
+      call a:1.add_section('airline_c', ' %{denite#get_status("sources")}')
+      call a:1.split()
+      call a:1.add_section('airline_y', ' %{denite#get_status("path")} ')
+      call a:1.add_section('airline_z', ' %{denite#get_status("linenr")} ')
+    else
+      call a:1.add_section('airline_c', ' %{denite#get_status_sources()}')
+      call a:1.split()
+      call a:1.add_section('airline_y', ' %{denite#get_status_path()} ')
+      call a:1.add_section('airline_z', ' %{denite#get_status_linenr()} ')
+    endif
     return 1
   endif
 endfunction

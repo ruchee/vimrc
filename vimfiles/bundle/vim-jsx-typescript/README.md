@@ -7,7 +7,7 @@ Syntax highlighting for JSX in Typescript.
 
 
 ![alt tag](./screen1.jpg)
-![alt tag](./screen2c.jpg)
+![alt tag](./screen2.jpg)
 
 
 ## Installation
@@ -65,31 +65,28 @@ hi tsxAttrib guifg=#F8BD7F cterm=italic
 
 ![alt tag](./screen4.jpg)
 
-Or use the blue-green [Original] colorscheme
+There is support for JSX Generics (Typescript 2.9). You can set the colors by adding this to your .vimrc settings
 ```
-" light blue
-hi tsxTagName guifg=#59ACE5
-" dark blue
-hi tsxCloseString guifg=#2974a1
-hi tsxCloseTag guifg=#2974a1
-hi tsxAttributeBraces guifg=#2974a1
-hi tsxEqual guifg=#2974a1
-" green
-hi tsxAttrib guifg=#1BD1C1
+" light-grey
+hi tsxTypeBraces guifg=#999999
+" dark-grey
+hi tsxTypes guifg=#666666
 
 ```
 
-
-![alt tag](./screen3.jpg)
-
+![alt tag](./screen5.jpg)
+![alt tag](./screen7.jpg)
 
 Other keywords you can change coloring:
 ```
 hi ReactState guifg=#C176A7
 hi ReactProps guifg=#D19A66
+hi ApolloGraphQL guifg=#CB886B
 hi Events ctermfg=204 guifg=#56B6C2
 hi ReduxKeywords ctermfg=204 guifg=#C678DD
+hi ReduxHooksKeywords ctermfg=204 guifg=#C176A7
 hi WebBrowser ctermfg=204 guifg=#56B6C2
 hi ReactLifeCycleMethods ctermfg=204 guifg=#D19A66
 ```
+(Updated for React hooks)
 

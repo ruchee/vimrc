@@ -36,15 +36,9 @@ function! go#util#Join(...) abort
 endfunction
 
 " IsWin returns 1 if current OS is Windows or 0 otherwise
+" Note that has('win32') is always 1 when has('win64') is 1, so has('win32') is enough.
 function! go#util#IsWin() abort
-  let win = ['win16', 'win32', 'win64', 'win95']
-  for w in win
-    if (has(w))
-      return 1
-    endif
-  endfor
-
-  return 0
+  return has('win32')
 endfunction
 
 " IsMac returns 1 if current OS is macOS or 0 otherwise.
@@ -68,18 +62,7 @@ endfunction
 " The (optional) first parameter can be added to indicate the 'cwd' or 'env'
 " parameters will be used, which wasn't added until a later version.
 function! go#util#has_job(...) abort
-  if has('nvim')
-    return 1
-  endif
-
-  " cwd and env parameters to job_start was added in this version.
-  if a:0 > 0 && a:1 is 1
-    return has('job') && has("patch-8.0.0902")
-  endif
-
-  " job was introduced in 7.4.xxx however there are multiple bug fixes and one
-  " of the latest is 8.0.0087 which is required for a stable async API.
-  return has('job') && has("patch-8.0.0087")
+  return has('job') || has('nvim')
 endfunction
 
 let s:env_cache = {}
@@ -468,7 +451,7 @@ function! go#util#tempdir(prefix) abort
   endif
 
   " Not great randomness, but "good enough" for our purpose here.
-  let l:rnd = sha256(printf('%s%s', localtime(), fnamemodify(bufname(''), ":p")))
+  let l:rnd = sha256(printf('%s%s', reltimestr(reltime()), fnamemodify(bufname(''), ":p")))
   let l:tmp = printf("%s/%s%s", l:dir, a:prefix, l:rnd)
   call mkdir(l:tmp, 'p', 0700)
   return l:tmp

@@ -1,4 +1,4 @@
-let s:is_win = has('win32') || has('win64')
+let s:is_win = has('win32')
 
 function! racer#GetRacerCmd() abort
   if !exists('g:racer_cmd')
@@ -30,7 +30,7 @@ function! s:RacerGetPrefixCol(base)
     let prefixline = split(res, '\n')[0]
     let startbyte = split(prefixline[7:], ',')[0]
     call delete(b:tmpfname)
-    return startbyte - line2byte(byte2line(startbyte)) + 1
+    return startbyte - line2byte(byte2line(startbyte)) + (col == 1 ? 0 : 1)
 endfunction
 
 function! s:RacerGetExpCompletions(base)
