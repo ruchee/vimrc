@@ -204,13 +204,6 @@ function! s:subst_func(line, regexp, func, ...)
 endfunction
 
 
-function! s:save_vimwiki_buffer()
-  if &filetype ==? 'vimwiki' && filewritable(expand('%'))
-    silent update
-  endif
-endfunction
-
-
 function! s:process_date(placeholders, default_date)
   if !empty(a:placeholders)
     for [placeholder, row, idx] in a:placeholders
@@ -373,7 +366,7 @@ endfunction
 
 function! s:linkify_link(src, descr)
   let src_str = ' href="'.s:escape_html_attribute(a:src).'"'
-  let descr = substitute(a:descr,'^\s*\(.*\)\s*$','\1','')
+  let descr = vimwiki#u#trim(a:descr)
   let descr = (descr == "" ? a:src : descr)
   let descr_str = (descr =~# vimwiki#vars#get_global('rxWikiIncl')
         \ ? s:tag_wikiincl(descr)
@@ -445,7 +438,8 @@ function! s:tag_wikilink(value)
   let str = a:value
   let url = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchUrl'))
   let descr = matchstr(str, vimwiki#vars#get_syntaxlocal('rxWikiLinkMatchDescr'))
-  let descr = (substitute(descr,'^\s*\(.*\)\s*$','\1','') != '' ? descr : url)
+  let descr = vimwiki#u#trim(descr)
+  let descr = (descr != '' ? descr : url)
 
   let line = VimwikiLinkConverter(url, s:current_wiki_file, s:current_html_file)
   if line == ''
@@ -843,7 +837,7 @@ function! s:process_tag_math(line, math)
     " environment properly
     let s:current_math_env = matchstr(class, '^%\zs\S\+\ze%')
     if s:current_math_env != ""
-      call add(lines, substitute(class, '^%\(\S\+\)%','\\begin{\1}', ''))
+      call add(lines, substitute(class, '^%\(\S\+\)%', '\\begin{\1}', ''))
     elseif class != ""
       call add(lines, "\\\[".class)
     else
@@ -1078,7 +1072,9 @@ function! s:process_tag_h(line, id)
         let h_text = num.' '.h_text
       endif
       let h_complete_id = s:escape_html_attribute(h_complete_id)
-      let h_part = '<div id="'.h_complete_id.'"><h'.h_level.' id="'.h_id.'"'
+      let h_part  = '<div id="'.h_complete_id.'">'
+      let h_part .= '<h'.h_level.' id="'.h_id.'" class="header">'
+      let h_part .= '<a href="#'.h_complete_id.'"'
 
     else
 
@@ -1094,7 +1090,7 @@ function! s:process_tag_h(line, id)
 
     let h_text = s:process_inline_tags(h_text, a:id)
 
-    let line = h_part.h_text.'</h'.h_level.'></div>'
+    let line = h_part.h_text.'</a></h'.h_level.'></div>'
 
     let processed = 1
   endif
@@ -1586,9 +1582,11 @@ function! vimwiki#html#WikiAll2HTML(path_html)
   echomsg 'Vimwiki: Saving Vimwiki files ...'
   let save_eventignore = &eventignore
   let &eventignore = "all"
-  let cur_buf = bufname('%')
-  bufdo call s:save_vimwiki_buffer()
-  exe 'buffer '.cur_buf
+  try
+    wall
+  catch
+    " just ignore errors
+  endtry
   let &eventignore = save_eventignore
 
   let path_html = expand(a:path_html)
