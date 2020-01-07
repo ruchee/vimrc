@@ -28,7 +28,6 @@ Currently this repository contains the following themes:
     * alduin
     * angr
     * atomic
-    * aurora
     * ayu_light
     * ayu_mirage
     * ayu_dark
@@ -93,7 +92,6 @@ Currently this repository contains the following themes:
     * desertink
     * deus
     * distinguished
-    * dracula
     * durant
     * faryfloss
     * fruit_punch
@@ -115,6 +113,7 @@ Currently this repository contains the following themes:
     * night_owl
     * onedark (|airline-theme-onedark|)
     * ouo
+    * owo
     * papercolor
     * peaksea
     * powerlineish
@@ -135,7 +134,6 @@ Currently this repository contains the following themes:
     * tomorrow
     * ubaryd
     * understated
-    * vice
     * violet
     * wombat
     * xtermlight
@@ -299,6 +297,6 @@ Contributions and pull requests are welcome.
 ==============================================================================
 LICENSE                                            *airline-themes-license*
 
-MIT License.  Copyright © 2013-2016 Bailey Ling, et al
+MIT License.  Copyright © 2013-2020 Bailey Ling, et al
 
  vim:tw=78:ts=8:ft=help:norl:

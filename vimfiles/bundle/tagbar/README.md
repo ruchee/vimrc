@@ -1,5 +1,8 @@
 # Tagbar: a class outline viewer for Vim
 
+[![Vint](https://github.com/majutsushi/tagbar/workflows/Vint/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Vint)
+[![Check](https://github.com/majutsushi/tagbar/workflows/Check/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Check)
+
 ## What Tagbar is
 
 Tagbar is a Vim plugin that provides an easy way to browse the tags of the
@@ -17,10 +20,16 @@ creates the tags it needs on-the-fly in-memory without creating any files.
 
 ## Dependencies
 
-[Vim 7.3.1058](http://www.vim.org/)  
-[Exuberant Ctags 5.5](http://ctags.sourceforge.net/) or
-[Universal Ctags](https://ctags.io) (recommended), a maintained fork of
-Exuberant Ctags.
+* [Vim](http://www.vim.org/) >= 7.3.1058
+  or any version of [NeoVim](https://neovim.io/).
+
+* [Exuberant Ctags](http://ctags.sourceforge.net/) >= 5.5,
+  or (**highly recommended**) any version of [Universal
+  Ctags](https://ctags.io) which is a currently maintained fork of Exuberant
+  Ctags with many bugfixes, support for many more formats, and proper Unicode
+  support. Some additional formats can also be handled by other providers such
+  as [jsctags](https://github.com/sergioramos/jsctags),
+  [phpctags](https://github.com/vim-php/phpctags), or others.
 
 ## Installation
 

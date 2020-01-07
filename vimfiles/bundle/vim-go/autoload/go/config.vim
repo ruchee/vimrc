@@ -82,7 +82,18 @@ function! go#config#StatuslineDuration() abort
 endfunction
 
 function! go#config#SnippetEngine() abort
-  return get(g:, 'go_snippet_engine', 'automatic')
+  let l:engine = get(g:, 'go_snippet_engine', 'automatic')
+  if l:engine is? "automatic"
+    if get(g:, 'did_plugin_ultisnips') is 1
+      let l:engine = 'ultisnips'
+    elseif get(g:, 'loaded_neosnippet') is 1
+      let l:engine = 'neosnippet'
+    elseif get(g:, 'loaded_minisnip') is 1
+      let l:engine = 'minisnip'
+    endif
+  endif
+
+  return l:engine
 endfunction
 
 function! go#config#PlayBrowserCommand() abort
@@ -351,7 +362,7 @@ function! go#config#FmtCommand() abort
 endfunction
 
 function! go#config#FmtOptions() abort
-  return get(g:, "go_fmt_options", {})
+  return get(b:, "go_fmt_options", get(g:, "go_fmt_options", {}))
 endfunction
 
 function! go#config#FmtFailSilently() abort
@@ -364,6 +375,11 @@ endfunction
 
 function! go#config#PlayOpenBrowser() abort
   return get(g:, "go_play_open_browser", 1)
+endfunction
+
+function! go#config#RenameCommand() abort
+  " delegate to go#config#GorenameBin for backwards compatability.
+  return get(g:, "go_rename_command", go#config#GorenameBin())
 endfunction
 
 function! go#config#GorenameBin() abort
@@ -461,6 +477,14 @@ function! go#config#HighlightVariableDeclarations() abort
   return get(g:, 'go_highlight_variable_declarations', 0)
 endfunction
 
+function! go#config#HighlightDiagnosticErrors() abort
+  return get(g:, 'go_highlight_diagnostic_errors', 1)
+endfunction
+
+function! go#config#HighlightDiagnosticWarnings() abort
+  return get(g:, 'go_highlight_diagnostic_warnings', 1)
+endfunction
+
 function! go#config#HighlightDebug() abort
   return get(g:, 'go_highlight_debug', 1)
 endfunction
@@ -478,6 +502,43 @@ endfunction
 
 function! go#config#CodeCompletionEnabled() abort
   return get(g:, "go_code_completion_enabled", 1)
+endfunction
+
+function! go#config#Updatetime() abort
+  let go_updatetime = get(g:, 'go_updatetime', 800)
+  return go_updatetime == 0 ? &updatetime : go_updatetime
+endfunction
+
+function! go#config#ReferrersMode() abort
+  return get(g:, 'go_referrers_mode', 'gopls')
+endfunction
+
+function! go#config#GoplsCompleteUnimported() abort
+  return get(g:, 'go_gopls_complete_unimported', 0)
+endfunction
+
+function! go#config#GoplsDeepCompletion() abort
+  return get(g:, 'go_gopls_deep_completion', 1)
+endfunction
+
+function! go#config#GoplsFuzzyMatching() abort
+  return get(g:, 'go_gopls_fuzzy_matching', 1)
+endfunction
+
+function! go#config#GoplsStaticCheck() abort
+  return get(g:, 'go_gopls_staticcheck', 0)
+endfunction
+
+function! go#config#GoplsUsePlaceholders() abort
+  return get(g:, 'go_gopls_use_placeholders', 0)
+endfunction
+
+function! go#config#GoplsEnabled() abort
+  return get(g:, 'go_gopls_enabled', 1)
+endfunction
+
+function! go#config#DiagnosticsEnabled() abort
+  return get(g:, 'go_diagnostics_enabled', 0)
 endfunction
 
 " Set the default value. A value of "1" is a shortcut for this, for

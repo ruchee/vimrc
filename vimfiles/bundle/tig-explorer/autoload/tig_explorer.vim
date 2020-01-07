@@ -178,7 +178,10 @@ endfunction
 
 function! s:project_root_dir() abort
   let current_file_dir = expand('%:p:h')
-  let git_dir = finddir('.git', expand('%:p:h') . ';')
+  let git_dir = findfile('.git', expand('%:p:h') . ';')
+  if git_dir ==# ''
+    let git_dir = finddir('.git', expand('%:p:h') . ';')
+  endif
 
   if git_dir ==# ''
     throw 'Not a git repository'

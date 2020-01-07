@@ -16,9 +16,9 @@ The React syntax highlighting and indenting plugin for vim. Also supports the ty
 
 ### Syntax
 
-|vim-jsx-pretty<br />(add colorful config)|vim-jsx-pretty|mxw/vim-jsx|
-|---|---|---|
-|![vim-jsx-pretty colorful](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty-colorful.png)|![vim-jsx-pretty](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty.png)|![vim-jsx](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx.png)|
+|vim-jsx-pretty<br />(add colorful config)|vim-jsx-pretty|
+|---|---|
+|![vim-jsx-pretty colorful](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty-colorful.png)|![vim-jsx-pretty](https://raw.githubusercontent.com/MaxMEllon/demos/master/vim-jsx-pretty/vim-jsx-pretty.png)|
 
 ### Auto indent
 
@@ -40,10 +40,10 @@ your `~/.vimrc`:
     Plug 'maxmellon/vim-jsx-pretty'
     ```
 
-- with: vim-javascript (**Recommended but not required**)
+- with: [yuezk/vim-js](https://github.com/yuezk/vim-js) (**Recommended but not required**)
 
     ```vim
-    Plug 'pangloss/vim-javascript'
+    Plug 'yuezk/vim-js'
     Plug 'maxmellon/vim-jsx-pretty'
     ```
 
@@ -90,7 +90,8 @@ If you still want to use this plugin, make sure that you put this plugin **ahead
 
 |name|default|description|
 |---|---|---|
-|`g:vim_jsx_pretty_template_tags`|`['html', 'raw']`|highlight JSX inside the tagged template string, set it to `[]` to disable this feature|
+|`g:vim_jsx_pretty_disable_tsx`|0|Disable the syntax highlighting for tsx files|
+|`g:vim_jsx_pretty_template_tags`|`['html', 'jsx']`|highlight JSX inside the tagged template string, set it to `[]` to disable this feature|
 |`g:vim_jsx_pretty_highlight_close_tag`|0|highlight the close tag separately from the open tag|
 |`g:vim_jsx_pretty_colorful_config`|0|colorful config flag|
 

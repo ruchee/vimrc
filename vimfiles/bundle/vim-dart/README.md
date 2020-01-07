@@ -10,21 +10,11 @@ configured to start the Dart analysis server with the `--lsp` flag.
 
 Looking for an IDE experience? See the [Dart Tools][] page.
 
-[Dart]: http://www.dartlang.org/
-[Dart tools]: http://www.dartlang.org/tools/
+[Dart]: https://dart.dev/
+[Dart tools]: https://dart.dev/tools
 [vim-lsc]: https://github.com/natebosch/vim-lsc
 
 ## Commands
-
-You can use following vim commands:
-
-### :Dart2Js
-
-![](https://raw.github.com/dart-lang/dart-vim-plugin/master/Dart2Js.gif)
-
-### :DartAnalyzer
-
-![](https://raw.github.com/dart-lang/dart-vim-plugin/master/DartAnalyzer.gif)
 
 ### :DartFmt
 
@@ -38,7 +28,7 @@ common choices, be sure to read the docs for each option.
 
 ### [vim-plug][]
 
-[vim-plug]:https://github.com/junegunn/vim-plug
+[vim-plug]: https://github.com/junegunn/vim-plug
 
 ```vimscript
 call plug#begin()
@@ -52,7 +42,7 @@ Then invoke `:PlugInstall` to install the plugin.
 
 ### [pathogen][]
 
-[pathogen]:https://github.com/tpope/vim-pathogen
+[pathogen]: https://github.com/tpope/vim-pathogen
 
 Clone the repository into your pathogen directory.
 
@@ -65,7 +55,7 @@ Ensure your `.vimrc` contains the line `execute pathogen#infect()`
 
 ### [vundle][]
 
-[vundle]:https://github.com/VundleVim/Vundle.vim
+[vundle]: https://github.com/VundleVim/Vundle.vim
 
 ```vimscript
 set rtp+=~/.vim/bundle/Vundle.vim
@@ -81,19 +71,17 @@ call vundle#end()
 Enable HTML syntax highlighting inside Dart strings with `let
 dart_html_in_string=v:true` (default false).
 
-Disable highlighting of core library classes with `let
-dart_corelib_highlight=v:false` (default true).
+Highlighting for specific syntax groups can be disabled by defining custom
+highlight group links. See `:help dart-syntax`
 
-Disable highlighting of user defined types (words starting with a capital
-letter) with `let dart_highlight_types=v:false` (default true).
+Enable Dart style guide syntax (like 2-space indentation) with
+`let g:dart_style_guide = 2`
 
-Enable Dart style guide syntax (like 2-space indentation) with `let dart_style_guide = 2`
-
-Enable DartFmt execution on buffer save with `let dart_format_on_save = 1`
+Enable DartFmt execution on buffer save with `let g:dart_format_on_save = 1`
 
 ## FAQ
 
-### Why doesn't the plugin does not indent identically to `dartfmt`?
+### Why doesn't the plugin indent identically to `dartfmt`?
 
 The indentation capabilities within vim are limited and it's not easy to fully
 express the indentation behavior of `dartfmt`. The major area where this plugin

@@ -4,7 +4,7 @@
 " Original Author: Jon Haggblad <https://github.com/octol>
 " Maintainer:      bfrg <bfrg@users.noreply.github.com>
 " Website:         https://github.com/bfrg/vim-cpp-modern
-" Last Change:     Aug 26, 2019
+" Last Change:     Dec 17, 2019
 "
 " This syntax file is based on:
 " https://github.com/octol/vim-cpp-enhanced-highlight
@@ -50,7 +50,7 @@ syntax keyword cppSTLnamespace
         \ experimental rel_ops std
 
 syntax keyword cppSTLtype
-        \ Init allocator auto_ptr basic_filebuf basic_fstream basic_ifstream basic_ios basic_iostream basic_istream basic_istringstream basic_ofstream basic_ostream basic_ostringstream basic_streambuf basic_string basic_stringbuf basic_stringstream binary_compose binder1st binder2nd bitset char_traits char_type const_mem_fun1_t const_mem_fun_ref1_t const_mem_fun_ref_t const_mem_fun_t const_pointer const_reference container_type deque difference_type div_t double_t event_callback filebuf first_type float_denorm_style float_round_style float_t fpos fstream gslice_array ifstream imaxdiv_t indirect_array int_type ios ios_base iostream istream istringstream istrstream iterator_category iterator_traits key_compare key_type ldiv_t list lldiv_t map mapped_type mask_array mbstate_t mem_fun1_t mem_fun_ref1_t mem_fun_ref_t mem_fun_t multimap multiset nothrow_t numeric_limits off_type off_type ofstream ostream ostringstream ostrstream pair pointer pointer_to_binary_function pointer_to_unary_function pos_type pos_type priority_queue queue reference second_type seekdir sequence_buffer set sig_atomic_t size_type slice_array stack state_type stream streambuf streamoff streampos streamsize string stringbuf stringstream strstream strstreambuf temporary_buffer test_type time_t tm traits_type type_info u16string u32string unary_compose unary_negate valarray value_compare value_type vector wctrans_t wctype_t wfilebuf wfstream wifstream wint_t wios wiostream wistream wistringstream wofstream wostream wostringstream wstreambuf wstreampos wstring wstringbuf wstringstream
+        \ Init allocator auto_ptr basic_filebuf basic_fstream basic_ifstream basic_ios basic_iostream basic_istream basic_istringstream basic_ofstream basic_ostream basic_ostringstream basic_streambuf basic_string basic_stringbuf basic_stringstream binary_compose binder1st binder2nd bitset char_traits char_type const_mem_fun1_t const_mem_fun_ref1_t const_mem_fun_ref_t const_mem_fun_t const_pointer const_reference container_type deque difference_type div_t double_t event_callback filebuf first_type float_denorm_style float_round_style float_t fpos fstream gslice_array ifstream imaxdiv_t indirect_array int_type ios ios_base iostream istream istringstream istrstream iterator_category iterator_traits key_compare key_type ldiv_t list lldiv_t map mapped_type mask_array mbstate_t mem_fun1_t mem_fun_ref1_t mem_fun_ref_t mem_fun_t multimap multiset nothrow_t numeric_limits off_type ofstream ostream ostringstream ostrstream pair pointer pointer_to_binary_function pointer_to_unary_function pos_type priority_queue queue reference second_type seekdir sequence_buffer set sig_atomic_t size_type slice_array stack state_type stream streambuf streamoff streampos streamsize string stringbuf stringstream strstream strstreambuf temporary_buffer test_type time_t tm traits_type type_info u16string u32string unary_compose unary_negate valarray value_compare value_type vector wctrans_t wctype_t wfilebuf wfstream wifstream wint_t wios wiostream wistream wistringstream wofstream wostream wostringstream wstreambuf wstreampos wstring wstringbuf wstringstream
 
 " locale
 syntax keyword cppSTLtype
@@ -97,6 +97,7 @@ if !exists('cpp_no_cpp11')
     " functional
     syntax keyword cppSTLexception bad_function_call
     syntax keyword cppSTLfunctional function
+    syntax keyword cppSTLfunction mem_fn
     syntax keyword cppSTLconstant _1 _2 _3 _4 _5 _6 _7 _8 _9
     syntax keyword cppSTLtype
             \ hash is_bind_expression is_placeholder reference_wrapper
@@ -131,7 +132,7 @@ if !exists('cpp_no_cpp11')
     syntax keyword cppSTLconstant allocator_arg
     syntax keyword cppSTLexception bad_weak_ptr
     syntax keyword cppSTLfunction allocate_shared make_shared
-    syntax keyword cppSTLcast
+    syntax keyword cppSTLfunction
             \ const_pointer_cast dynamic_pointer_cast static_pointer_cast
 
     syntax keyword cppSTLtype
@@ -277,7 +278,7 @@ if !exists('cpp_no_cpp17')
             \ default_order default_order_t default_searcher boyer_moore_searcher boyer_moore_horspool_searcher
 
     " memory
-    syntax keyword cppSTLcast reinterpret_pointer_cast
+    syntax keyword cppSTLfunction reinterpret_pointer_cast
     syntax keyword cppSTLconstant uses_allocator_v
 
     " memory_resource
@@ -338,7 +339,7 @@ endif
 if !exists('cpp_no_cpp20')
     syntax keyword cppType char8_t
     syntax keyword cppOperator co_await
-    syntax keyword cppStatement consteval concept requires co_yield co_return
+    syntax keyword cppStatement consteval constinit concept requires co_yield co_return
 
     " atomic
     syntax keyword cppSTLtype atomic_ref

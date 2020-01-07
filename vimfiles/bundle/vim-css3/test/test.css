@@ -94,6 +94,9 @@
   display: gray(50%);
   display: color(swopc, 0 206 190 77);
   display: device-cmyk(0, 81%, 81%, 30%);
+  display: relative-colorimetric;
+  display: absolute-colorimetric;
+  display: perceptual;
 }
 
 @color-profile swopc {
@@ -143,6 +146,10 @@
   display: layout;
   display: paint;
   display: size;
+}
+
+.contain-2 {
+  display: auto;
 }
 
 .content-3 {
@@ -352,8 +359,6 @@
 }
 
 .fonts-4 {
-  font-min-size: auto;
-  font-max-size: auto;
   font-display: auto;
   font-optical-sizing: auto;
   font-variation-settings: auto;
@@ -377,6 +382,11 @@
   display: optional;
   display: light;
   display: dark;
+  display: ui-serif;
+  display: ui-sans-serif;
+  display: ui-monospace;
+  display: ui-rounded;
+  display: xxx-large;
 }
 
 @font-palette-values Test {
@@ -410,7 +420,7 @@
 }
 
 .grid-2 {
-  display: 1.618ar;
+  display: auto;
 }
 
 .html5,
@@ -427,6 +437,7 @@ template {
   object-position: auto;
   image-orientation: auto;
   display: snap;
+  display: flip;
   display: scale-down;
   display: from-image;
   display: repeating-linear-gradient(to bottom, yellow, blue);
@@ -591,6 +602,7 @@ mask {
 .nav-1 {
   spatial-navigation-contain: auto;
   spatial-navigation-action: auto;
+  spatial-navigation-function: auto;
   display: focus;
 }
 
@@ -657,7 +669,9 @@ mask {
 }
 
 .properties-values-api-1 {
-  display: auto;
+  syntax: auto;
+  inherits: auto;
+  initial-value: auto;
 }
 
 .pseudo-4::inactive-selection,

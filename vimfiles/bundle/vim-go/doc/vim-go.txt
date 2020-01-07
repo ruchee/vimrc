@@ -620,8 +620,7 @@ CTRL-t
 :GoReferrers
 
     The referrers query shows the set of identifiers that refer to the same
-    object as does the selected identifier, within any package in the analysis
-    scope.
+    object as does the selected identifier.
 
                                                                   *:GoSameIds*
 :GoSameIds
@@ -646,8 +645,8 @@ CTRL-t
     the cursor. This basically toggles the option |'g:go_auto_sameids'|
     on/off.
     If enabled it starts highlighting whenever your cursor is staying at the
-    same position for a configurable period of time (see 'updatetime'). If
-    disabled it clears and stops automatic highlighting.
+    same position for a configurable period of time (see |'g:go_updatetime'|).
+    If disabled it clears and stops automatic highlighting.
 
                                                                *:GoMetaLinter*
 :GoMetaLinter! [path]
@@ -661,13 +660,25 @@ CTRL-t
 
     If [!] is not given the first error is jumped to.
 
+                                                              *:GoDiagnostics*
+:GoDiagnostics! [packages]
+
+    Displays the diagnostics from `gopls` for the given packages in a
+    |quickfix| window. The diagnostics for the current package are displayed
+    when no package is given. The diagnostics for all packages will be
+    displayed when `all` is as an argument.
+
+    Disabled when |'g:go_diagnostics_enabled'| is not set.
+
+    If [!] is not given the first error is jumped to.
+
                                                                 *:GoBuildTags*
 :GoBuildTags [tags]
 
     Changes the build tags for various commands. If you have any file that
     uses a custom build tag, such as `// +build integration` , this command
-    can be used to pass it to all tools that accepts tags, such as guru,
-    gorename, etc.
+    can be used to pass it to all tools that accepts tags, such as gopls,
+    guru, gorename, etc.
 
     The build tags is cleared (unset) if `""` is given. If no arguments are
     given it prints the current build tags.
@@ -1196,13 +1207,12 @@ into the statusline.
 
                                                       *go#complete#Complete()*
 
-Uses `gopls` for autocompletion. By default, it is hooked up to |'omnifunc'|
-for Vim8 and Neovim.
+Uses `gopls` for autocompletion. By default, it is hooked up to 'omnifunc'.
+
 
                                                 *go#complete#GocodeComplete()*
 
-Uses `gocode` for autocompletion. By default, it is hooked up to |'omnifunc'|
-for Vim 8+.
+Uses `gocode` for autocompletion.
 
                                                    *go#tool#DescribeBalloon()*
 
@@ -1222,7 +1232,7 @@ enabled.
 
                                               *'g:go_code_completion_enabled'*
 
-Enable code completion with |'omnifunc'|. By default it is enabled.
+Enable code completion with 'omnifunc'. By default it is enabled.
 >
   let g:go_code_completion_enabled = 1
 <
@@ -1267,7 +1277,7 @@ with |:GoPlay|. By default it's enabled. >
 Use this option to show the type info (|:GoInfo|) for the word under the
 cursor automatically. Whenever the cursor changes the type info will be
 updated. By default it's disabled. The delay can be configured with the
-'g:go_updatetime' setting.
+|'g:go_updatetime'| setting.
 >
   let g:go_auto_type_info = 0
 <
@@ -1284,15 +1294,16 @@ Valid options are `gocode`, `gopls`, and `guru`.
                                                          *'g:go_auto_sameids'*
 
 Use this option to highlight all uses of the identifier under the cursor
-(:GoSameIds) automatically. By default it's disabled. The delay can be
-configured with the 'g:go_updatetime' setting.
+(|:GoSameIds|) automatically. By default it's disabled. The delay can be
+configured with the |'g:go_updatetime'| setting.
 >
   let g:go_auto_sameids = 0
 <
                                                            *'g:go_updatetime'*
 
-Use this option to configure the a custom 'updatetime' for Go source files. If
-set to 0, no custom time will be configured. By default it's set to 800ms.
+Use this option to configure the delay until it starts some jobs (see
+|'g:go_auto_type_info'|, |'g:go_auto_sameids'|). If set to 0, it uses the
+value from 'updatetime'. By default it's set to 800ms.
 >
   let g:go_updatetime = 800
 <
@@ -1316,7 +1327,8 @@ Use this option to auto |:GoFmt| on save. By default it's enabled >
                                                           *'g:go_fmt_command'*
 
 Use this option to define which tool is used to gofmt. By default `gofmt` is
-used >
+used.
+>
 
   let g:go_fmt_command = "gofmt"
 <
@@ -1338,6 +1350,19 @@ The dictionary version allows you to define options for multiple binaries:
   let g:go_fmt_options = {
     \ 'gofmt': '-s',
     \ 'goimports': '-local mycompany.com',
+    \ }
+<
+                                                          *'b:go_fmt_options'*
+
+This option is identical to |'g:go_fmt_options'|, but a buffer-level setting.
+If present, it's used instead of the global setting. By default it is not set.
+
+As an example, the following autocmd will configure goimports to put imports
+of packages from the current module in their own group:
+>
+  autocmd FileType go let b:go_fmt_options = {
+    \ 'goimports': '-local ' .
+      \ trim(system('{cd '. shellescape(expand('%:h')) .' && go list -m;}')),
     \ }
 <
                                                     *'g:go_fmt_fail_silently'*
@@ -1368,7 +1393,7 @@ Use this option to auto |:GoModFmt| on save. By default it's enabled >
 
 Use this option to run `godoc` on words under the cursor with |K|; this will
 normally run the `man` program, but for Go using `godoc` is more idiomatic. It
-will not override the |'keywordprg'| setting, but will run |:GoDoc|. Default
+will not override the 'keywordprg' setting, but will run |:GoDoc|. Default
 is enabled. >
 
   let g:go_doc_keywordprg_enabled = 1
@@ -1388,6 +1413,14 @@ a private internal service. Default is 'https://godoc.org'.
   let g:go_doc_url = 'https://godoc.org'
 <
 
+                                                     *'g:go_doc_popup_window'*
+
+Use this option to use the popup-window for |K| and |:GoDoc|, rather than the
+|preview-window|. Default is disabled.
+>
+  let g:go_doc_popup_window = 0
+<
+
                                                              *'g:go_def_mode'*
 
 Use this option to define the command to be used for |:GoDef|. By default
@@ -1396,6 +1429,16 @@ accuracy or `godef` for its performance. Valid options are `godef`, `gopls`,
 and `guru`.
 >
   let g:go_def_mode = 'gopls'
+<
+                                                       *'g:go_referrers_mode'*
+
+Use this option to define the command to be used for |:GoReferrers|. By
+default `gopls` is used, because it is the fastest and works with Go modules.
+One might also use `guru` for its ability to show references from other
+packages.  This option will be removed after `gopls` can show references from
+other packages. Valid options are `gopls` and `guru`.
+>
+  let g:go_referrers_mode = 'gopls'
 <
                                                   *'g:go_def_mapping_enabled'*
 
@@ -1464,7 +1507,7 @@ pattern. An example input might be:
 
 Also see |go-guru-scope|.
 
-By default it's not set, so the relevant commands defaults are being used.
+By default it's not set, so the relevant commands' defaults are being used.
 >
   let g:go_guru_scope = []
 <
@@ -1532,18 +1575,13 @@ it's using `vet`, `golint` and `errcheck`.
 >
   let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
 <
-                                                  *'g:go_metalinter_disabled'*
-
-Specifies the linters to disable for the |:GoMetaLinter| command. By default
-it's empty
->
-  let g:go_metalinter_disabled = []
-<
                                                    *'g:go_metalinter_command'*
 
 Overrides the command to be executed when |:GoMetaLinter| is called. By
-default it's `golangci-lint`. It can also be used as an advanced setting
-for users who want to have more control over the metalinter.
+default it's `golangci-lint`. Valid options are `golangci-lint` and `gopls`.
+When the value is `gopls`, users may want to consider setting
+`g:go_gopls_staticcheck`.  It can also be used as an advanced setting for
+users who want to have more control over the metalinter.
 >
   let g:go_metalinter_command = "golangci-lint"
 <
@@ -1652,6 +1690,13 @@ By default it is set to edit.
 >
   let g:go_alternate_mode = "edit"
 <
+                                                       *'g:go_rename_command'*
+
+Use this option to define which tool is used to rename. By default `gorename`
+is used. Valid options are `gorename` and `gopls`.
+>
+  let g:go_rename_command = 'gorename'
+<
                                                      *'g:go_gorename_prefill'*
 
 Expression to prefill the new identifier when using |:GoRename| without any
@@ -1694,6 +1739,68 @@ Specifies whether `gocode` should use a different socket type. By default
 >
   let g:go_gocode_socket_type = 'unix'
 <
+
+                                                        *'g:go_gopls_enabled'*
+
+Specifies whether `gopls` can be used by vim-go. By default gopls is enabled.
+When gopls is disabled completion will not work and other configuration
+options may also need to be adjusted.
+
+>
+  let g:go_gopls_enabled = 1
+<
+
+                                            *'g:go_gopls_complete_unimported'*
+
+Specifies whether `gopls` should include suggestions from unimported packages.
+By default it is disabled.
+>
+  let g:go_gopls_complete_unimported = 0
+<
+
+                                                *'g:go_gopls_deep_completion'*
+
+Specifies whether `gopls` should use deep completion. By default it is
+enabled.
+>
+  let g:go_gopls_deep_completion = 1
+<
+
+                                                 *'g:go_gopls_fuzzy_matching'*
+
+Specifies whether `gopls` should use fuzzy matching for completions.
+By default it is enabled.
+>
+  let g:go_gopls_fuzzy_matching = 1
+<
+
+                                                   *'g:go_gopls_staticcheck'*
+
+Specifies whether `gopls` should run staticcheck checks. By default it is
+disabled.
+>
+  let g:go_gopls_staticcheck = 0
+<
+
+                                               *'g:go_gopls_use_placeholders'*
+
+Specifies whether `gopls` can provide placeholders for function parameters and
+struct fields. When set, completion items will be treated as anonymous
+snippets if UltiSnips is installed and configured to be used as
+|'g:go_snippet_engine'|. By default it is disabled.
+>
+  let g:go_gopls_use_placeholders = 0
+<
+
+                                                 *'g:go_diagnostics_enabled'*
+
+Specifies whether `gopls` diagnostics are enabled. Only the diagnostics for
+the current buffer will be processed when it is not set; all others will be
+ignored. By default it is disabled.
+>
+  let g:go_diagnostics_enabled = 0
+<
+
                                                   *'g:go_template_autocreate'*
 
 When a new Go file is created, vim-go automatically fills the buffer content
@@ -1789,8 +1896,8 @@ default it's 60 seconds. Must be in milliseconds.
 
 Sets the `transform` option for `gomodifytags` when using |:GoAddTags| or if
 it's being used for snippet expansion of single fields.  Possible options are:
-`snakecase`, `camelcase`. For the following case, if `snakecase` is used the
-field will be transformed to:
+`snakecase`, `camelcase`, `lispcase`, `pascalcase`, `keep`. For the following
+case, if `snakecase` is used the field will be transformed to:
 >
   type T struct {
     FooBarQuz string `json:"foo_bar_quz"
@@ -1804,7 +1911,7 @@ If "camelcase" is used:
   }
 <
 By default "snakecase" is used. Current values are: ["snakecase",
-"camelcase"].
+"camelcase", "lispcase", "pascalcase", "keep"].
 >
       let g:go_addtags_transform = 'snakecase'
 <
@@ -1964,6 +2071,18 @@ Highlight variable names in variable declarations (`x` in ` x :=`).
 Highlight variable names in variable assignments (`x` in `x =`).
 >
   let g:go_highlight_variable_assignments = 0
+<
+                                          *'g:go_highlight_diagnostic_errors'*
+
+Highlight diagnostic errors.
+>
+  let g:go_highlight_diagnostic_errors = 1
+<
+                                        *'g:go_highlight_diagnostic_warnings'*
+
+Highlight diagnostic warnings.
+>
+  let g:go_highlight_diagnostic_warnings = 1
 <
 
 ==============================================================================
@@ -2203,7 +2322,7 @@ Specifies log output options for `dlv`. Value should be a single string of
 comma-separated options suitable for passing to `dlv`.  An empty string (`''`)
 will suppress logging entirely.  Default: `'debugger,rpc'`:
 >
-  let g:go_debug_log = 'debugger,rpc'
+  let g:go_debug_log_output = 'debugger,rpc'
 <
 
                                                      *'g:go_highlight_debug'*
@@ -2228,16 +2347,29 @@ Completion and other functions that use `gopls` don't work~
 Vim-go is heavily reliant on `gopls` for completion and other functionality.
 Many of the features that use `gopls` (e.g. completion, jumping to
 definitions, showing identifier information, et al.) can be configured to
-delegate to other tools. e.g.  completion via |'omnifunc'|, |'g:go_info_mode'|
+delegate to other tools. e.g.  completion via 'omnifunc', |'g:go_info_mode'|
 and |'g:go_def_mode'| can be set to use other tools for now (though some of
 the alternatives to `gopls` are effectively at their end of life and support
 for them from within vim-go may be removed soon).
 
-I get "Unknown function: go#config#..." error when I open a Go file.~
+I get a "Unknown function: go#config#..." error~
 
 This often happens to vim-polyglot users when new config options are added to
 vim-go. Run vim-polyglot's `build` script or make sure that vim-go is loaded
 before vim-polyglot.
+
+It can also happen when multiple versions of vim-go are installed and the
+version loaded by Vim doesn't have a function introduced by a later version.
+To see where vim-go is being loaded from run
+>
+    :verbose function go#config#FmtAutosave
+<
+
+The output will show the path to the `autoload/go/config.vim` that was loaded
+by Vim. Make sure the root of the path to output by the command is the path
+from which vim-go is expected to sourced. If it is not rooted as expected,
+then there are multiple copies of vim-go installed; remove the unexpected
+copies.
 
 I get "not an editor command" error when I invoke :GoXXX~
 

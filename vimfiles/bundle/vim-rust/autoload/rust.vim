@@ -1,4 +1,3 @@
-" Author: Kevin Ballard
 " Description: Helper functions for Rust commands/mappings
 " Last Modified: May 27, 2014
 " For bugs, patches and license go to https://github.com/rust-lang/rust.vim
@@ -396,10 +395,19 @@ function! s:RmDir(path)
         echoerr 'Attempted to delete empty path'
         return 0
     elseif a:path ==# '/' || a:path ==# $HOME
-        echoerr 'Attempted to delete protected path: ' . a:path
+        let l:path = expand(a:path)
+        if l:path ==# '/' || l:path ==# $HOME
+            echoerr 'Attempted to delete protected path: ' . a:path
+            return 0
+        endif
+    endif
+
+    if !isdirectory(a:path)
         return 0
     endif
-    return system("rm -rf " . shellescape(a:path))
+
+    " delete() returns 0 when removing file successfully
+    return delete(a:path, 'rf') == 0
 endfunction
 
 " Executes {cmd} with the cwd set to {pwd}, without changing Vim's cwd.
@@ -499,14 +507,23 @@ function! s:SearchTestFunctionNameUnderCursor() abort
     return matchstr(getline(test_func_line), '\m\C^\s*fn\s\+\zs\h\w*')
 endfunction
 
-function! rust#Test(all, options) abort
+function! rust#Test(mods, winsize, all, options) abort
     let manifest = findfile('Cargo.toml', expand('%:p:h') . ';')
     if manifest ==# ''
         return rust#Run(1, '--test ' . a:options)
     endif
 
-    if has('terminal') || has('nvim')
-        let cmd = 'terminal '
+    " <count> defaults to 0, but we prefer an empty string
+    let winsize = a:winsize ? a:winsize : ''
+
+    if has('terminal')
+        if has('patch-8.0.910')
+            let cmd = printf('%s noautocmd %snew | terminal ++curwin ', a:mods, winsize)
+        else
+            let cmd = printf('%s terminal ', a:mods)
+        endif
+    elseif has('nvim')
+        let cmd = printf('%s noautocmd %snew | terminal ', a:mods, winsize)
     else
         let cmd = '!'
         let manifest = shellescape(manifest)

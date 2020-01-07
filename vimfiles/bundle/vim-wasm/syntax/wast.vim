@@ -25,8 +25,12 @@ syn match   wastParamInst     "\%((\s*\)\@<=\<\%(drop\|select\)\>" contained dis
 
 " Identifiers
 " https://webassembly.github.io/spec/core/text/values.html#text-id
-syn match   wastNamedVar      "$\+[[:alnum:]!#$%&'∗./:=><?@\\^_`~+-]*" contained display
+syn match   wastNamedVar      "$\+[[:alnum:]!#$%&'∗./:=><?@\\^_`~+-]*" contained contains=wastEscapeUtf8
 syn match   wastUnnamedVar    "$\+\d\+[[:alnum:]!#$%&'∗./:=><?@\\^_`~+-]\@!" contained display
+" Presuming the source text is itself encoded correctly, strings that do not
+" contain any uses of hexadecimal byte escapes are always valid names.
+" https://webassembly.github.io/spec/core/text/values.html#names
+syn match   wastEscapedUtf8   "\\\x\{1,6}" contained containedin=wastNamedVar display
 
 " String literals
 " https://webassembly.github.io/spec/core/text/values.html#strings
@@ -36,7 +40,7 @@ syn match   wastStringSpecial "\\\x\x\|\\[tnr'\\\"]\|\\u\x\+" contained containe
 " Float literals
 " https://webassembly.github.io/spec/core/text/values.html#floating-point
 syn match   wastFloat         "\<-\=\d\%(_\=\d\)*\%(\.\d\%(_\=\d\)*\)\=\%([eE][-+]\=\d\%(_\=\d\)*\)\=" display contained
-syn match   wastFloat         "\<-\=0x\x\%(_\=\d\)*\%(\.\x\%(_\=\x\)*\)\=\%([pP][-+]\=\d\%(_\=\d\)*\)\=" display contained
+syn match   wastFloat         "\<-\=0x\x\%(_\=\x\)*\%(\.\x\%(_\=\x\)*\)\=\%([pP][-+]\=\d\%(_\=\d\)*\)\=" display contained
 syn keyword wastFloat         inf nan contained
 
 " Integer literals
@@ -77,6 +81,7 @@ hi def link wastFloat         Float
 hi def link wastNumber        Number
 hi def link wastComment       Comment
 hi def link wastType          Type
+hi def link wastEscapedUtf8   Special
 
 let b:current_syntax = "wast"
 

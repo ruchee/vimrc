@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2019 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2020 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -125,7 +125,7 @@ endfunction
 
 " Update the statusline
 function! airline#update_statusline()
-  if airline#util#getwinvar(winnr(), 'airline_disabled', 0)
+  if airline#util#stl_disabled(winnr())
     return
   endif
   let range = filter(range(1, winnr('$')), 'v:val != winnr()')
@@ -154,11 +154,11 @@ endfunction
 
 " Function to draw inactive statuslines for inactive windows
 function! airline#update_statusline_inactive(range)
-  if airline#util#getwinvar(winnr(), 'airline_disabled', 0)
+  if airline#util#stl_disabled(winnr())
     return
   endif
   for nr in a:range
-    if airline#util#getwinvar(nr, 'airline_disabled', 0)
+    if airline#util#stl_disabled(nr)
       continue
     endif
     call setwinvar(nr, 'airline_active', 0)

@@ -61,6 +61,7 @@ call s:set('g:gitgutter_map_keys',                       1)
 call s:set('g:gitgutter_terminal_reports_focus',         1)
 call s:set('g:gitgutter_async',                          1)
 call s:set('g:gitgutter_log',                            0)
+call s:set('g:gitgutter_use_location_list',              0)
 
 call s:set('g:gitgutter_git_executable', 'git')
 if !executable(g:gitgutter_git_executable)
@@ -243,7 +244,7 @@ augroup gitgutter
   autocmd ShellCmdPost * call gitgutter#all(1)
   autocmd BufLeave term://* call gitgutter#all(1)
 
-  autocmd BufWritePost fugitive://*//0/* call gitgutter#all(1)
+  autocmd User FugitiveChanged call gitgutter#all(1)
 
   autocmd BufFilePre  * GitGutterBufferDisable
   autocmd BufFilePost * GitGutterBufferEnable

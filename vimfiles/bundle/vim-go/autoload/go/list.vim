@@ -135,6 +135,7 @@ endfunction
 " in g:go_list_type_commands.
 let s:default_list_type_commands = {
       \ "GoBuild":              "quickfix",
+      \ "GoDiagnostics":        "quickfix",
       \ "GoDebug":              "quickfix",
       \ "GoErrCheck":           "quickfix",
       \ "GoFmt":                "locationlist",
@@ -149,6 +150,7 @@ let s:default_list_type_commands = {
       \ "GoRun":                "quickfix",
       \ "GoTest":               "quickfix",
       \ "GoVet":                "quickfix",
+      \ "GoReferrers":          "quickfix",
       \ "_guru":                "locationlist",
       \ "_term":                "locationlist",
       \ "_job":                 "locationlist",

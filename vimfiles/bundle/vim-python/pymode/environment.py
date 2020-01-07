@@ -1,13 +1,9 @@
 """Define interfaces."""
 
-from __future__ import print_function
-
 import json
 import os.path
 import time
 import vim # noqa
-
-from ._compat import PY2
 
 
 class VimPymodeEnviroment(object):
@@ -53,10 +49,7 @@ class VimPymodeEnviroment(object):
         :return list:
 
         """
-        if not PY2:
-            return self.curbuf
-
-        return [l.decode(self.options.get('encoding')) for l in self.curbuf]
+        return self.curbuf
 
     @staticmethod
     def var(name, to_bool=False, silence=False, default=None):
@@ -91,23 +84,30 @@ class VimPymodeEnviroment(object):
 
         return vim.command('call pymode#wide_message("%s")' % str(msg))
 
-    def user_input(self, msg, default=''):
+    def user_input(self, msg='', default=''):
         """Return user input or default.
 
         :return str:
 
         """
-        msg = '%s %s ' % (self.prefix, msg)
+        prompt = []
+        prompt.append(str(self.prefix.strip()))
+        prompt.append(str(msg).strip())
 
         if default != '':
-            msg += '[%s] ' % default
+            prompt.append('[%s]' % default)
+
+        prompt.append('> ')
+        prompt = ' '.join([s for s in prompt if s])
+
+        vim.command('echohl Debug')
 
         try:
-            vim.command('echohl Debug')
-            input_str = vim.eval('input("%s> ")' % msg)
-            vim.command('echohl none')
+            input_str = vim.eval('input(%r)' % (prompt,))
         except KeyboardInterrupt:
             input_str = ''
+
+        vim.command('echohl none')
 
         return input_str or default
 
@@ -200,9 +200,6 @@ class VimPymodeEnviroment(object):
         """
         if dumps:
             value = json.dumps(value)
-
-        if PY2:
-            value = value.decode('utf-8').encode(self.options.get('encoding'))
 
         return value
 

@@ -1,5 +1,20 @@
 import React from 'react';
 
+const head = <T>(arr: T[]): T => arr[0]
+
+const f = (
+  <div>
+    {/* this is a comment string */}
+    {/* '?? */}
+    {/* another ? */}
+    {/* what happend */}
+  </div>
+);
+
+const foo = <string>bar;
+const foo = <string>bar;
+</string>
+
 function test() {
   const a = 1;
   let foo;
@@ -171,7 +186,7 @@ function testLitSyntax({ logs = [], ...props }, { show }) {
     <div class="logs" ...${props}>
       <button onClick=${() => this.toggle()}>Down</button>
       <!-- If expanded, render all logs: -->
-      ${show && raw`
+      ${show && jsx`
         <section class="logs" ...${props}>
           <!-- maps and values work just like JSX -->
           ${logs.map(log => html`
@@ -200,8 +215,8 @@ function testIndent() {
 module.exports = <div>
   <div>
     {
-      var a = <div>
-      </div>;
+      <div>
+      </div>
     }
   </div>
 </div>;

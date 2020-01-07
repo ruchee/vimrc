@@ -17,7 +17,8 @@ Features:
 * Provides a hunk text object.
 * Diffs against index (default) or any commit.
 * Allows folding all unchanged text.
-* Can load all hunk locations into quickfix list.
+* Provides fold text showing whether folded lines have been changed.
+* Can load all hunk locations into quickfix list or the current window's location list.
 * Handles line endings correctly, even with repos that do CRLF conversion.
 * Optional line highlighting.
 * Optional line number highlighting. (Only available in Neovim 0.3.2 or higher)
@@ -35,76 +36,37 @@ Constraints:
 
 ### Screenshot
 
-![screenshot](https://raw.github.com/airblade/vim-gitgutter/master/screenshot.png)
+![screenshot](./screenshot.png?raw=true)
 
 In the screenshot above you can see:
 
-* Line 15 has been modified.
-* Lines 21-24 are new.
-* A line or lines were removed between lines 25 and 26.
+* Lines 183-184 are new.
+* Lines 186-187 have been modified.
+* The preview for the modified lines highlights changed regions within the line.
 
 
 ### Installation
 
-Before installation, please check your Vim supports signs by running `:echo has('signs')`.  `1` means you're all set; `0` means you need to install a Vim with signs support.  If you're compiling Vim yourself you need the 'big' or 'huge' feature set.  MacVim supports signs.
+Install using your favourite package manager, or use Vim's built-in package support.
 
-You install vim-gitgutter like any other vim plugin.
-
-##### Pathogen
+Vim:
 
 ```
-cd ~/.vim/bundle
-git clone git://github.com/airblade/vim-gitgutter.git
+mkdir -p ~/.vim/pack/airblade/start
+cd ~/.vim/pack/airblade/start
+git clone https://github.com/airblade/vim-gitgutter.git
+vim -u NONE -c "helptags vim-gitgutter/doc" -c q
 ```
 
-##### Voom
+Neovim:
 
-Edit your plugin manifest (`voom edit`) and add:
-
-```
-airblade/vim-gitgutter
-```
-
-##### VimPlug
-
-Place this in your .vimrc:
-
-```viml
-Plug 'airblade/vim-gitgutter'
-```
-
-Then run the following in Vim:
 
 ```
-:source %
-:PlugInstall
+mkdir -p ~/.config/nvim/pack/airblade/start
+cd ~/.config/nvim/pack/airblade/start
+git clone https://github.com/airblade/vim-gitgutter.git
+nvim -u NONE -c "helptags vim-gitgutter/doc" -c q
 ```
-
-##### NeoBundle
-
-Place this in your .vimrc:
-
-```viml
-NeoBundle 'airblade/vim-gitgutter'
-```
-
-Then run the following in Vim:
-
-```
-:source %
-:NeoBundleInstall
-```
-
-##### No plugin manager
-
-Copy vim-gitgutter's subdirectories into your vim configuration directory:
-
-```
-cd /tmp && git clone git://github.com/airblade/vim-gitgutter.git
-cp -r vim-gitgutter/* ~/.vim/
-```
-
-See `:help add-global-plugin`.
 
 
 ### Windows
@@ -120,7 +82,7 @@ This is to avoid a problem which occurs if you have file named `git.*` (i.e. wit
 
 ### Getting started
 
-When you make a change to a file tracked by git, the diff markers should appear automatically.  The delay is governed by vim's `updatetime` option; the default value is `4000`, i.e. 4 seconds, but I suggest reducing it to around 100ms (add `set updatetime=100` to your vimrc).
+When you make a change to a file tracked by git, the diff markers should appear automatically.  The delay is governed by vim's `updatetime` option; the default value is `4000`, i.e. 4 seconds, but I suggest reducing it to around 100ms (add `set updatetime=100` to your vimrc).  Note `updatetime` also controls the delay before vim writes its swap file (see `:help updatetime`).
 
 You can jump between hunks with `[c` and `]c`.  You can preview, stage, and undo hunks with `<leader>hp`, `<leader>hs`, and `<leader>hu` respectively.
 
@@ -153,13 +115,15 @@ And you can turn line highlighting on and off (defaults to off):
 * turn off with `:GitGutterLineHighlightsDisable`
 * toggle with `:GitGutterLineHighlightsToggle`.
 
+Note that if you have line highlighting on and signs off, you will have an empty sign column – more accurately, a sign column with invisible signs.  This is because line highlighting requires signs and Vim/NeoVim always shows the sign column when there are signs even if the signs are invisible.
+
 With Neovim 0.3.2 or higher, you can turn line number highlighting on and off (defaults to off):
 
 * turn on with `:GitGutterLineNrHighlightsEnable`
 * turn off with `:GitGutterLineNrHighlightsDisable`
 * toggle with `:GitGutterLineNrHighlightsToggle`.
 
-Note that if you have line highlighting on and signs off, you will have an empty sign column – more accurately, a sign column with invisible signs.  This is because line highlighting requires signs and Vim always shows the sign column even if the signs are invisible.
+The same caveat applies to line number highlighting as to line highlighting just above.
 
 If you switch off both line highlighting and signs, you won't see the sign column.
 
@@ -185,7 +149,7 @@ nmap ]h <Plug>(GitGutterNextHunk)
 nmap [h <Plug>(GitGutterPrevHunk)
 ```
 
-You can load all your hunks into the quickfix list with `:GitGutterQuickFix`.  Note this ignores any unsaved changes in your buffers.
+You can load all your hunks into the quickfix list with `:GitGutterQuickFix`.  Note this ignores any unsaved changes in your buffers. If the option `g:gitgutter_use_location_list` is set, this command will load hunks into the current window's location list instead.
 
 You can stage or undo an individual hunk when your cursor is in it:
 
@@ -254,6 +218,21 @@ Use the `GitGutterFold` command to fold all unchanged lines, leaving just the hu
 
 Execute `GitGutterFold` a second time to restore the previous view.
 
+Use `gitgutter#fold#foldtext()` to augment the default `foldtext()` with an indicator of whether the folded lines have been changed.
+
+```viml
+set foldtext=gitgutter#fold#foldtext()
+```
+
+For a closed fold with changed lines:
+
+```
+Default foldtext():         +-- 45 lines: abcdef
+gitgutter#fold#foldtext():  +-- 45 lines (*): abcdef
+```
+
+You can use `gitgutter#fold#is_changed()` in your own `foldtext` expression to find out whether the folded lines have been changed.
+
 
 ### Customisation
 
@@ -277,6 +256,7 @@ You can customise:
 * Whether to clobber or preserve non-gitgutter signs
 * The priority of gitgutter's signs.
 * Whether to use a floating/popup window for hunk previews
+* Whether to populate the quickfix list or a location list with all hunks
 
 Please note that vim-gitgutter won't override any colours or highlights you've set in your colorscheme.
 
@@ -475,7 +455,12 @@ let g:gitgutter_async = 0
 
 #### To use floating/popup windows for hunk previews
 
-Add `let g:gitgutter_preview_win_floating = 1` to your vimrc.  Note that on Vim this prevents you staging (partial) hunks via the preview window.
+Add `let g:gitgutter_preview_win_floating = 1` to your `~/.vimrc`.  Note that on Vim this prevents you staging (partial) hunks via the preview window.
+
+
+#### To load all hunks into the current window's location list instead of the quickfix list
+
+Add `let g:gitgutter_use_location_list = 1` to your `~/.vimrc`.
 
 
 ### Extensions
@@ -536,9 +521,25 @@ Let's say, for example, you want to remove trailing whitespace from all changed 
 ```
 
 
+#### Cycle through hunks in current buffer
+
+This is like `:GitGutterNextHunk` but when it gets to the last hunk in the buffer it cycles around to the first.
+
+```viml
+function! GitGutterNextHunkCycle()
+  let line = line('.')
+  silent! GitGutterNextHunk
+  if line('.') == line
+    1
+    GitGutterNextHunk
+  endif
+endfunction
+```
+
+
 #### Cycle through hunks in all buffers
 
-You can use `:GitGutterQuickFix` to load all hunks into the quickfix list.
+You can use `:GitGutterQuickFix` to load all hunks into the quickfix list or the current window's location list.
 
 Alternatively, given that`]c` and `[c` jump from one hunk to the next in the current buffer, you can use this code to jump to the next hunk no matter which buffer it's in.
 
@@ -557,7 +558,7 @@ function! NextHunkAllBuffers()
       return
     endif
     if !empty(GitGutterGetHunks())
-      normal! 1G
+      1
       GitGutterNextHunk
       return
     endif
@@ -611,11 +612,21 @@ autocmd BufWritePost * GitGutter
 
 > Why can't I unstage staged changes?
 
-This plugin is for showing changes between the working tree and the index (and staging/undoing those changes).  Unstaging a staged hunk would require showing changes between the index and HEAD, which is out of scope.
+This plugin is for showing changes between the buffer and the index (and staging/undoing those changes).  Unstaging a staged hunk would require showing changes between the index and HEAD, which is out of scope.
 
 > Why are the colours in the sign column weird?
 
 Your colorscheme is configuring the `SignColumn` highlight group weirdly.  Please see the section above on customising the sign column.
+
+> Why are the colours in the preview window weird?
+
+Probably because your colourscheme doesn't configure the `diff{Added,Changed,Removed}` highlight groups.  Try this in `after/syntax/diff.vim`:
+
+```viml
+highlight link diffAdded DiffAdd
+highlight link diffChanged DiffChange
+highlight link diffRemoved DiffDelete
+```
 
 > What happens if I also use another plugin which uses signs (e.g. Syntastic)?
 
@@ -640,7 +651,7 @@ Here are some things you can check:
 
 #### When signs take a few seconds to appear
 
-* Try reducing `updatetime`, e.g. `set updatetime=100`.
+* Try reducing `updatetime`, e.g. `set updatetime=100`.  Note this also controls the delay before vim writes its swap file.
 
 #### When signs don't update after focusing Vim
 

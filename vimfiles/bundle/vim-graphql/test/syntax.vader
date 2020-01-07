@@ -1,4 +1,4 @@
-# https://facebook.github.io/graphql/October2016/#sec-Int-Value
+# https://graphql.github.io/graphql-spec/June2018/#sec-Int
 Given graphql (Integers):
   0
   -1
@@ -7,7 +7,7 @@ Execute (Integer assertions):
   AssertEqual 'graphqlNumber', SyntaxOf('0')
   AssertEqual 'graphqlNumber', SyntaxOf('-1')
 
-# https://facebook.github.io/graphql/October2016/#sec-Float-Value
+# https://graphql.github.io/graphql-spec/June2018/#sec-Float
 Given graphql (Floats):
   1.0
   -1.0
@@ -26,7 +26,7 @@ Execute (Float assertions):
   AssertEqual 'graphqlNumber', SyntaxOf('1e+10')
   AssertEqual 'graphqlNumber', SyntaxOf('1.0e10')
 
-# https://facebook.github.io/graphql/October2016/#sec-Boolean-Value
+# https://graphql.github.io/graphql-spec/June2018/#sec-Boolean
 Given graphql (Booleans):
   true
   false
@@ -35,19 +35,25 @@ Execute (Boolean assertions):
   AssertEqual 'graphqlBoolean', SyntaxOf('true')
   AssertEqual 'graphqlBoolean', SyntaxOf('false')
 
-# https://facebook.github.io/graphql/October2016/#sec-String-Value
+# https://graphql.github.io/graphql-spec/June2018/#sec-String
 Given graphql (Strings):
   ""
   "Hello World"
-  """Triple-quoted
+
+  """Block
+  string"""
+
+  """Block
+  \"""
   string"""
 
 Execute (String assertions):
   AssertEqual 'graphqlString', SyntaxOf('""')
   AssertEqual 'graphqlString', SyntaxOf('"Hello World"')
-  AssertEqual 'graphqlString', SyntaxOf('"""Triple-quoted\nstring"""')
+  AssertEqual 'graphqlString', SyntaxOf('"""Block\nstring"""')
+  AssertEqual 'graphqlString', SyntaxOf('"""Block\n\\"""\nstring"""')
 
-# https://facebook.github.io/graphql/October2016/#sec-Language.Arguments
+# https://graphql.github.io/graphql-spec/June2018/#sec-Field-Arguments
 Given graphql (Arguments):
   query queryName($site: Site = MOBILE) {
     user(id: 4) {
@@ -59,13 +65,13 @@ Execute (Argument assertions):
   AssertEqual 'graphqlName', SyntaxOf('queryName')
   AssertEqual 'graphqlVariable', SyntaxOf('$site')
   AssertEqual 'graphqlType', SyntaxOf('Site')
-  AssertEqual 'graphqlConstant', SyntaxOf('MOBILE')
+  AssertEqual 'graphqlType', SyntaxOf('MOBILE')
   AssertEqual 'graphqlName', SyntaxOf('id')
   AssertEqual 'graphqlNumber', SyntaxOf('4')
   AssertEqual 'graphqlName', SyntaxOf('size')
   AssertEqual 'graphqlNumber', SyntaxOf('100')
 
-# https://facebook.github.io/graphql/October2016/#sec-Type-Conditions
+# https://graphql.github.io/graphql-spec/June2018/#sec-Type-Conditions
 Given graphql (Type Conditions):
   query FragmentTyping {
     profiles(handles: ["zuck", "cocacola"]) {
@@ -87,7 +93,7 @@ Execute (Type Condition assertions):
   AssertEqual 'graphqlKeyword', SyntaxOf('on')
   AssertEqual 'graphqlType', SyntaxOf('User')
 
-# https://facebook.github.io/graphql/October2016/#sec-Inline-Fragments
+# https://graphql.github.io/graphql-spec/June2018/#sec-Inline-Fragments
 Given graphql (Inline Framents):
   query inlineFragmentTyping {
     profiles(handles: ["zuck", "cocacola"]) {
@@ -113,3 +119,35 @@ Execute (Schema assertions):
   AssertEqual 'graphqlStructure', SyntaxOf('schema')
   AssertEqual 'graphqlName', SyntaxOf('query')
   AssertEqual 'graphqlType', SyntaxOf('QueryType')
+
+# https://graphql.github.io/graphql-spec/June2018/#sec-Type-System.Directives
+Given graphql (Directives):
+  directive @include(if: Boolean!)
+    on FIELD
+      | FRAGMENT_SPREAD
+      | INLINE_FRAGMENT
+
+Execute (Directive assertions):
+  AssertEqual 'graphqlStructure', SyntaxOf('directive')
+  AssertEqual 'graphqlDirective', SyntaxOf('@include')
+  AssertEqual 'graphqlKeyword', SyntaxOf('on')
+  AssertEqual 'graphqlDirectiveLocation', SyntaxOf('FIELD')
+  AssertEqual 'graphqlDirectiveLocation', SyntaxOf('FRAGMENT_SPREAD')
+  AssertEqual 'graphqlDirectiveLocation', SyntaxOf('INLINE_FRAGMENT')
+  AssertEqual 'graphqlOperator', SyntaxOf('|')
+
+# https://graphql.github.io/graphql-spec/June2018/#sec-Objects
+Given graphql (Objects):
+  type Type implements Interface1 & Interface2 {
+    name: Thing
+  }
+
+Execute (Object assertions):
+  AssertEqual 'graphqlStructure', SyntaxOf('type')
+  AssertEqual 'graphqlType', SyntaxOf('Type')
+  AssertEqual 'graphqlStructure', SyntaxOf('implements')
+  AssertEqual 'graphqlType', SyntaxOf('Interface1')
+  AssertEqual 'graphqlOperator', SyntaxOf('&')
+  AssertEqual 'graphqlType', SyntaxOf('Interface2')
+  AssertEqual 'graphqlName', SyntaxOf('name')
+  AssertEqual 'graphqlType', SyntaxOf('Thing')

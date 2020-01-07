@@ -80,7 +80,7 @@ LINK
 LICENSE
 -------
 
-Copyright (C) 2012-2017 Takahiro Yoshihara. Distributed under the MIT License.
+Copyright (C) 2012-2019 Takahiro Yoshihara. Distributed under the MIT License.
 
 [1]: http://i.imgur.com/yO4PWAF.png
 [2]: http://i.imgur.com/CnKui5H.png

@@ -1,4 +1,5 @@
 import vim, re
+import string
 
 try:
     import HTMLParser
@@ -25,6 +26,11 @@ def complete(complete_output_var, output_var, base_var , alter_var, collapse_var
     collapse_overload = vim.eval(collapse_var) != '0'
     if complete_output is None: complete_output = ''
     completes = []
+
+    # get rid of non-printable characters that would be
+    #  in the embedded doc (e.g. ANSI escape characters)
+    #  thus preventing ET.XML to work
+    complete_output = re.sub(f'[^{re.escape(string.printable)}]', '', complete_output )
 
     # wrap in a tag to prevent parsing errors
     root = ET.XML("<output>" + complete_output + "</output>")

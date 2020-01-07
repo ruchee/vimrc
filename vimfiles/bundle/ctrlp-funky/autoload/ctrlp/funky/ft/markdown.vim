@@ -12,3 +12,7 @@ function! ctrlp#funky#ft#markdown#filters()
   \ ]
   return filters
 endfunction
+
+function! ctrlp#funky#ft#markdown#post_extract_hook(list)
+  return filter(copy(a:list), "v:val !~# '^[\\t ]*#:\\d\\+:\\d\\+$'")
+endfunction

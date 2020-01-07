@@ -35,8 +35,6 @@ endif
 " \@!     negative lookahead
 
 
-"  <T1, T2>
-" s~~~~~~~e
 
 syntax case match
 
@@ -100,7 +98,7 @@ syntax region tsxTag
       \ start=+<[^ /!?<"'=:]\@=+
       \ end=+[/]\{0,1}>+
       \ contained
-      \ contains=tsxTagName,tsxAttrib,tsxEqual,tsxString,tsxJsBlock,tsxAttributeComment,jsBlock,tsxGenerics
+      \ contains=tsxTagName,tsxAttrib,tsxEqual,tsxString,tsxJsBlock,tsxAttributeComment,tsxGenerics
 
 syntax region tsxGenerics
     \ matchgroup=tsxTypeBraces start=+\([<][_\-\.:a-zA-Z0-9]*\|[<][_\-\.:a-zA-Z0-9]*\)\@<=\s*[<]+
@@ -112,12 +110,15 @@ syntax region tsxGenerics
 syntax match tsxTypes /[_\.a-zA-Z0-9]/
     \ contained
 
+" \@<!    negative lookbehind
 
+"  <T1, T2>
+" s~~~~~~~e
 " For Generics outside of tsxRegion
 " Must come after tsxRegion in this file
 syntax region tsGenerics
-    \ start=+<[A-Z0-9]\([A-Z0-9,]\|\s\)*>+
-    \ end=+>+
+    \ start=+<\([\[A-Z]\|typeof\)\([a-zA-Z0-9,{}\[\]'".=>():]\|\s\)*>\(\s*\n*\s*[()]\|\s*[=]\)+
+    \ end=+\([=]\)\@<!>+
     \ contains=tsxTypes,tsxGenerics
     \ extend
 
@@ -126,8 +127,7 @@ syntax region tsGenerics
 syntax region tsxCloseTag
       \ start=+</[^ /!?<"'=:]\@=+
       \ end=+>+
-      \ contained
-      \ contains=tsxCloseString
+
 
 " matches tsx Comments: {/* .....  /*}
 syn region Comment contained start=+{/\*+ end=+\*/}+ contains=Comment

@@ -160,7 +160,7 @@ endfunction
 
 " Populate the stacktrace window.
 function! s:show_stacktrace(res) abort
-  if !has_key(a:res, 'result')
+  if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res.result)
     return
   endif
 
@@ -279,6 +279,7 @@ function! go#debug#Stop() abort
   silent! exe bufwinnr(bufnr('__GODEBUG_STACKTRACE__')) 'wincmd c'
   silent! exe bufwinnr(bufnr('__GODEBUG_VARIABLES__')) 'wincmd c'
   silent! exe bufwinnr(bufnr('__GODEBUG_OUTPUT__')) 'wincmd c'
+  silent! exe bufwinnr(bufnr('__GODEBUG_GOROUTINES__')) 'wincmd c'
 
   if has('balloon_eval')
     let &ballooneval=s:ballooneval
@@ -325,10 +326,10 @@ endfunction
 
 function! s:expand_var() abort
   " Get name from struct line.
-  let name = matchstr(getline('.'), '^[^:]\+\ze: [a-zA-Z0-9\.·]\+{\.\.\.}$')
+  let name = matchstr(getline('.'), '^[^:]\+\ze: \*\?[a-zA-Z0-9-_/\.]\+\({\.\.\.}\)\?$')
   " Anonymous struct
   if name == ''
-    let name = matchstr(getline('.'), '^[^:]\+\ze: struct {.\{-}}$')
+    let name = matchstr(getline('.'), '^[^:]\+\ze: \*\?struct {.\{-}}$')
   endif
 
   if name != ''
@@ -784,7 +785,9 @@ function! s:update_goroutines() abort
     let l:res = s:call_jsonrpc('RPCServer.State')
     let l:currentGoroutineID = 0
     try
-      let l:currentGoroutineID = l:res["result"]["State"]["currentGoroutine"]["id"]
+      if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res['result'])
+        let l:currentGoroutineID = l:res["result"]["State"]["currentGoroutine"]["id"]
+      endif
     catch
       call go#util#EchoWarning("current goroutine not found...")
     endtry
@@ -811,7 +814,7 @@ function! s:show_goroutines(currentGoroutineID, res) abort
 
     let v = ['# Goroutines']
 
-    if !has_key(a:res, 'result')
+    if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res['result'])
       call setline(1, v)
       return
     endif
@@ -876,14 +879,21 @@ function! s:update_variables() abort
 
   try
     let res = s:call_jsonrpc('RPCServer.ListLocalVars', l:cfg)
-    let s:state['localVars'] = res.result['Variables']
+
+    let s:state['localVars'] = {}
+    if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res.result)
+      let s:state['localVars'] = l:res.result['Variables']
+    endif
   catch
     call go#util#EchoError(v:exception)
   endtry
 
   try
     let res = s:call_jsonrpc('RPCServer.ListFunctionArgs', l:cfg)
-    let s:state['functionArgs'] = res.result['Args']
+    let s:state['functionArgs'] = {}
+    if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res.result)
+      let s:state['functionArgs'] = res.result['Args']
+    endif
   catch
     call go#util#EchoError(v:exception)
   endtry
@@ -918,7 +928,7 @@ endfunction
 function! s:stack_cb(res) abort
   let s:stack_name = ''
 
-  if empty(a:res) || !has_key(a:res, 'result')
+  if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res.result)
     return
   endif
 

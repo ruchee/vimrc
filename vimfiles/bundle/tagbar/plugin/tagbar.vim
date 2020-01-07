@@ -20,7 +20,7 @@
 
 scriptencoding utf-8
 
-if &cp || exists('g:loaded_tagbar')
+if &compatible || exists('g:loaded_tagbar')
     finish
 endif
 
@@ -67,6 +67,7 @@ function! s:setup_options() abort
         \ ['indent', 2],
         \ ['left', 0],
         \ ['previewwin_pos', previewwin_pos],
+        \ ['show_balloon', 1],
         \ ['show_visibility', 1],
         \ ['show_linenumbers', 0],
         \ ['singleclick', 0],
@@ -85,8 +86,8 @@ endfunction
 call s:setup_options()
 
 if !exists('g:tagbar_iconchars')
-    if has('multi_byte') && has('unix') && &encoding == 'utf-8' &&
-     \ (empty(&termencoding) || &termencoding == 'utf-8')
+    if has('multi_byte') && has('unix') && &encoding ==# 'utf-8' &&
+     \ (!exists('+termencoding') || empty(&termencoding) || &termencoding ==# 'utf-8')
         let g:tagbar_iconchars = ['▶', '▼']
     else
         let g:tagbar_iconchars = ['+', '-']
@@ -116,6 +117,7 @@ function! s:setup_keymaps() abort
         \ ['togglesort',            's'],
         \ ['togglecaseinsensitive', 'i'],
         \ ['toggleautoclose',       'c'],
+        \ ['togglepause',           't'],
         \ ['zoomwin',               'x'],
         \ ['close',                 'q'],
         \ ['help',                  ['<F1>', '?']],

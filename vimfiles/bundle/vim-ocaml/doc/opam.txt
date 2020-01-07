@@ -13,6 +13,6 @@ ABOUT                                           *opam-about*
 
 Grab the latest version or report a bug on GitHub:
 
-https://github.com/rgrinberg/opam.vim
+https://github.com/ocaml/vim-ocaml
 
  vim:tw=78:et:ft=help:norl:
