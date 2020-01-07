@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2019-04-19 17:54:39
+" -----------------    Date: 2020-01-08 02:57:59
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -37,8 +37,7 @@
 " \mp                        生成 Promptline 脚本文件 [Normal 模式可用]
 "
 " \gi                        开启或关闭 GitGutter     [Normal 模式可用]
-" \gd                        打开 Git 文件对比模式    [Normal 模式可用] [竖直]
-" \gs                        打开 Git 文件对比模式    [Normal 模式可用] [水平]
+" \gd                        打开 Git 文件对比模式    [Normal 模式可用]
 " \gl                        调用 Tig 查看提交日志    [Normal 模式可用]
 "
 " \il                        显示/关闭对齐线          [Normal 模式可用]
@@ -178,8 +177,8 @@
 "
 " ---------- 便捷操作 ----------
 "
-" Ctrl + A                   将当前光标所在数字自增1        [仅普通模式可用]
-" Ctrl + X                   将当前光标所在数字自减1        [仅普通模式可用]
+" Ctrl + A                   将当前光标所在数字自增1        [Normal 模式可用]
+" Ctrl + X                   将当前光标所在数字自减1        [Normal 模式可用]
 " :g/^/m0                    将整个文件所有行排列顺序颠倒   [命令模式]
 " m字符       and '字符      标记位置 and 跳转到标记位置
 " q字符 xxx q and @字符      录制宏   and 执行宏
@@ -253,7 +252,7 @@ au FileType rust nmap gs <Plug>(rust-def-split)
 au FileType rust nmap gx <Plug>(rust-def-vertical)
 au FileType rust nmap <leader>gd <Plug>(rust-doc)
 
-" 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装]
+" 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装，需要翻墙才能安装成功]
 au FileType go nmap <c-[> :GoInfo<cr>
 au FileType go nmap <c-]> :GoDef<cr>
 au FileType go nmap <c-t> <c-o>
@@ -765,7 +764,7 @@ else
     let g:syntastic_cpp_compiler = 'clang++'
 endif
 let g:syntastic_c_compiler_options           = '-Wall -std=c11'
-let g:syntastic_cpp_compiler_options         = '-Wall -std=c++14'
+let g:syntastic_cpp_compiler_options         = '-Wall -std=c++17'
 let g:syntastic_swift_checkers               = ['swift', 'swiftpm', 'swiftlint']
 let g:syntastic_rust_checkers                = ['rustc']
 let g:syntastic_nim_checkers                 = ['nim']
@@ -876,11 +875,8 @@ nmap <leader>mp :!rm ~/backup/.promptline<cr><esc>:PromptlineSnapshot ~/backup/.
 " \gi                 开启或关闭 GitGutter [GitGutter 插件]
 nmap <leader>gi :GitGutterToggle<cr>:GitGutterSignsToggle<cr>:GitGutterLineHighlightsToggle<cr>
 
-" \gd                 打开 Git 文件对比模式 [竖直] [GitGutter 插件]
+" \gd                 打开 Git 文件对比模式 [GitGutter 插件]
 nmap <leader>gd :Gdiff<cr>
-
-" \gs                 打开 Git 文件对比模式 [水平] [GitGutter 插件]
-nmap <leader>gs :Gsdiff<cr>
 
 " \gl                 调用 Tig 查看提交日志 [tig-explorer 插件]
 nmap <leader>gl :TigOpenCurrentFile<cr>
@@ -995,9 +991,9 @@ func! Compile_Run_Code()
         endif
     elseif &filetype == 'cpp'
         if g:isWIN
-            exec '!g++ -Wall -std=c++14 -o %:r %:t && %:r.exe'
+            exec '!g++ -Wall -std=c++17 -o %:r %:t && %:r.exe'
         else
-            exec '!clang++ -Wall -std=c++14 -o %:r %:t && ./%:r'
+            exec '!clang++ -Wall -std=c++17 -o %:r %:t && ./%:r'
         endif
     elseif &filetype == 'objc'
         if g:isMAC
