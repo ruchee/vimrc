@@ -4,3 +4,5 @@
 .dlv/
 .git/
 .viminfo
+issues/
+autoload/go/**/pkg/

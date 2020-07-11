@@ -6,13 +6,14 @@ scriptencoding utf-8
 
 if !exists('s:state')
   let s:state = {
-      \ 'rpcid': 1,
-      \ 'running': 0,
-      \ 'currentThread': {},
-      \ 'localVars': {},
-      \ 'functionArgs': {},
-      \ 'message': [],
-      \}
+        \ 'rpcid': 1,
+        \ 'running': 0,
+        \ 'currentThread': {},
+        \ 'localVars': {},
+        \ 'functionArgs': {},
+        \ 'message': [],
+        \ 'resultHandlers': {},
+      \ }
 
   if go#util#HasDebug('debugger-state')
      call go#config#SetDebugDiag(s:state)
@@ -80,15 +81,23 @@ function! s:logger(prefix, ch, msg) abort
   endtry
 endfunction
 
-function! s:call_jsonrpc(method, ...) abort
+" s:call_jsonrpc will call method, passing all of s:call_jsonrpc's optional
+" arguments in the rpc request's params field.
+
+" The first argument to s:call_jsonrpc should be a function that takes two
+" arguments. The first argument will be a function that takes no arguments and will
+" throw an exception if the response to the request is an error response. The
+" second argument is the response itself.
+function! s:call_jsonrpc(handle_result, method, ...) abort
   if go#util#HasDebug('debugger-commands')
     call go#util#EchoInfo('sending to dlv ' . a:method)
   endif
 
   let l:args = a:000
   let s:state['rpcid'] += 1
+  let l:reqid = s:state['rpcid']
   let l:req_json = json_encode({
-      \  'id': s:state['rpcid'],
+      \  'id': l:reqid,
       \  'method': a:method,
       \  'params': l:args,
       \})
@@ -97,34 +106,29 @@ function! s:call_jsonrpc(method, ...) abort
     let l:ch = s:state['ch']
     if has('nvim')
       call chansend(l:ch, l:req_json)
-      while len(s:state.data) == 0
-        sleep 50m
-        if get(s:state, 'ready', 0) == 0
-          return
-        endif
-      endwhile
-      let resp_json = s:state.data[0]
-      let s:state.data = s:state.data[1:]
     else
       call ch_sendraw(l:ch, req_json)
-      let l:resp_raw = ch_readraw(l:ch)
-      let resp_json = json_decode(l:resp_raw)
     endif
+
+    let s:state.resultHandlers[l:reqid] = a:handle_result
 
     if go#util#HasDebug('debugger-commands')
       let g:go_debug_commands = add(go#config#DebugCommands(), {
             \ 'request':  l:req_json,
-            \ 'response': l:resp_json,
       \ })
     endif
-
-    if type(l:resp_json) == v:t_dict && has_key(l:resp_json, 'error') && !empty(l:resp_json.error)
-      throw l:resp_json.error
-    endif
-    return l:resp_json
   catch
     throw substitute(v:exception, '^Vim', '', '')
   endtry
+endfunction
+
+function! s:exited(res) abort
+  if type(a:res) ==# type(v:null)
+    return 0
+  endif
+
+  let state = a:res.result.State
+  return state.exited == v:true
 endfunction
 
 " Update the location of the current breakpoint or line we're halted on based on
@@ -154,12 +158,22 @@ function! s:update_breakpoint(res) abort
   endif
   silent! exe 'norm!' linenr.'G'
   silent! normal! zvzz
+  " TODO(bc): convert to use s:sign_unplace()
   silent! sign unplace 9999
+  " TODO(bc): convert to use s:sign_place()
   silent! exe 'sign place 9999 line=' . linenr . ' name=godebugcurline file=' . filename
+  call s:warn_when_stale(fnamemodify(l:filename, ':p'))
 endfunction
 
 " Populate the stacktrace window.
-function! s:show_stacktrace(res) abort
+function! s:show_stacktrace(check_errors, res) abort
+  try
+    call a:check_errors()
+  catch
+    call go#util#EchoError(printf('could not update stack: %s', v:exception))
+    return
+  endtry
+
   if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res.result)
     return
   endif
@@ -232,7 +246,7 @@ function! s:clearState() abort
 endfunction
 
 function! s:stop() abort
-  let l:res = s:call_jsonrpc('RPCServer.Detach', {'kill': v:true})
+  call s:call_jsonrpc(function('s:noop'), 'RPCServer.Detach', {'kill': v:true})
 
   if has_key(s:state, 'job')
     call go#job#Wait(s:state['job'])
@@ -458,21 +472,33 @@ function! s:start_cb() abort
 
   silent! delcommand GoDebugStart
   silent! delcommand GoDebugTest
+
   command! -nargs=0 GoDebugContinue   call go#debug#Stack('continue')
+  command! -nargs=0 GoDebugStop       call go#debug#Stop()
+
+  nnoremap <silent> <Plug>(go-debug-breakpoint) :<C-u>call go#debug#Breakpoint()<CR>
+  nnoremap <silent> <Plug>(go-debug-continue)   :<C-u>call go#debug#Stack('continue')<CR>
+  nnoremap <silent> <Plug>(go-debug-stop)       :<C-u>call go#debug#Stop()<CR>
+
+  augroup vim-go-debug
+    autocmd! * <buffer>
+    autocmd FileType go nmap <buffer> <F5>   <Plug>(go-debug-continue)
+    autocmd FileType go nmap <buffer> <F9>   <Plug>(go-debug-breakpoint)
+  augroup END
+  doautocmd vim-go-debug FileType go
+endfunction
+
+function! s:continue()
   command! -nargs=0 GoDebugNext       call go#debug#Stack('next')
   command! -nargs=0 GoDebugStep       call go#debug#Stack('step')
   command! -nargs=0 GoDebugStepOut    call go#debug#Stack('stepOut')
   command! -nargs=0 GoDebugRestart    call go#debug#Restart()
-  command! -nargs=0 GoDebugStop       call go#debug#Stop()
   command! -nargs=* GoDebugSet        call go#debug#Set(<f-args>)
   command! -nargs=1 GoDebugPrint      call go#debug#Print(<q-args>)
 
-  nnoremap <silent> <Plug>(go-debug-breakpoint) :<C-u>call go#debug#Breakpoint()<CR>
   nnoremap <silent> <Plug>(go-debug-next)       :<C-u>call go#debug#Stack('next')<CR>
   nnoremap <silent> <Plug>(go-debug-step)       :<C-u>call go#debug#Stack('step')<CR>
   nnoremap <silent> <Plug>(go-debug-stepout)    :<C-u>call go#debug#Stack('stepOut')<CR>
-  nnoremap <silent> <Plug>(go-debug-continue)   :<C-u>call go#debug#Stack('continue')<CR>
-  nnoremap <silent> <Plug>(go-debug-stop)       :<C-u>call go#debug#Stop()<CR>
   nnoremap <silent> <Plug>(go-debug-print)      :<C-u>call go#debug#Print(expand('<cword>'))<CR>
 
   if has('balloon_eval')
@@ -512,13 +538,14 @@ function! s:out_cb(ch, msg) abort
   let s:state['message'] += [a:msg]
 
   if stridx(a:msg, go#config#DebugAddress()) != -1
-    if has('nvim')
-      let s:state['data'] = []
-      let l:state = {'databuf': ''}
+    let s:state['data'] = []
+    let l:state = {'databuf': ''}
 
-      " explicitly bind callback to state so that within it, self will
-      " always refer to state. See :help Partial for more information.
-      let l:state.on_data = function('s:on_data', [], l:state)
+    " explicitly bind callback to state so that within it, self will
+    " always refer to state. See :help Partial for more information.
+    let l:state.on_data = function('s:on_data', [], l:state)
+
+    if has('nvim')
       let l:ch = sockconnect('tcp', go#config#DebugAddress(), {'on_data': l:state.on_data, 'state': l:state})
       if l:ch == 0
         call go#util#EchoError("could not connect to debugger")
@@ -526,7 +553,7 @@ function! s:out_cb(ch, msg) abort
         return
       endif
     else
-      let l:ch = ch_open(go#config#DebugAddress(), {'mode': 'raw', 'timeout': 20000})
+      let l:ch = ch_open(go#config#DebugAddress(), {'mode': 'raw', 'timeout': 20000, 'callback': l:state.on_data})
       if ch_status(l:ch) !=# 'open'
         call go#util#EchoError("could not connect to debugger")
         call go#job#Stop(s:state['job'])
@@ -542,9 +569,8 @@ function! s:out_cb(ch, msg) abort
     let s:state['ready'] = 1
 
     " replace all the breakpoints set before delve started so that the ids won't overlap.
-    let l:breakpoints = s:list_breakpoints()
     for l:bt in s:list_breakpoints()
-      exe 'sign unplace '. l:bt.id
+      call s:sign_unplace(l:bt.id, l:bt.file)
       call go#debug#Breakpoint(l:bt.line, l:bt.file)
     endfor
 
@@ -552,23 +578,105 @@ function! s:out_cb(ch, msg) abort
   endif
 endfunction
 
-function! s:on_data(ch, data, event) dict abort
-  let l:data = self.databuf
-  for l:msg in a:data
-    let l:data .= l:msg
-  endfor
+" s:on_data's third optional argument is provided, but not used, so that the
+" same function can be used for Vim's 'callback' and Neovim's 'data'.
+function! s:on_data(ch, data, ...) dict abort
+  let l:data = s:message(self.databuf, a:data)
 
+  let l:messages = split(l:data, "\n")
+  for l:msg in l:messages
+    let l:data = l:messages[0]
+    try
+      let l:res = json_decode(l:data)
+      " remove the decoded message
+      call remove(l:messages, 0)
+    catch
+      return
+    finally
+      " Rejoin messages and assign to databuf so that any messages that come
+      " in if s:handleRPCResult sleeps will be appended correctly.
+      "
+      " Because the current message is removed in the try immediately after
+      " decoding,  that l:messages contains all the messages that have not
+      " yet been decoded including the current message if decoding it
+      " failed.
+      let self.databuf = join(l:messages, "\n")
+    endtry
+
+    if go#util#HasDebug('debugger-commands')
+      let g:go_debug_commands = add(go#config#DebugCommands(), {
+            \ 'response': l:data,
+      \ })
+    endif
+    call s:handleRPCResult(l:res)
+  endfor
+endfunction
+
+function! s:message(buf, data) abort
+  if has('nvim')
+    " dealing with the channel lines of Neovim is awful. The docs (:help
+    " channel-lines) say:
+    "     stream event handlers may receive partial (incomplete) lines. For a
+    "     given invocation of on_stdout etc, `a:data` is not guaranteed to end
+    "     with a newline.
+    "       - `abcdefg` may arrive as `['abc']`, `['defg']`.
+    "       - `abc\nefg` may arrive as `['abc', '']`, `['efg']` or `['abc']`,
+    "         `['','efg']`, or even `['ab']`, `['c','efg']`.
+    "
+    " Thankfully, though, this is explained a bit better in an issue:
+    " https://github.com/neovim/neovim/issues/3555. Specifically in these two
+    " comments:
+    "     * https://github.com/neovim/neovim/issues/3555#issuecomment-152290804
+    "     * https://github.com/neovim/neovim/issues/3555#issuecomment-152588749
+    "
+    " The key is
+    "     Every item in the list passed to job control callbacks represents a
+    "     string after a newline(Except the first, of course). If the program
+    "     outputs: "hello\nworld" the corresponding list is ["hello", "world"].
+    "     If the program outputs "hello\nworld\n", the corresponding list is
+    "     ["hello", "world", ""]. In other words, you can always determine if
+    "     the last line received is complete or not.
+    " and
+    "     for every list you receive in a callback, all items except the first
+    "     represent newlines.
+
+    let l:data = printf('%s%s', a:buf, a:data[0])
+    for l:msg in a:data[1:]
+      let l:data = printf("%s\n%s", l:data, l:msg)
+    endfor
+
+    return l:data
+  endif
+
+  return printf('%s%s', a:buf, a:data)
+endfunction
+
+" s:error_check will be curried and injected into rpc result handlers so that
+" those result handlers can consistently check for errors in the response by
+" catching exceptions and handling the error appropriately.
+function! s:error_check(resp_json) abort
+  if type(a:resp_json) == v:t_dict && has_key(a:resp_json, 'error') && !empty(a:resp_json.error)
+    throw a:resp_json.error
+  endif
+endfunction
+
+function! s:handleRPCResult(resp) abort
   try
-    let l:res = json_decode(l:data)
-    let s:state['data'] = add(s:state['data'], l:res)
-    let self.databuf = ''
+    let l:id = a:resp.id
+    " call the result handler with its first argument set to a curried
+    " s:error_check value so that the the handle can call s:error_check
+    " without passing any arguments to check whether the response is an error
+    " response.
+    call call(s:state.resultHandlers[l:id], [function('s:error_check', [a:resp]), a:resp])
   catch
-    " there isn't a complete message in databuf: buffer l:data and try
-    " again when more data comes in.
-    let self.databuf = l:data
+    throw v:exception
   finally
+    if has_key(s:state.resultHandlers, l:id)
+      call remove(s:state.resultHandlers, l:id)
+    endif
   endtry
 endfunction
+
 
 " Start the debug mode. The first argument is the package name to compile and
 " debug, anything else will be passed to the running program.
@@ -659,7 +767,7 @@ function! go#debug#Start(is_test, ...) abort
 
     let s:state['job'] = go#job#Start(l:cmd, l:opts)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not start debugger: %s', v:exception))
   endtry
 
   return s:state['job']
@@ -755,17 +863,24 @@ endfunction
 
 function! s:eval(arg) abort
   try
-    let l:res = s:call_jsonrpc('RPCServer.State')
-    let l:res = s:call_jsonrpc('RPCServer.Eval', {
+    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+    call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.State')
+    let l:res = l:promise.await()
+    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+    call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.Eval', {
           \ 'expr':  a:arg,
           \ 'scope': {'GoroutineID': l:res.result.State.currentThread.goroutineID}
       \ })
+
+    let l:res = l:promise.await()
+
     return s:eval_tree(l:res.result.Variable, 0)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('evaluation failed: %s', v:exception))
     return ''
   endtry
 endfunction
+
 
 function! go#debug#BalloonExpr() abort
   silent! let l:v = s:eval(v:beval_text)
@@ -776,28 +891,41 @@ function! go#debug#Print(arg) abort
   try
     echo substitute(s:eval(a:arg), "\n$", "", 0)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not print: %s', v:exception))
   endtry
 endfunction
 
 function! s:update_goroutines() abort
+  call s:call_jsonrpc(function('s:update_goroutines_state_handler'), 'RPCServer.State')
+endfunction
+
+function! s:update_goroutines_state_handler(check_errors, res) abort
   try
-    let l:res = s:call_jsonrpc('RPCServer.State')
+    call a:check_errors()
+
     let l:currentGoroutineID = 0
     try
-      if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res['result'])
-        let l:currentGoroutineID = l:res["result"]["State"]["currentGoroutine"]["id"]
+      if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res['result'])
+        let l:currentGoroutineID = a:res["result"]["State"]["currentGoroutine"]["id"]
       endif
     catch
       call go#util#EchoWarning("current goroutine not found...")
     endtry
 
-    let l:res = s:call_jsonrpc('RPCServer.ListGoroutines')
-    call s:show_goroutines(l:currentGoroutineID, l:res)
+    call s:call_jsonrpc(function('s:list_goroutines_handler', [l:currentGoroutineID]), 'RPCServer.ListGoroutines')
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not list goroutines: %s', v:exception))
   endtry
- endfunction
+endfunction
+
+function s:list_goroutines_handler(currentGoroutineID, check_errors, res) abort
+  try
+    call a:check_errors()
+    call s:show_goroutines(a:currentGoroutineID, a:res)
+  catch
+    call go#util#EchoError(printf('could not show goroutines: %s', v:exception))
+  endtry
+endfunction
 
 function! s:show_goroutines(currentGoroutineID, res) abort
   let l:goroutines_winid = bufwinid('__GODEBUG_GOROUTINES__')
@@ -878,24 +1006,42 @@ function! s:update_variables() abort
         \ }
 
   try
-    let res = s:call_jsonrpc('RPCServer.ListLocalVars', l:cfg)
-
-    let s:state['localVars'] = {}
-    if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res.result)
-      let s:state['localVars'] = l:res.result['Variables']
-    endif
+    call s:call_jsonrpc(function('s:handle_list_local_vars'), 'RPCServer.ListLocalVars', l:cfg)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not list variables: %s', v:exception))
   endtry
 
   try
-    let res = s:call_jsonrpc('RPCServer.ListFunctionArgs', l:cfg)
-    let s:state['functionArgs'] = {}
-    if type(l:res) is type({}) && has_key(l:res, 'result') && !empty(l:res.result)
-      let s:state['functionArgs'] = res.result['Args']
+    call s:call_jsonrpc(function('s:handle_list_function_args'), 'RPCServer.ListFunctionArgs', l:cfg)
+  catch
+    call go#util#EchoError(printf('could not list function arguments: %s', v:exception))
+  endtry
+
+endfunction
+
+function! s:handle_list_local_vars(check_errors, res) abort
+  try
+    call a:check_errors()
+    let s:state['localVars'] = {}
+    if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res.result)
+      let s:state['localVars'] = a:res.result['Variables']
     endif
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not list variables: %s', v:exception))
+  endtry
+
+  call s:show_variables()
+endfunction
+
+function! s:handle_list_function_args(check_errors, res) abort
+  try
+    call a:check_errors()
+    let s:state['functionArgs'] = {}
+    if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res.result)
+      let s:state['functionArgs'] = a:res.result['Args']
+    endif
+  catch
+    call go#util#EchoError(printf('could not list function arguments: %s', v:exception))
   endtry
 
   call s:show_variables()
@@ -903,14 +1049,27 @@ endfunction
 
 function! go#debug#Set(symbol, value) abort
   try
-    let l:res = s:call_jsonrpc('RPCServer.State')
-    call s:call_jsonrpc('RPCServer.Set', {
+    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+    call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.State')
+    let l:res = l:promise.await()
+
+    call s:call_jsonrpc(function('s:handle_set'), 'RPCServer.Set', {
           \ 'symbol': a:symbol,
           \ 'value':  a:value,
           \ 'scope':  {'GoroutineID': l:res.result.State.currentThread.goroutineID}
     \ })
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not set symbol value: %s', v:exception))
+  endtry
+
+  call s:update_variables()
+endfunction
+
+function! s:handle_set(check_errors, res) abort
+  try
+    call a:check_errors()
+  catch
+    call go#util#EchoError(printf('could not set symbol value: %s', v:exception))
   endtry
 
   call s:update_variables()
@@ -918,10 +1077,9 @@ endfunction
 
 function! s:update_stacktrace() abort
   try
-    let l:res = s:call_jsonrpc('RPCServer.Stacktrace', {'id': s:goroutineID(), 'depth': 5})
-    call s:show_stacktrace(l:res)
+    call s:call_jsonrpc(function('s:show_stacktrace'), 'RPCServer.Stacktrace', {'id': s:goroutineID(), 'depth': 5})
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not update stack: %s', v:exception))
   endtry
 endfunction
 
@@ -932,6 +1090,10 @@ function! s:stack_cb(res) abort
     return
   endif
 
+  if s:exited(a:res)
+    call go#debug#Stop()
+    return
+  endif
   call s:update_breakpoint(a:res)
   call s:update_goroutines()
   call s:update_stacktrace()
@@ -948,9 +1110,11 @@ function! go#debug#Stack(name) abort
   if s:state.running is 0
     let s:state.running = 1
     let l:name = 'continue'
+    call s:continue()
   endif
 
   " Add a breakpoint to the main.Main if the user didn't define any.
+  " TODO(bc): actually set set the breakpoint in main.Main
   if len(s:list_breakpoints()) is 0
     if go#debug#Breakpoint() isnot 0
       let s:state.running = 0
@@ -959,33 +1123,66 @@ function! go#debug#Stack(name) abort
   endif
 
   try
-    " TODO: document why this is needed.
+    " s:stack_name is reset in s:stack_cb(). While its value is 'next', the
+    " current operation being performed by delve is a next operation and it
+    " must be cancelled before another next operation can start. See
+    " https://github.com/go-delve/delve/blob/ab5713d3ec5d12754f4b2edf85e4b36a08b67c48/Documentation/api/ClientHowto.md#special-continue-commands-and-asynchronous-breakpoints
+    " for more information.
     if l:name is# 'next' && get(s:, 'stack_name', '') is# 'next'
-      call s:call_jsonrpc('RPCServer.CancelNext')
+      " use s:rpc_response so that the any errors will be checked instead of
+      " completely discarding the result with s:noop.
+      let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+      call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.CancelNext')
+      call l:promise.await()
     endif
     let s:stack_name = l:name
     try
-      let l:res = s:call_jsonrpc('RPCServer.Command', {'name': l:name})
-
-      if l:name is# 'next'
-          let l:res2 = l:res
-          let l:w = 0
-          while l:w < 1
-            if l:res2.result.State.NextInProgress == v:true
-              let l:res2 = s:call_jsonrpc('RPCServer.Command', {'name': 'continue'})
-            else
-              break
-            endif
-          endwhile
-      endif
-      call s:stack_cb(l:res)
+      call s:call_jsonrpc(function('s:handle_stack_response', [l:name]), 'RPCServer.Command', {'name': l:name})
     catch
-      call go#util#EchoError(v:exception)
+      call go#util#EchoError(printf('rpc failure: %s', v:exception))
       call s:clearState()
+      call go#util#EchoInfo('restarting debugger')
       call go#debug#Restart()
     endtry
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('CancelNext RPC call failed: %s', v:exception))
+  endtry
+endfunction
+
+function! s:handle_stack_response(command, check_errors, res) abort
+  try
+    call a:check_errors()
+
+    if a:command is# 'next'
+      call s:handleNextInProgress(a:res)
+    endif
+
+    call s:stack_cb(a:res)
+  catch
+    call go#util#EchoError(printf('rpc failure: %s', v:exception))
+    call s:clearState()
+    call go#util#EchoInfo('restarting debugger')
+    call go#debug#Restart()
+  endtry
+endfunction
+
+function! s:handleNextInProgress(res)
+  try
+    let l:res = a:res
+    let l:w = 0
+    while l:w < 1
+      if l:res.result.State.NextInProgress == v:true
+        " TODO(bc): message the user that a breakpoint was hit in a different
+        " goroutine while trying to resume.
+        let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.Command', {'name': 'continue'})
+        let l:res = l:promise.await()
+      else
+        return
+      endif
+    endwhile
+  catch
+    throw v:exception
   endtry
 endfunction
 
@@ -996,17 +1193,18 @@ function! go#debug#Restart() abort
     call s:stop()
 
     let s:state = {
-        \ 'rpcid': 1,
-        \ 'running': 0,
-        \ 'currentThread': {},
-        \ 'localVars': {},
-        \ 'functionArgs': {},
-        \ 'message': [],
-        \}
+          \ 'rpcid': 1,
+          \ 'running': 0,
+          \ 'currentThread': {},
+          \ 'localVars': {},
+          \ 'functionArgs': {},
+          \ 'message': [],
+          \ 'resultHandlers': {},
+        \ }
 
     call call('go#debug#Start', s:start_args)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('restart failed: %s', v:exception))
   endtry
 endfunction
 
@@ -1017,18 +1215,20 @@ endfunction
 
 " Change Goroutine
 function! go#debug#Goroutine() abort
-  let l:goroutineID = substitute(getline('.'), '^  Goroutine \(.\{-1,\}\) - .*', '\1', 'g')
+  let l:goroutineID = str2nr(substitute(getline('.'), '^  Goroutine \(.\{-1,\}\) - .*', '\1', 'g'))
 
   if l:goroutineID <= 0
     return
   endif
 
   try
-    let l:res = s:call_jsonrpc('RPCServer.Command', {'Name': 'switchGoroutine', 'GoroutineID': str2nr(l:goroutineID)})
+    let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+    call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.Command', {'Name': 'switchGoroutine', 'GoroutineID': l:goroutineID})
+    let l:res = l:promise.await()
     call s:stack_cb(l:res)
     call go#util#EchoInfo("Switched goroutine to: " . l:goroutineID)
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not switch goroutine: %s', v:exception))
   endtry
 endfunction
 
@@ -1061,63 +1261,180 @@ function! go#debug#Breakpoint(...) abort
 
     " Remove breakpoint.
     if type(l:found) == v:t_dict && !empty(l:found)
-      exe 'sign unplace '. l:found.id .' file=' . l:found.file
+      call s:sign_unplace(l:found.id, l:found.file)
       if s:isActive()
-        let res = s:call_jsonrpc('RPCServer.ClearBreakpoint', {'id': l:found.id})
+        let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.ClearBreakpoint', {'id': l:found.id})
+        let res = l:promise.await()
       endif
-    " Add breakpoint.
-    else
+    else " Add breakpoint
       if s:isActive()
-        let l:res = s:call_jsonrpc('RPCServer.CreateBreakpoint', {'Breakpoint': {'file': l:filename, 'line': l:linenr}})
-        let l:bt = res.result.Breakpoint
-        exe 'sign place '. l:bt.id .' line=' . l:bt.line . ' name=godebugbreakpoint file=' . l:bt.file
+        let l:promise = go#promise#New(function('s:rpc_response'), 20000, {})
+        call s:call_jsonrpc(l:promise.wrapper, 'RPCServer.CreateBreakpoint', {'Breakpoint': {'file': l:filename, 'line': l:linenr}})
+        let l:res = l:promise.await()
+        let l:bt = l:res.result.Breakpoint
+        call s:sign_place(l:bt.id, l:bt.file, l:bt.line)
       else
         let l:id = len(s:list_breakpoints()) + 1
-        exe 'sign place ' . l:id . ' line=' . l:linenr . ' name=godebugbreakpoint file=' . l:filename
+        call s:sign_place(l:id, l:filename, l:linenr)
       endif
     endif
   catch
-    call go#util#EchoError(v:exception)
+    call go#util#EchoError(printf('could not toggle breakpoint: %s', v:exception))
     return 1
   endtry
 
   return 0
 endfunction
 
+function! s:sign_unplace(id, file) abort
+  if !exists('*sign_unplace')
+    exe 'sign unplace ' . a:id .' file=' . a:file
+    return
+  endif
+
+  call sign_unplace('vim-go-debug', {'buffer': a:file, 'id': a:id})
+endfunction
+
+function! s:sign_place(id, expr, lnum) abort
+  if !exists('*sign_place')
+    exe 'sign place ' . a:id . ' line=' . a:lnum . ' name=godebugbreakpoint file=' . a:expr
+    return
+  endif
+
+  call sign_place(a:id, 'vim-go-debug', 'godebugbreakpoint', a:expr, {'lnum': a:lnum})
+endfunction
+
 function! s:list_breakpoints()
-  " :sign place
-  " --- Signs ---
-  " Signs for a.go:
-  "     line=15  id=2  name=godebugbreakpoint
-  "     line=16  id=1  name=godebugbreakpoint
-  " Signs for a_test.go:
-  "     line=6  id=3  name=godebugbreakpoint
-
-  let l:signs = []
-  let l:file = ''
-  for l:line in split(execute('sign place'), '\n')[1:]
-    if l:line =~# '^Signs for '
-      let l:file = l:line[10:-2]
-      continue
-    endif
-
-    if l:line !~# 'name=godebugbreakpoint'
-      continue
-    endif
-
-    let l:sign = matchlist(l:line, '\vline\=(\d+) +id\=(\d+)')
-    call add(l:signs, {
-          \ 'id': l:sign[2],
-          \ 'file': fnamemodify(l:file, ':p'),
-          \ 'line': str2nr(l:sign[1]),
-    \ })
+  let l:breakpoints = []
+  let l:signs = s:sign_getplaced()
+  for l:item in l:signs
+    let l:file = fnamemodify(bufname(l:item.bufnr), ':p')
+    for l:sign in l:item.signs
+      call add(l:breakpoints, {
+            \ 'id': l:sign.id,
+            \ 'file': l:file,
+            \ 'line': l:sign.lnum,
+      \ })
+    endfor
   endfor
 
+  return l:breakpoints
+endfunction
+
+function! s:sign_getplaced() abort
+  if !exists('*sign_getplaced') " sign_getplaced was introduced in Vim 8.1.0614
+    " :sign place
+    " --- Signs ---
+    " Signs for a.go:
+    "     line=15  id=2  name=godebugbreakpoint
+    "     line=16  id=1  name=godebugbreakpoint
+    " Signs for a_test.go:
+    "     line=6  id=3  name=godebugbreakpoint
+
+    " l:signs should be the same sam form as the return  value for
+    " sign_getplaced(), a list with the following entries:
+    "   * bufnr - number of the buffer with the sign
+    "   * signs = list of signs placed in bufnr
+    let l:signs = []
+    let l:file = ''
+    for l:line in split(execute('sign place'), '\n')[1:]
+      if l:line =~# '^Signs for '
+        let l:file = l:line[10:-2]
+        continue
+      else
+        " sign place's output may end with Signs instead of starting with Signs.
+        " See
+        " https://github.com/fatih/vim-go/issues/2920#issuecomment-644885774.
+        let l:idx = match(l:line, '\.go .* Signs:$')
+        if l:idx >= 0
+          let l:file = l:line[0:l:idx+2]
+          continue
+        endif
+      endif
+
+      if l:line !~# 'name=godebugbreakpoint'
+        continue
+      endif
+
+      let l:sign = matchlist(l:line, '\vline\=(\d+) +id\=(\d+)')
+      call add(l:signs, {
+                          \ 'bufnr': bufnr(l:file),
+                          \ 'signs': [{
+                            \ 'id': str2nr(l:sign[2]),
+                            \ 'lnum': str2nr(l:sign[1]),
+                          \ }],
+                      \ })
+    endfor
+
+    return l:signs
+  endif
+
+  " it would be nice to use lambda's here, but vim-vimparser currently fails
+  " to parse lamdas as map() arguments.
+  " TODO(bc): return flatten(map(filter(copy(getbufinfo()), { _, val -> val.listed }), { _, val -> sign_getplaced(val.bufnr, {'group': 'vim-go-debug', 'name': 'godebugbreakpoint'})}))
+  let l:bufinfo = getbufinfo()
+  let l:listed = []
+  for l:info in l:bufinfo
+    if l:info.listed
+      let l:listed = add(l:listed, l:info)
+    endif
+  endfor
+
+  let l:signs = []
+  for l:buf in l:listed
+    let l:signs = add(l:signs, sign_getplaced(l:buf.bufnr, {'group': 'vim-go-debug', 'name': 'godebugbreakpoint'})[0])
+  endfor
   return l:signs
 endfunction
 
-sign define godebugbreakpoint text=> texthl=GoDebugBreakpoint
+exe 'sign define godebugbreakpoint text='.go#config#DebugBreakpointSignText().' texthl=GoDebugBreakpoint'
 sign define godebugcurline    text== texthl=GoDebugCurrent    linehl=GoDebugCurrent
+
+" s:rpc_response is a convenience function to check for errors and return
+" a:res when a:res is not an error response.
+function! s:rpc_response(check_errors, res) abort
+  call a:check_errors()
+  return a:res
+endfunction
+
+" s:noop is a noop function. It takes any number of arguments and does
+" nothing.
+function s:noop(...) abort
+endfunction
+
+function! s:warn_when_stale(filename) abort
+  let l:bufinfo = getbufinfo(a:filename)
+  if len(l:bufinfo) == 0
+    return
+  endif
+
+  if l:bufinfo[0].changed
+    call s:warn_stale()
+    return
+  endif
+
+  call s:call_jsonrpc(function('s:handle_staleness_check_response', [fnamemodify(a:filename, ':p')]), 'RPCServer.LastModified')
+endfunction
+
+function! s:handle_staleness_check_response(filename, check_errors, res) abort
+  try
+    call a:check_errors()
+  catch
+    " swallow any errors
+    return
+  endtry
+
+  let l:ftime = strftime('%Y-%m-%dT%H:%M:%S', getftime(a:filename))
+  if l:ftime < a:res.result.Time[0:(len(l:ftime) - 1)]
+    return
+  endif
+  call s:warn_stale(a:filename)
+endfunction
+
+function! s:warn_stale(filename) abort
+  call go#util#EchoWarning(printf('file locations may be incorrect, because  %s has changed since debugging started', a:filename))
+endfunction
 
 " restore Vi compatibility settings
 let &cpo = s:cpo_save

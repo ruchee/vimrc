@@ -98,7 +98,7 @@ func s:write_out(out) abort
   if has_key(result, 'errors')
     let l:winnr = winnr()
     let l:listtype = go#list#Type("GoModifyTags")
-    call go#list#ParseFormat(l:listtype, "%f:%l:%c:%m", result['errors'], "gomodifytags")
+    call go#list#ParseFormat(l:listtype, "%f:%l:%c:%m", result['errors'], "gomodifytags", 0)
     call go#list#Window(l:listtype, len(result['errors']))
 
     "prevent jumping to quickfix list
@@ -124,12 +124,17 @@ func s:create_cmd(args) abort
   let l:mode = a:args.mode
   let l:cmd_args = a:args.cmd_args
   let l:modifytags_transform = go#config#AddtagsTransform()
+  let l:modifytags_skip_unexported = go#config#AddtagsSkipUnexported()
 
   " start constructing the command
   let cmd = [bin_path]
   call extend(cmd, ["-format", "json"])
   call extend(cmd, ["-file", a:args.fname])
   call extend(cmd, ["-transform", l:modifytags_transform])
+
+  if l:modifytags_skip_unexported
+    call extend(cmd, ["-skip-unexported"])
+  endif
 
   if has_key(a:args, "modified")
     call add(cmd, "-modified")

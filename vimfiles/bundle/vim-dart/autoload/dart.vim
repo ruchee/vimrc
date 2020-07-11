@@ -25,12 +25,16 @@ function! s:clearQfList(reason) abort
   endif
 endfunction
 
-function! dart#fmt(q_args) abort
-  let cmd = s:FindDartFmt()
-  if type(cmd) != type('') | return | endif
+function! dart#fmt(...) abort
+  let l:dartfmt = s:FindDartFmt()
+  if type(l:dartfmt) != type('') | return | endif
   let buffer_content = getline(1, '$')
-  let args = '--stdin-name '.expand('%').' '.a:q_args
-  let lines = systemlist(printf('%s %s', cmd, args), join(buffer_content, "\n"))
+  let l:cmd = [l:dartfmt, '--stdin-name', shellescape(expand('%'))]
+  if exists('g:dartfmt_options')
+    call extend(l:cmd, g:dartfmt_options)
+  endif
+  call extend(l:cmd, a:000)
+  let lines = systemlist(join(l:cmd), join(buffer_content, "\n"))
   " TODO(https://github.com/dart-lang/sdk/issues/38507) - Remove once the
   " tool no longer emits this line on SDK upgrades.
   if lines[-1] ==# 'Isolate creation failed'
@@ -84,7 +88,7 @@ endfunction
 " If the path cannot be resolved, or is not a package: uri, returns the
 " original.
 function! dart#resolveUri(uri) abort
-  if a:uri !~ 'package:'
+  if a:uri !~# 'package:'
     return a:uri
   endif
   let package_name = substitute(a:uri, 'package:\(\w\+\)\/.*', '\1', '')
@@ -116,20 +120,20 @@ function! s:PackageMap() abort
   let lines = readfile(dot_packages)
   let map = {}
   for line in lines
-    if line =~ '\s*#'
+    if line =~# '\s*#'
       continue
     endif
     let package = substitute(line, ':.*$', '', '')
     let lib_dir = substitute(line, '^[^:]*:', '', '')
-    if lib_dir =~ 'file:/'
+    if lib_dir =~# 'file:/'
       let lib_dir = substitute(lib_dir, 'file://', '', '')
-      if lib_dir =~ '/[A-Z]:/'
+      if lib_dir =~# '/[A-Z]:/'
         let lib_dir = lib_dir[1:]
       endif
     else
       let lib_dir = resolve(dot_packages_dir.'/'.lib_dir)
     endif
-    if lib_dir =~ '/$'
+    if lib_dir =~# '/$'
       let lib_dir = lib_dir[:len(lib_dir) - 2]
     endif
     let map[package] = lib_dir
@@ -139,7 +143,7 @@ endfunction
 
 " Toggle whether dartfmt is run on save or not.
 function! dart#ToggleFormatOnSave() abort
-  if get(g:, "dart_format_on_save", 0)
+  if get(g:, 'dart_format_on_save', 0)
     let g:dart_format_on_save = 0
     return
   endif

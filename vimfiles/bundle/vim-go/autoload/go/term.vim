@@ -31,46 +31,83 @@ function! go#term#newmode(bang, cmd, errorformat, mode) abort
   execute l:cd . fnameescape(expand("%:p:h"))
 
   execute l:mode . ' __go_term__'
-
   setlocal filetype=goterm
   setlocal bufhidden=delete
   setlocal winfixheight
+  " TODO(bc)?: setlocal winfixwidth
   setlocal noswapfile
   setlocal nobuflisted
 
-  " explicitly bind callbacks to state so that within them, self will always
-  " refer to state. See :help Partial for more information.
-  "
-  " Don't set an on_stderr, because it will be passed the same data as
-  " on_stdout. See https://github.com/neovim/neovim/issues/2836
-  let l:job = {
-        \ 'on_stdout': function('s:on_stdout', [], state),
-        \ 'on_exit' : function('s:on_exit', [], state),
-      \ }
+  " setup job for nvim
+  if has('nvim')
+    " explicitly bind callbacks to state so that within them, self will always
+    " refer to state. See :help Partial for more information.
+    "
+    " Don't set an on_stderr, because it will be passed the same data as
+    " on_stdout. See https://github.com/neovim/neovim/issues/2836
+    let l:job = {
+          \ 'on_stdout': function('s:on_stdout', [], state),
+          \ 'on_exit' : function('s:on_exit', [], state),
+        \ }
+    let l:state.id = termopen(a:cmd, l:job)
+    let l:state.termwinid = win_getid(winnr())
+    execute l:cd . fnameescape(l:dir)
 
-  let l:state.id = termopen(a:cmd, l:job)
-  let l:state.termwinid = win_getid(winnr())
+    " resize new term if needed.
+    let l:height = go#config#TermHeight()
+    let l:width = go#config#TermWidth()
 
-  execute l:cd . fnameescape(l:dir)
+    " Adjust the window width or height depending on whether it's a vertical or
+    " horizontal split.
+    if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
+      exe 'vertical resize ' . l:width
+    elseif mode =~ "split" || mode =~ "new"
+      exe 'resize ' . l:height
+    endif
+    " we also need to resize the pty, so there you go...
+    call jobresize(l:state.id, l:width, l:height)
 
-  " resize new term if needed.
-  let l:height = go#config#TermHeight()
-  let l:width = go#config#TermWidth()
+  " setup term for vim8
+  elseif has('terminal')
+    let l:term = {
+          \ 'out_cb': function('s:out_cb', [], state),
+          \ 'exit_cb' : function('s:exit_cb', [], state),
+          \ 'curwin': 1,
+        \ }
 
-  " Adjust the window width or height depending on whether it's a vertical or
-  " horizontal split.
-  if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
-    exe 'vertical resize ' . l:width
-  elseif mode =~ "split" || mode =~ "new"
-    exe 'resize ' . l:height
+    if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
+          let l:term["vertical"] = l:mode
+    endif
+
+    let l:state.id = term_start(a:cmd, l:term)
+    let l:state.termwinid = win_getid(bufwinnr(l:state.id))
+    execute l:cd . fnameescape(l:dir)
+
+    " resize new term if needed.
+    let l:height = go#config#TermHeight()
+    let l:width = go#config#TermWidth()
+
+    " Adjust the window width or height depending on whether it's a vertical or
+    " horizontal split.
+    if l:mode =~ "vertical" || l:mode =~ "vsplit" || l:mode =~ "vnew"
+      exe 'vertical resize ' . l:width
+    elseif mode =~ "split" || mode =~ "new"
+      exe 'resize ' . l:height
+    endif
+    "if exists(*term_setsize)
+      "call term_setsize(l:state.id, l:height, l:width)
+    "endif
   endif
 
-  " we also need to resize the pty, so there you go...
-  call jobresize(l:state.id, l:width, l:height)
-
   call win_gotoid(l:state.winid)
-
   return l:state.id
+endfunction
+
+" out_cb continually concat's the self.stdout_buf on recv of stdout
+" and sets self.stdout to the new-lined split content in self.stdout_buf
+func! s:out_cb(channel, msg) dict abort
+  let self.stdout_buf = self.stdout_buf . a:msg
+  let self.stdout = split(self.stdout_buf, '\n')
 endfunction
 
 function! s:on_stdout(job_id, data, event) dict abort
@@ -95,42 +132,63 @@ function! s:on_stdout(job_id, data, event) dict abort
   endif
 endfunction
 
-function! s:on_exit(job_id, exit_status, event) dict abort
-  let l:winid = win_getid(winnr())
-  call win_gotoid(self.winid)
+" vim8 exit callback
+function! s:exit_cb(job_id, exit_status) dict abort
+  call s:handle_exit(a:job_id, a:exit_status, self)
+endfunction
 
-  " change to directory where test were run. if we do not do this
-  " the quickfix items will have the incorrect paths. 
-  " see: https://github.com/fatih/vim-go/issues/2400
-  let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-  let l:dir = getcwd()
-  execute l:cd . fnameescape(expand("%:p:h"))
+" nvim exit callback
+function! s:on_exit(job_id, exit_status, event) dict abort
+  call s:handle_exit(a:job_id, a:exit_status, self)
+endfunction
+
+" handle_exit implements both vim8 and nvim exit callbacks
+func s:handle_exit(job_id, exit_status, state) abort
+  let l:winid = win_getid(winnr())
+  call win_gotoid(a:state.winid)
 
   let l:listtype = go#list#Type("_term")
 
   if a:exit_status == 0
     call go#list#Clean(l:listtype)
-    execute l:cd l:dir
     call win_gotoid(l:winid)
     return
   endif
 
-  call win_gotoid(self.winid)
+  let l:bufdir = fnameescape(expand('%:p:h'))
+  if !isdirectory(l:bufdir)
+    call go#util#EchoWarning('terminal job failure not processed, because the job''s working directory no longer exists')
+    call win_gotoid(l:winid)
+    return
+  endif
 
-  let l:title = self.cmd
+  " change to directory where the command was run. If we do not do this the
+  " quickfix items will have the incorrect paths.
+  " see: https://github.com/fatih/vim-go/issues/2400
+  let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
+  let l:dir = getcwd()
+  execute l:cd . l:bufdir
+
+  let l:title = a:state.cmd
   if type(l:title) == v:t_list
-    let l:title = join(self.cmd)
+    let l:title = join(a:state.cmd)
   endif
 
   let l:i = 0
-  while l:i < len(self.stdout)
-    let self.stdout[l:i] = substitute(self.stdout[l:i], "\r$", '', 'g')
+  while l:i < len(a:state.stdout)
+    let a:state.stdout[l:i] = substitute(a:state.stdout[l:i], "\r$", '', 'g')
     let l:i += 1
   endwhile
 
-  call go#list#ParseFormat(l:listtype, self.errorformat, self.stdout, l:title)
+  call go#list#ParseFormat(l:listtype, a:state.errorformat, a:state.stdout, l:title, 0)
   let l:errors = go#list#Get(l:listtype)
   call go#list#Window(l:listtype, len(l:errors))
+
+  " close terminal; we don't need it anymore
+  if go#config#TermCloseOnExit()
+    call win_gotoid(a:state.termwinid)
+    close!
+  endif
 
   if empty(l:errors)
     call go#util#EchoError( '[' . l:title . '] ' . "FAIL")
@@ -139,22 +197,16 @@ function! s:on_exit(job_id, exit_status, event) dict abort
     return
   endif
 
-  " close terminal; we don't need it anymore
-  if go#config#TermCloseOnExit()
-    call win_gotoid(self.termwinid)
-    close!
-  endif
-
-  if self.bang
+  if a:state.bang
     execute l:cd l:dir
     call win_gotoid(l:winid)
     return
   endif
 
-  call win_gotoid(self.winid)
+  call win_gotoid(a:state.winid)
   call go#list#JumpToFirst(l:listtype)
 
-  " change back to original working directory 
+  " change back to original working directory
   execute l:cd l:dir
 endfunction
 

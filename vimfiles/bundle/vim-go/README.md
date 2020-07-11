@@ -1,4 +1,6 @@
-# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go)
+# vim-go [![Build Status](http://img.shields.io/travis/fatih/vim-go.svg?style=flat-square)](https://travis-ci.org/fatih/vim-go) [![GitHub Actions Status](https://github.com/fatih/vim-go/workflows/test/badge.svg)](https://github.com/fatih/vim-go/actions)
+
+
 
 <p align="center">
   <img style="float: right;" src="assets/vim-go.png" alt="Vim-go logo"/>
@@ -13,15 +15,15 @@ This plugin adds Go language support for Vim, with the following main features:
 * Quickly execute your current file(s) with `:GoRun`.
 * Improved syntax highlighting and folding.
 * Debug programs with integrated `delve` support with `:GoDebugStart`.
-* Completion support via `gocode` and `gopls`.
-* `gofmt` or `goimports` on save keeps the cursor position and undo history.
+* Completion and many other features support via `gopls`.
+* formatting on save keeps the cursor position and undo history.
 * Go to symbol/declaration with `:GoDef`.
 * Look up documentation with `:GoDoc` or `:GoDocBrowser`.
 * Easily import packages via `:GoImport`, remove them via `:GoDrop`.
 * Precise type-safe renaming of identifiers with `:GoRename`.
 * See which code is covered by tests with `:GoCoverage`.
 * Add or remove tags on struct fields with `:GoAddTags` and `:GoRemoveTags`.
-* Call `gometalinter` with `:GoMetaLinter` to invoke all possible linters
+* Call `golangci-lint` with `:GoMetaLinter` to invoke all possible linters
   (`golint`, `vet`, `errcheck`, `deadcode`, etc.) and put the result in the
   quickfix or location list.
 * Lint your code with `:GoLint`, run your code through `:GoVet` to catch static
@@ -30,10 +32,12 @@ This plugin adds Go language support for Vim, with the following main features:
   `:GoCallees`, and `:GoReferrers`.
 * ... and many more! Please see [doc/vim-go.txt](doc/vim-go.txt) for more
   information.
+* The `gopls` instance can be shared with other Vim plugins.
+* Vim-go's use of `gopls` can be disabled.
 
 ## Install
 
-vim-go requires at least Vim 8.0.1453 or Neovim 0.3.1.
+vim-go requires at least Vim 8.0.1453 or Neovim 0.4.0.
 
 The [**latest stable release**](https://github.com/fatih/vim-go/releases/latest) is the
 recommended version to use. If you choose to use the master branch instead,
@@ -78,6 +82,16 @@ shortcoming in vim-go that is neither addressed by help nor in [existing
 issues](https://github.com/fatih/vim-go/issues), please open an issue with
 clear reproduction steps. `:GoReportGitHubIssue` can be used pre-populate a lot
 of the information needed when creating a new issue.
+
+## Contributing
+
+All PRs are welcome. If you are planning to contribute a large patch or to
+integrate a new tool, please create an issue first to get any upfront questions
+or design decisions out of the way first.
+
+You can run the tests locally by running `make`. It will lint the VimL for you,
+lint the documentation, and run the tests against the minimum required version
+of Vim, other versions of Vim that may be critical to support, and Neovim.
 
 ## License
 

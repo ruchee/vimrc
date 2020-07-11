@@ -232,10 +232,17 @@ function! go#package#Complete(ArgLead, CmdLine, CursorPos) abort
 
   let vendordirs = s:vendordirs()
 
+  let l:modcache = go#util#env('gomodcache')
+
   let ret = {}
   for dir in dirs
     " this may expand to multiple lines
     let root = split(expand(dir . '/pkg/' . s:goos . '_' . s:goarch), "\n")
+    if l:modcache != ''
+      let root = add(root, l:modcache)
+    else
+      let root = add(root, expand(dir . '/pkg/mod'))
+    endif
     let root = add(root, expand(dir . '/src'), )
     let root = extend(root, vendordirs)
     let root = add(root, module)
@@ -260,9 +267,8 @@ function! go#package#Complete(ArgLead, CmdLine, CursorPos) abort
             let glob = module.dir
           endif
         elseif stridx(module.path, a:ArgLead) == 0 && stridx(module.path, '/', len(a:ArgLead)) < 0
-          " use the module directory when a:ArgLead is contained in
-          " module.path and module.path does not have any path segments after
-          " a:ArgLead.
+          " use the module directory when module.path begins wih a:ArgLead and
+          " module.path does not have any path segments after a:ArgLead.
           let glob = module.dir
         else
           continue
@@ -276,6 +282,11 @@ function! go#package#Complete(ArgLead, CmdLine, CursorPos) abort
           " directories manually?
           if fnamemodify(candidate, ':t') == 'vendor'
             continue
+          endif
+          " if path contains version info, strip it out
+          let vidx = strridx(candidate, '@')
+          if vidx >= 0
+            let candidate = strpart(candidate, 0, vidx)
           endif
           let candidate .= '/'
         elseif candidate !~ '\.a$'
