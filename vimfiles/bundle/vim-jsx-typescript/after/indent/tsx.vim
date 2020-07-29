@@ -1,112 +1,180 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""" " Vim indent file
 "
 " Language: TSX (TypeScript)
-"
+" from:
+" https://github.com/peitalin/vim-jsx-typescript/issues/4#issuecomment-564519091
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let b:did_indent = 1
 
-" Save the current JavaScript indentexpr.
-let b:tsx_js_indentexpr = &indentexpr
+if !exists('*GetTypescriptIndent') | finish | endif
 
-" Prologue; load in XML indentation.
-if exists('b:did_indent')
-  let s:did_indent=b:did_indent
-  unlet b:did_indent
+setlocal indentexpr=GetTsxIndent()
+setlocal indentkeys=0{,0},0),0],0\,,!^F,o,O,e,*<Return>,<>>,<<>,/
+
+if exists('*shiftwidth')
+  function! s:sw()
+    return shiftwidth()
+  endfunction
+else
+  function! s:sw()
+    return &sw
+  endfunction
 endif
-exe 'runtime! indent/xml.vim'
-if exists('s:did_indent')
-  let b:did_indent=s:did_indent
-endif
 
-setlocal indentexpr=GetJsxIndent()
-
-" JS indentkeys
-setlocal indentkeys=0{,0},0),0],0\,,!^F,o,O,e
-" XML indentkeys
-setlocal indentkeys+=*<Return>,<>>,<<>,/
-
-" Multiline end tag regex (line beginning with '>' or '/>')
-let s:endtag = '^\s*\/\?>\s*;\='
-
-" Get all syntax types at the beginning of a given line.
-fu! SynSOL(lnum)
+let s:real_endtag = '\s*<\/\+[A-Za-z]*>'
+let s:return_block = '\s*return\s\+('
+function! s:SynSOL(lnum)
   return map(synstack(a:lnum, 1), 'synIDattr(v:val, "name")')
-endfu
+endfunction
 
-" Get all syntax types at the end of a given line.
-fu! SynEOL(lnum)
+function! s:SynEOL(lnum)
   let lnum = prevnonblank(a:lnum)
   let col = strlen(getline(lnum))
   return map(synstack(lnum, col), 'synIDattr(v:val, "name")')
-endfu
+endfunction
 
-" Check if a syntax attribute is XMLish.
-fu! SynAttrXMLish(synattr)
-  return a:synattr =~ "^xml" || a:synattr =~ "^tsx"
-endfu
+function! s:SynAttrJSX(synattr)
+  return a:synattr =~ "^tsx"
+endfunction
 
-" Check if a synstack is XMLish (i.e., has an XMLish last attribute).
-fu! SynXMLish(syns)
-  return SynAttrXMLish(get(a:syns, -1))
-endfu
+function! s:SynXMLish(syns)
+  return s:SynAttrJSX(get(a:syns, -1))
+endfunction
 
-" Check if a synstack denotes the end of a TSX block.
-fu! SynTSXBlockEnd(syns)
-  return get(a:syns, -1) =~ '\%(js\|javascript\)Braces' &&
-       \ SynAttrXMLish(get(a:syns, -2))
-endfu
-
-" Determine how many tsxRegions deep a synstack is.
-fu! SynTSXDepth(syns)
+function! s:SynJSXDepth(syns)
   return len(filter(copy(a:syns), 'v:val ==# "tsxRegion"'))
-endfu
+endfunction
 
-" Check whether `cursyn' continues the same tsxRegion as `prevsyn'.
-fu! SynTSXContinues(cursyn, prevsyn)
-  let curdepth = SynTSXDepth(a:cursyn)
-  let prevdepth = SynTSXDepth(a:prevsyn)
+function! s:SynJSXCloseTag(syns)
+  return len(filter(copy(a:syns), 'v:val ==# "tsxCloseTag"'))
+endfunction
 
-  " In most places, we expect the nesting depths to be the same between any
-  " two consecutive positions within a tsxRegion (e.g., between a parent and
-  " child node, between two TSX attributes, etc.).  The exception is between
-  " sibling nodes, where after a completed element (with depth N), we return
-  " to the parent's nesting (depth N - 1).  This case is easily detected,
-  " since it is the only time when the top syntax element in the synstack is
-  " tsxRegion---specifically, the tsxRegion corresponding to the parent.
+function! s:SynJsxEscapeJs(syns)
+  return len(filter(copy(a:syns), 'v:val ==# "tsxJsBlock"'))
+endfunction
+
+function! s:SynJSXContinues(cursyn, prevsyn)
+  let curdepth = s:SynJSXDepth(a:cursyn)
+  let prevdepth = s:SynJSXDepth(a:prevsyn)
+
   return prevdepth == curdepth ||
       \ (prevdepth == curdepth + 1 && get(a:cursyn, -1) ==# 'tsxRegion')
-endfu
+endfunction
 
-" Cleverly mix JS and XML indentation.
-fu! GetJsxIndent()
-  let cursyn  = SynSOL(v:lnum)
-  let prevsyn = SynEOL(v:lnum - 1)
+function! GetTsxIndent()
+  let cursyn  = s:SynSOL(v:lnum)
+  let prevsyn = s:SynEOL(v:lnum - 1)
+  let nextsyn = s:SynEOL(v:lnum + 1)
+  let currline = getline(v:lnum)
 
-  " Use XML indenting iff:
-  "   - the syntax at the end of the previous line was either TSX or was the
-  "     closing brace of a jsBlock whose parent syntax was TSX; and
-  "   - the current line continues the same tsxRegion as the previous line.
-  if (SynXMLish(prevsyn) || SynTSXBlockEnd(prevsyn)) &&
-        \ SynTSXContinues(cursyn, prevsyn)
-    let ind = XmlIndentGet(v:lnum, 0)
+  if ((s:SynXMLish(prevsyn) && s:SynJSXContinues(cursyn, prevsyn)) || currline =~# '\v^\s*\<')
+    let preline = getline(v:lnum - 1)
 
-    " Align '/>' and '>' with '<' for multiline tags.
-    if getline(v:lnum) =~? s:endtag
-      let ind = ind - &sw
+    if currline =~# '\v^\s*\/?\>' " /> >
+      return preline =~# '\v^\s*\<' ? indent(v:lnum - 1) : indent(v:lnum - 1) - s:sw()
     endif
 
-    " Then correct the indentation of any TSX following '/>' or '>'.
-    if getline(v:lnum - 1) =~? s:endtag
-      let ind = ind + &sw
+    if preline =~# '\v\{\s*$' && preline !~# '\v^\s*\<'
+      return currline =~# '\v^\s*\}' ? indent(v:lnum - 1) : indent(v:lnum - 1) + s:sw()
+    endif
+
+    " return (      | return (     | return (
+    "   <div></div> |   <div       |   <div
+    "     {}        |     style={  |     style={
+    "   <div></div> |     }        |     }
+    " )             |     foo="bar"|   ></div>
+    if preline =~# '\v\}\s*$'
+      if currline =~# '\v^\s*\<\/'
+        return indent(v:lnum - 1) - s:sw()
+      endif
+      let ind = indent(v:lnum - 1)
+      if preline =~# '\v^\s*\<'
+        let ind = ind + s:sw()
+      endif
+      if currline =~# '\v^\s*\/?\>'
+        let ind = ind - s:sw()
+      endif
+      return ind
+    endif
+
+    " return ( | return (
+    "   <div>  |   <div>
+    "   </div> |   </div>
+    " ##);     | );
+    if preline =~# '\v(\s?|\k?)\($' || preline =~# '\v^\s*\<\>'
+      return indent(v:lnum - 1) + s:sw()
+    endif
+
+    let ind = s:XmlIndentGet(v:lnum)
+
+    " <div           | <div
+    "   hoge={       |   hoge={
+    "   <div></div>  |   ##<div></div>
+    if s:SynJsxEscapeJs(prevsyn) && preline =~# '\v\{\s*$'
+      let ind = ind + s:sw()
+    endif
+
+    " />
+    if preline =~# '\v^\s*\/?\>$' || currline =~# '\v^\s*\<\/\>'
+      "let ind = currline =~# '\v^\s*\<\/' ? ind : ind + s:sw()
+      let ind = ind + s:sw()
+    " }> or }}\> or }}>
+    elseif preline =~# '\v^\s*\}?\}\s*\/?\>$'
+      let ind = ind + s:sw()
+    " ></a
+    elseif preline =~# '\v^\s*\>\<\/\a'
+      let ind = ind + s:sw()
+    elseif preline =~# '\v^\s*}}.+\<\/\k+\>$'
+      let ind = ind + s:sw()
+    endif
+
+    " <div            | <div
+    "   hoge={        |   hoge={
+    "     <div></div> |     <div></div>
+    "     }           |   }##
+    if currline =~# '}$' && !(currline =~# '\v\{')
+      let ind = ind - s:sw()
+    endif
+
+    if currline =~# '^\s*)' && s:SynJSXCloseTag(prevsyn)
+      let ind = ind - s:sw()
     endif
   else
-    if len(b:tsx_js_indentexpr)
-      " Invoke the base JS package's custom indenter.  (For vim-javascript,
-      " e.g., this will be GetJavascriptIndent().)
-      let ind = eval(b:tsx_js_indentexpr)
-    else
-      let ind = cindent(v:lnum)
-    endif
+    let ind = GetTypescriptIndent()
   endif
-
   return ind
-endfu
+endfunction
+
+let b:xml_indent_open = '.\{-}<\a'
+let b:xml_indent_close = '.\{-}</'
+
+function! s:XmlIndentWithPattern(line, pat)
+  let s = substitute('x'.a:line, a:pat, "\1", 'g')
+  return strlen(substitute(s, "[^\1].*$", '', ''))
+endfunction
+
+" [-- return the sum of indents of a:lnum --]
+function! s:XmlIndentSum(lnum, style, add)
+  let line = getline(a:lnum)
+  if a:style == match(line, '^\s*</')
+    return (&sw *
+          \  (s:XmlIndentWithPattern(line, b:xml_indent_open)
+          \ - s:XmlIndentWithPattern(line, b:xml_indent_close)
+          \ - s:XmlIndentWithPattern(line, '.\{-}/>'))) + a:add
+  else
+    return a:add
+  endif
+endfunction
+
+function! s:XmlIndentGet(lnum)
+  " Find a non-empty line above the current line.
+  let lnum = prevnonblank(a:lnum - 1)
+
+  " Hit the start of the file, use zero indent.
+  if lnum == 0 | return 0 | endif
+
+  let ind = s:XmlIndentSum(lnum, -1, indent(lnum))
+  let ind = s:XmlIndentSum(a:lnum, 0, ind)
+  return ind
+endfunction
+
