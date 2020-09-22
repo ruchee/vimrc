@@ -1,10 +1,13 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Vim ftplugin file
+"
+" Language: javascript.jsx
+" Maintainer: MaxMEllon <maxmellon1994@gmail.com>
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 " modified from html.vim
 " For matchit plugin
-
-if get(g:, 'vim_jsx_pretty_disable_tsx', 0)
-  finish
-endif
-
 if exists("loaded_matchit")
   let b:match_ignorecase = 0
   let b:match_words = '(:),\[:\],{:},<:>,' .
@@ -25,4 +28,4 @@ augroup jsx_comment
   autocmd CursorMoved <buffer> call jsx_pretty#comment#update_commentstring(b:jsx_pretty_old_cms)
 augroup end
 
-setlocal suffixesadd+=.tsx
+setlocal suffixesadd+=.jsx

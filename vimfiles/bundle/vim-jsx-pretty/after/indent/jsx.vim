@@ -1,15 +1,10 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Vim indent file
 "
-" Language: typescript.jsx
+" Language: javascript.jsx
 " Maintainer: MaxMellon <maxmellon1994@gmail.com>
-" Depends: leafgarland/typescript-vim
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-if get(g:, 'vim_jsx_pretty_disable_tsx', 0)
-  finish
-endif
 
 if exists('b:did_indent')
   let s:did_indent = b:did_indent
@@ -23,13 +18,11 @@ if exists('s:did_indent')
   let b:did_indent = s:did_indent
 endif
 
-runtime! indent/typescript.vim
-
 setlocal indentexpr=GetJsxIndent()
 setlocal indentkeys=0.,0{,0},0),0],0?,0\*,0\,,!^F,:,<:>,o,O,e,<>>,=*/
 
 function! GetJsxIndent()
-  return jsx_pretty#indent#get(function('GetTypescriptIndent'))
+  return jsx_pretty#indent#get(function('GetJavascriptIndent'))
 endfunction
 
 let &cpo = s:keepcpo
