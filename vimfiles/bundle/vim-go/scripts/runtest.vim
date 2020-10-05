@@ -19,7 +19,6 @@ let s:gopath = $GOPATH
 if !exists('g:test_verbose')
   let g:test_verbose = 0
 endif
-let g:go_echo_command_info = 0
 
 function! s:logmessages() abort
   " Add all messages (usually errors).
@@ -28,6 +27,15 @@ function! s:logmessages() abort
   redir END
   let s:logs = s:logs + filter(split(s:mess, "\n"), 'v:val !~ "^Messages maintainer"')
   silent messages clear
+endfunction
+
+function! s:clearOptions() abort
+  " clear all the vim-go options
+  for l:k in keys(g:)
+    if l:k =~ '^go_' && l:k !~ '^go_loaded_'
+      call execute(printf('unlet g:%s', l:k))
+    endif
+  endfor
 endfunction
 
 " Source the passed test file.
@@ -58,6 +66,15 @@ for s:test in sort(s:tests)
     continue
   endif
 
+  " make sure g:go_echo_command_info is not set so that we don't get
+  " unexpected messages when commands are executed.
+  let g:go_echo_command_info = 0
+
+  " make sure gopls doesn't use multi-client mode; there seem to be some racy
+  " conditions when trying to shutdown the server after each test when
+  " multi-client mode is used.
+  let g:go_gopls_options = []
+
   let s:started = reltime()
   if g:test_verbose is 1
     call add(s:logs, printf("=== RUN  %s", s:test[:-3]))
@@ -72,6 +89,8 @@ for s:test in sort(s:tests)
     sleep 50m
   catch
     let v:errors += [v:exception]
+  finally
+    call s:clearOptions()
   endtry
 
   let s:elapsed_time = substitute(reltimestr(reltime(s:started)), '^\s*\(.\{-}\)\s*$', '\1', '')
@@ -102,6 +121,8 @@ for s:test in sort(s:tests)
     if g:test_verbose is 1
       call s:logmessages()
       call add(s:logs, printf("--- PASS %s (%ss)", s:test[:-3], s:elapsed_time))
+    else
+      silent messages clear
     endif
   endif
 endfor

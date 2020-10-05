@@ -53,6 +53,10 @@ function! go#config#TermCloseOnExit() abort
   return get(g:, 'go_term_close_on_exit', 1)
 endfunction
 
+function! go#config#TermReuse() abort
+  return get(g:, 'go_term_reuse', 0)
+endfunction
+
 function! go#config#SetTermCloseOnExit(value) abort
   let g:go_term_close_on_exit = a:value
 endfunction
@@ -494,6 +498,10 @@ function! go#config#CodeCompletionEnabled() abort
   return get(g:, "go_code_completion_enabled", 1)
 endfunction
 
+function! go#config#CodeCompletionIcase() abort
+  return get(g:, "go_code_completion_icase", 0)
+endfunction
+
 function! go#config#Updatetime() abort
   let go_updatetime = get(g:, 'go_updatetime', 800)
   return go_updatetime == 0 ? &updatetime : go_updatetime
@@ -542,6 +550,14 @@ function! go#config#GoplsLocal() abort
   return get(g:, 'go_gopls_local', v:null)
 endfunction
 
+function! go#config#GoplsGofumpt() abort
+  return get(g:, 'go_gopls_gofumpt', v:null)
+endfunction
+
+function! go#config#GoplsSettings() abort
+  return get(g:, 'go_gopls_settings', v:null)
+endfunction
+
 function! go#config#GoplsEnabled() abort
   return get(g:, 'go_gopls_enabled', 1)
 endfunction
@@ -552,6 +568,10 @@ endfunction
 
 function! go#config#GoplsOptions() abort
   return get(g:, 'go_gopls_options', ['-remote=auto'])
+endfunction
+
+function! go#config#FillStructMode() abort
+  return get(g:, 'go_fillstruct_mode', 'fillstruct')
 endfunction
 
 " Set the default value. A value of "1" is a shortcut for this, for

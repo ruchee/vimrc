@@ -89,7 +89,35 @@ If you get a lot of value from it, know vimscript well, or eager to learn about 
 
 Run the tests: `bundle exec parallel_rspec spec`
 
-Spawn a container with vim and dev configs: `docker-compose build && docker-compose run vim`
+Spawn a container with vim and dev configs: `bin/vim` or `bin/nvim`
+
+### Debugging Indent
+
+```
+# Open vim in a container loading this plugin
+bin/vim myfile.ex
+
+# Debug statements should be configured to print automatically
+# Write/indent some code
+:messages
+
+# You should see output like the following:
+#   ==> Indenting line 3
+#   text = '    _ -> :wowo'
+#   testing handler elixir#indent#handle_top_of_file
+#   testing handler elixir#indent#handle_starts_with_string_continuation
+#   testing handler elixir#indent#handle_following_trailing_binary_operator
+#   testing handler elixir#indent#handle_starts_with_pipe
+#   testing handler elixir#indent#handle_starts_with_binary_operator
+#   testing handler elixir#indent#handle_inside_block
+#   pattern matching relative to lnum 2
+#   current line contains ->; assuming match definition
+#   line 3: elixir#indent#handle_inside_block returned 4
+#   1 change; before #1  4 seconds ago
+#
+# This tells you which line is being inspected as well as which handlers are being run
+# and which branches are being exercised by those handlers
+```
 
 ### Feature Wishlist
 

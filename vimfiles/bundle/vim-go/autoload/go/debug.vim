@@ -13,6 +13,7 @@ if !exists('s:state')
         \ 'functionArgs': {},
         \ 'message': [],
         \ 'resultHandlers': {},
+        \ 'kill_on_detach': v:true,
       \ }
 
   if go#util#HasDebug('debugger-state')
@@ -117,6 +118,8 @@ function! s:call_jsonrpc(handle_result, method, ...) abort
             \ 'request':  l:req_json,
       \ })
     endif
+
+    redraw
   catch
     throw substitute(v:exception, '^Vim', '', '')
   endtry
@@ -191,6 +194,9 @@ function! s:show_stacktrace(check_errors, res) abort
     silent %delete _
     for i in range(len(a:res.result.Locations))
       let loc = a:res.result.Locations[i]
+      if loc.file is# '?' || !has_key(loc, 'function')
+        continue
+      endif
       call setline(i+1, printf('%s - %s:%d', loc.function.name, fnamemodify(loc.file, ':p'), loc.line))
     endfor
   finally
@@ -237,6 +243,7 @@ function! s:show_variables() abort
 endfunction
 
 function! s:clearState() abort
+  let s:state['running'] = 0
   let s:state['currentThread'] = {}
   let s:state['localVars'] = {}
   let s:state['functionArgs'] = {}
@@ -246,7 +253,7 @@ function! s:clearState() abort
 endfunction
 
 function! s:stop() abort
-  call s:call_jsonrpc(function('s:noop'), 'RPCServer.Detach', {'kill': v:true})
+  call s:call_jsonrpc(function('s:noop'), 'RPCServer.Detach', {'kill': s:state['kill_on_detach']})
 
   if has_key(s:state, 'job')
     call go#job#Wait(s:state['job'])
@@ -273,8 +280,10 @@ function! go#debug#Stop() abort
   for k in map(split(execute('command GoDebug'), "\n")[1:], 'matchstr(v:val, "^\\s*\\zs\\S\\+")')
     exe 'delcommand' k
   endfor
-  command! -nargs=* -complete=customlist,go#package#Complete GoDebugStart call go#debug#Start(0, <f-args>)
-  command! -nargs=* -complete=customlist,go#package#Complete GoDebugTest  call go#debug#Start(1, <f-args>)
+  command! -nargs=* -complete=customlist,go#package#Complete GoDebugStart call go#debug#Start('debug', <f-args>)
+  command! -nargs=* -complete=customlist,go#package#Complete GoDebugTest  call go#debug#Start('test', <f-args>)
+  command! -nargs=* GoDebugTestFunc  call go#debug#TestFunc(<f-args>)
+  command! -nargs=1 GoDebugAttach call go#debug#Start('attach', <f-args>)
   command! -nargs=? GoDebugBreakpoint call go#debug#Breakpoint(<f-args>)
 
   " Remove all mappings.
@@ -472,6 +481,7 @@ function! s:start_cb() abort
 
   silent! delcommand GoDebugStart
   silent! delcommand GoDebugTest
+  silent! delcommand GoDebugAttach
 
   command! -nargs=0 GoDebugContinue   call go#debug#Stack('continue')
   command! -nargs=0 GoDebugStop       call go#debug#Stop()
@@ -495,11 +505,13 @@ function! s:continue()
   command! -nargs=0 GoDebugRestart    call go#debug#Restart()
   command! -nargs=* GoDebugSet        call go#debug#Set(<f-args>)
   command! -nargs=1 GoDebugPrint      call go#debug#Print(<q-args>)
+  command! -nargs=0 GoDebugHalt       call go#debug#Stack('halt')
 
   nnoremap <silent> <Plug>(go-debug-next)       :<C-u>call go#debug#Stack('next')<CR>
   nnoremap <silent> <Plug>(go-debug-step)       :<C-u>call go#debug#Stack('step')<CR>
   nnoremap <silent> <Plug>(go-debug-stepout)    :<C-u>call go#debug#Stack('stepOut')<CR>
   nnoremap <silent> <Plug>(go-debug-print)      :<C-u>call go#debug#Print(expand('<cword>'))<CR>
+  nnoremap <silent> <Plug>(go-debug-halt)       :<C-u>call go#debug#Stack('halt')<CR>
 
   if has('balloon_eval')
     let s:balloonexpr=&balloonexpr
@@ -516,6 +528,7 @@ function! s:continue()
     autocmd FileType go nmap <buffer> <F9>   <Plug>(go-debug-breakpoint)
     autocmd FileType go nmap <buffer> <F10>  <Plug>(go-debug-next)
     autocmd FileType go nmap <buffer> <F11>  <Plug>(go-debug-step)
+    autocmd FileType go nmap <buffer> <F6>  <Plug>(go-debug-halt)
   augroup END
   doautocmd vim-go-debug FileType go
 endfunction
@@ -651,10 +664,10 @@ function! s:message(buf, data) abort
   return printf('%s%s', a:buf, a:data)
 endfunction
 
-" s:error_check will be curried and injected into rpc result handlers so that
+" s:check_errors will be curried and injected into rpc result handlers so that
 " those result handlers can consistently check for errors in the response by
 " catching exceptions and handling the error appropriately.
-function! s:error_check(resp_json) abort
+function! s:check_errors(resp_json) abort
   if type(a:resp_json) == v:t_dict && has_key(a:resp_json, 'error') && !empty(a:resp_json.error)
     throw a:resp_json.error
   endif
@@ -664,10 +677,10 @@ function! s:handleRPCResult(resp) abort
   try
     let l:id = a:resp.id
     " call the result handler with its first argument set to a curried
-    " s:error_check value so that the the handle can call s:error_check
+    " s:check_errors value so that the result handler can call s:check_errors
     " without passing any arguments to check whether the response is an error
     " response.
-    call call(s:state.resultHandlers[l:id], [function('s:error_check', [a:resp]), a:resp])
+    call call(s:state.resultHandlers[l:id], [function('s:check_errors', [a:resp]), a:resp])
   catch
     throw v:exception
   finally
@@ -677,10 +690,18 @@ function! s:handleRPCResult(resp) abort
   endtry
 endfunction
 
+function! go#debug#TestFunc(...) abort
+  let l:test = go#util#TestName()
+  if l:test is ''
+    call go#util#Warn("vim-go: [debug] no test found immediate to cursor")
+    return
+  endif
+  call call('go#debug#Start', extend(['test', '.', '-test.run', printf('%s$', l:test)], a:000))
+endfunction
 
 " Start the debug mode. The first argument is the package name to compile and
 " debug, anything else will be passed to the running program.
-function! go#debug#Start(is_test, ...) abort
+function! go#debug#Start(mode, ...) abort
   call go#cmd#autowrite()
 
   if !go#util#has_job()
@@ -693,7 +714,7 @@ function! go#debug#Start(is_test, ...) abort
     return s:state['job']
   endif
 
-  let s:start_args = [a:is_test] + a:000
+  let s:start_args = [a:mode] + a:000
 
   if go#util#HasDebug('debugger-state')
     call go#config#SetDebugDiag(s:state)
@@ -705,37 +726,21 @@ function! go#debug#Start(is_test, ...) abort
   endif
 
   try
-    let l:cmd = [
-          \ dlv,
-          \ (a:is_test ? 'test' : 'debug'),
-     \]
 
-    " append the package when it's given.
-    if len(a:000) > 0
-      let l:pkgname = a:1
-      if l:pkgname[0] == '.'
-        let l:pkgabspath = fnamemodify(l:pkgname, ':p')
+    let l:cmd = [dlv, a:mode]
 
-        let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
-        let l:dir = getcwd()
-        execute l:cd fnameescape(expand('%:p:h'))
-
-        try
-          let l:pkgname = go#package#FromPath(l:pkgabspath)
-          if type(l:pkgname) == type(0)
-            call go#util#EchoError('could not determine package name')
-            return
-          endif
-        finally
-          execute l:cd fnameescape(l:dir)
-        endtry
-      endif
-
-      let l:cmd += [l:pkgname]
+    let s:state['kill_on_detach'] = v:true
+    if a:mode is 'debug' || a:mode is 'test'
+      let l:cmd = extend(l:cmd, s:package(a:000))
+      let l:cmd = extend(l:cmd, ['--output', tempname()])
+    elseif a:mode is 'attach'
+      let l:cmd = add(l:cmd, a:1)
+      let s:state['kill_on_detach'] = v:false
+    else
+      call go#util#EchoError('Unknown dlv command')
     endif
 
     let l:cmd += [
-          \ '--output', tempname(),
           \ '--headless',
           \ '--api-version', '2',
           \ '--listen', go#config#DebugAddress(),
@@ -773,7 +778,40 @@ function! go#debug#Start(is_test, ...) abort
   return s:state['job']
 endfunction
 
-" Translate a reflect kind constant to a human string.
+" s:package returns the import path of package name of a :GoDebug(Start|Test)
+" call as a list so that the package can be appended to a command list using
+" extend(). args is expected to be a (potentially empty) list. The first
+" element in args (if there are any) is expected to be a package path. An
+" empty list is returned when either args is an empty list or the import path
+" cannot be determined.
+function! s:package(args)
+  if len(a:args) == 0
+    return []
+  endif
+
+  " append the package when it's given.
+  let l:pkgname = a:args[0]
+  if l:pkgname[0] == '.'
+    let l:pkgabspath = fnamemodify(l:pkgname, ':p')
+
+    let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+    let l:dir = getcwd()
+    let l:dir = go#util#Chdir(expand('%:p:h'))
+    try
+      let l:pkgname = go#package#FromPath(l:pkgabspath)
+      if type(l:pkgname) == type(0)
+        call go#util#EchoError('could not determine package name')
+        return []
+      endif
+    finally
+      call go#util#Chdir(l:dir)
+    endtry
+  endif
+
+  return [l:pkgname]
+endfunction
+
+  " Translate a reflect kind constant to a human string.
 function! s:reflect_kind(k)
   " Kind constants from Go's reflect package.
   return [
@@ -1020,28 +1058,28 @@ function! s:update_variables() abort
 endfunction
 
 function! s:handle_list_local_vars(check_errors, res) abort
+  let s:state['localVars'] = {}
   try
     call a:check_errors()
-    let s:state['localVars'] = {}
     if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res.result)
       let s:state['localVars'] = a:res.result['Variables']
     endif
   catch
-    call go#util#EchoError(printf('could not list variables: %s', v:exception))
+    call go#util#EchoWarning(printf('could not list variables: %s', v:exception))
   endtry
 
   call s:show_variables()
 endfunction
 
 function! s:handle_list_function_args(check_errors, res) abort
+  let s:state['functionArgs'] = {}
   try
     call a:check_errors()
-    let s:state['functionArgs'] = {}
     if type(a:res) is type({}) && has_key(a:res, 'result') && !empty(a:res.result)
       let s:state['functionArgs'] = a:res.result['Args']
     endif
   catch
-    call go#util#EchoError(printf('could not list function arguments: %s', v:exception))
+    call go#util#EchoWarning(printf('could not list function arguments: %s', v:exception))
   endtry
 
   call s:show_variables()
@@ -1137,6 +1175,7 @@ function! go#debug#Stack(name) abort
     endif
     let s:stack_name = l:name
     try
+      silent! sign unplace 9999
       call s:call_jsonrpc(function('s:handle_stack_response', [l:name]), 'RPCServer.Command', {'name': l:name})
     catch
       call go#util#EchoError(printf('rpc failure: %s', v:exception))
@@ -1200,6 +1239,7 @@ function! go#debug#Restart() abort
           \ 'functionArgs': {},
           \ 'message': [],
           \ 'resultHandlers': {},
+          \ 'kill_on_detach': s:state['kill_on_detach'],
         \ }
 
     call call('go#debug#Start', s:start_args)

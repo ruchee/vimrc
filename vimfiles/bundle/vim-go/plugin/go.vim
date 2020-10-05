@@ -24,7 +24,7 @@ function! s:checkVersion() abort
       echom "If you really want to continue you can set this to make the error go away:"
       echom "    let g:go_version_warning = 0"
       echom "Note that some features may error out or behave incorrectly."
-      echom "Please do not report bugs unless you're using at least Vim 8.0.1453 or Neovim 0.3.2."
+      echom "Please do not report bugs unless you're using at least Vim 8.0.1453 or Neovim 0.4.0."
       echohl None
 
       " Make sure people see this.
@@ -85,6 +85,10 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   endif
 
   let go_bin_path = go#path#BinPath()
+
+  let [l:goos, l:goarch] = go#util#hostosarch()
+  let Restore_goos = go#util#SetEnv('GOOS', l:goos)
+  let Restore_goarch = go#util#SetEnv('GOARCH', l:goarch)
 
   " change $GOBIN so go get can automatically install to it
   let Restore_gobin = go#util#SetEnv('GOBIN', go_bin_path)
@@ -218,6 +222,8 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   " restore back!
   call call(Restore_path, [])
   call call(Restore_gobin, [])
+  call call(Restore_goarch, [])
+  call call(Restore_goos, [])
 
   if resetshellslash
     set shellslash
