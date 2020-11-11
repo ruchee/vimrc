@@ -6,9 +6,13 @@ autopep8
     :target: https://pypi.org/project/autopep8/
     :alt: PyPI Version
 
-.. image:: https://travis-ci.org/hhatto/autopep8.svg?branch=master
-    :target: https://travis-ci.org/hhatto/autopep8
+.. image:: https://github.com/hhatto/autopep8/workflows/Python%20package/badge.svg
+    :target: https://github.com/hhatto/autopep8/actions
     :alt: Build status
+
+.. image:: https://codecov.io/gh/hhatto/autopep8/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/hhatto/autopep8
+    :alt: Code Coverage
 
 autopep8 automatically formats Python code to conform to the `PEP 8`_ style
 guide. It uses the pycodestyle_ utility to determine what parts of the code
@@ -111,7 +115,6 @@ After running autopep8.
 
 
     class Example3(object):
-
         def __init__(self, bar):
             # Comments should have a space after the hash.
             if bar:
@@ -131,7 +134,7 @@ Options::
                     [--ignore-local-config] [-r] [-j n] [-p n] [-a]
                     [--experimental] [--exclude globs] [--list-fixes]
                     [--ignore errors] [--select errors] [--max-line-length n]
-                    [--line-range line line]
+                    [--line-range line line] [--hang-closing] [--exit-code]
                     [files [files ...]]
 
     Automatically formats Python code to conform to the PEP 8 style guide.
@@ -167,13 +170,19 @@ Options::
       --exclude globs       exclude file/directory names that match these comma-
                             separated globs
       --list-fixes          list codes for fixes; used by --ignore and --select
-      --ignore errors       do not fix these errors/warnings (default: E24)
+      --ignore errors       do not fix these errors/warnings (default:
+                            E226,E24,W50,W690)
       --select errors       fix only these errors/warnings (e.g. E4,W)
       --max-line-length n   set maximum allowed line length (default: 79)
       --line-range line line, --range line line
                             only fix errors found within this inclusive range of
                             line numbers (e.g. 1 99); line numbers are indexed at
                             1
+      --hang-closing        hang-closing option passed to pycodestyle
+      --exit-code           change to behavior of exit code. default behavior of
+                            return value, 0 is no differences, 1 is error exit.
+                            return 2 when add this option. 2 is exists
+                            differences.
 
 
 Features
@@ -182,7 +191,7 @@ Features
 autopep8 fixes the following issues_ reported by pycodestyle_::
 
     E101 - Reindent all lines.
-    E11  - Fix indentation. (not include E112 and E113)
+    E11  - Fix indentation.
     E121 - Fix indentation to be a multiple of four.
     E122 - Add absent indentation for hanging indentation.
     E123 - Align closing bracket to match opening bracket.
@@ -191,10 +200,14 @@ autopep8 fixes the following issues_ reported by pycodestyle_::
     E126 - Fix over-indented hanging indentation.
     E127 - Fix visual indentation.
     E128 - Fix visual indentation.
+    E129 - Fix visual indentation.
+    E131 - Fix hanging indent for unaligned continuation line.
+    E133 - Fix missing indentation for closing bracket.
     E20  - Remove extraneous whitespace.
     E211 - Remove extraneous whitespace.
     E22  - Fix extraneous whitespace around keywords.
     E224 - Remove extraneous whitespace around operator.
+    E225 - Fix missing whitespace around operator.
     E226 - Fix missing whitespace around arithmetic operator.
     E227 - Fix missing whitespace around bitwise/shift operator.
     E228 - Fix missing whitespace around modulo operator.
@@ -205,29 +218,38 @@ autopep8 fixes the following issues_ reported by pycodestyle_::
     E252 - Missing whitespace around parameter equals.
     E26  - Fix spacing after comment hash for inline comments.
     E265 - Fix spacing after comment hash for block comments.
+    E266 - Fix too many leading '#' for block comments.
     E27  - Fix extraneous whitespace around keywords.
     E301 - Add missing blank line.
     E302 - Add missing 2 blank lines.
     E303 - Remove extra blank lines.
     E304 - Remove blank line following function decorator.
-    E306 - Expected 1 blank line before a nested definition
+    E305 - Expected 2 blank lines after end of function or class.
+    E306 - Expected 1 blank line before a nested definition.
     E401 - Put imports on separate lines.
+    E402 - Fix module level import not at top of file
     E501 - Try to make lines fit within --max-line-length characters.
     E502 - Remove extraneous escape of newline.
     E701 - Put colon-separated compound statement on separate lines.
     E70  - Put semicolon-separated compound statement on separate lines.
     E711 - Fix comparison with None.
     E712 - Fix comparison with boolean.
+    E713 - Use 'not in' for test for membership.
+    E714 - Use 'is not' test for object identity.
     E721 - Use "isinstance()" instead of comparing types directly.
     E722 - Fix bare except.
+    E731 - Use a def when use do not assign a lambda expression.
     W291 - Remove trailing whitespace.
     W292 - Add a single newline at the end of the file.
     W293 - Remove trailing whitespace on blank line.
     W391 - Remove trailing blank lines.
+    W503 - Fix line break before binary operator.
+    W504 - Fix line break after binary operator.
     W601 - Use "in" rather than "has_key()".
     W602 - Fix deprecated form of raising exception.
     W603 - Use "!=" instead of "<>"
     W604 - Use "repr()" instead of backticks.
+    W605 - Fix invalid escape sequence 'x'.
     W690 - Fix various deprecated code (via lib2to3).
 
 autopep8 also fixes some issues not found by pycodestyle_.
@@ -293,6 +315,13 @@ messages::
 
     $ autopep8 -v <filename>
 
+Passing in ``--experimental`` enables the following functionality:
+
+- Shortens code lines by taking its length into account
+
+::
+
+$ autopep8 --experimental <filename>
 
 Use as a module
 ===============
@@ -315,13 +344,47 @@ Or with options:
     'print( 123 )\n'
 
 
+Configuration
+=============
+
+By default, if ``$HOME/.config/pycodestyle`` (``~\.pycodestyle`` in Windows
+environment) exists, it will be used as global configuration file.
+Alternatively, you can specify the global configuration file with the
+``--global-config`` option.
+
+Also, if ``setup.cfg``, ``tox.ini``, ``.pep8`` and ``.flake8`` files exist
+in the directory where the target file exists, it will be used as the
+configuration file.
+
+``pep8``, ``pycodestyle``, and ``flake8`` can be used as a section.
+
+configuration file example::
+
+    [pycodestyle]
+    max_line_length = 120
+    ignore = E501
+
+pyproject.toml
+--------------
+
+autopep8 can also use ``pyproject.toml``.
+section must use ``[tool.autopep8]``, and ``pyproject.toml`` takes precedence
+over any other configuration files.
+
+configuration file example::
+
+    [tool.autopep8]
+    max_line_length = 120
+    ignore = "E501,W6"  # or ["E501", "W6"]
+
+
 Testing
 =======
 
 Test cases are in ``test/test_autopep8.py``. They can be run directly via
 ``python test/test_autopep8.py`` or via tox_. The latter is useful for
 testing against multiple Python interpreters. (We currently test against
-CPython versions 2.7, 3.4, 3.5 and 3.6. We also test against PyPy.)
+CPython versions 2.7, 3.4, 3.5, 3.6 and 3.7. We also test against PyPy.)
 
 .. _`tox`: https://pypi.org/project/tox/
 

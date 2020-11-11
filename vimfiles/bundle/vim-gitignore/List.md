@@ -68,11 +68,11 @@ GWT
 Haskell
 Idris
 IGORPro
-IPythonNotebook
 Java
 Jboss
 JDeveloper
 Jekyll
+JEnv
 JetBrains
 Joomla
 Julia
@@ -121,6 +121,7 @@ PlayFramework
 Plone
 Prestashop
 Processing
+PureScript
 Python
 Qooxdoo
 Qt
@@ -143,6 +144,7 @@ SeamGen
 SketchUp
 SlickEdit
 Smalltalk
+Stata
 Stella
 SublimeText
 SugarCRM

@@ -26,8 +26,9 @@ class AstroidError(Exception):
     will be called with the field names and values supplied as keyword
     arguments.
     """
-    def __init__(self, message='', **kws):
-        super(AstroidError, self).__init__(message)
+
+    def __init__(self, message="", **kws):
+        super().__init__(message)
         self.message = message
         for key, value in kws.items():
             setattr(self, key, value)
@@ -44,8 +45,8 @@ class AstroidBuildingError(AstroidError):
         error: Exception raised during construction.
     """
 
-    def __init__(self, message='Failed to import module {modname}.', **kws):
-        super(AstroidBuildingError, self).__init__(message, **kws)
+    def __init__(self, message="Failed to import module {modname}.", **kws):
+        super().__init__(message, **kws)
 
 
 class AstroidImportError(AstroidBuildingError):
@@ -59,12 +60,16 @@ class TooManyLevelsError(AstroidImportError):
         level: The level which was attempted.
         name: the name of the module on which the relative import was attempted.
     """
+
     level = None
     name = None
 
-    def __init__(self, message='Relative import with too many levels '
-                               '({level}) for module {name!r}', **kws):
-        super(TooManyLevelsError, self).__init__(message, **kws)
+    def __init__(
+        self,
+        message="Relative import with too many levels " "({level}) for module {name!r}",
+        **kws
+    ):
+        super().__init__(message, **kws)
 
 
 class AstroidSyntaxError(AstroidBuildingError):
@@ -79,11 +84,12 @@ class NoDefault(AstroidError):
         func: Function node.
         name: Name of argument without a default.
     """
+
     func = None
     name = None
 
-    def __init__(self, message='{func!r} has no default for {name!r}.', **kws):
-        super(NoDefault, self).__init__(message, **kws)
+    def __init__(self, message="{func!r} has no default for {name!r}.", **kws):
+        super().__init__(message, **kws)
 
 
 class ResolveError(AstroidError):
@@ -94,6 +100,7 @@ class ResolveError(AstroidError):
     Standard attributes:
         context: InferenceContext object.
     """
+
     context = None
 
 
@@ -105,12 +112,14 @@ class MroError(ResolveError):
         cls: ClassDef node whose MRO resolution failed.
         context: InferenceContext object.
     """
+
     mros = ()
     cls = None
 
     def __str__(self):
-        mro_names = ", ".join("({})".format(", ".join(b.name for b in m))
-                              for m in self.mros)
+        mro_names = ", ".join(
+            "({})".format(", ".join(b.name for b in m)) for m in self.mros
+        )
         return self.message.format(mros=mro_names, cls=self.cls)
 
 
@@ -129,6 +138,7 @@ class SuperError(ResolveError):
         *super_*: The Super instance that raised the exception.
         context: InferenceContext object.
     """
+
     super_ = None
 
     def __str__(self):
@@ -142,11 +152,12 @@ class InferenceError(ResolveError):
         node: The node inference was called on.
         context: InferenceContext object.
     """
+
     node = None
     context = None
 
-    def __init__(self, message='Inference failed for {node!r}.', **kws):
-        super(InferenceError, self).__init__(message, **kws)
+    def __init__(self, message="Inference failed for {node!r}.", **kws):
+        super().__init__(message, **kws)
 
 
 # Why does this inherit from InferenceError rather than ResolveError?
@@ -159,11 +170,12 @@ class NameInferenceError(InferenceError):
         scope: The node representing the scope in which the lookup occurred.
         context: InferenceContext object.
     """
+
     name = None
     scope = None
 
-    def __init__(self, message='{name!r} not found in {scope!r}.', **kws):
-        super(NameInferenceError, self).__init__(message, **kws)
+    def __init__(self, message="{name!r} not found in {scope!r}.", **kws):
+        super().__init__(message, **kws)
 
 
 class AttributeInferenceError(ResolveError):
@@ -174,11 +186,12 @@ class AttributeInferenceError(ResolveError):
         attribute: The attribute for which lookup failed, as a string.
         context: InferenceContext object.
     """
+
     target = None
     attribute = None
 
-    def __init__(self, message='{attribute!r} not found on {target!r}.', **kws):
-        super(AttributeInferenceError, self).__init__(message, **kws)
+    def __init__(self, message="{attribute!r} not found on {target!r}.", **kws):
+        super().__init__(message, **kws)
 
 
 class UseInferenceDefault(Exception):

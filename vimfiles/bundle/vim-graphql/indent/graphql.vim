@@ -1,4 +1,4 @@
-" Copyright (c) 2016-2019 Jon Parise <jon@indelible.org>
+" Copyright (c) 2016-2020 Jon Parise <jon@indelible.org>
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
 " of this software and associated documentation files (the "Software"), to
@@ -21,18 +21,19 @@
 " Language: GraphQL
 " Maintainer: Jon Parise <jon@indelible.org>
 
-if exists('b:did_indent')
-  finish
+" Set our local options if indentation hasn't already been set up.
+" This generally means we've been detected as the primary filetype.
+if !exists('b:did_indent')
+  setlocal autoindent
+  setlocal nocindent
+  setlocal nolisp
+  setlocal nosmartindent
+
+  setlocal indentexpr=GetGraphQLIndent()
+  setlocal indentkeys=0{,0},0),0[,0],0#,!^F,o,O
+
+  let b:did_indent = 1
 endif
-let b:did_indent = 1
-
-setlocal autoindent
-setlocal nocindent
-setlocal nolisp
-setlocal nosmartindent
-
-setlocal indentexpr=GetGraphQLIndent()
-setlocal indentkeys=0{,0},0),0[,0],0#,!^F,o,O
 
 " If our indentation function already exists, we have nothing more to do.
 if exists('*GetGraphQLIndent')
@@ -42,9 +43,13 @@ endif
 let s:cpo_save = &cpoptions
 set cpoptions&vim
 
+" searchpair() skip expression that matches in comments and strings.
+let s:pair_skip_expr =
+  \ 'synIDattr(synID(line("."), col("."), 0), "name") =~? "comment\\|string"'
+
 " Check if the character at lnum:col is inside a string.
 function s:InString(lnum, col)
-  return synIDattr(synID(a:lnum, a:col, 1), 'name') is# 'graphqlString'
+  return synIDattr(synID(a:lnum, a:col, 1), 'name') ==# 'graphqlString'
 endfunction
 
 function GetGraphQLIndent()
@@ -55,21 +60,28 @@ function GetGraphQLIndent()
     return 0
   endif
 
+  " If the previous line isn't GraphQL, don't change this line's indentation.
+  " Assume we've been manually indented as part of a template string.
+  let l:stack = map(synstack(l:prevlnum, 1), "synIDattr(v:val, 'name')")
+  if get(l:stack, -1) !~# '^graphql'
+    return -1
+  endif
+
   let l:line = getline(v:lnum)
 
   " If this line contains just a closing bracket, find its matching opening
-  " bracket and indent the closing backet to match.
+  " bracket and indent the closing bracket to match.
   let l:col = matchend(l:line, '^\s*[]})]')
   if l:col > 0 && !s:InString(v:lnum, l:col)
-    let l:bracket = l:line[l:col - 1]
     call cursor(v:lnum, l:col)
 
-    if l:bracket is# '}'
-      let l:matched = searchpair('{', '', '}', 'bW')
-    elseif l:bracket is# ']'
-      let l:matched = searchpair('\[', '', '\]', 'bW')
-    elseif l:bracket is# ')'
-      let l:matched = searchpair('(', '', ')', 'bW')
+    let l:bracket = l:line[l:col - 1]
+    if l:bracket ==# '}'
+      let l:matched = searchpair('{', '', '}', 'bW', s:pair_skip_expr)
+    elseif l:bracket ==# ']'
+      let l:matched = searchpair('\[', '', '\]', 'bW', s:pair_skip_expr)
+    elseif l:bracket ==# ')'
+      let l:matched = searchpair('(', '', ')', 'bW', s:pair_skip_expr)
     else
       let l:matched = -1
     endif
@@ -82,9 +94,8 @@ function GetGraphQLIndent()
     return indent(v:lnum)
   endif
 
-  " If the previous line contained an opening bracket, and we are still in it,
-  " add indent depending on the bracket type.
-  if getline(l:prevlnum) =~# '[[{(]\s*$'
+  " If the previous line ended with an opening bracket, indent this line.
+  if getline(l:prevlnum) =~# '\%(#.*\)\@<![[{(]\s*$'
     return indent(l:prevlnum) + shiftwidth()
   endif
 

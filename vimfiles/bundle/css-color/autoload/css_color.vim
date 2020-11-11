@@ -138,21 +138,17 @@ function! s:create_syn_match()
 	let rgb_color = get( s:pattern_color, pattern, '' )
 
 	if ! strlen( rgb_color )
-		let hexcolor = submatch(1)
+		let hex = submatch(1)
 		let funcname = submatch(2)
 
-		if funcname == 'rgb'
-			let rgb_color = s:rgb2color(submatch(3),submatch(4),submatch(5))
-		elseif funcname == 'hsl'
-			let rgb_color = s:hsl2color(submatch(3),submatch(4),submatch(5))
-		elseif strlen(hexcolor) == 6
-			let rgb_color = tolower(hexcolor)
-		elseif strlen(hexcolor) == 3
-			let rgb_color = substitute(tolower(hexcolor), '\(.\)', '\1\1', 'g')
-		else
-			throw 'css_color: create_syn_match invoked on bad match data'
-		endif
+		let rgb_color
+			\ = funcname == 'rgb' ? s:rgb2color(submatch(3),submatch(4),submatch(5))
+			\ : funcname == 'hsl' ? s:hsl2color(submatch(3),submatch(4),submatch(5))
+			\ : strlen(hex) >= 6  ? tolower(hex[0:5])
+			\ : strlen(hex) >= 3  ? tolower(hex[0].hex[0].hex[1].hex[1].hex[2].hex[2])
+			\ : ''
 
+		if rgb_color == '' | throw 'css_color: create_syn_match invoked on bad match data' | endif
 		let s:pattern_color[pattern] = rgb_color
 	endif
 
@@ -202,14 +198,15 @@ function! s:create_matches()
 	endfor
 endfunction
 
-let s:_hexcolor   = '#\(\x\{3}\|\x\{6}\)\>' " submatch 1
+let s:_hexcolor   = '#\(\x\{3}\%(\>\|\x\{3}\>\)\)' " submatch 1
+let s:_rgbacolor  = '#\(\x\{3}\%(\>\|\x\%(\>\|\x\{2}\%(\>\|\x\{2}\>\)\)\)\)' " submatch 1
 let s:_funcname   = '\(rgb\|hsl\)a\?' " submatch 2
 let s:_ws_        = '\s*'
 let s:_numval     = s:_ws_ . '\(\d\{1,3}%\?\)' " submatch 3,4,5
 let s:_listsep    = s:_ws_ . ','
 let s:_otherargs_ = '\%(,[^)]*\)\?'
 let s:_funcexpr   = s:_funcname . '[(]' . s:_numval . s:_listsep . s:_numval . s:_listsep . s:_numval . s:_ws_ . s:_otherargs_ . '[)]'
-let s:_csscolor   = s:_hexcolor . '\|' . s:_funcexpr
+let s:_csscolor   = s:_rgbacolor . '\|' . s:_funcexpr
 " N.B. sloppy heuristic constants for performance reasons:
 "      a) start somewhere left of screen in case of partially visible colorref
 "      b) take some multiple of &columns to handle multibyte chars etc
@@ -261,8 +258,8 @@ function! css_color#toggle()
 	endif
 endfunction
 
-let s:type         = [ 'none', 'hex', 'css', 'none' ] " with wraparound for index() == -1
-let s:pat_for_type = [ '^$', s:_hexcolor, s:_csscolor, '^$' ]
+let s:type         = [ 'none', 'hex', 'rgba', 'css', 'none' ] " with wraparound for index() == -1
+let s:pat_for_type = [ '^$', s:_hexcolor, s:_rgbacolor, s:_csscolor, '^$' ]
 
 function! css_color#init(type, keywords, groups)
 	let new_type = index( s:type, a:type )

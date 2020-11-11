@@ -4,7 +4,7 @@
 " Contributors: Edwin Fine <efine145_nospam01 at usa dot net>
 "               Pawel 'kTT' Salata <rockplayer.pl@gmail.com>
 "               Ricardo Catalinas Jiménez <jimenezrick@gmail.com>
-" Last Update:  2017-Feb-28
+" Last Update:  2020-Jun-11
 " License:      Vim license
 " URL:          https://github.com/vim-erlang/vim-erlang-runtime
 
@@ -833,7 +833,7 @@ function! s:ErlangCalcIndent2(lnum, stack)
         endif
 
       elseif stack == ['prev_term_plus']
-        if token =~# '[a-zA-Z_@]' ||
+        if token =~# '[a-zA-Z_@#]' ||
          \ token ==# '<string>' || token ==# '<string_start>' ||
          \ token ==# '<quoted_atom>' || token ==# '<quoted_atom_start>'
           call s:Log('    previous token found: curr_vcol + plus = ' .

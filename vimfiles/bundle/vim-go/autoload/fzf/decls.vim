@@ -29,12 +29,10 @@ function! s:sink(str) abort
   if len(a:str) < 2
     return
   endif
-  let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-  let dir = getcwd()
   try
     " we jump to the file directory so we can get the fullpath via fnamemodify
     " below
-    execute cd . fnameescape(s:current_dir)
+    let l:dir = go#util#Chdir(s:current_dir)
 
     let vals = matchlist(a:str[1], '|\(.\{-}\):\(\d\+\):\(\d\+\)\s*\(.*\)|')
 
@@ -54,7 +52,7 @@ function! s:sink(str) abort
     silent! norm! zvzz
   finally
     "jump back to old dir
-    execute cd . fnameescape(dir)
+    call go#util#Chdir(l:dir)
   endtry
 endfunction
 
@@ -120,15 +118,15 @@ function! s:source(mode,...) abort
           \ decl.line,
           \ decl.col
           \)
-    call add(ret_decls, printf("%s\t%s %s\t%s",
+    call add(ret_decls, printf("%s\t%s\t%s\t%s",
           \ s:color(decl.ident . space, "goDeclsFzfFunction"),
           \ s:color(decl.keyword, "goDeclsFzfKeyword"),
-          \ s:color(pos, "goDeclsFzfSpecialComment"),
           \ s:color(decl.full, "goDeclsFzfComment"),
+          \ s:color(pos, "goDeclsFzfSpecialComment"),
           \))
   endfor
 
-  return ret_decls
+  return sort(ret_decls)
 endfunc
 
 function! fzf#decls#cmd(...) abort
@@ -145,7 +143,7 @@ function! fzf#decls#cmd(...) abort
         \)
   call fzf#run(fzf#wrap('GoDecls', {
         \ 'source': call('<sid>source', a:000),
-        \ 'options': '-n 1 --ansi --prompt "GoDecls> " --expect=ctrl-t,ctrl-v,ctrl-x'.colors,
+        \ 'options': printf('-n 1 --with-nth 1,2 --delimiter=$''\t'' --preview "echo {3}" --ansi --prompt "GoDecls> " --expect=ctrl-t,ctrl-v,ctrl-x%s', colors),
         \ 'sink*': function('s:sink')
         \ }))
 endfunction

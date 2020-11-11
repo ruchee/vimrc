@@ -17,7 +17,7 @@ You should pay attention to your ``PYTHONPATH``, since it is a common error
 to analyze an installed version of a module instead of the
 development version.
 
-It is also possible to analyze python files, with a few
+It is also possible to analyze Python files, with a few
 restrictions. The thing to keep in mind is that Pylint will try to
 convert the file name to a module name, and only be able to process
 the file if it succeeds.  ::
@@ -35,9 +35,9 @@ python path.
 
 For more details on this see the :ref:`faq`.
 
-It is also possible to call Pylint from another python program,
-thanks to ``Run()`` function in ``pylint.lint`` module,
-assuming Pylint options are stored in a list of strings ``pylint_options``, as:
+It is also possible to call Pylint from another Python program,
+thanks to the ``Run()`` function in the ``pylint.lint`` module
+(assuming Pylint options are stored in a list of strings ``pylint_options``) as:
 
 .. sourcecode:: python
 
@@ -62,14 +62,14 @@ First of all, we have two basic (but useful) options.
 --version             show program's version number and exit
 -h, --help            show help about the command line options
 
-Pylint is architectured around several checkers. you can disable a specific
-checker or some of its messages or messages categories by specifying
+Pylint is architected around several checkers. You can disable a specific
+checker or some of its messages or message categories by specifying
 ``--disable=<symbol>``. If you want to enable only some checkers or some
 message symbols, first use ``--disable=all`` then
-``--enable=<symbol>`` with <symbol> being a comma separated list of checker
+``--enable=<symbol>`` with ``<symbol>`` being a comma-separated list of checker
 names and message symbols. See the list of available features for a
 description of provided checkers with their functionalities.
-The ``--disable`` and ``--enable`` options can be used with comma separated lists
+The ``--disable`` and ``--enable`` options can be used with comma-separated lists
 mixing checkers, message ids and categories like ``-d C,W,no-error,design``
 
 It is possible to disable all messages with ``--disable=all``. This is
@@ -77,7 +77,7 @@ useful to enable only a few checkers or a few messages by first
 disabling everything, and then re-enabling only what you need.
 
 Each checker has some specific options, which can take either a yes/no
-value, an integer, a python regular expression, or a comma separated
+value, an integer, a python regular expression, or a comma-separated
 list of values (which are generally used to override a regular
 expression in special cases). For a full list of options, use ``--help``
 
@@ -89,6 +89,10 @@ configuration file in the following order and uses the first one it finds:
 
 #. ``pylintrc`` in the current working directory
 #. ``.pylintrc`` in the current working directory
+#. ``pyproject.toml`` in the current working directory,
+   providing it has at least one ``tool.pylint.`` section.
+#. ``setup.cfg`` in the current working directory,
+   providing it has at least one ``pylint.`` section
 #. If the current working directory is in a Python module, Pylint searches \
    up the hierarchy of Python modules until it finds a ``pylintrc`` file. \
    This allows you to specify coding standards on a module-by-module \
@@ -109,7 +113,7 @@ includes:
 * Any configuration file found as explained above
 * Options appearing before ``--generate-rcfile`` on the Pylint command line
 
-Of course you can also start with the default values and hand tune the
+Of course you can also start with the default values and hand-tune the
 configuration.
 
 Other useful global options include:
@@ -119,6 +123,8 @@ Other useful global options include:
 --output-format=<format>   Select output format (text, json, custom).
 --msg-template=<template>  Modify text output message template.
 --list-msgs                Generate pylint's messages.
+--list-msgs-enabled        Display a list of what messages are enabled and
+                           disabled with the given configuration.
 --full-documentation       Generate pylint's full documentation, in reST
                              format.
 
@@ -126,10 +132,10 @@ Parallel execution
 ------------------
 
 It is possible to speed up the execution of Pylint. If the running computer
-has more CPUs than one, then the files for checking could be spread on all
+has more CPUs than one, then the work for checking all files could be spread across all
 cores via Pylints's sub-processes.
-This functionality is exposed via ``-j`` command line parameter.
-If the provided number is 0, then the total number of CPUs will be used.
+This functionality is exposed via the ``-j`` command-line parameter.
+If the provided number is 0, then the total number of CPUs will be autodetected and used.
 
 Example::
 
@@ -137,21 +143,17 @@ Example::
 
 This will spawn 4 parallel Pylint sub-process, where each provided module will
 be checked in parallel. Discovered problems by checkers are not displayed
-immediately. They are shown just after completing checking a module.
+immediately. They are shown just after checking a module is complete.
 
-There are some limitations in running checks in parallel in current
+There are some limitations in running checks in parallel in the current
 implementation. It is not possible to use custom plugins
 (i.e. ``--load-plugins`` option), nor it is not possible to use
-initialization hooks (i.e. ``--init-hook`` option).
-
-This will spawn 4 parallel Pylint subprocesses, each provided module being checked
-by one or another subprocess.
-
+initialization hooks (i.e. the ``--init-hook`` option).
 
 Exit codes
 ----------
 
-Pylint returns bit-encoded exit codes. If applicable the table lists related
+Pylint returns bit-encoded exit codes. If applicable, the table below lists the related
 stderr stream message output.
 
 =========  =========================  ==========================================

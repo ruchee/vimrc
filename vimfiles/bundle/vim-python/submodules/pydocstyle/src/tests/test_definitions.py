@@ -19,6 +19,10 @@ from pydocstyle.checker import check
     'superfluous_quotes',
     'noqa',
     'sections',
+    'functions',
+    'canonical_google_examples',
+    'canonical_numpy_examples',
+    'canonical_pep257_examples',
 ])
 def test_complex_file(test_case):
     """Run domain-specific tests from test.py file."""
@@ -36,5 +40,5 @@ def test_complex_file(test_case):
                          ignore_decorators=re.compile('wraps')))
     for error in results:
         assert isinstance(error, Error)
-    results = set([(e.definition.name, e.message) for e in results])
+    results = {(e.definition.name, e.message) for e in results}
     assert case_module.expectation.expected == results

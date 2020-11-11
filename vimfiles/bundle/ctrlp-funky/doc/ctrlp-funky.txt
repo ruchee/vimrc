@@ -439,10 +439,14 @@ THANKS						*ctrlp-funky-thanks*
   * *holybreath*      <https://github.com/holybreath>
   * *arashm*          <https://github.com/arashm>
   * *cenksoykan*      <https://github.com/cenksoykan>
+  * *nkakouros*       <https://github.com/nkakouros>
 
 
 ==============================================================================
 CHANGELOG 					*ctrlp-funky-changelog*
+
+22 Mar 2020~
+  + Does not trigger autocommands when opening the funky window (#125) by |nkakouros|
 
 04 Oct 2019~
   + Add support for rmarkdown (rmd) (#123) by |cenksoykan|

@@ -52,7 +52,7 @@ A few other examples:
     {path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
 
 
-.. _Python new format syntax: http://docs.python.org/2/library/string.html#formatstrings
+.. _Python new format syntax: https://docs.python.org/2/library/string.html#formatstrings
 
 Source code analysis section
 ''''''''''''''''''''''''''''
@@ -69,6 +69,7 @@ option.
 
 The message type can be:
 
+  * [I]nformational messages that Pylint emits (do not contribute to your analysis score)
   * [R]efactor for a "good practice" metric violation
   * [C]onvention for coding standard violation
   * [W]arning for stylistic problems, or minor programming issues

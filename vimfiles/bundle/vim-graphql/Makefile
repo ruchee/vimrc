@@ -10,7 +10,7 @@ lint: .bundle/vim-vimhelplint
 		-c 'verb VimhelpLintEcho' \
 		-c q
 
-test: .bundle/vader.vim .bundle/vim-javascript
+test: .bundle/vader.vim .bundle/vim-javascript 
 	cd test && vim -EsNu vimrc --not-a-term -c 'Vader! * */*'
 
 .bundle/vader.vim:

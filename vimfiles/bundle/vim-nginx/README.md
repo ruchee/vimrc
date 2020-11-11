@@ -51,22 +51,36 @@ For help with secure cipher selection, visit [Mozillas SSL Configuration Generat
 
 ## Installation
 
-### Pathogen
+If your Vim is at version 8 or later, the first method below is the quickest. Otherwise, install this plugin with any Vim plugin manager ([``vim-plug``](https://github.com/junegunn/vim-plug) is recommended).
 
-```bash
-git clone https://github.com/chr4/nginx.vim ~/.vim/bundle/nginx.vim
+### Native plugin management (Vim 8+)
+
+Clone or submodule this repo into your Vim packages location. Example:
+
+```
+mkdir -p ~/.vim/pack/plugins/start
+cd ~/.vim/pack/plugins/start
+git clone https://github.com/chr4/nginx.vim.git
 ```
 
-### Other (Plug, Dein.vim, Vundle)
-```vim
-" Plug
+### Plug
+```
 Plug 'chr4/nginx.vim'
+```
 
-" Dein.vim
+### Dein.vim
+```
 call dein#add('chr4/nginx.vim')
+```
 
-" Vundle
+### Vundle
+```
 Plugin 'chr4/nginx.vim'
+```
+
+### Pathogen
+```
+git clone https://github.com/chr4/nginx.vim ~/.vim/bundle/nginx.vim
 ```
 
 Optionally, if you like [Jinja](http://jinja.pocoo.org/) template syntax highlighting, install `lepture/vim-jinja`, too.

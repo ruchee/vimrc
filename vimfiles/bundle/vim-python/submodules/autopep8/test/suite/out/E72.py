@@ -39,7 +39,6 @@ assert isinstance(res, type((0, )))
 #:
 
 #: Okay
-import types
 
 if isinstance(res, int):
     pass

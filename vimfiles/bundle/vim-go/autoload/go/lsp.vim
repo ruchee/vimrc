@@ -233,6 +233,8 @@ function! s:newlsp() abort
 
   " TODO(bc): process the queue asynchronously
   function! l:lsp.updateDiagnostics() dict abort
+    let l:level = go#config#DiagnosticsLevel()
+
     for l:data in self.diagnosticsQueue
       call remove(self.diagnosticsQueue, 0)
 
@@ -246,22 +248,17 @@ function! s:newlsp() abort
         " Vim says that a buffer name can't be an absolute path.
         let l:bufname = fnamemodify(l:fname, ':.')
 
-        if len(l:data.diagnostics) > 0 && (go#config#DiagnosticsEnabled() || bufnr(l:bufname) == bufnr(''))
+        if len(l:data.diagnostics) > 0 && (l:level > 0 || bufnr(l:bufname) == bufnr(''))
           " make sure the buffer is listed and loaded before calling getbufline() on it
           if !bufexists(l:bufname)
-            "let l:starttime = reltime()
             call bufadd(l:bufname)
           endif
 
           if !bufloaded(l:bufname)
-            "let l:starttime = reltime()
             call bufload(l:bufname)
           endif
 
           for l:diag in l:data.diagnostics
-            " TODO(bc): cache the raw diagnostics when they're not for the
-            " current buffer so that they can be processed when it is the
-            " current buffer and highlight the areas of concern.
             let [l:error, l:matchpos] = s:errorFromDiagnostic(l:diag, l:bufname, l:fname)
             let l:diagnostics = add(l:diagnostics, l:error)
 
@@ -1104,6 +1101,9 @@ function! go#lsp#AddWorkspaceDirectory(...) abort
   let l:workspaces = []
   for l:dir in a:000
     let l:dir = fnamemodify(l:dir, ':p')
+    if len(l:dir) > 1 && l:dir[-1:] == '/'
+      let l:dir = l:dir[:-2]
+    endif
     if !isdirectory(l:dir)
       continue
     endif
@@ -1317,7 +1317,7 @@ function! go#lsp#AnalyzeFile(fname) abort
 
   let l:lastdiagnostics = get(l:lsp.diagnostics, l:fname, [])
 
-  let l:version = l:lsp.fileVersions[a:fname]
+  let l:version = get(l:lsp.fileVersions, a:fname, 0)
   if l:version == getbufvar(a:fname, 'changedtick')
     return l:lastdiagnostics
   endif
@@ -1325,7 +1325,7 @@ function! go#lsp#AnalyzeFile(fname) abort
   call go#lsp#DidChange(a:fname)
 
   let l:diagnostics = go#promise#New(function('s:setDiagnostics', []), 10000, l:lastdiagnostics)
-  let l:lsp.notificationQueue[l:fname] = add(l:lsp.notificationQueue[l:fname], l:diagnostics.wrapper)
+  let l:lsp.notificationQueue[l:fname] = add(get(l:lsp.notificationQueue, l:fname, []), l:diagnostics.wrapper)
   return l:diagnostics.await()
 endfunction
 
@@ -1383,7 +1383,9 @@ function! s:highlightMatches(errorMatches, warningMatches) abort
     call go#util#ClearHighlights('goDiagnosticError')
     if go#config#HighlightDiagnosticErrors()
       let b:go_diagnostic_matches.errors = copy(a:errorMatches)
-      call go#util#HighlightPositions('goDiagnosticError', a:errorMatches)
+      if go#config#DiagnosticsLevel() >= 2
+        call go#util#HighlightPositions('goDiagnosticError', a:errorMatches)
+      endif
     endif
   endif
 
@@ -1393,7 +1395,9 @@ function! s:highlightMatches(errorMatches, warningMatches) abort
     call go#util#ClearHighlights('goDiagnosticWarning')
     if go#config#HighlightDiagnosticWarnings()
       let b:go_diagnostic_matches.warnings = copy(a:warningMatches)
-      call go#util#HighlightPositions('goDiagnosticWarning', a:warningMatches)
+      if go#config#DiagnosticsLevel() >= 2
+        call go#util#HighlightPositions('goDiagnosticWarning', a:warningMatches)
+      endif
     endif
   endif
 
@@ -1526,7 +1530,7 @@ function! s:handleCodeAction(kind, cmd, msg) abort dict
       endif
 
       if has_key(l:item, 'command')
-        if has_key(l:item.command, 'command') && l:item.command.command is a:cmd
+        if has_key(l:item.command, 'command') && (l:item.command.command is a:cmd || l:item.command.command is printf('gopls.%s', a:cmd))
           call s:executeCommand(l:item.command.command, l:item.command.arguments)
           continue
         endif

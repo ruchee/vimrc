@@ -191,6 +191,7 @@ $HERE$;
 
 select '" Statements';
 select vim_format(array(select get_statements()), 'Statement');
+select 'syn match sqlStatement contained /\<create\%(\_s\+or\_s\+replace\)\=\>/';
 select '" Types';
 select vim_format(array(select get_types()), 'Type');
 select 'syn match sqlType /\<pg_toast_\d\+\>/';
@@ -328,9 +329,7 @@ syn match sqlPlpgsqlVariable ".\zs@[A-z0-9_]\+" contained
 " PL/pgSQL operators
 syn match sqlPlpgsqlOperator ":=" contained
 
-syn region plpgsql matchgroup=sqlString start=+\$pgsql\$+ end=+\$pgsql\$+ keepend
-  \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
-syn region plpgsql matchgroup=sqlString start=+\$body\$+ end=+\$body\$+ keepend
+syn region plpgsql matchgroup=sqlString start=+\$\z(pgsql\|body\|function\)\$+ end=+\$\z1\$+ keepend
   \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
 if get(g:, 'pgsql_dollar_strings', 0)
   syn region sqlString start=+\$\$+ end=+\$\$+ contains=@Spell
@@ -338,6 +337,9 @@ else
   syn region plpgsql matchgroup=sqlString start=+\$\$+ end=+\$\$+ keepend
     \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
 endif
+
+" Folding
+syn region sqlFold start='^\s*\zs\c\(create\|update\|alter\|select\|insert\|do\)\>' end=';$' transparent fold contains=ALL
 
 " PL/<any other language>
 fun! s:add_syntax(s)

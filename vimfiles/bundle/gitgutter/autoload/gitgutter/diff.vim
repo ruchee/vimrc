@@ -1,18 +1,17 @@
+scriptencoding utf8
+
 let s:nomodeline = (v:version > 703 || (v:version == 703 && has('patch442'))) ? '<nomodeline>' : ''
 
 let s:hunk_re = '^@@ -\(\d\+\),\?\(\d*\) +\(\d\+\),\?\(\d*\) @@'
 
 " True for git v1.7.2+.
 function! s:git_supports_command_line_config_override() abort
-  call system(g:gitgutter_git_executable.' '.g:gitgutter_git_args.' -c foo.bar=baz --version')
+  call gitgutter#utility#system(g:gitgutter_git_executable.' '.g:gitgutter_git_args.' -c foo.bar=baz --version')
   return !v:shell_error
 endfunction
 
 let s:c_flag = s:git_supports_command_line_config_override()
 
-
-let s:temp_from = tempname()
-let s:temp_buffer = tempname()
 let s:counter = 0
 
 " Returns a diff of the buffer against the index or the working tree.
@@ -76,6 +75,9 @@ function! gitgutter#diff#run_diff(bufnr, from, preserve_full_diff) abort
     throw 'gitgutter not tracked'
   endif
 
+  let temp_from = tempname()
+  let temp_buffer = tempname()
+
   " Wrap compound commands in parentheses to make Windows happy.
   " bash doesn't mind the parentheses.
   let cmd = '('
@@ -88,7 +90,7 @@ function! gitgutter#diff#run_diff(bufnr, from, preserve_full_diff) abort
   " second gitgutter#process_buffer() writing the file (synchronously, below)
   " and the first gitgutter#process_buffer()'s async job reading it (with
   " git-diff).
-  let buff_file = s:temp_buffer.'.'.a:bufnr
+  let buff_file = temp_buffer.'.'.a:bufnr
 
   " Add a counter to avoid a similar race with two quick writes of the same buffer.
   " Use a modulus greater than a maximum reasonable number of visible buffers.
@@ -108,7 +110,7 @@ function! gitgutter#diff#run_diff(bufnr, from, preserve_full_diff) abort
     " Without the buffer number, from_file would have a race in the shell
     " between the second process writing it (with git-show) and the first
     " reading it (with git-diff).
-    let from_file = s:temp_from.'.'.a:bufnr
+    let from_file = temp_from.'.'.a:bufnr
 
     " Add a counter to avoid a similar race with two quick writes of the same buffer.
     let from_file .= '.'.s:counter
@@ -118,7 +120,7 @@ function! gitgutter#diff#run_diff(bufnr, from, preserve_full_diff) abort
     endif
 
     " Write file from index to temporary file.
-    let index_name = g:gitgutter_diff_base.':'.gitgutter#utility#repo_path(a:bufnr, 1)
+    let index_name = gitgutter#utility#get_diff_base(a:bufnr).':'.gitgutter#utility#repo_path(a:bufnr, 1)
     let cmd .= g:gitgutter_git_executable.' '.g:gitgutter_git_args.' --no-pager show '.index_name.' > '.from_file.' && '
 
   elseif a:from ==# 'working_tree'
@@ -126,7 +128,7 @@ function! gitgutter#diff#run_diff(bufnr, from, preserve_full_diff) abort
   endif
 
   " Call git-diff.
-  let cmd .= g:gitgutter_git_executable.' '.g:gitgutter_git_args.' --no-pager '.g:gitgutter_git_args
+  let cmd .= g:gitgutter_git_executable.' '.g:gitgutter_git_args.' --no-pager'
   if s:c_flag
     let cmd .= ' -c "diff.autorefreshindex=0"'
     let cmd .= ' -c "diff.noprefix=false"'
@@ -180,7 +182,7 @@ function! gitgutter#diff#handler(bufnr, diff) abort
   let modified_lines = gitgutter#diff#process_hunks(a:bufnr, gitgutter#hunk#hunks(a:bufnr))
 
   let signs_count = len(modified_lines)
-  if signs_count > g:gitgutter_max_signs
+  if g:gitgutter_max_signs != -1 && signs_count > g:gitgutter_max_signs
     call gitgutter#utility#warn_once(a:bufnr, printf(
           \ 'exceeded maximum number of signs (%d > %d, configured by g:gitgutter_max_signs).',
           \ signs_count, g:gitgutter_max_signs), 'max_signs')
@@ -405,5 +407,3 @@ endfunction
 function! s:save_last_seen_change(bufnr) abort
   call gitgutter#utility#setbufvar(a:bufnr, 'tick', getbufvar(a:bufnr, 'changedtick'))
 endfunction
-
-

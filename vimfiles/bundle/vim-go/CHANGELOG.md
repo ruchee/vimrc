@@ -1,5 +1,9 @@
 ## unplanned
 
+BACKWARDS INCOMPATIBILITIES:
+* Remove g:go_autodetect_gopath.
+  [[GH-3078]](https://github.com/fatih/vim-go/pull/3078)
+
 IMPROVEMENTS:
 * Clarify allowed values for `gopls` related configuration options.
   [[GH-3016]](https://github.com/fatih/vim-go/pull/3016)
@@ -12,6 +16,26 @@ IMPROVEMENTS:
   [[GH-3011]](https://github.com/fatih/vim-go/pull/3011)
 * Implicitly add a workspace when a file from a module is opened.
   [[GH-3028]](https://github.com/fatih/vim-go/pull/3028)
+* Add support for using static check as the gometalinter.
+  [[GH-3036]](https://github.com/fatih/vim-go/pull/3036)
+* Add `g:go_debug_mappings` to allow the debug key mappings to be customized.
+  [[GH-3035]](https://github.com/fatih/vim-go/pull/3035)
+* Use `gopls` as the default instead of `guru` to satisfy `:GoImplements`.
+  [[GH-3034]](https://github.com/fatih/vim-go/pull/3034)
+* Deprecate g:go_diagnostics_enabled` and add `g:go_diagnostics_level` to allow
+  more finely grained control of the handling of diagnostics messages.
+  [[GH-3050]](https://github.com/fatih/vim-go/pull/3050)
+  [[GH-3052]](https://github.com/fatih/vim-go/pull/3052)
+* Add support for allowing `g:go_gopls_local`  to specify different local
+  imports values per workspace.
+  [[GH-3053]](https://github.com/fatih/vim-go/pull/3053)
+* Improve `:GoDecls` and `:GoDeclsDir` display.
+  [[GH-3081]](https://github.com/fatih/vim-go/pull/3081)
+* Preserve existing window layout when debugging and `g:go_debug_windows` is
+  empty.
+  [[GH-3068]](https://github.com/fatih/vim-go/pull/3068)
+* Show identifier in fzf's preview window with `:GoDecls` and `:GoDeclsDir`.
+  [[GH-3083]](https://github.com/fatih/vim-go/pull/3083)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -24,6 +48,13 @@ BUG FIXES:
   [[GH-3022]](https://github.com/fatih/vim-go/pull/3022)
 * Fix quickfix title for `:GoMetaLinter`.
   [[GH-3040]](https://github.com/fatih/vim-go/pull/3040)
+* Change key mapping for (go-debug-halt) to F8 to resolve collision with key
+  mapping for (go-debug-print).
+  [[GH-3047]](https://github.com/fatih/vim-go/pull/3047)
+* Handle gopls v0.5.2 addition of a prefix on the expected code actions names.
+  [[GH-3077]](https://github.com/fatih/vim-go/pull/3077)
+* Make sure all buffers' mappings are restored when debugging stops.
+  [[GH-3048]](https://github.com/fatih/vim-go/pull/3048)
 
 ## v1.24 - (September 15, 2020)
 

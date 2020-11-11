@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 
@@ -12,11 +12,15 @@ from textwrap import dedent
 
 from astroid import MANAGER, register_module_extender
 from astroid.builder import AstroidBuilder
-from astroid.exceptions import AstroidBuildingError, InferenceError, AttributeInferenceError
+from astroid.exceptions import (
+    AstroidBuildingError,
+    InferenceError,
+    AttributeInferenceError,
+)
 from astroid import nodes
 
 
-SIX_ADD_METACLASS = 'six.add_metaclass'
+SIX_ADD_METACLASS = "six.add_metaclass"
 
 
 def _indent(text, prefix, predicate=None):
@@ -33,7 +37,8 @@ def _indent(text, prefix, predicate=None):
     def prefixed_lines():
         for line in text.splitlines(True):
             yield prefix + line if predicate(line) else line
-    return ''.join(prefixed_lines())
+
+    return "".join(prefixed_lines())
 
 
 _IMPORTS = """
@@ -45,7 +50,8 @@ input = input
 from sys import intern
 map = map
 range = range
-from imp import reload as reload_module
+from importlib import reload
+reload_module = lambda module: reload(module)
 from functools import reduce
 from shlex import quote as shlex_quote
 from io import StringIO
@@ -102,13 +108,15 @@ import urllib.error as urllib_error
 
 
 def six_moves_transform():
-    code = dedent('''
+    code = dedent(
+        """
     class Moves(object):
     {}
     moves = Moves()
-    ''').format(_indent(_IMPORTS, "    "))
+    """
+    ).format(_indent(_IMPORTS, "    "))
     module = AstroidBuilder(MANAGER).string_build(code)
-    module.name = 'six.moves'
+    module.name = "six.moves"
     return module
 
 
@@ -126,12 +134,11 @@ def _six_fail_hook(modname):
     :rtype: nodes.Module
     """
 
-    attribute_of = (modname != "six.moves" and
-                    modname.startswith("six.moves"))
-    if modname != 'six.moves' and not attribute_of:
+    attribute_of = modname != "six.moves" and modname.startswith("six.moves")
+    if modname != "six.moves" and not attribute_of:
         raise AstroidBuildingError(modname=modname)
     module = AstroidBuilder(MANAGER).string_build(_IMPORTS)
-    module.name = 'six.moves'
+    module.name = "six.moves"
     if attribute_of:
         # Facilitate import of submodules in Moves
         start_index = len(module.name)
@@ -182,9 +189,10 @@ def transform_six_add_metaclass(node):
             return node
 
 
-register_module_extender(MANAGER, 'six', six_moves_transform)
-register_module_extender(MANAGER, 'requests.packages.urllib3.packages.six',
-                         six_moves_transform)
+register_module_extender(MANAGER, "six", six_moves_transform)
+register_module_extender(
+    MANAGER, "requests.packages.urllib3.packages.six", six_moves_transform
+)
 MANAGER.register_failed_import_hook(_six_fail_hook)
 MANAGER.register_transform(
     nodes.ClassDef,

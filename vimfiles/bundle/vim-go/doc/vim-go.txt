@@ -1496,9 +1496,9 @@ other packages. Valid options are `gopls` and `guru`. By default it's `gopls`.
 
 Use this option to define the command to be used for |:GoImplements|.
 The Implements feature in gopls is still new and being worked upon.
-Valid options are `gopls` and `guru`. By default it's `guru`.
+Valid options are `gopls` and `guru`. By default it's `gopls`.
 >
-  let g:go_implements_mode = 'guru'
+  let g:go_implements_mode = 'gopls'
 <
                                                   *'g:go_def_mapping_enabled'*
 
@@ -1580,16 +1580,6 @@ tags.
 >
   let g:go_build_tags = ''
 <
-                                                    *'g:go_autodetect_gopath'*
-
-Automatically modify GOPATH for certain directory structures, such as for
-the `godep` tool which stores dependencies in the `Godeps` folder. What this
-means is that all tools are now working with the newly modified GOPATH. So
-|:GoDef| for example jumps to the source inside the `Godeps` (vendored)
-source. Currently `godep` and `gb` are supported. By default it's disabled.
->
-  let g:go_autodetect_gopath = 0
-<
                                                       *'g:go_textobj_enabled'*
 
 Adds custom text objects. By default it's enabled. >
@@ -1623,27 +1613,45 @@ window. The list to use can be set using |'g:go_list_type_commands'|.
 <
                                           *'g:go_metalinter_autosave_enabled'*
 
-Specifies the enabled linters for auto |:GoMetaLinter| on save. By
-default it's using `vet` and `golint`. If any are enabled, `--disable-all`
-will be sent to the metalinter.
+Specifies the enabled linters for auto |:GoMetaLinter| on save. When the
+metalinter is `golangci-lint`, if any are enabled, `--disable-all` will be
+sent to the metalinter.
+
+When `g:go_metalinter_command` is set to `staticcheck`, the default value is
+an empty list; `staticcheck`'s `-checks` flag will not be used.
+>
+  let g:go_metalinter_autosave_enabled = ['all']
+<
+
+When `g:go_metalinter_command is set to `golangci-lint'`, the default value is
 >
   let g:go_metalinter_autosave_enabled = ['vet', 'golint']
 <
                                                    *'g:go_metalinter_enabled'*
 
-Specifies the linters to enable for the |:GoMetaLinter| command. By default
-it's using `vet`, `golint` and `errcheck`. If any are enabled, `--disable-all`
-will be sent to the metalinter.
+Specifies the linters to enable for the |:GoMetaLinter| command. For
+`golangci-lint`, if any are enabled, `--disable-all` will be passed to the
+metalinter.
+
+When `g:go_metalinter_command` is set to `staticcheck`, the default value is
+an empty list; `staticcheck`'s `-checks` flag will not be used.
+>
+  let g:go_metalinter_autosave_enabled = ['all']
+<
+
+When `g:go_metalinter_command is set to `golangci-lint'`, the default value is
 >
   let g:go_metalinter_enabled = ['vet', 'golint', 'errcheck']
 <
                                                    *'g:go_metalinter_command'*
 
 Overrides the command to be executed when |:GoMetaLinter| is called. By
-default it's `golangci-lint`. Valid options are `golangci-lint` and `gopls`.
+default it's `golangci-lint`. Valid options are `golangci-lint, `gopls`, and
+`staticcheck`..
+
 When the value is `gopls`, users may want to consider setting
-`g:go_gopls_staticcheck`.  It can also be used as an advanced setting for
-users who want to have more control over the metalinter.
+`g:go_gopls_staticcheck`. It can also be used as an advanced setting for users
+who want to have more control over the metalinter.
 >
   let g:go_metalinter_command = "golangci-lint"
 <
@@ -1651,6 +1659,8 @@ users who want to have more control over the metalinter.
 
 Overrides the maximum time the linters have to complete. By default it's 5
 seconds.
+
+Only applies when the metalinter is `golangci-lint`.
 >
   let g:go_metalinter_deadline = "5s"
 <
@@ -1880,8 +1890,12 @@ When it is `v:null`, `gopls`' default will be used. By default it is `v:null`.
 
                                                          *'g:go_gopls_local'*
 
-Specifies the prefix for imports that `gopls` should consider group
-separately.
+Specifies the prefix for imports that `gopls` should group separately.
+
+The value can either be a string or a dictionary. When it is a string, all
+workspaces will use the same value. When it is a dictionary, the key should be
+the absolute path of the workspace and the value is the prefix to use for
+local imports within that workspace.
 
 When it is `v:null`, `gopls`' default will be used. By default it is `v:null`.
 >
@@ -1911,13 +1925,20 @@ default it is `v:null`.
 <
                                                  *'g:go_diagnostics_enabled'*
 
-Specifies whether `gopls` diagnostics are enabled. Only the diagnostics for
-the current buffer will be processed when it is not set; all others will be
-ignored.
-
-By default it is disabled.
+Deprecated. See `'g:go_diagnostics_level'`. Specifies whether `gopls`
+diagnostics are enabled. Only the diagnostics for the current buffer will be
+processed when it is not set; all others will be ignored. By default it is
+disabled.
 >
   let g:go_diagnostics_enabled = 0
+<
+                                                  *'g:go_diagnostics_level'*
+
+Specifies the `gopls` diagnostics level. Valid values are 0, 1, and 2. 0
+ignores `gopls` diagnostics, 1 is for errors only, and 2 is for errors and
+warnings. By default it is 0.
+>
+  let g:go_diagnostics_level = 0
 <
 
                                                   *'g:go_template_autocreate'*
@@ -2284,7 +2305,7 @@ The program will halt on the breakpoint, at which point you can inspect the
 program state. You can go to the next line with |:GoDebugNext| (<F10>) or step
 in with |:GoDebugStep| (<F11>).
 
-The program can also be halted with `:GoDebugHalt` (<F6>).
+The program can also be halted with `:GoDebugHalt` (<F8>).
 
 The variable window in the bottom left (`GODEBUG_VARIABLES`) will display all
 local variables. Struct values are displayed as `{...}`, array/slices as
@@ -2360,7 +2381,7 @@ The rest of the commands and mappings become available after executing
 
     Halt the program.
 
-    Mapped to <F6> by default.
+    Mapped to <F8> by default.
 
                                                                 *:GoDebugStop*
                                                              *(go-debug-stop)*
@@ -2450,7 +2471,8 @@ DEBUGGER SETTINGS~
 Controls the window layout for debugging mode. This is a |dict| with four
 possible keys: "vars", "stack", "goroutines", and "out"; each of the new
 windows will be created in that that order with the commands in the value. The
-current window is made the only window before creating the debug windows.
+current window is made the only window before creating the debug windows
+unless `g:go_debug_windows` is empty.
 
 A window will not be created if a key is missing or empty.
 
@@ -2468,7 +2490,52 @@ Show only variables on the right-hand side: >
   let g:go_debug_windows = {
         \ 'vars':  'rightbelow 60vnew',
   \ }
+
+                                                       *'g:go_debug_mappings'*
+
+Contains custom key mapping information to customize the active mappings
+when debugging.
+
+Only the customizations desired need to be provided; the debugger will use its
+default key mappings for any mapping not defined here.
+
+This value should be a dictionary whose keys are the plugin mapping commands
+(e.g.  `(go-debug-continue)`). The values are dictionaries with two keys.
+`key` and `attributes`.
+
+`key` is expected to be the key to map (i.e. it's the `lhs` in a mapping).
+`key` can be empty or missing to prevent a key mapping from being applied for
+one the named mappings.
+
+`arguments` is the string of `map-arguments` for the mapping (e.g.
+`<nowait>`).
+
+The first item must be the `lhs` to use for the mapping. The optional
+second item is for `:map-arguments`. All mappings will always be `:map-local`,
+so there is never a need to include `"<buffer>"` in the the arguments.
+>
+  let g:go_debug_mappings = {
+    \ '(go-debug-continue)': {'key': 'c', 'arguments': '<nowait>'],
+    \ '(go-debug-stop)': {'key': 'q'},
+    \ '(go-debug-next)': {'key': 'n', 'arguments': '<nowait>'},
+    \ '(go-debug-step)': {'key': 's'},
+  \}
 <
+
+Defaults are equivalent to:
+>
+  let g:go_debug_mappings = {
+     \ '(go-debug-continue)':   {'key': '<F5>'},
+     \ '(go-debug-print)':      {'key': '<F6>'},
+     \ '(go-debug-breakpoint)': {'key': '<F9>'},
+     \ '(go-debug-next)':       {'key': '<F10>'},
+     \ '(go-debug-step)':       {'key': '<F11>'},
+     \ '(go-debug-halt)':       {'key': '<F8>'},
+  \ }
+<
+
+Your user specified settings will be merged with the defaults.
+
                                                         *'g:go_debug_address'*
 
 Server address `dlv` will listen on; must be in `hostname:port` format.

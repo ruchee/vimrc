@@ -1,5 +1,7 @@
 #!/usr/bin/env escript
 
+-mode(compile).
+
 -include_lib("xmerl/include/xmerl.hrl").
 
 %%------------------------------------------------------------------------------
@@ -18,7 +20,7 @@ main(Args) ->
         ["list-functions", ModuleString] ->
             run({list_functions, list_to_atom(ModuleString)});
         _ ->
-            log_error("Erroneous parameters: ~p", [PositionalParams]),
+            log_error("Erroneous parameters: ~p~n", [PositionalParams]),
             halt(2)
     end.
 
@@ -217,7 +219,7 @@ guess_build_system(Path) ->
     guess_build_system(Path, BuildSystems).
 
 guess_build_system(_Path, []) ->
-    log("Unknown build system"),
+    log("Unknown build system.~n"),
     {unknown_build_system, []};
 guess_build_system(Path, [{BuildSystem, Files}|Rest]) ->
     log("Try build system: ~p~n", [BuildSystem]),
@@ -550,7 +552,7 @@ module_edoc(Mod) ->
     end,
     {_, Doc} = edoc:get_doc(File),
     Funs = xmerl_xpath:string("/module/functions/function", Doc),
-    FunSpecs = map_functions(fun(Fun) -> analyze_function(Fun) end, Funs),
+    FunSpecs = lists:map(fun analyze_function/1, Funs),
     lists:keysort(1, FunSpecs).
 
 beam_to_src_path(BeamPath) ->
@@ -574,35 +576,71 @@ beam_to_src_file(BeamFile) ->
     [ModName, "beam"] = string:tokens(BeamFile, "."),
     ModName ++ ".erl".
 
-map_functions(_, []) ->
-    [];
-map_functions(F, [H | T]) ->
-    try
-        [F(H) | map_functions(F, T)]
-    catch
-        throw:no_spec ->
-            map_functions(F, T)
-    end.
-
 analyze_function(Fun) ->
+    % Example Erlang function:
+    %
+    %     -spec my_fun(integer()) -> float();
+    %                 (string()) -> binary().
+    %     my_fun(_) ->
+    %         ok.
+    %
+    % Example `Fun' XML node (obvious closing tags marked implicitly with
+    % indentation):
+    %
+    %     <function name="my_fun"
+    %               arity="1"
+    %               exported="yes"
+    %               label="my_fun-1">
+    %         <args>
+    %           <arg>
+    %             <argName>X1</argName>
+    %         <typespec>
+    %           <erlangName name="my_fun" />
+    %           <type>
+    %             <fun>
+    %               <argtypes>
+    %                 <type name="X1">
+    %                   <abstype>
+    %                     <erlangName name="integer" />
+    %               <type>
+    %                 <abstype>
+    %                   <erlangName name="float" />
+    %         <args>
+    %           <arg>
+    %             <argName>X1</argName>
+    %         <typespec>
+    %           <erlangName name="my_fun">
+    %           <type>
+    %             <fun>
+    %               <argtypes>
+    %                 <type name="X1">
+    %                   <abstype>
+    %                     <erlangName name="string" />
+    %               <type>
+    %                 <abstype>
+    %                   <erlangName name="binary" />
     Name = list_to_atom(get_attribute(Fun, "name")),
-    Args0 = xmerl_xpath:string("typespec/type/fun/argtypes/type", Fun),
-    Args = lists:map(fun(Arg) -> get_attribute(Arg, "name") end, Args0),
-    try
-        Return = analyze_return(Fun),
-        {Name, Args, Return}
-    catch
-        throw:no_spec ->
+    TypeSpecClauses = xmerl_xpath:string("typespec", Fun),
+    case TypeSpecClauses of
+        [] ->
+            % This function has no type spec.
             Arity = get_attribute(Fun, "arity"),
-            {Name, list_to_integer(Arity)}
+            {Name, list_to_integer(Arity)};
+        [TypeSpecClause|_OtherTypeSpecClauses] ->
+            % A function might have more than one type spec clauses. We
+            % currently show only the first one and ignore the rest.
+            Args0 = xmerl_xpath:string("type/fun/argtypes/type", TypeSpecClause),
+            ArgNames = lists:map(fun(Arg) -> get_attribute(Arg, "name") end, Args0),
+            Return = analyze_return(TypeSpecClause),
+            {Name, ArgNames, Return}
     end.
 
-analyze_return(Fun) ->
-    case xmerl_xpath:string("typespec/type/fun/type/*", Fun) of
-        [Return] ->
-            simplify_return(xmerl_lib:simplify_element(Return));
-        [] ->
-            throw(no_spec)
+analyze_return(TypeSpecClause) ->
+    case xmerl_xpath:string("type/fun/type/*", TypeSpecClause) of
+        [ReturnType] ->
+            simplify_return(xmerl_lib:simplify_element(ReturnType));
+        _ ->
+            "?"
     end.
 
 simplify_return({typevar, [{name, Name}], _}) ->

@@ -32,5 +32,12 @@ command! TigBlame
 command! TigGrepResume
       \  call tig_explorer#grep_resume()
 
+command! TigStatus
+      \  call tig_explorer#status()
+
+command! -bang -nargs=* TigOpenFileWithCommit
+      \ call tig_explorer#open_file_with_commit("<bang>",<q-mods>,<f-args>)
+
 let &cpoptions = s:save_cpo
 unlet s:save_cpo
+

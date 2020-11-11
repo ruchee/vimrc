@@ -13,12 +13,23 @@ if x <> 0:
     x = 0
 #: W604
 val = `1 + 2`
-#: W605
+#: W605:1:10
 regex = '\.png$'
-#: W605
+#: W605:2:1
 regex = '''
 \.png$
 '''
+#: W605:2:6
+f(
+    '\_'
+)
+#: W605:4:6
+"""
+multi-line
+literal
+with \_ somewhere
+in the middle
+"""
 #: Okay
 regex = r'\.png$'
 regex = '\\.png$'
@@ -29,10 +40,18 @@ regex = r'''
 \\.png$
 '''
 s = '\\'
+regex = '\w'  # noqa
+regex = '''
+\w
+'''  # noqa
 #: W606
 async = 42
 #: W606
 await = 42
+#: W606
+await 42
+#: W606
+await 'test'
 #: W606
 def async():
     pass
@@ -74,3 +93,6 @@ await foo() + await bar()
 (await foo()) + (await bar())
 -await foo()
 -(await foo())
+(await
+ foo())
+await(await foo())

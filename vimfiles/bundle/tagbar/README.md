@@ -1,7 +1,7 @@
 # Tagbar: a class outline viewer for Vim
 
-[![Vint](https://github.com/majutsushi/tagbar/workflows/Vint/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Vint)
-[![Check](https://github.com/majutsushi/tagbar/workflows/Check/badge.svg)](https://github.com/majutsushi/tagbar/actions?workflow=Check)
+[![Vint](https://github.com/preservim/tagbar/workflows/Vint/badge.svg)](https://github.com/preservim/tagbar/actions?workflow=Vint)
+[![Check](https://github.com/preservim/tagbar/workflows/Check/badge.svg)](https://github.com/preservim/tagbar/actions?workflow=Check)
 
 ## What Tagbar is
 
@@ -53,12 +53,12 @@ nmap <F8> :TagbarToggle<CR>
 
 If you do this the F8 key will toggle the Tagbar window. You can of course use
 any shortcut you want. For more flexible ways to open and close the window
-(and the rest of the functionality) see the documentation.
+(and the rest of the functionality) see the [documentation](https://github.com/majutsushi/tagbar/blob/master/doc/tagbar.txt) using `:help tagbar`.
 
 ## Support for additional filetypes
 
 For filetypes that are not supported by Exuberant Ctags check out [the
-wiki](https://github.com/majutsushi/tagbar/wiki) to see whether other projects
+wiki](https://github.com/preservim/tagbar/wiki) to see whether other projects
 offer support for them and how to use them. Please add any other
 projects/configurations that you find or create yourself so that others can
 benefit from them, too.
@@ -78,7 +78,7 @@ please report it on their website instead, as there is nothing I can do about
 it in Tagbar. Thank you!
 
 You can also have a look at [ctags bugs that have previously been filed
-against Tagbar](https://github.com/majutsushi/tagbar/issues?labels=ctags-bug&page=1&state=closed).
+against Tagbar](https://github.com/preservim/tagbar/issues?labels=ctags-bug&page=1&state=closed).
 
 ## Screenshots
 
@@ -87,8 +87,11 @@ against Tagbar](https://github.com/majutsushi/tagbar/issues?labels=ctags-bug&pag
 
 ## License
 
-Vim license, see LICENSE
+Tagbar is distributed under the terms of the *Vim license*, see the included [LICENSE](LICENSE) file.
 
-## Maintainer
+## Contributors
 
-Jan Larres <[jan@majutsushi.net](mailto:jan@majutsushi.net)>
+Tagbar was originally written by [Jan Larres](https://github.com/majutsushi).
+It is actively maintained by [Caleb Maclennan](https://github.com/alerque).
+At least [45 others have contributed](https://github.com/preservim/tagbar/graphs/contributors) features and bug fixes over the years.
+Please document [issues](https://github.com/preservim/tagbar/issues) or submit [pull requests](https://github.com/preservim/tagbar/issues) on Github.

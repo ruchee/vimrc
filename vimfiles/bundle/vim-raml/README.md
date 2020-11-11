@@ -1,6 +1,10 @@
 # vim-raml
 Vim syntax and language settings for RAML
 
+## UPDATE
+
+`vim-raml` is now a part of [Vim 8](https://github.com/vim/vim/blob/master/runtime/syntax/raml.vim) and [NeoVim](https://github.com/neovim/neovim/blob/master/runtime/syntax/raml.vim)! You likely don't need this unless you're using Vim 7.x.
+
 ## About
 
 vim-raml is a superset of Vim's own syntax settings for YAML, as RAML itself is a superset of YAML. Obviously, filetype detection is provided for RAML files as well to make use of the expanded syntax, as well language formatting defaults.

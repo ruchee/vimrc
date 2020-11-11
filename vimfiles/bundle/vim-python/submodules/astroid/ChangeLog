@@ -2,6 +2,510 @@
 astroid's ChangeLog
 ===================
 
+What's New in astroid 2.4.2?
+============================
+Release Date: 2020-06-08
+
+* `FunctionDef.is_generator` properly handles `yield` nodes in `While` tests
+
+  Close PyCQA/pylint#3519
+
+* Properly construct the arguments of infered property descriptors
+
+  Close PyCQA/pylint#3648
+
+
+What's New in astroid 2.4.1?
+============================
+Release Date: 2020-05-05
+
+* Handle the case where the raw builder fails to retrieve the ``__all__`` attribute
+
+  Close #772
+
+* Restructure the AST parsing heuristic to always pick the same module
+
+  Close PyCQA/pylint#3540
+  Close #773
+
+* Changed setup.py to work with [distlib](https://pypi.org/project/distlib)
+
+  Close #779
+
+* Do not crash with SyntaxError when parsing namedtuples with invalid label
+
+  Close PyCQA/pylint#3549
+
+* Protect against ``infer_call_result`` failing with `InferenceError` in `Super.getattr()`
+
+  Close PyCQA/pylint#3529
+
+
+What's New in astroid 2.4.0?
+============================
+Release Date: 2020-04-27
+
+* Expose a ast_from_string method in AstroidManager, which will accept
+  source code as a string and return the corresponding astroid object
+
+  Closes PyCQA/astroid#725
+
+* ``BoundMethod.implicit_parameters`` returns a proper value for ``__new__``
+
+  Close PyCQA/pylint#2335
+
+* Allow slots added dynamically to a class to still be inferred
+
+  Close PyCQA/pylint#2334
+
+* Allow `FunctionDef.getattr` to look into both instance attrs and special attributes
+
+  Close PyCQA/pylint#1078
+
+* Infer qualified ``classmethod`` as a classmethod.
+
+  Close PyCQA/pylint#3417
+
+* Prevent a recursion error to happen when inferring the declared metaclass of a class
+
+  Close #749
+
+* Raise ``AttributeInferenceError`` when ``getattr()`` receives an empty name
+
+  Close PyCQA/pylint#2991
+
+* Prevent a recursion error for self reference variables and `type()` calls.
+
+  Close #199
+
+* Do not infer the first argument of a staticmethod in a metaclass as the class itself
+
+  Close PyCQA/pylint#3032
+
+* ``NodeNG.bool_value()`` gained an optional ``context`` parameter
+
+  We need to pass an inference context downstream when inferring the boolean
+  value of a node in order to prevent recursion errors and double inference.
+
+  This fix prevents a recursion error with dask library.
+
+  Close PyCQA/pylint#2985
+
+* Pass a context argument to ``astroid.Arguments`` to prevent recursion errors
+
+  Close PyCQA/pylint#3414
+
+* Better inference of class and static methods decorated with custom methods
+
+  Close PyCQA/pylint#3209
+
+* Reverse the order of decorators for `infer_subscript`
+
+  `path_wrapper` needs to come first, followed by `raise_if_nothing_inferred`,
+  otherwise we won't handle `StopIteration` correctly.
+
+  Close #762
+
+* Prevent a recursion error when inferring self-referential variables without definition
+
+  Close PyCQA/pylint#1285
+
+* Numpy `datetime64.astype` return value is inferred as a `ndarray`.
+
+  Close PyCQA/pylint#3332
+
+* Skip non ``Assign`` and ``AnnAssign`` nodes from enum reinterpretation
+
+  Closes PyCQA/pylint#3365
+
+* Numpy ``ndarray`` attributes ``imag`` and ``real`` are now inferred as ``ndarray``.
+
+  Close PyCQA/pylint#3322
+
+* Added a call to ``register_transform`` for all functions of the ``brain_numpy_core_multiarray``
+  module in case the current node is an instance of ``astroid.Name``
+
+  Close #666
+
+* Use the parent of the node when inferring aug assign nodes instead of the statement
+
+  Close PyCQA/pylint#2911
+  Close PyCQA/pylint#3214
+
+* Added some functions to the ``brain_numpy_core_umath`` module
+
+  Close PyCQA/pylint#3319
+
+* Added some functions of the ``numpy.core.multiarray`` module
+
+  Close PyCQA/pylint#3208
+
+* All the ``numpy ufunc`` functions derived now from a common class that
+  implements the specific ``reduce``, ``accumulate``, ``reduceat``,
+	``outer`` and ``at`` methods.
+
+  Close PyCQA/pylint#2885
+
+* ``nodes.Const.itered`` returns a list of ``Const`` nodes, not strings
+
+  Close PyCQA/pylint#3306
+
+* The ``shape`` attribute of a ``numpy ndarray`` is now a ``ndarray``
+
+  Close PyCQA/pylint#3139
+
+* Don't ignore special methods when inspecting gi classes
+
+  Close #728
+
+* Added transform for ``scipy.gaussian``
+
+* Add suport for inferring properties.
+
+* Added a brain for ``responses``
+
+* Allow inferring positional only arguments.
+
+* Retry parsing a module that has invalid type comments
+
+  It is possible for a module to use comments that might be interpreted
+  as type comments by the `ast` library. We do not want to completely crash on those
+  invalid type comments.
+
+  Close #708
+
+* Scope the inference to the current bound node when inferring instances of classes
+
+  When inferring instances of classes from arguments, such as ``self``
+  in a bound method, we could use as a hint the context's ``boundnode``,
+  which indicates the instance from which the inference originated.
+  As an example, a subclass that uses a parent's method which returns
+  ``self``, will override the ``self`` to point to it instead of pointing
+  to the parent class.
+
+  Close PyCQA/pylint#3157
+
+* Add support for inferring exception instances in all contexts
+
+  We were able to infer exception instances as ``ExceptionInstance``
+  only for a handful of cases, but not all. ``ExceptionInstance`` has
+  support for better inference of `.args` and other exception related
+  attributes that normal instances do not have.
+  This additional support should remove certain false positives related
+  to ``.args`` and other exception attributes in ``pylint``.
+
+  Close PyCQA/pylint#2333
+
+* Add more supported parameters to ``subprocess.check_output``
+
+  Close #722
+
+* Infer args unpacking of ``self``
+
+  Certain stdlib modules use ``*args`` to encapsulate
+  the ``self`` parameter, which results in uninferable
+  instances given we rely on the presence of the ``self``
+  argument to figure out the instance where we should be
+  setting attributes.
+
+  Close PyCQA/pylint#3216
+
+* Clean up setup.py
+
+  Make pytest-runner a requirement only if running tests, similar to what was
+  done with McCabe.
+
+  Clean up the setup.py file, resolving a handful of minor warnings with it.
+
+* Handle StopIteration error in infer_int.
+
+  Close PyCQA/pylint#3274
+
+* Can access per argument type comments for positional only and keyword only arguments.
+
+  The comments are accessed through through the new
+  ``Arguments.type_comment_posonlyargs`` and
+  ``Arguments.type_comment_kwonlyargs`` attributes respectively.
+
+* Relax upper bound on `wrapt`
+
+  Close #755
+
+* Properly analyze CFFI compiled extensions.
+
+What's New in astroid 2.3.2?
+============================
+Release Date: TBA
+
+* All type comments have as parent the corresponding `astroid` node
+
+  Until now they had as parent the builtin `ast` node which meant
+  we were operating with primitive objects instead of our own.
+
+  Close PyCQA/pylint#3174
+
+
+* Pass an inference context to `metaclass()` when inferring an object type
+
+  This should prevent a bunch of recursion errors happening in pylint.
+  Also refactor the inference of `IfExp` nodes to use separate contexts
+  for each potential branch.
+
+  Close PyCQA/pylint#3152
+  Close PyCQA/pylint#3159
+
+
+What's New in astroid 2.3.1?
+============================
+Release Date: 2019-09-30
+
+* A transform for the builtin `dataclasses` module was added.
+
+  This should address various `dataclasses` issues that were surfaced
+  even more after the release of pylint 2.4.0.
+  In the previous versions of `astroid`, annotated assign nodes were
+  allowed to be retrieved via `getattr()` but that no longer happens
+  with the latest `astroid` release, as those attribute are not actual
+  attributes, but rather virtual ones, thus an operation such as `getattr()`
+  does not make sense for them.
+
+* Update attr brain to partly understand annotated attributes
+
+  Close #656
+
+
+What's New in astroid 2.3.0?
+============================
+Release Date: 2019-09-24
+
+* Add a brain tip for ``subprocess.check_output``
+
+  Close #689
+
+* Remove NodeNG.nearest method because of lack of usage in astroid and pylint.
+
+  Close #691
+
+* Allow importing wheel files. Close #541
+
+* Annotated AST follows PEP8 coding style when converted to string.
+
+* Fix a bug where defining a class using type() could cause a DuplicateBasesError.
+
+  Close #644
+
+* Dropped support for Python 3.4.
+
+* Numpy brain support is improved.
+
+  Numpy's fundamental type ``numpy.ndarray`` has its own brain : ``brain_numpy_ndarray`` and
+  each numpy module that necessitates brain action has now its own numpy brain :
+
+    - ``numpy.core.numeric``
+    - ``numpy.core.function_base``
+    - ``numpy.core.multiarray``
+    - ``numpy.core.numeric``
+    - ``numpy.core.numerictypes``
+    - ``numpy.core.umath``
+    - ``numpy.random.mtrand``
+
+  Close PyCQA/pylint#2865
+  Close PyCQA/pylint#2747
+  Close PyCQA/pylint#2721
+  Close PyCQA/pylint#2326
+  Close PyCQA/pylint#2021
+
+* ``assert`` only functions are properly inferred as returning ``None``
+
+  Close #668
+
+* Add support for Python 3.8's `NamedExpr` nodes, which is part of assignment expressions.
+
+  Close #674
+
+* Added support for inferring `IfExp` nodes.
+
+* Instances of exceptions are inferred as such when inferring in non-exception context
+
+  This allows special inference support for exception attributes such as `.args`.
+
+  Close PyCQA/pylint#2333
+
+* Drop a superfluous and wrong callcontext when inferring the result of a context manager
+
+  Close PyCQA/pylint#2859
+
+* ``igetattr`` raises ``InferenceError`` on re-inference of the same object
+
+  This prevents ``StopIteration`` from leaking when we encounter the same
+  object in the current context, which could result in various ``RuntimeErrors``
+  leaking in other parts of the inference.
+  Until we get a global context per inference, the solution is sort of a hack,
+  as with the suggested global context improvement, we could theoretically
+  reuse the same inference object.
+
+  Close #663
+
+* Variable annotations can no longer be retrieved with `ClassDef.getattr`
+
+  Unless they have an attached value, class variable annotations can no longer
+  be retrieved with `ClassDef.getattr.`
+
+* Improved builtin inference for ``tuple``, ``set``, ``frozenset``, ``list`` and ``dict``
+
+  We were properly inferring these callables *only* if they had consts as
+  values, but that is not the case most of the time. Instead we try to infer
+  the values that their arguments can be and use them instead of assuming
+  Const nodes all the time.
+
+  Close PyCQA/pylint#2841
+
+* The last except handler wins when inferring variables bound in an except handler.
+
+  Close PyCQA/pylint#2777
+
+
+* ``threading.Lock.locked()`` is properly recognized as a member of ``threading.Lock``
+
+  Close PyCQA/pylint#2791
+
+
+* Fix recursion error involving ``len`` and self referential attributes
+
+  Close PyCQA/pylint#2736
+  Close PyCQA/pylint#2734
+  Close PyCQA/pylint#2740
+
+* Can access per argument type comments through new ``Arguments.type_comment_args`` attribute.
+
+  Close #665
+
+* Fix being unable to access class attributes on a NamedTuple.
+
+  Close PyCQA/pylint#1628
+
+* Fixed being unable to find distutils submodules by name when in a virtualenv.
+
+  Close PyCQA/pylint#73
+
+What's New in astroid 2.2.0?
+============================
+Release Date: 2019-02-27
+
+
+* Fix a bug concerning inference of calls to numpy function that should not return Tuple or List instances.
+
+ Close PyCQA/pylint#2436
+
+* Fix a bug where a method, which is a lambda built from a function, is not inferred as ``BoundMethod``
+
+  Close PyCQA/pylint#2594
+
+* ``typed_ast`` gets installed for Python 3.7, meaning type comments can now work on 3.7.
+
+* Fix a bug concerning inference of unary operators on numpy types.
+
+  Close PyCQA/pylint#2436 (first part)
+
+* Fix a crash with ``typing.NamedTuple`` and empty fields. Close PyCQA/pylint#2745
+
+* Add a proper ``strerror`` inference to the ``OSError`` exceptions.
+
+  Close PyCQA/pylint#2553
+
+* Support non-const nodes as values of Enum attributes.
+
+  Close #612
+
+* Fix a crash in the ``enum`` brain tip caused by non-assign members in class definitions.
+
+  Close PyCQA/pylint#2719
+
+* ``brain_numpy`` returns an undefined type for ``numpy`` methods to avoid ``assignment-from-no-return``
+
+  Close PyCQA/pylint#2694
+
+* Fix a bug where a call to a function that has been previously called via
+  functools.partial was wrongly inferred
+
+  Close PyCQA/pylint#2588
+
+* Fix a recursion error caused by inferring the ``slice`` builtin.
+
+  Close PyCQA/pylint#2667
+
+* Remove the restriction that "old style classes" cannot have a MRO.
+
+  This does not make sense any longer given that we run against Python 3
+  code.
+  Close PyCQA/pylint#2701
+
+* Added more builtin exceptions attributes. Close #580
+
+* Add a registry for builtin exception models. Close PyCQA/pylint#1432
+
+* Add brain tips for `http.client`. Close PyCQA/pylint#2687
+
+* Prevent crashing when processing ``enums`` with mixed single and double quotes.
+
+  Close PyCQA/pylint#2676
+
+* ``typing`` types have the `__args__` property. Close PyCQA/pylint#2419
+
+* Fix a bug where an Attribute used as a base class was triggering a crash
+
+  Close #626
+
+* Added special support for `enum.IntFlag`
+
+  Close PyCQA/pylint#2534
+
+* Extend detection of data classes defined with attr
+
+  Close #628
+
+* Fix typo in description for brain_attrs
+
+
+What's New in astroid 2.1.0?
+============================
+Release Date: 2018-11-25
+
+   * ``threading.Lock.acquire`` has the ``timeout`` parameter now.
+
+     Close PyCQA/pylint#2457
+
+   * Pass parameters by keyword name when inferring sequences.
+
+     Close PyCQA/pylint#2526
+
+   * Correct line numbering for f-strings for complex embedded expressions
+
+     When a f-string contained a complex expression, such as an attribute access,
+     we weren't cloning all the subtree of the f-string expression for attaching the correct
+     line number. This problem is coming from the builtin AST parser which gives for the f-string
+     and for its underlying elements the line number 1, but this is causing all sorts of bugs and
+     problems in pylint, which expects correct line numbering.
+
+     Close PyCQA/pylint#2449
+
+   * Add support for `argparse.Namespace`
+
+     Close PyCQA/pylint#2413
+
+   * `async` functions are now inferred as `AsyncGenerator` when inferring their call result.
+
+   * Filter out ``Uninferable`` when inferring the call result result of a class with an uninferable ``__call__`` method.
+
+     Close PyCQA/pylint#2434
+
+   * Make compatible with AST changes in Python 3.8.
+
+   * Subscript inference (e.g. "`a[i]`") now pays attention to multiple inferred values for value
+     (e.g. "`a`") and slice (e.g. "`i`")
+
+     Close #614
+
 What's New in astroid 2.0.4?
 ============================
 Release Date: 2018-08-10
@@ -50,7 +554,7 @@ What's New in astroid 2.0?
 ==========================
 
 Release Date: 2018-07-15
-   
+
    * String representation of nodes takes in account precedence and associativity rules of operators.
 
    * Fix loading files with `modutils.load_from_module` when
@@ -334,7 +838,7 @@ Release Date: 2017-04-13
 
       This new attribute holds the annotations for the keyword-only
       arguments.
-      
+
     * `namedtuple` inference now understands `rename` keyword argument
 
     * Classes can now know their definition-time arguments.
@@ -417,7 +921,7 @@ Release Date: 2017-04-13
 
     * Don't take in consideration invalid assignments, especially when __slots__
       declaration forbids them.
-      
+
       Close issue #332
 
     * Functional form of enums support accessing values through __call__.
@@ -449,7 +953,7 @@ Release Date: 2017-04-13
       When looking up a name in a scope, Scope.lookup will return
       only the values which will be reachable after execution, as seen
       in the following code:
-      
+
            a = 1
            a = 2
 
@@ -481,7 +985,7 @@ Release Date: 2017-04-13
 
     * relative_to_absolute_name or methods calling it will now raise
       TooManyLevelsError when a relative import was trying to
-      access something beyond the top-level package.     
+      access something beyond the top-level package.
 
     * AstroidBuildingException is now AstroidBuildingError. The first
       name will exist until astroid 2.0.
@@ -498,7 +1002,7 @@ Release Date: 2017-04-13
       Closes issue #273. Patch by notsqrt.
 
     * assigned_stmts methods have the same signature from now on.
-      
+
       They used to have different signatures and each one made
       assumptions about what could be passed to other implementations,
       leading to various possible crashes when one or more arguments
@@ -539,7 +1043,7 @@ What's New in astroid 1.4.0?
 ============================
 
 Release Date: 2015-11-29
- 
+
 
     * Class.getattr('__mro__') returns the actual MRO. Closes issue #128.
 
@@ -560,7 +1064,7 @@ Release Date: 2015-11-29
     * Add some fixes which enhances the Jython support.
       The fix mostly includes updates to modutils, which is
       modified in order to properly lookup paths from live objects,
-      which ends in $py.class, not pyc as for Python 2,       
+      which ends in $py.class, not pyc as for Python 2,
       Closes issue #83.
 
     * The Generator objects inferred with `infer_call_result`
@@ -598,7 +1102,7 @@ Release Date: 2015-11-29
       bases.Proxy and bases.Proxy doesn't implement the .getattr method.
       Closes issue #91.
 
-    * Don't hard fail when calling .mro() on a class which has 
+    * Don't hard fail when calling .mro() on a class which has
       combined both newstyle and old style classes. The class
       in question is actually newstyle (and the __mro__ can be
       retrieved using Python).
@@ -618,7 +1122,7 @@ Release Date: 2015-11-29
       retrieves the first value inferred from a base.
 
     * Expose an implicit_metaclass() method in Class. This will return
-      a builtins.type instance for newstyle classes. 
+      a builtins.type instance for newstyle classes.
 
     * Add two new exceptions for handling MRO error cases. DuplicateBasesError
       is emitted when duplicate bases are found in a class,
@@ -761,7 +1265,7 @@ Release Date: 2015-11-29
 
     * Add support for indexing bytes on Python 3.
 
-    * Add support for inferring subscript on instances, which will 
+    * Add support for inferring subscript on instances, which will
       use __getitem__. Closes issue #124.
 
     * Add support for pkg_resources.declare_namespaces.
@@ -814,7 +1318,7 @@ Release Date: 2015-11-29
             AstroidBuilder._data_build.
 
       Closes issue #116.
-    
+
     * Class._explicit_metaclass is now a public API, in the form of
       Class.declared_metaclass.
 
@@ -865,7 +1369,7 @@ Release Date: 2015-11-29
       since it just uses None to represent this kind of operation,
       which seems conceptually wrong, due to the fact the AST contains
       non-AST nodes. Closes issue #206.
-     
+
 
 
 
@@ -917,7 +1421,7 @@ Release Date: 2015-03-11
     * Implement the assigned_stmts operation for Starred nodes,
       which was omitted when support for Python 3 was added in astroid.
       Closes issue #36.
-           
+
 
 
 What's New in astroid 1.3.4?
@@ -976,7 +1480,7 @@ Release Date: 2014-11-22
 
 
     * Fixed a crash with invalid subscript index.
- 
+
     * Implement proper base class semantics for Python 3, where
       every class derives from object.
 
@@ -989,7 +1493,7 @@ What's New in astroid 1.3.1?
 
 Release Date: 2014-11-21
 
-   
+
     * Fixed a crash issue with the pytest brain module.
 
 
@@ -1037,7 +1541,7 @@ Release Date: 2014-11-20
     * astroid.register_module_extender has been added to generalize
       the support for module extenders as used by many brain plugins.
 
-    * brain plugins can now register hooks to handle failed imports, 
+    * brain plugins can now register hooks to handle failed imports,
       as done by the gobject-introspection plugin.
 
     * The modules have been moved to a separate package directory,
@@ -1864,6 +2368,3 @@ Release Date: 2005-10-21
       longer be maintained (this explains that this package is starting with
       the 0.13 version number, since the fork occurs with the version
       released in logilab-common 0.12).
-
-
-

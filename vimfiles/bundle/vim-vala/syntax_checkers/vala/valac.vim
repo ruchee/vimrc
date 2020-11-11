@@ -36,7 +36,8 @@ function! SyntaxCheckers_vala_valac_GetLocList() dict " {{{1
     let errorformat =
         \ '%A%f:%l.%c-%\d%\+.%\d%\+: %t%[a-z]%\+: %m,'.
         \ '%C%m,'.
-        \ '%Z%m'
+        \ '%Z%m,'.
+        \ 'error: %m'
 
     return SyntasticMake({
         \ 'makeprg': makeprg,

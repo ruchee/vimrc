@@ -77,13 +77,13 @@ Module, Class, Function etc. In our case we need to transform a class. It can be
     if cls.name == 'WarningMessage':
       import warnings
       for f in warnings.WarningMessage._WARNING_DETAILS:
-        cls.locals[f] = [astroid.Class(f, None)]
+        cls.locals[f] = [astroid.ClassDef(f, None)]
 
-  MANAGER.register_transform(astroid.Class, transform)
+  MANAGER.register_transform(astroid.ClassDef, transform)
 
 Let's go through the plugin. First, we need to register a class transform, which
 is done via the ``register_transform`` function in ``MANAGER``. It takes the node
-type and function as parameters. We need to change a class, so we use ``astroid.Class``.
+type and function as parameters. We need to change a class, so we use ``astroid.ClassDef``.
 We also pass a ``transform`` function which does the actual transformation.
 
 ``transform`` function is simple as well. If the class is ``WarningMessage`` then we
@@ -101,9 +101,9 @@ Lets run Pylint with this plugin and see:
   amitdev$
 
 All the false positives associated with ``WarningMessage`` are now gone. This is just
-an example, any code transformation can be done by plugins. 
+an example, any code transformation can be done by plugins.
 
 See `astroid/brain`_ for real life examples of transform plugins.
 
-.. _`warnings.py`: http://hg.python.org/cpython/file/2.7/Lib/warnings.py
+.. _`warnings.py`: https://hg.python.org/cpython/file/2.7/Lib/warnings.py
 .. _`astroid/brain`: https://github.com/PyCQA/astroid/tree/master/astroid/brain

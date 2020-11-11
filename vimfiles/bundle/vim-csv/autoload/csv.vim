@@ -67,11 +67,19 @@ fu! csv#Init(start, end, ...) "{{{3
     else
         let b:csv_cmt = split(g:csv_comment, '%s')
     endif
+    " Make sure it is a list with 2 chars
+    if b:csv_cmt == []
+        let b:csv_cmt = ["", ""]
+    endif
 
     if empty(b:delimiter) && !exists("b:csv_fixed_width")
-        call csv#Warn("No delimiter found. See :h csv-delimiter to set it manually!")
-        " Use a sane default as delimiter:
-        let b:delimiter = ','
+        if !exists("g:csv_default_delim")
+          call csv#Warn("No delimiter found. See :h csv-delimiter to set it manually!")
+          " Use a sane default as delimiter:
+          let b:delimiter = ','
+        else
+          let b:delimiter = g:csv_default_delim
+        endif
     endif
 
     let s:del='\%(' . b:delimiter . '\|$\)'
@@ -261,7 +269,7 @@ fu! csv#GetPat(colnr, maxcolnr, pat, allowmore) "{{{3
             " Allow space in front of the pattern, so that it works correctly
             " even if :Arrange Col has been used #100
             return '^' . csv#GetColPat(a:colnr - 1,0) .
-                \ '\s*\zs' . a:pat . '\ze' . (a:allowmore ? '' : '$')
+                \ '.*\zs' . a:pat . '\ze' . (a:allowmore ? '' : '$')
         else
             return '\%' . b:csv_fixed_width_cols[-1] .
                 \ 'c\zs' . a:pat . '\ze' . (a:allowmore ? '' : '$')
@@ -498,7 +506,7 @@ fu! csv#WColumn(...) "{{{3
     " Return on which column the cursor is
     let _cur = getpos('.')
     if !exists("b:csv_fixed_width_cols")
-        if line('.') > 1 && mode('') != 'n'
+        if line('.') > 1 && mode('') != 'n' && empty(getline('.')[0:col('.')-1])
             " in insert mode, get line from above, just in case the current
             " line is empty
             let line = getline(line('.')-1)
@@ -633,8 +641,12 @@ fu! csv#ArrangeCol(first, last, bang, limit, ...) range "{{{3
         return
     endif
     let cur=winsaveview()
+    " be sure, that b:col_width is actually valid
+    if exists("b:col_width") && eval(join(b:col_width, '+')) == 0
+        unlet! b:col_width
+    endif
     " Force recalculation of Column width
-    let row = exists("a:1") ? a:1 : line('$')
+    let row = exists("a:1") && !empty(a:1) ? a:1 : line('$')
     if a:bang || !empty(row)
         if a:bang && exists("b:col_width")
           " Unarrange, so that if csv_arrange_align has changed
@@ -752,6 +764,10 @@ fu! csv#CalculateColumnWidth(row, silent) "{{{3
     " does not work with fixed width columns
     " row for the row for which to calculate the width
     let b:col_width=[]
+    if has( 'vartabs' ) && b:delimiter == "\t"
+        let vts_save=&vts
+        set vts=
+    endif
     try
         if exists("b:csv_headerline")
           if line('.') < b:csv_headerline
@@ -770,6 +786,9 @@ fu! csv#CalculateColumnWidth(row, silent) "{{{3
     " delete buffer content in variable b:csv_list,
     " this was only necessary for calculating the max width
     unlet! b:csv_list s:columnize_count s:decimal_column
+    if has( 'vartabs' ) && b:delimiter == "\t"
+        let &vts=vts_save
+    endif
 endfu
 fu! csv#Columnize(field) "{{{3
     " Internal function, not called from external,
@@ -1433,7 +1452,7 @@ fu! csv#SumColumn(list) "{{{3
         let b:csv_result = '0'
         return 0
     else
-        let sum = has("float") ? 0.0 : 0
+        let sum = 0.0
         for item in a:list
             if empty(item)
                 continue
@@ -1443,33 +1462,25 @@ fu! csv#SumColumn(list) "{{{3
             let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
             try
                 let nr = substitute(nr, format1, '', '')
-                if has("float") && s:nr_format[1] != '.'
+                if s:nr_format[1] != '.'
                     let nr = substitute(nr, format2, '.', '')
                 endif
             catch
-                let nr = 0
+                let nr = '0'
             endtry
-            let sum += (has("float") ? str2float(nr) : (nr + 0))
+            let sum += str2float(nr)
         endfor
-        if has("float")
-            let b:csv_result = string(float2nr(sum))
-            if float2nr(sum) == sum
-                return float2nr(sum)
-            else
-                return printf("%.2f", sum)
-            endif
-        endif
-        let b:csv_result = string(sum)
-        return sum
+        let b:csv_result = sum
+        return printf("%.2f", sum)
     endif
 endfu
 fu! csv#AvgColumn(list) "{{{3
     if empty(a:list)
         let b:csv_result = '0'
-        return 0
+        return 0.0
     else
         let cnt = 0
-        let sum = has("float") ? 0.0 : 0
+        let sum = 0.0
         for item in a:list
             if empty(item)
                 continue
@@ -1479,30 +1490,25 @@ fu! csv#AvgColumn(list) "{{{3
             let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
             try
                 let nr = substitute(nr, format1, '', '')
-                if has("float") && s:nr_format[1] != '.'
+                if s:nr_format[1] != '.'
                     let nr = substitute(nr, format2, '.', '')
                 endif
             catch
-                let nr = 0
+                let nr ='0'
             endtry
-            let sum += (has("float") ? str2float(nr) : (nr + 0))
+            let sum += str2float(nr)
             let cnt += 1
         endfor
-        if has("float")
-            let b:csv_result = printf("%.2f", sum/cnt)
-            return b:csv_result
-        else
-            let b:csv_result = printf("%s", sum/cnt)
-            return sum/cnt
-        endif
+        let b:csv_result = printf("%.2f", sum/cnt)
+        return sum/cnt
     endif
 endfu
 fu! csv#VarianceColumn(list, is_population) "{{{3
     if empty(a:list)
-        return 0
+        return 0.0
     else
         let cnt = 0
-        let sum = has("float") ? 0.0 : 0
+        let sum = 0.0
         let avg = csv#AvgColumn(a:list)
         for item in a:list
             if empty(item)
@@ -1513,64 +1519,64 @@ fu! csv#VarianceColumn(list, is_population) "{{{3
             let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
             try
                 let nr = substitute(nr, format1, '', '')
-                if has("float") && s:nr_format[1] != '.'
+                if s:nr_format[1] != '.'
                     let nr = substitute(nr, format2, '.', '')
                 endif
             catch
-                let nr = 0
+                let nr = '0'
             endtry
-            let sum += pow((has("float") ? (str2float(nr)-avg) : ((nr + 0)-avg)), 2)
+            let nr = str2float(nr)
+            let sum += pow((nr-avg), 2)
             let cnt += 1
         endfor
         if(a:is_population == 0)
             let cnt = cnt-1
         endif
-        if has("float")
-            let b:csv_result = printf("%.2f", sum/cnt)
-            return b:csv_result
-        else
-            let b:csv_result = printf("%s", sum/cnt)
-            return sum/(cnt)
-        endif
+        let b:csv_result = sum/cnt
+        return b:csv_result
     endif
 endfu
 
 fu! csv#SmplVarianceColumn(list) "{{{2
+    unlet! b:csv_result
     if empty(a:list)
-        let b:csv_result = '0'
-        return 0
+        let b:csv_result = 0.0
+        return 0.0
     else
         return csv#VarianceColumn(a:list, 0)
     endif
 endfu
 
 fu! csv#PopVarianceColumn(list) "{{{2
+    unlet! b:csv_result
     if empty(a:list)
-        let b:csv_result = '0'
-        return 0
+        let b:csv_result = 0.0
+        return 0.0
     else
         return csv#VarianceColumn(a:list, 1)
     endif
 endfu
 
 fu! csv#SmplStdDevColumn(list) "{{{2
+    unlet! b:csv_result
     if empty(a:list)
-        let b:csv_result = '0'
-        return 0
+        let b:csv_result = 0.0
+        return 0.0
     else
-        let result = sqrt(str2float(csv#VarianceColumn(a:list, 0)))
-        let b:csv_result = string(result)
+        let result = sqrt(csv#VarianceColumn(a:list, 0))
+        let b:csv_result = result
         return result
     endif
 endfu
 
 fu! csv#PopStdDevColumn(list) "{{{2
+    unlet! b:csv_result
     if empty(a:list)
-        let b:csv_result = '0'
-        return 0
+        let b:csv_result = 0.0
+        return 0.0
     else
-        let result = sqrt(str2float(csv#VarianceColumn(a:list, 1)))
-        let b:csv_result = string(result)
+        let result = sqrt(csv#VarianceColumn(a:list, 1))
+        let b:csv_result = result
         return result
     endif
 endfu
@@ -1593,13 +1599,13 @@ fu! csv#MaxColumn(list) "{{{3
             let format2 = '\d\+\zs\V' . s:nr_format[1] . '\m\ze\d'
             try
                 let nr = substitute(nr, format1, '', '')
-                if has("float") && s:nr_format[1] != '.'
+                if s:nr_format[1] != '.'
                     let nr = substitute(nr, format2, '.', '')
                 endif
             catch
-                let nr = 0
+                let nr = '0'
             endtry
-            call add(result, has("float") ? str2float(nr) : nr+0)
+            call add(result, str2float(nr))
         endfor
         let result = sort(result, s:csv_numeric_sort ? 'n' : 'csv#CSVSortValues')
         let ind = len(result) > 9 ? 9 : len(result)
@@ -1939,8 +1945,12 @@ fu! csv#CheckHeaderLine() "{{{3
 endfu
 fu! csv#AnalyzeColumn(...) "{{{3
     let maxcolnr = csv#MaxColumns()
-    if len(a:000) == 1
+    let topn = 5
+    if len(a:000) > 0
         let colnr = a:1
+        if len(a:000) == 2
+            let topn = a:2
+        endif
     else
         let colnr = csv#WColumn()
     endif
@@ -1968,16 +1978,13 @@ fu! csv#AnalyzeColumn(...) "{{{3
     let max_items = reverse(sort(values(res), s:csv_numeric_sort ? 'n' : 'csv#CSVSortValues'))
     " What about the minimum 5 items?
     let count_items = keys(res)
-    if len(max_items) > 5
-        call remove(max_items, 5, -1)
+    if len(max_items) > topn
+        call remove(max_items, topn, -1)
         call map(max_items, 'printf(''\V%s\m'', escape(v:val, ''\\''))')
         call filter(res, 'v:val =~ ''^''.join(max_items, ''\|'').''$''')
     endif
 
-    if has("float")
-        let  title="Nr\tCount\t % \tValue"
-    else
-        let  title="Nr\tCount\tValue"
+    let  title="Nr\tCount\t % \tValue"
     endif
     echohl Title
     echo printf("%s", title)
@@ -1993,12 +2000,8 @@ fu! csv#AnalyzeColumn(...) "{{{3
                 else
                     let k = key
                 endif
-                if has("float")
-                    echo printf("%02d\t%02d\t%2.0f%%\t%.50s", i, res[key],
-                        \ ((res[key] + 0.0)/qty)*100, k)
-                else
-                    echo printf("%02d\t%02d\t%.50s", i, res[key], k)
-                endif
+                echo printf("%02d\t%02d\t%2.0f%%\t%.50s", i, res[key],
+                    \ ((res[key] + 0.0)/qty)*100, k)
                 call remove(res,key)
                 let i+=1
             else
@@ -2246,7 +2249,7 @@ fu! csv#CommandDefinitions() "{{{3
         \ ':echo csv#EvalColumn(<q-args>, "csv#SmplStdDevColumn", <line1>,<line2>)',
         \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
     call csv#LocalCmd("PopStdCol",
-        \ ':echo csv#EvalColumn(<q-args>, "csv#SmplStdDevColumn", <line1>,<line2>)',
+        \ ':echo csv#EvalColumn(<q-args>, "csv#PopStdDevColumn", <line1>,<line2>)',
         \ '-nargs=? -range=% -complete=custom,csv#SortComplete')
     call csv#LocalCmd("UnArrangeColumn",
         \':call csv#PrepUnArrangeCol(<line1>, <line2>)',
@@ -2294,8 +2297,8 @@ fu! csv#CommandDefinitions() "{{{3
         \ '-bang -nargs=? -range=%')
     call csv#LocalCmd("Filters", ':call csv#OutputFilters(<bang>0)',
         \ '-nargs=0 -bang')
-    call csv#LocalCmd("Analyze", ':call csv#AnalyzeColumn(<args>)',
-        \ '-nargs=?')
+    call csv#LocalCmd("Analyze", ':call csv#AnalyzeColumn(<f-args>)',
+        \ '-nargs=*' )
     call csv#LocalCmd("VertFold", ':call csv#Vertfold(<bang>0,<q-args>)',
         \ '-bang -nargs=? -range=% -complete=custom,csv#SortComplete')
     call csv#LocalCmd("CSVFixed", ':call csv#InitCSVFixedWidth()', '')
@@ -2329,7 +2332,7 @@ fu! csv#ColumnWidth()
 endfu
 
 fu! csv#Map(map, name, definition, ...) "{{{3
-    let keyname = substitute(a:name, '[<>]', '', 'g')
+    let keyname = substitute(substitute(a:name, '[<>]', '', 'g'), '-', '_', 'g')
     let expr = (exists("a:1") && a:1 == 'expr'  ? '<expr>' : '')
     if !get(g:, "csv_nomap_". tolower(keyname), 0)
         " All mappings are buffer local
@@ -2927,6 +2930,11 @@ fu! csv#EvalColumn(nr, func, first, last, ...) range "{{{3
     " Make sure, the function is called for the correct filetype.
     if match(split(&ft, '\.'), 'csv') == -1
         call csv#Warn("File is no CSV file!")
+        return
+    endif
+    " Need a Vim with floating point feature
+    if !has("float")
+        call csv#Warn("Your Vim is missing floating point feature!")
         return
     endif
     let save = winsaveview()

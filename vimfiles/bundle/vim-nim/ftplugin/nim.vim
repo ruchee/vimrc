@@ -1,4 +1,4 @@
-if exists("b:nim_loaded")
+if exists('b:nim_loaded')
   finish
 endif
 

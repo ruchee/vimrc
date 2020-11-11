@@ -16,7 +16,16 @@ var htmlTempl = `
 
 Template Strings is available with [Babel](https://babeljs.io/), [google/traceur-compile](https://github.com/google/traceur-compiler) and [TypeScript](http://www.typescriptlang.org/).
 
-## How to install 
+## How to install
+
+## Vim 8 native plugins
+
+Replace "FOOBAR" with any directory name that you like:
+
+```
+$ mkdir -p ~/.vim/pack/FOOBAR/start/
+$ git clone https://github.com/Quramy/vim-js-pretty-template.git ~/.vim/pack/FOOBAR/start/vim-js-pretty-template
+```
 
 ### Vundle
 
@@ -55,40 +64,20 @@ git clone https://github.com/Quramy/vim-js-pretty-template.git ~/.vim/bundle/vim
 
 ## Usage
 
-This plugin provides the `:JsPreTmpl` command.  For example:
-
-```vim
-:JsPreTmpl html
-```
-
-Executing the above, a template string is highlighted with HTML way.
-
-This command requires an argument. It's a `FileType` name which you can apply into templates in your JavaScript code.
-
-If you want to apply automatically, you can append the following to your `.vimrc`:
-
-```vim
-autocmd FileType javascript JsPreTmpl html
-```
-
 ### Tagged Template Literal
-You can override the default rule defined `:JsPreTml` command with another rule using `jspretmpl#register_tag()` function. For example,
+Set the highlighting of template strings with the  `jspretmpl#register_tag()` function. For example,
 
 ```vim
 " Register tag name associated the filetype
 call jspretmpl#register_tag('gql', 'graphql')
 
-autocmd FileType javascript JsPreTmpl html
+autocmd FileType javascript JsPreTmpl
+autocmd FileType javascript.jsx JsPreTmpl
 ```
 
 Then your JavaScript codes are Highlighted as the following:
 
 ```javascript
-// HTML way default
-const template = `
-  <div>html</div>
-`;
-
 // GraphQL way if gql tagged
 const query = gql`
   fragment on User {
@@ -108,7 +97,7 @@ vim-js-pretty-template is also compatible for TypeScript, Dart and CoffeeScript.
 For example:
 
 ```vim
-autocmd FileType typescript JsPreTmpl markdown
+autocmd FileType typescript JsPreTmpl
 autocmd FileType typescript syn clear foldBraces " For leafgarland/typescript-vim users only. Please see #1 for details.
 ```
 
@@ -124,10 +113,10 @@ var tmpl: string = `
 or for example:
 
 ```vim
-autocmd FileType dart JsPreTmpl xml
+autocmd FileType dart JsPreTmpl
 ```
 
-then: 
+then:
 
 ```dart
 var tmpl = """

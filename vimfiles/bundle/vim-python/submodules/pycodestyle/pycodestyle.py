@@ -78,7 +78,7 @@ try:
 except ImportError:
     from ConfigParser import RawConfigParser
 
-__version__ = '2.4.0'
+__version__ = '2.6.0'
 
 DEFAULT_EXCLUDE = '.svn,CVS,.bzr,.hg,.git,__pycache__,.tox'
 DEFAULT_IGNORE = 'E121,E123,E126,E226,E24,E704,W503,W504'
@@ -113,11 +113,17 @@ PyCF_ONLY_AST = 1024
 SINGLETONS = frozenset(['False', 'None', 'True'])
 KEYWORDS = frozenset(keyword.kwlist + ['print', 'async']) - SINGLETONS
 UNARY_OPERATORS = frozenset(['>>', '**', '*', '+', '-'])
-ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-'])
+ARITHMETIC_OP = frozenset(['**', '*', '/', '//', '+', '-', '@'])
 WS_OPTIONAL_OPERATORS = ARITHMETIC_OP.union(['^', '&', '|', '<<', '>>', '%'])
+# Warn for -> function annotation operator in py3.5+ (issue 803)
+FUNCTION_RETURN_ANNOTATION_OP = ['->'] if sys.version_info >= (3, 5) else []
+ASSIGNMENT_EXPRESSION_OP = [':='] if sys.version_info >= (3, 8) else []
 WS_NEEDED_OPERATORS = frozenset([
     '**=', '*=', '/=', '//=', '+=', '-=', '!=', '<>', '<', '>',
-    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '='])
+    '%=', '^=', '&=', '|=', '==', '<=', '>=', '<<=', '>>=', '=',
+    'and', 'in', 'is', 'or'] +
+    FUNCTION_RETURN_ANNOTATION_OP +
+    ASSIGNMENT_EXPRESSION_OP)
 WHITESPACE = frozenset(' \t')
 NEWLINE = frozenset([tokenize.NL, tokenize.NEWLINE])
 SKIP_TOKENS = NEWLINE.union([tokenize.INDENT, tokenize.DEDENT])
@@ -130,12 +136,13 @@ RAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,')
 RERAISE_COMMA_REGEX = re.compile(r'raise\s+\w+\s*,.*,\s*\w+\s*$')
 ERRORCODE_REGEX = re.compile(r'\b[A-Z]\d{3}\b')
 DOCSTRING_REGEX = re.compile(r'u?r?["\']')
-EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;:]')
+EXTRANEOUS_WHITESPACE_REGEX = re.compile(r'[\[({] | [\]}),;]| :(?!=)')
 WHITESPACE_AFTER_COMMA_REGEX = re.compile(r'[,;:]\s*(?:  |\t)')
 COMPARE_SINGLETON_REGEX = re.compile(r'(\bNone|\bFalse|\bTrue)?\s*([=!]=)'
                                      r'\s*(?(1)|(None|False|True))\b')
-COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+[^][)(}{ ]+\s+(in|is)\s')
-COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s*type(?:s.\w+Type'
+COMPARE_NEGATIVE_REGEX = re.compile(r'\b(?<!is\s)(not)\s+[^][)(}{ ]+\s+'
+                                    r'(in|is)\s')
+COMPARE_TYPE_REGEX = re.compile(r'(?:[=!]=|is(?:\s+not)?)\s+type(?:s.\w+Type'
                                 r'|\s*\(\s*([^)]*[^ )])\s*\))')
 KEYWORD_REGEX = re.compile(r'(\s*)\b(?:%s)\b(\s*)' % r'|'.join(KEYWORDS))
 OPERATOR_REGEX = re.compile(r'(?:[^,\s])(\s*)(?:[-+*/|!<=>%&^]+)(\s*)')
@@ -204,7 +211,7 @@ def tabs_or_spaces(physical_line, indent_char):
     tabs and spaces.  When using -tt these warnings become errors.
     These options are highly recommended!
 
-    Okay: if a == 0:\n        a = 1\n        b = 1
+    Okay: if a == 0:\n    a = 1\n    b = 1
     E101: if a == 0:\n        a = 1\n\tb = 1
     """
     indent = INDENT_REGEX.match(physical_line).group(1)
@@ -258,10 +265,10 @@ def trailing_blank_lines(physical_line, lines, line_number, total_lines):
     """
     if line_number == total_lines:
         stripped_last_line = physical_line.rstrip()
-        if not stripped_last_line:
+        if physical_line and not stripped_last_line:
             return 0, "W391 blank line at end of file"
         if stripped_last_line == physical_line:
-            return len(physical_line), "W292 no newline at end of file"
+            return len(lines[-1]), "W292 no newline at end of file"
 
 
 @register_check
@@ -308,6 +315,41 @@ def maximum_line_length(physical_line, max_line_length, multiline,
 ########################################################################
 
 
+def _is_one_liner(logical_line, indent_level, lines, line_number):
+    if not STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
+        return False
+
+    line_idx = line_number - 1
+
+    if line_idx < 1:
+        prev_indent = 0
+    else:
+        prev_indent = expand_indent(lines[line_idx - 1])
+
+    if prev_indent > indent_level:
+        return False
+
+    while line_idx < len(lines):
+        line = lines[line_idx].strip()
+        if not line.startswith('@') and STARTSWITH_TOP_LEVEL_REGEX.match(line):
+            break
+        else:
+            line_idx += 1
+    else:
+        return False  # invalid syntax: EOF while searching for def/class
+
+    next_idx = line_idx + 1
+    while next_idx < len(lines):
+        if lines[next_idx].strip():
+            break
+        else:
+            next_idx += 1
+    else:
+        return True  # line is last in the file
+
+    return expand_indent(lines[next_idx]) <= indent_level
+
+
 @register_check
 def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 blank_before, previous_logical,
@@ -344,7 +386,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
     top_level_lines = BLANK_LINES_CONFIG['top_level']
     method_lines = BLANK_LINES_CONFIG['method']
 
-    if line_number < top_level_lines + 1 and not previous_logical:
+    if not previous_logical and blank_before < top_level_lines:
         return  # Don't expect blank lines before the first line
     if previous_logical.startswith('@'):
         if blank_lines:
@@ -354,6 +396,12 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
           ):
         yield 0, "E303 too many blank lines (%d)" % blank_lines
     elif STARTSWITH_TOP_LEVEL_REGEX.match(logical_line):
+        # allow a group of one-liners
+        if (
+            _is_one_liner(logical_line, indent_level, lines, line_number) and
+            blank_before == 0
+        ):
+            return
         if indent_level:
             if not (blank_before == method_lines or
                     previous_indent_level < indent_level or
@@ -366,7 +414,7 @@ def blank_lines(logical_line, blank_lines, indent_level, line_number,
                 for line in lines[line_number - top_level_lines::-1]:
                     if line.strip() and expand_indent(line) < ancestor_level:
                         ancestor_level = expand_indent(line)
-                        nested = line.lstrip().startswith('def ')
+                        nested = STARTSWITH_DEF_REGEX.match(line.lstrip())
                         if nested or ancestor_level == 0:
                             break
                 if nested:
@@ -480,13 +528,16 @@ def missing_whitespace(logical_line):
     line = logical_line
     for index in range(len(line) - 1):
         char = line[index]
-        if char in ',;:' and line[index + 1] not in WHITESPACE:
+        next_char = line[index + 1]
+        if char in ',;:' and next_char not in WHITESPACE:
             before = line[:index]
             if char == ':' and before.count('[') > before.count(']') and \
                     before.rfind('{') < before.rfind('['):
                 continue  # Slice syntax, no space required
-            if char == ',' and line[index + 1] == ')':
+            if char == ',' and next_char == ')':
                 continue  # Allow tuple with only one element: (3,)
+            if char == ':' and next_char == '=' and sys.version_info >= (3, 8):
+                continue  # Allow assignment expression
             yield index, "E231 missing whitespace after '%s'" % char
 
 
@@ -520,6 +571,12 @@ def indentation(logical_line, previous_logical, indent_char,
         yield 0, tmpl % (2 + c, "expected an indented block")
     elif not indent_expect and indent_level > previous_indent_level:
         yield 0, tmpl % (3 + c, "unexpected indentation")
+
+    if indent_expect:
+        expected_indent_amount = 8 if indent_char == '\t' else 4
+        expected_indent_level = previous_indent_level + expected_indent_amount
+        if indent_level > expected_indent_level:
+            yield 0, tmpl % (7, 'over-indented')
 
 
 @register_check
@@ -669,6 +726,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
         elif (token_type in (tokenize.STRING, tokenize.COMMENT) or
               text in ('u', 'ur', 'b', 'br')):
             indent_chances[start[1]] = str
+        # visual indent after assert/raise/with
+        elif not row and not depth and text in ["assert", "raise", "with"]:
+            indent_chances[end[1] + 1] = True
         # special case for the "if" statement because len("if (") == 4
         elif not indent_chances and not row and not depth and text == 'if':
             indent_chances[end[1] + 1] = True
@@ -805,6 +865,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     E225: submitted +=1
     E225: x = x /2 - 1
     E225: z = x **y
+    E225: z = 1and 1
     E226: c = (a+b) * (a-b)
     E226: hypot2 = x*x + y*y
     E227: c = a|b
@@ -814,6 +875,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
     need_space = False
     prev_type = tokenize.OP
     prev_text = prev_end = None
+    operator_types = (tokenize.OP, tokenize.NAME)
     for token_type, text, start, end, line in tokens:
         if token_type in SKIP_COMMENTS:
             continue
@@ -832,6 +894,19 @@ def missing_whitespace_around_operator(logical_line, tokens):
                 # Tolerate the "<>" operator, even if running Python 3
                 # Deal with Python 3's annotated return value "->"
                 pass
+            elif (
+                    # def f(a, /, b):
+                    #           ^
+                    # def f(a, b, /):
+                    #              ^
+                    prev_text == '/' and text in {',', ')'} or
+                    # def f(a, b, /):
+                    #               ^
+                    prev_text == ')' and text == ':'
+            ):
+                # Tolerate the "/" operator in function definition
+                # For more info see PEP570
+                pass
             else:
                 if need_space is True or need_space[1]:
                     # A needed trailing space was not found
@@ -845,7 +920,7 @@ def missing_whitespace_around_operator(logical_line, tokens):
                     yield (need_space[0], "%s missing whitespace "
                            "around %s operator" % (code, optype))
                 need_space = False
-        elif token_type == tokenize.OP and prev_end is not None:
+        elif token_type in operator_types and prev_end is not None:
             if text == '=' and parens:
                 # Allow keyword args or defaults: foo(bar=None).
                 pass
@@ -1050,7 +1125,8 @@ def module_imports_on_top_of_file(
             line = line[1:]
         return line and (line[0] == '"' or line[0] == "'")
 
-    allowed_try_keywords = ('try', 'except', 'else', 'finally')
+    allowed_keywords = (
+        'try', 'except', 'else', 'finally', 'with', 'if', 'elif')
 
     if indent_level:  # Allow imports in conditional statement/function
         return
@@ -1064,9 +1140,9 @@ def module_imports_on_top_of_file(
             yield 0, "E402 module level import not at top of file"
     elif re.match(DUNDER_REGEX, line):
         return
-    elif any(line.startswith(kw) for kw in allowed_try_keywords):
-        # Allow try, except, else, finally keywords intermixed with
-        # imports in order to support conditional importing
+    elif any(line.startswith(kw) for kw in allowed_keywords):
+        # Allow certain keywords intermixed with imports in order to
+        # support conditional or filtered importing
         return
     elif is_string_literal(line):
         # The first literal is a docstring, allow it. Otherwise, report
@@ -1118,7 +1194,9 @@ def compound_statements(logical_line):
         update_counts(line[prev_found:found], counts)
         if ((counts['{'] <= counts['}'] and   # {'a': 1} (dict)
              counts['['] <= counts[']'] and   # [1:2] (slice)
-             counts['('] <= counts[')'])):    # (annotation)
+             counts['('] <= counts[')']) and  # (annotation)
+            not (sys.version_info >= (3, 8) and
+                 line[found + 1] == '=')):  # assignment expression
             lambda_kw = LAMBDA_REGEX.search(line, 0, found)
             if lambda_kw:
                 before = line[:lambda_kw.start()].rstrip()
@@ -1182,13 +1260,16 @@ def explicit_line_join(logical_line, tokens):
                 parens -= 1
 
 
+_SYMBOLIC_OPS = frozenset("()[]{},:.;@=%~") | frozenset(("...",))
+
+
 def _is_binary_operator(token_type, text):
     is_op_token = token_type == tokenize.OP
     is_conjunction = text in ['and', 'or']
     # NOTE(sigmavirus24): Previously the not_a_symbol check was executed
     # conditionally. Since it is now *always* executed, text may be
     # None. In that case we get a TypeError for `text not in str`.
-    not_a_symbol = text and text not in "()[]{},:.;@=%~"
+    not_a_symbol = text and text not in _SYMBOLIC_OPS
     # The % character is strictly speaking a binary operator, but the
     # common usage seems to be to put it next to the format parameters,
     # after a line break.
@@ -1401,28 +1482,58 @@ def ambiguous_identifier(logical_line, tokens):
 
     Variables can be bound in several other contexts, including class
     and function definitions, 'global' and 'nonlocal' statements,
-    exception handlers, and 'with' statements.
+    exception handlers, and 'with' and 'for' statements.
+    In addition, we have a special handling for function parameters.
 
     Okay: except AttributeError as o:
     Okay: with lock as L:
+    Okay: foo(l=12)
+    Okay: for a in foo(l=12):
     E741: except AttributeError as O:
     E741: with lock as l:
     E741: global I
     E741: nonlocal l
+    E741: def foo(l):
+    E741: def foo(l=12):
+    E741: l = foo(l=12)
+    E741: for l in range(10):
     E742: class I(object):
     E743: def l(x):
     """
+    is_func_def = False  # Set to true if 'def' is found
+    parameter_parentheses_level = 0
     idents_to_avoid = ('l', 'O', 'I')
     prev_type, prev_text, prev_start, prev_end, __ = tokens[0]
     for token_type, text, start, end, line in tokens[1:]:
         ident = pos = None
+        # find function definitions
+        if prev_text == 'def':
+            is_func_def = True
+        # update parameter parentheses level
+        if parameter_parentheses_level == 0 and \
+                prev_type == tokenize.NAME and \
+                token_type == tokenize.OP and text == '(':
+            parameter_parentheses_level = 1
+        elif parameter_parentheses_level > 0 and \
+                token_type == tokenize.OP:
+            if text == '(':
+                parameter_parentheses_level += 1
+            elif text == ')':
+                parameter_parentheses_level -= 1
         # identifiers on the lhs of an assignment operator
-        if token_type == tokenize.OP and '=' in text:
+        if token_type == tokenize.OP and '=' in text and \
+                parameter_parentheses_level == 0:
             if prev_text in idents_to_avoid:
                 ident = prev_text
                 pos = prev_start
-        # identifiers bound to values with 'as', 'global', or 'nonlocal'
-        if prev_text in ('as', 'global', 'nonlocal'):
+        # identifiers bound to values with 'as', 'for',
+        # 'global', or 'nonlocal'
+        if prev_text in ('as', 'for', 'global', 'nonlocal'):
+            if text in idents_to_avoid:
+                ident = text
+                pos = start
+        # function parameter definitions
+        if is_func_def:
             if text in idents_to_avoid:
                 ident = text
                 pos = start
@@ -1434,6 +1545,7 @@ def ambiguous_identifier(logical_line, tokens):
                 yield start, "E743 ambiguous function definition '%s'" % text
         if ident:
             yield pos, "E741 ambiguous variable name '%s'" % ident
+        prev_type = token_type
         prev_text = text
         prev_start = start
 
@@ -1492,12 +1604,15 @@ def python_3000_backticks(logical_line):
 
 
 @register_check
-def python_3000_invalid_escape_sequence(logical_line, tokens):
+def python_3000_invalid_escape_sequence(logical_line, tokens, noqa):
     r"""Invalid escape sequences are deprecated in Python 3.6.
 
     Okay: regex = r'\.png$'
     W605: regex = '\.png$'
     """
+    if noqa:
+        return
+
     # https://docs.python.org/3/reference/lexical_analysis.html#string-and-bytes-literals
     valid = [
         '\n',
@@ -1522,6 +1637,7 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
 
     for token_type, text, start, end, line in tokens:
         if token_type == tokenize.STRING:
+            start_line, start_col = start
             quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
             # Extract string modifiers (e.g. u or r)
             quote_pos = text.index(quote)
@@ -1534,8 +1650,13 @@ def python_3000_invalid_escape_sequence(logical_line, tokens):
                 while pos >= 0:
                     pos += 1
                     if string[pos] not in valid:
+                        line = start_line + string.count('\n', 0, pos)
+                        if line == start_line:
+                            col = start_col + len(prefix) + len(quote) + pos
+                        else:
+                            col = pos - string.rfind('\n', 0, pos) - 1
                         yield (
-                            line.lstrip().find(text),
+                            (line, col - 1),
                             "W605 invalid escape sequence '\\%s'" %
                             string[pos],
                         )
@@ -1560,12 +1681,19 @@ def python_3000_async_await_keywords(logical_line, tokens):
     for token_type, text, start, end, line in tokens:
         error = False
 
+        if token_type == tokenize.NL:
+            continue
+
         if state is None:
             if token_type == tokenize.NAME:
                 if text == 'async':
                     state = ('async_stmt', start)
                 elif text == 'await':
                     state = ('await', start)
+                elif (token_type == tokenize.NAME and
+                      text in ('def', 'for')):
+                    state = ('define', start)
+
         elif state[0] == 'async_stmt':
             if token_type == tokenize.NAME and text in ('def', 'with', 'for'):
                 # One of funcdef, with_stmt, or for_stmt. Return to
@@ -1574,12 +1702,19 @@ def python_3000_async_await_keywords(logical_line, tokens):
             else:
                 error = True
         elif state[0] == 'await':
-            if token_type in (tokenize.NAME, tokenize.NUMBER, tokenize.STRING):
+            if token_type == tokenize.NAME:
                 # An await expression. Return to looking for async/await
                 # names.
                 state = None
+            elif token_type == tokenize.OP and text == '(':
+                state = None
             else:
                 error = True
+        elif state[0] == 'define':
+            if token_type == tokenize.NAME and text in ('async', 'await'):
+                error = True
+            else:
+                state = None
 
         if error:
             yield (
@@ -1702,6 +1837,7 @@ def expand_indent(line):
     >>> expand_indent('        \t')
     16
     """
+    line = line.rstrip('\n\r')
     if '\t' not in line:
         return len(line) - len(line.lstrip())
     result = 0

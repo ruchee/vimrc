@@ -1,6 +1,6 @@
 # Copyright (c) 2012-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Google, Inc.
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Ceridwen <ceridwenv@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
@@ -9,8 +9,10 @@
 from astroid import MANAGER, register_module_extender
 from astroid.builder import AstroidBuilder
 
+
 def mechanize_transform():
-    return AstroidBuilder(MANAGER).string_build('''
+    return AstroidBuilder(MANAGER).string_build(
+        """
 
 class Browser(object):
     def open(self, url, data=None, timeout=None):
@@ -20,7 +22,8 @@ class Browser(object):
     def open_local_file(self, filename):
         return None
 
-''')
+"""
+    )
 
 
-register_module_extender(MANAGER, 'mechanize', mechanize_transform)
+register_module_extender(MANAGER, "mechanize", mechanize_transform)

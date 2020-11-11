@@ -35,8 +35,7 @@ function! Test_GoDebugStart_Errors() abort
 
     call assert_false(exists(':GoDebugStop'))
 
-    let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
-    execute l:cd . ' debug/compilerror'
+    call go#util#Chdir('debug/compilerror')
 
     call go#debug#Start('debug')
 
@@ -54,6 +53,71 @@ function! Test_GoDebugStart_Errors() abort
     call delete(l:tmp, 'rf')
     " clear the quickfix lists
     call setqflist([], 'r')
+  endtry
+endfunction
+
+function! Test_GoDebugModeRemapsAndRestoresKeys() abort
+  if !go#util#has_job()
+    return
+  endif
+
+  try
+    let g:go_debug_mappings = {'(go-debug-continue)': {'key': 'q', 'arguments': '<nowait>'}}
+    let l:tmp = gotest#load_fixture('debug/debugmain/debugmain.go')
+
+    call assert_false(exists(':GoDebugStop'))
+
+    call go#util#Chdir('debug/debugmain')
+
+    call go#debug#Start('debug')
+
+    let l:start = reltime()
+    while maparg('q') == '' && reltimefloat(reltime(l:start)) < 10
+      sleep 100m
+    endwhile
+
+    call assert_false(exists(':GoDebugStart'))
+    call assert_equal('<Plug>(go-debug-continue)', maparg('q', 'n', 0))
+
+    call go#debug#Stop()
+    while exists(':GoDebugStop') && reltimefloat(reltime(l:start)) < 10
+      sleep 100m
+    endwhile
+    call assert_equal('', maparg('q'))
+  finally
+    call delete(l:tmp, 'rf')
+  endtry
+endfunction
+
+function! Test_GoDebugStopRemovesPlugMappings() abort
+  if !go#util#has_job()
+    return
+  endif
+
+  try
+    let l:tmp = gotest#load_fixture('debug/debugmain/debugmain.go')
+
+    call assert_false(exists(':GoDebugStop'))
+
+    call go#util#Chdir('debug/debugmain')
+
+    call go#debug#Start('debug')
+
+    let l:start = reltime()
+    while maparg('<Plug>(go-debug-stop)') == '' && reltimefloat(reltime(l:start)) < 10
+      sleep 100m
+    endwhile
+
+    call assert_false(exists(':GoDebugStart'))
+    call assert_equal(':<C-U>call go#debug#Stop()<CR>', maparg('<Plug>(go-debug-stop)', 'n', 0))
+
+    call go#debug#Stop()
+    while exists(':GoDebugStop') && reltimefloat(reltime(l:start)) < 10
+      sleep 100m
+    endwhile
+    call assert_equal('', maparg('<Plug>(go-debug-stop'))
+  finally
+    call delete(l:tmp, 'rf')
   endtry
 endfunction
 
@@ -78,8 +142,7 @@ function! s:debug(...) abort
     call assert_false(exists(':GoDebugStop'))
 
     if a:0 == 0
-      let l:cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
-      execute l:cd . ' debug/debugmain'
+      call go#util#Chdir('debug/debugmain')
       let l:job = go#debug#Start('debug')
     else
       let l:job = go#debug#Start('debug', a:1)

@@ -30,6 +30,11 @@ Usage
                             regular expression; default is --ignore-decorators=''
                             which does not ignore any decorated functions.
 
+      Note:
+        When using --match, --match-dir or --ignore-decorators consider
+        whether you should use a single quote (') or a double quote ("),
+        depending on your OS, Shell, etc.
+
       Error Check Options:
         Only one of --select, --ignore or --convention can be specified. If
         none is specified, defaults to `--convention=pep257`. These three
@@ -49,7 +54,7 @@ Usage
         --convention=<name>
                             choose the basic list of checked errors by specifying
                             an existing convention. Possible conventions: pep257,
-                            numpy.
+                            numpy, google.
         --add-select=<codes>
                             add extra error codes to check to the basic list of
                             errors previously set by --select, --ignore or

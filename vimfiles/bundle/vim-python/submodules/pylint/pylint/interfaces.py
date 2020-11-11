@@ -3,11 +3,12 @@
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
-# Copyright (c) 2015-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
-# Copyright (c) 2018 Ville Skyttä <ville.skytta@upcloud.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -15,20 +16,21 @@
 """Interfaces for Pylint objects"""
 from collections import namedtuple
 
-Confidence = namedtuple('Confidence', ['name', 'description'])
+Confidence = namedtuple("Confidence", ["name", "description"])
 # Warning Certainties
-HIGH = Confidence('HIGH', 'No false positive possible.')
-INFERENCE = Confidence('INFERENCE', 'Warning based on inference result.')
-INFERENCE_FAILURE = Confidence('INFERENCE_FAILURE',
-                               'Warning based on inference with failures.')
-UNDEFINED = Confidence('UNDEFINED',
-                       'Warning without any associated confidence level.')
+HIGH = Confidence("HIGH", "No false positive possible.")
+INFERENCE = Confidence("INFERENCE", "Warning based on inference result.")
+INFERENCE_FAILURE = Confidence(
+    "INFERENCE_FAILURE", "Warning based on inference with failures."
+)
+UNDEFINED = Confidence("UNDEFINED", "Warning without any associated confidence level.")
 
 CONFIDENCE_LEVELS = [HIGH, INFERENCE, INFERENCE_FAILURE, UNDEFINED]
 
 
 class Interface:
     """Base class for interfaces."""
+
     @classmethod
     def is_implemented_by(cls, instance):
         return implements(instance, cls)
@@ -38,7 +40,7 @@ def implements(obj, interface):
     """Return true if the give object (maybe an instance or class) implements
     the interface.
     """
-    kimplements = getattr(obj, '__implements__', ())
+    kimplements = getattr(obj, "__implements__", ())
     if not isinstance(kimplements, (list, tuple)):
         kimplements = (kimplements,)
     for implementedinterface in kimplements:
@@ -72,6 +74,7 @@ class IRawChecker(IChecker):
 
 class ITokenChecker(IChecker):
     """Interface for checkers that need access to the token list."""
+
     def process_tokens(self, tokens):
         """Process a module.
 
@@ -97,4 +100,4 @@ class IReporter(Interface):
         """
 
 
-__all__ = ('IRawChecker', 'IAstroidChecker', 'ITokenChecker', 'IReporter')
+__all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")

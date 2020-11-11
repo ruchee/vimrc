@@ -117,7 +117,7 @@ let s:abstract_prototype = {}
 " Section: Syntax highlighting
 
 function! s:syntaxfile() abort
-  syntax keyword rubyGemfileMethod gemspec gem source path git group platform platforms env ruby
+  syntax keyword rubyGemfileMethod gemspec gem source path git group platform platforms env ruby git_source
   hi def link rubyGemfileMethod rubyInclude
 endfunction
 
@@ -230,14 +230,19 @@ function! s:Setup(path) abort
   endif
 endfunction
 
+function! bundler#manifest_task(lnum) abort
+  let gem = matchstr(getline(a:lnum), '^ *gem *(\= *[''"]\zs[^''\"]\+\ze[''"]')
+  return len(gem) ? 'update ' . gem : 'install'
+endfunction
+
 function! s:ProjectionistDetect() abort
   if s:Detect(get(g:, 'projectionist_file', '')) && !exists('b:bundler_gem')
     let dir = fnamemodify(b:bundler_lock, ':h')
     call projectionist#append(dir, {
           \ '*': s:filereadable(dir . '/config/environment.rb') ? {} :
           \ {'console': 'bundle console'},
-          \ 'Gemfile': {'dispatch': 'bundle --gemfile={file}', 'alternate': 'Gemfile.lock'},
-          \ 'gems.rb': {'dispatch': 'bundle --gemfile={file}', 'alternate': 'gems.locked'},
+          \ 'Gemfile': {'dispatch': 'bundle %:s/.*/\=bundler#manifest_task(exists(''l#'') ? l# : 0)/ --gemfile={file}', 'alternate': 'Gemfile.lock'},
+          \ 'gems.rb': {'dispatch': 'bundle %:s/.*/\=bundler#manifest_task(exists(''l#'') ? l# : 0)/ --gemfile={file}', 'alternate': 'gems.locked'},
           \ 'gems.locked': {'alternate': 'gems.rb'},
           \ 'Gemfile.lock': {'alternate': 'Gemfile'}})
     for projections in bundler#project().projections_list()

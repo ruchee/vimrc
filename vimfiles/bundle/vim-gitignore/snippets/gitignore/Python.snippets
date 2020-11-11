@@ -10,7 +10,6 @@ snippet Python Gitignore Template
         
         # Distribution / packaging
         .Python
-        env/
         build/
         develop-eggs/
         dist/
@@ -22,6 +21,7 @@ snippet Python Gitignore Template
         parts/
         sdist/
         var/
+        wheels/
         *.egg-info/
         .installed.cfg
         *.egg
@@ -44,7 +44,7 @@ snippet Python Gitignore Template
         .cache
         nosetests.xml
         coverage.xml
-        *,cover
+        *.cover
         .hypothesis/
         
         # Translations
@@ -68,7 +68,7 @@ snippet Python Gitignore Template
         # PyBuilder
         target/
         
-        # IPython Notebook
+        # Jupyter Notebook
         .ipynb_checkpoints
         
         # pyenv
@@ -77,17 +77,26 @@ snippet Python Gitignore Template
         # celery beat schedule file
         celerybeat-schedule
         
-        # dotenv
-        .env
+        # SageMath parsed files
+        *.sage.py
         
-        # virtualenv
-        .venv/
+        # Environments
+        .env
+        .venv
+        env/
         venv/
         ENV/
         
         # Spyder project settings
         .spyderproject
+        .spyproject
         
         # Rope project settings
         .ropeproject
+        
+        # mkdocs documentation
+        /site
+        
+        # mypy
+        .mypy_cache/
         ${0}

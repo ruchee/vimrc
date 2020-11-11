@@ -1,4 +1,4 @@
-# Introduction [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/chrisbra)
+# Introduction [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/cb%40256bit.org)
 
 This plugin is used for handling column separated data with Vim. Usually those
 files are called csv files and use the ',' as delimiter, though sometimes they
@@ -9,7 +9,7 @@ This is a filetype plugin for CSV files. It was heavily influenced by
 the [Vim Wiki Tip667](http://vim.wikia.com/wiki/VimTip667), though it
 works differently. 
 
-It will make use of the [vartab](http://vimhelp.appspot.com/options.txt.html#'vartabstop') feature for tab delimited files.
+It will make use of the [vartabs](https://vimhelp.org/options.txt.html#%27vartabstop%27) feature for tab delimited files.
 
 ![Screenshot](http://www.256bit.org/~chrisbra/csv.gif)
 
@@ -490,34 +490,6 @@ given, this calculates the sum for the column the cursor is on. Note, that the
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-By default, Vim uses the a numerical format that uses the '.' as decimal
-separator while there is no thousands separator. If youre file contains
-the numbers in a different format, you can use the /format/ option to specify
-a different thousands separator or a different decimal separator. The format
-needs to be specified like this:
-
-```
-/x:y/
-```
-where 'x' defines the thousands separator and y defines the decimal
-separator and each one is optional. This means, that 
-
-```vim
-:SumCol 1 /:,/
-```
-
-uses the default thousands separator and ',' as the decimal separator and 
-
-```vim
-:SumCol 2 / :./
-```
-
-uses the Space as thousands separator and the '.' as decimal separator.
-
-Note, if you Vim is compiled without floating point number format ([`+float`](http://vimhelp.appspot.com/various.txt.html#%2Bfloat)),
-Vim will only aggregate the integer part and therefore won't use the 'y'
-argument in the /format/ specifier.
-
 See also [Defining custom aggregate functions](#defining-custom-aggregate-functions)
 
 ## Create new Records
@@ -856,6 +828,15 @@ This tells you, that the the value '10' in column 3 occurs 50% of the time
 (exactly 20 times) and the other 2 values '2' and '5' occur only 10 times, so
 25% of the time.
 
+In addition, a second argument may be used to specify the number of top values.
+So 
+
+```vim
+:Analyze 3 10
+```
+
+outputs the the distribution of the top 10 values in column 3, respectively.
+
 ## Vertical Folding
 
 Sometimes, you want to hide away certain columns to better view only certain
@@ -1080,7 +1061,7 @@ given, this calculates the average for the column the cursor is on. Note, that t
 delimiter will be stripped away from each value and also empty values won't be
 considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
+For the `[/format/]` part, see [Number format](#number-format).
 
 The result is also available in the buffer-local variable `b:csv_result`.
 
@@ -1096,12 +1077,16 @@ See also [Defining custom aggregate functions](#defining-custom-aggregate-functi
 :[range]SmplVarianceCol [nr] [/format/]
 ```
 
+Calculate the Population or Sample Variance for the specified column.
+
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the statistical variance of the whole column. If `<nr>` is not
 given, this calculates the variance for the column the cursor is on. Note, that the delimiter
 will be stripped away from each value and also empty values won't be considered.
 
 The result is also available in the buffer-local variable `b:csv_result`.
+
+For the `[/format/]` part, see [Number format](#number-format).
 
 ## Standard Deviation of a Column
 
@@ -1113,14 +1098,16 @@ The result is also available in the buffer-local variable `b:csv_result`.
 :[range]SmplStdCol [nr] [/format/]
 ```
 
+Calculate the Population or Sample Standard Deviation for the specified column.
+
 This outputs the result of the column `<nr>` within the range given. If no range
 is given, this will calculate the standard deviation of the whole column. If `<nr>` is not
 given, this calculates the standard deviation for the column the cursor is on. Note, that
 the delimiter will be stripped away from each value and also empty values won't be considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
-
 The result is also available in the buffer-local variable `b:csv_result`.
+
+For the `[/format/]` part, see [Number format](#number-format).
 
 ## Duplicate columns
 
@@ -1158,7 +1145,7 @@ This outputs the sum of the row `[line]`. If no line is given, this will
 calculate the sum for the current row. Note, that the delimiter will be
 stripped away from each value and also empty values won't be considered.
 
-For the `[/format/]` part, see [Maximum/Minimum value of a Column](#maximumminimum-value-of-a-column).
+For the `[/format/]` part, see [Number format](#number-format).
 
 # CSV Configuration
 
@@ -1179,6 +1166,13 @@ manually, use:
 
 to let the comma be the delimiter. This sets the buffer local delimiter
 variable b:delimiter.
+
+You can also set default delimiter to prevent a warning if no delimiter can
+be detected:
+
+```vim
+:let g:csv_default_delim=','
+```
 
 If your file does not consist of delimited columns, but rather is a fixed
 width csv file, see [Fixed width columns](#fixed-width-columns) for configuring the plugin appropriately.
@@ -1477,23 +1471,44 @@ instead is on line 5, simply set this variable to 5. This also applies to the
 
 ## Number format
 
-When using the [Sum of a Column](#sum-of-a-column) command, you can specify a certain number format
-using the /x:y/ argument. You can however also configure the plugin to detect
-a different number format than the default number format (which does not
-support a thousands separator and uses the '.' as decimal separator).
+By default, Vim uses the a numerical format that uses the '.' as decimal
+separator while there is no thousands separator. If youre file contains
+the numbers in a different format, you can use the /format/ option to specify
+a different thousands separator or a different decimal separator. The format
+needs to be specified like this:
+
+```
+/x:y/
+```
+where 'x' defines the thousands separator and y defines the decimal
+separator and each one is optional. This means, that 
+
+```vim
+:SumCol 1 /:,/
+```
+
+uses the default thousands separator and ',' as the decimal separator and 
+
+```vim
+:SumCol 2 / :./
+```
+
+uses the Space as thousands separator and the '.' as decimal separator.
+
+You can however also configure the plugin to detect a different number format
+than the default number format (which does not support a thousands separator
+and uses the '.' as decimal separator).
 
 To specify a different thousands separator by default, use 
 
 ```vim
 let b:csv_thousands_sep = ' '
 ```
-
 to have the space use as thousands separator and 
 
 ```vim
 let b:csv_decimal_sep = ','
 ```
-
 to use the comma as decimal separator.
 
 ## Move folded lines
@@ -1829,6 +1844,17 @@ comes after the :filetype plugin ([`:filetype-plugin-on`](http://vimhelp.appspot
 [`.vimrc`](http://vimhelp.appspot.com/starting.txt.html#.vimrc)
 
 Alternatively, you can simply call [CSVInit](#csvinit) and ignore the error.
+
+Note: It could also be caused by lazy loading feature by a vim plugin
+manager. For example this line might also cause it:
+
+```vim
+  Plug 'https://github.com/chrisbra/csv.vim',  { 'for' : 'csv' }
+```
+The fix would then be:
+```vim
+  Plug 'https://github.com/chrisbra/csv.vim'
+```
 
 ## Calculate new columns
 

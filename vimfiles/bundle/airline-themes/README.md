@@ -1,4 +1,4 @@
-# vim-airline-themes [![Build Status](https://travis-ci.org/vim-airline/vim-airline-themes.svg?branch=master)](https://travis-ci.org/vim-airline/vim-airline-themes)
+# vim-airline-themes [![Build Status](https://travis-ci.org/vim-airline/vim-airline-themes.svg?branch=master)](https://travis-ci.org/vim-airline/vim-airline-themes) [![reviewdog](https://github.com/vim-airline/vim-airline-themes/workflows/reviewdog/badge.svg?branch=master&event=push)](https://github.com/vim-airline/vim-airline-themes/actions?query=workflow%3Areviewdog+event%3Apush+branch%3Amaster)
 
 This is the official theme repository for [vim-airline][11]
 
@@ -15,6 +15,7 @@ This plugin follows the standard runtime path structure, and as such it can be i
 | [VAM][8]       | `call vam#ActivateAddons([ 'vim-airline-themes' ])` |
 | [Dein][9]      | `call dein#add('vim-airline/vim-airline-themes')` |
 | [minpac][10]   | `call minpac#add('vim-airline/vim-airline-themes')` |
+| pack feature (native Vim 8 package feature)| `git clone https://github.com/vim-airline/vim-airline-themes ~/.vim/pack/dist/start/vim-airline-themes`<br/>Remember to run `:helptags ~/.vim/pack/dist/start/vim-airline-themes/doc` to generate help tags |
 | manual         | copy all of the files into your `~/.vim` directory |
 
 # Using a Theme

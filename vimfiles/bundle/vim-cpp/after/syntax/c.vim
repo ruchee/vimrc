@@ -5,7 +5,7 @@
 "                  http://www.vim.org/scripts/script.php?script_id=3064
 " Maintainer:      bfrg <bfrg@users.noreply.github.com>
 " Website:         https://github.com/bfrg/vim-cpp-modern
-" Last Change:     Aug 26, 2019
+" Last Change:     Oct 23, 2020
 "
 " Extended C syntax highlighting including highlighting of user-defined
 " functions.
@@ -15,14 +15,30 @@
 " ==============================================================================
 
 
-" Highlight some additional keywords in the comments
+" Highlight additional keywords in the comments
 syn keyword cTodo contained BUG NOTE
 
 
 " Highlight function names
-if get(g:, 'cpp_no_function_highlight', 1)
+if !get(g:, 'cpp_no_function_highlight', 0)
     syn match cUserFunction "\<\h\w*\>\(\s\|\n\)*("me=e-1 contains=cParen,cCppParen
     hi def link cUserFunction Function
+endif
+
+
+" Highlight struct/class member variables
+if get(g:, 'cpp_member_highlight', 0)
+    syn match cMemberAccess "\.\|->" nextgroup=cStructMember,cppTemplateKeyword
+    syn match cStructMember "\<\h\w*\>\%((\|<\)\@!" contained
+    syn cluster cParenGroup add=cStructMember
+    syn cluster cPreProcGroup add=cStructMember
+    syn cluster cMultiGroup add=cStructMember
+    hi def link cStructMember Identifier
+
+    if &filetype ==# 'cpp'
+        syn keyword cppTemplateKeyword template
+        hi def link cppTemplateKeyword cppStructure
+    endif
 endif
 
 
@@ -45,26 +61,6 @@ hi def link cAnsiName Identifier
 if get(g:, 'cpp_simple_highlight', 0)
     hi link cStorageClass Statement
     hi link cStructure    Statement
+    hi link cTypedef      Statement
     hi link cLabel        Statement
 endif
-
-
-" Operators
-" syn match cOperator "\(<<\|>>\|[-+*/%&^|<>!=]\)="
-" syn match cOperator "<<\|>>\|&&\|||\|++\|--\|->"
-" syn match cOperator "[.!~*&%<>^|=,+-]"
-" syn match cOperator "/[^/*=]"me=e-1
-" syn match cOperator "/$"
-" syn match cOperator "&&\|||"
-" syn match cOperator "[][]"
-
-" Preprocessor
-" syn keyword cDefined defined contained containedin=cDefine
-" hi def link cDefined cDefine
-
-" Delimiters
-" syn match cDelimiter "[();\\]"
-" hi def link cDelimiter Delimiter
-" foldmethod=syntax fix, courtesy of Ivan Freitas
-" syn match cBraces display "[{}]"
-" hi def link cBraces Delimiter

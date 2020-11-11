@@ -29,6 +29,7 @@ Current team:
 
   multiple-imports, not-iterable, not-a-mapping, various patches.
 
+* Jim Robertson: committer
 
 Ex-maintainers:
 
@@ -109,9 +110,9 @@ contributors:
 * Mike Frysinger: contributor.
 
 * Moisés López (Vauxoo): Support for deprecated-modules in modules not installed,
-  Refactory wrong-import-order to integrate it with `isort` library
+  Refactor wrong-import-order to integrate it with `isort` library
   Add check too-complex with mccabe for cyclomatic complexity
-  Refactory wrong-import-position to skip try-import and nested cases
+  Refactor wrong-import-position to skip try-import and nested cases
   Add consider-merging-isinstance, superfluous-else-return
   Fix consider-using-ternary for 'True and True and True or True' case
 
@@ -216,10 +217,181 @@ contributors:
 
 * Carey Metcalfe: demoted `try-except-raise` from error to warning
 
-* Marcus Näslund (naslundx): contributor 
+* Marcus Näslund (naslundx): contributor
 
 * Natalie Serebryakova: contributor
 
 * Caio Carrara: contributor
 
 * Roberto Leinardi: PyCharm plugin maintainer
+
+* Aivar Annamaa: contributor
+
+* Hornwitser: fix import graph
+
+* Yuri Gribov: contributor
+
+* Drew Risinger: committer (docs)
+
+* Ben James
+
+* Tomer Chachamu, Richard Goodman: simplifiable-if-expression
+
+* Alan Chan: contributor
+
+* Benjamin Drung: contributing Debian Developer
+
+* Scott Worley: contributor
+
+* Michael Hudson-Doyle
+
+* Lucas Cimon: contributor
+
+* Mike Miller: contributor
+
+* Sergei Lebedev: contributor
+
+* Sasha Bagan
+
+* Pablo Galindo Salgado: contributor
+  Fix false positive 'Non-iterable value' with async comprehensions.
+
+* Matus Valo
+
+* Sardorbek Imomaliev: contributor
+
+* Justin Li (justinnhli)
+
+* Nicolas Dickreuter
+
+* Pascal Corpet
+
+* Svetoslav Neykov: contributor
+
+* Federico Bond: contributor
+
+* Fantix King (UChicago): contributor
+
+* Yory (yory8): contributor
+
+* Thomas Hisch: contributor
+
+* Clément Pit-Claudel : contributor
+
+* Goudcode: contributor
+
+* Paul Renvoise : contributor
+
+* Bluesheeptoken: contributor
+
+* Michael Scott Cuthbert: contributor
+
+* Pierre Sassoulas : contributor
+    - Made C0412 (ungrouped import) compatible with isort
+    - Made multiple message with the same old name possible
+    - Made Pylint a little faster by refactoring the message store
+    - Broke down "missing-docstrings" between "module", "class" and "function"
+
+* Nathan Marrow
+
+* Taewon Kim : contributor
+
+* Daniil Kharkov: contributor
+
+* Tyler N. Thieding: contributor
+
+* Zeb Nicholls: contributor
+    - Made W9011 compatible with 'of' syntax in return types
+
+* Martin Vielsmaier: contributor
+
+* Agustin Toledo: contributor
+
+* Nicholas Smith: contributor
+
+* Peter Kolbus (Garmin): contributor
+
+* Oisin Moran: contributor
+
+* Andrzej Klajnert: contributor
+
+* Andrés Pérez Hortal: contributor
+
+* Niko Wenselowski: contributor
+
+* Danny Hermes: contributor
+
+* Eric Froemling: contributor
+
+* Robert Schweizer: contributor
+
+* Hugo van Kemenade: contributor
+
+* Mikhail Fesenko: contributor
+
+* Trevor Bekolay: contributor
+    - Added --list-msgs-enabled command
+
+* Rémi Cardona: contributor
+
+* Daniel Draper: contributor
+
+* Gabriel R. Sezefredo: contributor
+    - Fixed "exception-escape" false positive with generators
+
+* laike9m: contributor
+
+* Janne Rönkkö: contributor
+
+* Hugues Bruant: contributor
+
+* Tim Gates: contributor
+
+* Enji Cooper: contributor
+
+* Bastien Vallet: contributor
+
+* Pek Chhan: contributor
+
+* Craig Henriques: contributor
+
+* Matthijs Blom: contributor
+
+* Andy Palmer: contributor
+
+* Wes Turner (Google): added new check 'inconsistent-quotes'
+
+* Athos Ribeiro
+    Fixed dict-keys-not-iterating false positive for inverse containment checks
+
+* Anubhav: contributor
+
+* Ben Graham: contributor
+
+* Anthony Tan: contributor
+
+* Benny Müller: contributor
+
+* Bernie Gray: contributor
+
+* Slavfox: contributor
+
+* Matthew Beckers (mattlbeck): contributor
+
+* Yang Yang: contributor
+
+* Andrew J. Simmons (anjsimmo): contributor
+
+* Damien Baty: contributor
+
+* Daniel R. Neal (danrneal): contributer
+
+* Jeremy Fleischman (jfly): contributer
+
+* Shiv Venkatasubrahmanyam
+
+* Jochen Preusche (iilei): contributor
+
+* Ram Rachum (cool-RR)
+
+* Pieter Engelbrecht

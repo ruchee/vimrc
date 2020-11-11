@@ -396,7 +396,7 @@
 	footnote-display: auto;
 	footnote-policy: auto;
 	display: footnote;
-	display: line; 
+	display: line;
 	display: element(header);
 	display: running(heading);
 }
@@ -414,6 +414,10 @@
 }
 
 .grid-2 {
+	display: auto;
+}
+
+.highlight-api-1::highlight(test) {
 	display: auto;
 }
 

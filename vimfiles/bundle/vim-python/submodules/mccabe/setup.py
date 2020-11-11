@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import with_statement
-import sys
 
 from setuptools import setup
-
-needs_pytest = set(['pytest', 'test', 'ptr']).intersection(sys.argv)
-pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 
 def get_version(fname='mccabe.py'):
@@ -37,8 +33,6 @@ setup(
     license='Expat license',
     py_modules=['mccabe'],
     zip_safe=False,
-    setup_requires=pytest_runner,
-    tests_require=['pytest'],
     entry_points={
         'flake8.extension': [
             'C90 = mccabe:McCabeChecker',
@@ -54,11 +48,12 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Quality Assurance',
     ],
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
 )

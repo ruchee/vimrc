@@ -17,6 +17,7 @@ persistent=yes
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 load-plugins=
+    pylint.extensions.check_elif
 
 # Use multiple processes to speed up Pylint.
 jobs=1
@@ -40,7 +41,7 @@ confidence=
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time. See also the "--disable" option for examples.
-#enable=
+enable=use-symbolic-message-instead,useless-supression,fixme
 
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
@@ -55,11 +56,12 @@ confidence=
 disable=
     attribute-defined-outside-init,
     duplicate-code,
-    fixme,
     invalid-name,
     missing-docstring,
     protected-access,
     too-few-public-methods,
+    # handled by black
+    format
 
 
 [REPORTS]
@@ -127,7 +129,7 @@ init-import=no
 dummy-variables-rgx=_$|dummy
 
 # List of additional names supposed to be defined in builtins. Remember that
-# you should avoid to define new builtins when possible.
+# you should avoid defining new builtins when possible.
 additional-builtins=
 
 # List of strings which can identify a callback function by name. A callback
@@ -333,7 +335,7 @@ max-public-methods=25
 [CLASSES]
 
 # List of method names used to declare (i.e. assign) instance attributes.
-defining-attr-methods=__init__,__new__,setUp
+defining-attr-methods=__init__,__new__,setUp,__post_init__
 
 # List of valid names for the first argument in a class method.
 valid-classmethod-first-arg=cls

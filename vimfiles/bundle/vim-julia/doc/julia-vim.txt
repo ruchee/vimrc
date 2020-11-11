@@ -24,7 +24,6 @@ License: MIT license  {{{
 CONTENTS					*julia-vim*
 
 Introduction	                    |julia-vim-introduction|
-Chosing Julia version               |julia-vim-version|
 Block-wise movements/objects        |julia-vim-blocks|
   Keyword-oriented movements        |julia-vim-blocks-move|
   Block-oriented movements          |julia-vim-blocks-moveblock|
@@ -50,59 +49,11 @@ The julia-vim plug-in provides:
     just Julia files. See |julia-vim-L2U|.
   - a keymapping |K| to refer julia documents.
 
-This help file documents: 1) how to choose the Julia version for syntax
-highlighting, and 2) the block-wise movements and objects, how they work and
-what variables can be used to enable/disable/tweak them.
+This help file documents: 1) the block-wise movements and objects, how they
+work and what variables can be used to enable/disable/tweak them; 2) The
+documentation lookup facility; 3) Some extra functions and customization
+options.
 The LaTeX-to-Unicode facilities are documented in |julia-vim-L2U|.
-
-==============================================================================
-CHOOSING JULIA VERSION                                   *julia-vim-version*
-
-By default, the syntax highlighting is based on the current Julia release
-(version 1.0 at the time of writing). The plugin supports the previous stable
-version and the development version as well, and allows to switch between
-them. (Note that the plugin does not differentiate between 0.7 and 1.0.)
-
-                                                   *g:default_julia_version*
-g:default_julia_version
-
-                Determines the default Julia version to use when opening a
-                Julia file. The default is `"current"`, meaning the latest
-                stable release. Allowed values are: `"current"` (or
-                `"release"`), `"previous"` (or `"legacy"`), `"next"` (or
-                `"devel"`), or numeric values (`"0.6"`, `"1.0"`, `"1.1"`). You
-                would normally set this variable in your |.vimrc| file, e.g.:
->
-                    let g:default_julia_version = "devel"
-<
-
-                                                *julia#set_syntax_version()*
-julia#set_syntax_version(`julia_version`)
-
-                This function allows to change the syntax highlighting for the
-                current buffer. The argument is the same as for
-                |g:default_julia_version|. If you switch often between projects
-                developed using different versions of Julia, you may want to
-                create a mapping to switch rapidly between them (you can read
-                out the currently used version from the variable
-                `b:julia_syntax_version`, which uses a numeric scheme, i.e.
-                `6` for version `0.6`, `10` for `1.0` etc).
-
-                                       *g:julia_syntax_highlight_deprecated*
-g:julia_syntax_highlight_deprecated
-
-                Determines whether to highlight deprecated syntax, according
-                to the Julia version in use (see |g:default_julia_verison|).
-                Default: off (set to `0`).
-
-                                          *julia#toggle_deprecated_syntax()*
-julia#toggle_deprecated_syntax()
-
-                This function allows to switch on or off the highlighting of
-                deprecaed syntax (see |g:julia_syntax_highlight_deprecated|).
-                The current status is stored in the variable
-                `b:julia_syntax_highlight_deprecated`.
-
 
 ==============================================================================
 BLOCK-WISE MOVEMENTS AND BLOCK TEXT OBJECTS              *julia-vim-blocks*
@@ -396,7 +347,7 @@ julia#function_assign2block()
                 statements are removed; if the result is empty, `nothing` is
                 substituted. Leading macros (e.g. `@inline` or `@compat`) are
                 recognized and preserved by the transformation.
-                
+
                 In order to make this functionality practical, it is advisable
                 to map it to some key combination, e.g.:
 >
@@ -433,6 +384,91 @@ g:julia_highlight_operators
                 Determines whether to apply syntax highlighting to operators.
                 Default: on (set to `1`).
 
+                                              *g:julia_indent_align_import*
+g:julia_indent_align_import
+
+                In a multi-line import/using/export statment, the lines after
+                the first one use some special alignment rules by default,
+                e.g.:
+>
+                import X: one,
+                          two,
+                          three
+                export four,
+                       five,
+                       six
+<
+                When `g:julia_indent_align_import` is `0` instead, the usual
+                indentation is used:
+>
+                import X: one,
+                    two,
+                    three
+                export four,
+                    five,
+                    six
+
+                                              *g:julia_indent_align_brackets*
+g:julia_indent_align_brackets
+
+                In a multi-line bracketed expression (except for function
+                arguments, see |g:julia_indent_align_funcargs|), the lines
+                after the first one use some special alignment rules by
+                default, e.g.:
+>
+                matrix = [1 2 3;
+                          4 5 6]
+                tpl = (
+                       abc = Dict(a=>1,
+                                  b=>2),
+                       def = [1 2;
+                              3 4],
+                       xyz = SubArray{eltype(P),
+                                      N, P, I,
+                                      false}
+                      )
+<
+                When `g:julia_indent_align_brackets` is `0` instead, an extra
+                indent is used:
+>
+                matrix = [1 2 3;
+                    4 5 6]
+                tpl = (
+                    abc = Dict(a=>1,
+                        b=>2),
+                    def = [1 2;
+                        3 4],
+                    xyz = SubArray{eltype(P),
+                        N, P, I,
+                        false}
+                )
+<
+
+                                              *g:julia_indent_align_funcargs*
+g:julia_indent_align_funcargs
+
+                In a function definition, when the arguments span multiple
+                lines, the lines after the first one get an extra indentation
+                step by default, e.g.:
+>
+                function functionanme(
+                        arg1, arg2,
+                        arg3, arg4
+                    )
+                    # function body
+                end
+<
+                By setting `g:julia_indent_align_funcargs` to `1`, the
+                arguments are aligned to the bracket instead (they work as any
+                other bracket with the default value of
+                |g:julia_indent_align_brackets|):
+>
+                function functionanme(arg1, arg2,
+                                      arg3, arg4
+                                     )
+                    # function body
+                end
+<
 
 ==============================================================================
 ABOUT                                                     *julia-vim-about*

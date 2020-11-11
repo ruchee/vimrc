@@ -1,7 +1,8 @@
-# Copyright (c) 2015-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
@@ -13,7 +14,6 @@ A micro report is a tree of layout and content objects.
 
 
 class VNode:
-
     def __init__(self, nid=None):
         self.id = nid
         # navigation
@@ -41,17 +41,17 @@ class VNode:
         """
         try:
             # pylint: disable=no-member
-            return self.TYPE.replace('-', '_')
+            return self.TYPE.replace("-", "_")
         # pylint: disable=broad-except
         except Exception:
             return self.__class__.__name__.lower()
 
     def accept(self, visitor, *args, **kwargs):
-        func = getattr(visitor, 'visit_%s' % self._get_visit_name())
+        func = getattr(visitor, "visit_%s" % self._get_visit_name())
         return func(self, *args, **kwargs)
 
     def leave(self, visitor, *args, **kwargs):
-        func = getattr(visitor, 'leave_%s' % self._get_visit_name())
+        func = getattr(visitor, "leave_%s" % self._get_visit_name())
         return func(self, *args, **kwargs)
 
 
@@ -61,8 +61,9 @@ class BaseLayout(VNode):
     attributes
     * children : components in this table (i.e. the table's cells)
     """
+
     def __init__(self, children=(), **kwargs):
-        super(BaseLayout, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         for child in children:
             if isinstance(child, VNode):
                 self.append(child)
@@ -88,15 +89,17 @@ class BaseLayout(VNode):
 
 # non container nodes #########################################################
 
+
 class Text(VNode):
     """a text portion
 
     attributes :
     * data : the text value as an encoded or unicode string
     """
+
     def __init__(self, data, escaped=True, **kwargs):
-        super(Text, self).__init__(**kwargs)
-        #if isinstance(data, unicode):
+        super().__init__(**kwargs)
+        # if isinstance(data, unicode):
         #    data = data.encode('ascii')
         assert isinstance(data, str), data.__class__
         self.escaped = escaped
@@ -110,7 +113,9 @@ class VerbatimText(Text):
     * data : the text value as an encoded or unicode string
     """
 
+
 # container nodes #############################################################
+
 
 class Section(BaseLayout):
     """a section
@@ -123,8 +128,9 @@ class Section(BaseLayout):
     a description may also be given to the constructor, it'll be added
     as a first paragraph
     """
+
     def __init__(self, title=None, description=None, **kwargs):
-        super(Section, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if description:
             self.insert(0, Paragraph([Text(description)]))
         if title:
@@ -132,9 +138,8 @@ class Section(BaseLayout):
 
 
 class EvaluationSection(Section):
-
     def __init__(self, message, **kwargs):
-        super(EvaluationSection, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         title = Paragraph()
         title.append(Text("-" * len(message)))
         self.append(title)
@@ -174,10 +179,9 @@ class Table(BaseLayout):
     * cheaders : the first col's elements are table's header
     * title : the table's optional title
     """
-    def __init__(self, cols, title=None,
-                 rheaders=0, cheaders=0,
-                 **kwargs):
-        super(Table, self).__init__(**kwargs)
+
+    def __init__(self, cols, title=None, rheaders=0, cheaders=0, **kwargs):
+        super().__init__(**kwargs)
         assert isinstance(cols, int)
         self.cols = cols
         self.title = title

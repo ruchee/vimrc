@@ -15,13 +15,12 @@ from __future__ import unicode_literals
 import os
 import re
 import sys
-
+import time
 import contextlib
 import io
 import shutil
 from subprocess import Popen, PIPE
-from tempfile import mkstemp
-import tempfile
+from tempfile import mkstemp, mkdtemp
 import tokenize
 import unittest
 import warnings
@@ -34,8 +33,8 @@ except ImportError:
 ROOT_DIR = os.path.split(os.path.abspath(os.path.dirname(__file__)))[0]
 
 sys.path.insert(0, ROOT_DIR)
-import autopep8
-
+import autopep8     # NOQA: E402
+from autopep8 import get_module_imports_on_top_of_file  # NOQA: E402
 
 FAKE_CONFIGURATION = os.path.join(ROOT_DIR, 'test', 'fake_configuration')
 FAKE_PYCODESTYLE_CONFIGURATION = os.path.join(
@@ -124,7 +123,7 @@ class UnitTests(unittest.TestCase):
 
     def test_multiline_string_lines(self):
         self.assertEqual(
-            set([2]),
+            {2},
             autopep8.multiline_string_lines(
                 """\
 '''
@@ -133,7 +132,7 @@ class UnitTests(unittest.TestCase):
 
     def test_multiline_string_lines_with_many(self):
         self.assertEqual(
-            set([2, 7, 10, 11, 12]),
+            {2, 7, 10, 11, 12},
             autopep8.multiline_string_lines(
                 """\
 '''
@@ -160,7 +159,7 @@ class UnitTests(unittest.TestCase):
 
     def test_multiline_string_should_not_report_docstrings(self):
         self.assertEqual(
-            set([5]),
+            {5},
             autopep8.multiline_string_lines(
                 """\
 def foo():
@@ -455,7 +454,7 @@ sys.maxint
                             msg=filename)
 
     def test_find_files(self):
-        temp_directory = tempfile.mkdtemp()
+        temp_directory = mkdtemp()
         try:
             target = os.path.join(temp_directory, 'dir')
             os.mkdir(target)
@@ -615,7 +614,7 @@ print('python')
                                     contents='None == x\n')
 
         self.assertEqual(
-            [],
+            None,
             fix_pep8.fix_e711({'line': 1,
                                'column': 6}))
 
@@ -852,6 +851,10 @@ lambda xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
                     re.sub(r'\s', '', text),
                     re.sub(r'\s', '', candidate))
 
+    def test_get_fixed_long_line_empty(self):
+        line = ''
+        self.assertEqual(line, autopep8.get_fixed_long_line(line, line, line))
+
 
 class SystemTests(unittest.TestCase):
 
@@ -1025,8 +1028,8 @@ while True:  # My inline comment
 """
         fixed = """\
 while True:  # My inline comment
-             # with a hanging
-             # comment.
+    # with a hanging
+    # comment.
     # Hello
     if True:
         # My comment
@@ -1225,6 +1228,22 @@ a = 1
         fixed = """\
 a = 1
 # b = 2
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e117(self):
+        line = """\
+for a in [1, 2, 3]:
+    print('hello world')
+    for b in [1, 2, 3]:
+            print(a, b)
+"""
+        fixed = """\
+for a in [1, 2, 3]:
+    print('hello world')
+    for b in [1, 2, 3]:
+        print(a, b)
 """
         with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
@@ -1551,6 +1570,24 @@ x = \
     )
 """
         with autopep8_context(line, options=['--select=E12']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e128_with_aaa_option(self):
+        line = """\
+def extractBlocks(self):
+    addLine = (self.matchMultiple(linesIncludePatterns, line)
+       and not self.matchMultiple(linesExcludePatterns, line)) or emptyLine
+"""
+        fixed = """\
+def extractBlocks(self):
+    addLine = (
+        self.matchMultiple(
+            linesIncludePatterns,
+            line) and not self.matchMultiple(
+            linesExcludePatterns,
+            line)) or emptyLine
+"""
+        with autopep8_context(line, options=['-aaa']) as result:
             self.assertEqual(fixed, result)
 
     def test_e129(self):
@@ -2312,6 +2349,27 @@ def foo():
         with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
 
+    def test_e303_with_e305(self):
+        line = """\
+def foo():
+    pass
+
+
+
+# comment   (E303)
+a = 1     # (E305)
+"""
+        fixed = """\
+def foo():
+    pass
+
+
+# comment   (E303)
+a = 1     # (E305)
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
     def test_e304(self):
         line = '@contextmanager\n\ndef f():\n    print 1\n'
         fixed = '@contextmanager\ndef f():\n    print 1\n'
@@ -2363,6 +2421,153 @@ def foo():
         line = 'import foo, \\\n    bar\n'
         fixed = 'import foo\nimport \\\n    bar\n'
         with autopep8_context(line, options=['--select=E401']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402(self):
+        line = 'a = 1\nimport os\n'
+        fixed = 'import os\na = 1\n'
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_duplicate_module(self):
+        line = 'a = 1\nimport os\nprint(os)\nimport os\n'
+        fixed = 'import os\na = 1\nprint(os)\n'
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_with_future_import(self):
+        line = 'from __future__ import print_function\na = 1\nimport os\n'
+        fixed = 'from __future__ import print_function\nimport os\na = 1\n'
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e401_with_multiline_from_import(self):
+        line = """\
+from os import (
+    chroot
+)
+def f():
+    pass
+from a import b
+from b import c
+from c import d
+"""
+        fixed = """\
+from a import b
+from c import d
+from b import c
+from os import (
+    chroot
+)
+
+
+def f():
+    pass
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_with_multiline_from_future_import(self):
+        line = """\
+from __future__ import (
+    absolute_import,
+    print_function
+)
+def f():
+    pass
+import os
+"""
+        fixed = """\
+from __future__ import (
+    absolute_import,
+    print_function
+)
+import os
+
+
+def f():
+    pass
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_with_module_doc(self):
+        line1 = '"""\nmodule doc\n"""\na = 1\nimport os\n'
+        fixed1 = '"""\nmodule doc\n"""\nimport os\na = 1\n'
+        line2 = '# comment\nr"""\nmodule doc\n"""\na = 1\nimport os\n'
+        fixed2 = '# comment\nr"""\nmodule doc\n"""\nimport os\na = 1\n'
+        line3 = "u'''one line module doc'''\na = 1\nimport os\n"
+        fixed3 = "u'''one line module doc'''\nimport os\na = 1\n"
+        line4 = "'''\n\"\"\"\ndoc'''\na = 1\nimport os\n"
+        fixed4 = "'''\n\"\"\"\ndoc'''\nimport os\na = 1\n"
+        for line, fixed in [(line1, fixed1), (line2, fixed2),
+                            (line3, fixed3), (line4, fixed4)]:
+            with autopep8_context(line) as result:
+                self.assertEqual(fixed, result)
+
+    def test_e402_import_some_modules(self):
+        line = """\
+a = 1
+from csv import (
+    reader,
+    writer,
+)
+import os
+print(os, reader, writer)
+import os
+"""
+        fixed = """\
+import os
+from csv import (
+    reader,
+    writer,
+)
+a = 1
+print(os, reader, writer)
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_with_dunder(self):
+        line = """\
+__all__ = ["a", "b"]
+def f():
+    pass
+import os
+"""
+        fixed = """\
+import os
+__all__ = ["a", "b"]
+
+
+def f():
+    pass
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e402_with_dunder_lines(self):
+        line = """\
+__all__ = [
+    "a",
+    "b",
+]
+def f():
+    pass
+import os
+"""
+        fixed = """\
+import os
+__all__ = [
+    "a",
+    "b",
+]
+
+
+def f():
+    pass
+"""
+        with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
 
     def test_e501_basic(self):
@@ -3441,8 +3646,6 @@ def foobar(sldfkjlsdfsdf, kksdfsdfsf,sdfsdfsdf, sdfsdfkdk, szdfsdfsdf, sdfsdfsdf
     pass
 """
         fixed = """\
-
-
 def foobar(
         sldfkjlsdfsdf,
         kksdfsdfsf,
@@ -3812,9 +4015,28 @@ MY_CONST = [
         with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
 
+    def test_e702_with_e701_and_only_select_e702_option(self):
+        line = """\
+for i in range(3):
+    if i == 1: print i; continue
+    print i
+"""
+        with autopep8_context(line, options=["--select=E702"]) as result:
+            self.assertEqual(line, result)
+
     def test_e703_with_inline_comment(self):
         line = 'a = 5;    # inline comment\n'
         fixed = 'a = 5    # inline comment\n'
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_e703_in_example_of_readme(self):
+        line = """\
+def example2(): return ('' in {'f': 2}) in {'has_key() is deprecated': True};
+"""
+        fixed = """\
+def example2(): return ('' in {'f': 2}) in {'has_key() is deprecated': True}
+"""
         with autopep8_context(line) as result:
             self.assertEqual(fixed, result)
 
@@ -3835,9 +4057,14 @@ MY_CONST = [
         with autopep8_context(line, options=['--aggressive']) as result:
             self.assertEqual(fixed, result)
 
+        line = 'None == foo\n'
+        fixed = 'None is foo\n'
+        with autopep8_context(line, options=['--aggressive']) as result:
+            self.assertEqual(fixed, result)
+
     def test_e711_in_conditional(self):
         line = 'if foo == None and None == foo:\npass\n'
-        fixed = 'if foo is None and None == foo:\npass\n'
+        fixed = 'if foo is None and None is foo:\npass\n'
         with autopep8_context(line, options=['--aggressive']) as result:
             self.assertEqual(fixed, result)
 
@@ -4221,7 +4448,33 @@ else:
     def test_w503(self):
         line = '(width == 0\n + height == 0)\n'
         fixed = '(width == 0 +\n height == 0)\n'
-        with autopep8_context(line, options=['-aaa']) as result:
+        with autopep8_context(line, options=['--select=W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_ignore_w504(self):
+        line = '(width == 0\n + height == 0)\n'
+        fixed = '(width == 0 +\n height == 0)\n'
+        with autopep8_context(line, options=['--ignore=E,W504']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_with_ignore_w503(self):
+        line = '(width == 0 +\n height == 0)\n'
+        fixed = '(width == 0\n + height == 0)\n'
+        with autopep8_context(line, options=['--ignore=E,W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_w504_none_ignored(self):
+        line = '(width == 0 +\n height == 0\n+ depth == 0)\n'
+        fixed = '(width == 0 +\n height == 0\n+ depth == 0)\n'
+        with autopep8_context(line, options=['--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_w504_both_ignored(self):
+        line = '(width == 0 +\n height == 0\n+ depth == 0)\n'
+        fixed = '(width == 0 +\n height == 0\n+ depth == 0)\n'
+        with autopep8_context(
+            line, options=['--ignore=E,W503, W504'],
+        ) as result:
             self.assertEqual(fixed, result)
 
     def test_w503_skip_default(self):
@@ -4232,13 +4485,31 @@ else:
     def test_w503_and_or(self):
         line = '(width == 0\n and height == 0\n or name == "")\n'
         fixed = '(width == 0 and\n height == 0 or\n name == "")\n'
-        with autopep8_context(line, options=['-aaa']) as result:
+        with autopep8_context(line, options=['--select=W503']) as result:
             self.assertEqual(fixed, result)
 
     def test_w503_with_comment(self):
         line = '(width == 0  # this is comment\n + height == 0)\n'
         fixed = '(width == 0 +  # this is comment\n height == 0)\n'
-        with autopep8_context(line, options=['-aaa']) as result:
+        with autopep8_context(line, options=['--select=W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_comment_into_point_out_line(self):
+        line = """\
+def test():
+    return (
+        True not in []
+        and False  # comment required
+    )
+"""
+        fixed = """\
+def test():
+    return (
+        True not in [] and
+        False  # comment required
+    )
+"""
+        with autopep8_context(line, options=['--select=W503']) as result:
             self.assertEqual(fixed, result)
 
     def test_w503_with_comment_double(self):
@@ -4256,7 +4527,23 @@ else:
     333333333333  # C3
 )
 """
-        with autopep8_context(line, options=['-aaa']) as result:
+        with autopep8_context(line, options=['--select=W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_comment_with_only_comment_block_charactor(self):
+        line = """\
+if (True  #
+    and True
+    and True):
+    print(1)
+"""
+        fixed = """\
+if (True and  #
+    True and
+    True):
+    print(1)
+"""
+        with autopep8_context(line, options=['--select=W503']) as result:
             self.assertEqual(fixed, result)
 
     def test_w503_over_5lines(self):
@@ -4282,7 +4569,193 @@ X = (
     7  # 7
 )
 """
-        with autopep8_context(line, options=['-aaa']) as result:
+        with autopep8_context(line, options=['--select=W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_line_comment(self):
+        line = '(width == 0\n # this is comment\n + height == 0)\n'
+        fixed = '(width == 0 +\n # this is comment\n height == 0)\n'
+        with autopep8_context(line, options=['--select=W503', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_empty_line(self):
+        line = """\
+
+# this is comment
+a = 2
+b = (1 +
+     2 +
+     3) / 2.0
+"""
+        fixed = """\
+
+# this is comment
+a = 2
+b = (1 +
+     2 +
+     3) / 2.0
+"""
+        with autopep8_context(line, options=['--ignore=E721']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_with_line_comments(self):
+        line = '(width == 0\n # this is comment\n # comment2\n + height == 0)\n'
+        fixed = '(width == 0 +\n # this is comment\n # comment2\n height == 0)\n'
+        with autopep8_context(line, options=['--select=W503', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_ignore_only_w503_with_select_w(self):
+        line = """\
+a = (
+    11 + 22 +
+    33 +
+    44
+    + 55
+)
+"""
+        fixed = """\
+a = (
+    11 + 22
+    + 33
+    + 44
+    + 55
+)
+"""
+        with autopep8_context(line, options=['--select=W', '--ignore=W503']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['--select=W5', '--ignore=W503']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['--select=W50', '--ignore=W503']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_ignore_only_w504_with_select_w(self):
+        line = """\
+a = (
+    11 + 22 +
+    33 +
+    44
+    + 55
+)
+"""
+        fixed = """\
+a = (
+    11 + 22 +
+    33 +
+    44 +
+    55
+)
+"""
+        with autopep8_context(line, options=['--select=W', '--ignore=W504']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['--select=W5', '--ignore=W504']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['--select=W50', '--ignore=W504']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_ignore_w503_and_w504_with_select_w(self):
+        line = """\
+a = (
+    11 + 22 +
+    33 +
+    44
+    + 55
+)
+"""
+        with autopep8_context(line, options=['--select=W', '--ignore=W503,W504']) as result:
+            self.assertEqual(line, result)
+        with autopep8_context(line, options=['--select=W5', '--ignore=W503,W504']) as result:
+            self.assertEqual(line, result)
+        with autopep8_context(line, options=['--select=W50', '--ignore=W503,W504']) as result:
+            self.assertEqual(line, result)
+
+    def test_w504(self):
+        line = '(width == 0 +\n height == 0)\n'
+        fixed = '(width == 0\n + height == 0)\n'
+        with autopep8_context(line, options=['--select=W504', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_comment_on_first_line(self):
+        line = 'x = (1 | # test\n2)\n'
+        fixed = 'x = (1 # test\n| 2)\n'
+        with autopep8_context(line, options=['--select=W504', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_comment_on_second_line(self):
+        line = 'x = (1 |\n2) # test\n'
+        fixed = 'x = (1\n| 2) # test\n'
+        with autopep8_context(line, options=['--select=W504', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_comment_on_each_lines(self):
+        line = 'x = (1 |# test\n2 |# test\n3) # test\n'
+        fixed = 'x = (1# test\n| 2# test\n| 3) # test\n'
+        with autopep8_context(line, options=['--select=W504', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_with_e265_ignore_option(self):
+        line = '(width == 0 +\n height == 0)\n'
+        with autopep8_context(line, options=['--ignore=E265']) as result:
+            self.assertEqual(line, result)
+
+    def test_w504_with_e265_ignore_option_regression(self):
+        line = """\
+if True:
+    if True:
+        if (
+                link.is_wheel and
+                isinstance(link.comes_from, HTMLPage) and
+                link.comes_from.url.startswith(index_url)
+        ):
+            _store_wheel_in_cache(file_path, index_url)
+"""
+        with autopep8_context(line, options=['--ignore=E265']) as result:
+            self.assertEqual(line, result)
+
+    def test_w504_with_line_comment(self):
+        line = '(width == 0 +\n # this is comment\n height == 0)\n'
+        fixed = '(width == 0\n # this is comment\n + height == 0)\n'
+        with autopep8_context(line, options=['--select=W504', '--ignore=E']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w504_not_applied_by_default_when_modifying_with_ignore(self):
+        line = """\
+q = 1
+
+
+
+
+def x(y, z):
+    if (
+            y and
+            z
+    ):
+        pass
+"""
+        fixed = line.replace('\n\n\n\n', '\n\n')
+        with autopep8_context(line, options=['--ignore=E265']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w503_and_w504_conflict(self):
+        line = """\
+if True:
+    if True:
+        assert_equal(self.nodes[0].getbalance(
+        ), bal + Decimal('50.00000000') + Decimal('2.19000000'))  # block reward + tx
+"""
+        fixed = """\
+if True:
+    if True:
+        assert_equal(
+            self.nodes[0].getbalance(),
+            bal +
+            Decimal('50.00000000') +
+            Decimal('2.19000000'))  # block reward + tx
+"""
+        with autopep8_context(line, options=['-aa', '--select=E,W']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['-aa', '--select=E,W5']) as result:
+            self.assertEqual(fixed, result)
+        with autopep8_context(line, options=['-aa', '--select=E,W50']) as result:
             self.assertEqual(fixed, result)
 
     def test_w601(self):
@@ -4563,8 +5036,33 @@ raise ValueError("error")
             self.assertEqual(fixed, result)
 
     def test_w605_simple(self):
-        line = "escape = '\.jpg'\n"
-        fixed = "escape = r'\.jpg'\n"
+        line = "escape = '\\.jpg'\n"
+        fixed = "escape = r'\\.jpg'\n"
+        with autopep8_context(line, options=['--aggressive']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w605_identical_token(self):
+        # ***NOTE***: The --pep8-passes option is requred to prevent an infinite loop in
+        # the old, failing code. DO NOT REMOVE.
+        line = "escape = foo('\\.bar', '\\.kilroy')\n"
+        fixed = "escape = foo(r'\\.bar', r'\\.kilroy')\n"
+        with autopep8_context(line, options=['--aggressive', '--pep8-passes', '5']) as result:
+            self.assertEqual(fixed, result, "Two tokens get r added")
+
+        line = "escape = foo('\\.bar', r'\\.kilroy')\n"
+        fixed = "escape = foo(r'\\.bar', r'\\.kilroy')\n"
+        with autopep8_context(line, options=['--aggressive', '--pep8-passes', '5']) as result:
+            self.assertEqual(fixed, result, "r not added if already there")
+
+        # Test Case to catch bad behavior reported in Issue #449
+        line = "escape = foo('\\.bar', '\\.bar')\n"
+        fixed = "escape = foo(r'\\.bar', r'\\.bar')\n"
+        with autopep8_context(line, options=['--aggressive', '--pep8-passes', '5']) as result:
+            self.assertEqual(fixed, result)
+
+    def test_w605_with_invalid_syntax(self):
+        line = "escape = rr'\\.jpg'\n"
+        fixed = "escape = rr'\\.jpg'\n"
         with autopep8_context(line, options=['--aggressive']) as result:
             self.assertEqual(fixed, result)
 
@@ -4636,20 +5134,350 @@ if True:
         with autopep8_context(line, options=['--line-range', '1', '1']) as result:
             self.assertEqual(line, result)
 
+    def test_long_import_line(self):
+        line = """\
+s
+from t import a, \
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbb, ccccccccccccccccccccccccccccccc, ddddddddddddddddddddddddddddddddddd
+"""
+        fixed = """\
+from t import a, \
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbb, ccccccccccccccccccccccccccccccc, ddddddddddddddddddddddddddddddddddd
+s
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(fixed, result)
+
+    def test_exchange_multiple_imports_with_def(self):
+        line = """\
+def f(n):
+    return n
+from a import fa
+from b import fb
+from c import fc
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(result[:4], 'from')
+
+    @unittest.skipIf(
+        (sys.version_info.major >= 3 and sys.version_info.minor < 8)
+        or sys.version_info.major < 3,
+        "syntax error in Python3.7 and lower version",
+    )
+    def test_with_walrus_operator(self):
+        """check pycodestyle 2.6.0+"""
+        line = """\
+sql_stmt = ""
+with open(filename) as f:
+    while line := f.readline():
+        sql_stmt += line
+"""
+        with autopep8_context(line) as result:
+            self.assertEqual(line, result)
+
+    def test_autopep8_disable(self):
+        test_code = """\
+# autopep8: off
+def f():
+    aaaaaaaaaaa.bbbbbbb([
+        ('xxxxxxxxxx', 'yyyyyy',
+         'Heaven hath no wrath like love to hatred turned. Nor hell a fury like a woman scorned.'),
+        ('xxxxxxx', 'yyyyyyyyyyy', "To the last I grapple with thee. From hell's heart I stab at thee. For hate's sake I spit my last breath at thee!")])
+# autopep8: on
+"""
+        expected_output = """\
+# autopep8: off
+def f():
+    aaaaaaaaaaa.bbbbbbb([
+        ('xxxxxxxxxx', 'yyyyyy',
+         'Heaven hath no wrath like love to hatred turned. Nor hell a fury like a woman scorned.'),
+        ('xxxxxxx', 'yyyyyyyyyyy', "To the last I grapple with thee. From hell's heart I stab at thee. For hate's sake I spit my last breath at thee!")])
+# autopep8: on
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+    def test_fmt_disable(self):
+        test_code = """\
+# fmt: off
+def f():
+    aaaaaaaaaaa.bbbbbbb([
+        ('xxxxxxxxxx', 'yyyyyy',
+         'Heaven hath no wrath like love to hatred turned. Nor hell a fury like a woman scorned.'),
+        ('xxxxxxx', 'yyyyyyyyyyy', "To the last I grapple with thee. From hell's heart I stab at thee. For hate's sake I spit my last breath at thee!")])
+# fmt: on
+"""
+        expected_output = """\
+# fmt: off
+def f():
+    aaaaaaaaaaa.bbbbbbb([
+        ('xxxxxxxxxx', 'yyyyyy',
+         'Heaven hath no wrath like love to hatred turned. Nor hell a fury like a woman scorned.'),
+        ('xxxxxxx', 'yyyyyyyyyyy', "To the last I grapple with thee. From hell's heart I stab at thee. For hate's sake I spit my last breath at thee!")])
+# fmt: on
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+    def test_fmt_disable_without_reenable(self):
+        test_code = """\
+# fmt: off
+print(123)
+"""
+        expected_output = """\
+# fmt: off
+print(123)
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+    def test_fmt_disable_with_double_reenable(self):
+        test_code = """\
+# fmt: off
+print( 123 )
+# fmt: on
+print( 123 )
+# fmt: on
+print( 123 )
+"""
+        expected_output = """\
+# fmt: off
+print( 123 )
+# fmt: on
+print(123)
+# fmt: on
+print(123)
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+    def test_fmt_double_disable_and_reenable(self):
+        test_code = """\
+# fmt: off
+print( 123 )
+# fmt: off
+print( 123 )
+# fmt: on
+print( 123 )
+"""
+        expected_output = """\
+# fmt: off
+print( 123 )
+# fmt: off
+print( 123 )
+# fmt: on
+print(123)
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+    def test_general_disable(self):
+        test_code = """\
+# fmt: off
+
+import math, sys;
+
+def example1():
+    # This is a long comment. This should be wrapped to fit within 72 characters.
+    some_tuple=(   1,2, 3,'a'  );
+    some_variable={'long':'Long code lines should be wrapped within 79 characters.',
+    'other':[math.pi, 100,200,300,9876543210,'This is a long string that goes on'],
+    'more':{'inner':'This whole logical line should be wrapped.',some_tuple:[1,
+    20,300,40000,500000000,60000000000000000]}}
+    return (some_tuple, some_variable)
+def example2(): return {'has_key() is deprecated':True}.has_key(
+    {'f':2}.has_key(''));
+class Example3(   object ):
+    def __init__    ( self, bar ):
+    # Comments should have a space after the hash.
+    if bar : bar+=1;  bar=bar* bar   ; return bar
+    else:
+        some_string = '''
+                    Indentation in multiline strings should not be touched.
+Only actual code should be reindented.
+'''
+        return (sys.path, some_string)
+# fmt: on
+
+import math, sys;
+
+def example1():
+    # This is a long comment. This should be wrapped to fit within 72 characters.
+    some_tuple=(   1,2, 3,'a'  );
+    some_variable={'long':'Long code lines should be wrapped within 79 characters.',
+    'other':[math.pi, 100,200,300,9876543210,'This is a long string that goes on'],
+    'more':{'inner':'This whole logical line should be wrapped.',some_tuple:[1,
+    20,300,40000,500000000,60000000000000000]}}
+    return (some_tuple, some_variable)
+def example2(): return {'has_key() is deprecated':True}.has_key(
+    {'f':2}.has_key(''));
+class Example3(   object ):
+    def __init__    ( self, bar ):
+    # Comments should have a space after the hash.
+    if bar : bar+=1;  bar=bar* bar   ; return bar
+    else:
+        some_string = '''
+                    Indentation in multiline strings should not be touched.
+Only actual code should be reindented.
+'''
+        return (sys.path, some_string)
+
+
+"""
+        expected_output = """\
+# fmt: off
+
+import sys
+import math
+import math, sys;
+
+def example1():
+    # This is a long comment. This should be wrapped to fit within 72 characters.
+    some_tuple=(   1,2, 3,'a'  );
+    some_variable={'long':'Long code lines should be wrapped within 79 characters.',
+    'other':[math.pi, 100,200,300,9876543210,'This is a long string that goes on'],
+    'more':{'inner':'This whole logical line should be wrapped.',some_tuple:[1,
+    20,300,40000,500000000,60000000000000000]}}
+    return (some_tuple, some_variable)
+def example2(): return {'has_key() is deprecated':True}.has_key(
+    {'f':2}.has_key(''));
+class Example3(   object ):
+    def __init__    ( self, bar ):
+    # Comments should have a space after the hash.
+    if bar : bar+=1;  bar=bar* bar   ; return bar
+    else:
+        some_string = '''
+                    Indentation in multiline strings should not be touched.
+Only actual code should be reindented.
+'''
+        return (sys.path, some_string)
+# fmt: on
+
+
+def example1():
+    # This is a long comment. This should be wrapped to fit within 72 characters.
+    some_tuple = (1, 2, 3, 'a')
+    some_variable = {'long': 'Long code lines should be wrapped within 79 characters.',
+                     'other': [math.pi, 100, 200, 300, 9876543210, 'This is a long string that goes on'],
+                     'more': {'inner': 'This whole logical line should be wrapped.', some_tuple: [1,
+                                                                                                  20, 300, 40000, 500000000, 60000000000000000]}}
+    return (some_tuple, some_variable)
+
+
+def example2(): return {'has_key() is deprecated': True}.has_key(
+    {'f': 2}.has_key(''))
+
+
+class Example3(object):
+    def __init__(self, bar):
+        # Comments should have a space after the hash.
+    if bar:
+        bar += 1
+        bar = bar * bar
+        return bar
+    else:
+        some_string = '''
+                    Indentation in multiline strings should not be touched.
+Only actual code should be reindented.
+'''
+        return (sys.path, some_string)
+"""
+        with autopep8_context(test_code) as result:
+            self.assertEqual(expected_output, result)
+
+
+class UtilityFunctionTests(unittest.TestCase):
+
+    def test_get_module_imports(self):
+        line = """\
+import os
+import sys
+
+if True:
+    print(1)
+"""
+        target_line_index = 8
+        result = get_module_imports_on_top_of_file(line.splitlines(),
+                                                   target_line_index)
+        self.assertEqual(result, 0)
+
+    def test_get_module_imports_case_of_autopep8(self):
+        line = """\
+#!/usr/bin/python
+
+# comment
+# comment
+
+'''this module ...
+
+this module ...
+'''
+
+import os
+import sys
+
+if True:
+    print(1)
+"""
+        target_line_index = 11
+        result = get_module_imports_on_top_of_file(line.splitlines(),
+                                                   target_line_index)
+        self.assertEqual(result, 10)
+
 
 class CommandLineTests(unittest.TestCase):
 
     maxDiff = None
 
+    def test_e122_and_e302_with_backslash(self):
+        line = """\
+import sys
+\\
+def f():
+    pass
+"""
+        fixed = """\
+import sys
+
+
+\\
+def f():
+    pass
+"""
+        with autopep8_subprocess(line, [], timeout=3) as (result, retcode):
+            self.assertEqual(fixed, result)
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
+
     def test_diff(self):
         line = "'abc'  \n"
         fixed = "-'abc'  \n+'abc'\n"
-        with autopep8_subprocess(line, ['--diff']) as result:
+        with autopep8_subprocess(line, ['--diff']) as (result, retcode):
             self.assertEqual(fixed, '\n'.join(result.split('\n')[3:]))
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
+
+    def test_diff_with_exit_code_option(self):
+        line = "'abc'  \n"
+        fixed = "-'abc'  \n+'abc'\n"
+        with autopep8_subprocess(line, ['--diff', '--exit-code']) as (result, retcode):
+            self.assertEqual(fixed, '\n'.join(result.split('\n')[3:]))
+            self.assertEqual(retcode, autopep8.EXIT_CODE_EXISTS_DIFF)
+
+    def test_non_diff_with_exit_code_option(self):
+        line = "'abc'\n"
+        with autopep8_subprocess(line, ['--diff', '--exit-code']) as (result, retcode):
+            self.assertEqual('', '\n'.join(result.split('\n')[3:]))
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
+
+    def test_non_diff_with_exit_code_and_jobs_options(self):
+        line = "'abc'\n"
+        with autopep8_subprocess(line, ['-j0', '--diff', '--exit-code']) as (result, retcode):
+            self.assertEqual('', '\n'.join(result.split('\n')[3:]))
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_diff_with_empty_file(self):
-        with autopep8_subprocess('', ['--diff']) as result:
+        with autopep8_subprocess('', ['--diff']) as (result, retcode):
             self.assertEqual('\n'.join(result.split('\n')[3:]), '')
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_diff_with_nonexistent_file(self):
         p = Popen(list(AUTOPEP8_CMD_TUPLE) + ['--diff', 'non_existent_file'],
@@ -4666,19 +5494,22 @@ class CommandLineTests(unittest.TestCase):
     def test_pep8_passes(self):
         line = "'abc'  \n"
         fixed = "'abc'\n"
-        with autopep8_subprocess(line, ['--pep8-passes', '0']) as result:
+        with autopep8_subprocess(line, ['--pep8-passes', '0']) as (result, retcode):
             self.assertEqual(fixed, result)
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_pep8_ignore(self):
         line = "'abc'  \n"
-        with autopep8_subprocess(line, ['--ignore=E,W']) as result:
+        with autopep8_subprocess(line, ['--ignore=E,W']) as (result, retcode):
             self.assertEqual(line, result)
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_pep8_ignore_should_handle_trailing_comma_gracefully(self):
         line = "'abc'  \n"
         fixed = "'abc'\n"
-        with autopep8_subprocess(line, ['--ignore=,']) as result:
+        with autopep8_subprocess(line, ['--ignore=,']) as (result, retcode):
             self.assertEqual(fixed, result)
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_help(self):
         p = Popen(list(AUTOPEP8_CMD_TUPLE) + ['-h'],
@@ -4702,6 +5533,19 @@ class CommandLineTests(unittest.TestCase):
             verbose_error = p.communicate()[1].decode('utf-8')
         self.assertIn('------------', verbose_error)
 
+    def test_verbose_with_select_e702(self):
+        line = """\
+for i in range(3):
+    if i == 1: print i; continue
+    print i
+"""
+        with temporary_file_context(line) as filename:
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) +
+                      [filename, '-vvv', '--select=E702'],
+                      stdout=PIPE, stderr=PIPE)
+            verbose_error = p.communicate()[1].decode('utf-8')
+        self.assertIn(" with other compound statements", verbose_error)
+
     def test_in_place(self):
         line = "'abc'  \n"
         fixed = "'abc'\n"
@@ -4712,6 +5556,67 @@ class CommandLineTests(unittest.TestCase):
 
             with open(filename) as f:
                 self.assertEqual(fixed, f.read())
+            self.assertEqual(p.returncode, autopep8.EXIT_CODE_OK)
+
+    def test_in_place_no_modifications_no_writes(self):
+        with temporary_file_context('import os\n') as filename:
+            # ensure that noops do not do writes by making writing an error
+            os.chmod(filename, 0o444)
+            p = Popen(
+                list(AUTOPEP8_CMD_TUPLE) + [filename, '--in-place'],
+                stderr=PIPE,
+            )
+            _, err = p.communicate()
+            self.assertEqual(err, b'')
+            self.assertEqual(p.returncode, autopep8.EXIT_CODE_OK)
+
+    def test_in_place_no_modifications_no_writes_with_empty_file(self):
+        with temporary_file_context('') as filename:
+            # ensure that noops do not do writes by making writing an error
+            os.chmod(filename, 0o444)
+            p = Popen(
+                list(AUTOPEP8_CMD_TUPLE) + [filename, '--in-place'],
+                stderr=PIPE,
+            )
+            _, err = p.communicate()
+            self.assertEqual(err, b'')
+            self.assertEqual(p.returncode, autopep8.EXIT_CODE_OK)
+
+    def test_in_place_with_w292(self):
+        line = "import os"
+        fixed = "import os\n"
+
+        with temporary_file_context(line) as filename:
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [filename, '--in-place'])
+            p.wait()
+            with open(filename) as f:
+                self.assertEqual(fixed, f.read())
+
+    def test_in_place_with_exit_code_option(self):
+        line = "'abc'  \n"
+        fixed = "'abc'\n"
+
+        with temporary_file_context(line) as filename:
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [filename,
+                                                  '--in-place',
+                                                  '--exit-code'])
+            p.wait()
+            with open(filename) as f:
+                self.assertEqual(fixed, f.read())
+            self.assertEqual(p.returncode, autopep8.EXIT_CODE_EXISTS_DIFF)
+
+    def test_in_place_with_exit_code_option_with_w391(self):
+        line = "\n\n\n"
+        fixed = ""
+
+        with temporary_file_context(line) as filename:
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [filename,
+                                                  '--in-place',
+                                                  '--exit-code'])
+            p.wait()
+            with open(filename) as f:
+                self.assertEqual(fixed, f.read())
+            self.assertEqual(p.returncode, autopep8.EXIT_CODE_EXISTS_DIFF)
 
     def test_parallel_jobs(self):
         line = "'abc'  \n"
@@ -4728,6 +5633,31 @@ class CommandLineTests(unittest.TestCase):
 
                 with open(filename_b) as f:
                     self.assertEqual(fixed, f.read())
+
+    def test_parallel_jobs_with_diff_option(self):
+        line = "'abc'  \n"
+        fixed = "'abc'\n"
+
+        with temporary_file_context(line) as filename_a:
+            with temporary_file_context(line) as filename_b:
+                files = list(set([filename_a, filename_b]))
+                p = Popen(list(AUTOPEP8_CMD_TUPLE) + files +
+                          ['--jobs=3', '--diff'], stdout=PIPE)
+                p.wait()
+                output = p.stdout.read().decode()
+
+                actual_diffs = []
+                for filename in files:
+                    actual_diffs.append("""\
+--- original/{filename}
++++ fixed/{filename}
+@@ -1 +1 @@
+-'abc'  
++'abc'
+""".format(filename=filename))
+                self.assertEqual(0, p.returncode)
+                for actual_diff in actual_diffs:
+                    self.assertIn(actual_diff, output)
 
     def test_parallel_jobs_with_automatic_cpu_count(self):
         line = "'abc'  \n"
@@ -4767,7 +5697,7 @@ class CommandLineTests(unittest.TestCase):
         self.assertIn('--in-place and --diff are mutually exclusive', result)
 
     def test_recursive(self):
-        temp_directory = tempfile.mkdtemp(dir='.')
+        temp_directory = mkdtemp(dir='.')
         try:
             with open(os.path.join(temp_directory, 'a.py'), 'w') as output:
                 output.write("'abc'  \n")
@@ -4793,7 +5723,7 @@ class CommandLineTests(unittest.TestCase):
             shutil.rmtree(temp_directory)
 
     def test_recursive_should_not_crash_on_unicode_filename(self):
-        temp_directory = tempfile.mkdtemp(dir='.')
+        temp_directory = mkdtemp(dir='.')
         try:
             for filename in ['x.py', 'é.py', 'é.txt']:
                 with open(os.path.join(temp_directory, filename), 'w'):
@@ -4810,8 +5740,8 @@ class CommandLineTests(unittest.TestCase):
             shutil.rmtree(temp_directory)
 
     def test_recursive_should_ignore_hidden(self):
-        temp_directory = tempfile.mkdtemp(dir='.')
-        temp_subdirectory = tempfile.mkdtemp(prefix='.', dir=temp_directory)
+        temp_directory = mkdtemp(dir='.')
+        temp_subdirectory = mkdtemp(prefix='.', dir=temp_directory)
         try:
             with open(os.path.join(temp_subdirectory, 'a.py'), 'w') as output:
                 output.write("'abc'  \n")
@@ -4827,7 +5757,7 @@ class CommandLineTests(unittest.TestCase):
             shutil.rmtree(temp_directory)
 
     def test_exclude(self):
-        temp_directory = tempfile.mkdtemp(dir='.')
+        temp_directory = mkdtemp(dir='.')
         try:
             with open(os.path.join(temp_directory, 'a.py'), 'w') as output:
                 output.write("'abc'  \n")
@@ -4840,6 +5770,28 @@ class CommandLineTests(unittest.TestCase):
             p = Popen(list(AUTOPEP8_CMD_TUPLE) +
                       [temp_directory, '--recursive', '--exclude=a*',
                        '--diff'],
+                      stdout=PIPE)
+            result = p.communicate()[0].decode('utf-8')
+
+            self.assertNotIn('abc', result)
+            self.assertIn('123', result)
+        finally:
+            shutil.rmtree(temp_directory)
+
+    def test_exclude_with_directly_file_args(self):
+        temp_directory = mkdtemp(dir='.')
+        try:
+            filepath_a = os.path.join(temp_directory, 'a.py')
+            with open(filepath_a, 'w') as output:
+                output.write("'abc'  \n")
+
+            os.mkdir(os.path.join(temp_directory, 'd'))
+            filepath_b = os.path.join(temp_directory, 'd', 'b.py')
+            with open(os.path.join(filepath_b), 'w') as output:
+                output.write('123  \n')
+
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) +
+                      ['--exclude=*/a.py', '--diff', filepath_a, filepath_b],
                       stdout=PIPE)
             result = p.communicate()[0].decode('utf-8')
 
@@ -4869,8 +5821,9 @@ class CommandLineTests(unittest.TestCase):
                 self.assertTrue(len(result))
 
     def test_list_fixes(self):
-        with autopep8_subprocess('', options=['--list-fixes']) as result:
+        with autopep8_subprocess('', options=['--list-fixes']) as (result, retcode):
             self.assertIn('E121', result)
+            self.assertEqual(retcode, autopep8.EXIT_CODE_OK)
 
     def test_fixpep8_class_constructor(self):
         line = 'print 1\nprint 2\n'
@@ -4918,6 +5871,17 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual(
             fixed,
             process.communicate(line.encode('utf-8'))[0].decode('utf-8'))
+
+    def test_exit_code_should_be_set_when_standard_in(self):
+        line = 'print( 1 )\n'
+        process = Popen(list(AUTOPEP8_CMD_TUPLE) +
+                        ['--exit-code', '-'],
+                        stdout=PIPE,
+                        stdin=PIPE)
+        process.communicate(line.encode('utf-8'))[0].decode('utf-8')
+        self.assertEqual(
+            process.returncode,
+            autopep8.EXIT_CODE_EXISTS_DIFF)
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -5017,6 +5981,65 @@ aggressive=1
                  '--global-config={}'.format(filename)],
                 apply_config=True)
             self.assertEqual(args.aggressive, 1)
+
+    def test_pyproject_toml_config_local_int_value(self):
+        with temporary_file_context('[tool.autopep8]\naggressive=2\n') as filename:
+            args = autopep8.parse_args(
+                [os.path.join(FAKE_CONFIGURATION, 'foo.py'),
+                 '--global-config={}'.format(filename)],
+                apply_config=True)
+            self.assertEqual(args.aggressive, 2)
+
+
+class ConfigurationFileTests(unittest.TestCase):
+
+    def test_pyproject_toml_with_flake8_config(self):
+        """override to flake8 config"""
+        line = "a =  1\n"
+        dot_flake8 = """[pep8]\naggressive=0\n"""
+        pyproject_toml = """[tool.autopep8]\naggressvie=2\nignore="E,W"\n"""
+        with temporary_project_directory() as dirname:
+            with open(os.path.join(dirname, "pyproject.toml"), "w") as fp:
+                fp.write(pyproject_toml)
+            with open(os.path.join(dirname, ".flake8"), "w") as fp:
+                fp.write(dot_flake8)
+            target_filename = os.path.join(dirname, "foo.py")
+            with open(target_filename, "w") as fp:
+                fp.write(line)
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [target_filename], stdout=PIPE)
+            self.assertEqual(p.communicate()[0].decode("utf-8"), line)
+            self.assertEqual(p.returncode, 0)
+
+    def test_pyproject_toml_with_verbose_option(self):
+        """override to flake8 config"""
+        line = "a =  1\n"
+        verbose_line = "enable pyproject.toml config: key=ignore, value=E,W\n"
+        pyproject_toml = """[tool.autopep8]\naggressvie=2\nignore="E,W"\n"""
+        with temporary_project_directory() as dirname:
+            with open(os.path.join(dirname, "pyproject.toml"), "w") as fp:
+                fp.write(pyproject_toml)
+            target_filename = os.path.join(dirname, "foo.py")
+            with open(target_filename, "w") as fp:
+                fp.write(line)
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [target_filename, "-vvv"], stdout=PIPE)
+            output = p.communicate()[0].decode("utf-8")
+            self.assertTrue(line in output)
+            self.assertTrue(verbose_line in output)
+            self.assertEqual(p.returncode, 0)
+
+    def test_pyproject_toml_with_iterable_value(self):
+        line = "a =  1\n"
+        pyproject_toml = """[tool.autopep8]\naggressvie=2\nignore=["E","W"]\n"""
+        with temporary_project_directory() as dirname:
+            with open(os.path.join(dirname, "pyproject.toml"), "w") as fp:
+                fp.write(pyproject_toml)
+            target_filename = os.path.join(dirname, "foo.py")
+            with open(target_filename, "w") as fp:
+                fp.write(line)
+            p = Popen(list(AUTOPEP8_CMD_TUPLE) + [target_filename, ], stdout=PIPE)
+            output = p.communicate()[0].decode("utf-8")
+            self.assertTrue(line in output)
+            self.assertEqual(p.returncode, 0)
 
 
 class ExperimentalSystemTests(unittest.TestCase):
@@ -5509,7 +6532,7 @@ class Useless(object):
 class Useless(object):
 
     def _table_field_is_plain_widget(self, widget):
-        if widget.__class__ == Widget or(
+        if widget.__class__ == Widget or (
                 widget.__class__ == WidgetMeta and Widget in widget.__bases__):
             return True
 
@@ -5904,8 +6927,6 @@ aaaaaaaaaaaaaaaaaaaaa(
 @foo(('xxxxxxxxxxxxxxxxxxxxxxxxxx', users.xxxxxxxxxxxxxxxxxxxxxxxxxx), ('yyyyyyyyyyyy', users.yyyyyyyyyyyy), ('zzzzzzzzzzzzzz', users.zzzzzzzzzzzzzz))
 """
         fixed = """\
-
-
 @foo(('xxxxxxxxxxxxxxxxxxxxxxxxxx', users.xxxxxxxxxxxxxxxxxxxxxxxxxx),
      ('yyyyyyyyyyyy', users.yyyyyyyyyyyy),
      ('zzzzzzzzzzzzzz', users.zzzzzzzzzzzzzz))
@@ -6298,11 +7319,24 @@ def autopep8_context(line, options=None):
 
 
 @contextlib.contextmanager
-def autopep8_subprocess(line, options):
+def autopep8_subprocess(line, options, timeout=None):
     with temporary_file_context(line) as filename:
-        p = Popen(list(AUTOPEP8_CMD_TUPLE) + [filename] + options,
-                  stdout=PIPE)
-        yield p.communicate()[0].decode('utf-8')
+        p = Popen(list(AUTOPEP8_CMD_TUPLE) + [filename] + options, stdout=PIPE)
+        if timeout is None:
+            _stdout, _ = p.communicate()
+        else:
+            try:
+                _stdout, _ = p.communicate(timeout=timeout)
+            except TypeError:
+                # for Python2
+                while p.poll() is None and timeout > 0:
+                    time.sleep(0.5)
+                    timeout -= 0.5
+                if p.poll() is None:
+                    p.kill()
+                    raise Exception("subprocess is timed out")
+                _stdout, _ = p.communicate()
+        yield (_stdout.decode('utf-8'), p.returncode)
 
 
 @contextlib.contextmanager
@@ -6315,6 +7349,13 @@ def temporary_file_context(text, suffix='', prefix=''):
         temp_file.write(text)
     yield temporary[1]
     os.remove(temporary[1])
+
+
+@contextlib.contextmanager
+def temporary_project_directory(prefix="autopep8test"):
+    temporary = mkdtemp(prefix=prefix)
+    yield temporary
+    shutil.rmtree(temporary)
 
 
 @contextlib.contextmanager

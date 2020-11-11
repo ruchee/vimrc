@@ -11,7 +11,6 @@ comment
 commit
 constraints
 copy
-create
 deallocate
 declare
 delete
@@ -55,7 +54,6 @@ vacuum
 values
 work
 -- Types
-abstime
 aclitem
 addbandarg
 addr
@@ -149,6 +147,7 @@ issn
 issn13
 json
 jsonb
+jsonpath
 language_handler
 layer
 line
@@ -181,11 +180,9 @@ pg_all_foreign_keys
 pg_ddl_command
 pg_dependencies
 pg_lsn
+pg_mcv_list
 pg_ndistinct
 pg_node_tree
-pgr_costresult
-pgr_costresult3
-pgr_geomresult
 place
 place_gid_seq
 place_lookup
@@ -209,10 +206,8 @@ regproc
 regprocedure
 regrole
 regtype
-reltime
 secondary_unit_lookup
 seg
-smgr
 spatial_ref_sys
 spheroid
 sql_identifier
@@ -224,6 +219,7 @@ street_type_lookup
 summarystats
 tabblock
 tabblock_gid_seq
+table_am_handler
 tablefunc_crosstab_2
 tablefunc_crosstab_3
 tablefunc_crosstab_4
@@ -235,7 +231,6 @@ time_stamp
 timestamp
 timestamptz
 timetz
-tinterval
 topoelement
 topoelementarray
 topogeometry
@@ -318,17 +313,6 @@ RI_FKey_setnull_del()
 RI_FKey_setnull_upd()
 abbrev()
 abs()
-abstime()
-abstimeeq()
-abstimege()
-abstimegt()
-abstimein()
-abstimele()
-abstimelt()
-abstimene()
-abstimeout()
-abstimerecv()
-abstimesend()
 aclcontains()
 acldefault()
 aclexplode()
@@ -339,6 +323,7 @@ aclitemout()
 aclremove()
 acos()
 acosd()
+acosh()
 age()
 amvalidate()
 any_in()
@@ -392,6 +377,7 @@ array_to_json()
 array_to_string()
 array_to_tsvector()
 array_typanalyze()
+array_unnest_support()
 array_upper()
 arraycontained()
 arraycontains()
@@ -403,10 +389,12 @@ ascii_to_mic()
 ascii_to_utf8()
 asin()
 asind()
+asinh()
 atan()
 atan2()
 atan2d()
 atand()
+atanh()
 avg()
 bernoulli()
 big5_to_euc_tw()
@@ -541,7 +529,6 @@ brin_summarize_new_values()
 brin_summarize_range()
 brinhandler()
 broadcast()
-btabstimecmp()
 btarraycmp()
 btboolcmp()
 btbpchar_pattern_cmp()
@@ -568,19 +555,19 @@ btint8cmp()
 btint8sortsupport()
 btnamecmp()
 btnamesortsupport()
+btnametextcmp()
 btoidcmp()
 btoidsortsupport()
 btoidvectorcmp()
 btrecordcmp()
 btrecordimagecmp()
-btreltimecmp()
 btrim()
 bttext_pattern_cmp()
 bttext_pattern_sortsupport()
 bttextcmp()
+bttextnamecmp()
 bttextsortsupport()
 bttidcmp()
-bttintervalcmp()
 bytea_sortsupport()
 bytea_string_agg_finalfn()
 bytea_string_agg_transfn()
@@ -704,6 +691,7 @@ convert_to()
 corr()
 cos()
 cosd()
+cosh()
 cot()
 cotd()
 count()
@@ -940,6 +928,8 @@ format_type()
 gb18030_to_utf8()
 gbk_to_utf8()
 generate_series()
+generate_series_int4_support()
+generate_series_int8_support()
 generate_subscripts()
 get_bit()
 get_byte()
@@ -1049,8 +1039,11 @@ hashoidvector()
 hashoidvectorextended()
 hashtext()
 hashtextextended()
+hashtid()
+hashtidextended()
 hashvarlena()
 hashvarlenaextended()
+heap_tableam_handler()
 height()
 host()
 hostmask()
@@ -1311,11 +1304,10 @@ interval_pl_timetz()
 interval_recv()
 interval_send()
 interval_smaller()
-interval_transform()
+interval_support()
 interval_um()
 intervaltypmodin()
 intervaltypmodout()
-intinterval()
 isclosed()
 isempty()
 isfinite()
@@ -1404,6 +1396,13 @@ jsonb_object_field()
 jsonb_object_field_text()
 jsonb_object_keys()
 jsonb_out()
+jsonb_path_exists()
+jsonb_path_exists_opr()
+jsonb_path_match()
+jsonb_path_match_opr()
+jsonb_path_query()
+jsonb_path_query_array()
+jsonb_path_query_first()
 jsonb_populate_record()
 jsonb_populate_recordset()
 jsonb_pretty()
@@ -1415,6 +1414,10 @@ jsonb_to_record()
 jsonb_to_recordset()
 jsonb_to_tsvector()
 jsonb_typeof()
+jsonpath_in()
+jsonpath_out()
+jsonpath_recv()
+jsonpath_send()
 justify_days()
 justify_hours()
 justify_interval()
@@ -1472,6 +1475,7 @@ lo_truncate()
 lo_truncate64()
 lo_unlink()
 log()
+log10()
 loread()
 lower()
 lower_inc()
@@ -1557,7 +1561,6 @@ mic_to_win1250()
 mic_to_win1251()
 mic_to_win866()
 min()
-mktinterval()
 mod()
 mode()
 mode_final()
@@ -1565,18 +1568,25 @@ money()
 mul_d_interval()
 mxid_age()
 name()
+nameconcatoid()
 nameeq()
+nameeqtext()
 namege()
+namegetext()
 namegt()
+namegttext()
 nameiclike()
 nameicnlike()
 nameicregexeq()
 nameicregexne()
 namein()
 namele()
+nameletext()
 namelike()
 namelt()
+namelttext()
 namene()
+namenetext()
 namenlike()
 nameout()
 namerecv()
@@ -1599,6 +1609,7 @@ network_overlap()
 network_smaller()
 network_sub()
 network_subeq()
+network_subset_support()
 network_sup()
 network_supeq()
 networkjoinsel()
@@ -1664,7 +1675,7 @@ numeric_stddev_pop()
 numeric_stddev_samp()
 numeric_sub()
 numeric_sum()
-numeric_transform()
+numeric_support()
 numeric_uminus()
 numeric_uplus()
 numeric_var_pop()
@@ -1772,6 +1783,8 @@ pg_control_init()
 pg_control_recovery()
 pg_control_system()
 pg_conversion_is_visible()
+pg_copy_logical_replication_slot()
+pg_copy_physical_replication_slot()
 pg_create_logical_replication_slot()
 pg_create_physical_replication_slot()
 pg_create_restore_point()
@@ -1835,6 +1848,7 @@ pg_import_system_collations()
 pg_index_column_has_property()
 pg_index_has_property()
 pg_indexam_has_property()
+pg_indexam_progress_phasename()
 pg_indexes_size()
 pg_is_in_backup()
 pg_is_in_recovery()
@@ -1854,8 +1868,10 @@ pg_logical_slot_get_binary_changes()
 pg_logical_slot_get_changes()
 pg_logical_slot_peek_binary_changes()
 pg_logical_slot_peek_changes()
+pg_ls_archive_statusdir()
 pg_ls_dir()
 pg_ls_logdir()
+pg_ls_tmpdir()
 pg_ls_waldir()
 pg_lsn_cmp()
 pg_lsn_eq()
@@ -1871,11 +1887,17 @@ pg_lsn_ne()
 pg_lsn_out()
 pg_lsn_recv()
 pg_lsn_send()
+pg_mcv_list_in()
+pg_mcv_list_items()
+pg_mcv_list_out()
+pg_mcv_list_recv()
+pg_mcv_list_send()
 pg_my_temp_schema()
 pg_ndistinct_in()
 pg_ndistinct_out()
 pg_ndistinct_recv()
 pg_ndistinct_send()
+pg_nextoid()
 pg_node_tree_in()
 pg_node_tree_out()
 pg_node_tree_recv()
@@ -1886,9 +1908,13 @@ pg_opclass_is_visible()
 pg_operator_is_visible()
 pg_opfamily_is_visible()
 pg_options_to_table()
+pg_partition_ancestors()
+pg_partition_root()
+pg_partition_tree()
 pg_postmaster_start_time()
 pg_prepared_statement()
 pg_prepared_xact()
+pg_promote()
 pg_read_binary_file()
 pg_read_file()
 pg_read_file_old()
@@ -1960,6 +1986,8 @@ pg_stat_get_db_blk_read_time()
 pg_stat_get_db_blk_write_time()
 pg_stat_get_db_blocks_fetched()
 pg_stat_get_db_blocks_hit()
+pg_stat_get_db_checksum_failures()
+pg_stat_get_db_checksum_last_failure()
 pg_stat_get_db_conflict_all()
 pg_stat_get_db_conflict_bufferpin()
 pg_stat_get_db_conflict_lock()
@@ -2233,17 +2261,6 @@ regtypein()
 regtypeout()
 regtyperecv()
 regtypesend()
-reltime()
-reltimeeq()
-reltimege()
-reltimegt()
-reltimein()
-reltimele()
-reltimelt()
-reltimene()
-reltimeout()
-reltimerecv()
-reltimesend()
 repeat()
 replace()
 reverse()
@@ -2288,14 +2305,11 @@ sign()
 similar_escape()
 sin()
 sind()
+sinh()
 sjis_to_euc_jp()
 sjis_to_mic()
 sjis_to_utf8()
 slope()
-smgreq()
-smgrin()
-smgrne()
-smgrout()
 spg_bbox_quad_config()
 spg_box_quad_choose()
 spg_box_quad_config()
@@ -2341,11 +2355,14 @@ substring()
 sum()
 suppress_redundant_updates_trigger()
 system()
+table_am_handler_in()
+table_am_handler_out()
 table_to_xml()
 table_to_xml_and_xmlschema()
 table_to_xmlschema()
 tan()
 tand()
+tanh()
 text()
 text_ge()
 text_gt()
@@ -2360,18 +2377,28 @@ text_smaller()
 textanycat()
 textcat()
 texteq()
+texteqname()
+textgename()
+textgtname()
 texticlike()
+texticlike_support()
 texticnlike()
 texticregexeq()
+texticregexeq_support()
 texticregexne()
 textin()
 textlen()
+textlename()
 textlike()
+textlike_support()
+textltname()
 textne()
+textnename()
 textnlike()
 textout()
 textrecv()
 textregexeq()
+textregexeq_support()
 textregexne()
 textsend()
 thesaurus_init()
@@ -2407,12 +2434,9 @@ time_pl_interval()
 time_recv()
 time_send()
 time_smaller()
-time_transform()
+time_support()
 timedate_pl()
-timemi()
-timenow()
 timeofday()
-timepl()
 timestamp()
 timestamp_cmp()
 timestamp_cmp_date()
@@ -2429,7 +2453,6 @@ timestamp_gt_timestamptz()
 timestamp_hash()
 timestamp_hash_extended()
 timestamp_in()
-timestamp_izone_transform()
 timestamp_larger()
 timestamp_le()
 timestamp_le_date()
@@ -2448,8 +2471,7 @@ timestamp_recv()
 timestamp_send()
 timestamp_smaller()
 timestamp_sortsupport()
-timestamp_transform()
-timestamp_zone_transform()
+timestamp_support()
 timestamptypmodin()
 timestamptypmodout()
 timestamptz()
@@ -2509,29 +2531,6 @@ timetzdate_pl()
 timetztypmodin()
 timetztypmodout()
 timezone()
-tinterval()
-tintervalct()
-tintervalend()
-tintervaleq()
-tintervalge()
-tintervalgt()
-tintervalin()
-tintervalle()
-tintervalleneq()
-tintervallenge()
-tintervallengt()
-tintervallenle()
-tintervallenlt()
-tintervallenne()
-tintervallt()
-tintervalne()
-tintervalout()
-tintervalov()
-tintervalrecv()
-tintervalrel()
-tintervalsame()
-tintervalsend()
-tintervalstart()
 to_ascii()
 to_char()
 to_date()
@@ -2672,7 +2671,7 @@ varbit_in()
 varbit_out()
 varbit_recv()
 varbit_send()
-varbit_transform()
+varbit_support()
 varbitcmp()
 varbiteq()
 varbitge()
@@ -2683,7 +2682,7 @@ varbitne()
 varbittypmodin()
 varbittypmodout()
 varchar()
-varchar_transform()
+varchar_support()
 varcharin()
 varcharout()
 varcharrecv()
@@ -2739,8 +2738,6 @@ check_primary_key() -- function
 -- Extension: postgis
 addauth() -- function
 addgeometrycolumn() -- function
-addoverviewconstraints() -- function
-addrasterconstraints() -- function
 box() -- function
 box2d() -- function
 box2d_in() -- function
@@ -2758,8 +2755,6 @@ contains_2d() -- function
 disablelongtransactions() -- function
 dropgeometrycolumn() -- function
 dropgeometrytable() -- function
-dropoverviewconstraints() -- function
-droprasterconstraints() -- function
 enablelongtransactions() -- function
 equals() -- function
 find_srid() -- function
@@ -2786,6 +2781,12 @@ geography_out() -- function
 geography_overlaps() -- function
 geography_recv() -- function
 geography_send() -- function
+geography_spgist_choose_nd() -- function
+geography_spgist_compress_nd() -- function
+geography_spgist_config_nd() -- function
+geography_spgist_inner_consistent_nd() -- function
+geography_spgist_leaf_consistent_nd() -- function
+geography_spgist_picksplit_nd() -- function
 geography_typmod_in() -- function
 geography_typmod_out() -- function
 geom2d_brin_inclusion_add_value() -- function
@@ -2797,9 +2798,9 @@ geometry_analyze() -- function
 geometry_below() -- function
 geometry_cmp() -- function
 geometry_contained_3d() -- function
-geometry_contained_by_raster() -- function
 geometry_contains() -- function
 geometry_contains_3d() -- function
+geometry_contains_nd() -- function
 geometry_distance_box() -- function
 geometry_distance_centroid() -- function
 geometry_distance_centroid_nd() -- function
@@ -2836,28 +2837,35 @@ geometry_overlaps_3d() -- function
 geometry_overlaps_nd() -- function
 geometry_overleft() -- function
 geometry_overright() -- function
-geometry_raster_contain() -- function
-geometry_raster_overlap() -- function
 geometry_recv() -- function
 geometry_right() -- function
 geometry_same() -- function
 geometry_same_3d() -- function
+geometry_same_nd() -- function
 geometry_send() -- function
+geometry_sortsupport() -- function
 geometry_spgist_choose_2d() -- function
 geometry_spgist_choose_3d() -- function
+geometry_spgist_choose_nd() -- function
 geometry_spgist_compress_2d() -- function
 geometry_spgist_compress_3d() -- function
+geometry_spgist_compress_nd() -- function
 geometry_spgist_config_2d() -- function
 geometry_spgist_config_3d() -- function
+geometry_spgist_config_nd() -- function
 geometry_spgist_inner_consistent_2d() -- function
 geometry_spgist_inner_consistent_3d() -- function
+geometry_spgist_inner_consistent_nd() -- function
 geometry_spgist_leaf_consistent_2d() -- function
 geometry_spgist_leaf_consistent_3d() -- function
+geometry_spgist_leaf_consistent_nd() -- function
 geometry_spgist_picksplit_2d() -- function
 geometry_spgist_picksplit_3d() -- function
+geometry_spgist_picksplit_nd() -- function
 geometry_typmod_in() -- function
 geometry_typmod_out() -- function
 geometry_within() -- function
+geometry_within_nd() -- function
 geometrytype() -- function
 geomfromewkb() -- function
 geomfromewkt() -- function
@@ -2870,6 +2878,8 @@ gserialized_gist_joinsel_nd() -- function
 gserialized_gist_sel_2d() -- function
 gserialized_gist_sel_nd() -- function
 is_contained_2d() -- function
+json() -- function
+jsonb() -- function
 lockrow() -- function
 longtransactionsenabled() -- function
 overlaps_2d() -- function
@@ -2883,7 +2893,6 @@ pgis_asmvt_deserialfn() -- function
 pgis_asmvt_finalfn() -- function
 pgis_asmvt_serialfn() -- function
 pgis_asmvt_transfn() -- function
-pgis_geometry_accum_finalfn() -- function
 pgis_geometry_accum_transfn() -- function
 pgis_geometry_clusterintersecting_finalfn() -- function
 pgis_geometry_clusterwithin_finalfn() -- function
@@ -2902,10 +2911,11 @@ postgis_constraint_type() -- function
 postgis_dropbbox() -- function
 postgis_extensions_upgrade() -- function
 postgis_full_version() -- function
-postgis_gdal_version() -- function
+postgis_geos_noop() -- function
 postgis_geos_version() -- function
 postgis_getbbox() -- function
 postgis_hasbbox() -- function
+postgis_index_supportfn() -- function
 postgis_lib_build_date() -- function
 postgis_lib_version() -- function
 postgis_libjson_version() -- function
@@ -2914,9 +2924,6 @@ postgis_libprotobuf_version() -- function
 postgis_libxml_version() -- function
 postgis_noop() -- function
 postgis_proj_version() -- function
-postgis_raster_lib_build_date() -- function
-postgis_raster_lib_version() -- function
-postgis_raster_scripts_installed() -- function
 postgis_scripts_build_date() -- function
 postgis_scripts_installed() -- function
 postgis_scripts_released() -- function
@@ -2927,25 +2934,7 @@ postgis_typmod_dims() -- function
 postgis_typmod_srid() -- function
 postgis_typmod_type() -- function
 postgis_version() -- function
-raster_above() -- function
-raster_below() -- function
-raster_contain() -- function
-raster_contained() -- function
-raster_contained_by_geometry() -- function
-raster_eq() -- function
-raster_geometry_contain() -- function
-raster_geometry_overlap() -- function
-raster_hash() -- function
-raster_in() -- function
-raster_left() -- function
-raster_out() -- function
-raster_overabove() -- function
-raster_overbelow() -- function
-raster_overlap() -- function
-raster_overleft() -- function
-raster_overright() -- function
-raster_right() -- function
-raster_same() -- function
+postgis_wagyu_version() -- function
 spheroid_in() -- function
 spheroid_out() -- function
 st_3dclosestpoint() -- function
@@ -2955,57 +2944,35 @@ st_3ddwithin() -- function
 st_3dextent() -- function
 st_3dintersects() -- function
 st_3dlength() -- function
-st_3dlength_spheroid() -- function
+st_3dlineinterpolatepoint() -- function
 st_3dlongestline() -- function
 st_3dmakebox() -- function
 st_3dmaxdistance() -- function
 st_3dperimeter() -- function
 st_3dshortestline() -- function
-st_accum() -- function
-st_addband() -- function
 st_addmeasure() -- function
 st_addpoint() -- function
 st_affine() -- function
 st_angle() -- function
-st_approxcount() -- function
-st_approxhistogram() -- function
-st_approxquantile() -- function
-st_approxsummarystats() -- function
 st_area() -- function
 st_area2d() -- function
 st_asbinary() -- function
 st_asencodedpolyline() -- function
 st_asewkb() -- function
 st_asewkt() -- function
-st_asgdalraster() -- function
 st_asgeobuf() -- function
 st_asgeojson() -- function
 st_asgml() -- function
 st_ashexewkb() -- function
-st_ashexwkb() -- function
-st_asjpeg() -- function
 st_askml() -- function
 st_aslatlontext() -- function
 st_asmvt() -- function
 st_asmvtgeom() -- function
-st_aspect() -- function
-st_aspng() -- function
-st_asraster() -- function
 st_assvg() -- function
 st_astext() -- function
-st_astiff() -- function
 st_astwkb() -- function
-st_aswkb() -- function
 st_asx3d() -- function
 st_azimuth() -- function
-st_band() -- function
-st_bandfilesize() -- function
-st_bandfiletimestamp() -- function
-st_bandisnodata() -- function
-st_bandmetadata() -- function
-st_bandnodatavalue() -- function
-st_bandpath() -- function
-st_bandpixeltype() -- function
 st_bdmpolyfromtext() -- function
 st_bdpolyfromtext() -- function
 st_boundary() -- function
@@ -3016,7 +2983,6 @@ st_buildarea() -- function
 st_centroid() -- function
 st_chaikinsmoothing() -- function
 st_cleangeometry() -- function
-st_clip() -- function
 st_clipbybox2d() -- function
 st_closestpoint() -- function
 st_closestpointofapproach() -- function
@@ -3027,20 +2993,15 @@ st_clusterwithin() -- function
 st_collect() -- function
 st_collectionextract() -- function
 st_collectionhomogenize() -- function
-st_colormap() -- function
-st_combine_bbox() -- function
 st_combinebbox() -- function
 st_concavehull() -- function
 st_contains() -- function
 st_containsproperly() -- function
 st_convexhull() -- function
 st_coorddim() -- function
-st_count() -- function
-st_countagg() -- function
 st_coveredby() -- function
 st_covers() -- function
 st_cpawithin() -- function
-st_createoverview() -- function
 st_crosses() -- function
 st_curvetoline() -- function
 st_delaunaytriangles() -- function
@@ -3049,28 +3010,21 @@ st_difference() -- function
 st_dimension() -- function
 st_disjoint() -- function
 st_distance() -- function
-st_distance_sphere() -- function
-st_distance_spheroid() -- function
 st_distancecpa() -- function
 st_distancesphere() -- function
 st_distancespheroid() -- function
-st_distinct4ma() -- function
 st_dump() -- function
-st_dumpaspolygons() -- function
 st_dumppoints() -- function
 st_dumprings() -- function
-st_dumpvalues() -- function
 st_dwithin() -- function
 st_endpoint() -- function
 st_envelope() -- function
 st_equals() -- function
-st_estimated_extent() -- function
 st_estimatedextent() -- function
 st_expand() -- function
 st_extent() -- function
 st_exteriorring() -- function
 st_filterbym() -- function
-st_find_extent() -- function
 st_findextent() -- function
 st_flipcoordinates() -- function
 st_force2d() -- function
@@ -3078,12 +3032,6 @@ st_force3d() -- function
 st_force3dm() -- function
 st_force3dz() -- function
 st_force4d() -- function
-st_force_2d() -- function
-st_force_3d() -- function
-st_force_3dm() -- function
-st_force_3dz() -- function
-st_force_4d() -- function
-st_force_collection() -- function
 st_forcecollection() -- function
 st_forcecurve() -- function
 st_forcepolygonccw() -- function
@@ -3091,8 +3039,6 @@ st_forcepolygoncw() -- function
 st_forcerhr() -- function
 st_forcesfs() -- function
 st_frechetdistance() -- function
-st_fromgdalraster() -- function
-st_gdaldrivers() -- function
 st_generatepoints() -- function
 st_geogfromtext() -- function
 st_geogfromwkb() -- function
@@ -3113,24 +3059,15 @@ st_geomfromkml() -- function
 st_geomfromtext() -- function
 st_geomfromtwkb() -- function
 st_geomfromwkb() -- function
-st_georeference() -- function
-st_geotransform() -- function
 st_gmltosql() -- function
-st_grayscale() -- function
 st_hasarc() -- function
-st_hasnoband() -- function
 st_hausdorffdistance() -- function
-st_height() -- function
-st_hillshade() -- function
-st_histogram() -- function
 st_interiorringn() -- function
 st_interpolatepoint() -- function
 st_intersection() -- function
 st_intersects() -- function
-st_invdistweight4ma() -- function
 st_isclosed() -- function
 st_iscollection() -- function
-st_iscoveragetile() -- function
 st_isempty() -- function
 st_ispolygonccw() -- function
 st_ispolygoncw() -- function
@@ -3142,13 +3079,8 @@ st_isvalidreason() -- function
 st_isvalidtrajectory() -- function
 st_length() -- function
 st_length2d() -- function
-st_length2d_spheroid() -- function
 st_length2dspheroid() -- function
-st_length_spheroid() -- function
 st_lengthspheroid() -- function
-st_line_interpolate_point() -- function
-st_line_locate_point() -- function
-st_line_substring() -- function
 st_linecrossingdirection() -- function
 st_linefromencodedpolyline() -- function
 st_linefrommultipoint() -- function
@@ -3161,42 +3093,26 @@ st_linemerge() -- function
 st_linestringfromwkb() -- function
 st_linesubstring() -- function
 st_linetocurve() -- function
-st_locate_along_measure() -- function
-st_locate_between_measures() -- function
 st_locatealong() -- function
 st_locatebetween() -- function
 st_locatebetweenelevations() -- function
 st_longestline() -- function
 st_m() -- function
 st_makebox2d() -- function
-st_makeemptycoverage() -- function
-st_makeemptyraster() -- function
 st_makeenvelope() -- function
 st_makeline() -- function
 st_makepoint() -- function
 st_makepointm() -- function
 st_makepolygon() -- function
 st_makevalid() -- function
-st_mapalgebra() -- function
-st_mapalgebraexpr() -- function
-st_mapalgebrafct() -- function
-st_mapalgebrafctngb() -- function
-st_max4ma() -- function
 st_maxdistance() -- function
-st_mean4ma() -- function
-st_mem_size() -- function
 st_memcollect() -- function
 st_memsize() -- function
 st_memunion() -- function
-st_metadata() -- function
-st_min4ma() -- function
-st_minconvexhull() -- function
-st_mindist4ma() -- function
 st_minimumboundingcircle() -- function
 st_minimumboundingradius() -- function
 st_minimumclearance() -- function
 st_minimumclearanceline() -- function
-st_minpossiblevalue() -- function
 st_mlinefromtext() -- function
 st_mlinefromwkb() -- function
 st_mpointfromtext() -- function
@@ -3211,14 +3127,10 @@ st_multipointfromwkb() -- function
 st_multipolyfromwkb() -- function
 st_multipolygonfromtext() -- function
 st_ndims() -- function
-st_nearestvalue() -- function
-st_neighborhood() -- function
 st_node() -- function
 st_normalize() -- function
-st_notsamealignmentreason() -- function
 st_npoints() -- function
 st_nrings() -- function
-st_numbands() -- function
 st_numgeometries() -- function
 st_numinteriorring() -- function
 st_numinteriorrings() -- function
@@ -3231,17 +3143,7 @@ st_overlaps() -- function
 st_patchn() -- function
 st_perimeter() -- function
 st_perimeter2d() -- function
-st_pixelascentroid() -- function
-st_pixelascentroids() -- function
-st_pixelaspoint() -- function
-st_pixelaspoints() -- function
-st_pixelaspolygon() -- function
-st_pixelaspolygons() -- function
-st_pixelheight() -- function
-st_pixelofvalue() -- function
-st_pixelwidth() -- function
 st_point() -- function
-st_point_inside_circle() -- function
 st_pointfromgeohash() -- function
 st_pointfromtext() -- function
 st_pointfromwkb() -- function
@@ -3256,98 +3158,49 @@ st_polygonfromtext() -- function
 st_polygonfromwkb() -- function
 st_polygonize() -- function
 st_project() -- function
-st_quantile() -- function
 st_quantizecoordinates() -- function
-st_range4ma() -- function
-st_rastertoworldcoord() -- function
-st_rastertoworldcoordx() -- function
-st_rastertoworldcoordy() -- function
-st_rastfromhexwkb() -- function
-st_rastfromwkb() -- function
-st_reclass() -- function
 st_relate() -- function
 st_relatematch() -- function
 st_removepoint() -- function
 st_removerepeatedpoints() -- function
-st_resample() -- function
-st_rescale() -- function
-st_resize() -- function
-st_reskew() -- function
-st_retile() -- function
 st_reverse() -- function
 st_rotate() -- function
 st_rotatex() -- function
 st_rotatey() -- function
 st_rotatez() -- function
-st_rotation() -- function
-st_roughness() -- function
-st_samealignment() -- function
 st_scale() -- function
-st_scalex() -- function
-st_scaley() -- function
 st_segmentize() -- function
-st_setbandindex() -- function
-st_setbandisnodata() -- function
-st_setbandnodatavalue() -- function
-st_setbandpath() -- function
 st_seteffectivearea() -- function
-st_setgeoreference() -- function
-st_setgeotransform() -- function
 st_setpoint() -- function
-st_setrotation() -- function
-st_setscale() -- function
-st_setskew() -- function
 st_setsrid() -- function
-st_setupperleft() -- function
-st_setvalue() -- function
-st_setvalues() -- function
 st_sharedpaths() -- function
-st_shift_longitude() -- function
 st_shiftlongitude() -- function
 st_shortestline() -- function
 st_simplify() -- function
 st_simplifypreservetopology() -- function
 st_simplifyvw() -- function
-st_skewx() -- function
-st_skewy() -- function
-st_slope() -- function
 st_snap() -- function
 st_snaptogrid() -- function
 st_split() -- function
 st_srid() -- function
 st_startpoint() -- function
-st_stddev4ma() -- function
 st_subdivide() -- function
-st_sum4ma() -- function
 st_summary() -- function
-st_summarystats() -- function
-st_summarystatsagg() -- function
 st_swapordinates() -- function
 st_symdifference() -- function
 st_symmetricdifference() -- function
-st_tile() -- function
+st_tileenvelope() -- function
 st_touches() -- function
-st_tpi() -- function
 st_transform() -- function
 st_translate() -- function
 st_transscale() -- function
-st_tri() -- function
 st_unaryunion() -- function
 st_union() -- function
-st_upperleftx() -- function
-st_upperlefty() -- function
-st_value() -- function
-st_valuecount() -- function
-st_valuepercent() -- function
 st_voronoilines() -- function
 st_voronoipolygons() -- function
-st_width() -- function
 st_within() -- function
 st_wkbtosql() -- function
 st_wkttosql() -- function
-st_worldtorastercoord() -- function
-st_worldtorastercoordx() -- function
-st_worldtorastercoordy() -- function
 st_wrapx() -- function
 st_x() -- function
 st_xmax() -- function
@@ -3362,30 +3215,18 @@ st_zmin() -- function
 text() -- function
 unlockrows() -- function
 updategeometrysrid() -- function
-updaterastersrid() -- function
 spatial_ref_sys -- table
-addbandarg -- type
-agg_count -- type
-agg_samealignment -- type
 box2d -- type
 box2df -- type
 box3d -- type
 geography -- type
 geometry -- type
 geometry_dump -- type
-geomval -- type
 gidx -- type
-rastbandarg -- type
-raster -- type
-reclassarg -- type
 spheroid -- type
-summarystats -- type
-unionarg -- type
 valid_detail -- type
 geography_columns -- view
 geometry_columns -- view
-raster_columns -- view
-raster_overviews -- view
 -- Extension: unaccent
 unaccent() -- function
 unaccent_init() -- function
@@ -3588,6 +3429,7 @@ hstore_eq() -- function
 hstore_ge() -- function
 hstore_gt() -- function
 hstore_hash() -- function
+hstore_hash_extended() -- function
 hstore_in() -- function
 hstore_le() -- function
 hstore_lt() -- function
@@ -3929,6 +3771,191 @@ topoelement -- type
 topoelementarray -- type
 topogeometry -- type
 validatetopology_returntype -- type
+-- Extension: postgis_raster
+addoverviewconstraints() -- function
+addrasterconstraints() -- function
+box3d() -- function
+bytea() -- function
+dropoverviewconstraints() -- function
+droprasterconstraints() -- function
+geometry_contained_by_raster() -- function
+geometry_raster_contain() -- function
+geometry_raster_overlap() -- function
+postgis_gdal_version() -- function
+postgis_noop() -- function
+postgis_raster_lib_build_date() -- function
+postgis_raster_lib_version() -- function
+postgis_raster_scripts_installed() -- function
+raster_above() -- function
+raster_below() -- function
+raster_contain() -- function
+raster_contained() -- function
+raster_contained_by_geometry() -- function
+raster_eq() -- function
+raster_geometry_contain() -- function
+raster_geometry_overlap() -- function
+raster_hash() -- function
+raster_in() -- function
+raster_left() -- function
+raster_out() -- function
+raster_overabove() -- function
+raster_overbelow() -- function
+raster_overlap() -- function
+raster_overleft() -- function
+raster_overright() -- function
+raster_right() -- function
+raster_same() -- function
+st_addband() -- function
+st_approxcount() -- function
+st_approxhistogram() -- function
+st_approxquantile() -- function
+st_approxsummarystats() -- function
+st_asbinary() -- function
+st_asgdalraster() -- function
+st_ashexwkb() -- function
+st_asjpeg() -- function
+st_aspect() -- function
+st_aspng() -- function
+st_asraster() -- function
+st_astiff() -- function
+st_aswkb() -- function
+st_band() -- function
+st_bandfilesize() -- function
+st_bandfiletimestamp() -- function
+st_bandisnodata() -- function
+st_bandmetadata() -- function
+st_bandnodatavalue() -- function
+st_bandpath() -- function
+st_bandpixeltype() -- function
+st_clip() -- function
+st_colormap() -- function
+st_contains() -- function
+st_containsproperly() -- function
+st_convexhull() -- function
+st_count() -- function
+st_countagg() -- function
+st_coveredby() -- function
+st_covers() -- function
+st_createoverview() -- function
+st_dfullywithin() -- function
+st_disjoint() -- function
+st_distinct4ma() -- function
+st_dumpaspolygons() -- function
+st_dumpvalues() -- function
+st_dwithin() -- function
+st_envelope() -- function
+st_fromgdalraster() -- function
+st_gdaldrivers() -- function
+st_georeference() -- function
+st_geotransform() -- function
+st_grayscale() -- function
+st_hasnoband() -- function
+st_height() -- function
+st_hillshade() -- function
+st_histogram() -- function
+st_intersection() -- function
+st_intersects() -- function
+st_invdistweight4ma() -- function
+st_iscoveragetile() -- function
+st_isempty() -- function
+st_makeemptycoverage() -- function
+st_makeemptyraster() -- function
+st_mapalgebra() -- function
+st_mapalgebraexpr() -- function
+st_mapalgebrafct() -- function
+st_mapalgebrafctngb() -- function
+st_max4ma() -- function
+st_mean4ma() -- function
+st_memsize() -- function
+st_metadata() -- function
+st_min4ma() -- function
+st_minconvexhull() -- function
+st_mindist4ma() -- function
+st_minpossiblevalue() -- function
+st_nearestvalue() -- function
+st_neighborhood() -- function
+st_notsamealignmentreason() -- function
+st_numbands() -- function
+st_overlaps() -- function
+st_pixelascentroid() -- function
+st_pixelascentroids() -- function
+st_pixelaspoint() -- function
+st_pixelaspoints() -- function
+st_pixelaspolygon() -- function
+st_pixelaspolygons() -- function
+st_pixelheight() -- function
+st_pixelofvalue() -- function
+st_pixelwidth() -- function
+st_polygon() -- function
+st_quantile() -- function
+st_range4ma() -- function
+st_rastertoworldcoord() -- function
+st_rastertoworldcoordx() -- function
+st_rastertoworldcoordy() -- function
+st_rastfromhexwkb() -- function
+st_rastfromwkb() -- function
+st_reclass() -- function
+st_resample() -- function
+st_rescale() -- function
+st_resize() -- function
+st_reskew() -- function
+st_retile() -- function
+st_rotation() -- function
+st_roughness() -- function
+st_samealignment() -- function
+st_scalex() -- function
+st_scaley() -- function
+st_setbandindex() -- function
+st_setbandisnodata() -- function
+st_setbandnodatavalue() -- function
+st_setbandpath() -- function
+st_setgeoreference() -- function
+st_setgeotransform() -- function
+st_setrotation() -- function
+st_setscale() -- function
+st_setskew() -- function
+st_setsrid() -- function
+st_setupperleft() -- function
+st_setvalue() -- function
+st_setvalues() -- function
+st_skewx() -- function
+st_skewy() -- function
+st_slope() -- function
+st_snaptogrid() -- function
+st_srid() -- function
+st_stddev4ma() -- function
+st_sum4ma() -- function
+st_summary() -- function
+st_summarystats() -- function
+st_summarystatsagg() -- function
+st_tile() -- function
+st_touches() -- function
+st_tpi() -- function
+st_transform() -- function
+st_tri() -- function
+st_union() -- function
+st_upperleftx() -- function
+st_upperlefty() -- function
+st_value() -- function
+st_valuecount() -- function
+st_valuepercent() -- function
+st_width() -- function
+st_within() -- function
+st_worldtorastercoord() -- function
+st_worldtorastercoordx() -- function
+st_worldtorastercoordy() -- function
+updaterastersrid() -- function
+addbandarg -- type
+agg_count -- type
+agg_samealignment -- type
+geomval -- type
+rastbandarg -- type
+raster -- type
+reclassarg -- type
+summarystats -- type
+unionarg -- type
+raster_columns -- view
+raster_overviews -- view
 -- Extension: pg_freespacemap
 pg_freespace() -- function
 -- Extension: file_fdw
@@ -4518,8 +4545,6 @@ text_soundex() -- function
 pgr_alphashape() -- function
 pgr_analyzegraph() -- function
 pgr_analyzeoneway() -- function
-pgr_apspjohnson() -- function
-pgr_apspwarshall() -- function
 pgr_articulationpoints() -- function
 pgr_astar() -- function
 pgr_astarcost() -- function
@@ -4530,13 +4555,19 @@ pgr_bdastarcostmatrix() -- function
 pgr_bddijkstra() -- function
 pgr_bddijkstracost() -- function
 pgr_bddijkstracostmatrix() -- function
+pgr_bellmanford() -- function
 pgr_biconnectedcomponents() -- function
+pgr_binarybreadthfirstsearch() -- function
 pgr_boykovkolmogorov() -- function
+pgr_breadthfirstsearch() -- function
 pgr_bridges() -- function
+pgr_chinesepostman() -- function
+pgr_chinesepostmancost() -- function
 pgr_connectedcomponents() -- function
-pgr_contractgraph() -- function
+pgr_contraction() -- function
 pgr_createtopology() -- function
 pgr_createverticestable() -- function
+pgr_dagshortestpath() -- function
 pgr_dijkstra() -- function
 pgr_dijkstracost() -- function
 pgr_dijkstracostmatrix() -- function
@@ -4544,54 +4575,47 @@ pgr_dijkstravia() -- function
 pgr_drivingdistance() -- function
 pgr_edgedisjointpaths() -- function
 pgr_edmondskarp() -- function
-pgr_endpoint() -- function
-pgr_euclediantsp() -- function
-pgr_flipedges() -- function
+pgr_edwardmoore() -- function
+pgr_extractvertices() -- function
 pgr_floydwarshall() -- function
-pgr_getcolumnname() -- function
-pgr_gettablename() -- function
-pgr_gsoc_vrppdtw() -- function
-pgr_iscolumnindexed() -- function
-pgr_iscolumnintable() -- function
+pgr_full_version() -- function
 pgr_johnson() -- function
-pgr_kdijkstracost() -- function
-pgr_kdijkstrapath() -- function
+pgr_kruskal() -- function
+pgr_kruskalbfs() -- function
+pgr_kruskaldd() -- function
+pgr_kruskaldfs() -- function
 pgr_ksp() -- function
-pgr_labelgraph() -- function
 pgr_linegraph() -- function
 pgr_linegraphfull() -- function
 pgr_maxcardinalitymatch() -- function
 pgr_maxflow() -- function
-pgr_maxflowboykovkolmogorov() -- function
-pgr_maxflowedmondskarp() -- function
-pgr_maxflowpushrelabel() -- function
-pgr_maximumcardinalitymatching() -- function
+pgr_maxflowmincost() -- function
+pgr_maxflowmincost_cost() -- function
 pgr_nodenetwork() -- function
-pgr_pointsaspolygon() -- function
-pgr_pointstodmatrix() -- function
-pgr_pointstovids() -- function
-pgr_pointtoedgenode() -- function
+pgr_pickdeliver() -- function
+pgr_pickdelivereuclidean() -- function
+pgr_prim() -- function
+pgr_primbfs() -- function
+pgr_primdd() -- function
+pgr_primdfs() -- function
 pgr_pushrelabel() -- function
-pgr_quote_ident() -- function
-pgr_startpoint() -- function
+pgr_stoerwagner() -- function
 pgr_strongcomponents() -- function
-pgr_texttopoints() -- function
+pgr_topologicalsort() -- function
+pgr_transitiveclosure() -- function
 pgr_trsp() -- function
 pgr_trspviaedges() -- function
 pgr_trspviavertices() -- function
 pgr_tsp() -- function
+pgr_tspeuclidean() -- function
+pgr_turnrestrictedpath() -- function
 pgr_version() -- function
-pgr_versionless() -- function
-pgr_vidstodmatrix() -- function
 pgr_vrponedepot() -- function
 pgr_withpoints() -- function
 pgr_withpointscost() -- function
 pgr_withpointscostmatrix() -- function
 pgr_withpointsdd() -- function
 pgr_withpointsksp() -- function
-pgr_costresult -- type
-pgr_costresult3 -- type
-pgr_geomresult -- type
 -- Extension: pgcrypto
 armor() -- function
 crypt() -- function
@@ -4616,6 +4640,7 @@ pgp_sym_decrypt_bytea() -- function
 pgp_sym_encrypt() -- function
 pgp_sym_encrypt_bytea() -- function
 -- Extension: postgis_sfcgal
+postgis_sfcgal_noop() -- function
 postgis_sfcgal_scripts_installed() -- function
 postgis_sfcgal_version() -- function
 st_3darea() -- function
@@ -4623,6 +4648,7 @@ st_3ddifference() -- function
 st_3dintersection() -- function
 st_3dunion() -- function
 st_approximatemedialaxis() -- function
+st_constraineddelaunaytriangles() -- function
 st_extrude() -- function
 st_forcelhr() -- function
 st_isplanar() -- function
@@ -4633,10 +4659,6 @@ st_orientation() -- function
 st_straightskeleton() -- function
 st_tesselate() -- function
 st_volume() -- function
--- Extension: timetravel
-get_timetravel() -- function
-set_timetravel() -- function
-timetravel() -- function
 -- Extension: jsonb_plperlu
 jsonb_to_plperlu() -- function
 plperlu_to_jsonb() -- function
@@ -4668,6 +4690,7 @@ citext_eq() -- function
 citext_ge() -- function
 citext_gt() -- function
 citext_hash() -- function
+citext_hash_extended() -- function
 citext_larger() -- function
 citext_le() -- function
 citext_lt() -- function
@@ -4811,6 +4834,7 @@ plpgsql
 pltcl
 pltclu
 postgis
+postgis_raster
 postgis_sfcgal
 postgis_tiger_geocoder
 postgis_topology
@@ -4821,7 +4845,6 @@ sslinfo
 tablefunc
 tcn
 temporal_tables
-timetravel
 tsm_system_rows
 tsm_system_time
 unaccent
@@ -4848,6 +4871,7 @@ check_constraint_routine_usage
 check_constraints
 collation_character_set_applicability
 collations
+column_column_usage
 column_domain_usage
 column_options
 column_privileges
@@ -4947,6 +4971,9 @@ pg_stat_archiver
 pg_stat_bgwriter
 pg_stat_database
 pg_stat_database_conflicts
+pg_stat_gssapi
+pg_stat_progress_cluster
+pg_stat_progress_create_index
 pg_stat_progress_vacuum
 pg_stat_replication
 pg_stat_ssl
@@ -4972,7 +4999,9 @@ pg_statio_user_sequences
 pg_statio_user_tables
 pg_statistic
 pg_statistic_ext
+pg_statistic_ext_data
 pg_stats
+pg_stats_ext
 pg_subscription
 pg_subscription_rel
 pg_tables
@@ -5373,12 +5402,14 @@ statistics
 stdin
 stdout
 storage
+stored
 strict
 strip
 stype
 subscription
 substring
 superuser
+support
 symmetric
 sysid
 system
@@ -5462,15 +5493,11 @@ pg_catalog
 #
 ##
 #-
-#<
 #<#
-#<=
 #<=#
-#<>
 #=
 #>
 #>#
-#>=
 #>=#
 #>>
 %
@@ -5515,7 +5542,6 @@ pg_catalog
 <=
 <=>
 <>
-<?>
 <@
 <@>
 <^
@@ -5541,6 +5567,7 @@ pg_catalog
 @-@
 @>
 @>>
+@?
 @@
 @@@
 ^
@@ -5567,6 +5594,7 @@ pg_catalog
 ~>~
 ~~
 ~~*
+~~=
 -- Error codes
 active_sql_transaction
 admin_shutdown
@@ -5675,6 +5703,7 @@ invalid_argument_for_logarithm
 invalid_argument_for_nth_value_function
 invalid_argument_for_ntile_function
 invalid_argument_for_power_function
+invalid_argument_for_sql_json_datetime_function
 invalid_argument_for_width_bucket_function
 invalid_authorization_specification
 invalid_binary_representation
@@ -5695,7 +5724,6 @@ invalid_function_definition
 invalid_grant_operation
 invalid_grantor
 invalid_indicator_parameter_value
-invalid_json_subscript
 invalid_json_text
 invalid_locator_specification
 invalid_name
@@ -5712,6 +5740,7 @@ invalid_row_count_in_result_offset_clause
 invalid_savepoint_specification
 invalid_schema_definition
 invalid_schema_name
+invalid_sql_json_subscript
 invalid_sql_statement_name
 invalid_sqlstate_returned
 invalid_table_definition
@@ -5728,15 +5757,11 @@ invalid_xml_content
 invalid_xml_document
 invalid_xml_processing_instruction
 io_error
-json_array_not_found
-json_member_not_found
-json_number_not_found
-json_scalar_required
 locator_exception
 lock_file_exists
 lock_not_available
 modifying_sql_data_not_permitted
-more_than_one_json_item
+more_than_one_sql_json_item
 most_specific_type_mismatch
 name_too_long
 no_active_sql_transaction
@@ -5744,9 +5769,9 @@ no_active_sql_transaction_for_branch_transaction
 no_additional_dynamic_result_sets_returned
 no_data
 no_data_found
-no_json_item
-non_numeric_json_item
-non_unique_keys_in_json_object
+no_sql_json_item
+non_numeric_sql_json_item
+non_unique_keys_in_a_json_object
 nonstandard_use_of_escape_character
 not_an_xml_document
 not_null_violation
@@ -5755,7 +5780,6 @@ null_value_no_indicator_parameter
 null_value_not_allowed
 numeric_value_out_of_range
 object_in_use
-object_not_found
 object_not_in_prerequisite_state
 operator_intervention
 out_of_memory
@@ -5775,8 +5799,13 @@ savepoint_exception
 schema_and_data_statement_mixing_not_supported
 sequence_generator_limit_exceeded
 serialization_failure
-singleton_json_item_required
+singleton_sql_json_item_required
 snapshot_too_old
+sql_json_array_not_found
+sql_json_member_not_found
+sql_json_number_not_found
+sql_json_object_not_found
+sql_json_scalar_required
 sql_routine_exception
 sql_statement_not_yet_complete
 sqlclient_unable_to_establish_sqlconnection

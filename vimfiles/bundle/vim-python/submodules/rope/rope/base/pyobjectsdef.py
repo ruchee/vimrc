@@ -278,6 +278,49 @@ class PyPackage(pyobjects.PyPackage):
         return self
 
 
+class _AnnAssignVisitor(object):
+
+    def __init__(self, scope_visitor):
+        self.scope_visitor = scope_visitor
+        self.assigned_ast = None
+        self.type_hint = None
+
+    def _AnnAssign(self, node):
+        self.assigned_ast = node.value
+        self.type_hint = node.annotation
+
+        ast.walk(node.target, self)
+
+    def _assigned(self, name, assignment=None):
+        self.scope_visitor._assigned(name, assignment)
+
+    def _Name(self, node):
+        assignment = pynames.AssignmentValue(self.assigned_ast,
+                                             assign_type=True,
+                                             type_hint=self.type_hint)
+        self._assigned(node.id, assignment)
+
+    def _Tuple(self, node):
+        names = astutils.get_name_levels(node)
+        for name, levels in names:
+            assignment = None
+            if self.assigned_ast is not None:
+                assignment = pynames.AssignmentValue(self.assigned_ast, levels)
+            self._assigned(name, assignment)
+
+    def _Annotation(self, node):
+        pass
+
+    def _Attribute(self, node):
+        pass
+
+    def _Subscript(self, node):
+        pass
+
+    def _Slice(self, node):
+        pass
+
+
 class _AssignVisitor(object):
 
     def __init__(self, scope_visitor):
@@ -347,8 +390,11 @@ class _ScopeVisitor(object):
                     def _eval(type_=type_, arg=arg):
                         return type_.get_property_object(
                             arguments.ObjectArguments([arg]))
+
+                    lineno = utils.guess_def_lineno(self.get_module(), node)
+
                     self.names[node.name] = pynames.EvaluatedName(
-                        _eval, module=self.get_module(), lineno=node.lineno)
+                        _eval, module=self.get_module(), lineno=lineno)
                     break
         else:
             self.names[node.name] = pynames.DefinedName(pyfunction)
@@ -360,6 +406,9 @@ class _ScopeVisitor(object):
     def _Assign(self, node):
         ast.walk(node, _AssignVisitor(self))
 
+    def _AnnAssign(self, node):
+        ast.walk(node, _AnnAssignVisitor(self))
+
     def _AugAssign(self, node):
         pass
 
@@ -368,6 +417,9 @@ class _ScopeVisitor(object):
                                        '.__iter__().next()')
         for child in node.body + node.orelse:
             ast.walk(child, self)
+
+    def _AsyncFor(self, node):
+        return self._For(node)
 
     def _assigned(self, name, assignment):
         pyname = self.names.get(name, None)
@@ -379,7 +431,7 @@ class _ScopeVisitor(object):
             self.names[name] = pyname
 
     def _update_evaluated(self, targets, assigned,
-                          evaluation='', eval_type=False):
+                          evaluation='', eval_type=False, type_hint=None):
         result = {}
         if isinstance(targets, str):
             assignment = pynames.AssignmentValue(assigned, [],
@@ -400,6 +452,9 @@ class _ScopeVisitor(object):
                                        item.context_expr, '.__enter__()')
         for child in node.body:
             ast.walk(child, self)
+
+    def _AsyncWith(self, node):
+        return self._With(node)
 
     def _excepthandler(self, node):
         node_name_type = str if pycompat.PY3 else ast.Name

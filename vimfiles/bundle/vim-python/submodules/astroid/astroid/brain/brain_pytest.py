@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Jeff Quast <contact@jeffquast.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
@@ -14,7 +14,8 @@ from astroid.builder import AstroidBuilder
 
 
 def pytest_transform():
-    return AstroidBuilder(MANAGER).string_build('''
+    return AstroidBuilder(MANAGER).string_build(
+        """
 
 try:
     import _pytest.mark
@@ -79,7 +80,9 @@ except ImportError:
         yield_fixture = _pytest.python.yield_fixture
     except ImportError:
         pass
-''')
+"""
+    )
 
-register_module_extender(MANAGER, 'pytest', pytest_transform)
-register_module_extender(MANAGER, 'py.test', pytest_transform)
+
+register_module_extender(MANAGER, "pytest", pytest_transform)
+register_module_extender(MANAGER, "py.test", pytest_transform)

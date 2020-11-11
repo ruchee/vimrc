@@ -12,7 +12,7 @@ official repository and provides some extended features.
 If no license is specified in the header of a file (it means that it came from LLVM official repository),
 the file is distributed under the license described in [LICENSE.txt](LICENSE.txt).
 
-## Imported from upstream (LLVM official repository)
+## Imported from upstream ([LLVM official repository][llvm])
 
 Following files are imported from `llvm/utils/vim`. They are updated at LLVM version bump.
 
@@ -20,6 +20,8 @@ Following files are imported from `llvm/utils/vim`. They are updated at LLVM ver
 - `ftplugin/*.vim`
 - `indent/*.vim`
 - `syntax/*.vim`
+
+Imported from LLVM 10.0.0.
 
 ## Extended features
 
@@ -46,6 +48,14 @@ Some useful mappings to jump a cursor are provided.
 
 More mappings will be supported (under construction).
 
+When `g:llvm_ext_no_mapping` is set to `1`, these mappings won't be defined. Instead, please map `<Plug>`
+mappings to your favorite key sequence.
+
+```vim
+" e.g. Map 'go to definition' to gd
+autocmd FileType llvm nmap <buffer><silent>gd <Plug>(llvm-goto-definition)
+```
+
 ### Commands
 
 Some useful commands are defined in `llvm` filetype buffers.
@@ -60,12 +70,13 @@ The default command to run is `lli`. You can change it by setting `g:llvm_ext_ll
 
 ## Installation
 
-Please choose one of follows:
+Three options. First one or second one are recommended.
 
-- Use your favorite plugin manager like [vim-plug][], [dein.vim][], [minpac][].
-- Use `:packadd` (Please see `:help packadd` for more details).
-- Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually. (not recommended)
+- Use your favorite plugin manager such as [vim-plug][], [dein.vim][], [minpac][]
+- Use `:packadd` (Please see `:help packadd` for more details)
+- Copy all directories and `scripts.vim` to your `~/.vim` (or `~/vimfiles` on Windows) manually (not recommended)
 
+[llvm]: https://github.com/llvm/llvm-project
 [vim-plug]: https://github.com/junegunn/vim-plug
 [dein.vim]: https://github.com/Shougo/dein.vim
 [minpac]: https://github.com/k-takata/minpac

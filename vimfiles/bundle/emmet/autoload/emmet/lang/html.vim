@@ -232,10 +232,18 @@ function! emmet#lang#html#parseIntoTree(abbr, type) abort
             let current.attrs_order += keys(a)
             if use_pipe_for_cursor
               for k in keys(a)
+                if type(a[k]) == 7
+                  call remove(current.attr, k)
+                  continue
+                endif
                 let current.attr[k] = len(a[k]) ? substitute(a[k], '|', '${cursor}', 'g') : '${cursor}'
               endfor
             else
               for k in keys(a)
+                if type(a[k]) == 7
+                  call remove(current.attr, k)
+                  continue
+                endif
                 let current.attr[k] = a[k]
               endfor
             endif
@@ -244,10 +252,18 @@ function! emmet#lang#html#parseIntoTree(abbr, type) abort
               let current.attrs_order += keys(a)
               if use_pipe_for_cursor
                 for k in keys(a)
+                  if type(a[k]) == 7
+                    call remove(current.attr, k)
+                    continue
+                  endif
                   let current.attr[k] = len(a[k]) ? substitute(a[k], '|', '${cursor}', 'g') : '${cursor}'
                 endfor
               else
                 for k in keys(a)
+                  if type(a[k]) == 7
+                    call remove(current.attr, k)
+                    continue
+                  endif
                   let current.attr[k] = a[k]
                 endfor
               endif
@@ -720,11 +736,11 @@ endfunction
 
 function! emmet#lang#html#parseTag(tag) abort
   let current = emmet#newNode()
-  let mx = '<\([a-zA-Z][a-zA-Z0-9]*\)\(\%(\s[a-zA-Z][a-zA-Z0-9]\+=\%([^"'' \t]\+\|"[^"]\{-}"\|''[^'']\{-}''\)\s*\)*\)\(/\{0,1}\)>'
+  let mx = '<\([a-zA-Z][a-zA-Z0-9]*\)\(\%(\s[a-zA-Z][a-zA-Z0-9]\+=\?\%([^"'' \t]\+\|"[^"]\{-}"\|''[^'']\{-}''\)\s*\)*\)\(/\{0,1}\)>'
   let match = matchstr(a:tag, mx)
   let current.name = substitute(match, mx, '\1', 'i')
   let attrs = substitute(match, mx, '\2', 'i')
-  let mx = '\([a-zA-Z0-9]\+\)=\%(\([^"'' \t]\+\)\|"\([^"]\{-}\)"\|''\([^'']\{-}\)''\)'
+  let mx = '\([a-zA-Z0-9]\+\)\(\(=[^"'' \t]\+\)\|="\([^"]\{-}\)"\|=''\([^'']\{-}\)''\)\?'
   while len(attrs) > 0
     let match = matchstr(attrs, mx)
     if len(match) == 0
@@ -732,8 +748,12 @@ function! emmet#lang#html#parseTag(tag) abort
     endif
     let attr_match = matchlist(match, mx)
     let name = attr_match[1]
-    let value = len(attr_match[2]) ? attr_match[2] : attr_match[3]
-    let current.attr[name] = value
+    if len(attr_match[2])
+      let Val = len(attr_match[3]) ? attr_match[3] : attr_match[4]
+    else
+      let Val = function('emmet#types#true')
+    endif
+    let current.attr[name] = Val
     let current.attrs_order += [name]
     let attrs = attrs[stridx(attrs, match) + len(match):]
   endwhile

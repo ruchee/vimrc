@@ -11,7 +11,6 @@ abbr    Python
         
         # Distribution / packaging
         .Python
-        env/
         build/
         develop-eggs/
         dist/
@@ -23,6 +22,7 @@ abbr    Python
         parts/
         sdist/
         var/
+        wheels/
         *.egg-info/
         .installed.cfg
         *.egg
@@ -45,7 +45,7 @@ abbr    Python
         .cache
         nosetests.xml
         coverage.xml
-        *,cover
+        *.cover
         .hypothesis/
         
         # Translations
@@ -69,7 +69,7 @@ abbr    Python
         # PyBuilder
         target/
         
-        # IPython Notebook
+        # Jupyter Notebook
         .ipynb_checkpoints
         
         # pyenv
@@ -78,17 +78,26 @@ abbr    Python
         # celery beat schedule file
         celerybeat-schedule
         
-        # dotenv
-        .env
+        # SageMath parsed files
+        *.sage.py
         
-        # virtualenv
-        .venv/
+        # Environments
+        .env
+        .venv
+        env/
         venv/
         ENV/
         
         # Spyder project settings
         .spyderproject
+        .spyproject
         
         # Rope project settings
         .ropeproject
+        
+        # mkdocs documentation
+        /site
+        
+        # mypy
+        .mypy_cache/
         ${0}

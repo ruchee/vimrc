@@ -11,7 +11,7 @@ from .checker import check
 __all__ = ('main', )
 
 
-class ReturnCode(object):
+class ReturnCode:
     no_violations_found = 0
     violations_found = 1
     invalid_options = 2
@@ -49,7 +49,7 @@ def run_pydocstyle():
         return ReturnCode.invalid_options
 
     count = 0
-    for error in errors:
+    for error in errors:  # type: ignore
         if hasattr(error, 'code'):
             sys.stdout.write('%s\n' % error)
         count += 1
@@ -71,7 +71,7 @@ def main():
 
 
 def setup_stream_handlers(conf):
-    """Setup logging stream handlers according to the options."""
+    """Set up logging stream handlers according to the options."""
     class StdoutFilter(logging.Filter):
         def filter(self, record):
             return record.levelno in (logging.DEBUG, logging.INFO)

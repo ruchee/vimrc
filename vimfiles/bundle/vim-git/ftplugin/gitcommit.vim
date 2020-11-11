@@ -1,7 +1,7 @@
 " Vim filetype plugin
 " Language:	git commit file
 " Maintainer:	Tim Pope <vimNOSPAM@tpope.org>
-" Last Change:	2016 Aug 29
+" Last Change:	2019 Dec 05
 
 " Only do this when not done yet for this buffer
 if (exists("b:did_ftplugin"))
@@ -12,6 +12,7 @@ runtime! ftplugin/git.vim
 let b:did_ftplugin = 1
 
 setlocal comments=:# commentstring=#\ %s
+setlocal include=^\+\+\+
 setlocal nomodeline tabstop=8 formatoptions+=tl textwidth=72
 setlocal formatoptions-=c formatoptions-=r formatoptions-=o formatoptions-=q formatoptions+=n
 setlocal formatlistpat+=\\\|^\\s*[-*+]\\s\\+

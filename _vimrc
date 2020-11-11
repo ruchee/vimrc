@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-01-08 02:57:59
+" -----------------    Date: 2020-11-11 12:56:22
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -803,7 +803,7 @@ let g:rubycomplete_load_gemfile      = 1
 " javascript-libraries-syntax                      指定需要高亮的JS库
 let g:used_javascript_libs = 'jquery,underscore,handlebars,vue,react,d3'
 
-" prettier            格式化代码 [主要针对前端代码文件]
+" prettier            格式化代码 [主要针对前端代码文件] [需要安装 prettier，可在 HOME 目录放置一个名为 .prettierrc.js 的配置文件做更全面的配置]
 let g:prettier#config#print_width = 100            " 单行最大字符数
 let g:prettier#config#tab_width = 4                " 缩进空格的个数
 let g:prettier#config#semi = 'true'                " 语句末尾添加逗号

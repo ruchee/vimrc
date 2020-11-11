@@ -3,8 +3,8 @@
 " Author:	John Wellesz <John.wellesz (AT) gmail (DOT) com>
 " URL:		https://www.2072productions.com/vim/indent/php.vim
 " Home:		https://github.com/2072/PHP-Indenting-for-VIm
-" Last Change:	2019 Jully 21st
-" Version:	1.70
+" Last Change:	2020 March 22nd
+" Version:	1.72
 "
 "
 "	Type :help php-indent for available options
@@ -39,6 +39,12 @@
 "
 "	or simply 'let' the option PHP_removeCRwhenUnix to 1 and the script will
 "	silently remove them when VIM load this script (at each bufread).
+"
+" Changes: 1.72         - Fix vim/vim#5722 where it was reported that the
+"			  option PHP_BracesAtCodeLevel had not been working for the last 6 years.
+"
+" Changes: 1.71         - Fix #75 where the indent script would hang on
+"			  some multi-line quoted strings.
 "
 " Changes: 1.70         - Rename PHP_IndentFunctionParameters to PHP_IndentFunctionCallParameters and
 "			  also implement PHP_IndentFunctionDeclarationParameters.
@@ -545,7 +551,7 @@ endif
 " enable debug calls: :%s /" DEBUG \zec//g
 " disable debug calls: :%s /^\s*\zs\zecall DebugPrintReturn/" DEBUG /g
 
-let s:endline = '\s*\%(//.*\|#.*\|/\*.*\*/\s*\)\=$'
+let s:endline = '\s*\%(//.*\|#\[\@!.*\|/\*.*\*/\s*\)\=$'
 let s:PHP_validVariable = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
 let s:notPhpHereDoc = '\%(break\|return\|continue\|exit\|die\|else\|end\%(if\|while\|for\|foreach\|switch\)\)'
 let s:blockstart = '\%(\%(\%(}\s*\)\=else\%(\s\+\)\=\)\=if\>\|\%(}\s*\)\?else\>\|do\>\|while\>\|switch\>\|case\>\|default\>\|for\%(each\)\=\>\|declare\>\|class\>\|trait\>\|\%()\s*\)\=use\>\|interface\>\|abstract\>\|final\>\|try\>\|\%(}\s*\)\=catch\>\|\%(}\s*\)\=finally\>\)'
@@ -609,7 +615,9 @@ function! GetLastRealCodeLNum(startline) " {{{
 	    let lnum = lnum - 1
 		" DEBUG call DebugPrintReturn('596' )
 	elseif lastline =~ '^\s*\%(//\|#\|/\*.*\*/\s*$\)'
-	    " if line is under comment
+	    " Deliberately treating #[ like a line comment so that subsequent
+	    " inserted lines will be correctly indented inside of blocks
+	    " (e.g. on class methods)
 	    let lnum = lnum - 1
 		" DEBUG call DebugPrintReturn('592' )
 	elseif lastline =~ '\*/\s*$'
@@ -661,8 +669,8 @@ function! GetLastRealCodeLNum(startline) " {{{
 	    while getline(lnum) !~? tofind && lnum > 1
 		let lnum = lnum - 1
 	    endwhile
-	elseif lastline =~ '^\s*[''"`][;,]' || (lastline =~ '^[^''"`]*[''"`][;,]'.s:endline && IslinePHP(lnum, "") == "SpecStringEntrails")
-		" DEBUG call DebugPrintReturn('651' )
+	elseif lastline =~ '^\s*[''"`][;,]'.s:endline || (lastline =~ '^[^''"`]*[''"`][;,]'.s:endline && IslinePHP(lnum, "") == "SpecStringEntrails")
+		" DEBUG call DebugPrintReturn('651  '  . IslinePHP(lnum, "") . "  " . lastline)
 	    " match end of multiline strings horrors
 
 	    let tofind=substitute( lastline, '^.*\([''"`]\)[;,].*$', '^[^\1]\\+[\1]$\\|^[^\1]\\+[=([]\\s*[\1]', '')
@@ -722,7 +730,7 @@ function! Skippmatch2()
 
     " Skip opening /* if they are inside a string or preceded  by a single
     " line comment starter
-    if line =~ "\\([\"']\\).*/\\*.*\\1" || line =~ '\%(//\|#\).*/\*'
+    if line =~ "\\([\"']\\).*/\\*.*\\1" || line =~ '\%(//\|#\[\@!\).*/\*'
 	return 1
     else
 	return 0
@@ -789,7 +797,7 @@ function! StripEndlineComments (line)
     " followed by a number of '"' which is a multiple of 2. The second part
     " removes // that are not followed by any '"'
     " Sorry for this unreadable thing...
-    return substitute(a:line,"\\(//\\|#\\)\\(\\(\\([^\"']*\\([\"']\\)[^\"']*\\5\\)\\+[^\"']*$\\)\\|\\([^\"']*$\\)\\)",'','')
+    return substitute(a:line,"\\(//\\|#\[\@!\\)\\(\\(\\([^\"']*\\([\"']\\)[^\"']*\\5\\)\\+[^\"']*$\\)\\|\\([^\"']*$\\)\\)",'','')
 endfun
 
 function! FindArrowIndent (lnum)  " {{{
@@ -989,6 +997,7 @@ function! IslinePHP (lnum, tofind) " {{{
     " don't see string content as php
     if synname ==? 'phpStringSingle' || synname ==? 'phpStringDouble' || synname ==? 'phpBacktick'
 	if cline !~ '^\s*[''"`]' " ??? XXX
+	    " DEBUG call DebugPrintReturn(992 . " set SpecStringEntrails")
 	    return "SpecStringEntrails"
 	else
 	    return synname
@@ -1017,7 +1026,10 @@ function! ResetPhpOptions()
 	if b:PHP_autoformatcomment
 
 	    " Set the comment setting to something correct for PHP
-	    setlocal comments=s1:/*,mb:*,ex:*/,://,:#
+	    " Note that in php 8.0, #[ is used as the start of an attribute,
+	    " which is not actually a comment but the 'f:#[' override is 
+	    " added to avoid incorrectly completing it.
+	    setlocal comments=s1:/*,mb:*,ex:*/,://,f:#[,:#
 
 	    " disable Auto-wrap of text
 	    setlocal formatoptions-=t
@@ -1039,7 +1051,7 @@ endfunc
 call ResetPhpOptions()
 
 function! GetPhpIndentVersion()
-    return "1.70"
+    return "1.71"
 endfun
 
 function! GetPhpIndent()
@@ -1231,7 +1243,7 @@ function! GetPhpIndent()
 	    endif
 
 	    " was last line a very bad idea? (multiline string definition)
-	elseif last_line =~ '^[^''"`]\+[''"`]$' && last_line !~ '^\s*\%(//\|#\|/\*.*\*/\s*$\)' " a string identifier with nothing after it and no other string identifier before
+	elseif last_line =~ '^[^''"`]\+[''"`]$' && last_line !~ '^\s*\%(//\|#\[\@!\|/\*.*\*/\s*$\)' " a string identifier with nothing after it and no other string identifier before
 	    " DEBUG call DebugPrintReturn( 'mls dcl')
 	    let b:InPHPcode = -1
 	    let b:InPHPcode_tofind = substitute( last_line, '^.*\([''"`]\).*$', '^[^\1]*\1[;,]$', '')
@@ -1267,7 +1279,7 @@ function! GetPhpIndent()
     " Align correctly multi // or # lines
     " Indent successive // or # comment the same way the first is {{{
     let addSpecial = 0
-    if cline =~ '^\s*\%(//\|#\|/\*.*\*/\s*$\)'
+    if cline =~ '^\s*\%(//\|#\[\@!\|/\*.*\*/\s*$\)'
 	let addSpecial = b:PHP_outdentSLComments
 	if b:PHP_LastIndentedWasComment == 1
 	    " DEBUG call DebugPrintReturn(1031)
@@ -1358,6 +1370,10 @@ function! GetPhpIndent()
 	let ind = indent(FindOpenBracket(v:lnum, 1))
 	let b:PHP_CurrentIndentLevel = b:PHP_default_indenting
 	" DEBUG call DebugPrintReturn("1002 " . FindOpenBracket(v:lnum, 1) )
+	" If the PHP_BracesAtCodeLevel is set then indent the '{'
+	if  b:PHP_BracesAtCodeLevel
+	    let ind = ind + shiftwidth()
+	endif
 	return ind
     endif
 

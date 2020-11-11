@@ -11,6 +11,7 @@ let s:spc = g:airline_symbols.space
 let s:nomodeline = (v:version > 703 || (v:version == 703 && has("patch438"))) ? '<nomodeline>' : ''
 let s:has_strchars = exists('*strchars')
 let s:has_strcharpart = exists('*strcharpart')
+let s:focusgained_ignore_time = 0
 
 " TODO: Try to cache winwidth(0) function
 " e.g. store winwidth per window and access that, only update it, if the size
@@ -178,7 +179,7 @@ endfunction
 
 function! airline#util#themes(match)
   let files = split(globpath(&rtp, 'autoload/airline/themes/'.a:match.'*.vim'), "\n")
-  return sort(map(files, 'fnamemodify(v:val, ":t:r")') + ['random'])
+  return sort(map(files, 'fnamemodify(v:val, ":t:r")') + ('random' =~ a:match ? ['random'] : []))
 endfunction
 
 function! airline#util#stl_disabled(winnr)
@@ -190,3 +191,22 @@ function! airline#util#stl_disabled(winnr)
    \ airline#util#getwinvar(a:winnr, 'airline_disabled', 0) ||
    \ airline#util#getbufvar(winbufnr(a:winnr), 'airline_disable_statusline', 0)
 endfunction
+
+function! airline#util#ignore_next_focusgain()
+  if has('win32')
+    " Setup an ignore for platforms that trigger FocusLost on calls to
+    " system(). macvim (gui and terminal) and Linux terminal vim do not.
+    let s:focusgained_ignore_time = localtime()
+  endif
+endfunction
+
+function! airline#util#try_focusgained()
+  " Ignore lasts for at most one second and is cleared on the first
+  " focusgained. We use ignore to prevent system() calls from triggering
+  " FocusGained (which occurs 100% on win32 and seem to sometimes occur under
+  " tmux).
+  let dt = localtime() - s:focusgained_ignore_time
+  let s:focusgained_ignore_time = 0
+  return dt >= 1
+endfunction
+

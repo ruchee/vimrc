@@ -6,6 +6,7 @@
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2019 Nick Drozd <nicholasdrozd@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
 # For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
@@ -43,17 +44,19 @@ import sys
 import wrapt
 
 
-_Context = enum.Enum('Context', 'Load Store Del')
+_Context = enum.Enum("Context", "Load Store Del")
 Load = _Context.Load
 Store = _Context.Store
 Del = _Context.Del
 del _Context
 
 
+# pylint: disable=wrong-import-order,wrong-import-position
 from .__pkginfo__ import version as __version__
+
 # WARNING: internal imports order matters !
 
-# pylint: disable=redefined-builtin, wildcard-import
+# pylint: disable=redefined-builtin
 
 # make all exception classes accessible from astroid package
 from astroid.exceptions import *
@@ -70,10 +73,11 @@ from astroid.bases import BaseInstance, Instance, BoundMethod, UnboundMethod
 from astroid.node_classes import are_exclusive, unpack_infer
 from astroid.scoped_nodes import builtin_lookup
 from astroid.builder import parse, extract_node
-from astroid.util import Uninferable, YES
+from astroid.util import Uninferable
 
 # make a manager instance (borg) accessible from astroid package
 from astroid.manager import AstroidManager
+
 MANAGER = AstroidManager()
 del AstroidManager
 
@@ -93,6 +97,8 @@ def _inference_tip_cached(func, instance, args, kwargs, _cache={}):
         original, copy = itertools.tee(result)
         _cache[func, node] = list(copy)
         return original
+
+
 # pylint: enable=dangerous-default-value
 
 
@@ -117,19 +123,25 @@ def inference_tip(infer_function, raise_on_overwrite=False):
         node. Use a predicate in the transform to prevent
         excess overwrites.
     """
+
     def transform(node, infer_function=infer_function):
-        if (raise_on_overwrite
-                and node._explicit_inference is not None
-                and node._explicit_inference is not infer_function):
+        if (
+            raise_on_overwrite
+            and node._explicit_inference is not None
+            and node._explicit_inference is not infer_function
+        ):
             raise InferenceOverwriteError(
                 "Inference already set to {existing_inference}. "
-                "Trying to overwrite with {new_inference} for {node}"
-                .format(existing_inference=infer_function,
-                        new_inference=node._explicit_inference,
-                        node=node))
+                "Trying to overwrite with {new_inference} for {node}".format(
+                    existing_inference=infer_function,
+                    new_inference=node._explicit_inference,
+                    node=node,
+                )
+            )
         # pylint: disable=no-value-for-parameter
         node._explicit_inference = _inference_tip_cached(infer_function)
         return node
+
     return transform
 
 
@@ -146,11 +158,11 @@ def register_module_extender(manager, module_name, get_extension_mod):
 
 
 # load brain plugins
-BRAIN_MODULES_DIR = os.path.join(os.path.dirname(__file__), 'brain')
+BRAIN_MODULES_DIR = os.path.join(os.path.dirname(__file__), "brain")
 if BRAIN_MODULES_DIR not in sys.path:
     # add it to the end of the list so user path take precedence
     sys.path.append(BRAIN_MODULES_DIR)
 # load modules in this directory
 for module in os.listdir(BRAIN_MODULES_DIR):
-    if module.endswith('.py'):
+    if module.endswith(".py"):
         __import__(module[:-3])

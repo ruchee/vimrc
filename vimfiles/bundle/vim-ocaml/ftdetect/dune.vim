@@ -1,1 +1,1 @@
-au BufRead,BufNewFile jbuild,dune,dune-project set ft=dune
+au BufRead,BufNewFile jbuild,dune,dune-project,dune-workspace set ft=dune

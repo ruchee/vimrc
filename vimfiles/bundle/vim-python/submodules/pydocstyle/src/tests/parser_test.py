@@ -1,13 +1,15 @@
 """Parser tests."""
 
-import six
+import io
 import sys
 import pytest
 import textwrap
+from pathlib import Path
+
 from pydocstyle.parser import Parser, ParseError
 
 
-class CodeSnippet(six.StringIO):
+class CodeSnippet(io.StringIO):
     """A code snippet.
 
     Automatically wraps snippet as a file-like object and handles line wraps.
@@ -16,7 +18,7 @@ class CodeSnippet(six.StringIO):
 
     def __init__(self, code_string):
         """Initialize the object."""
-        six.StringIO.__init__(self, textwrap.dedent(code_string))
+        io.StringIO.__init__(self, textwrap.dedent(code_string))
 
 
 def test_function():
@@ -29,7 +31,7 @@ def test_function():
     """)
     module = parser.parse(code, 'file_path')
     assert module.is_public
-    assert module.all is None
+    assert module.dunder_all is None
 
     function, = module.children
     assert function.name == 'do_something'
@@ -44,6 +46,78 @@ def test_function():
     assert function.end == 3
     assert function.error_lineno == 2
     assert function.source == code.getvalue()
+    assert function.is_public
+    assert str(function) == 'in public function `do_something`'
+
+
+def test_simple_fstring():
+    """Test parsing of a function with a simple fstring as a docstring."""
+    # fstrings are not supported in Python 3.5
+    if sys.version_info[0:2] == (3, 5):
+        return
+
+    parser = Parser()
+    code = CodeSnippet("""\
+        def do_something(pos_param0, pos_param1, kw_param0="default"):
+            f\"""Do something.\"""
+            return None
+    """)
+    module = parser.parse(code, 'file_path')
+    assert module.is_public
+    assert module.dunder_all is None
+
+    function, = module.children
+    assert function.name == 'do_something'
+    assert function.decorators == []
+    assert function.children == []
+    assert function.docstring == 'f"""Do something."""'
+    assert function.docstring.start == 2
+    assert function.docstring.end == 2
+    assert function.kind == 'function'
+    assert function.parent == module
+    assert function.start == 1
+    assert function.end == 3
+    assert function.error_lineno == 2
+    assert function.source == code.getvalue()
+    assert function.is_public
+    assert str(function) == 'in public function `do_something`'
+
+
+def test_fstring_with_args():
+    """Test parsing of a function with an fstring with args as a docstring."""
+    # fstrings are not supported in Python 3.5
+    if sys.version_info[0:2] == (3, 5):
+        return
+
+    parser = Parser()
+    code = CodeSnippet("""\
+        foo = "bar"
+        bar = "baz"
+        def do_something(pos_param0, pos_param1, kw_param0="default"):
+            f\"""Do some {foo} and some {bar}.\"""
+            return None
+    """)
+    module = parser.parse(code, 'file_path')
+    assert module.is_public
+    assert module.dunder_all is None
+
+    function, = module.children
+    assert function.name == 'do_something'
+    assert function.decorators == []
+    assert function.children == []
+    assert function.docstring == 'f"""Do some {foo} and some {bar}."""'
+    assert function.docstring.start == 4
+    assert function.docstring.end == 4
+    assert function.kind == 'function'
+    assert function.parent == module
+    assert function.start == 3
+    assert function.end == 5
+    assert function.error_lineno == 4
+    assert function.source == textwrap.dedent("""\
+        def do_something(pos_param0, pos_param1, kw_param0="default"):
+            f\"""Do some {foo} and some {bar}.\"""
+            return None
+    """)
     assert function.is_public
     assert str(function) == 'in public function `do_something`'
 
@@ -423,7 +497,6 @@ def test_nested_class():
     assert str(inner_class) == 'in public nested class `InnerClass`'
 
 
-@pytest.mark.skipif(six.PY2, reason='`raise from` is invalid in Python 2.x')
 def test_raise_from():
     """Make sure 'raise x from y' doesn't trip the parser."""
     parser = Parser()
@@ -431,12 +504,8 @@ def test_raise_from():
     parser.parse(code, 'file_path')
 
 
-@pytest.mark.skipif(six.PY2, reason='Matrix multiplication operator is '
-                                    'invalid in Python 2.x')
 def test_simple_matrix_multiplication():
     """Make sure 'a @ b' doesn't trip the parser."""
-    if sys.version_info.minor < 5:
-        return
     parser = Parser()
     code = CodeSnippet("""
         def foo():
@@ -445,22 +514,45 @@ def test_simple_matrix_multiplication():
     parser.parse(code, 'file_path')
 
 
-@pytest.mark.skipif(six.PY2, reason='Matrix multiplication operator is '
-                                    'invalid in Python 2.x')
-def test_matrix_multiplication_with_decorators():
+@pytest.mark.parametrize("code", (
+    CodeSnippet("""
+            def foo():
+                a @ b
+                (a
+                @b)
+                @a
+                def b():
+                    pass
+        """),
+    CodeSnippet("""
+            def foo():
+                a @ b
+                (a
+                @b)
+                a\
+                @b
+                @a
+                def b():
+                    pass
+        """),
+    CodeSnippet("""
+            def foo():
+                a @ b
+                (a
+
+                # A random comment here
+
+                @b)
+                a\
+                @b
+                @a
+                def b():
+                    pass
+        """),
+))
+def test_matrix_multiplication_with_decorators(code):
     """Make sure 'a @ b' doesn't trip the parser."""
-    if sys.version_info.minor < 5:
-        return
     parser = Parser()
-    code = CodeSnippet("""
-        def foo():
-            a @ b
-            (a
-            @b)
-            @a
-            def b():
-                pass
-    """)
     module = parser.parse(code, 'file_path')
 
     outer_function, = module.children
@@ -471,19 +563,75 @@ def test_matrix_multiplication_with_decorators():
     assert inner_function.decorators[0].name == 'a'
 
 
-def test_module_publicity():
-    """Test that a module that has a single leading underscore is private."""
+@pytest.mark.parametrize("public_path", (
+    Path(""),
+    Path("module.py"),
+    Path("package") / "module.py",
+    Path("package") / "__init__.py",
+    Path("") / "package" / "module.py",
+    Path("") / "__dunder__" / "package" / "module.py"
+))
+def test_module_publicity_with_public_path(public_path):
+    """Test module publicity with public path.
+
+    Module names such as my_module.py are considered public.
+
+    Special "dunder" modules,
+    with leading and trailing double-underscores (e.g. __init__.py) are public.
+
+    The same rules for publicity apply to both packages and modules.
+    """
+    parser = Parser()
+    code = CodeSnippet("")
+    module = parser.parse(code, str(public_path))
+    assert module.is_public
+
+
+@pytest.mark.parametrize("private_path", (
+    # single underscore
+    Path("_private_module.py"),
+    Path("_private_package") / "module.py",
+    Path("_private_package") / "package" / "module.py",
+    Path("") / "_private_package" / "package" / "module.py",
+
+    # double underscore
+    Path("__private_module.py"),
+    Path("__private_package") / "module.py",
+    Path("__private_package") / "package" / "module.py",
+    Path("") / "__private_package" / "package" / "module.py"
+))
+def test_module_publicity_with_private_paths(private_path):
+    """Test module publicity with private path.
+
+    Module names starting with single or double-underscore are private.
+    For example, _my_private_module.py and __my_private_module.py.
+
+    Any module within a private package is considered private.
+
+    The same rules for publicity apply to both packages and modules.
+    """
+    parser = Parser()
+    code = CodeSnippet("")
+    module = parser.parse(code, str(private_path))
+    assert not module.is_public
+
+
+@pytest.mark.parametrize("syspath,is_public", (
+    ("/", False),
+    ("_foo/", True),
+))
+def test_module_publicity_with_different_sys_path(syspath,
+                                                  is_public,
+                                                  monkeypatch):
+    """Test module publicity for same path and different sys.path."""
     parser = Parser()
     code = CodeSnippet("")
 
-    module = parser.parse(code, "filepath")
-    assert module.is_public
+    monkeypatch.syspath_prepend(syspath)
 
-    module = parser.parse(code, "_filepath")
-    assert not module.is_public
-
-    module = parser.parse(code, "__filepath")
-    assert module.is_public
+    path = Path("_foo") / "bar" / "baz.py"
+    module = parser.parse(code, str(path))
+    assert module.is_public == is_public
 
 
 def test_complex_module():
@@ -533,12 +681,97 @@ def test_complex_module():
                    'bar'
         ]
     """),
+    CodeSnippet("""\
+        __all__ = 'foo', 'bar'
+    """),
+    CodeSnippet("""\
+        __all__ = 'foo', 'bar',
+    """),
+    CodeSnippet(
+        """__all__ = 'foo', 'bar'"""
+    ),
+    CodeSnippet("""\
+        __all__ = 'foo', \
+                  'bar'
+    """),
+    CodeSnippet("""\
+        foo = 1
+        __all__ = 'foo', 'bar'
+    """),
+    CodeSnippet("""\
+        __all__ = 'foo', 'bar'
+        foo = 1
+    """),
+    CodeSnippet("""\
+        __all__ = ['foo', 'bar']  # never freeze
+    """),
 ))
 def test_dunder_all(code):
     """Test that __all__ is parsed correctly."""
     parser = Parser()
     module = parser.parse(code, "filepath")
-    assert module.all == ('foo', 'bar')
+    assert module.dunder_all == ('foo', 'bar')
+
+
+def test_single_value_dunder_all():
+    """Test that single value __all__ is parsed correctly."""
+    parser = Parser()
+    code = CodeSnippet("""\
+        __all__ = 'foo',
+    """)
+    module = parser.parse(code, "filepath")
+    assert module.dunder_all == ('foo', )
+
+    code = CodeSnippet("""\
+        __all__ = 'foo'
+    """)
+    module = parser.parse(code, "filepath")
+    assert module.dunder_all is None
+    assert module.dunder_all_error
+
+    code = CodeSnippet("""\
+        __all__ = ('foo', )
+    """)
+    module = parser.parse(code, "filepath")
+    assert module.dunder_all == ('foo', )
+
+
+indeterminable_dunder_all_test_cases = [
+    CodeSnippet("""\
+        __all__ = ['foo']
+        __all__ += ['bar']
+    """),
+    CodeSnippet("""\
+        __all__ = ['foo'] + ['bar']
+    """),
+    CodeSnippet("""\
+        __all__ = ['foo']
+        __all__.insert('bar')
+    """),
+    CodeSnippet("""\
+        __all__ = foo()
+    """),
+    CodeSnippet("""\
+        all = ['foo']
+        __all__ = all
+    """),
+    CodeSnippet("""\
+        foo = 'foo'
+        __all__ = [foo]
+    """),
+    CodeSnippet("""\
+        __all__ = (*foo, 'bar')
+    """),
+]
+
+
+@pytest.mark.parametrize("code", indeterminable_dunder_all_test_cases)
+def test_indeterminable_dunder_all(code):
+    """Test that __all__ is ignored if it can't be statically evaluated."""
+    parser = Parser()
+    module = parser.parse(code, "filepath")
+    assert module.dunder_all is None
+    assert module.dunder_all_error
 
 
 @pytest.mark.parametrize("code", (
@@ -570,16 +803,6 @@ def test_dunder_all(code):
         from __future__ \\
         import nested_scopes
     """),
-
-    # The following code snippet fails for PyPy, see:
-    # "Future statements are considered illegal if they are separated
-    # by a semicolon"
-    # https://bitbucket.org/pypy/pypy/issues/2526/
-
-    # CodeSnippet("""\
-    #     from __future__ import unicode_literals; from __future__ import \
-    #     nested_scopes
-    # """),
 ))
 def test_future_import(code):
     """Test that __future__ imports are properly parsed and collected."""
@@ -619,3 +842,119 @@ def test_invalid_syntax(code):
     parser = Parser()
     with pytest.raises(ParseError):
         module = parser.parse(code, "filepath")
+
+
+@pytest.mark.parametrize("code", (
+    CodeSnippet("""\
+        '''Test this'''
+
+        @property
+        def test():
+            pass
+    """),
+    CodeSnippet("""\
+        '''Test this'''
+
+
+
+        @property
+        def test():
+            pass
+    """),
+    CodeSnippet("""\
+        '''Test this'''
+        @property
+
+        def test():
+            pass
+    """),
+    CodeSnippet("""\
+        '''Test this'''
+
+
+        @property
+
+        def test():
+            pass
+    """),
+    CodeSnippet("""\
+        '''Test this'''
+
+        # A random comment in the middle to break things
+
+
+        @property
+
+        def test():
+            pass
+    """),
+))
+def test_parsing_function_decorators(code):
+    """Test to ensure we are correctly parsing function decorators."""
+    parser = Parser()
+    module = parser.parse(code, "filename")
+    function, = module.children
+    decorator_names = {dec.name for dec in function.decorators}
+    assert "property" in decorator_names
+
+
+@pytest.mark.parametrize("code", (
+    CodeSnippet("""\
+        class Test:
+            @property
+            def test(self):
+                pass
+    """),
+    CodeSnippet("""\
+        class Test:
+
+
+
+            @property
+            def test(self):
+                pass
+    """),
+    CodeSnippet("""\
+        class Test:
+
+
+            # Random comment to trip decorator parsing
+
+            @property
+            def test(self):
+                pass
+    """),
+    CodeSnippet("""\
+        class Test:
+
+
+            # Random comment to trip decorator parsing
+
+            A = 1
+
+            @property
+            def test(self):
+                pass
+    """),
+    CodeSnippet("""\
+        class Test:
+
+
+            # Random comment to trip decorator parsing
+
+            A = 1
+
+            '''Another random comment'''
+
+            @property
+            def test(self):
+                pass
+    """),
+))
+def test_parsing_method_decorators(code):
+    """Test to ensure we are correctly parsing method decorators."""
+    parser = Parser()
+    module = parser.parse(code, "filename")
+    function, = module.children[0].children
+    decorator_names = {dec.name for dec in function.decorators}
+    assert "property" in decorator_names

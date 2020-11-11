@@ -34,13 +34,13 @@ Mailing lists
 -------------
 
 You can subscribe to this mailing list at
-http://mail.python.org/mailman/listinfo/code-quality
+https://mail.python.org/mailman/listinfo/code-quality
 
 Archives are available at
-http://mail.python.org/pipermail/code-quality/
+https://mail.python.org/pipermail/code-quality/
 
 Archives before April 2013 are available at
-http://lists.logilab.org/pipermail/python-projects/
+https://lists.logilab.org/pipermail/python-projects/
 
 
 .. _repository:
@@ -75,6 +75,14 @@ your patch gets accepted.
       python -m tox
       python -m tox -epy36 # for Python 3.6 suite only
       python -m tox -epylint # for running Pylint over Pylint's codebase
+      python -m tox -eformatting # for running formatting checks over Pylint's codebase
+
+  * It's usually a good idea to run tox_ with ``--recreate``. This is needed because
+    the tox environment might use an older version of astroid_, which can cause various failures
+    when you are running against the latest pylint::
+
+     python -m tox --recreate # The entire tox environment is going to be recreated
+
 
   * To run only a specific test suite, use a pattern for the test filename
     (**without** the ``.py`` extension), as in::
@@ -86,6 +94,14 @@ your patch gets accepted.
     although we highly recommend using tox_ instead::
 
       pytest pylint -k test_functional
+
+  * ``pylint`` uses black_ and isort_ Python autoformatter for formatting its code.
+    We have a pre-commit hook which should take care of the autoformatting for you
+    for when you are working on a patch. To enable it, do the following:
+
+     * install ``pre-commit`` using ``pip install pre-commit``
+
+     * then run ``pre-commit install`` in the ``pylint`` root directory to enable the git hooks.
 
 
 - Add a short entry to the ChangeLog describing the change, except for internal
@@ -146,8 +162,11 @@ current environment in order to have faster feedback. Run with::
 
 .. _`Closing issues via commit messages`: https://help.github.com/articles/closing-issues-via-commit-messages/
 .. _`About pull requests`: https://help.github.com/articles/using-pull-requests/
-.. _tox: http://tox.readthedocs.io/en/latest/
-.. _pytest: http://pytest.readthedocs.io/en/latest/
+.. _tox: https://tox.readthedocs.io/en/latest/
+.. _pytest: https://pytest.readthedocs.io/en/latest/
+.. _black: https://github.com/ambv/black
+.. _isort: https://github.com/timothycrosley/isort
+.. _astroid: https://github.com/pycqa/astroid
 
 
 Tips for Getting Started with Pylint Development
@@ -164,3 +183,11 @@ Tips for Getting Started with Pylint Development
 * When fixing a bug for a specific check, search the code for the warning
   message to find where the warning is raised,
   and therefore where the logic for that code exists.
+
+
+Building the documentation
+----------------------------
+
+We use **tox** for building the documentation::
+
+  $ tox -e docs

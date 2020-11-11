@@ -1,48 +1,52 @@
-# Copyright (c) 2016 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Checker for deprecated builtins."""
-import sys
-
 import astroid
+
 from pylint.checkers import BaseChecker
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import IAstroidChecker
 
-
-BAD_FUNCTIONS = ['map', 'filter']
-if sys.version_info < (3, 0):
-    BAD_FUNCTIONS.append('input')
+BAD_FUNCTIONS = ["map", "filter"]
 # Some hints regarding the use of bad builtins.
-BUILTIN_HINTS = {
-    'map': 'Using a list comprehension can be clearer.',
-}
-BUILTIN_HINTS['filter'] = BUILTIN_HINTS['map']
+BUILTIN_HINTS = {"map": "Using a list comprehension can be clearer."}
+BUILTIN_HINTS["filter"] = BUILTIN_HINTS["map"]
 
 
 class BadBuiltinChecker(BaseChecker):
 
-    __implements__ = (IAstroidChecker, )
-    name = 'deprecated_builtins'
-    msgs = {'W0141': ('Used builtin function %s',
-                      'bad-builtin',
-                      'Used when a black listed builtin function is used (see the '
-                      'bad-function option). Usual black listed functions are the ones '
-                      'like map, or filter , where Python offers now some cleaner '
-                      'alternative like list comprehension.'),
-           }
+    __implements__ = (IAstroidChecker,)
+    name = "deprecated_builtins"
+    msgs = {
+        "W0141": (
+            "Used builtin function %s",
+            "bad-builtin",
+            "Used when a black listed builtin function is used (see the "
+            "bad-function option). Usual black listed functions are the ones "
+            "like map, or filter , where Python offers now some cleaner "
+            "alternative like list comprehension.",
+        )
+    }
 
-    options = (('bad-functions',
-                {'default' : BAD_FUNCTIONS,
-                 'type' :'csv', 'metavar' : '<builtin function names>',
-                 'help' : 'List of builtins function names that should not be '
-                          'used, separated by a comma'}
-               ),
-              )
+    options = (
+        (
+            "bad-functions",
+            {
+                "default": BAD_FUNCTIONS,
+                "type": "csv",
+                "metavar": "<builtin function names>",
+                "help": "List of builtins function names that should not be "
+                "used, separated by a comma",
+            },
+        ),
+    )
 
-    @check_messages('bad-builtin')
+    @check_messages("bad-builtin")
     def visit_call(self, node):
         if isinstance(node.func, astroid.Name):
             name = node.func.name
@@ -55,7 +59,7 @@ class BadBuiltinChecker(BaseChecker):
                         args = "%r. %s" % (name, hint)
                     else:
                         args = repr(name)
-                    self.add_message('bad-builtin', node=node, args=args)
+                    self.add_message("bad-builtin", node=node, args=args)
 
 
 def register(linter):

@@ -31,7 +31,6 @@ Currently this repository contains the following themes:
     * ayu_light
     * ayu_mirage
     * ayu_dark
-    * badcat
     * badwolf
     * base16 (|airline-theme-base16|)
     * base16_vim (|airline-theme-base16_vim|)
@@ -104,6 +103,7 @@ Currently this repository contains the following themes:
     * kolor
     * laederon
     * light
+    * lighthaus
     * lucius
     * luna
     * minimalist (|airline-theme-minimalist|)
@@ -111,6 +111,7 @@ Currently this repository contains the following themes:
     * monochrome
     * murmur
     * night_owl
+    * nord-minimal
     * onedark (|airline-theme-onedark|)
     * ouo
     * owo
@@ -121,6 +122,7 @@ Currently this repository contains the following themes:
     * raven
     * ravenpower
     * seagull
+    * seoul256
     * serene
     * sierra
     * silver

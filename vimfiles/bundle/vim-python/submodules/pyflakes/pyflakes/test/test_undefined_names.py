@@ -1,5 +1,4 @@
-
-from _ast import PyCF_ONLY_AST
+import ast
 from sys import version_info
 
 from pyflakes import messages as m, checker
@@ -226,6 +225,14 @@ class Test(TestCase):
         for using it.
         """
         self.flakes('WindowsError')
+
+    @skipIf(version_info < (3, 6), 'new feature in 3.6')
+    def test_moduleAnnotations(self):
+        """
+        Use of the C{__annotations__} in module scope should not emit
+        an undefined name warning when version is greater than or equal to 3.6.
+        """
+        self.flakes('__annotations__')
 
     def test_magicGlobalsFile(self):
         """
@@ -840,7 +847,8 @@ class NameTests(TestCase):
         A Name node with an unrecognized context results in a RuntimeError being
         raised.
         """
-        tree = compile("x = 10", "<test>", "exec", PyCF_ONLY_AST)
+        tree = ast.parse("x = 10")
+        file_tokens = checker.make_tokens("x = 10")
         # Make it into something unrecognizable.
         tree.body[0].targets[0].ctx = object()
-        self.assertRaises(RuntimeError, checker.Checker, tree)
+        self.assertRaises(RuntimeError, checker.Checker, tree, file_tokens=file_tokens)

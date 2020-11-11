@@ -1,22 +1,22 @@
 let s:is_win = has('win32')
 
 function! racer#GetRacerCmd() abort
-  if !exists('g:racer_cmd')
-    let sep = s:is_win ? '\' : '/'
-    let path = join([
-          \ escape(expand('<sfile>:p:h'), '\'),
-          \ '..',
-          \ 'target',
-          \ 'release',
-          \ ], sep)
-    if isdirectory(path)
-      let pathsep = s:is_win ? ';' : ':'
-      let $PATH .= pathsep . path
+    if !exists('g:racer_cmd')
+        let sep = s:is_win ? '\' : '/'
+        let path = join([
+              \ escape(expand('<sfile>:p:h'), '\'),
+              \ '..',
+              \ 'target',
+              \ 'release',
+              \ ], sep)
+        if isdirectory(path)
+            let pathsep = s:is_win ? ';' : ':'
+            let $PATH .= pathsep . path
+        endif
+        let g:racer_cmd = 'racer'
     endif
-    let g:racer_cmd = 'racer'
-  endif
 
-  return expand(g:racer_cmd)
+    return expand(g:racer_cmd)
 endfunction
 
 function! s:RacerGetPrefixCol(base)
@@ -108,7 +108,7 @@ function! s:RacerSplitLine(line)
     return parts
 endfunction
 
-function! racer#ShowDocumentation()
+function! racer#ShowDocumentation(tab)
     let winview = winsaveview()  " Save the current cursor position
     " Move to the end of the word for the entire token to search.
     " Move one char back to avoid moving to the end of the *next* word.
@@ -143,7 +143,11 @@ function! racer#ShowDocumentation()
             " If the __doc__ buffer is open in the current tab, jump to it
             silent execute (wi+1) . 'wincmd w'
         else
-            pedit __doc__
+            if a:tab
+                tab pedit __doc__
+            else
+                pedit __doc__
+            endif
             wincmd P
         endif
 
@@ -310,7 +314,7 @@ function! s:ErrorCheck()
                 \ 'rustlib',
                 \ 'src',
                 \ 'rust',
-                \ 'src',
+                \ 'library',
                 \ ], sep)
             if isdirectory(path)
                 return 0

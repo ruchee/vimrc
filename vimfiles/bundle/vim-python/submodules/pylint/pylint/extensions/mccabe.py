@@ -1,16 +1,18 @@
-# Copyright (c) 2016-2017 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 # For details: https://github.com/PyCQA/pylint/blob/master/COPYING
 
 """Module to add McCabe checker class for pylint. """
 
-from __future__ import absolute_import
+from mccabe import PathGraph as Mccabe_PathGraph
+from mccabe import PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 
-from mccabe import PathGraph as Mccabe_PathGraph, \
-        PathGraphingAstVisitor as Mccabe_PathGraphingAstVisitor
 from pylint import checkers
 from pylint.checkers.utils import check_messages
 from pylint.interfaces import HIGH, IAstroidChecker
@@ -18,13 +20,13 @@ from pylint.interfaces import HIGH, IAstroidChecker
 
 class PathGraph(Mccabe_PathGraph):
     def __init__(self, node):
-        super(PathGraph, self).__init__(name='', entity='', lineno=1)
+        super().__init__(name="", entity="", lineno=1)
         self.root = node
 
 
 class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
     def __init__(self):
-        super(PathGraphingAstVisitor, self).__init__()
+        super().__init__()
         self._bottom_counter = 0
 
     def default(self, node, *args):
@@ -36,8 +38,8 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         klass = node.__class__
         meth = self._cache.get(klass)
         if meth is None:
-            className = klass.__name__
-            meth = getattr(self.visitor, 'visit' + className, self.default)
+            class_name = klass.__name__
+            meth = getattr(self.visitor, "visit" + class_name, self.default)
             self._cache[klass] = meth
         return meth(node, *args)
 
@@ -64,10 +66,31 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
     def visitSimpleStatement(self, node):
         self._append_node(node)
 
-    visitAssert = visitAssign = visitAugAssign = visitDelete = visitPrint = \
-        visitRaise = visitYield = visitImport = visitCall = visitSubscript = \
-        visitPass = visitContinue = visitBreak = visitGlobal = visitReturn = \
-        visitExpr = visitAwait = visitSimpleStatement
+    visitAssert = (
+        visitAssign
+    ) = (
+        visitAugAssign
+    ) = (
+        visitDelete
+    ) = (
+        visitPrint
+    ) = (
+        visitRaise
+    ) = (
+        visitYield
+    ) = (
+        visitImport
+    ) = (
+        visitCall
+    ) = (
+        visitSubscript
+    ) = (
+        visitPass
+    ) = (
+        visitContinue
+    ) = (
+        visitBreak
+    ) = visitGlobal = visitReturn = visitExpr = visitAwait = visitSimpleStatement
 
     def visitWith(self, node):
         self._append_node(node)
@@ -94,7 +117,7 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
             self._append_node(node)
             self._subgraph_parse(node, node, extra_blocks)
 
-    def _subgraph_parse(self, node, pathnode, extra_blocks):  # pylint: disable=unused-argument
+    def _subgraph_parse(self, node, pathnode, extra_blocks):
         """parse the body and any `else` block of `if` and `for` statements"""
         loose_ends = []
         self.tail = node
@@ -113,8 +136,8 @@ class PathGraphingAstVisitor(Mccabe_PathGraphingAstVisitor):
         if node:
             bottom = "%s" % self._bottom_counter
             self._bottom_counter += 1
-            for le in loose_ends:
-                self.graph.connect(le, bottom)
+            for end in loose_ends:
+                self.graph.connect(end, bottom)
             self.tail = bottom
 
 
@@ -124,25 +147,29 @@ class McCabeMethodChecker(checkers.BaseChecker):
     """
 
     __implements__ = IAstroidChecker
-    name = 'design'
+    name = "design"
 
     msgs = {
-        'R1260': (
+        "R1260": (
             "%s is too complex. The McCabe rating is %d",
-            'too-complex',
-            'Used when a method or function is too complex based on '
-            'McCabe Complexity Cyclomatic'),
+            "too-complex",
+            "Used when a method or function is too complex based on "
+            "McCabe Complexity Cyclomatic",
+        )
     }
     options = (
-        ('max-complexity', {
-            'default': 10,
-            'type': 'int',
-            'metavar': '<int>',
-            'help': 'McCabe complexity cyclomatic threshold',
-        }),
+        (
+            "max-complexity",
+            {
+                "default": 10,
+                "type": "int",
+                "metavar": "<int>",
+                "help": "McCabe complexity cyclomatic threshold",
+            },
+        ),
     )
 
-    @check_messages('too-complex')
+    @check_messages("too-complex")
     def visit_module(self, node):
         """visit an astroid.Module node to check too complex rating and
         add message if is greather than max_complexity stored from options"""
@@ -152,15 +179,15 @@ class McCabeMethodChecker(checkers.BaseChecker):
         for graph in visitor.graphs.values():
             complexity = graph.complexity()
             node = graph.root
-            if hasattr(node, 'name'):
+            if hasattr(node, "name"):
                 node_name = "'%s'" % node.name
             else:
                 node_name = "This '%s'" % node.__class__.__name__.lower()
             if complexity <= self.config.max_complexity:
                 continue
             self.add_message(
-                'too-complex', node=node, confidence=HIGH,
-                args=(node_name, complexity))
+                "too-complex", node=node, confidence=HIGH, args=(node_name, complexity)
+            )
 
 
 def register(linter):

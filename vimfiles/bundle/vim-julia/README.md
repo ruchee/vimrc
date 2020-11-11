@@ -17,7 +17,6 @@ The remainder of this README will only give an overview of some of the features:
 
 * [Latex-to-Unicode substitutions](#latex-to-unicode-substitutions)
 * [Block-wise movements and block text-objects](#block-wise-movements-and-block-text-objects)
-* [Changing syntax highlighting depending on the Julia version](#changing-syntax-highlighting-depending-on-the-julia-version)
 
 ## LaTeX-to-Unicode substitutions
 
@@ -122,7 +121,7 @@ This feature is not available with Vim versions lower then 7.4.
 A different susbstitution mode based on keymaps can be activated with `:let g:latex_to_unicode_keymap = 1`,
 e.g. by putting it into your `.vimrc` file. This works similarly to the as-you-type method described above,
 but it has the advantage that it works under more circumstances, e.g. in command-line mode when searching with
-`/` or `?`, and when using the `f` and `t` commands; plus it works with emojis too.
+`/` or `?`, and when using the `f` and `t` commands.
 The main disadvantage is that you don't see the whole sequence as you're typing it, and you can't fix mistakes
 with backspace, for example.
 Another difference is that there is a timeout like for any other mapping.
@@ -151,7 +150,7 @@ the mappings:
 
 ```
 noremap <expr> <F7> LaTeXtoUnicode#Toggle()
-inoremap <expr> <F7> LaTeXtoUnicode#Toggle()
+noremap! <expr> <F7> LaTeXtoUnicode#Toggle()
 ```
 
 and then use the <kbd>F7</kbd> key to quickly turn the feature on and off.
@@ -173,27 +172,3 @@ or they can be remapped and/or disabled individually by defining a `g:julia_bloc
 See the documentation for details.
 
 Note that this feature requires Vim version 7.4 or higher.
-
-## Changing syntax highlighting depending on the Julia version
-
-The plugin supports syntax highlighting different versions of Julia. By default, the highlighting scheme assumes
-the latest stable release of Julia (currently, version 1.0; the plugin does not differentiate between 0.7 and 1.0),
-but the previous one and the latest version under development are also supported. You can set a global default in
-your `.vimrc`, e.g. if you follow Julia's master you can use:
-
-```
-let g:default_julia_version = "devel"
-```
-
-or if you are still using Julia 0.6 you can use:
-
-```
-let g:default_julia_version = "0.6"
-```
-
-You can also switch version for a particular buffer, by using the `julia#set_syntax_version()` function, e.g.
-by typing in Vim:
-
-```
-:call julia#set_syntax_version("0.6")
-```

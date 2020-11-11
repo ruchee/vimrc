@@ -17,6 +17,7 @@ hi def link rubyUserAssertion               rubyAssertion
 hi def link rubyAssertion                   rubyException
 hi def link rubyTestAction                  rubyControl
 hi def link rubyHelper                      Function
+hi def link rubyDebug                       Debug
 
 let s:has_app = exists('*RailsDetect') && RailsDetect()
 let s:path = tr(expand('%:p'), '\', '/')
@@ -52,7 +53,7 @@ endif
 
 if s:path =~# '/app/helpers/.*_helper\.rb$\|/app/views/'
   syn keyword rubyViewHelper
-        \ action_name asset_pack_path asset_path asset_url atom_feed audio_path audio_tag audio_url auto_discovery_link_tag
+        \ action_cable_meta_tag action_name asset_pack_path asset_path asset_url atom_feed audio_path audio_tag audio_url auto_discovery_link_tag
         \ button_tag button_to
         \ cache cache_fragment_name cache_if cache_unless capture cdata_section check_box check_box_tag collection_check_boxes collection_radio_buttons collection_select color_field color_field_tag compute_asset_extname compute_asset_host compute_asset_path concat content_tag content_tag_for controller controller_name controller_path convert_to_model cookies csp_meta_tag csrf_meta_tag csrf_meta_tags current_cycle cycle
         \ date_field date_field_tag date_select datetime_field datetime_field_tag datetime_local_field datetime_local_field_tag datetime_select debug distance_of_time_in_words distance_of_time_in_words_to_now div_for dom_class dom_id
@@ -157,6 +158,8 @@ if s:path =~# '/spec/.*_spec\.rb$'
   syn keyword rubyTestMacro before after around background setup teardown
   syn keyword rubyTestMacro context describe feature shared_context shared_examples shared_examples_for containedin=rubyKeywordAsMethod
   syn keyword rubyTestMacro it example specify scenario include_examples include_context it_should_behave_like it_behaves_like
+  syn keyword rubyDebug fcontext fdescribe containedin=rubyKeywordAsMethod
+  syn keyword rubyDebug fit fexample fspecify
   syn keyword rubyComment xcontext xdescribe xfeature containedin=rubyKeywordAsMethod
   syn keyword rubyComment xit xexample xspecify xscenario
 endif

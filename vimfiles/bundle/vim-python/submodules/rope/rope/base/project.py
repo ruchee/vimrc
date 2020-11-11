@@ -33,7 +33,7 @@ class _Project(object):
         folder address is an empty string.  If the resource does not
         exist a `exceptions.ResourceNotFound` exception would be
         raised.  Use `get_file()` and `get_folder()` when you need to
-        get nonexistent `Resource`\s.
+        get nonexistent `Resource`.
 
         """
         path = self._get_resource_path(resource_name)
@@ -459,7 +459,7 @@ def _realpath(path):
     Is equivalent to ``realpath(abspath(expanduser(path)))``.
 
     Of the particular notice is the hack dealing with the unfortunate
-    sitaution of running native-Windows python (os.name == 'nt') inside
+    situation of running native-Windows python (os.name == 'nt') inside
     of Cygwin (abspath starts with '/'), which apparently normal
     os.path.realpath completely messes up.
 

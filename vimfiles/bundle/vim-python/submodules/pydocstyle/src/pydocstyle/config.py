@@ -4,20 +4,12 @@ import copy
 import itertools
 import os
 from collections import namedtuple
+from collections.abc import Set
 from re import compile as re
-
-
 from configparser import RawConfigParser
-
 
 from .utils import __version__, log
 from .violations import ErrorRegistry, conventions
-
-try:
-    from collections.abc import Set
-except ImportError:
-    # python 2.7
-    from collections import Set
 
 
 def check_initialized(method):
@@ -29,7 +21,7 @@ def check_initialized(method):
     return _decorator
 
 
-class ConfigurationParser(object):
+class ConfigurationParser:
     """Responsible for parsing configuration from files and CLI.
 
     There are 2 types of configurations: Run configurations and Check
@@ -72,8 +64,8 @@ class ConfigurationParser(object):
                            'ignore-decorators')
     BASE_ERROR_SELECTION_OPTIONS = ('ignore', 'select', 'convention')
 
-    DEFAULT_MATCH_RE = '(?!test_).*\.py'
-    DEFAULT_MATCH_DIR_RE = '[^\.].*'
+    DEFAULT_MATCH_RE = r'(?!test_).*\.py'
+    DEFAULT_MATCH_DIR_RE = r'[^\.].*'
     DEFAULT_IGNORE_DECORATORS_RE = ''
     DEFAULT_CONVENTION = conventions.pep257
 
@@ -141,19 +133,16 @@ class ConfigurationParser(object):
         might be raised.
 
         """
-        def _get_matches(config):
+        def _get_matches(conf):
             """Return the `match` and `match_dir` functions for `config`."""
-            match_func = re(config.match + '$').match
-            match_dir_func = re(config.match_dir + '$').match
+            match_func = re(conf.match + '$').match
+            match_dir_func = re(conf.match_dir + '$').match
             return match_func, match_dir_func
 
-        def _get_ignore_decorators(config):
+        def _get_ignore_decorators(conf):
             """Return the `ignore_decorators` as None or regex."""
-            if config.ignore_decorators:  # not None and not ''
-                ignore_decorators = re(config.ignore_decorators)
-            else:
-                ignore_decorators = None
-            return ignore_decorators
+            return (re(conf.ignore_decorators) if conf.ignore_decorators
+                    else None)
 
         for name in self._arguments:
             if os.path.isdir(name):
@@ -163,7 +152,7 @@ class ConfigurationParser(object):
                     ignore_decorators = _get_ignore_decorators(config)
 
                     # Skip any dirs that do not match match_dir
-                    dirs[:] = [dir for dir in dirs if match_dir(dir)]
+                    dirs[:] = [d for d in dirs if match_dir(d)]
 
                     for filename in filenames:
                         if match(filename):
@@ -313,8 +302,8 @@ class ConfigurationParser(object):
             for group in self._parser.option_groups:
                 all_options.extend(group.option_list)
 
-            option_list = dict([(o.dest, o.type or o.action)
-                                for o in all_options])
+            option_list = {o.dest: o.type or o.action
+                                for o in all_options}
 
             # First, read the default values
             new_options, _ = self._parse_args([])
@@ -379,8 +368,8 @@ class ConfigurationParser(object):
     @staticmethod
     def _create_run_config(options):
         """Create a `RunConfiguration` object from `options`."""
-        values = dict([(opt, getattr(options, opt)) for opt in
-                       RunConfiguration._fields])
+        values = {opt: getattr(options, opt) for opt in
+                       RunConfiguration._fields}
         return RunConfiguration(**values)
 
     @classmethod
@@ -399,7 +388,7 @@ class ConfigurationParser(object):
 
         kwargs = dict(checked_codes=checked_codes)
         for key in ('match', 'match_dir', 'ignore_decorators'):
-            kwargs[key] = getattr(cls, 'DEFAULT_{0}_RE'.format(key.upper())) \
+            kwargs[key] = getattr(cls, 'DEFAULT_{}_RE'.format(key.upper())) \
                 if getattr(options, key) is None and use_defaults \
                 else getattr(options, key)
         return CheckConfiguration(**kwargs)
@@ -469,11 +458,12 @@ class ConfigurationParser(object):
                 codes_to_add = {code for code in codes
                                 if code.startswith(part)}
                 if not codes_to_add:
-                    log.warning('Error code passed is not a prefix of any known '
-                             'errors: %s', part)
+                    log.warning(
+                        'Error code passed is not a prefix of any '
+                        'known errors: %s', part)
                 expanded_codes.update(codes_to_add)
         except TypeError as e:
-            raise IllegalConfiguration(e)
+            raise IllegalConfiguration(e) from e
 
         return expanded_codes
 
@@ -525,12 +515,14 @@ class ConfigurationParser(object):
         def _get_set(value_str):
             """Split `value_str` by the delimiter `,` and return a set.
 
-            Removes any occurrences of '' in the set.
-            Also expand error code prefixes, to avoid doing this for every
+            Removes empty values ('') and strips whitespace.
+            Also expands error code prefixes, to avoid doing this for every
             file.
 
             """
-            return cls._expand_error_codes(set(value_str.split(',')) - {''})
+            return cls._expand_error_codes(
+                set([x.strip() for x in value_str.split(",")]) - {""}
+            )
 
         for opt in optional_set_options:
             value = getattr(options, opt)
@@ -573,6 +565,13 @@ class ConfigurationParser(object):
                help='print total number of errors to stdout')
         option('--config', metavar='<path>', default=None,
                help='use given config file and disable config discovery')
+
+        parser.add_option_group(OptionGroup(
+            parser,
+            'Note',
+            'When using --match, --match-dir or --ignore-decorators consider '
+            'whether you should use a single quote (\') or a double quote ("), '
+            'depending on your OS, Shell, etc.'))
 
         check_group = OptionGroup(
             parser,
@@ -629,9 +628,10 @@ class ConfigurationParser(object):
         option('--ignore-decorators', metavar='<decorators>', default=None,
                help=("ignore any functions or methods that are decorated "
                      "by a function with a name fitting the <decorators> "
-                     "regular expression; default is --ignore-decorators='{0}'"
+                     "regular expression; default is --ignore-decorators='{}'"
                      " which does not ignore any decorated functions."
                      .format(cls.DEFAULT_IGNORE_DECORATORS_RE)))
+
         return parser
 
 

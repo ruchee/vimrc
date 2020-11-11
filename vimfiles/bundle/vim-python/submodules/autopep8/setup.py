@@ -10,7 +10,7 @@ from setuptools import setup
 
 
 INSTALL_REQUIRES = (
-    ['pycodestyle >= 2.3']
+    ['pycodestyle >= 2.6.0', 'toml']
 )
 
 
@@ -46,6 +46,8 @@ with io.open('README.rst') as readme:
             'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: Software Development :: Quality Assurance',
         ],

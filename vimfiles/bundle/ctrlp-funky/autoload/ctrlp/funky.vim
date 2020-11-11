@@ -229,7 +229,7 @@ function! ctrlp#funky#init(bufnr)
     let &eventignore = 'BufLeave'
 
     let ctrlp_winnr = bufwinnr(bufnr(''))
-    execute bufwinnr(a:bufnr) . 'wincmd w'
+    noautocmd execute bufwinnr(a:bufnr) . 'wincmd w'
     let pos = getpos('.')
 
     " TODO: Need to fix priority for options
@@ -244,11 +244,11 @@ function! ctrlp#funky#init(bufnr)
     let candidates = ctrlp#funky#candidates(bufs)
 
     " activate the former buffer
-    execute 'buffer ' . bufname(a:bufnr)
+    noautocmd execute 'buffer ' . bufname(a:bufnr)
     call setpos('.', pos)
     let filetype = s:filetype(a:bufnr)
 
-    execute ctrlp_winnr . 'wincmd w'
+    noautocmd execute ctrlp_winnr . 'wincmd w'
     if len(bufs) == 1 | call s:syntax(filetype) | endif
 
     return candidates
@@ -257,13 +257,18 @@ function! ctrlp#funky#init(bufnr)
   endtry
 endfunction
 
-function! ctrlp#funky#candidates(bufs)
+function! s:get_filters(bufnr) abort
+  let filetype = s:filetype(a:bufnr)
+  return get(s:filconvs, filetype, filetype)
+endfunction
+
+function! ctrlp#funky#candidates(bufs) abort
   let candidates = []
 
   for bufnr in a:bufs
     call s:load_buffer_by_name(bufnr)
 
-    let filetype = s:filetype(bufnr)
+    let filetype = s:get_filters(bufnr)
 
     for ft in split(filetype, '\.')
       if s:has_filter(ft)
@@ -495,6 +500,7 @@ if index(['line', 'path', 'tabs', 'tabe'], s:matchtype) < 0
 endif
 
 let s:nudists = get(g:, 'ctrlp_funky_nudists', [])
+let s:filconvs = get(g:, 'ctrlp_funky_filter_conversions', {})
 
 let s:fu = ctrlp#funky#getutils()
 let s:li = ctrlp#funky#getliterals()

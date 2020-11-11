@@ -79,11 +79,13 @@ $$;
 
 -- Among the keywords, we distinguish those corresponding to 'statements', as
 -- other SQL syntax types do.
+-- NOTE: `create` is not included here, because we add it manually with a match
+-- rule (see pgsql.sql).
 create or replace function get_statements()
 returns table (stm text)
 language sql immutable as
 $$
-  values ('add'), ('create'), ('select'), ('abort'), ('alter'), ('analyze'), ('begin'),
+  values ('add'), ('select'), ('abort'), ('alter'), ('analyze'), ('begin'),
          ('checkpoint'), ('close'), ('cluster'), ('comment'), ('commit'), ('constraints'),
          ('copy'), ('deallocate'), ('declare'), ('delete'), ('discard'),
          ('do'), ('drop'), ('end'), ('execute'), ('explain'), ('fetch'), ('grant'),
@@ -196,6 +198,8 @@ $$
   values ('public'), ('usage')
   except
   (select stm from get_statements()
+   union
+   select 'create' -- Avoid considering `create` a keyword
    union
    select "type" from get_types()
    union

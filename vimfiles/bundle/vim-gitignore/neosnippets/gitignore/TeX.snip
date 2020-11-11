@@ -31,7 +31,6 @@ abbr    TeX
         *.blg
         *-blx.aux
         *-blx.bib
-        *.brf
         *.run.xml
         
         ## Build tool auxiliary files:
@@ -55,14 +54,31 @@ abbr    TeX
         
         # beamer
         *.nav
+        *.pre
         *.snm
         *.vrb
+        
+        # changes
+        *.soc
         
         # cprotect
         *.cpt
         
+        # elsarticle (documentclass of Elsevier journals)
+        *.spl
+        
+        # endnotes
+        *.ent
+        
         # fixme
         *.lox
+        
+        # feynmf/feynmp
+        *.mf
+        *.mp
+        *.t[1-9]
+        *.t[1-9][0-9]
+        *.tfm
         
         #(r)(e)ledmac/(r)(e)ledpar
         *.end
@@ -117,9 +133,10 @@ abbr    TeX
         *.maf
         *.mlf
         *.mlt
-        *.mtc
-        *.mtc[0-9]
-        *.mtc[1-9][0-9]
+        *.mtc[0-9]*
+        *.slf[0-9]*
+        *.slt[0-9]*
+        *.stc[0-9]*
         
         # minted
         _minted*
@@ -128,11 +145,14 @@ abbr    TeX
         # morewrites
         *.mw
         
-        # mylatexformat
-        *.fmt
-        
         # nomencl
         *.nlo
+        
+        # pax
+        *.pax
+        
+        # pdfpcnotes
+        *.pdfpc
         
         # sagetex
         *.sagetex.sage
@@ -198,4 +218,7 @@ abbr    TeX
         
         # auto folder when using emacs and auctex
         /auto/*
+        
+        # expex forward references with \gathertags
+        *-tags.tex
         ${0}

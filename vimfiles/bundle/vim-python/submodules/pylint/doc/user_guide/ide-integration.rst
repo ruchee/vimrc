@@ -6,13 +6,13 @@
 
 To use Pylint with:
 
- - Emacs_, see http://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8,
- - Vim_, see http://www.vim.org/scripts/script.php?script_id=891,
+ - Emacs_, see https://www.emacswiki.org/emacs/PythonProgrammingInEmacs#toc8,
+ - Vim_, see https://www.vim.org/scripts/script.php?script_id=891,
  - `Visual Studio`_, see https://docs.microsoft.com/visualstudio/python/code-pylint,
- - Eclipse_ and PyDev_, see http://pydev.org/manual_adv_pylint.html,
+ - Eclipse_ and PyDev_, see https://pydev.org/manual_adv_pylint.html,
  - Komodo_, see http://mateusz.loskot.net/posts/2006/01/15/running-pylint-from-komodo/,
  - gedit_, see https://launchpad.net/gedit-pylint-2 or https://wiki.gnome.org/Apps/Gedit/PylintPlugin,
- - WingIDE_, see http://www.wingware.com/doc/edit/pylint,
+ - WingIDE_, see https://www.wingware.com/doc/edit/pylint,
  - PyCharm_, see :ref:`the section below <pylint_in_pycharm>`,
  - TextMate_, see :ref:`the section below <pylint_in_textmate>`
  - `Visual Studio Code`_, see https://code.visualstudio.com/docs/python/linting#_pylint,
@@ -26,19 +26,19 @@ Pylint is integrated in:
  - pyscripter_, see the `Tool -> Tools` menu.
  - `Visual Studio Code`_, see the `Preferences -> Settings` menu.
 
-.. _Emacs: http://www.gnu.org/software/emacs/
-.. _Vim: http://www.vim.org/
+.. _Emacs: https://www.gnu.org/software/emacs/
+.. _Vim: https://www.vim.org/
 .. _Visual Studio: https://www.visualstudio.com/
 .. _Eclipse: https://www.eclipse.org/
-.. _Eric: http://eric-ide.python-projects.org/
-.. _pyscripter: http://code.google.com/p/pyscripter/
-.. _pydev: http://pydev.org
+.. _Eric: https://eric-ide.python-projects.org/
+.. _pyscripter: https://github.com/pyscripter/pyscripter
+.. _pydev: https://pydev.org
 .. _Komodo: http://www.activestate.com/Products/Komodo/
 .. _gedit: https://wiki.gnome.org/Apps/Gedit
-.. _WingIDE: http://www.wingware.com/
+.. _WingIDE: https://www.wingware.com/
 .. _spyder: https://www.spyder-ide.org/
-.. _PyCharm: http://www.jetbrains.com/pycharm/
-.. _TextMate: http://macromates.com
+.. _PyCharm: https://www.jetbrains.com/pycharm/
+.. _TextMate: https://macromates.com
 .. _Visual Studio Code: https://code.visualstudio.com/
 
 Using Pylint thru flymake in Emacs
@@ -125,18 +125,20 @@ Remember the path at which it's installed::
 
     which pylint
 
-Using pylint-PyCharm-plugin
+Using pylint-pycharm plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#.  Download the latest version of the `pylint-plugin.jar <https://github.com/leinardi/pylint-PyCharm-plugin/releases>`_
-#.  In PyCharm go to *Preferences* -> *Plugins* > *Install plugins from disc...*, select downloaded file and restart PyCharm when prompted
-#.  After restart you should find the plugin in *View* > *Tool windows* > *Pylint terminal*
+#.  In PyCharm go to *Preferences* > *Plugins* > *Browse repositories...*
+#.  Right-click on the plugin named **Pylint**, select **Download and Install** and restart PyCharm when prompted
 
-By default the plugin runs Pylint on the root directory of your PyCharm project. If you want to specify a different directory:
+If the plugin is not finding the Pylint executable (e.g. is not inside the PATH environmental variable), you can
+specify it manually using the plugin settings:
 
-#.  Right click on the Pylint terminal window
-#.  Select "Configure plugin..."
-#.  Replace the '.' at the end of the "Pylint command" with the modules or packages you want to check (e.g. "``pylint --msg-template='{path}:{line:d}: {C}: {category}: {msg} ({symbol})'  my_module``")
+#.  *Preferences* > *Other Settings* > *Pylint* or simply click the gear icon from the side bar of the Pylint tool window
+#.  Type the path directly or use the Browse button to open a file selection dialog
+#.  Press the Test button to check if the plugin is able to run the executable
+
+For more info on how to use the plugin please check the `official plugin documentation <https://github.com/leinardi/pylint-pycharm/blob/master/README.md>`_.
 
 Using External Tools
 ~~~~~~~~~~~~~~~~~~~~
@@ -223,7 +225,7 @@ Command-line arguments and configuration files
 See `Pylint command line arguments`_ for general switches. Command line
 arguments can be used to load Pylint plugins, such as that for Django:
 
-.. code:: json
+::
 
     "python.linting.pylintArgs": ["--load-plugins", "pylint_django"]
 

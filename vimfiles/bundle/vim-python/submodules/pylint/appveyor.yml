@@ -4,23 +4,22 @@ cache:
   - 'C:\\tmp'
 environment:
   matrix:
-    - PYTHON: "C:\\Python34"
-      TOXENV: "py34"
-
     - PYTHON: "C:\\Python35"
       TOXENV: "py35"
 
     - PYTHON: "C:\\Python36"
       TOXENV: "py36"
 
+    - PYTHON: "C:\\Python37"
+      TOXENV: "py37"
+
 init:
   - ps: echo $env:TOXENV
   - ps: ls C:\Python*
   - ps: mkdir C:\tmp
 install:
-  - 'powershell ./appveyor/install.ps1'
-  - "python -m pip install tox"
-  - 'python -m pip install wheel'
+  - 'SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%'
+  - 'python -m pip install -U setuptools pip tox wheel virtualenv'
   - 'python -m pip --version'
   - 'python -m tox --version'
 

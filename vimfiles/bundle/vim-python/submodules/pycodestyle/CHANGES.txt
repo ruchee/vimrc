@@ -1,12 +1,68 @@
 Changelog
 =========
 
-UNRELEASED / 3.0.0
+2.6.0 (2020-05-11)
 ------------------
+
+Announcements:
+
+* Anthony Sottile (@asottile) joined the team as a core developer. :tada:
+
+Changes:
+
+* E306: fix detection inside ``async def``.  PR #929.
+* E301: fix regression disallowing decorated one-liners.  PR #927.
+* E714: fix false positive with chained ``is not``.  PR #931.
+
+
+2.6.0a1 (2020-04-23)
+--------------------
+
+New checks:
+
+* E225: require whitespace around ``and`` ``in`` ``is`` and ``or``.  PR #847.
+
+Changes:
+
+* E117: fix indentation using tabs by treating as 8-space indents.  PR #837.
+* E721: fix false positive with names containg ``istype``.  PR #850.
+* E741: allow ``l`` as a named argument in a function call.  PR #853.
+* E302: fix false-negative with decorated functions.  PR #859.
+* W504: ellipsis (``...``) is no longer treated as a binary operator.  PR #875.
+* E402: allow ``with``, ``if``, ``elif``, ``else`` to guard imports.  PR #834.
+* Add support for assignment expressions ``:=`` (PEP 572).  PR #879.
+* Add support for positional-only arguments ``/`` (PEP 570).  PR #872, #918.
+* Add support for python 3.8.
+* Add support for matrix multiplication operator ``@`` (PEP 465).  PR #897.
+* Support visual indent for continuation lines for ``with`` / ``assert`` /
+  ``raise``.  PR #912.
+* E302: allow two blank lines after a block of one-liners.  PR #913.
+* E302: allow two-and-fewer newlines at the top of the file.  PR #919.
+
+
+2.5.0 (2019-01-29)
+------------------
+
+New checks:
+
+* E117: Over-indented code blocks
+* W505: Maximum doc-string length only when configured with --max-doc-length
 
 Changes:
 
 * Remove support for EOL Python 2.6 and 3.3. PR #720.
+* Add E117 error for over-indented code blocks.
+* Allow W605 to be silenced by `# noqa` and fix the position reported by W605
+* Allow users to omit blank lines around one-liner definitions of classes and
+  functions
+* Include the function return annotation (``->``) as requiring surrounding
+  whitespace only on Python 3
+* Verify that only names can follow ``await``. Previously we allowed numbers
+  and strings.
+* Add support for Python 3.7
+* Fix detection of annotated argument defaults for E252
+* Correct the position reported by W504
+
 
 2.4.0 (2018-04-10)
 ------------------

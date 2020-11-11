@@ -201,7 +201,6 @@ function! GetLastRealCodeLNum(startline) " {{{
 	    if lastline =~ '^\s*/\*'
 		let lnum = lnum - 1
 	    else
-		
 		break
 	    endif
 
@@ -507,7 +506,7 @@ endfunc
 call ResetPhpOptions()
 
 function! GetPhpIndentVersion()
-    return "1.70"
+    return "1.70-bundle"
 endfun
 
 function! GetPhpIndent()

@@ -1,8 +1,14 @@
-# Copyright (c) 2014-2018 Claudiu Popa <pcmanticore@gmail.com>
+# -*- coding: utf-8 -*-
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019 Stanislav Levin <slev@altlinux.org>
+# Copyright (c) 2019 David Liu <david@cs.toronto.edu>
+# Copyright (c) 2019 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2019 Frédéric Chapoton <fchapoton2@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
 # For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
@@ -10,13 +16,11 @@
 """Astroid hooks for various builtins."""
 
 from functools import partial
-import sys
 from textwrap import dedent
 
 import six
 from astroid import (
     MANAGER,
-    Instance,
     UseInferenceDefault,
     AttributeInferenceError,
     inference_tip,
@@ -34,12 +38,13 @@ from astroid import scoped_nodes
 from astroid import util
 
 
-OBJECT_DUNDER_NEW = 'object.__new__'
+OBJECT_DUNDER_NEW = "object.__new__"
 
 
 def _extend_str(class_node, rvalue):
     """function to extend builtin str/unicode class"""
-    code = dedent('''
+    code = dedent(
+        """
     class whatever(object):
         def join(self, iterable):
             return {rvalue}
@@ -79,41 +84,43 @@ def _extend_str(class_node, rvalue):
             return {rvalue}
         def ljust(self, width, fillchar=None):
             return {rvalue}
-    ''')
+    """
+    )
     code = code.format(rvalue=rvalue)
-    fake = AstroidBuilder(MANAGER).string_build(code)['whatever']
+    fake = AstroidBuilder(MANAGER).string_build(code)["whatever"]
     for method in fake.mymethods():
         method.parent = class_node
         method.lineno = None
         method.col_offset = None
-        if '__class__' in method.locals:
-            method.locals['__class__'] = [class_node]
+        if "__class__" in method.locals:
+            method.locals["__class__"] = [class_node]
         class_node.locals[method.name] = [method]
         method.parent = class_node
 
 
-def extend_builtins(class_transforms):
-    from astroid.bases import BUILTINS
-    builtin_ast = MANAGER.astroid_cache[BUILTINS]
+def _extend_builtins(class_transforms):
+    builtin_ast = MANAGER.builtins_module
     for class_name, transform in class_transforms.items():
         transform(builtin_ast[class_name])
 
 
-if sys.version_info > (3, 0):
-    extend_builtins({'bytes': partial(_extend_str, rvalue="b''"),
-                     'str': partial(_extend_str, rvalue="''")})
-else:
-    extend_builtins({'str': partial(_extend_str, rvalue="''"),
-                     'unicode': partial(_extend_str, rvalue="u''")})
+_extend_builtins(
+    {
+        "bytes": partial(_extend_str, rvalue="b''"),
+        "str": partial(_extend_str, rvalue="''"),
+    }
+)
 
 
 def _builtin_filter_predicate(node, builtin_name):
     if isinstance(node.func, nodes.Name) and node.func.name == builtin_name:
         return True
     if isinstance(node.func, nodes.Attribute):
-        return (node.func.attrname == 'fromkeys'
-                and isinstance(node.func.expr, nodes.Name)
-                and node.func.expr.name == 'dict')
+        return (
+            node.func.attrname == "fromkeys"
+            and isinstance(node.func.expr, nodes.Name)
+            and node.func.expr.name == "dict"
+        )
     return False
 
 
@@ -123,6 +130,7 @@ def register_builtin_transform(transform, builtin_name):
     The transform function must accept two parameters, a node and
     an optional context.
     """
+
     def _transform_wrapper(node, context=None):
         result = transform(node, context=context)
         if result:
@@ -145,14 +153,14 @@ def register_builtin_transform(transform, builtin_name):
     )
 
 
-def _generic_inference(node, context, node_type, transform):
+def _container_generic_inference(node, context, node_type, transform):
     args = node.args
     if not args:
         return node_type()
     if len(node.args) > 1:
         raise UseInferenceDefault()
 
-    arg, = args
+    (arg,) = args
     transformed = transform(arg)
     if not transformed:
         try:
@@ -167,72 +175,96 @@ def _generic_inference(node, context, node_type, transform):
     return transformed
 
 
-def _generic_transform(arg, klass, iterables, build_elts):
+def _container_generic_transform(arg, context, klass, iterables, build_elts):
     if isinstance(arg, klass):
         return arg
     elif isinstance(arg, iterables):
-        if not all(isinstance(elt, nodes.Const) for elt in arg.elts):
-            raise UseInferenceDefault()
-        elts = [elt.value for elt in arg.elts]
+        if all(isinstance(elt, nodes.Const) for elt in arg.elts):
+            elts = [elt.value for elt in arg.elts]
+        else:
+            # TODO: Does not handle deduplication for sets.
+            elts = []
+            for element in arg.elts:
+                inferred = helpers.safe_infer(element, context=context)
+                if inferred:
+                    evaluated_object = nodes.EvaluatedObject(
+                        original=element, value=inferred
+                    )
+                    elts.append(evaluated_object)
     elif isinstance(arg, nodes.Dict):
-        if not all(isinstance(elt[0], nodes.Const)
-                   for elt in arg.items):
+        # Dicts need to have consts as strings already.
+        if not all(isinstance(elt[0], nodes.Const) for elt in arg.items):
             raise UseInferenceDefault()
         elts = [item[0].value for item in arg.items]
-    elif (isinstance(arg, nodes.Const) and
-          isinstance(arg.value, (six.string_types, six.binary_type))):
+    elif isinstance(arg, nodes.Const) and isinstance(
+        arg.value, (six.string_types, six.binary_type)
+    ):
         elts = arg.value
     else:
         return
-    return klass.from_constants(elts=build_elts(elts))
+    return klass.from_elements(elts=build_elts(elts))
 
 
-def _infer_builtin(node, context,
-                   klass=None, iterables=None,
-                   build_elts=None):
+def _infer_builtin_container(
+    node, context, klass=None, iterables=None, build_elts=None
+):
     transform_func = partial(
-        _generic_transform,
+        _container_generic_transform,
+        context=context,
         klass=klass,
         iterables=iterables,
-        build_elts=build_elts)
+        build_elts=build_elts,
+    )
 
-    return _generic_inference(node, context, klass, transform_func)
+    return _container_generic_inference(node, context, klass, transform_func)
+
 
 # pylint: disable=invalid-name
 infer_tuple = partial(
-    _infer_builtin,
+    _infer_builtin_container,
     klass=nodes.Tuple,
-    iterables=(nodes.List, nodes.Set, objects.FrozenSet,
-               objects.DictItems, objects.DictKeys,
-               objects.DictValues),
-    build_elts=tuple)
+    iterables=(
+        nodes.List,
+        nodes.Set,
+        objects.FrozenSet,
+        objects.DictItems,
+        objects.DictKeys,
+        objects.DictValues,
+    ),
+    build_elts=tuple,
+)
 
 infer_list = partial(
-    _infer_builtin,
+    _infer_builtin_container,
     klass=nodes.List,
-    iterables=(nodes.Tuple, nodes.Set, objects.FrozenSet,
-               objects.DictItems, objects.DictKeys,
-               objects.DictValues),
-    build_elts=list)
+    iterables=(
+        nodes.Tuple,
+        nodes.Set,
+        objects.FrozenSet,
+        objects.DictItems,
+        objects.DictKeys,
+        objects.DictValues,
+    ),
+    build_elts=list,
+)
 
 infer_set = partial(
-    _infer_builtin,
+    _infer_builtin_container,
     klass=nodes.Set,
-    iterables=(nodes.List, nodes.Tuple, objects.FrozenSet,
-               objects.DictKeys),
-    build_elts=set)
+    iterables=(nodes.List, nodes.Tuple, objects.FrozenSet, objects.DictKeys),
+    build_elts=set,
+)
 
 infer_frozenset = partial(
-    _infer_builtin,
+    _infer_builtin_container,
     klass=objects.FrozenSet,
-    iterables=(nodes.List, nodes.Tuple, nodes.Set, objects.FrozenSet,
-               objects.DictKeys),
-    build_elts=frozenset)
+    iterables=(nodes.List, nodes.Tuple, nodes.Set, objects.FrozenSet, objects.DictKeys),
+    build_elts=frozenset,
+)
 
 
 def _get_elts(arg, context):
-    is_iterable = lambda n: isinstance(n,
-                                       (nodes.List, nodes.Tuple, nodes.Set))
+    is_iterable = lambda n: isinstance(n, (nodes.List, nodes.Tuple, nodes.Set))
     try:
         inferred = next(arg.infer(context))
     except (InferenceError, NameInferenceError):
@@ -250,13 +282,13 @@ def _get_elts(arg, context):
                 raise UseInferenceDefault()
             if len(elt.elts) != 2:
                 raise UseInferenceDefault()
-            if not isinstance(elt.elts[0],
-                              (nodes.Tuple, nodes.Const, nodes.Name)):
+            if not isinstance(elt.elts[0], (nodes.Tuple, nodes.Const, nodes.Name)):
                 raise UseInferenceDefault()
             items.append(tuple(elt.elts))
     else:
         raise UseInferenceDefault()
     return items
+
 
 def infer_dict(node, context=None):
     """Try to infer a dict call to a Dict node.
@@ -272,7 +304,7 @@ def infer_dict(node, context=None):
 
     If a case can't be inferred, we'll fallback to default inference.
     """
-    call = arguments.CallSite.from_call(node)
+    call = arguments.CallSite.from_call(node, context=context)
     if call.has_invalid_arguments() or call.has_invalid_keywords():
         raise UseInferenceDefault
 
@@ -295,9 +327,9 @@ def infer_dict(node, context=None):
     else:
         raise UseInferenceDefault()
 
-    value = nodes.Dict(col_offset=node.col_offset,
-                       lineno=node.lineno,
-                       parent=node.parent)
+    value = nodes.Dict(
+        col_offset=node.col_offset, lineno=node.lineno, parent=node.parent
+    )
     value.postinit(items)
     return value
 
@@ -323,7 +355,7 @@ def infer_super(node, context=None):
     if not isinstance(scope, nodes.FunctionDef):
         # Ignore non-method uses of super.
         raise UseInferenceDefault
-    if scope.type not in ('classmethod', 'method'):
+    if scope.type not in ("classmethod", "method"):
         # Not interested in staticmethods.
         raise UseInferenceDefault
 
@@ -332,7 +364,7 @@ def infer_super(node, context=None):
         mro_pointer = cls
         # In we are in a classmethod, the interpreter will fill
         # automatically the class as the second argument, not an instance.
-        if scope.type == 'classmethod':
+        if scope.type == "classmethod":
             mro_type = cls
         else:
             mro_type = cls.instantiate_class()
@@ -350,10 +382,9 @@ def infer_super(node, context=None):
         # No way we could understand this.
         raise UseInferenceDefault
 
-    super_obj = objects.Super(mro_pointer=mro_pointer,
-                              mro_type=mro_type,
-                              self_class=cls,
-                              scope=scope)
+    super_obj = objects.Super(
+        mro_pointer=mro_pointer, mro_type=mro_type, self_class=cls, scope=scope
+    )
     super_obj.parent = node
     return super_obj
 
@@ -375,8 +406,9 @@ def _infer_getattr_args(node, context):
         # which is unknown.
         return util.Uninferable, util.Uninferable
 
-    is_string = (isinstance(attr, nodes.Const) and
-                 isinstance(attr.value, six.string_types))
+    is_string = isinstance(attr, nodes.Const) and isinstance(
+        attr.value, six.string_types
+    )
     if not is_string:
         raise UseInferenceDefault
 
@@ -391,7 +423,11 @@ def infer_getattr(node, context=None):
     lookup will be done.
     """
     obj, attr = _infer_getattr_args(node, context)
-    if obj is util.Uninferable or attr is util.Uninferable or not hasattr(obj, 'igetattr'):
+    if (
+        obj is util.Uninferable
+        or attr is util.Uninferable
+        or not hasattr(obj, "igetattr")
+    ):
         return util.Uninferable
 
     try:
@@ -418,7 +454,11 @@ def infer_hasattr(node, context=None):
     """
     try:
         obj, attr = _infer_getattr_args(node, context)
-        if obj is util.Uninferable or attr is util.Uninferable or not hasattr(obj, 'getattr'):
+        if (
+            obj is util.Uninferable
+            or attr is util.Uninferable
+            or not hasattr(obj, "getattr")
+        ):
             return util.Uninferable
         obj.getattr(attr, context=context)
     except UseInferenceDefault:
@@ -452,6 +492,35 @@ def infer_callable(node, context=None):
     return nodes.Const(inferred.callable())
 
 
+def infer_property(node, context=None):
+    """Understand `property` class
+
+    This only infers the output of `property`
+    call, not the arguments themselves.
+    """
+    if len(node.args) < 1:
+        # Invalid property call.
+        raise UseInferenceDefault
+
+    getter = node.args[0]
+    try:
+        inferred = next(getter.infer(context=context))
+    except InferenceError:
+        raise UseInferenceDefault
+
+    if not isinstance(inferred, (nodes.FunctionDef, nodes.Lambda)):
+        raise UseInferenceDefault
+
+    return objects.Property(
+        function=inferred,
+        name=inferred.name,
+        doc=getattr(inferred, "doc", None),
+        lineno=node.lineno,
+        parent=node,
+        col_offset=node.col_offset,
+    )
+
+
 def infer_bool(node, context=None):
     """Understand bool calls."""
     if len(node.args) > 1:
@@ -469,7 +538,7 @@ def infer_bool(node, context=None):
     if inferred is util.Uninferable:
         return util.Uninferable
 
-    bool_value = inferred.bool_value()
+    bool_value = inferred.bool_value(context=context)
     if bool_value is util.Uninferable:
         return util.Uninferable
     return nodes.Const(bool_value)
@@ -489,7 +558,8 @@ def infer_slice(node, context=None):
     if not 0 < len(args) <= 3:
         raise UseInferenceDefault
 
-    args = list(map(helpers.safe_infer, args))
+    infer_func = partial(helpers.safe_infer, context=context)
+    args = [infer_func(arg) for arg in args]
     for arg in args:
         if not arg or arg is util.Uninferable:
             raise UseInferenceDefault
@@ -502,9 +572,9 @@ def infer_slice(node, context=None):
         # Make sure we have 3 arguments.
         args.extend([None] * (3 - len(args)))
 
-    slice_node = nodes.Slice(lineno=node.lineno,
-                             col_offset=node.col_offset,
-                             parent=node.parent)
+    slice_node = nodes.Slice(
+        lineno=node.lineno, col_offset=node.col_offset, parent=node.parent
+    )
     slice_node.postinit(*args)
     return slice_node
 
@@ -538,14 +608,16 @@ def infer_issubclass(callnode, context=None):
     :rtype nodes.Const: Boolean Const value of the `issubclass` call
     :raises UseInferenceDefault: If the node cannot be inferred
     """
-    call = arguments.CallSite.from_call(callnode)
+    call = arguments.CallSite.from_call(callnode, context=context)
     if call.keyword_arguments:
         # issubclass doesn't support keyword arguments
         raise UseInferenceDefault("TypeError: issubclass() takes no keyword arguments")
     if len(call.positional_arguments) != 2:
         raise UseInferenceDefault(
-            "Expected two arguments, got {count}"
-            .format(count=len(call.positional_arguments)))
+            "Expected two arguments, got {count}".format(
+                count=len(call.positional_arguments)
+            )
+        )
     # The left hand argument is the obj to be checked
     obj_node, class_or_tuple_node = call.positional_arguments
 
@@ -560,7 +632,8 @@ def infer_issubclass(callnode, context=None):
     # object is to be checked against.
     try:
         class_container = _class_or_tuple_to_container(
-            class_or_tuple_node, context=context)
+            class_or_tuple_node, context=context
+        )
     except InferenceError as exc:
         raise UseInferenceDefault from exc
     try:
@@ -582,26 +655,28 @@ def infer_isinstance(callnode, context=None):
 
     :raises UseInferenceDefault: If the node cannot be inferred
     """
-    call = arguments.CallSite.from_call(callnode)
+    call = arguments.CallSite.from_call(callnode, context=context)
     if call.keyword_arguments:
         # isinstance doesn't support keyword arguments
         raise UseInferenceDefault("TypeError: isinstance() takes no keyword arguments")
     if len(call.positional_arguments) != 2:
         raise UseInferenceDefault(
-            "Expected two arguments, got {count}"
-            .format(count=len(call.positional_arguments)))
+            "Expected two arguments, got {count}".format(
+                count=len(call.positional_arguments)
+            )
+        )
     # The left hand argument is the obj to be checked
     obj_node, class_or_tuple_node = call.positional_arguments
     # The right hand argument is the class(es) that the given
     # obj is to be check is an instance of
     try:
         class_container = _class_or_tuple_to_container(
-            class_or_tuple_node, context=context)
+            class_or_tuple_node, context=context
+        )
     except InferenceError:
         raise UseInferenceDefault
     try:
-        isinstance_bool = helpers.object_isinstance(
-            obj_node, class_container, context)
+        isinstance_bool = helpers.object_isinstance(obj_node, class_container, context)
     except AstroidTypeError as exc:
         raise UseInferenceDefault("TypeError: " + str(exc))
     except MroError as exc:
@@ -620,12 +695,10 @@ def _class_or_tuple_to_container(node, context=None):
     # for isinstance
     if isinstance(node_infer, nodes.Tuple):
         class_container = [
-            next(node.infer(context=context))
-            for node in node_infer.elts
+            next(node.infer(context=context)) for node in node_infer.elts
         ]
         class_container = [
-            klass_node for klass_node
-            in class_container if klass_node is not None
+            klass_node for klass_node in class_container if klass_node is not None
         ]
     else:
         class_container = [node_infer]
@@ -639,11 +712,9 @@ def infer_len(node, context=None):
     :param context.InferenceContext: node context
     :rtype nodes.Const: a Const node with the inferred length, if possible
     """
-    call = arguments.CallSite.from_call(node)
+    call = arguments.CallSite.from_call(node, context=context)
     if call.keyword_arguments:
-        raise UseInferenceDefault(
-            "TypeError: len() must take no keyword arguments"
-        )
+        raise UseInferenceDefault("TypeError: len() must take no keyword arguments")
     if len(call.positional_arguments) != 1:
         raise UseInferenceDefault(
             "TypeError: len() must take exactly one argument "
@@ -651,7 +722,7 @@ def infer_len(node, context=None):
         )
     [argument_node] = call.positional_arguments
     try:
-        return nodes.Const(helpers.object_len(argument_node))
+        return nodes.Const(helpers.object_len(argument_node, context=context))
     except (AstroidTypeError, InferenceError) as exc:
         raise UseInferenceDefault(str(exc)) from exc
 
@@ -663,12 +734,11 @@ def infer_str(node, context=None):
     :param context.InferenceContext: node context
     :rtype nodes.Const: a Const containing an empty string
     """
-    call = arguments.CallSite.from_call(node)
+    call = arguments.CallSite.from_call(node, context=context)
     if call.keyword_arguments:
-        raise UseInferenceDefault(
-            "TypeError: str() must take no keyword arguments")
+        raise UseInferenceDefault("TypeError: str() must take no keyword arguments")
     try:
-        return nodes.Const('')
+        return nodes.Const("")
     except (AstroidTypeError, InferenceError) as exc:
         raise UseInferenceDefault(str(exc)) from exc
 
@@ -680,22 +750,22 @@ def infer_int(node, context=None):
     :param context.InferenceContext: node context
     :rtype nodes.Const: a Const containing the integer value of the int() call
     """
-    call = arguments.CallSite.from_call(node)
+    call = arguments.CallSite.from_call(node, context=context)
     if call.keyword_arguments:
-        raise UseInferenceDefault(
-            "TypeError: int() must take no keyword arguments"
-        )
+        raise UseInferenceDefault("TypeError: int() must take no keyword arguments")
 
     if call.positional_arguments:
         try:
             first_value = next(call.positional_arguments[0].infer(context=context))
-        except InferenceError as exc:
+        except (InferenceError, StopIteration) as exc:
             raise UseInferenceDefault(str(exc)) from exc
 
         if first_value is util.Uninferable:
             raise UseInferenceDefault
 
-        if isinstance(first_value, nodes.Const) and isinstance(first_value.value, (int, str)):
+        if isinstance(first_value, nodes.Const) and isinstance(
+            first_value.value, (int, str)
+        ):
             try:
                 actual_value = int(first_value.value)
             except ValueError:
@@ -717,19 +787,19 @@ def infer_dict_fromkeys(node, context=None):
     """
 
     def _build_dict_with_elements(elements):
-        new_node = nodes.Dict(col_offset=node.col_offset,
-                              lineno=node.lineno,
-                              parent=node.parent)
+        new_node = nodes.Dict(
+            col_offset=node.col_offset, lineno=node.lineno, parent=node.parent
+        )
         new_node.postinit(elements)
         return new_node
 
-    call = arguments.CallSite.from_call(node)
+    call = arguments.CallSite.from_call(node, context=context)
     if call.keyword_arguments:
-        raise UseInferenceDefault(
-            "TypeError: int() must take no keyword arguments"
-        )
+        raise UseInferenceDefault("TypeError: int() must take no keyword arguments")
     if len(call.positional_arguments) not in {1, 2}:
-        raise UseInferenceDefault("TypeError: Needs between 1 and 2 positional arguments")
+        raise UseInferenceDefault(
+            "TypeError: Needs between 1 and 2 positional arguments"
+        )
 
     default = nodes.Const(None)
     values = call.positional_arguments[0]
@@ -741,9 +811,7 @@ def infer_dict_fromkeys(node, context=None):
         return _build_dict_with_elements([])
 
     # Limit to a couple of potential values, as this can become pretty complicated
-    accepted_iterable_elements = (
-        nodes.Const,
-    )
+    accepted_iterable_elements = (nodes.Const,)
     if isinstance(inferred_values, (nodes.List, nodes.Set, nodes.Tuple)):
         elements = inferred_values.elts
         for element in elements:
@@ -754,8 +822,9 @@ def infer_dict_fromkeys(node, context=None):
         elements_with_value = [(element, default) for element in elements]
         return _build_dict_with_elements(elements_with_value)
 
-    elif (isinstance(inferred_values, nodes.Const)
-              and isinstance(inferred_values.value, (str, bytes))):
+    elif isinstance(inferred_values, nodes.Const) and isinstance(
+        inferred_values.value, (str, bytes)
+    ):
         elements = [
             (nodes.Const(element), default) for element in inferred_values.value
         ]
@@ -775,29 +844,30 @@ def infer_dict_fromkeys(node, context=None):
 
 
 # Builtins inference
-register_builtin_transform(infer_bool, 'bool')
-register_builtin_transform(infer_super, 'super')
-register_builtin_transform(infer_callable, 'callable')
-register_builtin_transform(infer_getattr, 'getattr')
-register_builtin_transform(infer_hasattr, 'hasattr')
-register_builtin_transform(infer_tuple, 'tuple')
-register_builtin_transform(infer_set, 'set')
-register_builtin_transform(infer_list, 'list')
-register_builtin_transform(infer_dict, 'dict')
-register_builtin_transform(infer_frozenset, 'frozenset')
-register_builtin_transform(infer_type, 'type')
-register_builtin_transform(infer_slice, 'slice')
-register_builtin_transform(infer_isinstance, 'isinstance')
-register_builtin_transform(infer_issubclass, 'issubclass')
-register_builtin_transform(infer_len, 'len')
-register_builtin_transform(infer_str, 'str')
-register_builtin_transform(infer_int, 'int')
-register_builtin_transform(infer_dict_fromkeys, 'dict.fromkeys')
+register_builtin_transform(infer_bool, "bool")
+register_builtin_transform(infer_super, "super")
+register_builtin_transform(infer_callable, "callable")
+register_builtin_transform(infer_property, "property")
+register_builtin_transform(infer_getattr, "getattr")
+register_builtin_transform(infer_hasattr, "hasattr")
+register_builtin_transform(infer_tuple, "tuple")
+register_builtin_transform(infer_set, "set")
+register_builtin_transform(infer_list, "list")
+register_builtin_transform(infer_dict, "dict")
+register_builtin_transform(infer_frozenset, "frozenset")
+register_builtin_transform(infer_type, "type")
+register_builtin_transform(infer_slice, "slice")
+register_builtin_transform(infer_isinstance, "isinstance")
+register_builtin_transform(infer_issubclass, "issubclass")
+register_builtin_transform(infer_len, "len")
+register_builtin_transform(infer_str, "str")
+register_builtin_transform(infer_int, "int")
+register_builtin_transform(infer_dict_fromkeys, "dict.fromkeys")
 
 
 # Infer object.__new__ calls
 MANAGER.register_transform(
     nodes.ClassDef,
     inference_tip(_infer_object__new__decorator),
-    _infer_object__new__decorator_check
+    _infer_object__new__decorator_check,
 )

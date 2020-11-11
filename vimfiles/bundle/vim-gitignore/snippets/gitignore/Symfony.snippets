@@ -27,14 +27,10 @@ snippet Symfony Gitignore Template
         /bin/*
         !bin/console
         !bin/symfony_requirements
-        /vendor/
         
         # Assets and user uploads
         /web/bundles/
         /web/uploads/
-        
-        # Assets managed by Bower
-        /web/assets/vendor/
         
         # PHPUnit
         /app/phpunit.xml
@@ -43,9 +39,9 @@ snippet Symfony Gitignore Template
         # Build data
         /build/
         
-        # Composer PHAR
-        /composer.phar
-        
         # Backup entities generated with doctrine:generate:entities command
-        */Entity/*~
+        **/Entity/*~
+        
+        # Embedded web-server pid file
+        /.web-server-pid
         ${0}

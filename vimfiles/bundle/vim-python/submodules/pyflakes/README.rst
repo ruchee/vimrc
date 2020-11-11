@@ -86,4 +86,4 @@ All changes should include tests and pass flake8_.
 Changelog
 ---------
 
-Please see `NEWS.txt <NEWS.txt>`_.
+Please see `NEWS.rst <https://github.com/PyCQA/pyflakes/blob/master/NEWS.rst>`_.

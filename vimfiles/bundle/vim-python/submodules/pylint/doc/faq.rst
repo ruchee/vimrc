@@ -16,7 +16,7 @@ Pylint is a `static code checker`_, meaning it can analyse your code without
 actually running it. Pylint checks for errors, tries to enforce a coding
 standard, and tries to enforce a coding style.
 
-.. _`static code checker`: http://en.wikipedia.org/wiki/Static_code_analysis
+.. _`static code checker`: https://en.wikipedia.org/wiki/Static_code_analysis
 
 
 2. Installation
@@ -36,7 +36,7 @@ Pylint from the repository, simply invoke ::
 
     git clone https://github.com/PyCQA/pylint
 
-.. _git: http://git-scm.com/
+.. _git: https://git-scm.com/
 
 2.3 What are Pylint's dependencies?
 -----------------------------------
@@ -50,16 +50,7 @@ supported.
 2.4 What versions of Python is Pylint supporting?
 --------------------------------------------------
 
-Since Pylint 2.0, the supported running environment is Python 3.4+.
-
-That is, Pylint 2.0 is still able to analyze Python 2 files, but some
-specific checks might not work, as they would assume that their running
-environment was Python 2.
-
-If you need to run pylint with Python 2, then Pylint 1.8 or 1.9 is for you.
-We will still do backports of bug fixes, and possibly for various Python 3
-compatibility checks, at least until 2020, after which we'll stop support
-Python 2 altogether.
+The supported running environment since Pylint 2.X is Python 3.5+.
 
 
 3. Running Pylint
@@ -194,6 +185,29 @@ they are prone to false positives or that they are opinionated enough
 for not being included as default messages. But most of the disabled
 messages are from the Python 3 porting checker, which is disabled by
 default. It needs special activation with the ``--py3k`` flag.
+
+4.8 I am using another popular linter alongside pylint. Which messages should I disable to avoid duplicates?
+------------------------------------------------------------------------------------------------------------
+
+pycodestyle_: unneeded-not, line-too-long, unnecessary-semicolon, trailing-whitespace, missing-final-newline, bad-indentation, multiple-statements, bare-except
+
+pyflakes_: undefined-variable, unused-import, unused-variable
+
+mccabe_: too-many-branches
+
+pydocstyle_: missing-module-docstring, missing-class-docstring, missing-function-docstring
+
+pep8-naming_: invalid-name, bad-classmethod-argument, bad-mcs-classmethod-argument, no-self-argument
+
+flake8-import-order_: wrong-import-order
+
+.. _`pycodestyle`: https://github.com/PyCQA/pycodestyle
+.. _`pyflakes`: https://github.com/PyCQA/pyflakes
+.. _`mccabe`: https://github.com/PyCQA/mccabe
+.. _`pydocstyle`: https://github.com/PyCQA/pydocstyle
+.. _`pep8-naming`: https://github.com/PyCQA/pep8-naming
+.. _`flake8-import-order`: https://github.com/PyCQA/flake8-import-order
+
 
 5. Classes and Inheritance
 ==========================

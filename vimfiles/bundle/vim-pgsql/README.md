@@ -19,8 +19,9 @@ Besides, syntax highlighting for any language may be activated inside functions
 If your Vim supports packages (`echo has('packages')` prints `1`), I strongly
 recommend that you use them. Just clone this repo inside `pack/*/start`, e.g.,
 
-    cd ~/.vim
-    git clone https://github.com/lifepillar/pgsql.vim.git pack/bundle/start/pgsql
+    mkdir -p ~/.vim/pack/plugins/start
+    git clone https://github.com/lifepillar/pgsql.vim.git ~/.vim/pack/plugins/start/pgsql
+
 
 Otherwise, if you don't have a preferred installation method, I recommend
 installing [Pathogen](https://github.com/tpope/vim-pathogen), and then simply
@@ -69,16 +70,23 @@ The syntax file is generated automatically. If you want to hack it, edit
 `src/pgsql.sql`, then execute:
 
 ```sh
-cd src
-make install
+cd ./src
+DBUSER=<user> DBHOST=<hostname> make install
 ```
 
-This will update `syntax/pgsql.vim`. Note that you will need a working local
-PostgreSQL instance: `make` will create a database called `vim_pgsql_syntax` to
-extract all the keywords. You may then execute `make distclean` to drop the
-database.
+When `DBUSER` is omitted, `postgres` is assumed. When `DBHOST` is omitted,
+`127.0.0.1` is assumed.
 
-The script has been tested in macOS, but it should work on any *nix system.
+The specified user must be a superuser, because the script will create
+a database called `vim_pgsql_syntax` and a few extensions that require admin
+privileges. It will then proceed to extract all the keywords. Feel free to
+browse the source scripts to see exactly what they do.
+
+The above command will update `syntax/pgsql.vim`. Use `make distclean` to drop
+the database (or drop it manually).
+
+The script has been tested in macOS, but it should work on other systems as
+well.
 
 
 # Acknowledgments
