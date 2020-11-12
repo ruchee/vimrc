@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-11-11 12:56:22
+" -----------------    Date: 2020-11-12 19:14:07
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -608,13 +608,12 @@ let g:pymode_virtualenv = 0                    " 关闭 virtualenv 检测
 let g:pymode_init = 0                          " 关闭 init
 let g:pymode_lint = 0                          " 关闭 lint
 
-" 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [默认高亮为 HTML] [js-pretty-template 插件]
-" 可用形如 :JsPreTmpl xml 的命令临时修改模版字符串的高亮语法
-autocmd FileType javascript JsPreTmpl html
-autocmd FileType typescript JsPreTmpl html
+" 高亮 JS/TS/Coffee/Dart 中模版字符串的内容 [js-pretty-template 插件]
+autocmd FileType javascript JsPreTmpl
+autocmd FileType typescript JsPreTmpl
 autocmd FileType typescript syn clear foldBraces
-autocmd FileType coffee     JsPreTmpl html
-autocmd FileType dart       JsPreTmpl html
+autocmd FileType coffee     JsPreTmpl
+autocmd FileType dart       JsPreTmpl
 
 " tsuquyomi
 let g:tsuquyomi_disable_quickfix = 1           " 禁用 tsuquyomi 的报错窗口，改用 syntastic 的
