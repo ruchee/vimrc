@@ -333,6 +333,13 @@ compareAscending
 compareMultiple
 compatMode
 complete
+componentDidCatch
+componentDidMount
+componentDidUpdate
+componentWillMount
+componentWillReceiveProps
+componentWillUnmount
+componentWillUpdate
 composeArgs
 composeArgsRight
 concat
@@ -417,6 +424,7 @@ decodeURI
 decodeURIComponent
 default
 defaultCharset
+defaultProps
 defaultStatus
 defaultTo
 defaultView
@@ -444,6 +452,7 @@ disable
 disabled
 dispatchEvent
 display
+displayName
 do
 doctype
 document
@@ -549,6 +558,7 @@ forIn
 forInRight
 forOwn
 forOwnRight
+forceUpdate
 forms
 forward
 frame
@@ -596,6 +606,7 @@ getRawTag
 getScript
 getSeconds
 getSelection
+getSnapshotBeforeUpdate
 getTag
 getTime
 getTimezoneOffset
@@ -1032,6 +1043,7 @@ property
 propertyIsEnumerable
 propertyName
 propertyOf
+props
 protocol
 prototype
 proxy
@@ -1091,6 +1103,11 @@ removeData
 removeEventListener
 removeProp
 removeRange
+render
+renderToNodeStream
+renderToStaticMarkup
+renderToStaticNodeStream
+renderToString
 reorder
 repeat
 replace
@@ -1195,6 +1212,7 @@ setMilliseconds
 setMinutes
 setMonth
 setSeconds
+setState
 setTag
 setTime
 setTimeout
@@ -1213,6 +1231,7 @@ setYear
 shift
 shiftKey
 shortOut
+shouldComponentUpdate
 shouldInvoke
 show
 shuffle
