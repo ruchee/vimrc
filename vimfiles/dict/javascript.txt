@@ -24,6 +24,7 @@ Number
 Object
 PI
 POSITIVE_INFINITY
+PropTypes
 RangeError
 ReferenceError
 RegExp
@@ -37,6 +38,7 @@ URL
 UTC
 __defineGetter__
 __defineSetter__
+__html
 __lookupGetter__
 __lookupSetter__
 _content
@@ -413,6 +415,7 @@ curryRight
 customDefaultsAssignIn
 customDefaultsMerge
 customOmitClone
+dangerouslySetInnerHTML
 data
 dataViewTag
 dateTag
@@ -794,6 +797,7 @@ live
 load
 loadOverlay
 localName
+localStorage
 location
 locationbar
 lock
@@ -1039,6 +1043,7 @@ promise
 promiseTag
 prompt
 prop
+propTypes
 property
 propertyIsEnumerable
 propertyName
