@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-11-12 19:14:07
+" -----------------    Date: 2020-11-26 00:02:44
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -474,8 +474,10 @@ endfunction
 function AddLuaDict()
     if g:isWIN
         set dict+=$VIM/vimfiles/dict/lua.txt
+        set dict+=$VIM/vimfiles/dict/love2d.txt
     else
         set dict+=~/.vim/dict/lua.txt
+        set dict+=~/.vim/dict/love2d.txt
     endif
     set complete+=k
 endfunction
