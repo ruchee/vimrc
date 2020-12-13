@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-11-26 00:02:44
+" -----------------    Date: 2020-12-13 19:46:11
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -262,6 +262,9 @@ let g:go_version_warning = 0
 
 " JSX 文件必须匹配完整的扩展名才以 JSX 语法渲染
 let g:jsx_ext_required = 1
+
+" Haxe 关闭默认的 airline 支持
+let g:vaxe_enable_airline_defaults = 0
 
 " 根据后缀名指定文件类型
 au BufRead,BufNewFile *.h        set ft=c
@@ -594,8 +597,8 @@ let g:haskell_enable_static_pointers      = 1  " 高亮 Haskell static
 if has('python3')
     command! -nargs=1 Py py3 <args>
     if g:isMAC
-        set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.7/Python
-        set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.7
+        set pythonthreedll=/usr/local/Frameworks/Python.framework/Versions/3.9/Python
+        set pythonthreehome=/usr/local/Frameworks/Python.framework/Versions/3.9
     endif
 else
     command! -nargs=1 Py py <args>
