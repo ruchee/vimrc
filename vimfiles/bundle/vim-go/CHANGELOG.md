@@ -41,6 +41,8 @@ IMPROVEMENTS:
   [[GH-3090]](https://github.com/fatih/vim-go/pull/3090)
 * Update denite integration to work with python3.9.
   [[GH-3097]](https://github.com/fatih/vim-go/pull/3097)
+* Add syntax highlighting for go.sum files.
+  [[GH-3102]](https://github.com/fatih/vim-go/pull/3102)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -64,6 +66,8 @@ BUG FIXES:
   [[GH-3090]](https://github.com/fatih/vim-go/pull/3090)
 * Handle yet another error format produced by golangci-lint.
   [[GH-3094]](https://github.com/fatih/vim-go/pull/3094)
+* Handle additional ways that gopls can provide links for godoc.
+  [[GH-3112]](https://github.com/fatih/vim-go/pull/3112)
 
 ## v1.24 - (September 15, 2020)
 
