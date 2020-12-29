@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-12-13 19:46:11
+" -----------------    Date: 2020-12-29 11:47:14
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -1099,6 +1099,8 @@ func! Compile_Run_Code()
         exec '!perl %:t'
     elseif &filetype == 'perl6'
         exec '!perl6 %:t'
+    elseif &filetype == 'raku'
+        exec '!raku %:t'
     elseif &filetype == 'php'
         exec '!php %:t'
     elseif &filetype == 'python'
