@@ -231,6 +231,7 @@ let s:delimiterMap = {
     \ 'jgraph': { 'left': '(*', 'right': '*)' },
     \ 'jinja': { 'left': '{#', 'right': '#}', 'leftAlt': '<!--', 'rightAlt': '-->' },
     \ 'jproperties': { 'left': '#' },
+    \ 'jsonnet': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsp': { 'left': '<%--', 'right': '--%>' },
     \ 'julia': { 'left': '# ', 'leftAlt': '#=', 'rightAlt': '=#' },
     \ 'kivy': { 'left': '#' },
@@ -351,6 +352,7 @@ let s:delimiterMap = {
     \ 'rc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'rebol': { 'left': ';' },
     \ 'registry': { 'left': ';' },
+    \ 'rego': { 'left': ';' },
     \ 'remind': { 'left': '#' },
     \ 'renpy': { 'left': '# ' },
     \ 'resolv': { 'left': '#' },
@@ -704,7 +706,7 @@ function s:CommentBlock(top, bottom, lSide, rSide, forceNested )
     "alternative delimiters (if THEY are) as the comment will be better and more
     "accurate with multipart delimiters
     let switchedDelims = 0
-    if !s:Multipart() && g:NERDAllowAnyVisualDelims && s:AltMultipart()
+    if !s:Multipart() && !g:NERDAllowAnyVisualDelims && s:AltMultipart()
         let switchedDelims = 1
         call s:SwitchToAlternativeDelimiters(0)
     endif
