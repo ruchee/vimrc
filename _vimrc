@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2020-12-29 11:47:14
+" -----------------    Date: 2021-01-03 23:30:37
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -245,12 +245,18 @@ au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim
 " 配置 Rust 支持 [需要安装 rustup 相关工具链才能正常工作]
 " [ rustup install nightly && rustup default nightly && rustup component add rust-src && cargo install racer --force ]
 let g:racer_experimental_completer = 1  " 补全时显示完整的函数定义
+let g:racer_insert_paren           = 1  " 补全时自动插入括号
 let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
 
-au FileType rust nmap gd <Plug>(rust-def)
-au FileType rust nmap gs <Plug>(rust-def-split)
-au FileType rust nmap gx <Plug>(rust-def-vertical)
-au FileType rust nmap <leader>gd <Plug>(rust-doc)
+augroup Racer
+    autocmd!
+    autocmd FileType rust nmap <buffer> gd         <Plug>(rust-def)
+    autocmd FileType rust nmap <buffer> gs         <Plug>(rust-def-split)
+    autocmd FileType rust nmap <buffer> gx         <Plug>(rust-def-vertical)
+    autocmd FileType rust nmap <buffer> gt         <Plug>(rust-def-tab)
+    autocmd FileType rust nmap <buffer> <leader>gd <Plug>(rust-doc)
+    autocmd FileType rust nmap <buffer> <leader>gD <Plug>(rust-doc-tab)
+augroup END
 
 " 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装，需要翻墙才能安装成功]
 au FileType go nmap <c-[> :GoInfo<cr>
