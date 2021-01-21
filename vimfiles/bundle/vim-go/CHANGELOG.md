@@ -18,6 +18,7 @@ IMPROVEMENTS:
   [[GH-3028]](https://github.com/fatih/vim-go/pull/3028)
 * Add support for using static check as the gometalinter.
   [[GH-3036]](https://github.com/fatih/vim-go/pull/3036)
+  [[GH-3133]](https://github.com/fatih/vim-go/pull/3133)
 * Add `g:go_debug_mappings` to allow the debug key mappings to be customized.
   [[GH-3035]](https://github.com/fatih/vim-go/pull/3035)
 * Use `gopls` as the default instead of `guru` to satisfy `:GoImplements`.
@@ -26,6 +27,7 @@ IMPROVEMENTS:
   more finely grained control of the handling of diagnostics messages.
   [[GH-3050]](https://github.com/fatih/vim-go/pull/3050)
   [[GH-3052]](https://github.com/fatih/vim-go/pull/3052)
+  [[GH-3119]](https://github.com/fatih/vim-go/pull/3119)
 * Add support for allowing `g:go_gopls_local`  to specify different local
   imports values per workspace.
   [[GH-3053]](https://github.com/fatih/vim-go/pull/3053)
@@ -43,6 +45,11 @@ IMPROVEMENTS:
   [[GH-3097]](https://github.com/fatih/vim-go/pull/3097)
 * Add syntax highlighting for go.sum files.
   [[GH-3102]](https://github.com/fatih/vim-go/pull/3102)
+* Change the default from metalinter to staticcheck.
+  [[GH-3126]](https://github.com/fatih/vim-go/pull/3126)
+* Add `g:go_debug_preserve_layout` to prevent `:GoDebug` and friends from
+  closing windows.
+  [[GH-3125]](https://github.com/fatih/vim-go/pull/3125)
 
 BUG FIXES:
 * Remove implications that terminal mode is only applied for Neovim.
@@ -68,6 +75,9 @@ BUG FIXES:
   [[GH-3094]](https://github.com/fatih/vim-go/pull/3094)
 * Handle additional ways that gopls can provide links for godoc.
   [[GH-3112]](https://github.com/fatih/vim-go/pull/3112)
+* Remove implication that `g:go_def_reuse_buffer` only applies to split variant
+  of jumping to a definition.
+  [[GH-3128]](https://github.com/fatih/vim-go/pull/3128)
 
 ## v1.24 - (September 15, 2020)
 
