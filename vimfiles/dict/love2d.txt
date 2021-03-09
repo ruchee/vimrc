@@ -2,6 +2,7 @@ append
 applyTransform
 arc
 areSymlinksEnabled
+audio
 captureScreenshot
 circle
 clear
@@ -11,6 +12,7 @@ colorToBytes
 compress
 conf
 createDirectory
+data
 decode
 decompress
 directorydropped
@@ -22,7 +24,9 @@ drawLayer
 ellipse
 encode
 errorhandler
+event
 filedropped
+filesystem
 flushBatch
 focus
 fromPixels
@@ -122,6 +126,7 @@ getWidth
 getWorkingDirectory
 getX
 getY
+graphics
 hasBackgroundMusic
 hasCursor
 hasDeprecationOutput
@@ -130,6 +135,7 @@ hasKeyRepeat
 hasMouseFocus
 hasTextInput
 hash
+image
 init
 intersectScissor
 inverseTransformPoint
@@ -148,12 +154,14 @@ isOpen
 isScancodeDown
 isVisible
 isWireframe
+joystick
 joystickadded
 joystickaxis
 joystickhat
 joystickpressed
 joystickreleased
 joystickremoved
+keyboard
 keypressed
 keyreleased
 line
@@ -162,9 +170,11 @@ lines
 load
 loadGamepadMappings
 lowmemory
+math
 maximize
 minimize
 mount
+mouse
 mousefocus
 mousemoved
 mousepressed
@@ -224,6 +234,7 @@ openURL
 origin
 pack
 pause
+physics
 play
 points
 poll
@@ -304,13 +315,18 @@ setY
 shear
 showMessageBox
 sleep
+sound
 stencil
 step
 stop
+system
 textedited
 textinput
+thread
 threaderror
+timer
 toPixels
+touch
 touchmoved
 touchpressed
 touchreleased
@@ -323,7 +339,9 @@ update
 updateMode
 validateShader
 vibrate
+video
 visible
 wait
 wheelmoved
+window
 write
