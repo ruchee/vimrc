@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-01-03 23:30:37
+" -----------------    Date: 2021-03-10 16:46:02
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -340,6 +340,8 @@ set list                     " 显示特殊字符，其中Tab使用高亮~代替
 set listchars=tab:\~\ ,trail:.
 set expandtab                " 将 Tab 自动转化成空格 [需要输入真正的 Tab 符时，使用 Ctrl+V + Tab]
 "set showmatch               " 显示括号配对情况
+set splitbelow               " :sp  切分窗口显示在下侧
+set splitright               " :vsp 切分窗口显示在右侧
 
 " 使用 vimdiff 时，长行自动换行
 autocmd FilterWritePre * if &diff | setlocal wrap< | endif
@@ -1126,7 +1128,7 @@ func! Compile_Run_Code()
     elseif &filetype == 'coffee'
         exec '!coffee -c %:t && node %:r.js'
     elseif &filetype == 'typescript'
-        exec '!tsc %:t && node %:r.js'
+        exec '!tsc --module commonjs --target ES6 %:t && node %:r.js'
     elseif &filetype == 'ls'
         exec '!lsc -c %:t && node %:r.js'
     elseif &filetype == 'r'

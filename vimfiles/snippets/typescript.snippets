@@ -25,6 +25,8 @@ snippet si      索引签名
 	[${1}]: ${0}
 snippet fd      方法声明
 	${1}(${2}): ${0}
+snippet ffd     函数重载声明
+	function ${1}(${2}): ${0}
 # 关键字
 snippet dec     声明
 	declare ${0}
@@ -43,7 +45,7 @@ snippet tp      类型
 snippet ro      只读
 	readonly ${0}
 # 数据类型
-snippet e       枚举
+snippet _e      枚举
 	enum ${1} { ${0} }
 snippet _b      布尔型
 	boolean${0}
@@ -55,6 +57,8 @@ snippet _v      空值
 	void${0}
 snippet _a      任意类型
 	any${0}
+snippet _u      未知类型
+	unknown${0}
 snippet _ne     永不存在的值的类型
 	never${0}
 # 特殊结构
