@@ -1,0 +1,11 @@
+language: minimal
+
+install:
+  - git clone --depth=1 https://github.com/leafOfTree/test ../test
+
+  - git clone https://github.com/digitaltoad/vim-pug ../vim-pug --depth=1
+  - git clone https://github.com/kchmck/vim-coffee-script ../vim-coffee-script --depth=1
+  - git clone https://github.com/leafgarland/typescript-vim ../typescript-vim --depth=1
+
+script:
+  - bash ../test/start.sh svelte vim-svelte-plugin
