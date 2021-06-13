@@ -1,22 +1,19 @@
-*rileft.txt*    For Vim version 7.4.  最近更新: 2010年8月
+*rileft.txt*    适用于 Vim 8.2 版本。	最近更新: 2020年1月
 
 
-                  VIM 参考手册            作者: Avner Lottem
-                                          更新: Nadim Shaikli
-                                          译者: Willis
-                                          http://vimcdoc.sf.net
+		  VIM 参考手册    by Avner Lottem
+				更新: Nadim Shaikli
+				译者: Willis
 
 
-Vim 的从右到左显示模式                                          *rileft*
+Vim 的从右到左显示模式						*rileft*
 
 
 这些功能是由 Avner Lottem 最早创建的:
    E-mail: alottem@iil.intel.com
    Phone:  +972-4-8307322
 
-{Vi 没有这些功能}
-
-                                                                *E26*
+								*E26*
 {仅当编译时加入 |+rightleft| 特性才可用}
 
 
@@ -58,12 +55,12 @@ o  启动
    -----------
    + 'rightleft' ('rl') 把窗口朝向设为从右到左。
    + 'delcombine' ('deco')，布尔值，如果编辑 UTF-8 编码的语言，我们可以单独删
-     除合成用字符，它被附加 (superimpose) 于在它之前的字符之上 (一些语言要求如
+     除组合字符，它被附加 (superimpose) 于在它之前的字符之上 (一些语言要求如
      此)。
    + 'rightleftcmd' ('rlc') 在某些模式 (比如: 搜索) 下，把命令行也设成从右到左
      的朝向。
 
-o  反向输入                                                     *ins-reverse*
+o  反向输入							*ins-reverse*
    ----------------
    为便于最大限度地利用 'rightleft' 选项，我们可以允许反向插入。如果 'revins'
    (反向输入) 选项被打开，插入是反向的。这可以用来输入从右到左的文字。这时，输
@@ -100,4 +97,4 @@ o  如果 'rightleft' 和 'revins' 都打开，'textwidth' 不能工作。行不
 o  没有完整的双向显示 (bidi) 支持。
 
 
- vim:tw=78:ts=8:ft=help:norl:
+ vim:tw=78:ts=8:noet:ft=help:norl:

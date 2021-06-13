@@ -1,13 +1,14 @@
-# Copyright (c) 2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2018 David Poirier <david-poirier-csn@users.noreply.github.com>
 # Copyright (c) 2018 wgehalo <wgehalo@gmail.com>
 # Copyright (c) 2018 Ioana Tagirta <ioana.tagirta@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 import sys
-
-import six
 
 import astroid
 
@@ -55,12 +56,7 @@ def _hashlib_transform():
             {"blake2b": blake2b_signature, "blake2s": blake2s_signature}
         )
     classes = "".join(
-        template
-        % {
-            "name": hashfunc,
-            "digest": 'b""' if six.PY3 else '""',
-            "signature": signature,
-        }
+        template % {"name": hashfunc, "digest": 'b""', "signature": signature}
         for hashfunc, signature in algorithms_with_signature.items()
     )
     return astroid.parse(classes)

@@ -1,6 +1,6 @@
 *ctrlp-funky.txt* *ctrlp-funky*
 A super simple function navigator for ctrlp.vim
-Version: 0.12.0
+Version: 0.12.2
 Author:  Takahiro Yoshihara <https://github.com/tacahiroy>
 
 
@@ -64,6 +64,7 @@ Currently, |ctrlp-funky| supports following file types:
 * sh (bash, dash and zsh)
 * sql
 * tex (LaTeX)
+* tf (terraform)
 * thrift
 * typescript
 * vb (Visual Basic)
@@ -81,7 +82,7 @@ just run this command in most of cases.
 						*ctrlp-funky-:CtrlPFunky*
 :CtrlPFunky [WORD]
 	Extract lines from the currently edited file.
-	You can provide an argument to the command. If it's provided, you 
+	You can provide an argument to the command. If it's provided, you
 	get lines that match the 'WORD': the argument will be entered into
 	the CtrlP buffer by default.
 
@@ -185,10 +186,10 @@ If not set, funky defaults to ~/.cache/ctrlp-funky (created if needed).
 
 
 					*'g:ctrlp_funky_matchtype'*
-This changes the matching algorithm used by |ctrlp|.vim. If you want 
+This changes the matching algorithm used by |ctrlp|.vim. If you want
 matched chars to be highlighted, you may set this option to 'path'.
 Note that this option changes the matching algorithm, so the filtered
-result may be affected. 
+result may be affected.
 Other possible values are 'tabs' and 'tabe', however, I don't think it's
 useful setting these values.
 (default: 'line')
@@ -440,10 +441,20 @@ THANKS						*ctrlp-funky-thanks*
   * *arashm*          <https://github.com/arashm>
   * *cenksoykan*      <https://github.com/cenksoykan>
   * *nkakouros*       <https://github.com/nkakouros>
+  * *phongnh*         <https://github.com/phongnh>
 
 
 ==============================================================================
 CHANGELOG 					*ctrlp-funky-changelog*
+
+30 Apr 2021~
+  + Add support for Terraform Language (tf)
+
+12 Mar 2021~
+  + Add very basic Vim9 script support (#127)
+
+08 Feb 2021~
+  + Support Elixir function definition spanning into multiple line (#126) by |phongnh|
 
 22 Mar 2020~
   + Does not trigger autocommands when opening the funky window (#125) by |nkakouros|
@@ -516,7 +527,7 @@ CHANGELOG 					*ctrlp-funky-changelog*
   + Remove custom highlight option
 
 25 July 2015~
-  + Add support for Perl Moose and Method::Signatures (#73) 
+  + Add support for Perl Moose and Method::Signatures (#73)
     requested by |imran-uk|
 
 30 May 2015~
@@ -556,19 +567,19 @@ CHANGELOG 					*ctrlp-funky-changelog*
   + Add multiple buffer support (minimum impl)
 
 1 Jan 2015~
-  + Fix duplicate tag in the doc by |Komnomnomnom| (#58) 
+  + Fix duplicate tag in the doc by |Komnomnomnom| (#58)
 
 27 Dec 2014~
-  + Fix doc entry for cache dir by |jean| (#57) 
+  + Fix doc entry for cache dir by |jean| (#57)
 
 15 Oct 2014~
-  + Add type declarations support for golang by |siadat| (#53) 
+  + Add type declarations support for golang by |siadat| (#53)
 
 14 Oct 2014~
   + Add clear cache functionality
 
 10 Oct 2014~
-  + Add basic TypeScript support by |prabirshrestha| (#52) 
+  + Add basic TypeScript support by |prabirshrestha| (#52)
 
 4 Oct 2014~
   + Fix error when selecting a function in split window
@@ -740,7 +751,7 @@ LICENSE						*ctrlp-funky-license*
 
 |ctrlp-funky| is distributed under the MIT License.
 
-Copyright (c) 2012-2019 Takahiro Yoshihara
+Copyright (c) 2012-2021 Takahiro Yoshihara
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

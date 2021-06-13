@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2021 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Eevee (Alex Munroe) <amunroe@yelp.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
@@ -14,39 +13,35 @@
 # Copyright (c) 2017-2020 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017, 2019 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 rr- <rr-@sakuya.pl>
-# Copyright (c) 2018-2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 brendanator <brendan.maginnis@gmail.com>
 # Copyright (c) 2018 HoverHell <hoverhell@gmail.com>
 # Copyright (c) 2019 kavins14 <kavin.singh@mail.utoronto.ca>
 # Copyright (c) 2019 kavins14 <kavinsingh@hotmail.com>
+# Copyright (c) 2020 Raphael Gaschignard <raphael@rtpg.co>
+# Copyright (c) 2020 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
-# pylint: disable=too-many-lines; https://github.com/PyCQA/astroid/issues/465
-
-"""Module for some node classes. More nodes in scoped_nodes.py
-"""
+"""Module for some node classes. More nodes in scoped_nodes.py"""
 
 import abc
 import builtins as builtins_mod
 import itertools
 import pprint
 import sys
-from functools import lru_cache, singledispatch as _singledispatch
+from functools import lru_cache
+from functools import singledispatch as _singledispatch
 
-from astroid import as_string
-from astroid import bases
+from astroid import as_string, bases
 from astroid import context as contextmod
-from astroid import decorators
-from astroid import exceptions
-from astroid import manager
-from astroid import mixins
-from astroid import util
-
+from astroid import decorators, exceptions, manager, mixins, util
 
 BUILTINS = builtins_mod.__name__
 MANAGER = manager.AstroidManager()
@@ -258,7 +253,7 @@ OP_PRECEDENCE = {
 
 
 class NodeNG:
-    """ A node of the new Abstract Syntax Tree (AST).
+    """A node of the new Abstract Syntax Tree (AST).
 
     This is the base class for all Astroid node classes.
     """
@@ -354,19 +349,37 @@ class NodeNG:
             # explicit_inference is not bound, give it self explicitly
             try:
                 # pylint: disable=not-callable
-                return self._explicit_inference(self, context, **kwargs)
+                yield from self._explicit_inference(self, context, **kwargs)
+                return
             except exceptions.UseInferenceDefault:
                 pass
 
         if not context:
-            return self._infer(context, **kwargs)
+            yield from self._infer(context, **kwargs)
+            return
 
         key = (self, context.lookupname, context.callcontext, context.boundnode)
         if key in context.inferred:
-            return iter(context.inferred[key])
+            yield from context.inferred[key]
+            return
 
-        gen = context.cache_generator(key, self._infer(context, **kwargs))
-        return util.limit_inference(gen, MANAGER.max_inferable_values)
+        generator = self._infer(context, **kwargs)
+        results = []
+
+        # Limit inference amount to help with performance issues with
+        # exponentially exploding possible results.
+        limit = MANAGER.max_inferable_values
+        for i, result in enumerate(generator):
+            if i >= limit:
+                yield util.Uninferable
+                break
+            results.append(result)
+            yield result
+
+        # Cache generated results for subsequent inferences of the
+        # same node using the same context
+        context.inferred[key] = tuple(results)
+        return
 
     def _repr_name(self):
         """Get a name for nice representation.
@@ -399,7 +412,7 @@ class NodeNG:
             inner = [lines[0]]
             for line in lines[1:]:
                 inner.append(" " * alignment + line)
-            result.append("%s=%s" % (field, "".join(inner)))
+            result.append("{}={}".format(field, "".join(inner)))
 
         return string % {
             "cname": cname,
@@ -775,7 +788,7 @@ class NodeNG:
         indent="   ",
         max_depth=0,
         max_width=80,
-    ):
+    ) -> str:
         """Get a string representation of the AST from this node.
 
         :param ids: If true, includes the ids with the node type names.
@@ -804,7 +817,7 @@ class NodeNG:
         :returns: The string representation of the AST.
         :rtype: str
         """
-        # pylint: disable=too-many-statements
+
         @_singledispatch
         def _repr_tree(node, result, done, cur_indent="", depth=1):
             """Outputs a representation of a non-tuple/list, non-node that's
@@ -817,7 +830,7 @@ class NodeNG:
             result.extend([cur_indent + line for line in lines[1:]])
             return len(lines) != 1
 
-        # pylint: disable=unused-variable; doesn't understand singledispatch
+        # pylint: disable=unused-variable,useless-suppression; doesn't understand singledispatch
         @_repr_tree.register(tuple)
         @_repr_tree.register(list)
         def _repr_seq(node, result, done, cur_indent="", depth=1):
@@ -848,14 +861,16 @@ class NodeNG:
             result.append("]")
             return broken
 
-        # pylint: disable=unused-variable; doesn't understand singledispatch
+        # pylint: disable=unused-variable,useless-suppression; doesn't understand singledispatch
         @_repr_tree.register(NodeNG)
         def _repr_node(node, result, done, cur_indent="", depth=1):
             """Outputs a strings representation of an astroid node."""
             if node in done:
                 result.append(
                     indent
-                    + "<Recursion on %s with id=%s" % (type(node).__name__, id(node))
+                    + "<Recursion on {} with id={}".format(
+                        type(node).__name__, id(node)
+                    )
                 )
                 return False
             done.add(node)
@@ -866,7 +881,7 @@ class NodeNG:
             depth += 1
             cur_indent += indent
             if ids:
-                result.append("%s<0x%x>(\n" % (type(node).__name__, id(node)))
+                result.append(f"{type(node).__name__}<0x{id(node):x}>(\n")
             else:
                 result.append("%s(" % type(node).__name__)
             fields = []
@@ -950,7 +965,7 @@ class Statement(NodeNG):
         try:
             return stmts[index + 1]
         except IndexError:
-            pass
+            return None
 
     def previous_sibling(self):
         """The previous sibling statement.
@@ -1149,10 +1164,9 @@ class LookupMixIn:
         _stmts = []
         _stmt_parents = []
         statements = self._get_filtered_node_statements(stmts)
-
         for node, stmt in statements:
             # line filtering is on and we have reached our location, break
-            if stmt.fromlineno > mylineno > 0:
+            if stmt.fromlineno and stmt.fromlineno > mylineno > 0:
                 break
             # Ignore decorators with the same name as the
             # decorated function
@@ -1612,8 +1626,6 @@ class Arguments(mixins.AssignTypeMixin, NodeNG):
         self.type_comment_args = type_comment_args
         self.type_comment_kwonlyargs = type_comment_kwonlyargs
         self.type_comment_posonlyargs = type_comment_posonlyargs
-
-    # pylint: disable=too-many-arguments
 
     def _infer_name(self, frame, name):
         if self.parent is frame:
@@ -2106,6 +2118,11 @@ class AugAssign(mixins.AssignTypeMixin, Statement):
         yield self.target
         yield self.value
 
+    def _get_yield_nodes_skip_lambdas(self):
+        """An AugAssign node can contain a Yield node in the value"""
+        yield from self.value._get_yield_nodes_skip_lambdas()
+        yield from super()._get_yield_nodes_skip_lambdas()
+
 
 class Repr(NodeNG):
     """Class representing an :class:`ast.Repr` node.
@@ -2590,7 +2607,7 @@ class Const(mixins.NoChildrenMixin, NodeNG, bases.Instance):
 
         else:
             raise exceptions.AstroidTypeError(
-                "Could not use type {} as subscript index".format(type(index))
+                f"Could not use type {type(index)} as subscript index"
             )
 
         try:
@@ -2608,7 +2625,7 @@ class Const(mixins.NoChildrenMixin, NodeNG, bases.Instance):
                 message="Type error {error!r}", node=self, index=index, context=context
             ) from exc
 
-        raise exceptions.AstroidTypeError("%r (value=%s)" % (self, self.value))
+        raise exceptions.AstroidTypeError(f"{self!r} (value={self.value})")
 
     def has_dynamic_getattr(self):
         """Check if the node has a custom __getattr__ or __getattribute__.
@@ -2630,7 +2647,7 @@ class Const(mixins.NoChildrenMixin, NodeNG, bases.Instance):
         """
         if isinstance(self.value, str):
             return [const_factory(elem) for elem in self.value]
-        raise TypeError("Cannot iterate over type {!r}".format(type(self.value)))
+        raise TypeError(f"Cannot iterate over type {type(self.value)!r}")
 
     def pytype(self):
         """Get the name of the type that this node represents.
@@ -3507,6 +3524,11 @@ class If(mixins.MultiLineBlockMixin, mixins.BlockRangeMixIn, Statement):
 
     def has_elif_block(self):
         return len(self.orelse) == 1 and isinstance(self.orelse[0], If)
+
+    def _get_yield_nodes_skip_lambdas(self):
+        """An If node can contain a Yield node in the test"""
+        yield from self.test._get_yield_nodes_skip_lambdas()
+        yield from super()._get_yield_nodes_skip_lambdas()
 
 
 class IfExp(NodeNG):

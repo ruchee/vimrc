@@ -3,9 +3,9 @@ Improved support for Raku in Vim.
 
 ## Installation
 
-Once installed, all files ending in `.raku`, `.rakudoc`, and `.rakutest` (and
-also `.pl6`, `.pm6`, `.p6`, and `.t6` for legacy purposes) will make use of the
-plugin's features.
+Once installed, all files ending in `.raku`, `.rakumod`, `.rakudoc`,
+and `.rakutest` (and also `.pl6`, `.pm6`, `.p6`, and `.t6` for legacy
+purposes) will make use of the plugin's features.
 
 ### With a plugin manager
 
@@ -47,3 +47,7 @@ let g:raku_unicode_abbrevs = 1
 [pathogen]: https://github.com/tpope/vim-pathogen
 [vim-plug]: https://github.com/junegunn/vim-plug
 [vundle]: https://github.com/gmarik/Vundle.vim
+
+## License
+
+This project is available under the [MIT License](LICENSE.md).

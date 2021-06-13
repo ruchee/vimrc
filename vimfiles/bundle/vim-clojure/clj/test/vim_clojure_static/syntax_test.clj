@@ -4,8 +4,12 @@
 (ns vim-clojure-static.syntax-test
   (:require [vim-clojure-static.test :refer [defpredicates defsyntaxtest]]))
 
+;; defpredicates also register not-equal vars, this is just for clj-kondo
+(declare !number !regexp-escape !regexp-posix-char-class !regexp-quantifier)
+
 (defpredicates number :clojureNumber)
 (defpredicates kw :clojureKeyword)
+(defpredicates character :clojureCharacter)
 (defpredicates regexp :clojureRegexp)
 (defpredicates regexp-escape :clojureRegexpEscape)
 (defpredicates regexp-char-class :clojureRegexpCharClass)
@@ -34,6 +38,7 @@
     "0x0"        number "+0x0"  number "-0x0"  number ; Hexadecimal zero
     "3/2"        number "+3/2"  number "-3/2"  number ; Rational
     "0/0"        number "+0/0"  number "-0/0"  number ; Rational (not a syntax error)
+    "36r0XYZ"    number "16rFF" number "8r077" number ; Radix
     "2r1"        number "+2r1"  number "-2r1"  number ; Radix
     "36R1"       number "+36R1" number "-36R1" number ; Radix
 
@@ -46,7 +51,7 @@
     "1.0/1" !number
     "01/2" !number
     "1/02" !number
-    "2r2" !number
+    ; "2r2" !number ;; Removed for performance
     "1r0" !number
     "37r36" !number
 
@@ -67,7 +72,7 @@
     "08.9M" !number
     "0x1fM" !number
     "3/4M" !number
-    "2r1M" !number
+    ; "2r1M" !number ;; Removed for performance
 
     ;; Exponential notation
 
@@ -81,27 +86,46 @@
 
 (comment (test #'test-number-literals))
 
-;; TODO: Finish me! (this was in an old git stash)
-;; (defsyntaxtest keywords-test
-;;   (with-format "%s"
-;;     ":1" kw
-;;     ":A" kw
-;;     ":a" kw
-;;     ":αβγ" kw
-;;     "::a" kw
-;;     ":a/b" kw
-;;     ":a:b" kw
-;;     ":a:b/:c:b" kw
-;;     ":a/b/c/d" kw
-;;     "::a/b" !kw
-;;     "::" !kw
-;;     ":a:" !kw
-;;     ":a/" !kw
-;;     ":/" !kw
-;;     ":" !kw
-;;     ))
-;;
-;; (comment (test #'keywords-test))
+(defsyntaxtest test-character-literals
+  ["[%s]"
+   ["\\0"  character  "\\a"    character  "\\Z"     character
+    "\\."  character  "\\\\"   character  "\\❤"     character
+    "\\o7" character  "\\o07"  character  "\\o307"  character
+    "\\o8" !character "\\o477" !character "\\o0007" !character
+
+    "\\u09af" character
+
+    "\\u0"     !character "\\u01"    !character "\\u012" !character
+    "\\u01234" !character "\\u0123g" !character
+
+    "\\newline"   character "\\new" !character
+    "\\tab"       character "\\ta"  !character
+    "\\space"     character "\\sp"  !character
+    "\\return"    character "\\ret" !character
+    "\\backspace" character "\\bs"  !character
+    "\\formfeed"  character "\\ff"  !character]])
+
+(comment (test #'test-character-literals))
+
+(defsyntaxtest keywords-test
+  ["%s"
+   [":1" kw
+    ":A" kw
+    ":a" kw
+    ":αβγ" kw
+    "::a" kw
+    ":a/b" kw
+    ":a:b" kw
+    ":a:b/:c:b" kw
+    ":a/b/c/d" kw
+    "::a/b" kw
+    "::" !kw
+    ":a:" !kw
+    ":a/" !kw
+    ; ":/" !kw ; This is legal, but for simplicity we do not match it
+    ":" !kw]])
+
+(comment (test #'keywords-test))
 
 (defsyntaxtest test-java-regexp-literals
   ["#\"%s\""

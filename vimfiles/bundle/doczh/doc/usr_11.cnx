@@ -1,61 +1,61 @@
-*usr_11.txt*    For Vim version 7.4.  最后修改时间:2010年7月
+*usr_11.txt*	适用于 Vim 8.2 版本。	最近更新: 2020年1月
 
-                    Vim 用户手册 - by Bram Moolenaar
-                (译者: Nek_in http://vimcdoc.sf.net)
+		     VIM 用户手册 - by Bram Moolenaar
+				译者: Nek_in
 
-                              从崩溃中恢复
+			      从崩溃中恢复
 
 
 你的计算机崩溃过吗？是不是还正好在你编辑了几个小时以后？不要惊慌！Vim 已经保存
 了大部分的信息使你可以恢复你的大多数数据。本章告诉你怎样恢复这些数据并向你介绍
 Vim 是如何处理交换文件的。
 
-|11.1|  基本恢复
-|11.2|  交换文件在哪
-|11.3|  是不是崩溃了？
-|11.4|  深入阅读
+|11.1|	基本恢复
+|11.2|	交换文件在哪
+|11.3|	是不是崩溃了？
+|11.4|	深入阅读
 
      下一章: |usr_12.txt|  小窍门
      前一章: |usr_10.txt|  做大修改
        目录: |usr_toc.txt|
 
 ==============================================================================
-*11.1*  基本恢复
+*11.1*	基本恢复
 
 在大多数情况下，恢复一个文件相当简单。假设你知道正在编辑的是哪个文件 (并且硬盘
 没坏的话)。可以用 "-r" 选项启动 Vim:
 >
-        vim -r help.txt
+	vim -r help.txt
 
 Vim 会读取交换文件 (用于保存你的编辑数据的文件) 并且提取原文的编辑碎片。如果
 Vim 恢复了你的改变，你会看到如下文字 (当然了，文件名会不一样):
 
-        Using swap file ".help.txt.swp" ~
-        Original file "~/vim/runtime/doc/help.txt" ~
-        Recovery completed. You should check if everything is OK. ~
-        (You might want to write out this file under another name ~
-        and run diff with the original file to check for changes) ~
-        You may want to delete the .swp file now. ~
+	Using swap file ".help.txt.swp" ~
+	Original file "~/vim/runtime/doc/help.txt" ~
+	Recovery completed. You should check if everything is OK. ~
+	(You might want to write out this file under another name ~
+	and run diff with the original file to check for changes) ~
+	You may want to delete the .swp file now. ~
 
-        (译者注: 中文情况下是:
-        使用交换文件 ".help.txt.swp"~
-        原文件 "~/vim/runtime/doc/help.txt"~
-        恢复完成。请确定一切正常。 ~
-        (你可能想要把这个文件另存为别的文件名，~
-        再执行 diff 与原文件比较以检查是否有改变)~
-        现在可以删除 .swp 文件。~
-        )
+	(译者注: 中文情况下是:
+	使用交换文件 ".help.txt.swp"~
+	原文件 "~/vim/runtime/doc/help.txt"~
+	恢复完成。请确定一切正常。 ~
+	(你可能想要把这个文件另存为别的文件名，~
+	再执行 diff 与原文件比较以检查是否有改变)~
+	现在可以删除 .swp 文件。~
+	)
 
 为了安全起见，可以用另一个文件名保存这个文件:
 >
-        :write help.txt.recovered
+	:write help.txt.recovered
 
 可以把这个文件与原文件作一下比较，看看恢复的效果如何。这方面 Vimdiff 可以帮很
 大的忙 (参见 |08.7|)。例如: >
 
-        :write help.txt.recovered
-        :edit #
-        :diffsp help.txt
+	:write help.txt.recovered
+	:edit #
+	:diffsp help.txt
 
 注意用一个比较新的原文件来比较 (你在计算机崩溃前最后保存过的文件)，并且检查有
 没有东西丢失了 (由于某些问题导致 Vim 无法恢复)。
@@ -64,10 +64,10 @@ Vim 恢复了你的改变，你会看到如下文字 (当然了，文件名会�
 
 如果恢复产生的文件和文件内容完全一致，你会看到以下消息:
 
-        Using swap file ".help.txt.swp" ~
-        Original file "~/vim/runtime/doc/help.txt" ~
-        Recovery completed. Buffer contents equals file contents. ~
-        You may want to delete the .swp file now. ~
+	Using swap file ".help.txt.swp" ~
+	Original file "~/vim/runtime/doc/help.txt" ~
+	Recovery completed. Buffer contents equals file contents. ~
+	You may want to delete the .swp file now. ~
 
 通常这是因为你已经恢复过改变，或者修改后写入了文件。此时删除交换文件应该安全。
 
@@ -78,53 +78,53 @@ Vim 恢复了你的改变，你会看到如下文字 (当然了，文件名会�
 
 如果你编辑的时候没有给定文件名，可以用一个空的字符串来表示文件名:
 >
-        vim -r ""
+	vim -r ""
 
 你需要进入原来的目录执行这个命令，否则 Vim 是找不到这个交换文件的。
 
 ==============================================================================
-*11.2*  交换文件在哪
+*11.2*	交换文件在哪
 
 Vim 可以把交换文件保存在几个不同的地方。通常是原文件所在的目录。要知道这一点，
 进入该目录，然后输入:
 >
-        vim -r
+	vim -r
 
 Vim 会列出所有它能找到的交换文件。它还会从其它目录寻找本目录文件的交换文件，但
 它不会寻找其它目录里的交换文件，更不会遍及整个目录树。
     这个命令的输出如下:
 
-        Swap files found: ~
-           In current directory: ~
-        1.    .main.c.swp ~
-                  owned by: mool   dated: Tue May 29 21:00:25 2001 ~
-                 file name: ~mool/vim/vim6/src/main.c ~
-                  modified: YES ~
-                 user name: mool   host name: masaka.moolenaar.net ~
-                process ID: 12525 ~
-           In directory ~/tmp: ~
-              -- none -- ~
-           In directory /var/tmp: ~
-              -- none -- ~
-           In directory /tmp: ~
-              -- none -- ~
+	Swap files found: ~
+	   In current directory: ~
+	1.    .main.c.swp ~
+		  owned by: mool   dated: Tue May 29 21:00:25 2001 ~
+		 file name: ~mool/vim/vim6/src/main.c ~
+		  modified: YES ~
+		 user name: mool   host name: masaka.moolenaar.net ~
+		process ID: 12525 ~
+	   In directory ~/tmp: ~
+	      -- none -- ~
+	   In directory /var/tmp: ~
+	      -- none -- ~
+	   In directory /tmp: ~
+	      -- none -- ~
 
-        (译者: 中文的情形如下:
-        找到以下交换文件:~
-           位于当前目录:~
-        1.    .main.c.swp ~
-                    所有者: mool    日期: Tue May 29 21:00:25 2001 ~
-                    文件名: ~mool/vim/vim6/src/main.c ~
-                    修改过: 是 ~
-                    用户名: mool     主机名: masaka.moolenaar.net ~
-                   进程 ID: 12525 ~
-           位于目录 ~/tmp:~
-                -- 无 --~
-           位于目录 /var/tmp:~
-                -- 无 --~
-           位于目录 /tmp:~
-                -- 无 --~
-        )
+	(译者: 中文的情形如下:
+	找到以下交换文件:~
+	   位于当前目录:~
+	1.    .main.c.swp ~
+		    所有者: mool    日期: Tue May 29 21:00:25 2001 ~
+		    文件名: ~mool/vim/vim6/src/main.c ~
+		    修改过: 是 ~
+		    用户名: mool     主机名: masaka.moolenaar.net ~
+		   进程 ID: 12525 ~
+	   位于目录 ~/tmp:~
+		-- 无 --~
+	   位于目录 /var/tmp:~
+		-- 无 --~
+	   位于目录 /tmp:~
+		-- 无 --~
+	)
 
 如果有几个交换文件，其中一个可能是你要的，Vim 会给出一个文件列表，你需要输入一
 个表示这个文件的数字。小心检查那几个文件的时间，并确定哪一个才是你需要的。
@@ -137,7 +137,7 @@ Vim 会列出所有它能找到的交换文件。它还会从其它目录寻找�
 始文件的名字。
 
 例如: >
-        Vim -r .help.txt.swo
+	Vim -r .help.txt.swo
 
 这个方法在交换文件在一个非预期的目录中时很有用。Vim 知道 *.s[uvw][a-z] 模式的
 文件是交换文件。
@@ -145,70 +145,70 @@ Vim 会列出所有它能找到的交换文件。它还会从其它目录寻找�
 如果这还不行，看看 Vim 报告的文件名是什么，然后根据需要给文件换名。根据
 'directory' 选项的值你可以知道 Vim 会把交换文件放到什么地方。
 
-        备注:
-        Vim 在 'dir' 选项指定的目录中寻找名为 "filename.sw?" 的交换文件。如果
-        通配符不能正常工作 (例如 'shell' 选项不正确)，Vim 转而尝试文件
-        "filename.swp"。如果仍失败，你就只能通过给定交换文件的名称来恢复原来的
-        文件了。
+	备注:
+	Vim 在 'dir' 选项指定的目录中寻找名为 "filename.sw?" 的交换文件。如果
+	通配符不能正常工作 (例如 'shell' 选项不正确)，Vim 转而尝试文件
+	"filename.swp"。如果仍失败，你就只能通过给定交换文件的名称来恢复原来的
+	文件了。
 
 ==============================================================================
-*11.3*  是不是崩溃了？                           *ATTENTION*    *E325*
+*11.3*	是不是崩溃了？				 *ATTENTION*	*E325*
 
 Vim 尽可能保护你不要做傻事。有时你打开一个文件，天真地以为文件的内容会显示出
 来。可是，Vim 却给出一段很长的信息:
 
-                E325: ATTENTION ~
-        Found a swap file by the name ".main.c.swp" ~
-                  owned by: mool   dated: Tue May 29 21:09:28 2001 ~
-                 file name: ~mool/vim/vim6/src/main.c ~
-                  modified: no ~
-                 user name: mool   host name: masaka.moolenaar.net ~
-                process ID: 12559 (still running) ~
-        While opening file "main.c" ~
-                     dated: Tue May 29 19:46:12 2001 ~
+		E325: ATTENTION ~
+	Found a swap file by the name ".main.c.swp" ~
+		  owned by: mool   dated: Tue May 29 21:09:28 2001 ~
+		 file name: ~mool/vim/vim6/src/main.c ~
+		  modified: no ~
+		 user name: mool   host name: masaka.moolenaar.net ~
+		process ID: 12559 (still running) ~
+	While opening file "main.c" ~
+		     dated: Tue May 29 19:46:12 2001 ~
  ~
-        (1) Another program may be editing the same file. ~
-            If this is the case, be careful not to end up with two ~
-            different instances of the same file when making changes. ~
-            Quit, or continue with caution. ~
+	(1) Another program may be editing the same file. ~
+	    If this is the case, be careful not to end up with two ~
+	    different instances of the same file when making changes. ~
+	    Quit, or continue with caution. ~
  ~
-        (2) An edit session for this file crashed. ~
-            If this is the case, use ":recover" or "vim -r main.c" ~
-            to recover the changes (see ":help recovery"). ~
-            If you did this already, delete the swap file ".main.c.swp" ~
-            to avoid this message. ~
+	(2) An edit session for this file crashed. ~
+	    If this is the case, use ":recover" or "vim -r main.c" ~
+	    to recover the changes (see ":help recovery"). ~
+	    If you did this already, delete the swap file ".main.c.swp" ~
+	    to avoid this message. ~
 
-        (译者注: 翻译成中文如下:
+	(译者注: 翻译成中文如下:
 
-                E325: 注意~
-         发现交换文件 "main.c.swp" ~
-             所有者: mool     日期: 2001年5月29日 星期二 21:09:28~
-             文件名: ~mool/vim/vim6/src/main.c~
-             修改过: 否~
-             用户名: mool   主机名: masaka.moolenaar.net~
-             进程号: 12559 (仍在运行) ~
-         正在打开文件 "main.c" ~
-               日期: 2001年5月29日 星期二 19:46:12~
+		E325: 注意~
+	 发现交换文件 "main.c.swp" ~
+	     所有者: mool     日期: 2001年5月29日 星期二 21:09:28~
+	     文件名: ~mool/vim/vim6/src/main.c~
+	     修改过: 否~
+	     用户名: mool   主机名: masaka.moolenaar.net~
+	     进程号: 12559 (仍在运行) ~
+	 正在打开文件 "main.c" ~
+	       日期: 2001年5月29日 星期二 19:46:12~
 ~
-        (1) 另一个程序可能也在编辑同一个文件。~
-            如果是这种情况，修改时请注意避免同一个文件产生两个不同的版本。 ~
-            ~
-            退出，或小心地继续。~
+	(1) 另一个程序可能也在编辑同一个文件。~
+	    如果是这种情况，修改时请注意避免同一个文件产生两个不同的版本。 ~
+	    ~
+	    退出，或小心地继续。~
 ~
-        (2) 上次编辑此文件时崩溃。~
-            如果是这样，请用 ":recover" 或 "vim -r main.c" ~
-            恢复修改的内容 (请见 ":help recovery")。~
-            如果你已经进行了恢复，请删除交换文件 ".main.c.swp" ~
-            以避免再看到此消息。~
+	(2) 上次编辑此文件时崩溃。~
+	    如果是这样，请用 ":recover" 或 "vim -r main.c" ~
+	    恢复修改的内容 (请见 ":help recovery")。~
+	    如果你已经进行了恢复，请删除交换文件 ".main.c.swp" ~
+	    以避免再看到此消息。~
 
-        )
+	)
 
 你遇到这个信息是因为 Vim 发现你编辑的文件的交换文件已经存在。这一定是有什么地
 方出问题了。可能的原因有两个:
 
 1. 这个文件正在被另一个进程编辑。注意有 "process ID" 那行。它看起来是这样的:
 
-                process ID: 12559 (still running) ~
+		process ID: 12559 (still running) ~
 
     "still running" 表示同一台计算机上有一个进程正在编辑这个文件。在非 Unix 的
     系统上你不会得到这个信息。而如果你通过网络编辑这个文件，可能也得不到这个信
@@ -220,7 +220,7 @@ Vim 尽可能保护你不要做傻事。有时你打开一个文件，天真地�
 2. 交换文件可能是由于前一次 Vim 或者计算机崩溃导致的。检查提示信息中的日期。如
    果交换文件比你正在编辑的文件新，而且出现这个信息:
 
-                modified: YES ~
+		modified: YES ~
 
    这就表明你很可能需要恢复了。
        如果文件的日期比交换文件新，可能是在崩溃后被修改过了 (也许你已经恢复
@@ -233,13 +233,20 @@ Vim 尽可能保护你不要做傻事。有时你打开一个文件，天真地�
       (译者注: 意为 "文件比交换文件新")
 
 
-无 法 读 取 的 交 换 文 件
+备注 在下面情形下，Vim 知道交换文件没有用了，会自动删除它:
+- 文件是合法的交换文件 (魔术数正确)。
+- 文件修改过的标志位未置位。
+- 进程不在运行。
+
+可以用 |FileChangedShell| 自动命令事件来编程处理这种情况。
+
+无 法 读 取 的 交 换 文 件~
 
 有时下面这样的信息
 
-        [cannot be read] ~
+	[cannot be read] ~
 
-        或 [无法读取] (中文信息，译者)~
+	或 [无法读取] (中文信息，译者)~
 
 会出现在交换文件的文件名之下。这可好可坏，依情况而定。
 
@@ -257,10 +264,9 @@ Vim 尽可能保护你不要做傻事。有时你打开一个文件，天真地�
 如果你是改动文件的那个人，准备好重做你的改动。
 
 
-怎 么 办？                                      *swap-exists-choices*
+怎 么 办？					*swap-exists-choices*
 
-如果 Vim 版本支持对话框，你可以从对话框的五个选择中 (译者注: 原文如此) 挑一
-个:
+如果 Vim 版本支持对话框，你可以从对话框的六个选择中挑一个:
 
   Swap file ".main.c.swp" already exists! ~
   [O]pen Read-Only, (E)dit anyway, (R)ecover, (Q)uit, (A)bort, (D)elete it: ~
@@ -295,7 +301,7 @@ D  删除交换文件。当你能确定你不再需要它的时候选这一项�
 如果没有出现对话框 (你使用的 Vim 不支持对话框)，你只能手工处理。要恢复一个文
 件，使用如下命令:
 >
-        :recover
+	:recover
 
 Vim 不是总能检测到一个文件有交换文件的。当另一个会话把交换文件放到别的位置或者
 在编辑另一台机器的文件的时候，双方使用的交换文件路径不一样都会发生这个问题。所
@@ -305,22 +311,23 @@ Vim 不是总能检测到一个文件有交换文件的。当另一个会话把�
 般你不需要这样做。
 
 关于加密和交换文件关系的注释，见 |:recover-crypt|。
+要通过程序访问交换文件，见 |swapinfo()|。
 
 ==============================================================================
-*11.4*  深入阅读
+*11.4*	深入阅读
 
-|swap-file|     解释交换文件在什么地方创建以及名字是什么。
-|:preserve|     手工刷新交换文件
-|:swapname|     查看当前文件的交换文件
-'updatecount'   多少个键被敲下后执行一次交换文件刷新
-'updatetime'    交换文件刷新后的超时时间
-'swapsync'      交换文件刷新后是否执行磁盘同步
-'directory'     列出用于保存交换文件的目录
-'maxmem'        写入交换文件前的内存使用限制
-'maxmemtot'     同上，当用于所有文件
+|swap-file|	解释交换文件在什么地方创建以及名字是什么。
+|:preserve|	手工刷新交换文件
+|:swapname|	查看当前文件的交换文件
+'updatecount'	多少个键被敲下后执行一次交换文件刷新
+'updatetime'	交换文件刷新后的超时时间
+'swapsync'	交换文件刷新后是否执行磁盘同步
+'directory'	列出用于保存交换文件的目录
+'maxmem'	写入交换文件前的内存使用限制
+'maxmemtot'	同上，当用于所有文件
 
 ==============================================================================
 
 下一章: |usr_12.txt|  小窍门
 
-版权: 参见 |manual-copyright|  vim:tw=78:ts=8:ft=help:norl:
+版权: 参见 |manual-copyright|  vim:tw=78:ts=8:noet:ft=help:norl:

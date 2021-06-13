@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2008-2010, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2014 Brett Cannon <brett@python.org>
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
@@ -10,11 +9,12 @@
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """handle diagram generation options for class diagram or default diagrams
 """
@@ -43,7 +43,7 @@ class DiaDefGenerator:
         """get title for objects"""
         title = node.name
         if self.module_names:
-            title = "%s.%s" % (node.root().name, title)
+            title = f"{node.root().name}.{title}"
         return title
 
     def _set_option(self, option):
@@ -171,8 +171,7 @@ class DefaultDiadefGenerator(LocalsVisitor, DiaDefGenerator):
         self.extract_classes(node, anc_level, association_level)
 
     def visit_importfrom(self, node):
-        """visit astroid.ImportFrom  and catch modules for package diagram
-        """
+        """visit astroid.ImportFrom  and catch modules for package diagram"""
         if self.pkgdiagram:
             self.pkgdiagram.add_from_depend(node, node.modname)
 

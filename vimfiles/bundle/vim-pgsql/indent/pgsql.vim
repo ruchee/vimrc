@@ -2,6 +2,7 @@
 " Language:    SQL
 " Author:  David Fishburn <dfishburn dot vim at gmail dot com>
 " Maintainer: Lifepillar <lifepillar at lifepillar dot me>
+" License:     Vim license (see `:help license`)
 
 " Notes:
 " Adapted from Vim's default indentation for SQL.

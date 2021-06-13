@@ -1,31 +1,4 @@
-snippet rc "Replication Controller" !b
-# WARNING, use Deployments -- ReplicationController is being replaced.
-apiVersion: v1
-kind: ReplicationController
-metadata:
-	name: ${1:some-controller}
-	namespace: ${2:default}
-spec:
-	replicas: 1
-	template:
-		metadata:
-			labels:
-				app: $1
-				tier: $3
-		spec:
-			containers:
-			- name: ${4:name}
-				image: ${5:nginx}
-				imagePullPolicy: Always
-				resources:
-					requests:
-						cpu: 100m
-						memory: 200Mi
-				ports:
-				- containerPort: 8080
-endsnippet
-
-snippet dep "Deployment" !bm
+snippet	dep	"Deployment"	!bm
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -51,6 +24,12 @@ spec:
 						memory: 200Mi
 				ports:
 				- containerPort: 8080
+endsnippet
+
+snippet selm "Selector MatchLabels" !b
+selector:
+	matchLabels:
+		$0
 endsnippet
 
 snippet svc "Service" !b
@@ -149,9 +128,13 @@ spec:
 	selector:
 		$3
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+	annotations:
+		nginx.ingress.kubernetes.io/rewrite-target: /
+		kubernetes.io/ingress.class: nginx
+		cert-manager.io/cluster-issuer: "letsencrypt-prod"
 	name: $1
 	namespace: $2
 spec:
@@ -164,9 +147,12 @@ spec:
 		http:
 			paths:
 			- path: ${11:/}
+				pathType: Prefix
 				backend:
-					serviceName: $1
-					servicePort: $7
+					service:
+						name: $1
+						port:
+							number: $7
 endsnippet
 
 snippet pv "PersistentVolume" !b
@@ -207,9 +193,13 @@ spec:
 endsnippet
 
 snippet ing "Ingress" !b
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+	annotations:
+		nginx.ingress.kubernetes.io/rewrite-target: /
+		kubernetes.io/ingress.class: nginx
+		cert-manager.io/cluster-issuer: "letsencrypt-prod"
 	name: ${1:name}
 	namespace: ${2:default}
 spec:
@@ -222,9 +212,12 @@ spec:
 		http:
 			paths:
 			- path: ${7:/}
+				pathType: Prefix
 				backend:
-					serviceName: ${8:service}
-					servicePort: ${9:portNumberOrName}
+					service:
+						name: ${8:service}
+						port:
+							number: ${9:portNumberOrName}
 endsnippet
 
 snippet ns "Namespace" !b
@@ -261,15 +254,15 @@ snippet sec "Secret" !b
 apiVersion: v1
 kind: Secret
 metadata:
-  name: ${1:secret-name}
+	name: ${1:secret-name}
 type: ${2:Opaque}
 data:
-  ${3:key}: ${4:value}
+	${3:key}: ${4:value}
 endsnippet
 
 snippet env "Environment template" !b
 - name: ${1:VAR_NAME}
-  value: ${2:value}
+	value: ${2:value}
 endsnippet
 
 snippet secref "env SecretRef" !b
@@ -282,7 +275,7 @@ endsnippet
 snippet pvol "Pod Volume Object"
 - name: ${1:name}
 	${2:source}:
-		name: 
+		name:
 endsnippet
 
 snippet job "Kubernetes Job" !b
@@ -301,7 +294,7 @@ spec:
 			- name: ${3:containerName}
 				image: ${4: image}
 				imagePullPolicy: Always
-				command: 
+				command:
 				- ${5:"override"
 				- "--the"
 				- "entrypoint"}
@@ -329,7 +322,7 @@ spec:
 					restartPolicy: OnFailure
 endsnippet
 
-snippet skr "SecretKeyRef" 
+snippet skr "SecretKeyRef"
 valueFrom:
 	secretKeyRef:
 		name: ${1:secret}
@@ -359,16 +352,18 @@ endsnippet
 
 snippet netp "NetworkPolicy" !b
 kind: NetworkPolicy
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 metadata:
-	namespace: ${1:default}
-	name: ${2:policyname}
-	spec:
-	${4:podSelector:
-			matchLabels:
-				${3:{}}
-}	ingress:
-			- {}
+	namespace: ${1:ns}
+	name: ${2:mypolicy}
+spec:
+	podSelector:
+		matchLabels:
+			${3:app}: ${4:loki}
+	ingress:
+		- namespaceSelector:
+				matchLabels:
+					${5:$4}: ${6:"true"}
 endsnippet
 
 snippet probe "Liveness/Readiness Probes" !b
@@ -443,7 +438,7 @@ snippet init "Init Container" !b
 initContainers:
 - name: ${1:myinit}
 	image: ${2:busybox}
-	command: [${3:rm, -rf,  $5/lost+found}]
+	command: [${3:rm, -rf,	$5/lost+found}]
 	${6:volumeMounts:
 	- name: ${4:data}
 		mountPath: ${5:/data}}$0
@@ -469,7 +464,7 @@ endsnippet
 
 snippet cmtls "cert-manager tls annotations" !b
 ${2:annotations:
-	}certmanager.k8s.io/cluster-issuer: ${1:lets-encrypt}
+	}cert-manager.io/cluster-issuer: ${1:lets-encrypt}
 endsnippet
 
 snippet edns "external dns" !b
@@ -555,7 +550,7 @@ snippet pvolm "Volume Mount and spec" !b
 	- name: ${1:volume}
 		mountPath: ${2:/etc/mount/path}
 		${3:subPath: ${4: key}}
-volumes: 
+volumes:
 - name: $1
 	${5:configMap}:
 		${6:name}: ${7:someName}
@@ -587,28 +582,56 @@ pod${1:Anti}Affinity:
 					values:
 					- ${4:appname}
 			topologyKey: ${5:kubernetes.io/hostname}
-endsnippet 
+endsnippet
 
 snippet hpa "Horizontal Pod Autoscaler" !b
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: ${1:hpa-name}
-  namespace: ${2:default}
+	name: ${1:hpa-name}
+	namespace: ${2:default}
 spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: ${3:deployment-name}
-  minReplicas: 1
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      targetAverageUtilization: 10
-  - type: Resource
-    resource:
-    name: memory
-      targetAverageValue: 1000Mi
+	scaleTargetRef:
+		apiVersion: apps/v1
+		kind: Deployment
+		name: ${3:deployment-name}
+	minReplicas: 1
+	maxReplicas: 10
+	metrics:
+	- type: Resource
+		resource:
+			name: cpu
+			targetAverageUtilization: 10
+	- type: Resource
+		resource:
+		name: memory
+			targetAverageValue: 1000Mi
+endsnippet
+
+snippet ds "DaemonSet" !b
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+	name: ${1:name}
+	namespace: ${2:default}
+	labels:
+		app: $1
+spec:
+	selector:
+		matchLabels:
+			app: $1
+	template:
+		metadata:
+			labels:
+				app: $1
+		spec:
+			containers:
+			- name: $1
+				image: ${3:image/name}
+				imagePullPolicy: IfNotPresent
+				resources:
+					limits:
+						cpu: 100m
+						memory: 100Mi
+$0
 endsnippet

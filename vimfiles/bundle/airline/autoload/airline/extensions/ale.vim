@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bjorn Neergaard, w0rp et al.
+" MIT License. Copyright (c) 2013-2021 Bjorn Neergaard, w0rp et al.
 " Plugin: https://github.com/dense-analysis/ale
 " vim: et ts=2 sts=2 sw=2
 
@@ -128,6 +128,10 @@ function! airline#extensions#ale#init(ext)
 endfunction
 
 function! s:ale_refresh()
+  if !exists('#airline')
+    " airline disabled
+    return
+  endif
   if get(g:, 'airline_skip_empty_sections', 0)
     exe ':AirlineRefresh!'
   endif

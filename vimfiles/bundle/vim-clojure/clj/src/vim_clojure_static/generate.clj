@@ -6,13 +6,12 @@
             [clojure.java.shell :refer [sh]]
             [clojure.set :as set]
             [clojure.string :as string]
+            [clojure.data.csv :as csv]
             [frak :as f])
   (:import (clojure.lang MultiFn)
-           (java.lang Character$UnicodeBlock Character$UnicodeScript)
-           (java.lang.reflect Field)
            (java.text SimpleDateFormat)
            (java.util Date)
-           (java.util.regex Pattern Pattern$CharPropertyNames UnicodeProp)))
+           (java.util.regex Pattern)))
 
 ;;
 ;; Helpers
@@ -40,22 +39,11 @@
            (name group)
            (property-pattern (format fmt (vim-frak-pattern props)) braces?))))
 
-(defn- get-private-field
-  "Violate encapsulation and get the value of a private field."
-  [^Class cls fieldname]
-  (let [^Field field (first (filter #(= fieldname (.getName ^Field %))
-                                    (.getDeclaredFields cls)))]
-    (.setAccessible field true)
-    (.get field field)))
-
 (defn- fn-var? [v]
   (let [f @v]
     (or (contains? (meta v) :arglists)
         (fn? f)
         (instance? MultiFn f))))
-
-(defn- inner-class-name [^Class cls]
-  (string/replace (.getName cls) #".*\$(.+)" "$1"))
 
 (defn- map-keyword-names [coll]
   (reduce
@@ -89,7 +77,7 @@
 ;;
 
 (def generation-comment
-  "\" Generated from https://github.com/guns/vim-clojure-static/blob/%%RELEASE_TAG%%/clj/src/vim_clojure_static/generate.clj\n")
+  "\" Generated from https://github.com/clojure-vim/clojure.vim/blob/%%RELEASE_TAG%%/clj/src/vim_clojure_static/generate.clj\n")
 
 (def clojure-version-comment
   (format "\" Clojure version %s\n" (clojure-version)))
@@ -129,33 +117,74 @@
              (set/difference syms group-syms)]))
         [builtins coresyms] group-preds))))
 
+;; Java 8 Character class implements Unicode standard 6.2 from 2012 [1],
+;; Java 15 implements Unicode standard 13 from 2020 [2],
+;; the latter standard includes a few more scripts and removes some.
+;; Unicode Technical Standard #18 [3] describes Unicode Regular Expressions.
+;; java.util.regex.Pattern [4] describes which parts of Unicode standard are supported.
+;; Some values which aren't mentioned in Unicode or Javadoc, are also supported [5].
+;;
+;; [1] https://docs.oracle.com/javase/8/docs/api/java/lang/Character.html
+;; [2] https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/lang/Character.html
+;; [3] https://unicode.org/reports/tr18/
+;; [4] https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/regex/Pattern.html
+;; [5] https://github.com/openjdk/jdk/blob/4d13bf33d4932cc210a29c4e3a68f848db18575b/src/java.base/share/classes/java/util/regex/CharPredicates.java
+
+(def unicode-property-value-aliases
+  (with-open [f (io/reader (io/resource "unicode/PropertyValueAliases.txt"))]
+    (->> (csv/read-csv f :separator \;)
+         (map (fn [row]
+                (mapv string/trim row)))
+         doall)))
+
+(def unicode-blocks
+  (with-open [f (io/reader (io/resource "unicode/Blocks.txt"))]
+    (->> (csv/read-csv f :separator \;)
+         (map (fn [row]
+                 (mapv string/trim row)))
+         doall)))
+
+(defn- block-alt-names [block-name]
+  (let [n (string/upper-case block-name)]
+    [n
+     (string/replace n #"[ -]" "_")
+     (string/replace n #" " "")]))
+
 (def character-properties
-  "Character property names derived via reflection."
-  (let [props (->> (get-private-field Pattern$CharPropertyNames "map")
-                   (mapv (fn [[prop field]] [(inner-class-name (class field)) prop]))
-                   (group-by first)
-                   (reduce-kv (fn [m k v] (assoc m k (mapv peek v))) {}))
-        binary (concat (map #(.name ^UnicodeProp %) (get-private-field UnicodeProp "$VALUES"))
-                       (keys (get-private-field UnicodeProp "aliases")))
-        script (concat (map #(.name ^Character$UnicodeScript %) (Character$UnicodeScript/values))
-                       (keys (get-private-field Character$UnicodeScript "aliases")))
-        block (keys (get-private-field Character$UnicodeBlock "map"))]
-    ;;
-    ;; * The keys "1"…"5" reflect the order of CharPropertyFactory
-    ;;   declarations in Pattern.java!
-    ;;
-    ;; * The "L1" (Latin-1) category is not defined by Unicode and exists
-    ;;   merely as an alias for the first 8 bits of code points.
-    ;;
-    ;; * The "all" category is the Unicode "Any" category by a different name,
-    ;;   and thus excluded.
-    ;;
-    {:posix    (disj (set (mapcat (partial get props) ["2" "3"])) "L1")
-     :java     (set (get props "4"))
-     :binary   (set binary)
-     :category (set (get props "1"))
-     :script   (set script)
-     :block    (set block)}))
+  {:posix #{"Lower" "Space" "XDigit" "Alnum" "Cntrl" "Graph" "Alpha" "Print"
+            "Blank" "Digit" "Upper" "Punct" "ASCII"}
+   :java #{"javaSpaceChar" "javaUnicodeIdentifierPart" "javaLetterOrDigit"
+           "javaTitleCase" "javaLowerCase" "javaDefined" "javaAlphabetic"
+           "javaIdentifierIgnorable" "javaJavaIdentifierStart"
+           "javaIdeographic" "javaWhitespace" "javaMirrored"
+           "javaUnicodeIdentifierStart" "javaISOControl" "javaUpperCase"
+           "javaDigit" "javaLetter" "javaJavaIdentifierPart"}
+   :binary #{"IDEOGRAPHIC" "HEX_DIGIT" "ALPHABETIC" "NONCHARACTERCODEPOINT"
+             "GRAPH" "PUNCTUATION" "WORD" "LETTER" "TITLECASE" "JOIN_CONTROL"
+             "CONTROL" "HEXDIGIT" "LOWERCASE" "NONCHARACTER_CODE_POINT"
+             "JOINCONTROL" "BLANK" "WHITESPACE" "ALNUM" "DIGIT" "WHITE_SPACE"
+             "ASSIGNED" "UPPERCASE" "PRINT"}
+   ;; https://www.unicode.org/reports/tr44/#General_Category_Values
+   :category (->> unicode-property-value-aliases
+                  (filter #(= "gc" (first %)))
+                  (map second)
+                  ;; Supported by Java but not in standard or docs.
+                  (concat ["LD"])
+                  set)
+   :script (->> unicode-property-value-aliases
+                (filter #(= "sc" (first %)))
+                (mapcat #(subvec % 1 3))
+                (map string/upper-case)
+                set)
+   :block (->> unicode-blocks
+               (filter (fn [row]
+                         (and (seq (first row))
+                              (not (string/starts-with? (first row) "#")))))
+               (map second)
+               ;; Old names supported by Java
+               (concat ["GREEK" "COMBINING MARKS FOR SYMBOLS" "CYRILLIC SUPPLEMENTARY"])
+               (mapcat block-alt-names)
+               set)})
 
 (def lispwords
   "Specially indented symbols in clojure.core and clojure.test. The following
@@ -332,10 +361,11 @@
   "Vimscript literal `setlocal lispwords=` statement."
   (str "setlocal lispwords=" (string/join \, (sort lispwords)) "\n"))
 
-(defn- comprehensive-clojure-character-property-regexps []
+(defn- comprehensive-clojure-character-property-regexps
   "A string representing a Clojure literal vector of regular expressions
    containing all possible property character classes. For testing Vimscript
    syntax matching optimizations."
+  []
   (let [fmt (fn [prefix prop-key]
               (let [props (map (partial format "\\p{%s%s}" prefix)
                                (sort (get character-properties prop-key)))]
@@ -428,9 +458,9 @@
 (defn- update-vim!
   "Update Vim repository runtime files in dst/runtime"
   [src dst]
-  (let [current-tag (string/trim-newline (:out (sh "git" "tag" "--points-at" "HEAD")))
-        current-date (.format (SimpleDateFormat. "dd MMMM YYYY") (Date.))]
-    (assert (seq current-tag) "Git HEAD is not tagged!")
+  (let [current-tag (string/trim-newline (:out (sh "git" "rev-parse" "HEAD")))
+        current-date (.format (SimpleDateFormat. "YYYY-MM-dd") (Date.))]
+    (assert (seq current-tag) "Git HEAD doesn't appear to have a commit hash.")
     (update-doc! #"CLOJURE\t*\*ft-clojure-indent\*"
                  (fjoin src "doc/clojure.txt")
                  (fjoin dst "runtime/doc/indent.txt"))
@@ -455,6 +485,8 @@
   ;; Generate an example file with all possible character property literals.
   (spit "tmp/all-char-props.clj"
         (comprehensive-clojure-character-property-regexps))
+
+  (require 'vim-clojure-static.test)
 
   ;; Performance test: `syntax keyword` vs `syntax match`
   (vim-clojure-static.test/benchmark

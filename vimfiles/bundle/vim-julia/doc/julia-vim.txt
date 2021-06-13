@@ -32,6 +32,7 @@ Block-wise movements/objects        |julia-vim-blocks|
 Referring to documents              |julia-vim-doc|
 Extras                              |julia-vim-extras|
 Customizations                      |julia-vim-options|
+Extra syntax colors                 |julia-vim-extra-colors|
 About                               |julia-vim-about|
 
 ==============================================================================
@@ -89,11 +90,11 @@ matchit plugin is enabled.
 
 There are two families of block movements, keyword-oriented (see
 |julia-vim-blocks-move|) and block-oriented (see
-|julia-vim-blocks-blockmove|).
+|julia-vim-blocks-moveblock|).
 
 Finally, this plug-in also adds block |text-objects| special mappings, so that
 whole blocks can be manipulated as a whole when in visual mode or
-operator-pending mode, see |julia-vim-block-objects|.
+operator-pending mode, see |julia-vim-blocks-objects|.
 
 The block movements and block objects mappings can be collectively disabled,
 see |g:julia_blocks|, and customized, see |g:julia_blocks_mappings|.
@@ -468,6 +469,30 @@ g:julia_indent_align_funcargs
                                      )
                     # function body
                 end
+<
+==============================================================================
+EXTRA SYNTAX COLORS                                *julia-vim-extra-colors*
+
+Some syntax elements are recognized but not highlighted by default:
+
+  juliaParDelim       parentheses
+  juliaSemicolon      semicolons
+  juliaComma          commas
+  juliaFunctionCall   function calls
+
+In order to highlight them, just use the |hi| command in your configuration
+file. To use existing highlight groups (see |group-name|), you can do e.g.:
+>
+  hi link juliaParDelim Delimiter
+  hi link juliaSemicolon Operator
+  hi link juliaFunctionCall Identifier
+<
+
+The above will use the colors specified by your colorscheme, if defined.
+If you want to define a color manually instead, you can use something like
+this:
+>
+  hi juliaFunctionCall guifg=#AB5033 ctermfg=Red
 <
 
 ==============================================================================

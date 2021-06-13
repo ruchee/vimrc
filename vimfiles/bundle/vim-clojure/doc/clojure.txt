@@ -22,7 +22,7 @@ for correctness when dealing with very long forms. A value of 0 will scan
 without limits.
 >
 	" Default
-	let g:clojure_maxlines = 100
+	let g:clojure_maxlines = 300
 <
 						*g:clojure_fuzzy_indent*
 					*g:clojure_fuzzy_indent_patterns*
@@ -157,7 +157,7 @@ This option is off by default.
 ABOUT							*clojure-about*
 
 This document and associated runtime files are maintained at:
-https://github.com/guns/vim-clojure-static
+https://github.com/clojure-vim/clojure.vim
 
 Distributed under the Vim license. See |license|.
 

@@ -477,6 +477,7 @@ function! s:newlsp() abort
 
   let l:bin_path = go#path#CheckBinPath("gopls")
   if empty(l:bin_path)
+    let l:lsp.sendMessage = funcref('s:noop')
     return l:lsp
   endif
 
@@ -533,6 +534,8 @@ function! s:requestComplete(ok) abort dict
   endif
 
   if go#config#EchoCommandInfo()
+    " redraw to avoid messages piling up
+    redraw
     let prefix = '[' . self.statustype . '] '
     if a:ok
       call go#util#EchoSuccess(prefix . "SUCCESS")
@@ -1550,6 +1553,63 @@ function! go#lsp#FillStruct() abort
   call l:handler.await()
 endfunction
 
+function! go#lsp#Rename(newName) abort
+  let l:fname = expand('%:p')
+  let [l:line, l:col] = go#lsp#lsp#Position()
+
+  call go#lsp#DidChange(l:fname)
+
+  let l:lsp = s:lspfactory.get()
+  let l:msg = go#lsp#message#PrepareRename(l:fname, l:line, l:col)
+  let l:state = s:newHandlerState('rename')
+  let l:resultHandler = go#promise#New(function('s:rename', [l:fname, l:line, l:col, a:newName], l:state), 10000, '')
+
+  let l:state.handleResult = l:resultHandler.wrapper
+  let l:state.error = l:resultHandler.wrapper
+  let l:state.handleError = function('s:handleRenameError', [], l:state)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  return l:resultHandler.await()
+endfunction
+
+function! s:rename(fname, line, col, newName, msg) abort dict
+  if type(a:msg) is type('')
+    call self.handleError(a:msg)
+    return
+  endif
+
+  if a:msg is v:null
+    call go#util#EchoWarning('cannot rename the identifier at the requested position')
+    return
+  endif
+
+  call go#lsp#DidChange(a:fname)
+
+  let l:lsp = s:lspfactory.get()
+  let l:msg = go#lsp#message#Rename(a:fname, a:line, a:col, a:newName)
+  let l:state = s:newHandlerState('rename')
+  let l:resultHandler = go#promise#New(function('s:handleRename', [], l:state), 10000, '')
+
+  let l:state.handleResult = l:resultHandler.wrapper
+  let l:state.error = l:resultHandler.wrapper
+  let l:state.handleError = function('s:handleRenameError', [], l:state)
+  call l:lsp.sendMessage(l:msg, l:state)
+
+  return l:resultHandler.await()
+endfunction
+
+function! s:handleRename(msg) abort dict
+  if type(a:msg) is type('')
+    call self.handleError(a:msg)
+    return
+  endif
+
+  if a:msg is v:null
+    return
+  endif
+  call s:applyDocumentChanges(a:msg.documentChanges)
+endfunction
+
 function! s:executeCommand(cmd, args) abort
   let l:lsp = s:lspfactory.get()
 
@@ -1566,7 +1626,7 @@ function! s:handleFormat(msg) abort dict
     call self.handleError(a:msg)
     return
   endif
-  call s:applyTextEdits(a:msg)
+  call s:applyTextEdits(bufnr(''), a:msg)
 endfunction
 
 function! s:handleCodeAction(kind, cmd, msg) abort dict
@@ -1582,6 +1642,11 @@ function! s:handleCodeAction(kind, cmd, msg) abort dict
   for l:item in a:msg
     if get(l:item, 'kind', '') is a:kind
       if !has_key(l:item, 'edit')
+        continue
+      endif
+
+      if has_key(l:item, 'disabled') && get(l:item.disabled, 'reason', '') isnot ''
+        call go#util#EchoWarning(printf('code action is disabled: %s', l:item.disabled.reason))
         continue
       endif
 
@@ -1601,20 +1666,65 @@ function! s:handleCodeAction(kind, cmd, msg) abort dict
 endfunction
 
 function s:applyDocumentChanges(changes)
+  let l:bufnr = bufnr('')
+
   for l:change in a:changes
     if !has_key(l:change, 'edits')
       continue
     endif
-    " TODO(bc): change to the buffer for l:change.textDocument.uri
-    call s:applyTextEdits(l:change.edits)
+    let l:fname = go#path#FromURI(l:change.textDocument.uri)
+
+    " get the buffer name relative to the current directory, because
+    " Vim says that a buffer name can't be an absolute path.
+    let l:bufname = fnamemodify(l:fname, ':.')
+
+    let l:bufadded = 0
+    let l:bufloaded = 0
+
+    let l:editbufnr = bufnr(l:bufname)
+    if l:editbufnr != bufnr('')
+      " make sure the buffer is listed and loaded before applying text edits
+      if !bufexists(l:bufname)
+        call bufadd(l:bufname)
+        let l:bufadded = 1
+      endif
+
+      if !bufloaded(l:bufname)
+        call bufload(l:bufname)
+        let l:bufloaded = 1
+      endif
+
+      let l:editbufnr = bufnr(l:bufname)
+      if l:editbufnr == -1
+        call go#util#EchoWarn(printf('could not apply changes to %s', l:fname))
+        continue
+      endif
+
+       " TODO(bc): do not edit the buffer when vim-go drops support for Vim
+       " 8.0. Instead, use the functions to modify a buffer (e.g.
+       " appendbufline, getbufline, deletebufline).
+       execute printf('keepalt keepjumps buffer! %d', l:editbufnr)
+    endif
+    call s:applyTextEdits(l:editbufnr, l:change.edits)
+
+    " TODO(bc): save the buffer?
+    " TODO(bc): unload and/or delete a buffer that was loaded or added,
+    " respectively?
   endfor
+  if bufnr('') != l:bufnr
+    execute printf('keepalt keepjumps buffer! %d', l:bufnr)
+  endif
 endfunction
 
 " s:applyTextEdit applies the list of WorkspaceEdit values in msg.
-function s:applyTextEdits(msg) abort
+function s:applyTextEdits(bufnr, msg) abort
   if a:msg is v:null
     return
   endif
+
+  " TODO(bc): start using the functions to modify a buffer (e.g. appendbufline,
+  " deletebufline, etc) instead of operating on the current buffer when vim-go
+  " drops support from Vim 8.0.
 
   " process the TextEdit list in reverse order, because the positions are
   " based on the current line numbers; processing in forward order would
@@ -1632,15 +1742,14 @@ function s:applyTextEdits(msg) abort
       continue
     endif
 
-    let l:startcontent = getline(l:startline)
-    let l:preSliceEnd = 0
+    " Assume that l:startcontent will be an empty string. When the replacement
+    " is not at the beginning of the line, then l:startcontent must be what
+    " comes before the start position on the start line.
+    let l:startcontent = ''
     if l:msg.range.start.character > 0
+      let l:startcontent = getline(l:startline)
       let l:preSliceEnd = go#lsp#lsp#PositionOf(l:startcontent, l:msg.range.start.character-1) - 1
       let l:startcontent = l:startcontent[:l:preSliceEnd]
-    elseif l:endline == l:startline && (l:msg.range.end.character == 0 || l:msg.range.start.character == 0)
-      " l:startcontent should be the empty string when l:text is a
-      " replacement at the beginning of the line.
-      let l:startcontent = ''
     endif
 
     let l:endcontent = getline(l:endline)
@@ -1660,6 +1769,7 @@ function s:applyTextEdits(msg) abort
     " TODO(bc): deal with the undo file
     " TODO(bc): deal with folds
 
+    " TODO(bc): can we use appendbufline instead of deleting and appending?
     call s:deleteline(l:startline, l:endline)
     for l:line in split(l:text, "\n", 1)
       call append(l:startline-1, l:line)
@@ -1686,6 +1796,10 @@ function! s:handleCodeActionError(filename, msg) abort dict
   " TODO(bc): handle the error?
 endfunction
 
+function! s:handleRenameError(msg) abort dict
+  call go#util#EchoError(a:msg)
+endfunction
+
 function! s:textEditLess(left, right) abort
   " TextEdits in a TextEdit[] never overlap and Vim's sort() is stable.
   if a:left.range.start.line < a:right.range.start.line
@@ -1706,7 +1820,7 @@ function! s:textEditLess(left, right) abort
     endif
   endif
 
-  " return 0, because a:left an a:right refer to the same position.
+  " return 0, because a:left and a:right refer to the same position.
   return 0
 endfunction
 

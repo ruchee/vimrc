@@ -1,9 +1,10 @@
-# -*- encoding=utf-8 -*-
-# Copyright (c) 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 import unittest
 
 try:
@@ -13,9 +14,7 @@ try:
 except ImportError:
     HAS_NUMPY = False
 
-from astroid import builder
-from astroid import nodes, bases
-from astroid import util
+from astroid import bases, builder, nodes, util
 
 
 @unittest.skipUnless(HAS_NUMPY, "This test requires the numpy library.")
@@ -36,6 +35,7 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
         "conjugate",
         "cosh",
         "deg2rad",
+        "degrees",
         "exp2",
         "expm1",
         "fabs",
@@ -50,6 +50,7 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
         "negative",
         "positive",
         "rad2deg",
+        "radians",
         "reciprocal",
         "rint",
         "sign",
@@ -62,6 +63,7 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
     )
 
     two_args_ufunc = (
+        "add",
         "bitwise_and",
         "bitwise_or",
         "bitwise_xor",
@@ -89,6 +91,7 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
         "logical_xor",
         "maximum",
         "minimum",
+        "multiply",
         "nextafter",
         "not_equal",
         "power",
@@ -104,12 +107,10 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
 
     def _inferred_numpy_attribute(self, func_name):
         node = builder.extract_node(
-            """
+            f"""
         import numpy.core.umath as tested_module
-        func = tested_module.{:s}
-        func""".format(
-                func_name
-            )
+        func = tested_module.{func_name:s}
+        func"""
         )
         return next(node.infer())
 
@@ -200,13 +201,11 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
 
     def _inferred_numpy_func_call(self, func_name, *func_args):
         node = builder.extract_node(
-            """
+            f"""
         import numpy as np
-        func = np.{:s}
+        func = np.{func_name:s}
         func()
-        """.format(
-                func_name
-            )
+        """
         )
         return node.infer()
 
@@ -258,19 +257,15 @@ class NumpyBrainCoreUmathTest(unittest.TestCase):
                 )
                 self.assertTrue(
                     len(inferred_values[0].elts) == 2,
-                    msg="{} should return a pair of values. That's not the case.".format(
-                        func_
-                    ),
+                    msg=f"{func_} should return a pair of values. That's not the case.",
                 )
                 for array in inferred_values[-1].elts:
                     effective_infer = [m.pytype() for m in array.inferred()]
                     self.assertTrue(
                         ".ndarray" in effective_infer,
                         msg=(
-                            "Each item in the return of {} "
-                            "should be inferred as a ndarray and not as {}".format(
-                                func_, effective_infer
-                            )
+                            f"Each item in the return of {func_} should be inferred"
+                            f" as a ndarray and not as {effective_infer}"
                         ),
                     )
 

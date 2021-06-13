@@ -1,4 +1,4 @@
-" Copyright (c) 2016-2020 Jon Parise <jon@indelible.org>
+" Copyright (c) 2016-2021 Jon Parise <jon@indelible.org>
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
 " of this software and associated documentation files (the "Software"), to
@@ -25,9 +25,14 @@ if exists('b:current_syntax')
   let s:current_syntax = b:current_syntax
   unlet b:current_syntax
 endif
+
+let b:graphql_nested_syntax = 1
 syn include @GraphQLSyntax syntax/graphql.vim
+unlet b:graphql_nested_syntax
+
 if exists('s:current_syntax')
   let b:current_syntax = s:current_syntax
 endif
 
-syntax region graphqlExtensionPoint matchgroup=Noise start=+\[%graphql\_s*{|+lc=10 end=+|}\_s*]+he=s+1 contains=@GraphQLSyntax keepend
+syntax region graphqlExtensionPoint start=+\[%graphql+ end=+\]+ contains=graphqlExtensionPointS
+syntax region graphqlExtensionPointS matchgroup=String start=+{|+ end=+|}+ contains=@GraphQLSyntax contained

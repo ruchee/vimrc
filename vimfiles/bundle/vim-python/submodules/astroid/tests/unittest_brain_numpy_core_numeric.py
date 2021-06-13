@@ -1,9 +1,10 @@
-# -*- encoding=utf-8 -*-
+# Copyright (c) 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
-# Copyright (c) 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 import unittest
 
 try:
@@ -51,7 +52,7 @@ class BrainNumpyCoreNumericTest(unittest.TestCase):
                 inferred_values = list(self._inferred_numpy_func_call(*func_))
                 self.assertTrue(
                     len(inferred_values) == 1,
-                    msg="Too much inferred value for {:s}".format(func_[0]),
+                    msg=f"Too much inferred value for {func_[0]:s}",
                 )
                 self.assertTrue(
                     inferred_values[-1].pytype() in licit_array_types,

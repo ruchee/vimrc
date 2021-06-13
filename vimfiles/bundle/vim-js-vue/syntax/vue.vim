@@ -1,306 +1,199 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Vim syntax file
-"
 " Language: Vue
-" Maintainer: leaf <leafvocation@gmail.com>
-"
-" CREDITS: Inspired by mxw/vim-jsx.
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if exists("b:current_syntax") && b:current_syntax == 'vue'
-  finish
-endif
+" Maintainer: leaf <https://github.com/leafOfTree>
+" Credits: Inspired by mxw/vim-jsx.
 
-" For advanced users, this variable can be used to avoid overload
-let b:current_loading_main_syntax = 'vue'
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Config {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:use_pug = vue#GetConfig("use_pug", 0)
-let s:use_less = vue#GetConfig("use_less", 0)
-let s:use_sass = vue#GetConfig("use_sass", 0)
-let s:use_scss = vue#GetConfig("use_scss", 0)
-let s:use_stylus = vue#GetConfig("use_stylus", 0)
-let s:use_coffee = vue#GetConfig("use_coffee", 0)
-let s:use_typescript = vue#GetConfig("use_typescript", 0)
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Load main syntax {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Load syntax/html.vim to syntax group, which loads full JavaScript and CSS
-" syntax. It defines group @html, @htmlJavaScript, and @htmlCss.
-call vue#LoadSyntax('@html', 'html')
-
-" Avoid overload
-if !hlexists('cssTagName')
-  call vue#LoadSyntax('@htmlCss', 'css')
-endif
-
-" Avoid overload
-if !hlexists('javaScriptComment')
-  call vue#Log('load javascript cluster')
-  call vue#LoadSyntax('@htmlJavaScript', 'javascript')
-endif
-
-" Load vue-html syntax
-runtime syntax/vue-html.vim
-
-" Load vue-javascript syntax
-runtime syntax/vue-javascript.vim
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Load pre-processors syntax {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" If pug is enabled, load vim-pug syntax
-if s:use_pug
-  call vue#LoadFullSyntax('@PugSyntax', 'pug')
-  syn cluster htmlJavascript remove=javascriptParenthesisBlock
-endif
-
-" If less is enabled, load less syntax 
-if s:use_less
-  call vue#LoadSyntax('@LessSyntax', 'less')
-  runtime! after/syntax/less.vim
-endif
-
-" If sass is enabled, load sass syntax 
-if s:use_sass
-  call vue#LoadSyntax('@SassSyntax', 'sass')
-  runtime! after/syntax/sass.vim
-endif
-
-" If scss is enabled, load sass syntax 
-if s:use_scss
-  call vue#LoadSyntax('@ScssSyntax', 'scss')
-  runtime! after/syntax/scss.vim
-endif
-
-" If stylus is enabled, load stylus syntax 
-if s:use_stylus
-  call vue#LoadFullSyntax('@StylusSyntax', 'stylus')
-  runtime! after/syntax/stylus.vim
-endif
-
-" If CoffeeScript is enabled, load the syntax. Keep name consistent with
-" vim-coffee-script/after/html.vim
-if s:use_coffee
-  call vue#LoadFullSyntax('@htmlCoffeeScript', 'coffee')
-endif
-
-" If TypeScript is enabled, load the syntax.
-if s:use_typescript
-  call vue#LoadFullSyntax('@TypeScript', 'typescript')
-endif
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Syntax highlight {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" All start with html/javascript/css for emmet-vim in-file type detection
-syntax region htmlVueTemplate fold
-      \ start=+<template[^>]*>+
-      \ end=+^</template>+
-      \ keepend contains=@html
-" When template code is not well indented
-syntax region htmlVueTemplate fold
-      \ start=+<template[^>]*>+
-      \ end=+</template>\ze\n\(^$\n\)*<\(script\|style\)+
-      \ keepend contains=@html
-
-syntax region javascriptVueScript fold 
-      \ start=+<script[^>]*>+
-      \ end=+</script>+
-      \ keepend contains=@htmlJavaScript,jsImport,jsExport,vueTag
-
-
-syntax region cssVueStyle fold
-      \ start=+<style[^>]*>+
-      \ end=+</style>+
-      \ keepend contains=@htmlCss,vueTag
-
-" Preprocessors syntax
-syntax region pugVueTemplate fold
-      \ start=+<template[^>]*lang=["']pug["'][^>]*>+
-      \ end=+</template>+
-      \ keepend contains=@PugSyntax,vueTag
-
-syntax region coffeeVueScript fold 
-      \ start=+<script[^>]*lang=["']coffee["'][^>]*>+
-      \ end=+</script>+
-      \ keepend contains=@htmlCoffeeScript,jsImport,jsExport,vueTag
-
-syntax region typescriptVueScript fold
-      \ start=+<script[^>]*lang=["']ts["'][^>]*>+
-      \ end=+</script>+
-      \ keepend contains=@TypeScript,vueTag
-
-syntax region cssLessVueStyle fold
-      \ start=+<style[^>]*lang=["']less["'][^>]*>+
-      \ end=+</style>+
-      \ keepend contains=@LessSyntax,vueTag
-syntax region sassVueStyle fold
-      \ start=+<style[^>]*lang=["']sass["'][^>]*>+
-      \ end=+</style>+
-      \ keepend contains=@SassSyntax,vueTag
-syntax region cssScssVueStyle fold
-      \ start=+<style[^>]*lang=["']scss["'][^>]*>+
-      \ end=+</style>+
-      \ keepend contains=@ScssSyntax,vueTag
-
-" Backward compatiable for `use_sass` option
-if s:use_sass && !s:use_scss
-  syntax region cssScssVueStyle fold
-        \ start=+<style[^>]*lang=["']scss["'][^>]*>+
-        \ end=+</style>+
-        \ keepend contains=@SassSyntax,vueTag
-endif
-
-syntax region cssStylusVueStyle fold
-      \ start=+<style[^>]*lang=["']stylus["'][^>]*>+
-      \ end=+</style>+
-      \ keepend contains=@StylusSyntax,vueTag
-
-syntax region vueTag fold
-      \ start=+^<[^/]+ end=+>+ skip=+></+
-      \ contained contains=htmlTagN,htmlString,htmlArg
-syntax region vueTag 
-      \ start=+^</+ end=+>+
-      \ contains=htmlTagN,htmlString,htmlArg
-
-highlight default link vueTag htmlTag
-highlight default link cssUnitDecorators2 Number
-highlight default link cssKeyFrameProp2 Constant
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Custom blocks {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-runtime syntax/vue-custom-blocks.vim
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Syntax patch {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Patch 7.4.1142
-if has("patch-7.4-1142")
-  if has("win32")
-    syntax iskeyword @,48-57,_,128-167,224-235,$,-
-  else
-    syntax iskeyword @,48-57,_,192-255,$,-
+if !exists('main_syntax')
+  if exists('b:current_syntax') && b:current_syntax == 'vue'
+    finish
   endif
+  let main_syntax = 'vue'
+endif
+
+" <sfile> is replaced with the file name of the sourced file
+let s:patch_path = expand('<sfile>:p:h').'/patch'
+let s:test = exists('g:vim_vue_plugin_test')
+
+function! s:Init()
+  """ Configs
+  let s:config = vue#GetConfig('config', {})
+  let s:config_syntax = s:config.syntax
+
+  " For advanced users, it can be used to avoid overload
+  let b:current_loading_main_syntax = 'vue'
+endfunction
+
+function! s:GetGroupNameForLoading(syntax)
+  return '@'.a:syntax
+endfunction
+
+" Extend group name as
+" html defines group @htmlJavaScript and @htmlCss.
+" coffee defines group @coffeeJS.
+function! s:GetGroupNameForHighlight(syntax)
+  let syntax = a:syntax
+  let name = '@'.a:syntax
+  if syntax == 'javascript'
+    let name = '@javascript,@htmlJavaScript,@coffeeJS'
+  elseif syntax == 'css'
+    let name = '@css,@htmlCss'
+  endif
+  return name
+endfunction
+
+function! s:GetSynatxName(block, syntax)
+  let block = a:block
+  let syntax = a:syntax
+  let name = syntax.toupper(block[0]).block[1:].'Block'
+  let name = substitute(name, '-\(.\)', "\\U\\1", 'g')
+  let name = vue#AlterSyntaxForEmmetVim(name, syntax)
+  return name
+endfunction
+
+function! s:LoadSyntaxList(syntax_list)
+  for syntax in a:syntax_list
+    let loaded = s:BeforeLoadSyntax(syntax)
+    if !loaded
+      let syntax_group = s:GetGroupNameForLoading(syntax)
+      call vue#LoadSyntax(syntax_group, syntax)
+    endif
+    call s:AfterLoadSyntax(syntax)
+  endfor
+endfunction
+
+" For specific syntax, we need to handle it specially
+function! s:BeforeLoadSyntax(syntax)
+  let syntax = a:syntax
+
+  " Avoid overload if group already exists
+  let loaded = 0
+  if syntax == 'javascript'
+    let loaded = hlexists('javaScriptComment')
+  elseif syntax == 'css'
+    let loaded = hlexists('cssTagName')
+  endif
+  return loaded
+endfunction
+
+function! s:AfterLoadSyntax(syntax)
+  let syntax = a:syntax
+  call s:LoadPatchSyntax(syntax)
+  call s:LoadStyleAfterSyntax(syntax)
+endfunction
+
+function! s:LoadPatchSyntax(syntax)
+  let file = s:patch_path.'/'.a:syntax.'.vim'
+  if filereadable(file)
+    execute 'syntax include '.file
+  endif
+endfunction
+
+function! s:LoadStyleAfterSyntax(syntax)
+  let syntax = a:syntax
+  if count(['scss', 'sass', 'less', 'stylus'], syntax) == 1
+    execute 'runtime! after/syntax/'.syntax.'.vim'
+  endif
+endfunction
+
+function! s:GetSyntaxLangName(syntax)
+  let syntax = a:syntax
+  if syntax == 'typescript'
+    let syntax = 'ts'
+  endif
+  return syntax
+endfunction
+
+function! s:SetSyntax(block, syntax, has_lang)
+  let block = a:block
+  let syntax = a:syntax
+  let has_lang = a:has_lang
+
+  let name = s:GetSynatxName(block, syntax)
+  if has_lang
+    let lang_name = s:GetSyntaxLangName(syntax)
+    let lang = 'lang=["'']'.lang_name.'["''][^>]*'
+  else
+    let lang = ''
+  endif
+
+  let start = '^<'.block.'[^>]*'.lang.'>'
+  let end_tag = '</'.block.'>'
+  let end = '^'.end_tag
+  let syntax_group = s:GetGroupNameForHighlight(syntax)
+
+  execute 'syntax region '.name.' fold '
+        \.' start=+'.start.'+'
+        \.' end=+'.end.'+'
+        \.' keepend contains='.syntax_group.', vueTag'
+
+  execute 'syntax sync match vueSync groupthere '.name.' +'.start.'+'
+  execute 'syntax sync match vueSync groupthere NONE +'.end.'+'
+
+  " Support block like <script src="...">...</script>
+  let oneline = start.'.*'.end_tag
+  execute 'syntax match '.name.' fold '
+        \.' +'.oneline.'+'
+        \.' keepend contains='.syntax_group.', vueTag, vueTagOneline'
+endfunction
+
+function! s:SetBlockSyntax(config_syntax)
+  syntax sync clear
+
+  for [block, syntax] in items(a:config_syntax)
+    let type = type(syntax)
+    if type == v:t_string
+      call s:SetSyntax(block, syntax, 0)
+    elseif type == v:t_list && len(syntax)
+      call s:SetSyntax(block, syntax[0], 0)
+      for syn in syntax
+        call s:SetSyntax(block, syn, 1)
+      endfor
+    endif
+  endfor
+endfunction
+
+function! s:HighlightVueTag()
+  syntax region vueTag fold
+        \ start=+^<[^/]+ end=+>+ skip=+></+
+        \ contained contains=htmlTagN,htmlString,htmlArg
+  syntax region vueTag
+        \ start=+^</+ end=+>+
+        \ contained contains=htmlTagN,htmlString,htmlArg
+  syntax region vueTagOneline
+        \ start=+</+ end=+>$+
+        \ contained contains=htmlTagN,htmlString,htmlArg
+  highlight default link vueTag htmlTag
+  highlight default link vueTagOneline htmlTag
+endfunction
+
+function! s:SetIsKeyword()
+  if has("patch-7.4-1142")
+    if has("win32")
+      syntax iskeyword @,48-57,_,128-167,224-235,$,-
+    else
+      syntax iskeyword @,48-57,_,192-255,$,-
+    endif
+  else
+    setlocal iskeyword+=-
+  endif
+endfunction
+
+function! VimVuePluginSyntaxMain(...)
+  call s:Init()
+  let syntax_list = vue#GetSyntaxList(s:config_syntax)
+  call s:LoadSyntaxList(syntax_list)
+  call s:SetBlockSyntax(s:config_syntax)
+  call s:SetIsKeyword()
+  call s:HighlightVueTag()
+endfunction
+
+let s:timer = exists('*timer_start') && !exists('SessionLoad') && !s:test
+if s:timer
+  call timer_start(1, 'VimVuePluginSyntaxMain')
 else
-  setlocal iskeyword+=-
+  call VimVuePluginSyntaxMain()
 endif
-
-" Style
-" Redefine (less|sass|stylus)Definition to highlight <style> correctly and 
-" enable emmet-vim css type.
-if s:use_less
-  silent! syntax clear lessDefinition
-  syntax region cssLessDefinition matchgroup=cssBraces 
-        \ contains=@LessSyntax,cssLessDefinition 
-        \ contained containedin=cssLessVueStyle
-        \ start="{" end="}" 
-endif
-if s:use_sass
-  silent! syntax clear sassDefinition
-  syntax region sassDefinition matchgroup=cssBraces 
-        \ contains=@SassSyntax,sassDefinition 
-        \ contained containedin=sassVueStyle
-        \ start="{" end="}" 
-
-  " Extend to highlight all numbers in expression
-  syntax match cssValueNumber
-        \ /\W\zs\d\+\(\.\d\+\)\?%\?\ze\W/
-        \ contained containedin=sassDefinition
-endif
-" If not loading https://github.com/cakebaker/scss-syntax.vim
-if s:use_scss && !hlexists('scssNestedProperty')
-  silent! syntax clear scssDefinition
-  syntax region cssScssDefinition transparent matchgroup=cssBraces 
-        \ contains=@ScssSyntax,cssScssDefinition
-        \ contained containedin=cssScssVueStyle
-        \ start="{" end="}" 
-
-  " Extend to highlight all numbers in expression
-  syntax match cssValueNumber
-        \ /\W\zs\d\+\(\.\d\+\)\?%\?\ze\W/
-        \ contained containedin=cssScssDefinition
-endif
-if s:use_stylus
-  silent! syntax clear stylusDefinition
-  syntax region cssStylusDefinition matchgroup=cssBraces 
-        \ contains=@StylusSyntax,cssStylusDefinition
-        \ contained containedin=cssStylusVueStyle
-        \ start="{" end="}" 
-endif
-
-" Use a different name in order to avoid css syntax interference
-silent! syntax clear cssUnitDecorators
-syntax match cssUnitDecorators2 
-      \ /\(#\|-\|+\|%\|mm\|cm\|in\|pt\|pc\|em\|ex\|px\|ch\|rem\|vh\|vw\|vmin\|vmax\|dpi\|dppx\|dpcm\|Hz\|kHz\|s\|ms\|deg\|grad\|rad\)\ze\(;\|$\)/
-      \ contained
-      \ containedin=cssAttrRegion,sassCssAttribute,lessCssAttribute,stylusCssAttribute
-
-silent! syntax clear cssKeyFrameProp
-syn match cssKeyFrameProp2 /\d*%\|from\|to/ 
-      \ contained nextgroup=cssDefinition
-      \ containedin=cssAttrRegion,sassCssAttribute,lessCssAttribute,stylusCssAttribute
-
-" Coffee
-if s:use_coffee
-  silent! syntax clear coffeeConstant
-  syn match coffeeConstant '\v<\u\C[A-Z0-9_]+>' display 
-        \ containedin=@coffeeIdentifier
-endif
-
-" JavaScript
-" Number with minus
-syntax match javaScriptNumber '\v<-?\d+L?>|0[xX][0-9a-fA-F]+>' 
-      \ containedin=@javascriptVueScript display
-
-" HTML
-" Clear htmlHead that may cause highlighting out of bounds
-silent! syntax clear htmlHead
-
-" html5 data-*
-syntax match htmlArg '\v<data(-[.a-z0-9]+)+>' containedin=@html
-"}}}
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Syntax sync {{{
-"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-syntax sync clear
-syntax sync minlines=100
-syntax sync match vueHighlight groupthere NONE "</\(script\|template\|style\)"
-syntax sync match scriptHighlight groupthere javascriptVueScript "<script"
-syntax sync match scriptHighlight groupthere coffeeVueScript "<script[^>]*lang=["']coffee["'][^>]*>"
-syntax sync match scriptHighlight groupthere typescriptVueScript "<script[^>]*lang=["']ts["'][^>]*>"
-syntax sync match templateHighlight groupthere htmlVueTemplate "<template"
-syntax sync match templateHighlight groupthere pugVueTemplate "<template[^>]*lang=["']pug["'][^>]*>"
-syntax sync match styleHighlight groupthere cssVueStyle "<style"
-syntax sync match styleHighlight groupthere cssLessVueStyle "<style[^>]*lang=["']less["'][^>]*>"
-syntax sync match styleHighlight groupthere sassVueStyle "<style[^>]*lang=["']sass["'][^>]*>"
-syntax sync match styleHighlight groupthere cssScssVueStyle "<style[^>]*lang=["']scss["'][^>]*>"
-syntax sync match styleHighlight groupthere cssStylusVueStyle "<style[^>]*lang=["']stylus["'][^>]*>"
-"}}}
 
 let b:current_syntax = 'vue'
-" vim: fdm=marker
+if main_syntax == 'vue'
+  unlet main_syntax
+endif

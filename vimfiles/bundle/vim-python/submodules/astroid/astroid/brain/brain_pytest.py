@@ -1,14 +1,15 @@
-# Copyright (c) 2014-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Jeff Quast <contact@jeffquast.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2016 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2016 Ceridwen <ceridwenv@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """Astroid hooks for pytest."""
-from __future__ import absolute_import
 from astroid import MANAGER, register_module_extender
 from astroid.builder import AstroidBuilder
 

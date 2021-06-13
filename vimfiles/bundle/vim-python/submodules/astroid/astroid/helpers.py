@@ -1,9 +1,14 @@
 # Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Simon Hewitt <si@sjhewitt.co.uk>
+# Copyright (c) 2020 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
 """
@@ -14,13 +19,7 @@ import builtins as builtins_mod
 
 from astroid import bases
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import manager
-from astroid import nodes
-from astroid import raw_building
-from astroid import scoped_nodes
-from astroid import util
-
+from astroid import exceptions, manager, nodes, raw_building, scoped_nodes, util
 
 BUILTINS = builtins_mod.__name__
 
@@ -138,7 +137,7 @@ def object_issubclass(node, class_or_seq, context=None):
         or its type's mro doesn't work
     """
     if not isinstance(node, nodes.ClassDef):
-        raise TypeError("{node} needs to be a ClassDef node".format(node=node))
+        raise TypeError(f"{node} needs to be a ClassDef node")
     return _object_type_is_subclass(node, class_or_seq, context=context)
 
 
@@ -190,9 +189,9 @@ def _type_check(type1, type2):
         return False
     try:
         return type1 in type2.mro()[:-1]
-    except exceptions.MroError:
+    except exceptions.MroError as e:
         # The MRO is invalid.
-        raise exceptions._NonDeducibleTypeHierarchy
+        raise exceptions._NonDeducibleTypeHierarchy from e
 
 
 def is_subtype(type1, type2):
@@ -237,13 +236,32 @@ def object_len(node, context=None):
     :raises AstroidTypeError: If an invalid node is returned
         from __len__ method or no __len__ method exists
     :raises InferenceError: If the given node cannot be inferred
-        or if multiple nodes are inferred
+        or if multiple nodes are inferred or if the code executed in python
+        would result in a infinite recursive check for length
     :rtype int: Integer length of node
     """
     # pylint: disable=import-outside-toplevel; circular import
     from astroid.objects import FrozenSet
 
     inferred_node = safe_infer(node, context=context)
+
+    # prevent self referential length calls from causing a recursion error
+    # see https://github.com/PyCQA/astroid/issues/777
+    node_frame = node.frame()
+    if (
+        isinstance(node_frame, scoped_nodes.FunctionDef)
+        and node_frame.name == "__len__"
+        and inferred_node is not None
+        and inferred_node._proxied == node_frame.parent
+    ):
+        message = (
+            "Self referential __len__ function will "
+            "cause a RecursionError on line {} of {}".format(
+                node.lineno, node.root().file
+            )
+        )
+        raise exceptions.InferenceError(message)
+
     if inferred_node is None or inferred_node is util.Uninferable:
         raise exceptions.InferenceError(node=node)
     if isinstance(inferred_node, nodes.Const) and isinstance(
@@ -261,10 +279,10 @@ def object_len(node, context=None):
 
     try:
         len_call = next(node_type.igetattr("__len__", context=context))
-    except exceptions.AttributeInferenceError:
+    except exceptions.AttributeInferenceError as e:
         raise exceptions.AstroidTypeError(
-            "object of type '{}' has no len()".format(node_type.pytype())
-        )
+            f"object of type '{node_type.pytype()}' has no len()"
+        ) from e
 
     result_of_len = next(len_call.infer_call_result(node, context))
     if (
@@ -278,5 +296,5 @@ def object_len(node, context=None):
         # Fake a result as we don't know the arguments of the instance call.
         return 0
     raise exceptions.AstroidTypeError(
-        "'{}' object cannot be interpreted as an integer".format(result_of_len)
+        f"'{result_of_len}' object cannot be interpreted as an integer"
     )

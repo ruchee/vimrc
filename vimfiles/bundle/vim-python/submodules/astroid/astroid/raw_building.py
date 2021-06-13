@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -11,10 +10,14 @@
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Becker Awqatty <bawqatty@mide.com>
 # Copyright (c) 2020 Robin Jarry <robin.jarry@6wind.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """this module contains a set of functions to create astroid trees from scratch
 (build_* functions) or from living object (object_build_* functions)
@@ -25,12 +28,9 @@ import inspect
 import os
 import sys
 import types
+import warnings
 
-from astroid import bases
-from astroid import manager
-from astroid import node_classes
-from astroid import nodes
-
+from astroid import bases, manager, node_classes, nodes
 
 MANAGER = manager.AstroidManager()
 # the keys of CONST_CLS eg python builtin types
@@ -317,15 +317,17 @@ class InspectBuilder:
 
     def object_build(self, node, obj):
         """recursive method which create a partial ast from real objects
-         (only function, class, and method are handled)
+        (only function, class, and method are handled)
         """
         if obj in self._done:
             return self._done[obj]
         self._done[obj] = node
         for name in dir(obj):
             try:
-                member = getattr(obj, name)
-            except AttributeError:
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("error")
+                    member = getattr(obj, name)
+            except (AttributeError, DeprecationWarning):
                 # damned ExtensionClass.Base, I know you're there !
                 attach_dummy_node(node, name)
                 continue
@@ -424,7 +426,6 @@ def _astroid_bootstrapping():
     builder = InspectBuilder()
     astroid_builtin = builder.inspect_build(builtins)
 
-    # pylint: disable=redefined-outer-name
     for cls, node_cls in node_classes.CONST_CLS.items():
         if cls is TYPE_NONE:
             proxy = build_class("NoneType")
@@ -453,7 +454,6 @@ def _astroid_bootstrapping():
     builder.object_build(bases.Generator._proxied, types.GeneratorType)
 
     if hasattr(types, "AsyncGeneratorType"):
-        # pylint: disable=no-member; AsyncGeneratorType
         _AsyncGeneratorType = nodes.ClassDef(
             types.AsyncGeneratorType.__name__, types.AsyncGeneratorType.__doc__
         )

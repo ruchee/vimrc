@@ -385,7 +385,7 @@ endsnippet
 # select
 snippet select "select { case a := <-chan: ... }"
 select {
-case ${1:v1} := <-${2:chan1}
+case ${1:v1} := <-${2:chan1}:
 	${0}
 }
 endsnippet
@@ -434,6 +434,13 @@ snippet test "func TestXYZ(t *testing.T) { ... }"
 func Test${1:Function}(t *testing.T) {
 	${0:${VISUAL}}
 }
+endsnippet
+
+# test t.Run
+snippet tr "t.Run(XYZ, func(t *testing.T){ ... })"
+t.Run("${0}", func(t *testing.T){
+
+})
 endsnippet
 
 # test table snippet

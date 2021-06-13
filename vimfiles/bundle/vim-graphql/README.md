@@ -7,6 +7,9 @@ specification.
 
 ## Installation
 
+This plugin requires Vim version 8 or later. Equivalent Neovim versions
+are also supported.
+
 ### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 1. Add `Plug 'jparise/vim-graphql'` to `~/.vimrc`
@@ -65,6 +68,20 @@ const query = gql`
 The list of recognized tag names is defined by the `g:graphql_javascript_tags`
 variable, which defaults to `["gql", "graphql", "Relay.QL"]`.
 
+You can also add a `# gql` comment at the start of a template string to
+indicate that its contents should be considered GraphQL syntax.
+
+```javascript
+const query = `# gql
+  {
+    user(id: ${uid}) {
+      firstName
+      lastName
+    }
+  }
+`;
+```
+
 Syntax highlighting within `.jsx` / `.tsx` files is also supported. These
 filetypes can be "compound" (`javascript.jsx` and `typescript.tsx`) or use the
 "react" variants (`javascriptreact` and `typescriptreact`).
@@ -89,6 +106,34 @@ strings using [graphql-ppx][] is available.
 ```
 
 [graphql-ppx]: https://github.com/reasonml-community/graphql-ppx
+
+## PHP Support
+
+GraphQL syntax inside of [heredoc][] and [nowdoc][] strings is supported. The
+string identifier must be named `GQL` (case-insensitive).
+
+```php
+<?php
+$my_query = <<<GQL
+{
+  user(id: ${uid}) {
+    firstName
+    lastName
+  }
+}
+GQL;
+```
+
+[heredoc]: https://www.php.net/manual/language.types.string.php#language.types.string.syntax.heredoc
+[nowdoc]: https://www.php.net/manual/language.types.string.php#language.types.string.syntax.nowdoc
+
+## Language Server Protocol Support
+
+[Language Server Protocol (LSP)](https://langserver.org/) implementations can
+enable editor features like schema-aware completion.
+
+- [coc.nvim](https://github.com/neoclide/coc.nvim) supports
+  [GraphQL languge servers](https://github.com/neoclide/coc.nvim/wiki/Language-servers#graphql)
 
 ## Testing
 

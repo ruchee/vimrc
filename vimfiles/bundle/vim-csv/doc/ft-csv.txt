@@ -58,6 +58,7 @@ NO WARRANTY, EXPRESS OR IMPLIED.  USE AT-YOUR-OWN-RISK.
     4.11 Move folded lines......................|csv-move-folds|
     4.12 Using Comments.........................|csv-comments|
     4.13 Size and performance considerations....|csv-size|
+    4.14 Map `B` instead of `E` to jump back to previous column...|csv-bind-B|
 5. Functions....................................|CSV-Functions|
     5.1 CSVPat()................................|CSVPat()|
     5.2 CSVField()..............................|CSVField()|
@@ -416,9 +417,13 @@ While this command >
 
 reverses the order based on column 3.
 
+If you want numeric sort on floatng points, you can use: >
+
+    :2,$Sort 3f
+
 The column number can be optionally followed by any of the flags [i], [n],
 [x] and [o] for [i]gnoring case, sorting by [n]umeric, he[x]adecimal
-or [o]ctal value.
+[o]ctal or [f]loat value.
 
 When no column number is given, it will sort by the column, on which the
 cursor is currently.
@@ -526,15 +531,17 @@ Note: Will remove trailing delimiters.
 If you want to check the file for duplicate records, use the command
 `:Duplicate` or `:CSVDuplicate`: >
 
-    :Duplicate columnlist
+    :Duplicate [columnlist]
 <
 
 Columnlist needs to be a numeric comma-separated list of all columns that you
 want to check. You can also use a range like '2-5' which means the plugin
-should check columns 2,3,4 and 5.
+should check columns 2,3,4 and 5. If no columnlist ist given, will use the
+current column.
 
 If the plugin finds a duplicate records, it outputs its line number (but it
-only does that at most 10 times).
+only does that at most 10 times). You can find the message also in the message
+history using `:mess`.
 
 3.17 Normal mode commands					 *csv-mapping*
 -------------------------
@@ -1441,7 +1448,7 @@ set the variable `g:csv_disable_fdt` in your |.vimrc| >
 By default, the csv plugin will analyze the whole file to determine which
 delimiter to use. Beside specifying the the actual delimiter to use
 (|csv-delimiter|) you can restrict analyzing the plugin to consider only a
-certain part of the file. This should make loading huge csv files a log
+certain part of the file. This should make loading huge csv files a lot
 faster. To only consider the first 100 rows set the `g:csv_start` and
 `g:csv_end` variables in your |.vimrc| like this >
 
@@ -1454,6 +1461,24 @@ disable syntax highlighting and the filetype commands for very large csv files
 (by default larger than 100 MB).
 
 See also |csv-slow|
+                                                                    *g:csv_bind_B*
+                                                                    *csv-bind-B*
+4.14 Map `B` instead of `E` to jump back to previous column             *csv-bind*
+-------------------------------------------------------
+
+Mapping E to go back a cell has no logic ; this feature lets the user choose
+to map B instead with the `g:csv_bind_B` variable (boolean) defined anywhere
+in his vim configuration. If it is not set, falls back to mapping E to
+previous column. Added by @lapingenieur (https://github.com/lapingenieur ;
+email: lapingenieur@gmail.com).
+
+Exemple : I want to remap `B` to go to the previous column (comma) instead of `E`
+>
+    let g:csv_bind_B = 1
+<
+If you don't want this feature, you can just leave this variable without
+defining it : the script will automatically map `E`
+
 ==============================================================================
 5. Functions                                                    *CSV-Functions*
 

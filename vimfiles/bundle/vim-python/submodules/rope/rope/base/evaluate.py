@@ -1,3 +1,5 @@
+from operator import itemgetter
+
 import rope.base.builtins
 import rope.base.pynames
 import rope.base.pyobjects
@@ -232,9 +234,12 @@ class StatementEvaluator(object):
     def _Dict(self, node):
         keys = None
         values = None
-        if node.keys:
-            keys = self._get_object_for_node(node.keys[0])
-            values = self._get_object_for_node(node.values[0])
+        if node.keys and node.keys[0]:
+            keys, values = next(iter(filter(itemgetter(0), zip(node.keys, node.values))), (None, None))
+            if keys:
+                keys = self._get_object_for_node(keys)
+            if values:
+                values = self._get_object_for_node(values)
         self.result = rope.base.pynames.UnboundName(
             pyobject=rope.base.builtins.get_dict(keys, values))
 
@@ -302,6 +307,9 @@ class StatementEvaluator(object):
         elif isinstance(node.slice, ast.Slice):
             self._call_function(node.value, '__getitem__',
                                 [node.slice])
+        elif isinstance(node.slice, ast.expr):
+            self._call_function(node.value, '__getitem__',
+                                [node.value])
 
     def _Slice(self, node):
         self.result = self._get_builtin_name('slice')

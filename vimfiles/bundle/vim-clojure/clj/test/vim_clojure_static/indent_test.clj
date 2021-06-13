@@ -33,3 +33,8 @@
   (test-indent "dispatch macro indentation is handled correctly"
                :in "test-dispatch-macro-indent.in"
                :out "test-dispatch-macro-indent.out"))
+
+(deftest test-special-case-indent
+  (test-indent "special case indentation is handled correctly"
+               :in "test-special-case-indent.in"
+               :out "test-special-case-indent.out"))

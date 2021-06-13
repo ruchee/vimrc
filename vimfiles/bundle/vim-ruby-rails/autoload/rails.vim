@@ -1041,7 +1041,7 @@ function! s:app_start_rails_command(cmd, ...) dict abort
   call s:push_chdir(1)
   try
     if exists(':Start') == 2
-      let title = escape(fnamemodify(self.path(), ':t').' '.title, ' ')
+      let title = escape(fnamemodify(self.real(), ':t').' '.title, ' ')
       exe 'Start'.(a:0 && a:1 ? '!' : '').' -title='.title.' '.cmd
     elseif has("win32")
       exe "!start ".cmd
@@ -2628,9 +2628,10 @@ function! s:ruby_cfile() abort
   endif
 
   let synid = synID(line('.'), col('.'), 1)
+  let synstring = synid == hlID('rubyString') || synid == hlID('rubyBackslashEscape')
   let old_isfname = &isfname
   try
-    if synid == hlID('rubyString')
+    if synstring
       set isfname+=:
       let cfile = expand("<cfile>")
     else
@@ -2649,9 +2650,9 @@ function! s:ruby_cfile() abort
   let cfile = s:sub(cfile, ':0x\x+$', '') " For #<Object:0x...> style output
   if cfile =~# '^\l\w*#\w\+$'
     let cfile = s:sub(cfile, '#', '_controller.rb#')
-  elseif cfile =~# '\u'
+  elseif cfile =~# '^\u[[:alnum:]]*\%($\|::\)'
     let cfile = s:file_for_nested_constant(cfile)
-  elseif cfile =~# '^\w*_\%(path\|url\)$' && synid != hlID('rubyString')
+  elseif cfile =~# '^\w*_\%(path\|url\)$' && !synstring
     let route = s:gsub(cfile, '^hash_for_|_%(path|url)$', '')
     let cfile = s:active() ? rails#app().named_route_file(route) : ''
     if empty(cfile)
@@ -2664,7 +2665,7 @@ function! s:ruby_cfile() abort
         let cfile = cfile.'_controller.rb#index'
       endif
     endif
-  elseif cfile !~# '\.'
+  elseif cfile !~# '\.' && !synstring
     let cfile .= '.rb'
   endif
   return cfile
@@ -3350,20 +3351,20 @@ function! s:findcmdfor(cmd) abort
     let cmd = a:cmd
   endif
   let cmd = s:mods(cmd)
-  let num = matchstr(cmd, '.\{-\}\ze\a\+')
-  let cmd = matchstr(cmd, '\a\+.*')
+  let mods_num = matchstr(cmd, '^.\{-\}\ze\a\+\%(\s*+\d\+\)\=$')
+  let cmd = strpart(cmd, len(mods_num))
   if cmd == '' || cmd == 'E' || cmd == 'F'
-    return num.'find'.bang
+    return mods_num.'find'.bang
   elseif cmd == 'S'
-    return num.'sfind'.bang
+    return mods_num.'sfind'.bang
   elseif cmd == 'V'
-    return 'vert '.num.'sfind'.bang
+    return 'vert '.mods_num.'sfind'.bang
   elseif cmd == 'T'
-    return num.'tab sfind'.bang
+    return mods_num.'tab sfind'.bang
   elseif cmd == 'D'
-    return num.'read'.bang
+    return mods_num.'read'.bang
   else
-    return num.cmd.bang
+    return mods_num.cmd.bang
   endif
 endfunction
 
@@ -4206,6 +4207,7 @@ function! s:app_db_url(...) dict abort
     endif
   endif
   if !empty(config)
+    call filter(config, 'type(v:val) != type([]) && type(v:val) != type({})')
     let url .= '?' . join(map(items(config), 'v:val[0]."=".s:url_encode(v:val[1])'), '&')
   endif
   return url
@@ -4918,7 +4920,7 @@ function! rails#ruby_setup() abort
     endif
     call extend(exts,
           \ filter(map(keys(rails#app().projections()),
-          \ 'matchstr(v:val, "^\\Capp/views/\\*\\.\\zs(\\w\\+$")'), 'len(v:val)'))
+          \ 'matchstr(v:val, "^\\Capp/views/\\*\\.\\zs\\w\\+$")'), 'len(v:val)'))
   else
     let full = matchstr(expand('%:p'), '.*[\/]\%(app\|config\|lib\|test\|spec\)\ze[\/]')
     let name = fnamemodify(full, ':t')

@@ -1,3 +1,6 @@
+-- Author:   Lifepillar
+-- License:  Vim license
+
 -- To generate the syntax file, proceed as follows:
 --
 -- 1. createdb -T template0 vim_pgsql_syntax
@@ -165,8 +168,8 @@ select
 $HERE$" Vim syntax file
 " Language:     SQL (PostgreSQL dialect), PL/pgSQL, PL/…, PostGIS, …
 " Maintainer:   Lifepillar
-" Version:      2.2.2
-" License:      This file is placed in the public domain.
+" Version:      2.3.1
+" License:      Vim license (see `:help license`)
 $HERE$;
 
 select '" Based on ' || substring(version() from 'PostgreSQL \d+\.\d+\.?\d*');
@@ -180,10 +183,14 @@ endif
 
 syn case ignore
 syn sync minlines=100
-syn iskeyword @,48-57,192-255,_
+if has('patch-7.4.1142')
+  syn iskeyword @,48-57,192-255,_
+else
+  setlocal iskeyword=@,48-57,192-255,_
+endif
 
 syn match sqlIsKeyword  /\<\h\w*\>/   contains=sqlStatement,sqlKeyword,sqlCatalog,sqlConstant,sqlSpecial,sqlOption,sqlErrorCode,sqlType,sqlTable,sqlView
-syn match sqlIsFunction /\<\h\w*\ze(/ contains=sqlFunction,sqlKeyword
+syn match sqlIsFunction /\<\h\w*\ze(/ contains=sqlFunction,sqlKeyword,sqlType
 syn region sqlIsPsql    start=/^\s*\\/ end=/\n/ oneline contains=sqlPsqlCommand,sqlPsqlKeyword,sqlNumber,sqlString
 
 syn keyword sqlSpecial contained false null true
@@ -302,6 +309,7 @@ syn keyword sqlPsqlKeyword contained unicode_border_linestyle unicode_column_lin
 syn keyword sqlPsqlKeyword contained on off auto unaligned pager
 syn keyword sqlPsqlKeyword contained AUTOCOMMIT HISTCONTROL PROMPT VERBOSITY SHOW_CONTEXT VERSION
 syn keyword sqlPsqlKeyword contained DBNAME USER HOST PORT ENCODING HISTSIZE QUIET
+syn keyword sqlPsqlKeyword contained from program pstdin pstdout stdin stdout to where with
 
 " Todo
 syn keyword sqlTodo contained TODO FIXME XXX DEBUG NOTE
@@ -338,19 +346,34 @@ else
     \ contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlPlpgsqlKeyword,sqlPlpgsqlVariable,sqlPlpgsqlOperator,sqlNumber,sqlIsOperator,sqlString,sqlTodo
 endif
 
-" Folding
-syn region sqlFold start='^\s*\zs\c\(create\|update\|alter\|select\|insert\|do\)\>' end=';$' transparent fold contains=ALL
+let s:plgroups = 'plpgsql'
 
 " PL/<any other language>
 fun! s:add_syntax(s)
   execute 'syn include @PL' . a:s . ' syntax/' . a:s . '.vim'
   unlet b:current_syntax
-  execute 'syn region pgsqlpl' . a:s . ' matchgroup=sqlString start=+\$' . a:s . '\$+ end=+\$' . a:s . '\$+ keepend contains=@PL' . a:s
+  execute 'syn region pgsqlpl' . a:s . ' matchgroup=sqlString start=+\$' . a:s . '\$+ end=+\$' . a:s . '\$+ keepend contains=@PL' .. a:s
+  let s:plgroups .= ',pgsqlpl' . a:s
 endf
 
 for pl in get(b:, 'pgsql_pl', get(g:, 'pgsql_pl', []))
   call s:add_syntax(pl)
 endfor
+
+" Folding
+if get(g:, 'pgsql_fold_functions_only', 0)
+
+    execute 'syn region sqlFold start=/^\s*\zs\c\%(create\s\+[a-z ]*\%(function\|procedure\)\|do\)\>/ end=/;$/ transparent fold '
+        \ . "contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlIdentifier,sqlNumber,sqlOperator,sqlSpecial,sqlString,sqlTodo," . s:plgroups
+
+else
+
+    execute 'syn region sqlFold start=/^\s*\zs\c\(create\|update\|alter\|select\|insert\|do\)\>/ end=/;$/ transparent fold '
+        \ . "contains=sqlIsKeyword,sqlIsFunction,sqlComment,sqlIdentifier,sqlNumber,sqlOperator,sqlSpecial,sqlString,sqlTodo," . s:plgroups
+
+endif
+
+unlet s:plgroups
 
 " Default highlighting
 hi def link sqlCatalog        Constant

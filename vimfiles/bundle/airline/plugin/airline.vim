@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bailey Ling, Christian Brabandt et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling, Christian Brabandt et al.
 " vim: et ts=2 sts=2 sw=2
 
 let s:save_cpo = &cpo
@@ -176,7 +176,11 @@ function! s:airline_toggle()
 
     if !airline#util#stl_disabled(winnr())
       if &laststatus < 2
+        let _scroll=&scroll
         set laststatus=2
+        if &scroll != _scroll
+          let &scroll = _scroll
+        endif
       endif
     endif
     if s:airline_initialized
@@ -226,7 +230,7 @@ function! s:airline_refresh(...)
 endfunction
 
 function! s:FocusGainedHandler(timer)
-  if exists("s:timer") && a:timer == s:timer
+  if exists("s:timer") && a:timer == s:timer && exists('#airline')
     augroup airline
       au FocusGained * call s:on_focus_gained()
     augroup END
@@ -235,7 +239,7 @@ endfu
 
 function! s:airline_extensions()
   let loaded = airline#extensions#get_loaded_extensions()
-  let files = split(globpath(&rtp, "autoload/airline/extensions/*.vim"), "\n")
+  let files = split(globpath(&rtp, 'autoload/airline/extensions/*.vim', 1), "\n")
   call map(files, 'fnamemodify(v:val, ":t:r")')
   if empty(files)
     echo "No extensions loaded"

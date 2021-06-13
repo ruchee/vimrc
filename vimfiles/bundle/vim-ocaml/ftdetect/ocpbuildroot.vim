@@ -1,1 +1,1 @@
-au BufNewFile,BufRead *.root set filetype=ocpbuildroot
+au BufNewFile,BufRead *.root setf ocpbuildroot

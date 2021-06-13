@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
@@ -8,14 +7,15 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 mar-chi-pan <mar.polatoglou@gmail.com>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Andrew Simmons <a.simmons@deakin.edu.au>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import os
 import re
@@ -128,7 +128,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.checker.visit_global(node)
 
     def test_listcomp_in_decorator(self):
-        """ Make sure class attributes in scope for listcomp in decorator.
+        """Make sure class attributes in scope for listcomp in decorator.
 
         https://github.com/PyCQA/pylint/issues/511
         """
@@ -154,7 +154,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(module)
 
     def test_listcomp_in_ancestors(self):
-        """ Ensure list comprehensions in base classes are scoped correctly
+        """Ensure list comprehensions in base classes are scoped correctly
 
         https://github.com/PyCQA/pylint/issues/3434
         """
@@ -174,7 +174,7 @@ class TestVariablesChecker(CheckerTestCase):
             self.walk(module)
 
     def test_return_type_annotation(self):
-        """ Make sure class attributes in scope for return type annotations.
+        """Make sure class attributes in scope for return type annotations.
 
         https://github.com/PyCQA/pylint/issues/1976
         """

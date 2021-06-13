@@ -2,6 +2,241 @@
 astroid's ChangeLog
 ===================
 
+What's New in astroid 2.6.0?
+============================
+Release Date: TBA
+
+What's New in astroid 2.5.6?
+============================
+Release Date: 2021-04-25
+
+* Fix retro-compatibility issues with old version of pylint
+  Closes PyCQA/pylint#4402
+
+What's New in astroid 2.5.5?
+============================
+Release Date: 2021-04-24
+
+* Fixes the discord link in the project urls of the package.
+  Closes PyCQA/pylint#4393
+
+What's New in astroid 2.5.4?
+============================
+Release Date: 2021-04-24
+
+* The packaging is now done via setuptools exclusively. ``doc``, ``tests``, and ``Changelog`` are
+  not packaged anymore - reducing the size of the package greatly.
+
+* Debian packaging is now  (officially) done in https://salsa.debian.org/python-team/packages/astroid.
+
+* ``__pkginfo__`` now  only contain ``__version__`` (also accessible with ``astroid.__version__``),
+  other meta-information are still accessible with ``import importlib;metadata.metadata('astroid')``.
+
+* Added inference tip for ``typing.Tuple`` alias
+
+* Fix crash when evaluating ``typing.NamedTuple``
+
+  Closes PyCQA/pylint#4383
+
+* COPYING was removed in favor of COPYING.LESSER and the latter was renamed to LICENSE to make more apparent
+  that the code is licensed under LGPLv2 or later.
+
+* Moved from appveyor and travis to Github Actions for continuous integration.
+
+What's New in astroid 2.5.3?
+============================
+Release Date: 2021-04-10
+
+* Takes into account the fact that subscript inferring for a ClassDef may involve __class_getitem__ method
+
+* Reworks the ``collections`` and ``typing`` brain so that pylint`s acceptance tests are fine.
+
+  Closes PyCQA/pylint#4206
+
+* Use ``inference_tip`` for ``typing.TypedDict`` brain.
+
+* Fix mro for classes that inherit from typing.Generic
+
+* Add inference tip for typing.Generic and typing.Annotated with ``__class_getitem__``
+
+  Closes PyCQA/pylint#2822
+
+
+What's New in astroid 2.5.2?
+============================
+Release Date: 2021-03-28
+
+* Detects `import numpy` as a valid `numpy` import.
+
+  Closes PyCQA/pylint#3974
+
+* Iterate over ``Keywords`` when using ``ClassDef.get_children``
+
+  Closes PyCQA/pylint#3202
+
+What's New in astroid 2.5.1?
+============================
+Release Date: 2021-02-28
+
+* The ``context.path`` is reverted to a set because otherwise it leads to false positives
+  for non `numpy` functions.
+
+  Closes #895 #899
+
+* Don't transform dataclass ClassVars
+
+* Improve typing.TypedDict inference
+
+* Fix the `Duplicates found in MROs` false positive.
+
+  Closes #905
+  Closes PyCQA/pylint#2717
+  Closes PyCQA/pylint#3247
+  Closes PyCQA/pylint#4093
+  Closes PyCQA/pylint#4131
+  Closes PyCQA/pylint#4145
+
+
+What's New in astroid 2.5?
+============================
+Release Date: 2021-02-15
+
+* Adds `attr_fset` in the `PropertyModel` class.
+
+  Fixes PyCQA/pylint#3480
+
+* Remove support for Python 3.5.
+* Remove the runtime dependency on ``six``. The ``six`` brain remains in
+  astroid.
+
+  Fixes PyCQA/astroid#863
+
+* Enrich the ``brain_collection`` module so that ``__class_getitem__`` method is added to `deque` for
+  ``python`` version above 3.9.
+
+* The ``context.path`` is now a ``dict`` and the ``context.push`` method
+  returns ``True`` if the node has been visited a certain amount of times.
+
+  Close #669
+
+* Adds a brain for type object so that it is possible to write `type[int]` in annotation.
+
+  Fixes PyCQA/pylint#4001
+
+* Add ``__class_getitem__`` method to ``subprocess.Popen`` brain under Python 3.9 so that it is seen as subscriptable by pylint.
+
+  Fixes PyCQA/pylint#4034
+
+
+* Adds `degrees`, `radians`, which are `numpy ufunc` functions, in the `numpy` brain. Adds `random` function in the `numpy.random` brain.
+
+  Fixes PyCQA/pylint#3856
+
+* Fix deprecated importlib methods
+
+  Closes #703
+
+* Fix a crash in inference caused by `Uninferable` container elements
+
+  Close #866
+
+* Add `python 3.9` support.
+
+* The flat attribute of ``numpy.ndarray`` is now inferred as an ``numpy.ndarray`` itself.
+  It should be a ``numpy.flatiter`` instance, but this class is not yet available in the numpy brain.
+
+  Fixes PyCQA/pylint#3640
+
+* Fix a bug for dunder methods inference of function objects
+
+  Fixes #819
+
+* Fixes a bug in the signature of the ``ndarray.__or__`` method,
+  in the ``brain_numpy_ndarray.py`` module.
+
+  Fixes #815
+
+* Fixes a to-list cast bug in ``starred_assigned_stmts`` method, in the
+  ``protocols.py`` module.
+
+* Added a brain for ``hypothesis.strategies.composite``
+
+* The transpose of a ``numpy.ndarray`` is also a ``numpy.ndarray``
+
+  Fixes PyCQA/pylint#3387
+
+* Added a brain for ``sqlalchemy.orm.session``
+
+* Separate string and bytes classes patching
+
+  Fixes PyCQA/pylint#3599
+
+* Prevent recursion error for self referential length calls
+
+  Close #777
+
+* Added missing methods to the brain for ``mechanize``, to fix pylint false positives
+
+  Close #793
+
+* Added more supported parameters to ``subprocess.check_output``
+
+* Fix recursion errors with pandas
+
+  Fixes PyCQA/pylint#2843
+  Fixes PyCQA/pylint#2811
+
+* Added exception inference for `UnicodeDecodeError`
+
+  Close PyCQA/pylint#3639
+
+* `FunctionDef.is_generator` properly handles `yield` nodes in `If` tests
+
+  Close PyCQA/pylint#3583
+
+* Fixed exception-chaining error messages.
+
+* Fix failure to infer base class type with multiple inheritance and qualified names
+
+  Fixes #843
+
+* Fix interpretation of ``six.with_metaclass`` class definitions.
+
+  Fixes #713
+
+* Reduce memory usage of astroid's module cache.
+
+* Remove dependency on `imp`.
+
+  Close #594
+  Close #681
+
+* Do not crash when encountering starred assignments in enums.
+
+  Close #835
+
+* Fix a crash in functools.partial inference when the arguments cannot be determined
+
+  Close PyCQA/pylint#3776
+
+* Fix a crash caused by a lookup of a monkey-patched method
+
+  Close PyCQA/pylint#3686
+
+* ``is_generator`` correctly considers `Yield` nodes in `AugAssign` nodes
+
+  This fixes a false positive with the `assignment-from-no-return` pylint check.
+
+  Close PyCQA/pylint#3904
+
+* Corrected the parent of function type comment nodes.
+
+  These nodes used to be parented to their original ast.FunctionDef parent
+  but are now correctly parented to their astroid.FunctionDef parent.
+
+  Close PyCQA/astroid#851
+
+
 What's New in astroid 2.4.2?
 ============================
 Release Date: 2020-06-08
@@ -142,7 +377,7 @@ Release Date: 2020-04-27
 
 * All the ``numpy ufunc`` functions derived now from a common class that
   implements the specific ``reduce``, ``accumulate``, ``reduceat``,
-	``outer`` and ``at`` methods.
+  ``outer`` and ``at`` methods.
 
   Close PyCQA/pylint#2885
 
@@ -565,7 +800,7 @@ Release Date: 2018-07-15
 
    * Reworking of the numpy brain dealing with numerictypes
      (use of inspect module to determine the class hierarchy of
-      numpy.core.numerictypes module)
+     numpy.core.numerictypes module)
 
      Close PyCQA/pylint#2140
 
@@ -693,7 +928,7 @@ Release Date: 2018-07-15
      Close #533
 
    * Stop astroid from getting stuck in an infinite loop if a function shares
-   its name with its decorator
+     its name with its decorator
 
      Close #375
 
@@ -706,11 +941,11 @@ Release Date: 2018-07-15
      Close PyCQA/pylint#2159
 
    * Limit the maximum amount of interable result in an NodeNG.infer() call to
-    100 by default for performance issues with variables with large amounts of
-    possible values.
+     100 by default for performance issues with variables with large amounts of
+     possible values.
 
-    The max inferable value can be tuned by setting the `max_inferable_values` flag on
-    astroid.MANAGER.
+     The max inferable value can be tuned by setting the `max_inferable_values` flag on
+     astroid.MANAGER.
 
 
 What's New in astroid 1.6.0?
@@ -802,13 +1037,13 @@ Release Date: 2017-06-03
 
 
     * enum34 dependency is forced to be at least version 1.1.3. Fixes spurious
-    bug related to enum classes being falsy in boolean context, which caused
-    _Inconsistent Hierarchy_ `RuntimeError` in `singledispatch` module.
+      bug related to enum classes being falsy in boolean context, which caused
+      ``_Inconsistent Hierarchy_`` ``RuntimeError`` in ``singledispatch`` module.
 
-    See links below for details:
-    - http://bugs.python.org/issue26748
-    - https://bitbucket.org/ambv/singledispatch/issues/8/inconsistent-hierarchy-with-enum
-    - https://bitbucket.org/stoneleaf/enum34/commits/da50803651ab644e6fce66ebc85562f1117c344b
+      See links below for details:
+        - http://bugs.python.org/issue26748
+        - https://bitbucket.org/ambv/singledispatch/issues/8/inconsistent-hierarchy-with-enum
+        - https://bitbucket.org/stoneleaf/enum34/commits/da50803651ab644e6fce66ebc85562f1117c344b
 
     * Do not raise an exception when uninferable value is unpacked in ``with`` statement.
 
@@ -1363,7 +1598,7 @@ Release Date: 2015-11-29
 
     * Add a new node, DictUnpack, which is used to represent the unpacking
       of a dictionary into another dictionary, using PEP 448 specific syntax
-      ({1:2, **{2:3})
+      ``({1:2, **{2:3})``
 
       This is a different approach than what the builtin ast module does,
       since it just uses None to represent this kind of operation,
@@ -1692,8 +1927,8 @@ Release Date: 2013-07-29
       as abstract.
 
     * Allow transformation functions on any node, providing a
-      `register_transform` function on the manager instead of the
-     `register_transformer` to make it more flexible wrt node selection
+      ``register_transform`` function on the manager instead of the
+      ``register_transformer`` to make it more flexible wrt node selection
 
     * Use the new transformation API to provide support for namedtuple
       (actually in pylint-brain, closes #8766)
@@ -1935,8 +2170,6 @@ Release Date: 2010-09-10
     * yield YES on multiplication of tuple/list with non valid operand
 
 
-
-
 What's New in astroid 0.20.1?
 =============================
 
@@ -1949,9 +2182,7 @@ Release Date: 2010-05-11
     * nodes redirection cleanup (possible since refactoring)
 
     * bug fix for python < 2.5: add Delete node on Subscript nodes if we are in a
-   del context
-
-
+      del context
 
 
 What's New in astroid 0.20.0?

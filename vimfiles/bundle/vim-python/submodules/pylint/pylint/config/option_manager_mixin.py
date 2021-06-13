@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 
 import collections
@@ -236,29 +236,31 @@ class OptionsManagerMixIn:
             provider.load_defaults()
 
     def read_config_file(self, config_file=None, verbose=None):
-        """read the configuration file but do not load it (i.e. dispatching
+        """Read the configuration file but do not load it (i.e. dispatching
         values to each options provider)
         """
-        helplevel = 1
-        while helplevel <= self._maxlevel:
-            opt = "-".join(["long"] * helplevel) + "-help"
+        help_level = 1
+        while help_level <= self._maxlevel:
+            opt = "-".join(["long"] * help_level) + "-help"
             if opt in self._all_options:
                 break  # already processed
-
-            helpfunc = functools.partial(self.helpfunc, level=helplevel)
-
-            helpmsg = "%s verbose help." % " ".join(["more"] * helplevel)
-            optdict = {"action": "callback", "callback": helpfunc, "help": helpmsg}
+            help_function = functools.partial(self.helpfunc, level=help_level)
+            help_msg = "%s verbose help." % " ".join(["more"] * help_level)
+            optdict = {
+                "action": "callback",
+                "callback": help_function,
+                "help": help_msg,
+            }
             provider = self.options_providers[0]
             self.add_optik_option(provider, self.cmdline_parser, opt, optdict)
             provider.options += ((opt, optdict),)
-            helplevel += 1
+            help_level += 1
         if config_file is None:
             config_file = self.config_file
         if config_file is not None:
             config_file = os.path.expanduser(config_file)
             if not os.path.exists(config_file):
-                raise OSError("The config file {:s} doesn't exist!".format(config_file))
+                raise OSError(f"The config file {config_file} doesn't exist!")
 
         use_config_file = config_file and os.path.exists(config_file)
         if use_config_file:  # pylint: disable=too-many-nested-blocks
@@ -295,20 +297,17 @@ class OptionsManagerMixIn:
                         sect = sect[len("pylint.") :]
                     if not sect.isupper() and values:
                         parser._sections[sect.upper()] = values
-
         if not verbose:
             return
-
         if use_config_file:
-            msg = "Using config file {}".format(os.path.abspath(config_file))
+            msg = f"Using config file {os.path.abspath(config_file)}"
         else:
             msg = "No config file found, using default configuration"
         print(msg, file=sys.stderr)
 
     def load_config_file(self):
-        """dispatch values previously read from a configuration file to each
-        options provider)
-        """
+        """Dispatch values previously read from a configuration file to each
+        options provider)"""
         parser = self.cfgfile_parser
         for section in parser.sections():
             for option, value in parser.items(section):

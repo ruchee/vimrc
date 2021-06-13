@@ -1,8 +1,11 @@
-# Copyright (c) 2017-2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2017-2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Karthikeyan Singaravelan <tir.karthi@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
-import collections
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
+import collections.abc
 import sys
 
 import astroid
@@ -19,7 +22,7 @@ def _clone_node_with_lineno(node, parent, lineno):
     new_node = cls(**init_params)
     if hasattr(node, "postinit") and _astroid_fields:
         for param, child in postinit_params.items():
-            if child and not isinstance(child, collections.Sequence):
+            if child and not isinstance(child, collections.abc.Sequence):
                 cloned_child = _clone_node_with_lineno(
                     node=child, lineno=new_node.lineno, parent=new_node
                 )
@@ -28,7 +31,7 @@ def _clone_node_with_lineno(node, parent, lineno):
     return new_node
 
 
-def _transform_formatted_value(node):
+def _transform_formatted_value(node):  # pylint: disable=inconsistent-return-statements
     if node.value and node.value.lineno == 1:
         if node.lineno != node.value.lineno:
             new_node = astroid.FormattedValue(

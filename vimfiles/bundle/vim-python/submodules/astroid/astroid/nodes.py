@@ -7,9 +7,10 @@
 # Copyright (c) 2017 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2017 rr- <rr-@sakuya.pl>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """Every available node class.
 
@@ -18,17 +19,21 @@
 
 All nodes inherit from :class:`~astroid.node_classes.NodeNG`.
 """
-# pylint: disable=unused-import,redefined-builtin
+# pylint: disable=redefined-builtin
 
+# Nodes not present in the builtin ast module:  DictUnpack, Unknown, and EvaluatedObject.
 from astroid.node_classes import (
+    AnnAssign,
     Arguments,
-    AssignAttr,
     Assert,
     Assign,
-    AnnAssign,
+    AssignAttr,
     AssignName,
+    AsyncFor,
+    AsyncWith,
+    Attribute,
     AugAssign,
-    Repr,
+    Await,
     BinOp,
     BoolOp,
     Break,
@@ -39,23 +44,26 @@ from astroid.node_classes import (
     Continue,
     Decorators,
     DelAttr,
-    DelName,
     Delete,
+    DelName,
     Dict,
-    Expr,
+    DictUnpack,
     Ellipsis,
     EmptyNode,
+    EvaluatedObject,
     ExceptHandler,
     Exec,
+    Expr,
     ExtSlice,
     For,
-    ImportFrom,
-    Attribute,
+    FormattedValue,
     Global,
     If,
     IfExp,
     Import,
+    ImportFrom,
     Index,
+    JoinedStr,
     Keyword,
     List,
     Name,
@@ -64,6 +72,7 @@ from astroid.node_classes import (
     Pass,
     Print,
     Raise,
+    Repr,
     Return,
     Set,
     Slice,
@@ -73,33 +82,24 @@ from astroid.node_classes import (
     TryFinally,
     Tuple,
     UnaryOp,
+    Unknown,
     While,
     With,
     Yield,
     YieldFrom,
     const_factory,
-    AsyncFor,
-    Await,
-    AsyncWith,
-    FormattedValue,
-    JoinedStr,
-    # Node not present in the builtin ast module.
-    DictUnpack,
-    Unknown,
-    EvaluatedObject,
 )
 from astroid.scoped_nodes import (
-    Module,
+    AsyncFunctionDef,
+    ClassDef,
+    DictComp,
+    FunctionDef,
     GeneratorExp,
     Lambda,
-    DictComp,
     ListComp,
+    Module,
     SetComp,
-    FunctionDef,
-    ClassDef,
-    AsyncFunctionDef,
 )
-
 
 ALL_NODE_CLASSES = (
     AsyncFunctionDef,
@@ -122,6 +122,7 @@ ALL_NODE_CLASSES = (
     Compare,
     Comprehension,
     Const,
+    const_factory,
     Continue,
     Decorators,
     DelAttr,
@@ -133,6 +134,7 @@ ALL_NODE_CLASSES = (
     Expr,
     Ellipsis,
     EmptyNode,
+    EvaluatedObject,
     ExceptHandler,
     Exec,
     ExtSlice,
@@ -167,6 +169,7 @@ ALL_NODE_CLASSES = (
     TryFinally,
     Tuple,
     UnaryOp,
+    Unknown,
     While,
     With,
     Yield,

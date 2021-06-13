@@ -1,0 +1,4 @@
+{:lint-as {vim-clojure-static.test/with-tempfile clojure.core/fn
+           vim-clojure-static.test/defpredicates clojure.core/def
+           vim-clojure-static.test/defsyntaxtest clojure.core/def
+           }}

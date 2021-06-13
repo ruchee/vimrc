@@ -4,7 +4,7 @@
 " Author:      Jan Larres <jan@majutsushi.net>
 " Licence:     Vim licence
 " Website:     https://preservim.github.io/tagbar
-" Version:     2.7
+" Version:     3.0.0
 " Note:        This plugin was heavily inspired by the 'Taglist' plugin by
 "              Yegappan Lakshmanan and uses a small amount of code from it.
 "
@@ -100,6 +100,10 @@ function! s:setup_options() abort
         \ ['jump_lazy_scroll', 0],
         \ ['left', 0],
         \ ['help_visibility', 0],
+        \ ['highlight_follow_insert', 0],
+        \ ['highlight_method', 'nearest-stl'],
+        \ ['ignore_anonymous', 0],
+        \ ['no_autocmds', 0],
         \ ['position', default_pos],
         \ ['previewwin_pos', previewwin_pos],
         \ ['scopestrs', {}],
@@ -192,6 +196,8 @@ command! -nargs=? TagbarDebug         call tagbar#debug#start_debug(<f-args>)
 command! -nargs=0 TagbarDebugEnd      call tagbar#debug#stop_debug()
 command! -nargs=0 TagbarTogglePause   call tagbar#toggle_pause()
 command! -nargs=0 TagbarForceUpdate   call tagbar#ForceUpdate()
+command! -nargs=0 TagbarJump   call tagbar#jump()
+
 
 " Modeline {{{1
 " vim: ts=8 sw=4 sts=4 et foldenable foldmethod=marker foldcolumn=1

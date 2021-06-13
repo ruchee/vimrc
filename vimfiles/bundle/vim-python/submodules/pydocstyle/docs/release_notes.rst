@@ -5,13 +5,41 @@ Release Notes
 `Semantic Versioning <http://semver.org/>`_ specification.
 
 
+6.0.0 - March 18th, 2021
+---------------------------
+
+Major Updates
+
+* Support for Python 3.5 has been dropped (#510).
+
+New Features
+
+* Add flag to disable `# noqa` comment processing in API (#485).
+* Methods, Functions and Nested functions that have a docstring now throw D418 (#511).
+* Methods decorated with @overload no longer reported as D102 (#511).
+* Functions and nested functions decorated with @overload no longer reported as D103 (#511).
+
+Bug Fixes
+
+* Treat "package" as an imperative verb for D401 (#356).
+* Fix the parsing of decorated one line functions (#499).
+
+5.1.2 - September 13th, 2020
+----------------------------
+
+New Features
+
+* Methods, Functions and Nested functions that have a docstring now throw D418 (#511).
+* Methods decorated with @overload no longer reported as D102.
+* Functions and nested functions decorated with @overload no longer reported as D103.
+
+
 5.1.1 - August 29th, 2020
 ---------------------------
 
 Bug Fixes
 
 * Fix ``IndexError`` crash on one-line backslashed docstrings (#506).
-
 
 5.1.0 - August 22nd, 2020
 ---------------------------
@@ -31,7 +59,6 @@ Bug Fixes
   failed when there where more prior comments (#446).
 * Support backslash-continued descriptions in docstrings (#472).
 * Correctly detect publicity of modules inside directories (#470, #494).
-
 
 5.0.2 - January 8th, 2020
 ---------------------------
@@ -110,7 +137,6 @@ New Features
 Bug Fixes
 
 * Fix parsing tuple syntax ``__all__`` (#355, #352).
-
 
 3.0.0 - October 14th, 2018
 --------------------------

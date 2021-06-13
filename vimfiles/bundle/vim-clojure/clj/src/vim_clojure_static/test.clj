@@ -11,7 +11,7 @@
 
 (defmacro with-tempfile
   {:requires [File]}
-  [tmp-sym & body]
+  [[tmp-sym] & body]
   `(let [~tmp-sym (File/createTempFile "vim-clojure-static" ".tmp")]
      (try
        ~@body
@@ -23,7 +23,7 @@
    value of vim-expr is evaluated as EDN and returned."
   [file buf vim-expr & opts]
   (let [{:keys [pre]} (apply hash-map opts)]
-    (with-tempfile tmp
+    (with-tempfile [tmp]
       (io/make-parents file)
       (spit file buf)
       (spit tmp (str "let @x = " vim-expr))
@@ -90,6 +90,7 @@
         test-file (str "tmp/" name ".clj")
         syntable (gensym "syntable")]
     `(test/deftest ~name
+       (~io/make-parents ~test-file)
        (spit ~test-file "")
        (let [~syntable (syn-id-names ~test-file ~@strings)]
          ~@(map (fn [{:keys [fmt ss λs]}]
@@ -121,9 +122,9 @@
 
    `in` and `out` are urls that will be passed to clojure.java.io/resource."
   {:requires [#'test/testing #'with-tempfile]}
-  [string {:keys [in out]} [tmp-sym] & body]
+  [string {:keys [in out]} [tmp-sym :as tmp-binding] & body]
   `(test/testing ~string
-     (with-tempfile ~tmp-sym
+     (with-tempfile ~tmp-binding
        (try
          (spit ~tmp-sym (slurp (~io/resource ~in)))
          ~@body

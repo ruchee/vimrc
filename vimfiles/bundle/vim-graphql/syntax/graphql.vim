@@ -1,4 +1,4 @@
-" Copyright (c) 2016-2020 Jon Parise <jon@indelible.org>
+" Copyright (c) 2016-2021 Jon Parise <jon@indelible.org>
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
 " of this software and associated documentation files (the "Software"), to
@@ -90,6 +90,8 @@ hi def link graphqlStructure        Structure
 hi def link graphqlType             Type
 hi def link graphqlVariable         Identifier
 
-syn sync minlines=500
+if !get(b:, 'graphql_nested_syntax')
+    syn sync minlines=500
+endif
 
 let b:current_syntax = 'graphql'

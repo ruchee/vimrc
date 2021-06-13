@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Glenn Matthews <glmatthe@cisco.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import astroid
 
@@ -17,8 +17,7 @@ from pylint.interfaces import IAstroidChecker, ITokenChecker
 
 
 class ElseifUsedChecker(BaseTokenChecker):
-    """Checks for use of "else if" when an "elif" could be used
-    """
+    """Checks for use of "else if" when an "elif" could be used"""
 
     __implements__ = (ITokenChecker, IAstroidChecker)
     name = "else_if_used"

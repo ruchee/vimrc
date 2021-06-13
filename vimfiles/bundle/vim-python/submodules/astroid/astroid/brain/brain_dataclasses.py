@@ -1,12 +1,11 @@
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 """
 Astroid hook for the dataclasses library
 """
 
 import astroid
 from astroid import MANAGER
-
 
 DATACLASSES_DECORATORS = frozenset(("dataclasses.dataclass", "dataclass"))
 
@@ -28,6 +27,18 @@ def dataclass_transform(node):
 
     for assign_node in node.body:
         if not isinstance(assign_node, (astroid.AnnAssign, astroid.Assign)):
+            continue
+
+        if (
+            isinstance(assign_node, astroid.AnnAssign)
+            and isinstance(assign_node.annotation, astroid.Subscript)
+            and (
+                isinstance(assign_node.annotation.value, astroid.Name)
+                and assign_node.annotation.value.name == "ClassVar"
+                or isinstance(assign_node.annotation.value, astroid.Attribute)
+                and assign_node.annotation.value.attrname == "ClassVar"
+            )
+        ):
             continue
 
         targets = (

@@ -10,18 +10,22 @@
 # Copyright (c) 2017 Mikhail Fesenko <proggga@gmail.com>
 # Copyright (c) 2018 Scott Worley <scottworley@scottworley.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
+# Copyright (c) 2019, 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Taewon D. Kim <kimt33@mcmaster.ca>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2020 Eli Fine <ejfine@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Shiv Venkatasubrahmanyam <shvenkat@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 # pylint: disable=redefined-builtin
 """a similarities / code duplication command line tool and pylint checker
 """
-
+import functools
+import re
 import sys
 from collections import defaultdict
 from getopt import getopt
@@ -29,10 +33,12 @@ from itertools import groupby
 
 import astroid
 
-from pylint.checkers import BaseChecker, table_lines_from_stats
+from pylint.checkers import BaseChecker, MapReduceMixin, table_lines_from_stats
 from pylint.interfaces import IRawChecker
 from pylint.reporters.ureports.nodes import Table
 from pylint.utils import decoding_stream
+
+REGEX_FOR_LINES_WITH_CONTENT = re.compile(r".*\w+")
 
 
 class Similar:
@@ -103,7 +109,7 @@ class Similar:
             couples = sorted(couples)
             lineset = idx = None
             for lineset, idx in couples:
-                print("==%s:%s" % (lineset.name, idx))
+                print(f"=={lineset.name}:{idx}")
             if lineset:
                 for line in lineset._real_lines[idx : idx + num]:
                     print("  ", line.rstrip())
@@ -129,21 +135,21 @@ class Similar:
             skip = 1
             num = 0
             for index2 in find(lineset1[index1]):
-                non_blank = 0
+                num_lines_with_content = 0
                 for num, ((_, line1), (_, line2)) in enumerate(
                     zip(lines1(index1), lines2(index2))
                 ):
                     if line1 != line2:
-                        if non_blank > min_lines:
+                        if num_lines_with_content > min_lines:
                             yield num, lineset1, index1, lineset2, index2
                         skip = max(skip, num)
                         break
-                    if line1:
-                        non_blank += 1
+                    if re.match(REGEX_FOR_LINES_WITH_CONTENT, line1):
+                        num_lines_with_content += 1
                 else:
-                    # we may have reach the end
+                    # we may have reached the end
                     num += 1
-                    if non_blank > min_lines:
+                    if num_lines_with_content > min_lines:
                         yield num, lineset1, index1, lineset2, index2
                     skip = max(skip, num)
             index1 += skip
@@ -155,6 +161,20 @@ class Similar:
         for idx, lineset in enumerate(self.linesets[:-1]):
             for lineset2 in self.linesets[idx + 1 :]:
                 yield from self._find_common(lineset, lineset2)
+
+    def get_map_data(self):
+        """Returns the data we can use for a map/reduce process
+
+        In this case we are returning this instance's Linesets, that is all file
+        information that will later be used for vectorisation.
+        """
+        return self.linesets
+
+    def combine_mapreduce_data(self, linesets_collection):
+        """Reduces and recombines data into a format that we can report on
+
+        The partner function of get_map_data()"""
+        self.linesets = [line for lineset in linesets_collection for line in lineset]
 
 
 def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
@@ -203,6 +223,7 @@ def stripped_lines(lines, ignore_comments, ignore_docstrings, ignore_imports):
     return strippedlines
 
 
+@functools.total_ordering
 class LineSet:
     """Holds and indexes all the lines of a single source file"""
 
@@ -235,6 +256,11 @@ class LineSet:
 
     def __hash__(self):
         return id(self)
+
+    def __eq__(self, other):
+        if not isinstance(other, LineSet):
+            return False
+        return self.__dict__ == other.__dict__
 
     def enumerate_stripped(self, start_at=0):
         """return an iterator on stripped lines, starting from a given index
@@ -284,7 +310,7 @@ def report_similarities(sect, stats, old_stats):
 
 
 # wrapper to get a pylint checker from the similar class
-class SimilarChecker(BaseChecker, Similar):
+class SimilarChecker(BaseChecker, Similar, MapReduceMixin):
     """checks for similarities and duplicated code. This computation may be
     memory / CPU intensive, so you should disable it if you experiment some
     problems.
@@ -348,7 +374,7 @@ class SimilarChecker(BaseChecker, Similar):
     def set_option(self, optname, value, action=None, optdict=None):
         """method called to set an option (registered in the options list)
 
-        overridden to report options setting to Similar
+        Overridden to report options setting to Similar
         """
         BaseChecker.set_option(self, optname, value, action, optdict)
         if optname == "min-similarity-lines":
@@ -386,7 +412,7 @@ class SimilarChecker(BaseChecker, Similar):
             msg = []
             lineset = idx = None
             for lineset, idx in couples:
-                msg.append("==%s:%s" % (lineset.name, idx))
+                msg.append(f"=={lineset.name}:{idx}")
             msg.sort()
 
             if lineset:
@@ -397,6 +423,20 @@ class SimilarChecker(BaseChecker, Similar):
             duplicated += num * (len(couples) - 1)
         stats["nb_duplicated_lines"] = duplicated
         stats["percent_duplicated_lines"] = total and duplicated * 100.0 / total
+
+    def get_map_data(self):
+        """ Passthru override """
+        return Similar.get_map_data(self)
+
+    @classmethod
+    def reduce_map_data(cls, linter, data):
+        """Reduces and recombines data into a format that we can report on
+
+        The partner function of get_map_data()"""
+        recombined = SimilarChecker(linter)
+        recombined.open()
+        Similar.combine_mapreduce_data(recombined, linesets_collection=data)
+        recombined.close()
 
 
 def register(linter):

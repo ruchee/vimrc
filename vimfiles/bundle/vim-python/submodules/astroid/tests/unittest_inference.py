@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2007 Marien Zwart <marienz@gentoo.org>
 # Copyright (c) 2013-2014 Google, Inc.
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2021 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Eevee (Alex Munroe) <amunroe@yelp.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2015 Dmitry Pribysh <dmand@yandex.ru>
@@ -14,44 +13,53 @@
 # Copyright (c) 2017 Calen Pennington <calen.pennington@gmail.com>
 # Copyright (c) 2017 David Euresti <david@dropbox.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
+# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Daniel Martin <daniel.martin@crowdstrike.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
-# Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Stanislav Levin <slev@altlinux.org>
 # Copyright (c) 2019 David Liu <david@cs.toronto.edu>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 Karthikeyan Singaravelan <tir.karthi@gmail.com>
+# Copyright (c) 2020 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Francis Charette Migneault <francis.charette.migneault@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
-"""tests for the astroid inference capabilities
-"""
-# pylint: disable=too-many-lines
+"""Tests for the astroid inference capabilities"""
+
 import platform
+import sys
 import textwrap
-from functools import partial
 import unittest
+from functools import partial
 from unittest.mock import patch
 
 import pytest
-import sys
 
-from astroid import InferenceError, builder, nodes, Slice
-from astroid.builder import parse, extract_node
-from astroid.inference import infer_end as inference_infer_end
-from astroid.bases import Instance, BoundMethod, UnboundMethod, BUILTINS
-from astroid import arguments
+from astroid import InferenceError, Slice, arguments, builder
 from astroid import decorators as decoratorsmod
-from astroid import exceptions
-from astroid import helpers
-from astroid import objects
-from astroid import test_utils
-from astroid import util
+from astroid import exceptions, helpers, nodes, objects, test_utils, util
+from astroid.bases import BUILTINS, BoundMethod, Instance, UnboundMethod
+from astroid.builder import extract_node, parse
+from astroid.inference import infer_end as inference_infer_end
 from astroid.objects import ExceptionInstance
 
 from . import resources
+
+try:
+    import six  # pylint: disable=unused-import
+
+    HAS_SIX = True
+except ImportError:
+    HAS_SIX = False
 
 
 def get_node_of_class(start_from, klass):
@@ -428,7 +436,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             del undefined_attr
         """
         delete = extract_node(code, __name__)
-        self.assertRaises(InferenceError, delete.infer)
+        self.assertRaises(InferenceError, next, delete.infer())
 
     def test_del2(self):
         code = """
@@ -540,18 +548,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertEqual(ancestor.name, "object")
         self.assertEqual(ancestor.root().name, BUILTINS)
         self.assertRaises(StopIteration, partial(next, ancestors))
-
-    def test_qqch(self):
-        code = """
-            from astroid.modutils import load_module_from_name
-            xxx = load_module_from_name('__pkginfo__')
-        """
-        ast = parse(code, __name__)
-        xxx = ast["xxx"]
-        self.assertSetEqual(
-            {n.__class__ for n in xxx.inferred()},
-            {nodes.Const, util.Uninferable.__class__},
-        )
 
     def test_method_argument(self):
         code = '''
@@ -1004,7 +1000,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             inferred = next(node.infer())
             self.assertEqual(inferred.value, expected_value)
 
-    @test_utils.require_version(minver="3.5")
     def test_matmul(self):
         node = extract_node(
             """
@@ -1249,7 +1244,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertEqual(variable_a.inferred()[0].value, 2)
 
     @pytest.mark.xfail(reason="Relying on path copy")
-    @test_utils.require_version(minver="3.5")
     def test_nonregr_layed_dictunpack(self):
         """Regression test for https://github.com/PyCQA/astroid/issues/483
         Make sure multiple dictunpack references are inferable
@@ -1282,7 +1276,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertEqual(cdef.col_offset, orig_offset)
 
     def test_no_runtime_error_in_repeat_inference(self):
-        """ Stop repeat inference attempt causing a RuntimeError in Python3.7
+        """Stop repeat inference attempt causing a RuntimeError in Python3.7
 
         See https://github.com/PyCQA/pylint/issues/2317
         """
@@ -1742,9 +1736,8 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         for node in ast[8:]:
             inferred = next(node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.tuple".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.tuple")
 
-    @test_utils.require_version("3.5")
     def test_starred_in_tuple_literal(self):
         code = """
         var = (1, 2, 3)
@@ -1763,7 +1756,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertInferTuple(ast[3], [0, 1, 2, 3, 4, 5, 6, 7, 8])
         self.assertInferTuple(ast[4], [0, 1, 2, 3, 4, 5, 6, 7, 999, 1000, 1001])
 
-    @test_utils.require_version("3.5")
     def test_starred_in_list_literal(self):
         code = """
         var = (1, 2, 3)
@@ -1782,7 +1774,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertInferList(ast[3], [0, 1, 2, 3, 4, 5, 6, 7, 8])
         self.assertInferList(ast[4], [0, 1, 2, 3, 4, 5, 6, 7, 999, 1000, 1001])
 
-    @test_utils.require_version("3.5")
     def test_starred_in_set_literal(self):
         code = """
         var = (1, 2, 3)
@@ -1801,7 +1792,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertInferSet(ast[3], [0, 1, 2, 3, 4, 5, 6, 7, 8])
         self.assertInferSet(ast[4], [0, 1, 2, 3, 4, 5, 6, 7, 999, 1000, 1001])
 
-    @test_utils.require_version("3.5")
     def test_starred_in_literals_inference_issues(self):
         code = """
         {0, *var} #@
@@ -1815,7 +1805,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             with self.assertRaises(InferenceError):
                 next(node.infer())
 
-    @test_utils.require_version("3.5")
     def test_starred_in_mapping_literal(self):
         code = """
         var = {1: 'b', 2: 'c'}
@@ -1831,7 +1820,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             ast[2], {0: "a", 1: "b", 2: "c", 3: "d", 4: "e", 5: "f", 6: "g"}
         )
 
-    @test_utils.require_version("3.5")
     def test_starred_in_mapping_literal_no_inference_possible(self):
         node = extract_node(
             """
@@ -1849,7 +1837,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         )
         self.assertEqual(next(node.infer()), util.Uninferable)
 
-    @test_utils.require_version("3.5")
     def test_starred_in_mapping_inference_issues(self):
         code = """
         {0: 'a', **var} #@
@@ -1861,7 +1848,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             with self.assertRaises(InferenceError):
                 next(node.infer())
 
-    @test_utils.require_version("3.5")
     def test_starred_in_mapping_literal_non_const_keys_values(self):
         code = """
         a, b, c, d, e, f, g, h, i, j = "ABCDEFGHIJ"
@@ -1903,7 +1889,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         for node in ast[7:]:
             inferred = next(node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.frozenset".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.frozenset")
 
     def test_set_builtin_inference(self):
         code = """
@@ -1934,7 +1920,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         for node in ast[7:]:
             inferred = next(node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.set".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.set")
 
     def test_list_builtin_inference(self):
         code = """
@@ -1964,7 +1950,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         for node in ast[7:]:
             inferred = next(node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.list".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.list")
 
     def test_conversion_of_dict_methods(self):
         ast_nodes = extract_node(
@@ -1982,7 +1968,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertInferTuple(ast_nodes[3], [1, 3])
         self.assertInferSet(ast_nodes[4], [1, 2])
 
-    @test_utils.require_version("3.0")
     def test_builtin_inference_py3k(self):
         code = """
         list(b"abc") #@
@@ -2036,13 +2021,12 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         for node in ast[10:]:
             inferred = next(node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.dict".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.dict")
 
     def test_dict_inference_kwargs(self):
         ast_node = extract_node("""dict(a=1, b=2, **{'c': 3})""")
         self.assertInferDict(ast_node, {"a": 1, "b": 2, "c": 3})
 
-    @test_utils.require_version("3.5")
     def test_dict_inference_for_multiple_starred(self):
         pairs = [
             ('dict(a=1, **{"b": 2}, **{"c":3})', {"a": 1, "b": 2, "c": 3}),
@@ -2053,7 +2037,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             node = extract_node(code)
             self.assertInferDict(node, expected_value)
 
-    @test_utils.require_version("3.5")
     def test_dict_inference_unpack_repeated_key(self):
         """Make sure astroid does not infer repeated keys in a dictionary
 
@@ -2078,13 +2061,11 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             ast_node = extract_node(invalid)
             inferred = next(ast_node.infer())
             self.assertIsInstance(inferred, Instance)
-            self.assertEqual(inferred.qname(), "{}.dict".format(BUILTINS))
+            self.assertEqual(inferred.qname(), f"{BUILTINS}.dict")
 
     def test_str_methods(self):
         code = """
         ' '.decode() #@
-
-        ' '.encode() #@
         ' '.join('abcd') #@
         ' '.replace('a', 'b') #@
         ' '.format('a') #@
@@ -2106,15 +2087,13 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         """
         ast = extract_node(code, __name__)
         self.assertInferConst(ast[0], "")
-        for i in range(1, 16):
+        for i in range(1, 15):
             self.assertInferConst(ast[i], "")
-        for i in range(16, 19):
+        for i in range(15, 18):
             self.assertInferConst(ast[i], 0)
 
     def test_unicode_methods(self):
         code = """
-        u' '.encode() #@
-
         u' '.decode() #@
         u' '.join('abcd') #@
         u' '.replace('a', 'b') #@
@@ -2137,9 +2116,9 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         """
         ast = extract_node(code, __name__)
         self.assertInferConst(ast[0], "")
-        for i in range(1, 16):
+        for i in range(1, 15):
             self.assertInferConst(ast[i], "")
-        for i in range(16, 19):
+        for i in range(15, 18):
             self.assertInferConst(ast[i], 0)
 
     def test_scope_lookup_same_attributes(self):
@@ -2459,7 +2438,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         1 ** (lambda x: x) #@
         {} * {} #@
         {} - {} #@
-        {} | {} #@
         {} >> {} #@
         [] + () #@
         () + [] #@
@@ -2504,7 +2482,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             msg.format(op="**", lhs="int", rhs="function"),
             msg.format(op="*", lhs="dict", rhs="dict"),
             msg.format(op="-", lhs="dict", rhs="dict"),
-            msg.format(op="|", lhs="dict", rhs="dict"),
             msg.format(op=">>", lhs="dict", rhs="dict"),
             msg.format(op="+", lhs="list", rhs="tuple"),
             msg.format(op="+", lhs="tuple", rhs="list"),
@@ -2519,6 +2496,12 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
             msg.format(op="+=", lhs="int", rhs="A"),
             msg.format(op="+=", lhs="int", rhs="list"),
         ]
+
+        # PEP-584 supports | for dictionary union
+        if sys.version_info < (3, 9):
+            ast_nodes.append(extract_node("{} | {} #@"))
+            expected.append(msg.format(op="|", lhs="dict", rhs="dict"))
+
         for node, expected_value in zip(ast_nodes, expected):
             errors = node.type_errors()
             self.assertEqual(len(errors), 1)
@@ -2685,12 +2668,12 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
 
     def test_bool_value_instances(self):
         instances = extract_node(
-            """
+            f"""
         class FalseBoolInstance(object):
-            def {bool}(self):
+            def {BOOL_SPECIAL_METHOD}(self):
                 return False
         class TrueBoolInstance(object):
-            def {bool}(self):
+            def {BOOL_SPECIAL_METHOD}(self):
                 return True
         class FalseLenInstance(object):
             def __len__(self):
@@ -2714,9 +2697,7 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         TrueLenInstance() #@
         AlwaysTrueInstance() #@
         ErrorInstance() #@
-        """.format(
-                bool=BOOL_SPECIAL_METHOD
-            )
+        """
         )
         expected = (False, True, False, True, True, util.Uninferable, util.Uninferable)
         for node, expected_value in zip(instances, expected):
@@ -2725,17 +2706,15 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
 
     def test_bool_value_variable(self):
         instance = extract_node(
-            """
+            f"""
         class VariableBoolInstance(object):
             def __init__(self, value):
                 self.value = value
-            def {bool}(self):
+            def {BOOL_SPECIAL_METHOD}(self):
                 return self.value
 
         not VariableBoolInstance(True)
-        """.format(
-                bool=BOOL_SPECIAL_METHOD
-            )
+        """
         )
         inferred = next(instance.infer())
         self.assertIs(inferred.bool_value(), util.Uninferable)
@@ -2993,9 +2972,25 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         class Meta(type):
             def __getitem__(cls, arg):
                 return 24
+        class A(object, metaclass=Meta):
+            pass
+
+        A['Awesome'] #@
+        """
+        )
+        inferred = next(ast_node.infer())
+        self.assertIsInstance(inferred, nodes.Const)
+        self.assertEqual(inferred.value, 24)
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
+    def test_with_metaclass__getitem__(self):
+        ast_node = extract_node(
+            """
+        class Meta(type):
+            def __getitem__(cls, arg):
+                return 24
         import six
-        @six.add_metaclass(Meta)
-        class A(object):
+        class A(six.with_metaclass(Meta)):
             pass
 
         A['Awesome'] #@
@@ -3011,9 +3006,25 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         class Meta(type):
             def __or__(self, other):
                 return 24
+        class A(object, metaclass=Meta):
+            pass
+
+        A | A
+        """
+        )
+        inferred = next(ast_node.infer())
+        self.assertIsInstance(inferred, nodes.Const)
+        self.assertEqual(inferred.value, 24)
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
+    def test_bin_op_classes_with_metaclass(self):
+        ast_node = extract_node(
+            """
+        class Meta(type):
+            def __or__(self, other):
+                return 24
         import six
-        @six.add_metaclass(Meta)
-        class A(object):
+        class A(six.with_metaclass(Meta)):
             pass
 
         A | A
@@ -3348,12 +3359,27 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
     def test_unary_op_classes(self):
         ast_node = extract_node(
             """
+        class Meta(type):
+            def __invert__(self):
+                return 42
+        class A(object, metaclass=Meta):
+            pass
+        ~A
+        """
+        )
+        inferred = next(ast_node.infer())
+        self.assertIsInstance(inferred, nodes.Const)
+        self.assertEqual(inferred.value, 42)
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
+    def test_unary_op_classes_with_metaclass(self):
+        ast_node = extract_node(
+            """
         import six
         class Meta(type):
             def __invert__(self):
                 return 42
-        @six.add_metaclass(Meta)
-        class A(object):
+        class A(six.with_metaclass(Meta)):
             pass
         ~A
         """
@@ -3632,16 +3658,13 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         # they will be in the future.
         ast_node = extract_node(
             """
-        import six
-
         class BookMeta(type):
             author = 'Rushdie'
 
         def metaclass_function(*args):
             return BookMeta
 
-        @six.add_metaclass(metaclass_function)
-        class Book(object):
+        class Book(object, metaclass=metaclass_function):
             pass
         Book #@
         """
@@ -3745,9 +3768,43 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         class A(type):
             def test(cls):
                 return cls
+        class B(object, metaclass=A):
+            pass
+
+        B.test() #@
+        """
+        )
+        inferred = next(ast_node.infer())
+        self.assertIsInstance(inferred, nodes.ClassDef)
+        self.assertEqual(inferred.name, "B")
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
+    def test_With_metaclass_subclasses_arguments_are_classes_not_instances(self):
+        ast_node = extract_node(
+            """
+        class A(type):
+            def test(cls):
+                return cls
         import six
-        @six.add_metaclass(A)
-        class B(object):
+        class B(six.with_metaclass(A)):
+            pass
+
+        B.test() #@
+        """
+        )
+        inferred = next(ast_node.infer())
+        self.assertIsInstance(inferred, nodes.ClassDef)
+        self.assertEqual(inferred.name, "B")
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
+    def test_With_metaclass_with_partial_imported_name(self):
+        ast_node = extract_node(
+            """
+        class A(type):
+            def test(cls):
+                return cls
+        from six import with_metaclass
+        class B(with_metaclass(A)):
             pass
 
         B.test() #@
@@ -3787,7 +3844,6 @@ class InferenceTest(resources.SysPathSetup, unittest.TestCase):
         self.assertIsInstance(inferred, nodes.ClassDef)
         self.assertEqual(inferred.name, "A")
 
-    @test_utils.require_version(minver="3.0")
     def test_metaclass_with_keyword_args(self):
         ast_node = extract_node(
             """
@@ -4284,20 +4340,20 @@ class TestBool(unittest.TestCase):
 
     def test_bool_bool_special_method(self):
         ast_nodes = extract_node(
-            """
+            f"""
         class FalseClass:
-           def {method}(self):
+           def {BOOL_SPECIAL_METHOD}(self):
                return False
         class TrueClass:
-           def {method}(self):
+           def {BOOL_SPECIAL_METHOD}(self):
                return True
         class C(object):
            def __call__(self):
                return False
         class B(object):
-           {method} = C()
+           {BOOL_SPECIAL_METHOD} = C()
         class LambdaBoolFalse(object):
-            {method} = lambda self: self.foo
+            {BOOL_SPECIAL_METHOD} = lambda self: self.foo
             @property
             def foo(self): return 0
         class FalseBoolLen(object):
@@ -4311,9 +4367,7 @@ class TestBool(unittest.TestCase):
         bool(B()) #@
         bool(LambdaBoolFalse()) #@
         bool(FalseBoolLen()) #@
-        """.format(
-                method=BOOL_SPECIAL_METHOD
-            )
+        """
         )
         expected = [True, True, False, True, False, False, False]
         for node, expected_value in zip(ast_nodes, expected):
@@ -4322,16 +4376,14 @@ class TestBool(unittest.TestCase):
 
     def test_bool_instance_not_callable(self):
         ast_nodes = extract_node(
-            """
+            f"""
         class BoolInvalid(object):
-           {method} = 42
+           {BOOL_SPECIAL_METHOD} = 42
         class LenInvalid(object):
            __len__ = "a"
         bool(BoolInvalid()) #@
         bool(LenInvalid()) #@
-        """.format(
-                method=BOOL_SPECIAL_METHOD
-            )
+        """
         )
         for node in ast_nodes:
             inferred = next(node.infer())
@@ -4421,7 +4473,6 @@ class ArgumentsTest(unittest.TestCase):
             self.assertIsInstance(inferred, nodes.Tuple)
             self.assertEqual(self._get_tuple_value(inferred), expected_value)
 
-    @test_utils.require_version("3.5")
     def test_multiple_starred_args(self):
         expected_values = [(1, 2, 3), (1, 4, 2, 3, 5, 6, 7)]
         ast_nodes = extract_node(
@@ -4454,7 +4505,6 @@ class ArgumentsTest(unittest.TestCase):
             self.assertIsInstance(inferred, nodes.Const)
             self.assertEqual(inferred.value, expected_value)
 
-    @test_utils.require_version("3.0")
     def test_kwonly_args(self):
         expected_values = [24, 24, 42, 23, 24, 24, 54]
         ast_nodes = extract_node(
@@ -4537,7 +4587,6 @@ class ArgumentsTest(unittest.TestCase):
             self.assertIsInstance(inferred, nodes.Const, inferred)
             self.assertEqual(inferred.value, value)
 
-    @test_utils.require_version("3.5")
     def test_multiple_kwargs(self):
         expected_value = [("a", 1), ("b", 2), ("c", 3), ("d", 4), ("f", 42)]
         ast_node = extract_node(
@@ -4612,7 +4661,7 @@ class SliceTest(unittest.TestCase):
             ("[1, 2, 3][slice(0, 3, 2)]", [1, 3]),
         ]
         for node, expected_value in ast_nodes:
-            ast_node = extract_node("__({})".format(node))
+            ast_node = extract_node(f"__({node})")
             inferred = next(ast_node.infer())
             self.assertIsInstance(inferred, nodes.List)
             self.assertEqual([elt.value for elt in inferred.elts], expected_value)
@@ -4684,7 +4733,6 @@ class CallSiteTest(unittest.TestCase):
         for pair in pairs:
             self._test_call_site_pair(*pair)
 
-    @test_utils.require_version("3.5")
     def test_call_site_starred_args(self):
         pairs = [
             (
@@ -5174,7 +5222,6 @@ def test_builtin_inference_list_of_exceptions():
     assert as_string.strip() == "(ValueError, TypeError)"
 
 
-@test_utils.require_version(minver="3.6")
 def test_cannot_getattr_ann_assigns():
     node = extract_node(
         """
@@ -5447,16 +5494,27 @@ def test_property_inference():
         def test(self):
             return 42
 
+        @test.setter
+        def test(self, value):
+            return "banco"
+
     A.test #@
     A().test #@
     A.test.fget(A) #@
+    A.test.fset(A, "a_value") #@
     A.test.setter #@
     A.test.getter #@
     A.test.deleter #@
     """
-    prop, prop_result, prop_fget_result, prop_setter, prop_getter, prop_deleter = extract_node(
-        code
-    )
+    (
+        prop,
+        prop_result,
+        prop_fget_result,
+        prop_fset_result,
+        prop_setter,
+        prop_getter,
+        prop_deleter,
+    ) = extract_node(code)
 
     inferred = next(prop.infer())
     assert isinstance(inferred, objects.Property)
@@ -5471,6 +5529,10 @@ def test_property_inference():
     inferred = next(prop_fget_result.infer())
     assert isinstance(inferred, nodes.Const)
     assert inferred.value == 42
+
+    inferred = next(prop_fset_result.infer())
+    assert isinstance(inferred, nodes.Const)
+    assert inferred.value == "banco"
 
     for prop_func in prop_setter, prop_getter, prop_deleter:
         inferred = next(prop_func.infer())
@@ -5667,6 +5729,10 @@ def test_custom_decorators_for_classmethod_and_staticmethods(code, obj, obj_type
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="Needs dataclasses available")
+@pytest.mark.skipif(
+    sys.version_info >= (3, 9),
+    reason="Exact inference with dataclasses (replace function) in python3.9",
+)
 def test_dataclasses_subscript_inference_recursion_error():
     code = """
     from dataclasses import dataclass, replace
@@ -5685,6 +5751,31 @@ def test_dataclasses_subscript_inference_recursion_error():
     node = extract_node(code)
     # Reproduces only with safe_infer()
     assert helpers.safe_infer(node) is None
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 9),
+    reason="Exact inference with dataclasses (replace function) in python3.9",
+)
+def test_dataclasses_subscript_inference_recursion_error_39():
+    code = """
+    from dataclasses import dataclass, replace
+
+    @dataclass
+    class ProxyConfig:
+        auth: str = "/auth"
+
+
+    a = ProxyConfig("")
+    test_dict = {"proxy" : {"auth" : "", "bla" : "f"}}
+
+    foo = test_dict['proxy']
+    replace(a, **test_dict['proxy']) # This fails
+    """
+    node = extract_node(code)
+    infer_val = helpers.safe_infer(node)
+    assert isinstance(infer_val, Instance)
+    assert infer_val.pytype() == ".ProxyConfig"
 
 
 def test_self_reference_infer_does_not_trigger_recursion_error():
@@ -5716,7 +5807,7 @@ def test_inferring_properties_multiple_time_does_not_mutate_locals_multiple_time
     node = extract_node(code)
     # Infer the class
     cls = next(node.infer())
-    prop, = cls.getattr("a")
+    (prop,) = cls.getattr("a")
 
     # Try to infer the property function *multiple* times. `A.locals` should be modified only once
     for _ in range(3):
@@ -5861,6 +5952,20 @@ def test_infer_generated_setter():
     # This line used to crash because property generated functions
     # did not have args properly set
     assert list(inferred.nodes_of_class(nodes.Const)) == []
+
+
+def test_infer_list_of_uninferables_does_not_crash():
+    code = """
+    x = [A] * 1
+    f = [x, [A] * 2]
+    x = list(f) + [] # List[Uninferable]
+    tuple(x[0])
+    """
+    node = extract_node(code)
+    inferred = next(node.infer())
+    assert isinstance(inferred, nodes.Tuple)
+    # Would not be able to infer the first element.
+    assert not inferred.elts
 
 
 if __name__ == "__main__":

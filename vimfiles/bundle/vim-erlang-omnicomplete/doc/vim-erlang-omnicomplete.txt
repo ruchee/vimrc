@@ -6,8 +6,9 @@ CONTENTS                                             *vim-erlang-omnicomplete*
     2. Commands.........................|vim-erlang-omnicomplete-commands|
     3. Configuration....................|vim-erlang-omnicomplete-config|
       3.1 Configuration Rebar3..........|vim-erlang-omnicomplete-config-rebar3|
-    4. Credits..........................|vim-erlang-omnicomplete-credits|
-    5. Contributing.....................|vim-erlang-omnicomplete-contributing|
+    4. Errors...........................|vim-erlang-omnicomplete-errors|
+    5. Credits..........................|vim-erlang-omnicomplete-credits|
+    6. Contributing.....................|vim-erlang-omnicomplete-contributing|
 
 ==============================================================================
 INTRODUCTION                                   *vim-erlang-omnicomplete-intro*
@@ -93,6 +94,68 @@ g:erlang_completion_preview_help            *g:erlang_completion_preview_help*
         the help message appears; if `0`, it does not appear. The default
         value is `1`.
 
+                                        *g:erlang_completion_zero_arity_paren*
+g:erlang_completion_zero_arity_paren
+        Determines which additional string to insert after completing a
+        zero-arity function. The default value is "()".
+
+        An example scenario:
+
+        1. Type "se" in an Erlang buffer.
+
+        2. Hit |i_CTRL-X_CTRL-O|.
+
+        3. The first element in the completion list is: >
+
+              self() -> pid()
+
+<        4. Vim inserts the function name "self".
+
+        5. Vim also inserts the value of
+           |g:erlang_completion_zero_arity_paren|. With the default value,
+           this means that the inserted text will be: >
+
+               self()
+<
+                                     *g:erlang_completion_nonzero_arity_paren*
+g:erlang_completion_nonzero_arity_paren
+        Determines which additional string to insert after completing a
+        function with non-zero arity (or unknown arity). The default value is
+        "(".
+
+        An example scenario:
+
+        1. Type "list_to_a" in an Erlang buffer.
+
+        2. Hit |i_CTRL-X_CTRL-O|.
+
+        3. The first element in the completion list is: >
+
+               list_to_atom(String) -> atom()
+
+<        4. Vim inserts the function name list_to_atom.
+
+        5. Vim also inserts the value of
+           |g:erlang_completion_nonzero_arity_paren|. With the default value,
+           this means that the inserted text will be: >
+
+               list_to_atom(
+<
+g:erlang_completion_extend_arity            g:erlang_completion_extend_arity
+        Determines how to display functions where only the arity is known.
+
+        a. If set to `0`, such functions will be displayed with their arity,
+           for example: >
+
+               module_info/1
+
+<        b. If set to `1`, a type spec will be generated for such functions,
+           for example: >
+
+               module_info(T1) -> any()
+
+<        The default value is `1`.
+
 ==============================================================================
 CONFIGURATION REBAR3                   *vim-erlang-omnicomplete-config-rebar3*
 
@@ -109,6 +172,28 @@ E.g. to use the "test" profile: >
       {profile, "test"}
     ]}.
 <
+==============================================================================
+ERRORS                                        *vim-erlang-omnicomplete-errors*
+
+The plugin can encounter various errors when trying to execute a completion.
+For example:
+
+- The plugin cannot find the module whose functions should be completed.
+- The plugin finds the module's source code but cannot parse it.
+- There is an uncaught exception is the plugin's Erlang code
+  (erlang_complete.erl).
+
+In case of an error:
+
+- The plugin displays "Completion error" and a short help message in the
+  completion popup (unless 'completeopt' contains neither "menu" nor
+  "menuone").
+- The plugin displays the error itself in the preview window (if 'completeopt'
+  contains "preview"), or as a popup (if 'completeopt' contains "popup").
+
+Since the default 'completeopt' value is "menu,preview", both of the above are
+shown by default.
+
 ==============================================================================
 CREDITS                                      *vim-erlang-omnicomplete-credits*
 

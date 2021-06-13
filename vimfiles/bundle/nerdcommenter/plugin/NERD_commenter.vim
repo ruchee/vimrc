@@ -91,6 +91,7 @@ let s:delimiterMap = {
     \ 'bc': { 'left': '#' },
     \ 'bib': { 'left': '//' },
     \ 'bindzone': { 'left': ';' },
+    \ 'bind-named': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'blade': { 'left': '{{--', 'right': '--}}' },
     \ 'bst': { 'left': '%' },
     \ 'btm': { 'left': '::' },
@@ -121,6 +122,7 @@ let s:delimiterMap = {
     \ 'cucumber': { 'left': '#' },
     \ 'cuda': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'cvs': { 'left': 'CVS:' },
+    \ 'cypher': { 'left': '//' },
     \ 'cython': { 'left': '# ', 'leftAlt': '#' },
     \ 'd': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'dakota': { 'left': '#' },
@@ -155,6 +157,7 @@ let s:delimiterMap = {
     \ 'erlang': { 'left': '%', 'leftAlt': '%%' },
     \ 'eruby': { 'left': '<%#', 'right': '%>', 'leftAlt': '<!--', 'rightAlt': '-->' },
     \ 'esmtprc': { 'left': '#' },
+    \ 'exim': { 'left': '#' },
     \ 'expect': { 'left': '#' },
     \ 'exports': { 'left': '#' },
     \ 'factor': { 'left': '! ', 'leftAlt': '!# ' },
@@ -203,6 +206,7 @@ let s:delimiterMap = {
     \ 'hbs': { 'left': '{{!-- ', 'right': ' --}}' },
     \ 'hercules': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'hive': { 'left': '-- ' },
+    \ 'hocon': { 'left': '//', 'leftAlt': '#' },
     \ 'hog': { 'left': '#' },
     \ 'hostsaccess': { 'left': '#' },
     \ 'htmlcheetah': { 'left': '##' },
@@ -231,6 +235,7 @@ let s:delimiterMap = {
     \ 'jgraph': { 'left': '(*', 'right': '*)' },
     \ 'jinja': { 'left': '{#', 'right': '#}', 'leftAlt': '<!--', 'rightAlt': '-->' },
     \ 'jproperties': { 'left': '#' },
+    \ 'jsonc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsonnet': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsp': { 'left': '<%--', 'right': '--%>' },
     \ 'julia': { 'left': '# ', 'leftAlt': '#=', 'rightAlt': '=#' },
@@ -352,13 +357,13 @@ let s:delimiterMap = {
     \ 'rc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'rebol': { 'left': ';' },
     \ 'registry': { 'left': ';' },
-    \ 'rego': { 'left': ';' },
+    \ 'rego': { 'left': '#' },
     \ 'remind': { 'left': '#' },
     \ 'renpy': { 'left': '# ' },
     \ 'resolv': { 'left': '#' },
     \ 'rgb': { 'left': '!' },
     \ 'rib': { 'left': '#' },
-    \ 'rmd': { 'left': '<!--', 'right': '-->', 'leftalt': '#' },
+    \ 'rmd': { 'left': '<!--', 'right': '-->', 'leftAlt': '#' },
     \ 'robot': { 'left': '#' },
     \ 'robots': { 'left': '#' },
     \ 'rspec': { 'left': '#' },
@@ -449,6 +454,7 @@ let s:delimiterMap = {
     \ 'typescript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'typescriptreact': { 'left': '//', 'leftAlt': '{/*', 'rightAlt': '*/}' },
     \ 'uc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'uc4': { 'left': '!' },
     \ 'uil': { 'left': '!' },
     \ 'upstart': { 'left': '#' },
     \ 'vala': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -744,7 +750,9 @@ function s:CommentBlock(top, bottom, lSide, rSide, forceNested )
 
                     if s:Multipart()
                         "stick the right delimiter down
-                        let theLine = strpart(theLine, 0, rSide+strlen(leftSpaced)) . rightSpaced . strpart(theLine, rSide+strlen(leftSpaced))
+                        "byte idx of the char next to the last char = (byte idx of last char + 1) + (last char byte len) - 1
+                        let rIndex = (rSide+strlen(leftSpaced)) + strlen(strcharpart(strpart(theLine, rSide+strlen(leftSpaced)-1), 0, 1)) - 1
+                        let theLine = strpart(theLine, 0, rIndex) . rightSpaced . strpart(theLine, rIndex)
 
                         let firstLeftDelim = s:FindDelimiterIndex(s:Left(), theLine)
                         let lastRightDelim = s:LastIndexOfDelim(s:Right(), theLine)
@@ -2152,7 +2160,7 @@ endfunction
 " Function: s:Esc(str)
 " Escapes all the tricky chars in the given string
 function s:Esc(str)
-    let charsToEsc = '*/\."&$+'
+    let charsToEsc = '*/\."&$+[]'
     return escape(a:str, charsToEsc)
 endfunction
 

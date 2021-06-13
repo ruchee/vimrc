@@ -63,6 +63,10 @@ addrfeat_gid_seq
 agg_count
 agg_samealignment
 anyarray
+anycompatible
+anycompatiblearray
+anycompatiblenonarray
+anycompatiblerange
 anyelement
 anyenum
 anynonarray
@@ -168,7 +172,6 @@ numeric
 numrange
 oid
 oidvector
-opaque
 pagc_gaz
 pagc_gaz_id_seq
 pagc_lex
@@ -183,6 +186,7 @@ pg_lsn
 pg_mcv_list
 pg_ndistinct
 pg_node_tree
+pg_snapshot
 place
 place_gid_seq
 place_lookup
@@ -197,6 +201,7 @@ reclassarg
 record
 refcursor
 regclass
+regcollation
 regconfig
 regdictionary
 regnamespace
@@ -259,6 +264,7 @@ varbit
 varchar
 void
 xid
+xid8
 xml
 yes_or_no
 zcta5
@@ -275,7 +281,6 @@ bigint
 bigserial
 bit
 boolean
-char
 character
 cube
 decimal
@@ -293,7 +298,6 @@ serial8
 smallint
 smallserial
 timestamp
-varchar
 varying
 xml
 zone
@@ -332,6 +336,16 @@ anyarray_in()
 anyarray_out()
 anyarray_recv()
 anyarray_send()
+anycompatible_in()
+anycompatible_out()
+anycompatiblearray_in()
+anycompatiblearray_out()
+anycompatiblearray_recv()
+anycompatiblearray_send()
+anycompatiblenonarray_in()
+anycompatiblenonarray_out()
+anycompatiblerange_in()
+anycompatiblerange_out()
 anyelement_in()
 anyelement_out()
 anyenum_in()
@@ -385,8 +399,6 @@ arraycontjoinsel()
 arraycontsel()
 arrayoverlap()
 ascii()
-ascii_to_mic()
-ascii_to_utf8()
 asin()
 asind()
 asinh()
@@ -534,6 +546,7 @@ btboolcmp()
 btbpchar_pattern_cmp()
 btbpchar_pattern_sortsupport()
 btcharcmp()
+btequalimage()
 btfloat48cmp()
 btfloat4cmp()
 btfloat4sortsupport()
@@ -568,6 +581,7 @@ bttextcmp()
 bttextnamecmp()
 bttextsortsupport()
 bttidcmp()
+btvarstrequalimage()
 bytea_sortsupport()
 bytea_string_agg_finalfn()
 bytea_string_agg_transfn()
@@ -617,7 +631,6 @@ cbrt()
 ceil()
 ceiling()
 center()
-char()
 char_length()
 character_length()
 chareq()
@@ -768,18 +781,26 @@ diagonal()
 diameter()
 dispell_init()
 dispell_lexize()
+dist_bl()
+dist_bp()
+dist_bs()
 dist_cpoint()
 dist_cpoly()
 dist_lb()
+dist_lp()
+dist_ls()
+dist_pathp()
 dist_pb()
 dist_pc()
 dist_pl()
+dist_polyc()
 dist_polyp()
 dist_ppath()
 dist_ppoly()
 dist_ps()
 dist_sb()
 dist_sl()
+dist_sp()
 div()
 dlog1()
 dlog10()
@@ -927,6 +948,8 @@ format()
 format_type()
 gb18030_to_utf8()
 gbk_to_utf8()
+gcd()
+gen_random_uuid()
 generate_series()
 generate_series_int4_support()
 generate_series_int8_support()
@@ -958,6 +981,7 @@ ginarraytriconsistent()
 ginhandler()
 ginqueryarrayextract()
 gist_box_consistent()
+gist_box_distance()
 gist_box_penalty()
 gist_box_picksplit()
 gist_box_same()
@@ -982,6 +1006,7 @@ gtsquery_union()
 gtsvector_compress()
 gtsvector_consistent()
 gtsvector_decompress()
+gtsvector_options()
 gtsvector_penalty()
 gtsvector_picksplit()
 gtsvector_same()
@@ -1308,6 +1333,7 @@ interval_support()
 interval_um()
 intervaltypmodin()
 intervaltypmodout()
+is_normalized()
 isclosed()
 isempty()
 isfinite()
@@ -1398,17 +1424,23 @@ jsonb_object_keys()
 jsonb_out()
 jsonb_path_exists()
 jsonb_path_exists_opr()
+jsonb_path_exists_tz()
 jsonb_path_match()
 jsonb_path_match_opr()
+jsonb_path_match_tz()
 jsonb_path_query()
 jsonb_path_query_array()
+jsonb_path_query_array_tz()
 jsonb_path_query_first()
+jsonb_path_query_first_tz()
+jsonb_path_query_tz()
 jsonb_populate_record()
 jsonb_populate_recordset()
 jsonb_pretty()
 jsonb_recv()
 jsonb_send()
 jsonb_set()
+jsonb_set_lax()
 jsonb_strip_nulls()
 jsonb_to_record()
 jsonb_to_recordset()
@@ -1437,6 +1469,7 @@ latin2_to_mic()
 latin2_to_win1250()
 latin3_to_mic()
 latin4_to_mic()
+lcm()
 lead()
 left()
 length()
@@ -1542,9 +1575,10 @@ make_timestamp()
 make_timestamptz()
 makeaclitem()
 masklen()
+matchingjoinsel()
+matchingsel()
 max()
 md5()
-mic_to_ascii()
 mic_to_big5()
 mic_to_euc_cn()
 mic_to_euc_jp()
@@ -1561,6 +1595,7 @@ mic_to_win1250()
 mic_to_win1251()
 mic_to_win866()
 min()
+min_scale()
 mod()
 mode()
 mode_final()
@@ -1607,6 +1642,7 @@ network_lt()
 network_ne()
 network_overlap()
 network_smaller()
+network_sortsupport()
 network_sub()
 network_subeq()
 network_subset_support()
@@ -1617,6 +1653,7 @@ networksel()
 nextval()
 nlikejoinsel()
 nlikesel()
+normalize()
 notlike()
 now()
 npoints()
@@ -1717,8 +1754,6 @@ on_ppath()
 on_ps()
 on_sb()
 on_sl()
-opaque_in()
-opaque_out()
 ordered_set_transition()
 ordered_set_transition_multi()
 overlaps()
@@ -1789,9 +1824,12 @@ pg_create_logical_replication_slot()
 pg_create_physical_replication_slot()
 pg_create_restore_point()
 pg_current_logfile()
+pg_current_snapshot()
 pg_current_wal_flush_lsn()
 pg_current_wal_insert_lsn()
 pg_current_wal_lsn()
+pg_current_xact_id()
+pg_current_xact_id_if_assigned()
 pg_cursor()
 pg_database_size()
 pg_ddl_command_in()
@@ -1814,6 +1852,7 @@ pg_export_snapshot()
 pg_extension_config_dump()
 pg_extension_update_paths()
 pg_file_rename()
+pg_file_sync()
 pg_file_unlink()
 pg_file_write()
 pg_filenode_relation()
@@ -1836,6 +1875,7 @@ pg_get_replica_identity_index()
 pg_get_replication_slots()
 pg_get_ruledef()
 pg_get_serial_sequence()
+pg_get_shmem_allocations()
 pg_get_statisticsobjdef()
 pg_get_triggerdef()
 pg_get_userbyid()
@@ -1880,6 +1920,7 @@ pg_lsn_gt()
 pg_lsn_hash()
 pg_lsn_hash_extended()
 pg_lsn_in()
+pg_lsn_larger()
 pg_lsn_le()
 pg_lsn_lt()
 pg_lsn_mi()
@@ -1887,6 +1928,7 @@ pg_lsn_ne()
 pg_lsn_out()
 pg_lsn_recv()
 pg_lsn_send()
+pg_lsn_smaller()
 pg_mcv_list_in()
 pg_mcv_list_items()
 pg_mcv_list_out()
@@ -1949,6 +1991,13 @@ pg_size_pretty()
 pg_sleep()
 pg_sleep_for()
 pg_sleep_until()
+pg_snapshot_in()
+pg_snapshot_out()
+pg_snapshot_recv()
+pg_snapshot_send()
+pg_snapshot_xip()
+pg_snapshot_xmax()
+pg_snapshot_xmin()
 pg_start_backup()
 pg_stat_clear_snapshot()
 pg_stat_file()
@@ -2010,6 +2059,7 @@ pg_stat_get_dead_tuples()
 pg_stat_get_function_calls()
 pg_stat_get_function_self_time()
 pg_stat_get_function_total_time()
+pg_stat_get_ins_since_vacuum()
 pg_stat_get_last_analyze_time()
 pg_stat_get_last_autoanalyze_time()
 pg_stat_get_last_autovacuum_time()
@@ -2018,6 +2068,7 @@ pg_stat_get_live_tuples()
 pg_stat_get_mod_since_analyze()
 pg_stat_get_numscans()
 pg_stat_get_progress_info()
+pg_stat_get_slru()
 pg_stat_get_snapshot_timestamp()
 pg_stat_get_subscription()
 pg_stat_get_tuples_deleted()
@@ -2045,6 +2096,7 @@ pg_stat_reset()
 pg_stat_reset_shared()
 pg_stat_reset_single_function_counters()
 pg_stat_reset_single_table_counters()
+pg_stat_reset_slru()
 pg_statistics_obj_is_visible()
 pg_stop_backup()
 pg_switch_wal()
@@ -2068,12 +2120,14 @@ pg_ts_parser_is_visible()
 pg_ts_template_is_visible()
 pg_type_is_visible()
 pg_typeof()
+pg_visible_in_snapshot()
 pg_wal_lsn_diff()
 pg_wal_replay_pause()
 pg_wal_replay_resume()
 pg_walfile_name()
 pg_walfile_name_offset()
 pg_xact_commit_timestamp()
+pg_xact_status()
 phraseto_tsquery()
 pi()
 plainto_tsquery()
@@ -2207,6 +2261,10 @@ regclassin()
 regclassout()
 regclassrecv()
 regclasssend()
+regcollationin()
+regcollationout()
+regcollationrecv()
+regcollationsend()
 regconfigin()
 regconfigout()
 regconfigrecv()
@@ -2303,6 +2361,7 @@ shift_jis_2004_to_utf8()
 shobj_description()
 sign()
 similar_escape()
+similar_to_escape()
 sin()
 sind()
 sinh()
@@ -2539,6 +2598,7 @@ to_json()
 to_jsonb()
 to_number()
 to_regclass()
+to_regcollation()
 to_regnamespace()
 to_regoper()
 to_regoperator()
@@ -2553,6 +2613,7 @@ transaction_timestamp()
 translate()
 trigger_in()
 trigger_out()
+trim_scale()
 trunc()
 ts_debug()
 ts_delete()
@@ -2632,7 +2693,6 @@ unnest()
 upper()
 upper_inc()
 upper_inf()
-utf8_to_ascii()
 utf8_to_big5()
 utf8_to_euc_cn()
 utf8_to_euc_jis_2004()
@@ -2681,7 +2741,6 @@ varbitlt()
 varbitne()
 varbittypmodin()
 varbittypmodout()
-varchar()
 varchar_support()
 varcharin()
 varcharout()
@@ -2709,6 +2768,18 @@ win866_to_koi8r()
 win866_to_mic()
 win866_to_win1251()
 win_to_utf8()
+xid()
+xid8cmp()
+xid8eq()
+xid8ge()
+xid8gt()
+xid8in()
+xid8le()
+xid8lt()
+xid8ne()
+xid8out()
+xid8recv()
+xid8send()
 xideq()
 xideqint4()
 xidin()
@@ -2917,6 +2988,7 @@ postgis_getbbox() -- function
 postgis_hasbbox() -- function
 postgis_index_supportfn() -- function
 postgis_lib_build_date() -- function
+postgis_lib_revision() -- function
 postgis_lib_version() -- function
 postgis_libjson_version() -- function
 postgis_liblwgeom_version() -- function
@@ -3062,6 +3134,8 @@ st_geomfromwkb() -- function
 st_gmltosql() -- function
 st_hasarc() -- function
 st_hausdorffdistance() -- function
+st_hexagon() -- function
+st_hexagongrid() -- function
 st_interiorringn() -- function
 st_interpolatepoint() -- function
 st_intersection() -- function
@@ -3106,6 +3180,7 @@ st_makepointm() -- function
 st_makepolygon() -- function
 st_makevalid() -- function
 st_maxdistance() -- function
+st_maximuminscribedcircle() -- function
 st_memcollect() -- function
 st_memsize() -- function
 st_memunion() -- function
@@ -3159,6 +3234,7 @@ st_polygonfromwkb() -- function
 st_polygonize() -- function
 st_project() -- function
 st_quantizecoordinates() -- function
+st_reduceprecision() -- function
 st_relate() -- function
 st_relatematch() -- function
 st_removepoint() -- function
@@ -3182,6 +3258,8 @@ st_simplifyvw() -- function
 st_snap() -- function
 st_snaptogrid() -- function
 st_split() -- function
+st_square() -- function
+st_squaregrid() -- function
 st_srid() -- function
 st_startpoint() -- function
 st_subdivide() -- function
@@ -3324,6 +3402,8 @@ index() -- function
 lca() -- function
 lquery_in() -- function
 lquery_out() -- function
+lquery_recv() -- function
+lquery_send() -- function
 lt_q_regex() -- function
 lt_q_rregex() -- function
 ltq_regex() -- function
@@ -3338,6 +3418,7 @@ ltree_decompress() -- function
 ltree_eq() -- function
 ltree_ge() -- function
 ltree_gist_in() -- function
+ltree_gist_options() -- function
 ltree_gist_out() -- function
 ltree_gt() -- function
 ltree_in() -- function
@@ -3348,15 +3429,19 @@ ltree_ne() -- function
 ltree_out() -- function
 ltree_penalty() -- function
 ltree_picksplit() -- function
+ltree_recv() -- function
 ltree_risparent() -- function
 ltree_same() -- function
+ltree_send() -- function
 ltree_textadd() -- function
 ltree_union() -- function
 ltreeparentsel() -- function
 ltxtq_exec() -- function
 ltxtq_in() -- function
 ltxtq_out() -- function
+ltxtq_recv() -- function
 ltxtq_rexec() -- function
+ltxtq_send() -- function
 nlevel() -- function
 subltree() -- function
 subpath() -- function
@@ -3375,12 +3460,16 @@ jsonb_to_plperl() -- function
 plperl_to_jsonb() -- function
 -- Extension: adminpack
 pg_file_rename() -- function
+pg_file_sync() -- function
 pg_file_unlink() -- function
 pg_file_write() -- function
 pg_logdir_ls() -- function
 -- Extension: dict_xsyn
 dxsyn_init() -- function
 dxsyn_lexize() -- function
+-- Extension: bool_plperlu
+bool_to_plperlu() -- function
+plperlu_to_bool() -- function
 -- Extension: address_standardizer
 parse_address() -- function
 standardize_address() -- function
@@ -3412,6 +3501,7 @@ ghstore_compress() -- function
 ghstore_consistent() -- function
 ghstore_decompress() -- function
 ghstore_in() -- function
+ghstore_options() -- function
 ghstore_out() -- function
 ghstore_penalty() -- function
 ghstore_picksplit() -- function
@@ -4249,6 +4339,7 @@ bqarr_out() -- function
 g_int_compress() -- function
 g_int_consistent() -- function
 g_int_decompress() -- function
+g_int_options() -- function
 g_int_penalty() -- function
 g_int_picksplit() -- function
 g_int_same() -- function
@@ -4256,6 +4347,7 @@ g_int_union() -- function
 g_intbig_compress() -- function
 g_intbig_consistent() -- function
 g_intbig_decompress() -- function
+g_intbig_options() -- function
 g_intbig_penalty() -- function
 g_intbig_picksplit() -- function
 g_intbig_same() -- function
@@ -4289,6 +4381,7 @@ gtrgm_consistent() -- function
 gtrgm_decompress() -- function
 gtrgm_distance() -- function
 gtrgm_in() -- function
+gtrgm_options() -- function
 gtrgm_out() -- function
 gtrgm_penalty() -- function
 gtrgm_picksplit() -- function
@@ -4522,6 +4615,7 @@ hash_page_stats() -- function
 hash_page_type() -- function
 heap_page_item_attrs() -- function
 heap_page_items() -- function
+heap_tuple_infomask_flags() -- function
 page_checksum() -- function
 page_header() -- function
 tuple_data_split() -- function
@@ -4721,6 +4815,9 @@ texticregexeq() -- function
 texticregexne() -- function
 translate() -- function
 citext -- type
+-- Extension: bool_plperl
+bool_to_plperl() -- function
+plperl_to_bool() -- function
 -- Extension: plpgsql
 plpgsql_call_handler() -- function
 plpgsql_inline_handler() -- function
@@ -4794,6 +4891,8 @@ adminpack
 amcheck
 autoinc
 bloom
+bool_plperl
+bool_plperlu
 btree_gin
 btree_gist
 citext
@@ -4939,7 +5038,6 @@ pg_opclass
 pg_operator
 pg_opfamily
 pg_partitioned_table
-pg_pltemplate
 pg_policies
 pg_policy
 pg_prepared_statements
@@ -4963,6 +5061,7 @@ pg_settings
 pg_shadow
 pg_shdepend
 pg_shdescription
+pg_shmem_allocations
 pg_shseclabel
 pg_stat_activity
 pg_stat_all_indexes
@@ -4972,10 +5071,13 @@ pg_stat_bgwriter
 pg_stat_database
 pg_stat_database_conflicts
 pg_stat_gssapi
+pg_stat_progress_analyze
+pg_stat_progress_basebackup
 pg_stat_progress_cluster
 pg_stat_progress_create_index
 pg_stat_progress_vacuum
 pg_stat_replication
+pg_stat_slru
 pg_stat_ssl
 pg_stat_subscription
 pg_stat_sys_indexes
@@ -5032,11 +5134,8 @@ schemata
 sequences
 sql_features
 sql_implementation_info
-sql_languages
-sql_packages
 sql_parts
 sql_sizing
-sql_sizing_profiles
 table_constraints
 table_privileges
 tables
@@ -5162,6 +5261,7 @@ exclude
 excluding
 exclusive
 exists
+expression
 extension
 external
 extract
@@ -5276,6 +5376,10 @@ natural
 nchar
 new
 next
+nfc
+nfd
+nfkc
+nfkd
 no
 nobypassrls
 nocreatedb
@@ -5284,6 +5388,8 @@ noinherit
 nologin
 none
 noreplication
+normalize
+normalized
 nosuperuser
 not
 nothing
@@ -5435,6 +5541,7 @@ true
 trusted
 type
 types
+uescape
 unbounded
 uncommitted
 unencrypted

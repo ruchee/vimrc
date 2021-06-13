@@ -1,9 +1,8 @@
-# encoding: utf-8
 # No docstring, so we can test D100
 from functools import wraps
 import os
-import sys
 from .expected import Expectation
+from typing import overload
 
 
 expectation = Expectation()
@@ -25,6 +24,23 @@ class class_:
 
     def _ok_since_private(self=None):
         pass
+
+    @overload
+    def overloaded_method(self, a: int) -> str:
+        ...
+
+    @overload
+    def overloaded_method(self, a: str) -> str:
+        """Foo bar documentation."""
+        ...
+
+    def overloaded_method(a):
+        """Foo bar documentation."""
+        return str(a)
+
+    expect('overloaded_method',
+           "D418: Function/ Method decorated with @overload"
+           " shouldn't contain a docstring")
 
     @expect('D102: Missing docstring in public method')
     def __new__(self=None):
@@ -52,6 +68,48 @@ def function():
     @expect('D103: Missing docstring in public function')
     def nested():
         ''
+
+
+def function_with_nesting():
+    """Foo bar documentation."""
+    @overload
+    def nested_overloaded_func(a: int) -> str:
+        ...
+
+    @overload
+    def nested_overloaded_func(a: str) -> str:
+        """Foo bar documentation."""
+        ...
+
+    def nested_overloaded_func(a):
+        """Foo bar documentation."""
+        return str(a)
+
+
+expect('nested_overloaded_func',
+       "D418: Function/ Method decorated with @overload"
+       " shouldn't contain a docstring")
+
+
+@overload
+def overloaded_func(a: int) -> str:
+    ...
+
+
+@overload
+def overloaded_func(a: str) -> str:
+    """Foo bar documentation."""
+    ...
+
+
+def overloaded_func(a):
+    """Foo bar documentation."""
+    return str(a)
+
+
+expect('overloaded_func',
+       "D418: Function/ Method decorated with @overload"
+       " shouldn't contain a docstring")
 
 
 @expect('D200: One-line docstring should fit on one line with quotes '
@@ -280,16 +338,6 @@ def exceptions_of_D301():
     """
 
 
-if sys.version_info[0] <= 2:
-    @expect('D302: Use u""" for Unicode docstrings')
-    def unicode_unmarked():
-        """Юникод."""
-
-    @expect('D302: Use u""" for Unicode docstrings')
-    def first_word_has_unicode_byte():
-        """あy."""
-
-
 @expect("D400: First line should end with a period (not 'y')")
 @expect("D415: First line should end with a period, question mark, "
         "or exclamation point (not 'y')")
@@ -346,6 +394,33 @@ def oneliner_d102(): return
 @expect("D415: First line should end with a period, question mark,"
         " or exclamation point (not 'r')")
 def oneliner_withdoc(): """One liner"""
+
+
+def ignored_decorator(func):   # noqa: D400,D401,D415
+    """Runs something"""
+    func()
+    pass
+
+
+def decorator_for_test(func):   # noqa: D400,D401,D415
+    """Runs something"""
+    func()
+    pass
+
+
+@ignored_decorator
+def oneliner_ignored_decorator(): """One liner"""
+
+
+@decorator_for_test
+@expect("D400: First line should end with a period (not 'r')")
+@expect("D415: First line should end with a period, question mark,"
+        " or exclamation point (not 'r')")
+def oneliner_with_decorator_expecting_errors(): """One liner"""
+
+
+@decorator_for_test
+def valid_oneliner_with_decorator(): """One liner."""
 
 
 @expect("D207: Docstring is under-indented")

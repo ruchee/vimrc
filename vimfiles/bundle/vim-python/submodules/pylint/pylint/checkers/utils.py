@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 Mads Kiilerich <mads@kiilerich.com>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
@@ -16,7 +15,7 @@
 # Copyright (c) 2016-2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2016-2017 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2016 Brian C. Lane <bcl@redhat.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
 # Copyright (c) 2018 Alan Chan <achan961117@gmail.com>
 # Copyright (c) 2018 Sushobhit <31987769+sushobhit27@users.noreply.github.com>
@@ -27,21 +26,25 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Brian Shaginaw <brian.shaginaw@warbyparker.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Matthijs Blom <19817960+MatthijsBlom@users.noreply.github.com>
 # Copyright (c) 2019 Djailla <bastien.vallet@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Nathan Marrow <nmarrow@google.com>
 # Copyright (c) 2019 Svet <svet@hyperscience.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Batuhan Taskaya <batuhanosmantaskaya@gmail.com>
+# Copyright (c) 2020 Luigi <luigi.cristofolini@q-ctrl.com>
+# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Andrew Simmons <anjsimmo@gmail.com>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Slavfox <slavfoxman@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """some functions that may be useful for various checkers
 """
@@ -51,13 +54,21 @@ import numbers
 import re
 import string
 from functools import lru_cache, partial
-from typing import Callable, Dict, Iterable, List, Match, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Match,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import _string
 import astroid
-from astroid import bases as _bases
-from astroid import helpers, scoped_nodes
-from astroid.exceptions import _NonDeducibleTypeHierarchy
 
 BUILTINS_NAME = builtins.__name__
 COMP_NODE_TYPES = (
@@ -74,7 +85,9 @@ ABC_METHODS = {
     "abc.abstractclassmethod",
     "abc.abstractstaticmethod",
 }
-TYPING_PROTOCOLS = frozenset({"typing.Protocol", "typing_extensions.Protocol"})
+TYPING_PROTOCOLS = frozenset(
+    {"typing.Protocol", "typing_extensions.Protocol", ".Protocol"}
+)
 ITER_METHOD = "__iter__"
 AITER_METHOD = "__aiter__"
 NEXT_METHOD = "__next__"
@@ -211,6 +224,49 @@ SPECIAL_METHODS_PARAMS = {
 }
 PYMETHODS = set(SPECIAL_METHODS_PARAMS)
 
+SUBSCRIPTABLE_CLASSES_PEP585 = frozenset(
+    (
+        "builtins.tuple",
+        "builtins.list",
+        "builtins.dict",
+        "builtins.set",
+        "builtins.frozenset",
+        "builtins.type",
+        "collections.deque",
+        "collections.defaultdict",
+        "collections.OrderedDict",
+        "collections.Counter",
+        "collections.ChainMap",
+        "_collections_abc.Awaitable",
+        "_collections_abc.Coroutine",
+        "_collections_abc.AsyncIterable",
+        "_collections_abc.AsyncIterator",
+        "_collections_abc.AsyncGenerator",
+        "_collections_abc.Iterable",
+        "_collections_abc.Iterator",
+        "_collections_abc.Generator",
+        "_collections_abc.Reversible",
+        "_collections_abc.Container",
+        "_collections_abc.Collection",
+        "_collections_abc.Callable",
+        "_collections_abc.Set",
+        "_collections_abc.MutableSet",
+        "_collections_abc.Mapping",
+        "_collections_abc.MutableMapping",
+        "_collections_abc.Sequence",
+        "_collections_abc.MutableSequence",
+        "_collections_abc.ByteString",
+        "_collections_abc.MappingView",
+        "_collections_abc.KeysView",
+        "_collections_abc.ItemsView",
+        "_collections_abc.ValuesView",
+        "contextlib.AbstractContextManager",
+        "contextlib.AbstractAsyncContextManager",
+        "re.Pattern",
+        "re.Match",
+    )
+)
+
 
 class NoSuchArgumentError(Exception):
     pass
@@ -256,7 +312,7 @@ def clobber_in_except(
     (False, None) otherwise.
     """
     if isinstance(node, astroid.AssignAttr):
-        return True, (node.attrname, "object %r" % (node.expr.as_string(),))
+        return True, (node.attrname, f"object {node.expr.as_string()!r}")
     if isinstance(node, astroid.AssignName):
         name = node.name
         if is_builtin(name):
@@ -272,8 +328,7 @@ def clobber_in_except(
 
 
 def is_super(node: astroid.node_classes.NodeNG) -> bool:
-    """return True if the node is referencing the "super" builtin function
-    """
+    """return True if the node is referencing the "super" builtin function"""
     if getattr(node, "name", None) == "super" and node.root().name == BUILTINS_NAME:
         return True
     return False
@@ -294,8 +349,7 @@ def is_builtin_object(node: astroid.node_classes.NodeNG) -> bool:
 
 
 def is_builtin(name: str) -> bool:
-    """return true if <name> could be considered as a builtin defined by python
-    """
+    """return true if <name> could be considered as a builtin defined by python"""
     return name in builtins or name in SPECIAL_BUILTINS  # type: ignore
 
 
@@ -401,7 +455,11 @@ def is_func_decorator(node: astroid.node_classes.NodeNG) -> bool:
             return True
         if parent.is_statement or isinstance(
             parent,
-            (astroid.Lambda, scoped_nodes.ComprehensionScope, scoped_nodes.ListComp),
+            (
+                astroid.Lambda,
+                astroid.scoped_nodes.ComprehensionScope,
+                astroid.scoped_nodes.ListComp,
+            ),
         ):
             break
         parent = parent.parent
@@ -423,8 +481,7 @@ def is_ancestor_name(
 
 
 def assign_parent(node: astroid.node_classes.NodeNG) -> astroid.node_classes.NodeNG:
-    """return the higher parent which is not an AssignName, Tuple or List node
-    """
+    """return the higher parent which is not an AssignName, Tuple or List node"""
     while node and isinstance(node, (astroid.AssignName, astroid.Tuple, astroid.List)):
         node = node.parent
     return node
@@ -544,7 +601,7 @@ def split_format_field_names(format_string) -> Tuple[str, Iterable[Tuple[bool, s
 
 
 def collect_string_fields(format_string) -> Iterable[Optional[str]]:
-    """ Given a format string, return an iterator
+    """Given a format string, return an iterator
     of all the valid format fields. It handles nested fields
     as well.
     """
@@ -808,7 +865,7 @@ def unimplemented_abstract_methods(
     """
     if is_abstract_cb is None:
         is_abstract_cb = partial(decorated_with, qnames=ABC_METHODS)
-    visited = {}  # type: Dict[str, astroid.node_classes.NodeNG]
+    visited: Dict[str, astroid.node_classes.NodeNG] = {}
     try:
         mro = reversed(node.mro())
     except NotImplementedError:
@@ -910,7 +967,7 @@ def _except_handlers_ignores_exception(
     handlers: astroid.ExceptHandler, exception
 ) -> bool:
     func = partial(error_of_type, error_type=(exception,))
-    return any(map(func, handlers))
+    return any(func(handler) for handler in handlers)
 
 
 def get_exception_handlers(
@@ -1079,7 +1136,7 @@ def _supports_protocol(
             return True
 
     if (
-        isinstance(value, _bases.Proxy)
+        isinstance(value, astroid.bases.Proxy)
         and isinstance(value._proxied, astroid.BaseInstance)
         and has_known_bases(value._proxied)
     ):
@@ -1106,18 +1163,22 @@ def supports_membership_test(value: astroid.node_classes.NodeNG) -> bool:
     return supported or is_iterable(value)
 
 
-def supports_getitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_getitem(
+    value: astroid.node_classes.NodeNG, node: astroid.node_classes.NodeNG
+) -> bool:
     if isinstance(value, astroid.ClassDef):
         if _supports_protocol_method(value, CLASS_GETITEM_METHOD):
+            return True
+        if is_class_subscriptable_pep585_with_postponed_evaluation_enabled(value, node):
             return True
     return _supports_protocol(value, _supports_getitem_protocol)
 
 
-def supports_setitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_setitem(value: astroid.node_classes.NodeNG, *_: Any) -> bool:
     return _supports_protocol(value, _supports_setitem_protocol)
 
 
-def supports_delitem(value: astroid.node_classes.NodeNG) -> bool:
+def supports_delitem(value: astroid.node_classes.NodeNG, *_: Any) -> bool:
     return _supports_protocol(value, _supports_delitem_protocol)
 
 
@@ -1265,14 +1326,51 @@ def get_node_last_lineno(node: astroid.node_classes.NodeNG) -> int:
 
 def is_postponed_evaluation_enabled(node: astroid.node_classes.NodeNG) -> bool:
     """Check if the postponed evaluation of annotations is enabled"""
-    name = "annotations"
     module = node.root()
-    stmt = module.locals.get(name)
+    return "annotations" in module.future_imports
+
+
+def is_class_subscriptable_pep585_with_postponed_evaluation_enabled(
+    value: astroid.ClassDef, node: astroid.node_classes.NodeNG
+) -> bool:
+    """Check if class is subscriptable with PEP 585 and
+    postponed evaluation enabled.
+    """
     return (
-        stmt
-        and isinstance(stmt[0], astroid.ImportFrom)
-        and stmt[0].modname == "__future__"
+        is_postponed_evaluation_enabled(node)
+        and value.qname() in SUBSCRIPTABLE_CLASSES_PEP585
+        and is_node_in_type_annotation_context(node)
     )
+
+
+def is_node_in_type_annotation_context(node: astroid.node_classes.NodeNG) -> bool:
+    """Check if node is in type annotation context.
+
+    Check for 'AnnAssign', function 'Arguments',
+    or part of function return type anntation.
+    """
+    # pylint: disable=too-many-boolean-expressions
+    current_node, parent_node = node, node.parent
+    while True:
+        if (
+            isinstance(parent_node, astroid.AnnAssign)
+            and parent_node.annotation == current_node
+            or isinstance(parent_node, astroid.Arguments)
+            and current_node
+            in (
+                *parent_node.annotations,
+                *parent_node.posonlyargs_annotations,
+                *parent_node.kwonlyargs_annotations,
+                parent_node.varargannotation,
+                parent_node.kwargannotation,
+            )
+            or isinstance(parent_node, astroid.FunctionDef)
+            and parent_node.returns == current_node
+        ):
+            return True
+        current_node, parent_node = parent_node, parent_node.parent
+        if isinstance(parent_node, astroid.Module):
+            return False
 
 
 def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
@@ -1287,9 +1385,9 @@ def is_subclass_of(child: astroid.ClassDef, parent: astroid.ClassDef) -> bool:
 
     for ancestor in child.ancestors():
         try:
-            if helpers.is_subtype(ancestor, parent):
+            if astroid.helpers.is_subtype(ancestor, parent):
                 return True
-        except _NonDeducibleTypeHierarchy:
+        except astroid.exceptions._NonDeducibleTypeHierarchy:
             continue
     return False
 
@@ -1317,3 +1415,80 @@ def is_protocol_class(cls: astroid.node_classes.NodeNG) -> bool:
     # Use .ancestors() since not all protocol classes can have
     # their mro deduced.
     return any(parent.qname() in TYPING_PROTOCOLS for parent in cls.ancestors())
+
+
+def is_call_of_name(node: astroid.node_classes.NodeNG, name: str) -> bool:
+    """Checks if node is a function call with the given name"""
+    return (
+        isinstance(node, astroid.Call)
+        and isinstance(node.func, astroid.Name)
+        and node.func.name == name
+    )
+
+
+def is_test_condition(
+    node: astroid.node_classes.NodeNG,
+    parent: Optional[astroid.node_classes.NodeNG] = None,
+) -> bool:
+    """Returns true if the given node is being tested for truthiness"""
+    parent = parent or node.parent
+    if isinstance(parent, (astroid.While, astroid.If, astroid.IfExp, astroid.Assert)):
+        return node is parent.test or parent.test.parent_of(node)
+    if isinstance(parent, astroid.Comprehension):
+        return node in parent.ifs
+    return is_call_of_name(parent, "bool") and parent.parent_of(node)
+
+
+def is_classdef_type(node: astroid.ClassDef) -> bool:
+    """Test if ClassDef node is Type."""
+    if node.name == "type":
+        return True
+    for base in node.bases:
+        if isinstance(base, astroid.Name) and base.name == "type":
+            return True
+    return False
+
+
+def is_attribute_typed_annotation(
+    node: Union[astroid.ClassDef, astroid.Instance], attr_name: str
+) -> bool:
+    """Test if attribute is typed annotation in current node
+    or any base nodes.
+    """
+    attribute = node.locals.get(attr_name, [None])[0]
+    if (
+        attribute
+        and isinstance(attribute, astroid.AssignName)
+        and isinstance(attribute.parent, astroid.AnnAssign)
+    ):
+        return True
+    for base in node.bases:
+        inferred = safe_infer(base)
+        if (
+            inferred
+            and isinstance(inferred, astroid.ClassDef)
+            and is_attribute_typed_annotation(inferred, attr_name)
+        ):
+            return True
+    return False
+
+
+def is_assign_name_annotated_with(node: astroid.AssignName, typing_name: str) -> bool:
+    """Test if AssignName node has `typing_name` annotation.
+
+    Especially useful to check for `typing._SpecialForm` instances
+    like: `Union`, `Optional`, `Literal`, `ClassVar`, `Final`.
+    """
+    if not isinstance(node.parent, astroid.AnnAssign):
+        return False
+    annotation = node.parent.annotation
+    if isinstance(annotation, astroid.Subscript):
+        annotation = annotation.value
+    if (
+        isinstance(annotation, astroid.Name)
+        and annotation.name == typing_name
+        or isinstance(annotation, astroid.Attribute)
+        and annotation.attrname == typing_name
+    ):
+        return True
+    return False

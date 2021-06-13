@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 from typing import List
 
@@ -21,15 +21,23 @@ class MessageIdStore:
     def __repr__(self):
         result = "MessageIdStore: [\n"
         for msgid, symbol in self.__msgid_to_symbol.items():
-            result += "  - {msgid} ({symbol})\n".format(msgid=msgid, symbol=symbol)
+            result += f"  - {msgid} ({symbol})\n"
         result += "]"
         return result
 
     def get_symbol(self, msgid: str) -> str:
-        return self.__msgid_to_symbol[msgid]
+        try:
+            return self.__msgid_to_symbol[msgid]
+        except KeyError as e:
+            msg = f"'{msgid}' is not stored in the message store."
+            raise UnknownMessageError(msg) from e
 
     def get_msgid(self, symbol: str) -> str:
-        return self.__symbol_to_msgid[symbol]
+        try:
+            return self.__symbol_to_msgid[symbol]
+        except KeyError as e:
+            msg = f"'{symbol}' is not stored in the message store."
+            raise UnknownMessageError(msg) from e
 
     def register_message_definition(self, message_definition):
         self.check_msgid_and_symbol(message_definition.msgid, message_definition.symbol)
@@ -80,10 +88,8 @@ class MessageIdStore:
         :raises InvalidMessageError:"""
         symbols = [symbol, other_symbol]
         symbols.sort()
-        error_message = "Message id '{msgid}' cannot have both ".format(msgid=msgid)
-        error_message += "'{other_symbol}' and '{symbol}' as symbolic name.".format(
-            other_symbol=symbols[0], symbol=symbols[1]
-        )
+        error_message = f"Message id '{msgid}' cannot have both "
+        error_message += f"'{symbols[0]}' and '{symbols[1]}' as symbolic name."
         raise InvalidMessageError(error_message)
 
     @staticmethod
@@ -97,10 +103,10 @@ class MessageIdStore:
         msgids = [msgid, other_msgid]
         msgids.sort()
         error_message = (
-            "Message symbol '{symbol}' cannot be used for "
-            "'{other_msgid}' and '{msgid}' at the same time."
-            " If you're creating an 'old_names' use 'old-{symbol}' as the old symbol."
-        ).format(symbol=symbol, other_msgid=msgids[0], msgid=msgids[1])
+            f"Message symbol '{symbol}' cannot be used for "
+            f"'{msgids[0]}' and '{msgids[1]}' at the same time."
+            f" If you're creating an 'old_names' use 'old-{symbol}' as the old symbol."
+        )
         raise InvalidMessageError(error_message)
 
     def get_active_msgids(self, msgid_or_symbol: str) -> List[str]:
@@ -114,13 +120,6 @@ class MessageIdStore:
             msgid = self.__symbol_to_msgid.get(msgid_or_symbol)
             symbol = msgid_or_symbol
         if not msgid or not symbol:
-            error_msg = "No such message id or symbol '{msgid_or_symbol}'.".format(
-                msgid_or_symbol=msgid_or_symbol
-            )
+            error_msg = f"No such message id or symbol '{msgid_or_symbol}'."
             raise UnknownMessageError(error_msg)
-        # logging.debug(
-        #    "Return for {} and msgid {} is {}".format(
-        #        msgid_or_symbol, msgid, self.__old_names.get(msgid, [msgid])
-        #    )
-        # )
         return self.__old_names.get(msgid, [msgid])

@@ -1,3 +1,4 @@
+from textwrap import dedent
 try:
     import unittest2 as unittest
 except ImportError:
@@ -63,6 +64,26 @@ class ExtractMethodTest(unittest.TestCase):
         refactored = self.do_extract_method(code, start, end, 'extracted')
         expected = "def a_func():\n    extracted()\n    print('two')\n\n" \
                    "def extracted():\n    print('one')\n\nprint('hey')\n"
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for('3.5')
+    def test_extract_function_containing_dict_generalized_unpacking(self):
+        code = dedent('''\
+            def a_func(dict1):
+                dict2 = {}
+                a_var = {a: b, **dict1, **dict2}
+        ''')
+        start = code.index('{a')
+        end = code.index('2}') + len('2}')
+        refactored = self.do_extract_method(code, start, end, 'extracted')
+        expected = dedent('''\
+            def a_func(dict1):
+                dict2 = {}
+                a_var = extracted(dict1, dict2)
+
+            def extracted(dict1, dict2):
+                return {a: b, **dict1, **dict2}
+        ''')
         self.assertEqual(expected, refactored)
 
     def test_simple_extract_function_with_parameter(self):
@@ -409,6 +430,20 @@ class ExtractMethodTest(unittest.TestCase):
         expected = 'new_var = 10 + 20\na_var = new_var\n'
         self.assertEqual(expected, refactored)
 
+    @testutils.only_for_versions_higher('3.6')
+    def test_extract_variable_f_string(self):
+        code = dedent('''\
+            foo(f"abc {a_var} def", 10)
+        ''')
+        start = code.index('f"')
+        end = code.index('def"') + 4
+        refactored = self.do_extract_variable(code, start, end, 'new_var')
+        expected = dedent('''\
+            new_var = f"abc {a_var} def"
+            foo(new_var, 10)
+        ''')
+        self.assertEqual(expected, refactored)
+
     def test_extract_variable_multiple_lines(self):
         code = 'a = 1\nb = 2\n'
         start = code.index('1')
@@ -544,6 +579,87 @@ class ExtractMethodTest(unittest.TestCase):
         expected = '\n\ndef new_f():\n    print(1)\n\nnew_f()\n'
         self.assertEqual(expected, refactored)
 
+    @testutils.only_for_versions_higher('3.6')
+    def test_extract_method_f_string_extract_method(self):
+        code = dedent('''\
+            def func(a_var):
+                foo(f"abc {a_var}", 10)
+        ''')
+        start = code.index('f"')
+        end = code.index('}"') + 2
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def func(a_var):
+                foo(new_func(a_var), 10)
+
+            def new_func(a_var):
+                return f"abc {a_var}"
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_extract_method_f_string_extract_method_complex_expression(self):
+        code = dedent('''\
+            def func(a_var):
+                b_var = int
+                c_var = 10
+                fill = 10
+                foo(f"abc {a_var + f'{b_var(a_var)}':{fill}16}" f"{c_var}", 10)
+        ''')
+        start = code.index('f"')
+        end = code.index('c_var}"') + 7
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def func(a_var):
+                b_var = int
+                c_var = 10
+                fill = 10
+                foo(new_func(a_var, b_var, c_var, fill), 10)
+
+            def new_func(a_var, b_var, c_var, fill):
+                return f"abc {a_var + f'{b_var(a_var)}':{fill}16}" f"{c_var}"
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_extract_method_f_string_false_comment(self):
+        code = dedent('''\
+            def func(a_var):
+                foo(f"abc {a_var} # ", 10)
+        ''')
+        start = code.index('f"')
+        end = code.index('# "') + 3
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def func(a_var):
+                foo(new_func(a_var), 10)
+
+            def new_func(a_var):
+                return f"abc {a_var} # "
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @unittest.expectedFailure
+    @testutils.only_for_versions_higher('3.6')
+    def test_extract_method_f_string_false_format_value_in_regular_string(self):
+        code = dedent('''\
+            def func(a_var):
+                b_var = 1
+                foo(f"abc {a_var} " "{b_var}" f"{b_var} def", 10)
+        ''')
+        start = code.index('f"')
+        end = code.index('def"') + 4
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def func(a_var):
+                b_var = 1
+                foo(new_func(a_var, b_var), 10)
+
+            def new_func(a_var, b_var):
+                return f"abc {a_var} " "{b_var}" f"{b_var} def"
+        ''')
+        self.assertEqual(expected, refactored)
+
     def test_variable_writes_in_the_same_line_as_variable_read(self):
         code = 'a = 1\na = 1 + a\n'
         start = code.index('\n') + 1
@@ -554,12 +670,60 @@ class ExtractMethodTest(unittest.TestCase):
         self.assertEqual(expected, refactored)
 
     def test_variable_writes_in_the_same_line_as_variable_read2(self):
-        code = 'a = 1\na += 1\n'
+        code = dedent('''\
+            a = 1
+            a += 1
+        ''')
         start = code.index('\n') + 1
         end = len(code)
         refactored = self.do_extract_method(code, start, end, 'new_f',
                                             global_=True)
-        expected = 'a = 1\n\ndef new_f():\n    a += 1\n\nnew_f()\n'
+        expected = dedent('''\
+            a = 1
+
+            def new_f(a):
+                a += 1
+
+            new_f(a)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_variable_writes_in_the_same_line_as_variable_read3(self):
+        code = dedent('''\
+            a = 1
+            a += 1
+            print(a)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 2, 2)
+        refactored = self.do_extract_method(code, start, end, 'new_f')
+        expected = dedent('''\
+            a = 1
+
+            def new_f(a):
+                a += 1
+                return a
+
+            a = new_f(a)
+            print(a)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_variable_writes_only(self):
+        code = dedent('''\
+            i = 1
+            print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 1, 1)
+        refactored = self.do_extract_method(code, start, end, 'new_f')
+        expected = dedent('''\
+
+            def new_f():
+                i = 1
+                return i
+
+            i = new_f()
+            print(i)
+        ''')
         self.assertEqual(expected, refactored)
 
     def test_variable_and_similar_expressions(self):
@@ -1022,5 +1186,50 @@ class ExtractMethodTest(unittest.TestCase):
         end = len(code) - 1
         with self.assertRaises(rope.base.exceptions.RefactoringError):
             self.do_extract_method(code, start, end, 'new_func')
+
+    def test_extract_function_with_inline_assignment_in_method(self):
+        code = dedent('''\
+            def foo():
+                i = 1
+                i += 1
+                print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 3, 3)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def foo():
+                i = 1
+                i = new_func(i)
+                print(i)
+
+            def new_func(i):
+                i += 1
+                return i
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_extract_function_with_inline_assignment_in_condition(self):
+        code = dedent('''\
+            def foo(a):
+                if i := a == 5:
+                    i += 1
+                print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 2, 3)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def foo(a):
+                i = new_func(a)
+                print(i)
+
+            def new_func(a):
+                if i := a == 5:
+                    i += 1
+                return i
+        ''')
+        self.assertEqual(expected, refactored)
+
+
 if __name__ == '__main__':
     unittest.main()

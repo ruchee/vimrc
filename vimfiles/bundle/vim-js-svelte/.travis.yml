@@ -1,4 +1,11 @@
+dist: focal
+
 language: minimal
+
+before_install:
+  - sudo add-apt-repository ppa:neovim-ppa/stable -y
+  - sudo apt-get update
+  - sudo apt-get -y install neovim
 
 install:
   - git clone --depth=1 https://github.com/leafOfTree/test ../test

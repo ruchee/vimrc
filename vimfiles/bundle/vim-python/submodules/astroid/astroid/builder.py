@@ -1,16 +1,17 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013 Phil Schaf <flying-sheep@web.de>
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 Google, Inc.
 # Copyright (c) 2014 Alexander Presnyakov <flagist0@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """The AstroidBuilder makes astroid from living object and / or from _ast
 
@@ -22,15 +23,17 @@ import os
 import textwrap
 from tokenize import detect_encoding
 
+from astroid import (
+    bases,
+    exceptions,
+    manager,
+    modutils,
+    nodes,
+    raw_building,
+    rebuilder,
+    util,
+)
 from astroid._ast import get_parser_module
-from astroid import bases
-from astroid import exceptions
-from astroid import manager
-from astroid import modutils
-from astroid import raw_building
-from astroid import rebuilder
-from astroid import nodes
-from astroid import util
 
 objects = util.lazy_import("objects")
 
@@ -47,9 +50,10 @@ MANAGER = manager.AstroidManager()
 
 
 def open_source_file(filename):
+    # pylint: disable=consider-using-with
     with open(filename, "rb") as byte_stream:
         encoding = detect_encoding(byte_stream.readline)[0]
-    stream = open(filename, "r", newline=None, encoding=encoding)
+    stream = open(filename, newline=None, encoding=encoding)
     data = stream.read()
     return stream, encoding, data
 
@@ -106,7 +110,7 @@ class AstroidBuilder(raw_building.InspectBuilder):
         """
         try:
             stream, encoding, data = open_source_file(path)
-        except IOError as exc:
+        except OSError as exc:
             raise exceptions.AstroidBuildingError(
                 "Unable to load file {path}:\n{error}",
                 modname=modname,

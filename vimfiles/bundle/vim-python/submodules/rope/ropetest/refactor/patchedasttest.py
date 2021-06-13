@@ -120,6 +120,26 @@ class PatchedASTTest(unittest.TestCase):
         checker.check_children(
             'Assign', ['Name', ' ', '=', ' ', 'Num'])
 
+    @testutils.only_for_versions_higher('3.6')
+    def test_ann_assign_node_without_target(self):
+        source = 'a: List[int]\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        start = source.index('a')  # noqa
+        checker.check_region('AnnAssign', 0, len(source) - 1)
+        checker.check_children(
+            'AnnAssign', ['Name', '', ':', ' ', 'Subscript'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_ann_assign_node_with_target(self):
+        source = 'a: int = 10\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        start = source.index('a')  # noqa
+        checker.check_region('AnnAssign', 0, len(source) - 1)
+        checker.check_children(
+            'AnnAssign', ['Name', '', ':', ' ', 'Name', ' ', '=', ' ', 'Num'])
+
     def test_add_node(self):
         source = '1 + 2\n'
         ast_frag = patchedast.get_patched_ast(source, True)
@@ -226,6 +246,63 @@ class PatchedASTTest(unittest.TestCase):
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
         checker.check_children('Module', ['', 'Expr', '\n', 'Expr', '\n'])
+
+    def test_handling_raw_strings(self):
+        source = 'r"abc"\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'Str', ['r"abc"'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_handling_format_strings_basic(self):
+        source = '1 + f"abc{a}"\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'JoinedStr', ['f"', 'abc', 'FormattedValue', '', '"'])
+        checker.check_children(
+            'FormattedValue', ['{', '', 'Name', '', '}'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_handling_format_strings_with_implicit_join(self):
+        source = '''"1" + rf'abc{a}' f"""xxx{b} """\n'''
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'JoinedStr', ["rf'", 'abc', 'FormattedValue', '\' f"""xxx', 'FormattedValue', ' ', '"""'])
+        checker.check_children(
+            'FormattedValue', ['{', '', 'Name', '', '}'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_handling_format_strings_with_format_spec(self):
+        source = 'f"abc{a:01}"\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'JoinedStr', ['f"', 'abc', 'FormattedValue', '', '"'])
+        checker.check_children(
+            'FormattedValue', ['{', '', 'Name', '', ':', '', '01', '', '}'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_handling_format_strings_with_inner_format_spec(self):
+        source = 'f"abc{a:{length}01}"\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'JoinedStr', ['f"', 'abc', 'FormattedValue', '', '"'])
+        checker.check_children(
+            'FormattedValue', ['{', '', 'Name', '', ':', '{', 'Name', '}', '01', '', '}'])
+
+    @testutils.only_for_versions_higher('3.6')
+    def test_handling_format_strings_with_expression(self):
+        source = 'f"abc{a + b}"\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children(
+            'JoinedStr', ['f"', 'abc', 'FormattedValue', '', '"'])
+        checker.check_children(
+            'FormattedValue', ['{', '', 'BinOp', '', '}'])
 
     @testutils.only_for_versions_lower('3')
     def test_long_integer_literals(self):
@@ -499,6 +576,16 @@ class PatchedASTTest(unittest.TestCase):
             'Dict', ['{', '', 'Num', '', ':', ' ', 'Num', '', ',',
                      ' ', 'Num', '', ':', ' ', 'Num', '', '}'])
 
+    @testutils.only_for('3.5')
+    def test_dict_node_with_unpacking(self):
+        source = '{**dict1, **dict2}\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_region('Dict', 0, len(source) - 1)
+        checker.check_children(
+            'Dict', ['{', '', '**', '', 'Name', '', ',',
+                     ' ', '**', '', 'Name', '', '}'])
+
     def test_div_node(self):
         source = '1 / 2\n'
         ast_frag = patchedast.get_patched_ast(source, True)
@@ -533,6 +620,15 @@ class PatchedASTTest(unittest.TestCase):
             'For', ['for', ' ', 'Name', ' ', 'in', ' ', 'Call', '',
                     ':', '\n    ', 'Pass', '\n',
                     'else', '', ':', '\n    ', 'Pass'])
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_named_expr_node(self):
+        source = 'if a := 10 == 10:\n    pass\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        start = source.index('a')
+        checker.check_region('NamedExpr', start, start + 13)
+        checker.check_children('NamedExpr', ['Name', ' ', ':=', ' ', 'Compare'])
 
     def test_normal_from_node(self):
         source = 'from x import y\n'
@@ -742,8 +838,12 @@ class PatchedASTTest(unittest.TestCase):
         source = 'x = xs[0,:]\n'
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
-        checker.check_region('ExtSlice', 7, len(source) - 2)
-        checker.check_children('ExtSlice', ['Index', '', ',', '', 'Slice'])
+        if sys.version_info >= (3, 9):
+            checker.check_region('Tuple', 7, len(source) - 2)
+            checker.check_children('Tuple', ['Num', '', ',', '', 'Slice'])
+        else:
+            checker.check_region('ExtSlice', 7, len(source) - 2)
+            checker.check_children('ExtSlice', ['Index', '', ',', '', 'Slice'])
 
     def test_simple_module_node(self):
         source = 'pass\n'
@@ -837,9 +937,13 @@ class PatchedASTTest(unittest.TestCase):
         source = 'a[1]\n'
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
-        checker.check_children(
-            'Subscript', ['Name', '', '[', '', 'Index', '', ']'])
-        checker.check_children('Index', ['Num'])
+        if sys.version_info >= (3, 9):
+            checker.check_children(
+                'Subscript', ['Name', '', '[', '', 'Num', '', ']'])
+        else:
+            checker.check_children(
+                'Subscript', ['Name', '', '[', '', 'Index', '', ']'])
+            checker.check_children('Index', ['Num'])
 
     def test_tuple_node(self):
         source = '(1, 2)\n'

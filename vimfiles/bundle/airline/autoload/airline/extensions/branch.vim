@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling et al.
 " Plugin: fugitive, gina, lawrencium and vcscommand
 " vim: et ts=2 sts=2 sw=2
 
@@ -86,29 +86,36 @@ let s:sha1size = get(g:, 'airline#extensions#branch#sha1_len', 7)
 
 function! s:update_git_branch()
   call airline#util#ignore_next_focusgain()
-  if !airline#util#has_fugitive() && !airline#util#has_gina()
+  if airline#util#has_fugitive()
+    call s:config_fugitive_branch()
+  elseif airline#util#has_gina()
+    call s:config_gina_branch()
+  else
     let s:vcs_config['git'].branch = ''
     return
   endif
-  if airline#util#has_fugitive()
-    let s:vcs_config['git'].branch = exists("*FugitiveHead") ?
-          \ FugitiveHead(s:sha1size) : fugitive#head(s:sha1size)
-    if s:vcs_config['git'].branch is# 'master' &&
-          \ airline#util#winwidth() < 81
-      " Shorten default a bit
-      let s:vcs_config['git'].branch='mas'
-    endif
-  else
-    try
-      let g:gina#component#repo#commit_length = s:sha1size
-      let s:vcs_config['git'].branch = gina#component#repo#branch()
-    catch
-    endtry
-    if s:vcs_config['git'].branch is# 'master' &&
-          \ airline#util#winwidth() < 81
-      " Shorten default a bit
-      let s:vcs_config['git'].branch='mas'
-    endif
+endfunction
+
+function! s:config_fugitive_branch() abort
+  let s:vcs_config['git'].branch = exists('*FugitiveHead') ?
+        \ FugitiveHead(s:sha1size) : fugitive#head(s:sha1size)
+  if s:vcs_config['git'].branch is# 'master' &&
+        \ airline#util#winwidth() < 81
+    " Shorten default a bit
+    let s:vcs_config['git'].branch='mas'
+  endif
+endfunction
+
+function! s:config_gina_branch() abort
+  try
+    let g:gina#component#repo#commit_length = s:sha1size
+    let s:vcs_config['git'].branch = gina#component#repo#branch()
+  catch
+  endtry
+  if s:vcs_config['git'].branch is# 'master' &&
+        \ airline#util#winwidth() < 81
+    " Shorten default a bit
+    let s:vcs_config['git'].branch='mas'
   endif
 endfunction
 
@@ -318,6 +325,10 @@ endfunction
 
 function! s:reset_untracked_cache(shellcmdpost)
   " shellcmdpost - whether function was called as a result of ShellCmdPost hook
+  if !exists('#airline')
+    " airline disabled
+    return
+  endif
   if !g:airline#init#vim_async && !has('nvim')
     if a:shellcmdpost
       " Clear cache only if there was no error or the script uses an
@@ -339,11 +350,17 @@ function! s:reset_untracked_cache(shellcmdpost)
   endfor
 endfunction
 
+function! s:sh_autocmd_handler()
+  if exists('#airline')
+    unlet! b:airline_head b:airline_do_mq_check
+  endif
+endfunction
+
 function! airline#extensions#branch#init(ext)
   call airline#parts#define_function('branch', 'airline#extensions#branch#get_head')
 
-  autocmd ShellCmdPost,CmdwinLeave * unlet! b:airline_head b:airline_do_mq_check
-  autocmd User AirlineBeforeRefresh unlet! b:airline_head b:airline_do_mq_check
+  autocmd ShellCmdPost,CmdwinLeave * call s:sh_autocmd_handler()
+  autocmd User AirlineBeforeRefresh call s:sh_autocmd_handler()
   autocmd BufWritePost * call s:reset_untracked_cache(0)
   autocmd ShellCmdPost * call s:reset_untracked_cache(1)
 endfunction

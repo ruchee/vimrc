@@ -28,7 +28,7 @@ setup(
     author_email='johann@rocholl.net',
     maintainer='Ian Lee',
     maintainer_email='IanLee1521@gmail.com',
-    url='https://pycodestyle.readthedocs.io/',
+    url='https://pycodestyle.pycqa.org/',
     license='Expat license',
     py_modules=['pycodestyle'],
     namespace_packages=[],
@@ -63,5 +63,8 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
-    test_suite='testsuite.test_all.suite',
+    project_urls={
+        'Changes':
+        'https://pycodestyle.pycqa.org/en/latest/developer.html#changes',
+    },
 )

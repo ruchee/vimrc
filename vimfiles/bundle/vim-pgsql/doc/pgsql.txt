@@ -10,7 +10,7 @@
 		The best PostgreSQL plugin for Vim!
 
 Author:  Lifepillar <https://github.com/lifepillar>
-License: Public Domain
+License: Vim license (see `:help license`)
 
 ==============================================================================
 CONTENTS					*pgsql-contents*
@@ -79,6 +79,12 @@ Set to 1 if you want double-dollar enclosed text highlighted as a SQL string.
 By default, text quoted with `$$` is highlighted as PL/pgSQL.
 >
 	let g:pgsql_dollar_strings = 0
+<
+						*'g:pgsql_fold_functions_only'*
+Use this option if you want to fold only code of stored functions, procedures
+and "do" blocks.
+>
+	let g:pgsql_fold_functions_only = 1
 <
 						*'g:pgsql_pl'*
 						*'b:pgsql_pl'*

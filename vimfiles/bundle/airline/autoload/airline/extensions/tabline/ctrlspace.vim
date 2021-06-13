@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2016-2020 Kevin Sapper et al.
+" MIT License. Copyright (c) 2016-2021 Kevin Sapper et al.
 " Plugin: https://github.com/szw/vim-ctrlspace
 " vim: et ts=2 sts=2 sw=2
 
@@ -24,6 +24,9 @@ function! airline#extensions#tabline#ctrlspace#on()
 endfunction
 
 function! airline#extensions#tabline#ctrlspace#invalidate()
+  if !exists('#airline')
+    return
+  endif
   let s:current_bufnr = -1
   let s:current_tabnr = -1
 endfunction

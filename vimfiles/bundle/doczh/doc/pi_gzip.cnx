@@ -1,32 +1,32 @@
-*pi_gzip.txt*   For Vim version 7.4.  最近更新: 2013年8月
+*pi_gzip.txt*	适用于 Vim 8.2 版本。	最近更新: 2020年1月
 
 
-                     Vim 参考手册    作者: Bram Moolenaar
-           译者: iCrazy <icrazy@ustc.edu>  http://vimcdoc.sf.net
+		  VIM 参考手册    by Bram Moolenaar
+				译者: iCrazy <icrazy@ustc.edu>
 
 
-用 Vim 编辑压缩的文件                           *gzip* *bzip2* *compress*
+用 Vim 编辑压缩的文件				*gzip* *bzip2* *compress*
 
-1. 自动命令                     |gzip-autocmd|
+1. 自动命令			|gzip-autocmd|
 
 这里涉及到的功能是一个 |standard-plugin|。
 这个插件仅在 'compatible' 选项没有被置位的情况下有效。
 您可以通过设置变量 "loaded_gzip" 来避免装载这个插件:
-        :let loaded_gzip = 1
-
-{Vi 没有以上的功能}
+	:let loaded_gzip = 1
 
 ==============================================================================
-1. 自动命令                                             *gzip-autocmd*
+1. 自动命令						*gzip-autocmd*
 
 这个插件建立自动命令来截获对具有以下扩展名的文件的读写:
 
-        扩展名          压缩格式 ~
-        *.Z             compress (Lempel-Ziv)
-        *.gz            gzip
-        *.bz2           bzip2
-        *.lzma          lzma
-        *.xz            xz
+	扩展名		压缩格式 ~
+	*.Z		compress (Lempel-Ziv)
+	*.gz		gzip
+	*.bz2		bzip2
+	*.lzma		lzma
+	*.xz		xz
+	*.lz		lzip
+	*.zst		zstd
 
 您仅仅知道这些就已经足够了，此插件没有选项。
 
@@ -37,4 +37,4 @@
 辑 patchmode 文件不会产生自动解压缩的效果。如果您希望这样，您需要改变文件名。
 
 ==============================================================================
- vim:tw=78:ts=8:ft=help:norl:
+ vim:tw=78:ts=8:noet:ft=help:norl:

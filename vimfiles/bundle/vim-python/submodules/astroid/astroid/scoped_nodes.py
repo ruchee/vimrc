@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2011, 2013-2015 Google, Inc.
@@ -20,9 +19,15 @@
 # Copyright (c) 2018 HoverHell <hoverhell@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Peter de Blanc <peter@standard.ai>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 Tim Martin <tim@asymptotic.co.uk>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
 """
@@ -32,22 +37,18 @@ Lambda, GeneratorExp, DictComp and SetComp to some extent).
 """
 
 import builtins
-import sys
 import io
 import itertools
-from typing import Optional, List
+import sys
+from typing import List, Optional
 
 from astroid import bases
 from astroid import context as contextmod
-from astroid import exceptions
 from astroid import decorators as decorators_mod
-from astroid.interpreter import objectmodel
-from astroid.interpreter import dunder_lookup
-from astroid import manager
-from astroid import mixins
-from astroid import node_classes
-from astroid import util
+from astroid import exceptions, manager, mixins, node_classes, util
+from astroid.interpreter import dunder_lookup, objectmodel
 
+PY39 = sys.version_info[:2] >= (3, 9)
 
 BUILTINS = builtins.__name__
 ITER_METHODS = ("__iter__", "__getitem__")
@@ -94,6 +95,42 @@ def _c3_merge(sequences, cls, context):
             if seq[0] == candidate:
                 del seq[0]
     return None
+
+
+def clean_typing_generic_mro(sequences: List[List["ClassDef"]]) -> None:
+    """A class can inherit from typing.Generic directly, as base,
+    and as base of bases. The merged MRO must however only contain the last entry.
+    To prepare for _c3_merge, remove some typing.Generic entries from
+    sequences if multiple are present.
+
+    This method will check if Generic is in inferred_bases and also
+    part of bases_mro. If true, remove it from inferred_bases
+    as well as its entry the bases_mro.
+
+    Format sequences: [[self]] + bases_mro + [inferred_bases]
+    """
+    bases_mro = sequences[1:-1]
+    inferred_bases = sequences[-1]
+    # Check if Generic is part of inferred_bases
+    for i, base in enumerate(inferred_bases):
+        if base.qname() == "typing.Generic":
+            position_in_inferred_bases = i
+            break
+    else:
+        return
+    # Check if also part of bases_mro
+    # Ignore entry for typing.Generic
+    for i, seq in enumerate(bases_mro):
+        if i == position_in_inferred_bases:
+            continue
+        if any(base.qname() == "typing.Generic" for base in seq):
+            break
+    else:
+        return
+    # Found multiple Generics in mro, remove entry from inferred_bases
+    # and the corresponding one from bases_mro
+    inferred_bases.pop(position_in_inferred_bases)
+    bases_mro.pop(position_in_inferred_bases)
 
 
 def clean_duplicates_mro(sequences, cls, context):
@@ -147,7 +184,7 @@ def builtin_lookup(name):
 
 # TODO move this Mixin to mixins.py; problem: 'FunctionDef' in _scope_lookup
 class LocalsDictNodeNG(node_classes.LookupMixIn, node_classes.NodeNG):
-    """ this class provides locals handling common to Module, FunctionDef
+    """this class provides locals handling common to Module, FunctionDef
     and ClassDef nodes, including a dict like interface for direct access
     to locals information
     """
@@ -171,7 +208,7 @@ class LocalsDictNodeNG(node_classes.LookupMixIn, node_classes.NodeNG):
         # pylint: disable=no-member; github.com/pycqa/astroid/issues/278
         if self.parent is None:
             return self.name
-        return "%s.%s" % (self.parent.frame().qname(), self.name)
+        return f"{self.parent.frame().qname()}.{self.name}"
 
     def frame(self):
         """The first parent frame node.
@@ -466,6 +503,7 @@ class Module(LocalsDictNodeNG):
         if self.file_bytes is not None:
             return io.BytesIO(self.file_bytes)
         if self.file is not None:
+            # pylint: disable=consider-using-with
             stream = open(self.file, "rb")
             return stream
         return None
@@ -684,7 +722,7 @@ class Module(LocalsDictNodeNG):
         if package_name:
             if not modname:
                 return package_name
-            return "%s.%s" % (package_name, modname)
+            return f"{package_name}.{modname}"
         return modname
 
     def wildcard_import_names(self):
@@ -1450,7 +1488,7 @@ class FunctionDef(mixins.MultiLineBlockMixin, node_classes.Statement, Lambda):
 
     @decorators_mod.cachedproperty
     def type(
-        self
+        self,
     ):  # pylint: disable=invalid-overridden-method,too-many-return-statements
         """The function type for this node.
 
@@ -1787,7 +1825,7 @@ def _rec_get_names(args, names=None):
 
 
 def _is_metaclass(klass, seen=None):
-    """ Return if the given class can be
+    """Return if the given class can be
     used as a metaclass.
     """
     if klass.name == "type":
@@ -1889,7 +1927,7 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
     # by a raw factories
 
     # a dictionary of class instances attributes
-    _astroid_fields = ("decorators", "bases", "body")  # name
+    _astroid_fields = ("decorators", "bases", "keywords", "body")  # name
 
     decorators = None
     """The decorators that are applied to this class.
@@ -2163,10 +2201,7 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
 
     def infer_call_result(self, caller, context=None):
         """infer what a class is returning when called"""
-        if (
-            self.is_subtype_of("%s.type" % (BUILTINS,), context)
-            and len(caller.args) == 3
-        ):
+        if self.is_subtype_of(f"{BUILTINS}.type", context) and len(caller.args) == 3:
             result = self._infer_type_call(caller, context)
             yield result
             return
@@ -2571,7 +2606,7 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
             else:
                 raise exceptions.InferenceError(
                     error.message, target=self, attribute=name, context=context
-                )
+                ) from error
 
     def has_dynamic_getattr(self, context=None):
         """Check if the class has a custom __getattr__ or __getattribute__.
@@ -2614,7 +2649,22 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
         try:
             methods = dunder_lookup.lookup(self, "__getitem__")
         except exceptions.AttributeInferenceError as exc:
-            raise exceptions.AstroidTypeError(node=self, context=context) from exc
+            if isinstance(self, ClassDef):
+                # subscripting a class definition may be
+                # achieved thanks to __class_getitem__ method
+                # which is a classmethod defined in the class
+                # that supports subscript and not in the metaclass
+                try:
+                    methods = self.getattr("__class_getitem__")
+                    # Here it is assumed that the __class_getitem__ node is
+                    # a FunctionDef. One possible improvement would be to deal
+                    # with more generic inference.
+                except exceptions.AttributeInferenceError:
+                    raise exceptions.AstroidTypeError(
+                        node=self, context=context
+                    ) from exc
+            else:
+                raise exceptions.AstroidTypeError(node=self, context=context) from exc
 
         method = methods[0]
 
@@ -2624,6 +2674,19 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
 
         try:
             return next(method.infer_call_result(self, new_context))
+        except AttributeError:
+            # Starting with python3.9, builtin types list, dict etc...
+            # are subscriptable thanks to __class_getitem___ classmethod.
+            # However in such case the method is bound to an EmptyNode and
+            # EmptyNode doesn't have infer_call_result method yielding to
+            # AttributeError
+            if (
+                isinstance(method, node_classes.EmptyNode)
+                and self.name in ("list", "dict", "set", "tuple", "frozenset")
+                and PY39
+            ):
+                return self
+            raise
         except exceptions.InferenceError:
             return util.Uninferable
 
@@ -2858,7 +2921,7 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
 
         for stmt in self.bases:
             try:
-                baseobj = next(stmt.infer(context=context))
+                baseobj = next(stmt.infer(context=context.clone()))
             except exceptions.InferenceError:
                 continue
             if isinstance(baseobj, bases.Instance):
@@ -2891,6 +2954,7 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
 
         unmerged_mro = [[self]] + bases_mro + [inferred_bases]
         unmerged_mro = list(clean_duplicates_mro(unmerged_mro, self, context))
+        clean_typing_generic_mro(unmerged_mro)
         return _c3_merge(unmerged_mro, self, context)
 
     def mro(self, context=None) -> List["ClassDef"]:
@@ -2917,6 +2981,8 @@ class ClassDef(mixins.FilterStmtsMixin, LocalsDictNodeNG, node_classes.Statement
             yield self.decorators
 
         yield from self.bases
+        if self.keywords is not None:
+            yield from self.keywords
         yield from self.body
 
     @decorators_mod.cached

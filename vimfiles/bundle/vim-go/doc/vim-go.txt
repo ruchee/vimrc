@@ -227,10 +227,9 @@ COMMANDS                                                         *go-commands*
                                                                   *:GoImports*
 :GoImports
 
-    Filter the current Go buffer through goimports (needs to be installed).
-    `goimports` automatically discards/add import path based on the code. Like
-    |:GoFmt|, It tries to preserve cursor position and avoids replacing the
-    buffer with stderr output.
+    Adjust imports using the setting of `g:go_imports_mode`. Like |:GoFmt|, It
+    tries to preserve cursor position and avoids replacing the buffer with
+    stderr output.
 
                                                                      *:GoPlay*
 :[range]GoPlay
@@ -935,7 +934,7 @@ documentation in the |go-commands| section. Available <Plug> keys are:
 
                                                                     *(go-run)*
 
-Calls `go run` for the current main package
+Calls `go run` for the current main package.
 
                                                                 *(go-run-tab)*
 
@@ -954,23 +953,23 @@ This option is neovim only.
 
                                                                   *(go-build)*
 
-Calls `go build` for the current package
+Calls `go build` for the current package.
 
                                                                *(go-generate)*
 
-Calls `go generate` for the current package
+Calls `go generate` for the current package.
 
                                                                    *(go-info)*
 
-Shows type information for the word under the cursor
+Shows type information for the word under the cursor.
 
                                                                 *(go-install)*
 
-Calls `go install` for the current package
+Calls `go install` for the current package.
 
                                                                    *(go-test)*
 
-Calls `go test` for the current package
+Calls `go test` for the current package.
 
                                                               *(go-test-func)*
 
@@ -978,7 +977,7 @@ Calls `go test -run '...'` for the test function immediate to cursor
 
                                                            *(go-test-compile)*
 
-Calls `go test -c` for the current package
+Calls `go test -c` for the current package.
 
                                                                *(go-coverage)*
 
@@ -987,7 +986,7 @@ coverage annotation.
 
                                                          *(go-coverage-clear)*
 
-Clears the coverage annotation
+Clears the coverage annotation.
 
                                                         *(go-coverage-toggle)*
 
@@ -995,27 +994,30 @@ Calls `go test -coverprofile-temp.out` for the current package and shows the
 coverage annotation. If run again it acts as a toggle and clears the
 annotation.
 
+                                                                    *(go-fmt)*
+
+Format the current buffer.
                                                                 *(go-imports)*
 
-Calls `goimports` for the current package
+Adjust imports for the current buffer.
 
                                                                    *(go-lint)*
 
-Calls `golint` for the current package
+Calls `golint` for the current package.
 
                                                                     *(go-vet)*
 
-Calls `go vet` for the current package
+Calls `go vet` for the current package.
 
 
                                                                   *(go-files)*
 
-Show source files that depends for the current package
+Show source files that depends for the current package.
 
 
                                                                    *(go-deps)*
 
-Show dependencies for the current package
+Show dependencies for the current package.
 
                                                                     *(go-doc)*
 
@@ -1350,10 +1352,10 @@ By default it's enabled >
                                                           *'g:go_fmt_command'*
 
 Use this option to define which tool is used to format code. Valid options are
-`gofmt`, `goimports`, and `gopls`. By default `gofmt` is used.
+`gofmt`, `goimports`, and `gopls`. By default `gopls` is used.
 >
 
-  let g:go_fmt_command = "gofmt"
+  let g:go_fmt_command = 'gopls'
 <
                                                           *'g:go_fmt_options'*
 
@@ -1413,18 +1415,18 @@ it's causing problems on some Vim versions. This has no effect if
 Use this option to auto |:GoImports| on save. When both
 'g:go_imports_autosave' and 'g:go_fmt_autosave' are enabled and both
 'g:go_fmt_command' and 'g:go_imports_mode' are set to `goimports`, `goimports`
-will be run only once. By default it's disabled.
+will be run only once. By default it's enabled.
 >
-  let g:go_imports_autosave = 0
+  let g:go_imports_autosave = 1
 <
                                                          *'g:go_imports_mode'*
 
 Use this option to define which tool is used to adjust imports. Valid options
 are `goimports` and `gopls`. The buffer will not be formatted when this is set
-to `gopls`. By default `goimports` is used.
+to `gopls`. By default `gopls` is used.
 >
 
-  let g:go_imports_mode = "goimports"
+  let g:go_imports_mode = 'gopls'
 <
                                                      *'g:go_mod_fmt_autosave'*
 
@@ -1486,9 +1488,7 @@ default it is `fillstruct`.
 
 Use this option to define the command to be used for |:GoReferrers|. By
 default `gopls` is used, because it is the fastest and works with Go modules.
-One might also use `guru` for its ability to show references from other
-packages.  This option will be removed after `gopls` can show references from
-other packages. Valid options are `gopls` and `guru`. By default it's `gopls`.
+Valid options are `gopls` and `guru`. By default it's `gopls`.
 >
   let g:go_referrers_mode = 'gopls'
 <
@@ -1519,7 +1519,7 @@ their mapping variants that cause splits. By default it's disabled. >
                                                              *'g:go_bin_path'*
 
 Use this option to change default path for vim-go tools when using
-|:GoInstallBinaries| and |:GoUpdateBinaries|. If not set `$GOBIN` or
+|:GoInstallBinaries| and |:GoUpdateBinaries|. If not set `go env GOBIN` or
 `$GOPATH/bin` is used. >
 
   let g:go_bin_path = ""
@@ -2324,21 +2324,10 @@ the `dlv` process, or |:GoDebugRestart| to recompile the code.
                                                            *go-debug-commands*
 DEBUGGER COMMANDS~
 
-Only |:GoDebugAttach|, |:GoDebugStart|, |:GoDebugTest|, and
-|:GoDebugBreakpoint| are available by default. |:GoDebugContinue| becomes
-available after running |:GoDebugAttach|, |:GoDebugStart| or |:GoDebugTest|.
-The rest of the commands and mappings become available after executing
+Only the commands to start the client or toggle breakpoints are available by
+default. |:GoDebugContinue| becomes available after starting the client.  The
+rest of the commands and mappings become available after executing
 |:GoDebugContinue|.
-
-                                                             *:GoDebugAttach*
-:GoDebugAttach pid
-
-    Start the debug mode for pid; this does several things:
-
-      * Setup the debug windows according to |'g:go_debug_windows'|.
-      * Make the `:GoDebug*` commands and `(go-debug-*)` mappings available.
-
-    Use |:GoDebugStop| to stop `dlv` and exit debugging mode.
 
                                                                *:GoDebugStart*
 :GoDebugStart [pkg] [program-args]
@@ -2352,6 +2341,28 @@ The rest of the commands and mappings become available after executing
     arguments will be passed to the program.
 
     Use |:GoDebugStop| to stop `dlv` and exit debugging mode.
+
+                                                             *:GoDebugAttach*
+:GoDebugAttach pid
+
+    Start the debug mode for pid; this does several things:
+
+      * Setup the debug windows according to |'g:go_debug_windows'|.
+      * Make the `:GoDebug*` commands and `(go-debug-*)` mappings available.
+
+    Use |:GoDebugStop| to stop `dlv` and exit debugging mode.
+
+                                                             *:GoDebugConnect*
+:GoDebugConnect [addr]
+
+  Connect to a running instance of delve. If addr is not supplied, then
+  |'g:go_debug_address'| will be used.
+
+  The debug windows will be setup according to |'g:go_debug_windows'|, and the
+  `:GoDebug*` commands and `(go-debug-*)` mappings will be available.
+
+  Use |:GoDebugStop| to exit debugging mode.
+
 
                                                                 *:GoDebugTest*
 :GoDebugTest [pkg] [program-args]

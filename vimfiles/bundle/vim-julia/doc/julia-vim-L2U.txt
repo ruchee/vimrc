@@ -110,8 +110,9 @@ and then pressing <Tab>, results in:
     1 + α
 <
 
-This feature is associated with 'omnifunc' completion, and therefore can
-always be accessed via CTRL-X CTRL-O, even when |g:latex_to_unicode_tab| is 0.
+This feature is associated with 'completefunc' completion, and therefore can
+always be accessed via CTRL-X CTRL-U, even when |g:latex_to_unicode_tab| is
+off.
 
 A literal <Tab> key can always be entered by using CTRL-V before <Tab> (see
 |i_CTRL-V|).
@@ -137,7 +138,7 @@ plug-in which is known to be incompatible with this feature is detected: see
 
 Some LaTeX sequences can be valid both as they are and as partial matches for
 other sequences, e.g. `\ne` is associated with `≠`, but it is also a partial
-match for `\nequiv` (`≢`). By default, if <Tab> finds an exact match performs
+match for `\nequiv` (`≢`). By default, if <Tab> finds an exact match it performs
 the substitution, but this can be controlled by the |g:latex_to_unicode_eager|
 setting.
 
@@ -154,11 +155,11 @@ the behavior falls back to the standard Vim command-line completion.
 Vim versions lower than 7.4                     *julia-vim-L2U-workaround*
 
 The <Tab> key remapping is not performed by default with Vim versions lower
-than 7.4. However, the functionality is still available via onmicompletion,
-which is accessible by the CTRL-X CTRL-O key combination. You can map some
-other key combination to this by adding something like
+than 7.4. However, the functionality is still available via user-defined
+completion, which is accessible by the CTRL-X CTRL-U key combination. You
+can map some other key combination to this by adding something like
 >
-  inoremap <C-Tab> <C-X><C-O>
+  inoremap <C-Tab> <C-X><C-U>
 <
 in your |.vimrc| file. If you'd map <Tab> directly, then you'd need to use
 CTRL-V <Tab> to insert a literal <Tab>.
@@ -197,7 +198,7 @@ uses |keymap| to generate the mappings. This has the advantage that it works
 in more circumstances, e.g. in |Command-line| mode or when searching within a
 line with |f| or |t| (since it uses |language-mapping| underneath). It can
 also be easily turned on or off like any other keymap (see |i_CTRL-^| and
-|c_CTRL-^|). Like the as-you-type fature, it doesn't work with emojis.
+|c_CTRL-^|). Like the as-you-type feature, it doesn't work with emojis.
 The disadvantage is that you don't see the whole sequence as you're typing
 it, and you can't fix mistakes with backspace, for example.
 Another difference is that there is a |timeout| like for any other mapping.
@@ -207,7 +208,9 @@ You can use it in parallel with the other methods, they don't interfere. For
 example, typing a partial sequence and pressing <Tab> still triggers
 completions and suggestions if |g:latex_to_unicode_tab| is active.
 
-If you use this feature, it's also useful to set |lCursor|.
+When this feature is active, in insert or replace mode you'll see `(L2U)` in
+the mode indicator. If you use this feature, and you use a GUI, it may also
+be useful to set |lCursor|.
 
 ------------------------------------------------------------------------------
 LATEX TO UNICODE ON DIFFERENT FILE TYPES         *julia-vim-L2U-file-types*
@@ -235,10 +238,10 @@ in all cases except for Python and untyped files, you would use:
     let g:latex_to_unicode_file_types_blacklist = ["python", ""]
 <
 
-NOTE: enabling the functionality will override the |'omnifunc'| setting, which
-can be undesirable, and interfere with plug-ins for different file types. In
-any case, the previous |'omnifunc'| setting is restored when the functionality
-is disabled, see |julia-vim-L2U-enable-disable|.
+NOTE: enabling the functionality will override the |'completefunc'| setting,
+which can be undesirable, and interfere with plug-ins for different file types.
+In any case, the previous |'completefunc'| setting is restored when the
+functionality is disabled, see |julia-vim-L2U-enable-disable|.
 
 ------------------------------------------------------------------------------
 ENABLING AND DISABLING LATEX TO UNICODE      *julia-vim-L2U-enable-disable*
@@ -265,22 +268,28 @@ VARIABLES                                         *julia-vim-L2U-variables*
                                                    *g:latex_to_unicode_tab*
 g:latex_to_unicode_tab
 
-                Determines whether to map LaTeX-to-Unicode substitution to the
-                <Tab> key while in |Insert| and |Command-line| modes, see
-                |julia-vim-L2U-tab|. If unspecified, it is on. You can disable
-                the feature by default by inserting the line
+                A string that determines whether to map LaTeX-to-Unicode
+                substitution to the <Tab> key while in |Insert| and |Command-line|
+                modes, see |julia-vim-L2U-tab|. If unspecified, it is `"on"`,
+                meaning it is active in both insert and command-line modes.
+                You can set it to the value `"command"` or `"cmd"` to only
+                activate it in command-line mode. Or you can set it to
+                `"insert"` or `"ins"` to only have the insert mode mapping. Set it
+                to `"off"` or any other value to disable this feature entirely.
+                So for example you can disable the feature for insert mode by
+                adding the line
 >
-                    let g:latex_to_unicode_tab = 0
+                    let g:latex_to_unicode_tab = "command"
 <
                 in your |.vimrc| file. You can change this setting at any moment
                 while editing, but you need to invoke |LaTeXtoUnicode#Init()|
                 for the change to take effect.
-                
+
                                            *g:latex_to_unicode_suggestions*
 g:latex_to_unicode_suggestions
 
                 Determines whether the <Tab> key mapping produces suggestions
-                for partial matches. By default, this is set to 1 (active),
+                for partial matches. By default, this is set to `1` (active),
                 unless a plug-in which is known to be incompatible with it is
                 detected. Currently, known incompatible plug-ins are
                 YouCompleteMe (https://github.com/Valloric/YouCompleteMe),
@@ -290,15 +299,15 @@ g:latex_to_unicode_suggestions
 
                 This variable can be set at any time, changes will immediately
                 take effect.
-                
+
                                                  *g:latex_to_unicode_eager*
 g:latex_to_unicode_eager
 
                 Determines whether the <Tab> key mapping performs the
                 substitution immediately upon finding an exact match. By
-                default this setting is set to 1 (active), so that e.g. typing
+                default this setting is set to `1` (active), so that e.g. typing
                 `\ne` and pressing the <Tab> key triggers the substitution. If
-                this variable is set to 0, an exact match which is also a
+                this variable is set to `0`, an exact match which is also a
                 possible partial match to some other sequence triggers the
                 suggestions menu first, but another <Tab> forces the
                 substitution, so that e.g. typing `\ne` and then <Tab>
@@ -308,7 +317,7 @@ g:latex_to_unicode_eager
                 This variable can be set at any time, changes will immediately
                 take effect. When |g:latex_to_unicode_suggestions| is `0`,
                 this setting has no effect (it's like if it was always on).
-                
+
                                                   *g:latex_to_unicode_auto*
 g:latex_to_unicode_auto
 
@@ -363,7 +372,7 @@ g:latex_to_unicode_cmd_mapping
                 Specifies the mapping (or list of mappings) for the
                 substitution in |Command-line| mode. By default, it is
                 `['<Tab>', '<S-Tab>']`, but it can be changed to avoid
-                overriding other user-defined mapping, e.g. to `'<S-Tab>'`
+                overriding other user-defined mappings, e.g. to `'<S-Tab>'`
                 (if your terminal suppoorts it) or `'<C-\><Tab>'`.
                 The `'<Tab>'` (or to be more precise the |wildchar| key) and
                 `'<S-Tab>'` mappings are special in that they fall back to
@@ -393,8 +402,8 @@ LaTeXtoUnicode#Toggle()
                 |g:latex_to_unicode_file_types| and
                 |g:latex_to_unicode_file_types_blacklist|. See
                 |julia-vim-L2U-enable-disable|. Note that LaTeXtoUnicode#Enable()
-                will override the |'omnifunc'| definition, if present. However,
-                LaTeXtoUnicode#Disable() will restore it.
+                will override the |'completefunc'| definition, if present.
+                However, LaTeXtoUnicode#Disable() will restore it.
                 These functions implicitly invoke |LaTeXtoUnicode#Init()|.
 
 

@@ -1,91 +1,130 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2021 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2015 Rene Zhang <rz99@cornell.edu>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2019-2020 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2019 Stanislav Levin <slev@altlinux.org>
 # Copyright (c) 2019 David Liu <david@cs.toronto.edu>
-# Copyright (c) 2019 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2019 Frédéric Chapoton <fchapoton2@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """Astroid hooks for various builtins."""
 
 from functools import partial
-from textwrap import dedent
 
-import six
 from astroid import (
     MANAGER,
-    UseInferenceDefault,
-    AttributeInferenceError,
-    inference_tip,
-    InferenceError,
-    NameInferenceError,
     AstroidTypeError,
+    AttributeInferenceError,
+    InferenceError,
     MroError,
+    NameInferenceError,
+    UseInferenceDefault,
+    arguments,
+    helpers,
+    inference_tip,
+    nodes,
+    objects,
+    scoped_nodes,
+    util,
 )
-from astroid import arguments
 from astroid.builder import AstroidBuilder
-from astroid import helpers
-from astroid import nodes
-from astroid import objects
-from astroid import scoped_nodes
-from astroid import util
-
 
 OBJECT_DUNDER_NEW = "object.__new__"
 
+STR_CLASS = """
+class whatever(object):
+    def join(self, iterable):
+        return {rvalue}
+    def replace(self, old, new, count=None):
+        return {rvalue}
+    def format(self, *args, **kwargs):
+        return {rvalue}
+    def encode(self, encoding='ascii', errors=None):
+        return b''
+    def decode(self, encoding='ascii', errors=None):
+        return u''
+    def capitalize(self):
+        return {rvalue}
+    def title(self):
+        return {rvalue}
+    def lower(self):
+        return {rvalue}
+    def upper(self):
+        return {rvalue}
+    def swapcase(self):
+        return {rvalue}
+    def index(self, sub, start=None, end=None):
+        return 0
+    def find(self, sub, start=None, end=None):
+        return 0
+    def count(self, sub, start=None, end=None):
+        return 0
+    def strip(self, chars=None):
+        return {rvalue}
+    def lstrip(self, chars=None):
+        return {rvalue}
+    def rstrip(self, chars=None):
+        return {rvalue}
+    def rjust(self, width, fillchar=None):
+        return {rvalue}
+    def center(self, width, fillchar=None):
+        return {rvalue}
+    def ljust(self, width, fillchar=None):
+        return {rvalue}
+"""
 
-def _extend_str(class_node, rvalue):
+
+BYTES_CLASS = """
+class whatever(object):
+    def join(self, iterable):
+        return {rvalue}
+    def replace(self, old, new, count=None):
+        return {rvalue}
+    def decode(self, encoding='ascii', errors=None):
+        return u''
+    def capitalize(self):
+        return {rvalue}
+    def title(self):
+        return {rvalue}
+    def lower(self):
+        return {rvalue}
+    def upper(self):
+        return {rvalue}
+    def swapcase(self):
+        return {rvalue}
+    def index(self, sub, start=None, end=None):
+        return 0
+    def find(self, sub, start=None, end=None):
+        return 0
+    def count(self, sub, start=None, end=None):
+        return 0
+    def strip(self, chars=None):
+        return {rvalue}
+    def lstrip(self, chars=None):
+        return {rvalue}
+    def rstrip(self, chars=None):
+        return {rvalue}
+    def rjust(self, width, fillchar=None):
+        return {rvalue}
+    def center(self, width, fillchar=None):
+        return {rvalue}
+    def ljust(self, width, fillchar=None):
+        return {rvalue}
+"""
+
+
+def _extend_string_class(class_node, code, rvalue):
     """function to extend builtin str/unicode class"""
-    code = dedent(
-        """
-    class whatever(object):
-        def join(self, iterable):
-            return {rvalue}
-        def replace(self, old, new, count=None):
-            return {rvalue}
-        def format(self, *args, **kwargs):
-            return {rvalue}
-        def encode(self, encoding='ascii', errors=None):
-            return ''
-        def decode(self, encoding='ascii', errors=None):
-            return u''
-        def capitalize(self):
-            return {rvalue}
-        def title(self):
-            return {rvalue}
-        def lower(self):
-            return {rvalue}
-        def upper(self):
-            return {rvalue}
-        def swapcase(self):
-            return {rvalue}
-        def index(self, sub, start=None, end=None):
-            return 0
-        def find(self, sub, start=None, end=None):
-            return 0
-        def count(self, sub, start=None, end=None):
-            return 0
-        def strip(self, chars=None):
-            return {rvalue}
-        def lstrip(self, chars=None):
-            return {rvalue}
-        def rstrip(self, chars=None):
-            return {rvalue}
-        def rjust(self, width, fillchar=None):
-            return {rvalue}
-        def center(self, width, fillchar=None):
-            return {rvalue}
-        def ljust(self, width, fillchar=None):
-            return {rvalue}
-    """
-    )
     code = code.format(rvalue=rvalue)
     fake = AstroidBuilder(MANAGER).string_build(code)["whatever"]
     for method in fake.mymethods():
@@ -106,13 +145,30 @@ def _extend_builtins(class_transforms):
 
 _extend_builtins(
     {
-        "bytes": partial(_extend_str, rvalue="b''"),
-        "str": partial(_extend_str, rvalue="''"),
+        "bytes": partial(_extend_string_class, code=BYTES_CLASS, rvalue="b''"),
+        "str": partial(_extend_string_class, code=STR_CLASS, rvalue="''"),
     }
 )
 
 
 def _builtin_filter_predicate(node, builtin_name):
+    if (
+        builtin_name == "type"
+        and node.root().name == "re"
+        and isinstance(node.func, nodes.Name)
+        and node.func.name == "type"
+        and isinstance(node.parent, nodes.Assign)
+        and len(node.parent.targets) == 1
+        and isinstance(node.parent.targets[0], nodes.AssignName)
+        and node.parent.targets[0].name in ("Pattern", "Match")
+    ):
+        # Handle re.Pattern and re.Match in brain_re
+        # Match these patterns from stdlib/re.py
+        # ```py
+        # Pattern = type(...)
+        # Match = type(...)
+        # ```
+        return False
     if isinstance(node.func, nodes.Name) and node.func.name == builtin_name:
         return True
     if isinstance(node.func, nodes.Attribute):
@@ -165,26 +221,30 @@ def _container_generic_inference(node, context, node_type, transform):
     if not transformed:
         try:
             inferred = next(arg.infer(context=context))
-        except (InferenceError, StopIteration):
-            raise UseInferenceDefault()
+        except (InferenceError, StopIteration) as exc:
+            raise UseInferenceDefault from exc
         if inferred is util.Uninferable:
-            raise UseInferenceDefault()
+            raise UseInferenceDefault
         transformed = transform(inferred)
     if not transformed or transformed is util.Uninferable:
-        raise UseInferenceDefault()
+        raise UseInferenceDefault
     return transformed
 
 
-def _container_generic_transform(arg, context, klass, iterables, build_elts):
+def _container_generic_transform(  # pylint: disable=inconsistent-return-statements
+    arg, context, klass, iterables, build_elts
+):
     if isinstance(arg, klass):
         return arg
-    elif isinstance(arg, iterables):
+    if isinstance(arg, iterables):
         if all(isinstance(elt, nodes.Const) for elt in arg.elts):
             elts = [elt.value for elt in arg.elts]
         else:
             # TODO: Does not handle deduplication for sets.
             elts = []
             for element in arg.elts:
+                if not element:
+                    continue
                 inferred = helpers.safe_infer(element, context=context)
                 if inferred:
                     evaluated_object = nodes.EvaluatedObject(
@@ -196,9 +256,7 @@ def _container_generic_transform(arg, context, klass, iterables, build_elts):
         if not all(isinstance(elt[0], nodes.Const) for elt in arg.items):
             raise UseInferenceDefault()
         elts = [item[0].value for item in arg.items]
-    elif isinstance(arg, nodes.Const) and isinstance(
-        arg.value, (six.string_types, six.binary_type)
-    ):
+    elif isinstance(arg, nodes.Const) and isinstance(arg.value, (str, bytes)):
         elts = arg.value
     else:
         return
@@ -267,8 +325,8 @@ def _get_elts(arg, context):
     is_iterable = lambda n: isinstance(n, (nodes.List, nodes.Tuple, nodes.Set))
     try:
         inferred = next(arg.infer(context))
-    except (InferenceError, NameInferenceError):
-        raise UseInferenceDefault()
+    except (InferenceError, NameInferenceError) as exc:
+        raise UseInferenceDefault from exc
     if isinstance(inferred, nodes.Dict):
         items = inferred.items
     elif is_iterable(inferred):
@@ -314,7 +372,7 @@ def infer_dict(node, context=None):
     if not args and not kwargs:
         # dict()
         return nodes.Dict()
-    elif kwargs and not args:
+    if kwargs and not args:
         # dict(a=1, b=2, c=4)
         items = [(nodes.Const(key), value) for key, value in kwargs]
     elif len(args) == 1 and kwargs:
@@ -326,7 +384,6 @@ def infer_dict(node, context=None):
         items = _get_elts(args[0], context)
     else:
         raise UseInferenceDefault()
-
     value = nodes.Dict(
         col_offset=node.col_offset, lineno=node.lineno, parent=node.parent
     )
@@ -360,7 +417,7 @@ def infer_super(node, context=None):
         raise UseInferenceDefault
 
     cls = scoped_nodes.get_wrapping_class(scope)
-    if not len(node.args):
+    if not node.args:
         mro_pointer = cls
         # In we are in a classmethod, the interpreter will fill
         # automatically the class as the second argument, not an instance.
@@ -371,12 +428,12 @@ def infer_super(node, context=None):
     else:
         try:
             mro_pointer = next(node.args[0].infer(context=context))
-        except InferenceError:
-            raise UseInferenceDefault
+        except InferenceError as exc:
+            raise UseInferenceDefault from exc
         try:
             mro_type = next(node.args[1].infer(context=context))
-        except InferenceError:
-            raise UseInferenceDefault
+        except InferenceError as exc:
+            raise UseInferenceDefault from exc
 
     if mro_pointer is util.Uninferable or mro_type is util.Uninferable:
         # No way we could understand this.
@@ -397,8 +454,8 @@ def _infer_getattr_args(node, context):
     try:
         obj = next(node.args[0].infer(context=context))
         attr = next(node.args[1].infer(context=context))
-    except InferenceError:
-        raise UseInferenceDefault
+    except InferenceError as exc:
+        raise UseInferenceDefault from exc
 
     if obj is util.Uninferable or attr is util.Uninferable:
         # If one of the arguments is something we can't infer,
@@ -406,9 +463,7 @@ def _infer_getattr_args(node, context):
         # which is unknown.
         return util.Uninferable, util.Uninferable
 
-    is_string = isinstance(attr, nodes.Const) and isinstance(
-        attr.value, six.string_types
-    )
+    is_string = isinstance(attr, nodes.Const) and isinstance(attr.value, str)
     if not is_string:
         raise UseInferenceDefault
 
@@ -437,8 +492,8 @@ def infer_getattr(node, context=None):
             # Try to infer the default and return it instead.
             try:
                 return next(node.args[2].infer(context=context))
-            except InferenceError:
-                raise UseInferenceDefault
+            except InferenceError as exc:
+                raise UseInferenceDefault from exc
 
     raise UseInferenceDefault
 
@@ -505,8 +560,8 @@ def infer_property(node, context=None):
     getter = node.args[0]
     try:
         inferred = next(getter.infer(context=context))
-    except InferenceError:
-        raise UseInferenceDefault
+    except InferenceError as exc:
+        raise UseInferenceDefault from exc
 
     if not isinstance(inferred, (nodes.FunctionDef, nodes.Lambda)):
         raise UseInferenceDefault
@@ -673,12 +728,12 @@ def infer_isinstance(callnode, context=None):
         class_container = _class_or_tuple_to_container(
             class_or_tuple_node, context=context
         )
-    except InferenceError:
-        raise UseInferenceDefault
+    except InferenceError as exc:
+        raise UseInferenceDefault from exc
     try:
         isinstance_bool = helpers.object_isinstance(obj_node, class_container, context)
     except AstroidTypeError as exc:
-        raise UseInferenceDefault("TypeError: " + str(exc))
+        raise UseInferenceDefault("TypeError: " + str(exc)) from exc
     except MroError as exc:
         raise UseInferenceDefault from exc
     if isinstance_bool is util.Uninferable:
@@ -721,6 +776,7 @@ def infer_len(node, context=None):
             "({len}) given".format(len=len(call.positional_arguments))
         )
     [argument_node] = call.positional_arguments
+
     try:
         return nodes.Const(helpers.object_len(argument_node, context=context))
     except (AstroidTypeError, InferenceError) as exc:
@@ -821,15 +877,14 @@ def infer_dict_fromkeys(node, context=None):
 
         elements_with_value = [(element, default) for element in elements]
         return _build_dict_with_elements(elements_with_value)
-
-    elif isinstance(inferred_values, nodes.Const) and isinstance(
+    if isinstance(inferred_values, nodes.Const) and isinstance(
         inferred_values.value, (str, bytes)
     ):
         elements = [
             (nodes.Const(element), default) for element in inferred_values.value
         ]
         return _build_dict_with_elements(elements)
-    elif isinstance(inferred_values, nodes.Dict):
+    if isinstance(inferred_values, nodes.Dict):
         keys = inferred_values.itered()
         for key in keys:
             if not isinstance(key, accepted_iterable_elements):

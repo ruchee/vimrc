@@ -7,23 +7,24 @@
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2019, 2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 import sys
-import unittest
 import textwrap
+import unittest
 
-from astroid import MANAGER, Instance, nodes
+from astroid import MANAGER, Instance, exceptions, nodes, transforms
 from astroid.bases import BUILTINS
 from astroid.builder import AstroidBuilder, extract_node
-from astroid import exceptions
-from astroid.raw_building import build_module
 from astroid.manager import AstroidManager
-from astroid.test_utils import require_version
-from astroid import transforms
+from astroid.raw_building import build_module
+
 from . import resources
 
 try:
@@ -93,14 +94,13 @@ class NonRegressionTests(resources.AstroidCacheSetupMixin, unittest.TestCase):
         data = """
 from numpy import multiply
 
-multiply(1, 2, 3)
+multiply([1, 2], [3, 4])
 """
         astroid = builder.string_build(data, __name__, __file__)
         callfunc = astroid.body[1].value.func
         inferred = callfunc.inferred()
-        self.assertEqual(len(inferred), 1)
+        self.assertEqual(len(inferred), 2)
 
-    @require_version("3.0")
     def test_nameconstant(self):
         # used to fail for Python 3.4
         builder = AstroidBuilder()
@@ -210,7 +210,7 @@ def test():
         )
         ancestors = list(node.ancestors())
         self.assertEqual(len(ancestors), 1)
-        self.assertEqual(ancestors[0].qname(), "{}.object".format(BUILTINS))
+        self.assertEqual(ancestors[0].qname(), f"{BUILTINS}.object")
 
     def test_ancestors_missing_from_function(self):
         # Test for https://www.logilab.org/ticket/122793
@@ -322,6 +322,36 @@ def test():
 
 class Whatever:
     a = property(lambda x: x, lambda x: x)
+
+
+def test_ancestor_looking_up_redefined_function():
+    code = """
+    class Foo:
+        def _format(self):
+            pass
+
+        def format(self):
+            self.format = self._format
+            self.format()
+    Foo
+    """
+    node = extract_node(code)
+    inferred = next(node.infer())
+    ancestor = next(inferred.ancestors())
+    _, found = ancestor.lookup("format")
+    assert len(found) == 1
+    assert isinstance(found[0], nodes.FunctionDef)
+
+
+def test_crash_in_dunder_inference_prevented():
+    code = """
+    class MyClass():
+        def fu(self, objects):
+            delitem = dict.__delitem__.__get__(self, dict)
+            delitem #@
+    """
+    inferred = next(extract_node(code).infer())
+    assert inferred.qname() == "builtins.dict.__delitem__"
 
 
 if __name__ == "__main__":

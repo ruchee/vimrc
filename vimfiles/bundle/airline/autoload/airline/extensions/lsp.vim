@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 François-Xavier Carton et al.
+" MIT License. Copyright (c) 2013-2021 François-Xavier Carton et al.
 " Plugin: https://github.com/prabirshrestha/vim-lsp
 " vim: et ts=2 sts=2 sw=2
 
@@ -61,7 +61,51 @@ function! airline#extensions#lsp#get_error() abort
   return airline#extensions#lsp#get('error')
 endfunction
 
+let s:lsp_progress = []
+function! airline#extensions#lsp#progress() abort
+  if get(w:, 'airline_active', 0)
+    if exists('*lsp#get_progress')
+      let s:lsp_progress = lsp#get_progress()
+
+      if len(s:lsp_progress) == 0 | return '' | endif
+
+      " show only most new progress
+      let s:lsp_progress = s:lsp_progress[0]
+      if s:lsp_progress['message'] !=# ''
+        let percent = ''
+        if has_key(s:lsp_progress, 'percentage') && s:lsp_progress['percentage'] >= 0
+          let percent = ' ' . string(s:lsp_progress['percentage']) . '%'
+        endif
+        let s:title = s:lsp_progress['title']
+        let message = airline#util#shorten(s:lsp_progress['message'] . percent, 91, 9)
+        return s:lsp_progress['server'] . ': ' . s:title . ' ' . message
+      endif
+    endif
+  endif
+  return ''
+endfunction
+
+let s:timer = 0
+let s:ignore_time = 0
+function! airline#extensions#lsp#update() abort
+  if !exists('#airline')
+    " airline disabled
+    return
+  endif
+  if reltimefloat(reltime()) - s:ignore_time >=
+        \ get(g:, 'airline#extensions#lsp#progress_skip_time', 0.3)
+        \ || len(s:lsp_progress) == 0
+    call airline#update_statusline()
+    let s:ignore_time = reltimefloat(reltime())
+  endif
+endfunction
+
 function! airline#extensions#lsp#init(ext) abort
   call airline#parts#define_function('lsp_error_count', 'airline#extensions#lsp#get_error')
   call airline#parts#define_function('lsp_warning_count', 'airline#extensions#lsp#get_warning')
+  call airline#parts#define_function('lsp_progress', 'airline#extensions#lsp#progress')
+  augroup airline_lsp_progress
+    autocmd!
+    autocmd User lsp_progress_updated call airline#extensions#lsp#update()
+  augroup END
 endfunction

@@ -13,7 +13,7 @@ if exists("loaded_matchit")
         \ '<\@<=\([^/][^ \t>]*\)[^>]*\%(>\|$\):<\@<=/\1>'
 endif
 
-" Indent correctly with template string for vim-javascript/builtin
+" Indent correctly with template string for vim-javascript/built-in
 " indentexpr
 let b:syng_str = '^\%(.*template\)\@!.*string\|special'
 let b:syng_strcom = '^\%(.*template\)\@!.*string\|comment\|regex\|special\|doc'

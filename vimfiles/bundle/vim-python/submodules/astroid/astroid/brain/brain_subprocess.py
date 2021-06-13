@@ -3,16 +3,20 @@
 # Copyright (c) 2018 Peter Talley <peterctalley@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Peter Pentchev <roam@ringlet.net>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Damien Baty <damien@damienbaty.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 import sys
 import textwrap
 
 import astroid
 
-
+PY39 = sys.version_info >= (3, 9)
 PY37 = sys.version_info >= (3, 7)
 PY36 = sys.version_info >= (3, 6)
 
@@ -77,6 +81,11 @@ def _subprocess_transform():
             preexec_fn=None,
             pass_fds=(),
             input=None,
+            bufsize=0,
+            executable=None,
+            close_fds=False,
+            startupinfo=None,
+            creationflags=0,
             start_new_session=False
         ):
         """.strip()
@@ -97,6 +106,11 @@ def _subprocess_transform():
             preexec_fn=None,
             pass_fds=(),
             input=None,
+            bufsize=0,
+            executable=None,
+            close_fds=False,
+            startupinfo=None,
+            creationflags=0,
             start_new_session=False
         ):
         """.strip()
@@ -136,6 +150,12 @@ def _subprocess_transform():
             "py3_args": py3_args,
         }
     )
+    if PY39:
+        code += """
+    @classmethod
+    def __class_getitem__(cls, item):
+        pass
+        """
 
     init_lines = textwrap.dedent(init).splitlines()
     indented_init = "\n".join(" " * 4 + line for line in init_lines)

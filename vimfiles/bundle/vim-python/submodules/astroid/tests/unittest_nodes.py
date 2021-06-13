@@ -1,6 +1,6 @@
 # Copyright (c) 2006-2007, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
-# Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2013-2021 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 Eevee (Alex Munroe) <amunroe@yelp.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
@@ -12,41 +12,38 @@
 # Copyright (c) 2018 brendanator <brendan.maginnis@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019-2020 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2019-2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Alex Hall <alex.mojaki@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """tests for specific behaviour of astroid nodes
 """
+import builtins
+import copy
 import os
+import platform
 import sys
 import textwrap
 import unittest
-import copy
-import platform
 
 import pytest
-import six
 
 import astroid
-from astroid import bases
-from astroid import builder
+from astroid import bases, builder
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import node_classes
-from astroid import nodes
-from astroid import parse
-from astroid import util
-from astroid import test_utils
-from astroid import transforms
+from astroid import exceptions, node_classes, nodes, parse, test_utils, transforms, util
+
 from . import resources
 
-
 abuilder = builder.AstroidBuilder()
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 PY38 = sys.version_info[:2] >= (3, 8)
 try:
     import typed_ast  # pylint: disable=unused-import
@@ -67,7 +64,6 @@ class AsStringTest(resources.SysPathSetup, unittest.TestCase):
         self.assertEqual(build("(1, )").as_string(), "(1, )")
         self.assertEqual(build("1, 2, 3").as_string(), "(1, 2, 3)")
 
-    @test_utils.require_version(minver="3.0")
     def test_func_signature_issue_185(self):
         code = textwrap.dedent(
             """
@@ -115,17 +111,15 @@ class AsStringTest(resources.SysPathSetup, unittest.TestCase):
         self.assertEqual(ast.as_string(), "raise_string(*args, **kwargs)")
 
     def test_module_as_string(self):
-        """check as_string on a whole module prepared to be returned identically
-        """
+        """check as_string on a whole module prepared to be returned identically"""
         module = resources.build_file("data/module.py", "data.module")
-        with open(resources.find("data/module.py"), "r") as fobj:
+        with open(resources.find("data/module.py")) as fobj:
             self.assertMultiLineEqual(module.as_string(), fobj.read())
 
     def test_module2_as_string(self):
-        """check as_string on a whole module prepared to be returned identically
-        """
+        """check as_string on a whole module prepared to be returned identically"""
         module2 = resources.build_file("data/module2.py", "data.module2")
-        with open(resources.find("data/module2.py"), "r") as fobj:
+        with open(resources.find("data/module2.py")) as fobj:
             self.assertMultiLineEqual(module2.as_string(), fobj.read())
 
     def test_as_string(self):
@@ -136,7 +130,6 @@ cdd = {k for k in b}\n\n"""
         ast = abuilder.string_build(code)
         self.assertMultiLineEqual(ast.as_string(), code)
 
-    @test_utils.require_version("3.0")
     def test_3k_as_string(self):
         """check as_string for python 3k syntax"""
         code = """print()
@@ -162,8 +155,13 @@ def function(var):
         '''
 
         code_annotations = textwrap.dedent(code)
-        # pylint: disable=line-too-long
-        expected = 'def function(var: int):\n    nonlocal counter\n\n\nclass Language(metaclass=Natural):\n    """natural language"""'
+        expected = '''\
+def function(var: int):
+    nonlocal counter
+
+
+class Language(metaclass=Natural):
+    """natural language"""'''
         ast = abuilder.string_build(code_annotations)
         self.assertEqual(ast.as_string().strip(), expected)
 
@@ -401,23 +399,9 @@ class TryExceptFinallyNodeTest(_NodeTest):
         self.assertEqual(self.astroid.body[0].block_range(6), (6, 6))
 
 
-@unittest.skipIf(six.PY3, "Python 2 specific test.")
-class TryExcept2xNodeTest(_NodeTest):
-    CODE = """
-        try:
-            hello
-        except AttributeError, (retval, desc):
-            pass
-    """
-
-    def test_tuple_attribute(self):
-        handler = self.astroid.body[0].handlers[0]
-        self.assertIsInstance(handler.name, nodes.Tuple)
-
-
 class ImportNodeTest(resources.SysPathSetup, unittest.TestCase):
     def setUp(self):
-        super(ImportNodeTest, self).setUp()
+        super().setUp()
         self.module = resources.build_file("data/module.py", "data.module")
         self.module2 = resources.build_file("data/module2.py", "data.module2")
 
@@ -580,7 +564,6 @@ class NameNodeTest(unittest.TestCase):
 
 
 class AnnAssignNodeTest(unittest.TestCase):
-    @test_utils.require_version(minver="3.6")
     def test_primitive(self):
         code = textwrap.dedent(
             """
@@ -594,7 +577,6 @@ class AnnAssignNodeTest(unittest.TestCase):
         self.assertEqual(assign.value.value, 5)
         self.assertEqual(assign.simple, 1)
 
-    @test_utils.require_version(minver="3.6")
     def test_primitive_without_initial_value(self):
         code = textwrap.dedent(
             """
@@ -607,7 +589,6 @@ class AnnAssignNodeTest(unittest.TestCase):
         self.assertEqual(assign.annotation.name, "str")
         self.assertEqual(assign.value, None)
 
-    @test_utils.require_version(minver="3.6")
     def test_complex(self):
         code = textwrap.dedent(
             """
@@ -620,7 +601,6 @@ class AnnAssignNodeTest(unittest.TestCase):
         self.assertIsInstance(assign.annotation, astroid.Subscript)
         self.assertIsInstance(assign.value, astroid.Dict)
 
-    @test_utils.require_version(minver="3.6")
     def test_as_string(self):
         code = textwrap.dedent(
             """
@@ -654,7 +634,6 @@ class ArgumentsNodeTC(unittest.TestCase):
             "(no line number on function args)"
         )
 
-    @test_utils.require_version(minver="3.0")
     def test_kwoargs(self):
         ast = builder.parse(
             """
@@ -862,7 +841,6 @@ class AliasesTest(unittest.TestCase):
         self.assertIsInstance(module.body[6].value, nodes.GeneratorExp)
 
 
-@test_utils.require_version("3.5")
 class Python35AsyncTest(unittest.TestCase):
     def test_async_await_keywords(self):
         async_def, async_for, async_with, await_node = builder.extract_node(
@@ -962,13 +940,11 @@ class ContextTest(unittest.TestCase):
         with self.assertRaises(exceptions.AstroidSyntaxError):
             builder.extract_node("(1, ) = 3")
 
-    @test_utils.require_version(minver="3.5")
     def test_starred_load(self):
         node = builder.extract_node("a = *b")
         starred = node.value
         self.assertIs(starred.ctx, astroid.Load)
 
-    @test_utils.require_version(minver="3.0")
     def test_starred_store(self):
         node = builder.extract_node("a, *b = 1, 2")
         starred = node.targets[0].elts[1]
@@ -1181,6 +1157,19 @@ def test_type_comments_posonly_arguments():
                 assert actual_arg.as_string() == expected_arg
 
 
+@pytest.mark.skipif(not HAS_TYPED_AST, reason="requires typed_ast")
+def test_correct_function_type_comment_parent():
+    data = """
+        def f(a):
+            # type: (A) -> A
+            pass
+    """
+    parsed_data = builder.parse(data)
+    f = parsed_data.body[0]
+    assert f.type_comment_args[0].parent is f
+    assert f.type_comment_returns.parent is f
+
+
 def test_is_generator_for_yield_assignments():
     node = astroid.extract_node(
         """
@@ -1200,7 +1189,6 @@ def test_is_generator_for_yield_assignments():
 
 
 class AsyncGeneratorTest:
-    @test_utils.require_version(minver="3.6")
     def test_async_generator(self):
         node = astroid.extract_node(
             """
@@ -1218,7 +1206,6 @@ class AsyncGeneratorTest:
         assert inferred.pytype() == "builtins.async_generator"
         assert inferred.display_type() == "AsyncGenerator"
 
-    @test_utils.require_version(maxver="3.5")
     def test_async_generator_is_generator_on_older_python(self):
         node = astroid.extract_node(
             """
@@ -1342,6 +1329,30 @@ def test_is_generator_for_yield_in_while():
             # Continue to yield the same item until `next(i)` or `i.send(False)`
             while (yield value):
                 pass
+    """
+    node = astroid.extract_node(code)
+    assert bool(node.is_generator())
+
+
+def test_is_generator_for_yield_in_if():
+    code = """
+    import asyncio
+
+    def paused_iter(iterable):
+        if (yield from asyncio.sleep(0.01)):
+            pass
+            return
+    """
+    node = astroid.extract_node(code)
+    assert bool(node.is_generator())
+
+
+def test_is_generator_for_yield_in_aug_assign():
+    code = """
+    def test():
+        buf = ''
+        while True:
+            buf += yield
     """
     node = astroid.extract_node(code)
     assert bool(node.is_generator())

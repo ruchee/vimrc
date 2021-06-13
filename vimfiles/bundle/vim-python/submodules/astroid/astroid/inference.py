@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
@@ -17,9 +16,11 @@
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 HoverHell <hoverhell@gmail.com>
 # Copyright (c) 2020 Leandro T. C. Melo <ltcmelo@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """this module contains a set of functions to handle inference on astroid trees
 """
@@ -29,17 +30,11 @@ import itertools
 import operator
 
 import wrapt
+
 from astroid import bases
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import decorators
-from astroid import helpers
-from astroid import manager
-from astroid import nodes
+from astroid import decorators, exceptions, helpers, manager, nodes, protocols, util
 from astroid.interpreter import dunder_lookup
-from astroid import protocols
-from astroid import util
-
 
 MANAGER = manager.AstroidManager()
 # Prevents circular imports
@@ -167,7 +162,7 @@ nodes.Dict._infer = infer_map
 
 
 def _higher_function_scope(node):
-    """ Search for the first function which encloses the given
+    """Search for the first function which encloses the given
     scope. This can be used for looking up in that function's
     scope, in case looking up in a lower scope for a particular
     name fails.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2014-2016, 2018-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
@@ -10,9 +9,13 @@
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 markmcclain <markmcclain@users.noreply.github.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """
 unit tests for module modutils (module manipulation utilities)
@@ -20,17 +23,18 @@ unit tests for module modutils (module manipulation utilities)
 import distutils.version
 import email
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 import xml
 from xml import etree
 from xml.etree import ElementTree
-import tempfile
-import shutil
 
 import astroid
-from astroid.interpreter._import import spec
 from astroid import modutils
+from astroid.interpreter._import import spec
+
 from . import resources
 
 
@@ -82,7 +86,7 @@ class LoadModuleFromNameTest(unittest.TestCase):
 
     def test_raise_load_module_from_name_1(self):
         self.assertRaises(
-            ImportError, modutils.load_module_from_name, "os.path", use_sys=0
+            ImportError, modutils.load_module_from_name, "_this_module_does_not_exist_"
         )
 
 
@@ -297,6 +301,23 @@ class IsRelativeTest(unittest.TestCase):
     def test_knownValues_is_relative_3(self):
         self.assertFalse(modutils.is_relative("astroid", astroid.__path__[0]))
 
+    def test_deep_relative(self):
+        self.assertTrue(modutils.is_relative("ElementTree", xml.etree.__path__[0]))
+
+    def test_deep_relative2(self):
+        self.assertFalse(modutils.is_relative("ElementTree", xml.__path__[0]))
+
+    def test_deep_relative3(self):
+        self.assertTrue(modutils.is_relative("etree.ElementTree", xml.__path__[0]))
+
+    def test_deep_relative4(self):
+        self.assertTrue(modutils.is_relative("etree.gibberish", xml.__path__[0]))
+
+    def test_is_relative_bad_path(self):
+        self.assertFalse(
+            modutils.is_relative("ElementTree", os.path.join(xml.__path__[0], "ftree"))
+        )
+
 
 class GetModuleFilesTest(unittest.TestCase):
     def test_get_module_files_1(self):
@@ -312,8 +333,7 @@ class GetModuleFilesTest(unittest.TestCase):
         self.assertEqual(modules, {os.path.join(package, x) for x in expected})
 
     def test_get_all_files(self):
-        """test that list_all returns all Python files from given location
-        """
+        """test that list_all returns all Python files from given location"""
         non_package = resources.find("data/notamodule")
         modules = modutils.get_module_files(non_package, [], list_all=True)
         self.assertEqual(modules, [os.path.join(non_package, "file.py")])

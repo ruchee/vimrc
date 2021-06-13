@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -86,12 +86,16 @@ function! airline#init#bootstrap()
     call s:check_defined('g:airline_left_alt_sep', "\ue0b1")  " 
     call s:check_defined('g:airline_right_sep', "\ue0b2")     " 
     call s:check_defined('g:airline_right_alt_sep', "\ue0b3") " 
-    " ro=, ws=☲, lnr=☰, mlnr=, br=, nx=Ɇ, crypt=🔒, dirty=⚡
+    " ro=, ws=☲, lnr=, mlnr=☰, colnr=, br=, nx=Ɇ, crypt=🔒, dirty=⚡
+    "  Note: For powerline, we add an extra space after maxlinenr symbol,
+    "  because it is usually setup as a ligature in most powerline patched
+    "  fonts. It can be over-ridden by configuring a custom maxlinenr
     call extend(g:airline_symbols, {
           \ 'readonly': "\ue0a2",
           \ 'whitespace': "\u2632",
-          \ 'linenr': "\u2630 ",
-          \ 'maxlinenr': " \ue0a1",
+          \ 'maxlinenr': "\u2630 ",
+          \ 'linenr': " \ue0a1:",
+          \ 'colnr': " \ue0a3:",
           \ 'branch': "\ue0a0",
           \ 'notexists': "\u0246",
           \ 'dirty': "\u26a1",
@@ -103,12 +107,13 @@ function! airline#init#bootstrap()
     call s:check_defined('g:airline_left_alt_sep', "")
     call s:check_defined('g:airline_right_sep', "")
     call s:check_defined('g:airline_right_alt_sep', "")
-    " ro=⊝, ws=☲, lnr=☰, mlnr=㏑, br=ᚠ, nx=Ɇ, crypt=🔒
+    " ro=⊝, ws=☲, lnr=㏑, mlnr=☰, colnr=℅, br=ᚠ, nx=Ɇ, crypt=🔒
     call extend(g:airline_symbols, {
           \ 'readonly': "\u229D",
           \ 'whitespace': "\u2632",
-          \ 'linenr': "\u2630 ",
-          \ 'maxlinenr': " \u33D1",
+          \ 'maxlinenr': "\u2630",
+          \ 'linenr': " \u33d1:",
+          \ 'colnr': " \u2105:",
           \ 'branch': "\u16A0",
           \ 'notexists': "\u0246",
           \ 'crypt': nr2char(0x1F512),
@@ -123,8 +128,9 @@ function! airline#init#bootstrap()
     call extend(g:airline_symbols, {
           \ 'readonly': 'RO',
           \ 'whitespace': '!',
-          \ 'linenr': 'ln ',
-          \ 'maxlinenr': ' :',
+          \ 'linenr': ' ln:',
+          \ 'maxlinenr': '',
+          \ 'colnr': ' cn:',
           \ 'branch': '',
           \ 'notexists': '?',
           \ 'crypt': 'cr',
@@ -145,13 +151,20 @@ function! airline#init#bootstrap()
         \ 'function': 'airline#parts#readonly',
         \ 'accent': 'red',
         \ })
-  call airline#parts#define_raw('file', airline#formatter#short_path#format('%f%m'))
+  if get(g:, 'airline_section_c_only_filename',0)
+    call airline#parts#define_raw('file', '%t%m')
+  else
+    call airline#parts#define_raw('file', airline#formatter#short_path#format('%f%m'))
+  endif
   call airline#parts#define_raw('path', '%F%m')
   call airline#parts#define('linenr', {
         \ 'raw': '%{g:airline_symbols.linenr}%l',
         \ 'accent': 'bold'})
   call airline#parts#define('maxlinenr', {
         \ 'raw': '/%L%{g:airline_symbols.maxlinenr}',
+        \ 'accent': 'bold'})
+  call airline#parts#define('colnr', {
+        \ 'raw': '%{g:airline_symbols.colnr}%v',
         \ 'accent': 'bold'})
   call airline#parts#define_function('ffenc', 'airline#parts#ffenc')
   call airline#parts#define('hunks', {
@@ -164,14 +177,23 @@ function! airline#init#bootstrap()
         \ 'raw': '',
         \ 'accent': 'bold'
         \ })
+  call airline#parts#define('coc_current_function', {
+        \ 'raw': '',
+        \ 'accent': 'bold'
+        \ })
+  call airline#parts#define('lsp_progress', {
+        \ 'raw': '',
+        \ 'accent': 'bold'
+        \ })
   call airline#parts#define_empty(['obsession', 'tagbar', 'syntastic-warn',
         \ 'syntastic-err', 'eclim', 'whitespace','windowswap',
         \ 'ycm_error_count', 'ycm_warning_count', 'neomake_error_count',
         \ 'neomake_warning_count', 'ale_error_count', 'ale_warning_count',
-        \ 'lsp_error_count', 'lsp_warning_count',
+        \ 'lsp_error_count', 'lsp_warning_count', 'scrollbar',
         \ 'nvimlsp_error_count', 'nvimlsp_warning_count',
         \ 'languageclient_error_count', 'languageclient_warning_count',
         \ 'coc_warning_count', 'coc_error_count', 'vista', 'battery'])
+
   call airline#parts#define_text('bookmark', '')
   call airline#parts#define_text('capslock', '')
   call airline#parts#define_text('gutentags', '')
@@ -198,25 +220,25 @@ function! airline#init#sections()
   endif
   if !exists('g:airline_section_c')
     if exists("+autochdir") && &autochdir == 1
-      let g:airline_section_c = airline#section#create(['%<', 'path', spc, 'readonly'])
+      let g:airline_section_c = airline#section#create(['%<', 'path', spc, 'readonly', 'coc_status', 'lsp_progress'])
     else
-      let g:airline_section_c = airline#section#create(['%<', 'file', spc, 'readonly', 'coc_status'])
+      let g:airline_section_c = airline#section#create(['%<', 'file', spc, 'readonly', 'coc_status', 'lsp_progress'])
     endif
   endif
   if !exists('g:airline_section_gutter')
     let g:airline_section_gutter = airline#section#create(['%='])
   endif
   if !exists('g:airline_section_x')
-    let g:airline_section_x = airline#section#create_right(['bookmark', 'tagbar', 'vista', 'gutentags', 'gen_tags', 'omnisharp', 'grepper', 'filetype'])
+    let g:airline_section_x = airline#section#create_right(['coc_current_function', 'bookmark', 'scrollbar', 'tagbar', 'vista', 'gutentags', 'gen_tags', 'omnisharp', 'grepper', 'filetype'])
   endif
   if !exists('g:airline_section_y')
     let g:airline_section_y = airline#section#create_right(['ffenc'])
   endif
   if !exists('g:airline_section_z')
     if airline#util#winwidth() > 79
-      let g:airline_section_z = airline#section#create(['windowswap', 'obsession', '%p%%'.spc, 'linenr', 'maxlinenr', ':%v'])
+      let g:airline_section_z = airline#section#create(['windowswap', 'obsession', '%p%%', 'linenr', 'maxlinenr', 'colnr'])
     else
-      let g:airline_section_z = airline#section#create(['%p%%'.spc, 'linenr',  ':%v'])
+      let g:airline_section_z = airline#section#create(['%p%%', 'linenr', 'colnr'])
     endif
   endif
   if !exists('g:airline_section_error')

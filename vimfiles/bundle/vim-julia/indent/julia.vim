@@ -19,11 +19,14 @@ if exists("*GetJuliaIndent")
   finish
 endif
 
-let s:skipPatterns = '\<julia\%(Comprehension\%(For\|If\)\|RangeKeyword\|Comment\%([LM]\|Delim\)\|\%([bsv]\|ip\|big\|MIME\|Shell\|Printf\|Doc\)\=String\|RegEx\|SymbolS\?\)\>'
+let s:skipPatternsBasic = '\<julia\%(Comment\%([LM]\|Delim\)\)\>'
+let s:skipPatterns = '\<julia\%(Comprehension\%(For\|If\)\|RangeKeyword\|Comment\%([LM]\|Delim\)\|\%([bs]\|Shell\|Printf\|Doc\)\?String\|StringPrefixed\|DocStringM\(Raw\)\?\|RegEx\|SymbolS\?\|Macro\|Dotted\)\>'
 
 function JuliaMatch(lnum, str, regex, st, ...)
   let s = a:st
   let e = a:0 > 0 ? a:1 : -1
+  let basic_skip = a:0 > 1 ? a:2 : 'all'
+  let skip = basic_skip ==# 'basic' ? s:skipPatternsBasic : s:skipPatterns
   while 1
     let f = match(a:str, '\C' . a:regex, s)
     if e >= 0 && f >= e
@@ -31,7 +34,8 @@ function JuliaMatch(lnum, str, regex, st, ...)
     endif
     if f >= 0
       let attr = synIDattr(synID(a:lnum,f+1,1),"name")
-      if attr =~# s:skipPatterns
+      let attrT = synIDattr(synID(a:lnum,f+1,0),"name")
+      if attr =~# skip || attrT =~# skip
         let s = f+1
         continue
       endif
@@ -49,8 +53,8 @@ function GetJuliaNestingStruct(lnum, ...)
   let blocks_stack = []
   let num_closed_blocks = 0
   while 1
-    let fb = JuliaMatch(a:lnum, line, '@\@<!\<\%(if\|else\%(if\)\?\|while\|for\|try\|catch\|finally\|\%(staged\)\?function\|macro\|begin\|mutable\s\+struct\|\%(mutable\s\+\)\@<!struct\|\%(abstract\|primitive\)\s\+type\|let\|\%(bare\)\?module\|quote\|do\)\>', s, e)
-    let fe = JuliaMatch(a:lnum, line, '@\@<!\<end\>', s, e)
+    let fb = JuliaMatch(a:lnum, line, '\<\%(if\|else\%(if\)\?\|while\|for\|try\|catch\|finally\|\%(staged\)\?function\|macro\|begin\|mutable\s\+struct\|\%(mutable\s\+\)\@<!struct\|\%(abstract\|primitive\)\s\+type\|let\|\%(bare\)\?module\|quote\|do\)\>', s, e)
+    let fe = JuliaMatch(a:lnum, line, '\<end\>', s, e)
 
     if fb < 0 && fe < 0
       " No blocks found
@@ -62,13 +66,13 @@ function GetJuliaNestingStruct(lnum, ...)
       " Note: some keywords (elseif,else,catch,finally) are both
       "       closing blocks and opening new ones
 
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<if\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<if\>', s)
       if i >= 0 && i == fb
         let s = i+1
         call add(blocks_stack, 'if')
         continue
       endif
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<elseif\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<elseif\>', s)
       if i >= 0 && i == fb
         let s = i+1
         if len(blocks_stack) > 0 && blocks_stack[-1] == 'if'
@@ -79,7 +83,7 @@ function GetJuliaNestingStruct(lnum, ...)
         endif
         continue
       endif
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<else\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<else\>', s)
       if i >= 0 && i == fb
         let s = i+1
         if len(blocks_stack) > 0 && blocks_stack[-1] =~# '\<\%(else\)\=if\>'
@@ -91,13 +95,13 @@ function GetJuliaNestingStruct(lnum, ...)
         continue
       endif
 
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<try\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<try\>', s)
       if i >= 0 && i == fb
         let s = i+1
         call add(blocks_stack, 'try')
         continue
       endif
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<catch\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<catch\>', s)
       if i >= 0 && i == fb
         let s = i+1
         if len(blocks_stack) > 0 && blocks_stack[-1] == 'try'
@@ -108,7 +112,7 @@ function GetJuliaNestingStruct(lnum, ...)
         endif
         continue
       endif
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<finally\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<finally\>', s)
       if i >= 0 && i == fb
         let s = i+1
         if len(blocks_stack) > 0 && (blocks_stack[-1] == 'try' || blocks_stack[-1] == 'catch')
@@ -120,7 +124,7 @@ function GetJuliaNestingStruct(lnum, ...)
         continue
       endif
 
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<\%(bare\)\?module\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<\%(bare\)\?module\>', s)
       if i >= 0 && i == fb
         let s = i+1
         if i == 0
@@ -131,7 +135,7 @@ function GetJuliaNestingStruct(lnum, ...)
         continue
       endif
 
-      let i = JuliaMatch(a:lnum, line, '@\@<!\<\%(while\|for\|\%(staged\)\?function\|macro\|begin\|\%(mutable\s\+\)\?struct\|\%(abstract\|primitive\)\s\+type\|immutable\|let\|quote\|do\)\>', s)
+      let i = JuliaMatch(a:lnum, line, '\<\%(while\|for\|function\|macro\|begin\|\%(mutable\s\+\)\?struct\|\%(abstract\|primitive\)\s\+type\|let\|quote\|do\)\>', s)
       if i >= 0 && i == fb
         if match(line, '\C\<\%(mutable\|abstract\|primitive\)', i) != -1
           let s = i+11
@@ -257,7 +261,7 @@ function GetJuliaNestingBrackets(lnum, c)
   if len(brackets_stack) > 0
     let first_open_bracket = brackets_stack[0][1]
     let last_open_bracket = brackets_stack[-1][1]
-    if brackets_stack[-1][0] == 'par' && IsFunctionArgPar(a:lnum, last_open_bracket)
+    if brackets_stack[-1][0] == 'par' && IsFunctionArgPar(a:lnum, last_open_bracket+1)
       let infuncargs = 1
     endif
   endif
@@ -274,7 +278,7 @@ endfunction
 
 function IsInDocString(lnum)
   let stack = map(synstack(a:lnum, 1), 'synIDattr(v:val, "name")')
-  call filter(stack, 'v:val =~# "\\<juliaDocString\\(Delim\\)\\?\\>"')
+  call filter(stack, 'v:val =~# "\\<juliaDocString\\(Delim\\|M\\\(Raw\\)\\?\\)\\?\\>"')
   return len(stack) > 0
 endfunction
 
@@ -292,7 +296,7 @@ function IsFunctionArgPar(lnum, c)
     return 0
   endif
   let stack = map(synstack(a:lnum, a:c-1), 'synIDattr(v:val, "name")')
-  return stack[-1] == 'juliaFunctionBlock'
+  return len(stack) >= 2 && stack[-2] ==# 'juliaFunctionDef'
 endfunction
 
 function JumpToMatch(lnum, last_closed_bracket)
@@ -390,13 +394,14 @@ function GetJuliaIndent()
       let ind = indent(lnum)
     endif
 
-    " Does the current line starts with a closing bracket? Then depending on
+    " Does the current line start with a closing bracket? Then depending on
     " the situation we align it with the opening one, or we let the rest of
     " the code figure it out (the case in which we're closing a function
     " argument list is special-cased)
     if JuliaMatch(v:lnum, getline(v:lnum), '[])}]', indent(v:lnum)) == indent(v:lnum) && ind > 0
       if !align_brackets && !align_funcargs
-        let ind = -1
+        call JumpToMatch(v:lnum, indent(v:lnum))
+        return indent(line("."))
       elseif (align_brackets && getline(v:lnum)[indent(v:lnum)] != ')') || align_funcargs
         return ind - 1
       else " must be a ')' and align_brackets==1 and align_funcargs==0
@@ -443,9 +448,8 @@ function GetJuliaIndent()
       " if the opening line has a colon followed by non-comments, use it as
       " reference point
       let cind = JuliaMatch(lnum, prevline, ':', indent(lnum), lim)
-      " echo "cind=".string(cind) | sleep 1
       if cind >= 0
-        let nonwhiteind = JuliaMatch(lnum, prevline, '\S', cind+1)
+        let nonwhiteind = JuliaMatch(lnum, prevline, '\S', cind+1, -1, 'basic')
         if nonwhiteind >= 0
           " return match(prevline, '\S', cind+1) " a bit overkill...
           return cind + 2
@@ -456,7 +460,7 @@ function GetJuliaIndent()
         let iind = JuliaMatch(lnum, prevline, '\<import\|using\|export\>', indent(lnum), lim)
         if iind >= 0
           " assuming whitespace after using... so no `using(XYZ)` please!
-          let nonwhiteind = JuliaMatch(lnum, prevline, '\S', iind+6)
+          let nonwhiteind = JuliaMatch(lnum, prevline, '\S', iind+6, -1, 'basic')
           if nonwhiteind >= 0
             return match(prevline, '\S', iind+6)
           endif

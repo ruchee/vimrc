@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006, 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013 AndroWiiid <androwiiid@gmail.com>
-# Copyright (c) 2014-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2014 Google, Inc.
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2017 Chris Philip <chrisp533@gmail.com>
@@ -11,28 +10,30 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
+import builtins
 import os
 import platform
 import site
 import sys
+import time
 import unittest
 
 import pkg_resources
-import six
-import time
 
 import astroid
-from astroid import exceptions
-from astroid import manager
+from astroid import exceptions, manager
+
 from . import resources
 
-
-BUILTINS = six.moves.builtins.__name__
+BUILTINS = builtins.__name__
 
 
 def _get_file_from_object(obj):
@@ -45,7 +46,7 @@ class AstroidManagerTest(
     resources.SysPathSetup, resources.AstroidCacheSetupMixin, unittest.TestCase
 ):
     def setUp(self):
-        super(AstroidManagerTest, self).setUp()
+        super().setUp()
         self.manager = manager.AstroidManager()
 
     def test_ast_from_file(self):
@@ -76,7 +77,7 @@ class AstroidManagerTest(
         filepath = unittest.__file__
         dirname = os.path.dirname(filepath)
         modname = os.path.basename(dirname)
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             data = file.read()
             ast = self.manager.ast_from_string(data, modname, filepath)
             self.assertEqual(ast.name, "unittest")
@@ -108,10 +109,7 @@ class AstroidManagerTest(
 
     def _test_ast_from_old_namespace_package_protocol(self, root):
         origpath = sys.path[:]
-        paths = [
-            resources.find("data/path_{}_{}".format(root, index))
-            for index in range(1, 4)
-        ]
+        paths = [resources.find(f"data/path_{root}_{index}") for index in range(1, 4)]
         sys.path.extend(paths)
         try:
             for name in ("foo", "bar", "baz"):
@@ -194,7 +192,7 @@ class AstroidManagerTest(
             self.assertEqual(module.name, "mypypa")
             end = os.path.join(archive, "mypypa")
             self.assertTrue(
-                module.file.endswith(end), "%s doesn't endswith %s" % (module.file, end)
+                module.file.endswith(end), f"{module.file} doesn't endswith {end}"
             )
         finally:
             # remove the module, else after importing egg, we don't get the zip
@@ -229,7 +227,9 @@ class AstroidManagerTest(
         """check if the unittest filepath is equals to the result of the method"""
         self.assertEqual(
             _get_file_from_object(unittest),
-            self.manager.file_from_module_name("unittest", None).location,
+            self.manager.file_from_module_name(  # pylint: disable=no-member
+                "unittest", None
+            ).location,
         )
 
     def test_file_from_module_name_astro_building_exception(self):

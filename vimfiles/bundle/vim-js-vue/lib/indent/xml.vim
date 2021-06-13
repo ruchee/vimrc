@@ -16,7 +16,7 @@ let s:keepcpo= &cpo
 set cpo&vim
 
 " [-- local settings (must come before aborting the script) --]
-setlocal indentexpr=XmlIndentGet(v:lnum,1)
+setlocal indentexpr=XmlIndentGet(v:lnum,0)
 setlocal indentkeys=o,O,*<Return>,<>>,<<>,/,{,}
 
 if !exists('b:xml_indent_open')

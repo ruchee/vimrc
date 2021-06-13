@@ -1,0 +1,6 @@
+#!/bin/bash
+
+VERSION=13.0.0
+
+curl "https://www.unicode.org/Public/$VERSION/ucd/PropertyValueAliases.txt" -o resources/unicode/PropertyValueAliases.txt
+curl "https://www.unicode.org/Public/$VERSION/ucd/Blocks.txt" -o resources/unicode/Blocks.txt

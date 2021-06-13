@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Use tox or py.test to run the test-suite."""
 
-from __future__ import with_statement
 from collections import namedtuple
 
 import os
-import sys
 import shlex
 import shutil
 import pytest
@@ -52,7 +48,7 @@ class SandboxEnv:
             self.makedirs(base)
 
         with open(os.path.join(base, name), 'wt') as conf:
-            conf.write("[{}]\n".format(self.script_name))
+            conf.write(f"[{self.script_name}]\n")
             for k, v in kwargs.items():
                 conf.write("{} = {}\n".format(k.replace('_', '-'), v))
 
@@ -190,6 +186,36 @@ def test_ignore_list():
         assert error_codes == expected_error_codes - ignored
 
 
+def test_skip_errors():
+    """Test that `ignore`d errors are not reported in the API."""
+    function_to_check = textwrap.dedent('''
+        def function_with_bad_docstring(foo):  # noqa: D400, D401, D403, D415
+            """ does spacinwithout a period in the end
+            no blank line after one-liner is bad. Also this - """
+            return foo
+    ''')
+    expected_error_codes = {'D100', 'D205', 'D209', 'D210', 'D213'}
+    mock_open = mock.mock_open(read_data=function_to_check)
+    from pydocstyle import checker
+    with mock.patch.object(
+            checker.tk, 'open', mock_open, create=True):
+        # Passing a blank ignore here explicitly otherwise
+        # checkers takes the pep257 ignores by default.
+        errors = tuple(checker.check(['filepath'], ignore={}))
+        error_codes = {error.code for error in errors}
+        assert error_codes == expected_error_codes
+
+    skipped_error_codes = {'D400', 'D401', 'D403', 'D415'}
+    # We need to recreate the mock, otherwise the read file is empty
+    mock_open = mock.mock_open(read_data=function_to_check)
+    with mock.patch.object(
+            checker.tk, 'open', mock_open, create=True):
+        errors = tuple(checker.check(['filepath'], ignore={},
+                                     ignore_inline_noqa=True))
+        error_codes = {error.code for error in errors}
+        assert error_codes == expected_error_codes | skipped_error_codes
+
+
 def test_run_as_named_module():
     """Test that pydocstyle can be run as a "named module".
 
@@ -254,7 +280,7 @@ def test_sectionless_config_file(env):
         conf.write('[pdcstl]')
         config_path = conf.name
 
-    _, err, code = env.invoke('--config={}'.format(config_path))
+    _, err, code = env.invoke(f'--config={config_path}')
     assert code == 0
     assert 'Configuration file does not contain a pydocstyle section' in err
 
@@ -473,6 +499,189 @@ def test_bad_wildcard_add_ignore_cli(env):
     assert 'D3004' not in out
     assert ('Error code passed is not a prefix of any known errors: D3004'
             in err)
+
+
+def test_overload_function(env):
+    """Functions decorated with @overload trigger D418 error."""
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+
+        @overload
+        def overloaded_func(a: int) -> str:
+            ...
+
+
+        @overload
+        def overloaded_func(a: str) -> str:
+            """Foo bar documentation."""
+            ...
+
+
+        def overloaded_func(a):
+            """Foo bar documentation."""
+            return str(a)
+
+        '''))
+    env.write_config(ignore="D100")
+    out, err, code = env.invoke()
+    assert code == 1
+    assert 'D418' in out
+    assert 'D103' not in out
+
+
+def test_overload_method(env):
+    """Methods decorated with @overload trigger D418 error."""
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+        class ClassWithMethods:
+            @overload
+            def overloaded_method(a: int) -> str:
+                ...
+
+
+            @overload
+            def overloaded_method(a: str) -> str:
+                """Foo bar documentation."""
+                ...
+
+
+            def overloaded_method(a):
+                """Foo bar documentation."""
+                return str(a)
+
+        '''))
+    env.write_config(ignore="D100")
+    out, err, code = env.invoke()
+    assert code == 1
+    assert 'D418' in out
+    assert 'D102' not in out
+    assert 'D103' not in out
+
+
+def test_overload_method_valid(env):
+    """Valid case for overload decorated Methods.
+
+    This shouldn't throw any errors.
+    """
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+        class ClassWithMethods:
+            """Valid docstring in public Class."""
+
+            @overload
+            def overloaded_method(a: int) -> str:
+                ...
+
+
+            @overload
+            def overloaded_method(a: str) -> str:
+                ...
+
+
+            def overloaded_method(a):
+                """Foo bar documentation."""
+                return str(a)
+
+        '''))
+    env.write_config(ignore="D100, D203")
+    out, err, code = env.invoke()
+    assert code == 0
+
+
+def test_overload_function_valid(env):
+    """Valid case for overload decorated functions.
+
+    This shouldn't throw any errors.
+    """
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+
+        @overload
+        def overloaded_func(a: int) -> str:
+            ...
+
+
+        @overload
+        def overloaded_func(a: str) -> str:
+            ...
+
+
+        def overloaded_func(a):
+            """Foo bar documentation."""
+            return str(a)
+
+        '''))
+    env.write_config(ignore="D100")
+    out, err, code = env.invoke()
+    assert code == 0
+
+
+def test_overload_nested_function(env):
+    """Nested functions decorated with @overload trigger D418 error."""
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+        def function_with_nesting():
+            """Valid docstring in public function."""
+            @overload
+            def overloaded_func(a: int) -> str:
+                ...
+
+
+            @overload
+            def overloaded_func(a: str) -> str:
+                """Foo bar documentation."""
+                ...
+
+
+            def overloaded_func(a):
+                """Foo bar documentation."""
+                return str(a)
+            '''))
+    env.write_config(ignore="D100")
+    out, err, code = env.invoke()
+    assert code == 1
+    assert 'D418' in out
+    assert 'D103' not in out
+
+
+def test_overload_nested_function_valid(env):
+    """Valid case for overload decorated nested functions.
+
+    This shouldn't throw any errors.
+    """
+    with env.open('example.py', 'wt') as example:
+        example.write(textwrap.dedent('''\
+        from typing import overload
+
+        def function_with_nesting():
+            """Adding a docstring to a function."""
+            @overload
+            def overloaded_func(a: int) -> str:
+                ...
+
+
+            @overload
+            def overloaded_func(a: str) -> str:
+                ...
+
+
+            def overloaded_func(a):
+                """Foo bar documentation."""
+                return str(a)
+            '''))
+    env.write_config(ignore="D100")
+    out, err, code = env.invoke()
+    assert code == 0
 
 
 def test_conflicting_select_ignore_config(env):

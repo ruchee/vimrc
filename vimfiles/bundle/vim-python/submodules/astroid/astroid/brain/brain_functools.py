@@ -1,20 +1,15 @@
 # Copyright (c) 2016, 2018-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2018 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 """Astroid hooks for understanding functools library module."""
 from functools import partial
 from itertools import chain
 
 import astroid
-from astroid import arguments
-from astroid import BoundMethod
-from astroid import extract_node
-from astroid import helpers
+from astroid import MANAGER, BoundMethod, arguments, extract_node, helpers, objects
 from astroid.interpreter import objectmodel
-from astroid import MANAGER
-from astroid import objects
-
 
 LRU_CACHE = "functools.lru_cache"
 
@@ -51,7 +46,7 @@ class LruWrappedModel(objectmodel.FunctionModel):
         return BoundMethod(proxy=node, bound=self._instance.parent.scope())
 
 
-def _transform_lru_cache(node, context=None):
+def _transform_lru_cache(node, context=None) -> None:
     # TODO: this is not ideal, since the node should be immutable,
     # but due to https://github.com/PyCQA/astroid/issues/354,
     # there's not much we can do now.
@@ -59,7 +54,6 @@ def _transform_lru_cache(node, context=None):
     # in pylint, the old node would still be available, leading
     # to spurious false positives.
     node.special_attributes = LruWrappedModel()(node)
-    return
 
 
 def _functools_partial_inference(node, context=None):
@@ -86,16 +80,19 @@ def _functools_partial_inference(node, context=None):
 
     # Determine if the passed keywords into the callsite are supported
     # by the wrapped function.
-    function_parameters = chain(
-        inferred_wrapped_function.args.args or (),
-        inferred_wrapped_function.args.posonlyargs or (),
-        inferred_wrapped_function.args.kwonlyargs or (),
-    )
-    parameter_names = set(
+    if not inferred_wrapped_function.args:
+        function_parameters = []
+    else:
+        function_parameters = chain(
+            inferred_wrapped_function.args.args or (),
+            inferred_wrapped_function.args.posonlyargs or (),
+            inferred_wrapped_function.args.kwonlyargs or (),
+        )
+    parameter_names = {
         param.name
         for param in function_parameters
         if isinstance(param, astroid.AssignName)
-    )
+    }
     if set(call.keyword_arguments) - parameter_names:
         raise astroid.UseInferenceDefault(
             "wrapped function received unknown parameters"
@@ -132,16 +129,17 @@ def _looks_like_lru_cache(node):
     return False
 
 
-def _looks_like_functools_member(node, member):
+def _looks_like_functools_member(node, member) -> bool:
     """Check if the given Call node is a functools.partial call"""
     if isinstance(node.func, astroid.Name):
         return node.func.name == member
-    elif isinstance(node.func, astroid.Attribute):
+    if isinstance(node.func, astroid.Attribute):
         return (
             node.func.attrname == member
             and isinstance(node.func.expr, astroid.Name)
             and node.func.expr.name == "functools"
         )
+    return False
 
 
 _looks_like_partial = partial(_looks_like_functools_member, member="partial")

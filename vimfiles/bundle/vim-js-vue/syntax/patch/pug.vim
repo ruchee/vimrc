@@ -1,0 +1,1 @@
+syntax cluster htmlJavascript remove=javascriptParenthesisBlock

@@ -1,0 +1,284 @@
+# Tests for include and define, which are set in ftplugin/erlang.vim
+# Include {{{1
+
+Given erlang(include):
+  -include("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+Given erlang(include: space before -):
+     -include("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+Given erlang(include: space before opening parenthesis):
+  -include   ("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+# Include_lib {{{1
+
+Given erlang(include_lib):
+  -include_lib("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+Given erlang(include_lib: space before -):
+     -include_lib("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+Given erlang(include_lib: space before opening parenthesis):
+  -include_lib   ("header.hrl").
+
+Execute:
+  let actual = split(execute('checkpath'), "---\n")[-1]
+  let expected = '"header.hrl"'
+  AssertEqual expected, actual
+
+# Macro definition {{{1
+Given erlang(macro):
+  -define(PI, 3.14).
+  PI
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -define(I, 3.14).
+  PI
+
+Given erlang((macro: space before -):
+      -define(PI, 3.14).
+  PI
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+      -define(I, 3.14).
+  PI
+
+Given erlang(macro: space before opening parenthesis):
+  -define   (PI, 3.14).
+  PI
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -define   (I, 3.14).
+  PI
+
+Given erlang(macro: definition not found):
+  -define(PIE, 3.14).
+  PI
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# Record definition {{{1
+Given erlang(record):
+  -record(person, {name, phone, address}).
+  person
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -record(erson, {name, phone, address}).
+  person
+
+Given erlang(record: space before -):
+     -record(person, {name, phone, address}).
+  person
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+     -record(erson, {name, phone, address}).
+  person
+
+Given erlang(record: space before opening parenthesis):
+  -record   (person, {name, phone, address}).
+  person
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -record   (erson, {name, phone, address}).
+  person
+
+Given erlang(record: definition not found):
+  -record(persona, {name, phone, address}).
+  person
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# Type definition {{{1
+Given erlang(type):
+  -type my_integer() :: integer().
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -type y_integer() :: integer().
+  my_integer()
+
+Given erlang(type: space before -):
+     -type my_integer() :: integer().
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+     -type y_integer() :: integer().
+  my_integer()
+
+Given erlang(type: definition not found):
+  -type my_integera() :: integer().
+  my_integer
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# Type( definition {{{1
+Given erlang(type():
+  -type(my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -type(y_integer() :: integer()).
+  my_integer()
+
+Given erlang(type(: space before -):
+     -type(my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+     -type(y_integer() :: integer()).
+  my_integer()
+
+Given erlang(type(: space before opening parenthesis):
+  -type   (my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -type   (y_integer() :: integer()).
+  my_integer()
+
+Given erlang(type(: definition not found):
+  -type(my_integera() :: integer()).
+  my_integer
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# Opaque definition {{{1
+Given erlang(opaque):
+  -opaque my_integer() :: integer().
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -opaque y_integer() :: integer().
+  my_integer()
+
+Given erlang(opaque: (space before -):
+     -opaque my_integer() :: integer().
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+     -opaque y_integer() :: integer().
+  my_integer()
+
+Given erlang(opaque):
+  -opaque my_integera() :: integer().
+  my_integer()
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# Opaque( definition {{{1
+Given erlang(opaque():
+  -opaque(my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -opaque(y_integer() :: integer()).
+  my_integer()
+
+Given erlang(opaque(: space before -):
+     -opaque(my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+     -opaque(y_integer() :: integer()).
+  my_integer()
+
+Given erlang(opaque(: space before opening parenthesis):
+  -opaque   (my_integer() :: integer()).
+  my_integer()
+
+Do:
+  G[\<C-D>x
+
+Expect erlang:
+  -opaque   (y_integer() :: integer()).
+  my_integer()
+
+Given erlang(opaque(: definition not found):
+  -opaque(my_integera() :: integer()).
+  my_integer()
+
+Execute:
+  $
+  AssertThrows normal [D
+
+# vim:foldmethod=marker

@@ -1,0 +1,1163 @@
+*channel.txt*	适用于 Vim 8.2 版本。	最近更新: 2020年11月
+
+
+		  VIM 参考手册    by Bram Moolenaar
+				译者: Willis
+
+
+		      进 程 间 通 信				*channel*
+
+Vim 使用通道 (channel) 和其他进程通信。
+通道使用套接字 (socket) 或管道 pipe 机制。		*socket-interface*
+作业 (job) 用来启动进程并与之通信。
+Netbeans 接口也使用通道。|netbeans|
+
+1. 总览					|job-channel-overview|
+2. 通道演示				|channel-demo|
+3. 打开通道				|channel-open|
+4. 使用 JSON 或 JS 通道			|channel-use|
+5. 通道命令				|channel-commands|
+6. 使用 RAW 或 NL 通道			|channel-raw|
+7. 更多通道函数				|channel-more|
+8. 通道函数详情				|channel-functions-details|
+9. 带通道启动作业			|job-start|
+10. 不带通道启动作业			|job-start-nochannel|
+11. 作业函数				|job-functions-details|
+12. 作业选项				|job-options|
+13. 控制作业				|job-control|
+14. 使用提示缓冲区			|prompt-buffer|
+
+{仅当编译时带有 |+channel| 特性时才有通道功能}
+	可以这样查看: `has('channel')`
+{仅当编译时带有 |+job| 特性时才有作业功能}
+	可以这样查看: `has('job')`
+
+==============================================================================
+1. 总览						*job-channel-overview*
+
+有四种主要的作业类型:
+1. 守护进程 (daemon)，服务于多个 Vim 实例。
+   Vim 使用套接字连接。
+2. 用于单个 Vim 实例的单个作业，异步操作。
+   使用套接字或管道。
+3. 用于短期若干工作的作业，异步操作。
+   使用套接字或管道。
+4. 作为过滤器，同步操作。
+   使用管道。
+
+使用套接字请见 |job-start|、|job-start-nochannel| 和 |channel-open|。2 和 3 类
+中一个或多个作业若使用管道，可见 |job-start|。4 类即 ":{range}!cmd" 命令，参见
+|filter|。
+
+套接字和管道可用以下协议:
+RAW	无规范，Vim 不知信息如何终止
+NL	每条信息由 NL (换行) 字符终止
+JSON	JSON 编码 |json_encode()|
+JS	JavaScript 风格类 JSON 的编码 |js_encode()|
+
+常用组合有:
+- 使用 NL 模式的管道连接的作业。例如，运行风格检查器并接收错误与警告。
+- 使用 JSON 模式的套接字连接的守护进程。例如，从数据库中查找交叉索引。
+
+==============================================================================
+2. 通道演示				*channel-demo* *demoserver.py*
+
+需要 Python 支持。演示程序可见
+$VIMRUNTIME/tools/demoserver.py
+在终端上运行上。让我们称之为 T1。
+
+在另一个终端上运行 Vim。连接到演示服务器: >
+	let channel = ch_open('localhost:8765')
+
+T1 中可见:
+	=== socket opened === ~
+
+现在可以给服务器发消息: >
+	echo ch_evalexpr(channel, 'hello!')
+
+T1 接收到消息，并发送响应给 Vim。
+T1 中可见原始的消息流。Vim 发送的是:
+	[1,"hello!"] ~
+响应则是:
+	[1,"got it"] ~
+每次发送一条新消息时，该数值会递增。
+
+服务器可以给 Vim 发送命令。在 T1 上输入 (按文本，包括引号):
+	["ex","echo 'hi there'"] ~
+此时 Vim 中可以看到该消息。要移动光标前进一个单词:
+	["normal","w"] ~
+
+要处理异步通信，需要提供回调函数: >
+	func MyHandler(channel, msg)
+	  echo "from the handler: " . a:msg
+	endfunc
+	call ch_sendexpr(channel, 'hello!', {'callback': "MyHandler"})
+Vim 不会等待响应。这样，服务器就可以稍后发送响应，响应时会调用 MyHandler。
+
+回调除了每次在发送时以外，也可以在打开通道时提供: >
+	call ch_close(channel)
+	let channel = ch_open('localhost:8765', {'callback': "MyHandler"})
+	call ch_sendexpr(channel, 'hello!')
+
+测试通道时可能希望能知道发生了什么。可以告诉 Vim 在日志文件里记录事件: >
+	call ch_logfile('channellog', 'w')
+见 |ch_logfile()|。
+
+==============================================================================
+3. 打开通道						*channel-open*
+
+要打开通道: >
+    let channel = ch_open({address} [, {options}])
+    if ch_status(channel) == "open"
+      " use the channel
+
+可用 |ch_status()| 看到通道是否已打开。
+
+{address} 的格式为 "hostname:port"。例如 "localhost:8765"。
+
+使用 IPv6 地址时，用方括号包围。如 "[2001:db8::1]:8765"。
+
+{options} 是可选项目的字典:				*channel-open-options*
+
+"mode" 可以是:						*channel-mode*
+	"json" - JSON，见下；最方便的方式。缺省。
+	"js"   - JS (JavaScript) 编码，比 JSON 经济。
+	"nl"   - Nl 字符结尾的消息
+	"raw"  - 原始消息
+						*channel-callback* *E921*
+"callback"	消息收到时，如果还未被处理，调用本函数。接受两个参数: 通道和收
+		到的消息。例如: >
+	func Handle(channel, msg)
+	  echo 'Received: ' . a:msg
+	endfunc
+	let channel = ch_open("localhost:8765", {"callback": "Handle"})
+<
+		"mode" 如果是 "json" 或 "js"，"msg" 参数是转换到 Vim 类型的收
+		到消息的正文。
+		"mode" 如果是 "nl"，"msg" 参数是单个消息，不包含 NL。
+		"mode" 如果是 "raw"，"msg" 参数是作为字符串的整个消息。
+
+		对所有的回调: 可用 |function()| 绑定它到参数和/或字典。也可用
+		"dict.function" 形式来绑定到字典。
+
+		只有在 "安全" 时才会调用回调函数，通常是 Vim 等待用户输入字符
+		的时候。Vim 不支持多线程。
+
+							*close_cb*
+"close_cb"	通道关闭时，除非调用了 ch_close()，调用本函数。定义如下: >
+	func MyCloseHandler(channel)
+<		Vim 会调用回调函数先处理完所有数据，然后再调用 close_cb。当此
+		函数调用时，不会再有更多数据传到回调函数。不过，如果回调在让
+		Vim 检查消息，close_cb 调用时可能还在回调处理中。插件必须以某
+		种方式能处理这种情况，不过知道没有更多数据会传来还是有用的。
+							*channel-drop*
+"drop"		指定如何丢弃消息:
+		    "auto"	没有回调来处理消息时。"close_cb" 也考虑在内。
+		    "never"	所有消息都会保存。
+
+							*channel-noblock*
+"noblock"	和 |job-noblock| 效果相同。只适用于写操作。
+
+							*waittime*
+"waittime"	等待连接完成的时间，以毫秒计。负数代表永久等待。
+
+		缺省为零，不等待。用于本地服务器已经运行的情形。Unix 上 Vim 实
+		际使用 1 毫秒等待时间，在很多系统上这是必要的。对于远程服务服
+		务器，使定更高的值，例如，至少 10 毫秒。
+							*channel-timeout*
+"timeout"	等待请求处理完成的阻塞时间，例如 ch_evalexpr()。以毫秒计。缺省
+		为 2000 (2 秒)。
+
+"mode" 为 "json" 或 "js" 时，"callback" 是可选的。省略时只有在发送一条消息后才
+能收到消息。
+
+打开通道后要改变通道选项，用 |ch_setoptions()|。参数类似于 |ch_open()| 所用的
+参数，但不能指定 "waittime"，因为它只在通道打开时有意义。
+
+例如，可以新增或改变处理函数: >
+    call ch_setoptions(channel, {'callback': callback})
+"callback" 为空 (零或空字符串) 时删除该处理函数。
+
+回调执行后 Vim 会刷新屏幕，并复原光标之前所在的位置。因而，回调无须执行
+`:redraw`。
+
+可以改变 timeout: >
+    call ch_setoptions(channel, {'timeout': msec})
+<
+							  *channel-close* *E906*
+用完通道后，这样可以关闭之: >
+    call ch_close(channel)
+使用套接字时，关闭双向的套接字。使用管道时 (stdin/stdout/stderr)，关闭所有的管
+道。这可能不是你想要的！用 job_stop() 停止作业可能更好。
+放弃所有预读取，不再调用回调。
+
+注意 通道关闭分三个阶段:
+  - I/O 结束，记录日志: "Closing channel"。队列中可能还有消息等待读取或回调。
+  - 清理预读取，记录日志: "Clearing channel"。有些变量还可能引用该通道。
+  - 释放通道，记录日志: "Freeing channel"。
+
+通道如果不能打开，会报错。MS-Windows 和 Unix 有一点区别。Unix 上如果打不开端
+口，会迅速失败。MS-Windows 上会等上 "waittime"。
+*E898* *E901* *E902*
+
+读写通道时如果有错，会关闭通道。
+*E630* *E631*
+
+==============================================================================
+4. 使用 JSON 或 JS 通道						*channel-use*
+
+JSON 模式可以以同步方式发送消息: >
+    let response = ch_evalexpr(channel, {expr})
+此时，等待对方回复响应。
+
+JS 模式也是如此，但消息使用 JavasScript 编码。其中的区别，见 |js_encode()|。
+
+要发送消息，但不立即处理响应或让通道通过回调来处理响应: >
+    call ch_sendexpr(channel, {expr})
+
+要发送消息并异步通过指定函数来处理响应: >
+    call ch_sendexpr(channel, {expr}, {'callback': Handler})
+
+Vim 会通过消息 ID 来匹配请求和响应。一旦收到消息，会调用回调。相同 ID 的后来的
+响应会被忽略。如果你的服务器返回多个响应，必须用 ID 为零进行发送，它们都会被通
+道回调收到。
+
+{expr} 转换为 JSON 格式，以数据形式出现。例如，{expr} 如果是字符串 "hello"，接
+收方可能会收到消息:
+	[12,"hello"] ~
+
+JSON 发送的格式是:
+    [{number},{expr}]
+
+{number} 每次都不同。对应的响应 (如果有的话) 必须使用同样的数值:
+
+    [{number},{response}]
+
+这样 Vim 就会知道哪个发送的消息对应哪个收到的消息，并调用正确的处理函数。即使
+消息接收的顺序打乱也不要紧。
+
+JSON 文本以换行符结尾。可用于分隔读取的文本。例如，Python 中:
+	splitidx = read_text.find('\n')
+	message = read_text[:splitidx]
+	rest = read_text[splitidx + 1:]
+
+发送者必须发送合法的 JSON 给 Vim。Vim 会分析 JSON 来检查消息是否完整结尾。只
+有完整结尾的消息才会被接受。消息结尾的换行符是可选的。
+
+一个进程如果没有先收到消息，而要主动发送消息给 Vim 时，应使用数值零:
+    [0,{response}]
+
+此时通道处理函数会把 {response} 转换为 Vim 类型。如果通道没有处理函数，该消息
+被丢弃。
+
+JSON 或 JS 通道也可以用 ch_sendraw() 和 ch_evalraw()。调用者必须自行负责正确的
+编码和解码。
+
+==============================================================================
+5. 通道命令						*channel-commands*
+
+通过 JSON 通道，进程可以向 Vim 发送一些 Vim 内部可以处理，无需通道处理函数的命
+令。
+
+可能命令包括:					*E903* *E904* *E905*
+    ["redraw", {forced}]
+    ["ex",     {Ex 命令}]
+    ["normal", {普通模式命令}]
+    ["expr",   {expression}, {number}]
+    ["expr",   {expression}]
+    ["call",   {函数名}, {参数列表}, {number}]
+    ["call",   {函数名}, {参数列表}]
+
+适用于所有以上命令: 小心命令的后果！很容易干扰用户正在进行的操作。要避免麻烦，
+通过 |mode()| 检查编辑器是否在你期待的状态下。例如，要发送键序列作为文本插入，
+而不是作为命令执行:
+    ["ex","if mode() == 'i' | call feedkeys('ClassName') | endif"] ~
+
+这些命令产生的错误通常不向用户报告，以免弄乱用户的显示。如果你确实想看到，把
+'verbose' 选项设为 3 或更高。
+
+
+"redraw" 命令~
+
+其它命令特意不刷新屏幕，以便你发送若干命令而不会移动光标。有些命令的副作用仍可
+能导致重画。要显示改变的文本并移动光标到其恰当的位置，必须用 'redraw" 命令结
+束。
+
+参数通常是空字符串:
+	["redraw", ""] ~
+要先清屏，传入 "force":
+	["redraw", "force"] ~
+
+
+"ex" 命令 ~
+
+"ex" 命令可用以执行任意 Ex 命令。没有完成或报错的任何响应。可以调用 |autoload|
+脚本内的函数:
+	["ex","call myscript#MyFunc(arg)"] ~
+
+也可以用 "call |feedkeys()|" 插入任何键序列。
+
+如果有错，通道日志 (如果设置的话) 会有记录。v:errmsg 设为错误信息。
+
+
+"normal" 命令 ~
+
+"normal" 命令的执行如同 ":normal!"，命令不被映射。例如，要打开光标下的折叠:
+	["normal" "zO"] ~
+
+
+带响应的 "expr" 命令 ~
+
+"expr" 命令可用于计算表达式求值。例如，要得到当然缓冲区的行数:
+	["expr","line('$')", -2] ~
+
+它会把表达式计算的结果送回:
+	[-2, "last line"] ~
+格式是:
+	[{number}, {result}]
+
+{number} 和请求中的数值对应。使用负数以避免和 Vim 发送的信息有冲突。每个请求使
+用不同的数值有助于把响应的请求对应起来。
+
+{result} 是计算的结果，以 JSON 编码。如果计算失败，或者结果不能以 JSON 编码，
+则返回字符串 "ERROR"。
+
+
+不带响应的 "expr" 命令 ~
+
+和上面的 "expr" 命令类似，但不需要返回任何响应。例如:
+	["expr","setline('$', ['one', 'two', 'three'])"] ~
+请求中没有第三个参数。
+
+
+"call" 命令 ~
+
+和 "expr" 类似，但不是把整个表达式作为一个字符串传递，而是分别传递函数名和一个
+参数列表。这样有助于避免把参数经过转义、连接等步骤转换为字符串的过程。例如:
+	["call", "line", ["$"], -2] ~
+
+如果不需要响应，不用提供第四个参数:
+	["call", "setline", ["$", ["one", "two", "three"]]] ~
+
+==============================================================================
+6. 使用 RAW 或 NL 通道					*channel-raw*
+
+使用 RAW 或 NL 模式时，可以这样发送信息: >
+    let response = ch_evalraw(channel, {string})
+
+{string} 直接传送。响应也是通道读取的直接结果。既然 Vim 不知道如何识别信息怎样
+结尾，你需要自己处理。超时只及于首个字节的读取，之后将不再等待。
+
+模式为 "nl" 时，发送信息的方式也类似。每个消息之后你应该加上 NL。这样你可以一
+次发送多个 NL 结尾的信息。响应为到首个 NL (包含) 为止的文本。也包括只有 NL 的
+空响应。如果通道超时还没有收到 NL，返回空字符串。
+
+要发送信息并不等待响应: >
+    call ch_sendraw(channel, {string})
+进程会发返响应，会调用通道处理函数。
+
+可发送信息并使响应异步地被指定函数处理: >
+    call ch_sendraw(channel, {string}, {'callback': 'MyHandler'})
+
+{string} 也可以是 JSON，用 |json_encode()| 可创建，|json_decode()| 可用来处理
+收到的 JSON 信息。
+
+原始通道不可使用 |ch_evalexpr()| 或 |ch_sendexpr()|。
+
+Vim 的字符串不可含有 NUL 字符。要收发 NUL 字符，请见 |in_io-buffer| 和
+|out_io-buffer|。
+
+==============================================================================
+7. 更多通道函数						*channel-more*
+
+要获知通道的状态: ch_status(channel)。可能的值为:
+	"fail"		通道打开失败。
+	"open"		通道可用。
+	"buffered"	通道已关闭，但还有待读的数据。
+	"closed"	通道已关闭。
+
+要获知通道相关的作业: ch_getjob(channel)
+
+要从通道读取一条信息: >
+	let output = ch_read(channel)
+这里使用通道的 timeout。要读取不带超时以获得所有所用的信息: >
+	let output = ch_read(channel, {'timeout': 0})
+如果无信息可读，结果在 JSON 或 JS 模式通道下为 v:none，RAW 或 NL 通道下为空字
+符串。可以用 |ch_canread()| 检查是否有信息可读。
+
+注意 如果没有回调，消息会被丢弃。要避免之，给通道加入一个关闭回调函数。
+
+要读取 RAW 通道所有可用的输出: >
+	let output = ch_readraw(channel)
+可读取错误输出: >
+	let output = ch_readraw(channel, {"part": "err"})
+
+ch_read() 和 ch_readraw() 都适用通道 timeout。如果在该时间内没有任何消息可读，
+返回空字符串。要指定其他的超时，使用以毫秒计的 "timeout" 选项:
+	{"timeout": 123} ~
+要读取错误输出，使用 "part" 选项:
+	{"part": "err"} ~
+要在 JS 或 JSON 通道上读取指定 ID 的信息:
+	{"id": 99} ~
+如果没有给出 ID 或 ID 为 -1，返回首个信息。这里的优先级高于等待该信息的回调。
+
+RAW 通道这里返回任何可用的信息，因为 Vim 不知道信息如何终止。
+NL 通道这里返回一条信息。
+JS 或 JSON 通道这里返回一条解码的信息。
+包含任何序列号。
+
+==============================================================================
+8. 通道函数详情					*channel-functions-details*
+
+ch_canread({handle})						*ch_canread()*
+		如果从 {handle} 有内容可读，返回非零。
+		{handle} 可以是通道或带有通道的作业。
+
+		用于在合适的时间才从通道读取的场合，例如在定时器中。
+
+		注意 如果通道没有回调，这些消息被丢弃。要避免这一点，加上关闭
+		回调函数。
+
+		也可用作 |method|: >
+			GetChannel()->ch_canread()
+
+ch_close({handle})						*ch_close()*
+		关闭 {handle}。见 |channel-close|。
+		{handle} 可以是通道或带有通道的作业。
+		不调用关闭回调函数。
+
+		也可用作 |method|: >
+			GetChannel()->ch_close()
+
+ch_close_in({handle})						*ch_close_in()*
+		只关闭 {handle} 的 "in" 部分。见 |channel-close-in|。
+		{handle} 可以是通道或带有通道的作业。
+		不调用关闭回调函数。
+
+		也可用作 |method|: >
+			GetChannel()->ch_close_in()
+
+
+ch_evalexpr({handle}, {expr} [, {options}])			*ch_evalexpr()*
+		发送 {expr} 到 {handle} 上。{expr} 用通道类型进行编码。不能于
+		原始通道。见 |channel-use|。
+		{handle} 可以是通道或带有通道的作业。
+								*E917*
+		{options} 必须是字典。不能有 "callback" 项目。可以有 "timeout"
+		项目来指明此特定请求的超时。
+
+		ch_evalexpr() 等待响应并返回经解码的表达式。如果有错或超时，
+		返回空字符串。
+
+		注意 在等待响应时，Vim 在处理其它的信息。要确保这不会有问题。
+
+		也可用作 |method|: >
+			GetChannel()->ch_evalexpr(expr)
+
+
+ch_evalraw({handle}, {string} [, {options}])		*ch_evalraw()*
+		发送 {expr} 到 {handle} 上。
+		{handle} 可以是通道或带有通道的作业。
+
+		类似于 |ch_evalexpr()|，但不对请求编码也不对响应结果解码。调用
+		者负责内容的正确性。也不对 NL 模式的通道附加换行符，调用者须自
+		行负责。响应中的 NL 则被清除。
+		注意 Vim 不能判定原始通道上的文本何时被完整地收到。它只返回第
+		一部分，你需用 |ch_readraw()| 来读取其余的部分。
+		见 |channel-use|。
+
+		也可用作 |method|: >
+			GetChannel()->ch_evalraw(rawstring)
+
+ch_getbufnr({handle}, {what})				 *ch_getbufnr()*
+		返回 {handle} 用于 {what} 的缓冲区号。
+		{handle} 可以是通道或带有通道的作业。
+		{what} 可以是 "err"，代表 stderr，"out" 代表 stdout，或空，代
+		表套接字输出。
+		如果没有这样的缓冲区，返回 -1。
+
+		也可用作 |method|: >
+			GetChannel()->ch_getbufnr(what)
+
+ch_getjob({channel})						*ch_getjob()*
+		取得 {channel} 相关的作业。
+		如果没有这样的作业，在返回的作业上调用 |job_status()| 会返回
+		"fail"。
+
+		也可用作 |method|: >
+			GetChannel()->ch_getjob()
+
+
+ch_info({handle})						*ch_info()*
+		返回 {handle} 相关信息的一个字典。其项目为:
+		   "id"		  通道号
+		   "status"	  "open"、"buffered" 或 "closed"，可见
+				  ch_status()
+		用于 ch_open() 打开的通道时:
+		   "hostname"	  地址的机器名
+		   "port"	  地址的端口号
+		   "sock_status"  "open" 或 "closed"
+		   "sock_mode"	  "NL"、"RAW"、"JSON" 或 "JS"
+		   "sock_io"	  "socket"
+		   "sock_timeout" 毫秒计的超时
+		用于 job_start() 打开的通道时:
+		   "out_status"	  "open"、"buffered" 或 "closed"
+		   "out_mode"	  "NL"、"RAW"、"JSON" 或 "JS"
+		   "out_io"	  "null"、"pipe"、"file" 或 "buffer"
+		   "out_timeout"  毫秒计的超时
+		   "err_status"	  "open"、"buffered" 或 "closed"
+		   "err_mode"	  "NL"、"RAW"、"JSON" 或 "JS"
+		   "err_io"	  "out"、"null"、"pipe"、"file" 或 "buffer"
+		   "err_timeout"  毫秒计的超时
+		   "in_status"	  "open" 或 "closed"
+		   "in_mode"	  "NL"、"RAW"、"JSON" 或 "JS"
+		   "in_io"	  "null"、"pipe"、"file" 或 "buffer"
+		   "in_timeout"	  毫秒计的超时
+
+		也可用作 |method|: >
+			GetChannel()->ch_info()
+
+
+ch_log({msg} [, {handle}])					*ch_log()*
+		如果用 |ch_logfile()| 打开日志，把 {msg} 写入通道日志文件中。
+		如果传入 {handle}，使用该通道号写入信息。
+		{handle} 可以是通道或带有通道的作业。所用的通道号对应的通道必
+		须已打开。
+
+		也可用作 |method|: >
+			'did something'->ch_log()
+
+
+ch_logfile({fname} [, {mode}])					*ch_logfile()*
+		启动通道活动记录，写入 {fname}。
+		如果 {fname} 为空字符串，停止记录。
+
+		如果 {mode} 省略或为 "a"，附加到文件。
+		如果 {mode} 为 "w"，用新文件开始。
+
+		用 |ch_log()| 来写入日志信息。每条消息后都会刷新文件，Unix 上
+		可用 "tail -f" 实时监控。
+
+		要尽早打开日志以看到启动时终端接收的内容，可用 |--cmd|: >
+			vim --cmd "call ch_logfile('logfile', 'w')"
+<
+		此函数在 |sandbox| 中不可用。
+		注意: 通道在文件中保存通信内容，小心其中可能包含机密和敏感的隐
+		私信息，如你在终端窗口中输入的密码等。
+
+		也可用作 |method|: >
+			'logfile'->ch_logfile('w')
+
+
+ch_open({address} [, {options}])				*ch_open()*
+		打开通道到 {address}。见 |channel|。
+		返回通道。错误检查可用 |ch_status()|。
+
+		{address} 形如 "hostname:port"，例如 "localhost:8765"。
+
+		使用 IPv6 地址时，用方括号包围。如 "[2001:db8::1]:8765"。
+
+		{options} 如果给出，必须是 |Dictionary|。
+		见 |channel-open-options|。
+
+		也可用作 |method|: >
+			GetAddress()->ch_open()
+
+
+ch_read({handle} [, {options}])					*ch_read()*
+		从 {handle} 读取，返回收到的消息。
+		{handle} 可以是通道或带有通道的作业。
+		NL 通道会等待 NL 的到来，除非没有内容可读了 (通道已被关闭)。
+		见 |channel-more|。
+
+		也可用作 |method|: >
+			GetChannel()->ch_read()
+
+
+ch_readblob({handle} [, {options}])			*ch_readblob()*
+		和 ch_read() 类似，但读取二进制数据并返回 |Blob|。
+		见 |channel-more|。
+
+		也可用作 |method|: >
+			GetChannel()->ch_readblob()
+
+
+ch_readraw({handle} [, {options}])			*ch_readraw()*
+		类似于 ch_read()，但 JS 和 JSON 通道不对消息解码。NL 通道不阻
+		塞等待 NL 的到来，其余和 ch_read() 类似。
+		见 |channel-more|。
+
+		也可用作 |method|: >
+			GetChannel()->ch_readraw()
+
+
+ch_sendexpr({handle}, {expr} [, {options}])			*ch_sendexpr()*
+		发送 {expr} 到 {handle} 上。{expr} 用通道类型进行编码。不能于
+		原始通道。见 |channel-use|。			*E912*
+		{handle} 可以是通道或带有通道的作业。
+
+		也可用作 |method|: >
+			GetChannel()->ch_sendexpr(expr)
+
+
+ch_sendraw({handle}, {expr} [, {options}])		*ch_sendraw()*
+		发送 |String| 或 |Blob| {expr} 到 {handle} 上。
+		类似于 |ch_sendexpr()|，但不对请求编码也不对响应结果解码。调用
+		者负责内容的正确性。也不对 NL 模式的通道附加换行符，调用者须自
+		行负责。响应中的 NL 则被清除。
+		见 |channel-use|。
+
+		也可用作 |method|: >
+			GetChannel()->ch_sendraw(rawexpr)
+
+
+ch_setoptions({handle}, {options})			*ch_setoptions()*
+		设置 {handle} 的选项:
+			"callback"	通道回调函数
+			"timeout"	缺省读操作以毫秒计的超时
+			"mode"		整个通道所用的模式
+		更多的解释可见 |ch_open()|。
+		{handle} 可以是通道或带有通道的作业。
+
+		注意 改变模式可能会丢失正在排队的消息。
+
+		以下选项不可改变:
+			"waittime"	只适用于 |ch_open()|
+
+		也可用作 |method|: >
+			GetChannel()->ch_setoptions(options)
+
+
+ch_status({handle} [, {options}])				*ch_status()*
+		返回 {handle} 的状态:
+			"fail"		打开通道失败
+			"open"		通道可用
+			"buffered"	通道可读，不可写
+			"closed"	通道不可用
+		{handle} 可以是通道或带有通道的作业。
+		"buffered" 用于通道已关闭但还有数据用 |ch_read()| 可读的情况。
+
+		{options} 给出时，可以包含 "part" 项目，指定通道要返回状态的部
+		分: "out" 还是 "err"。例如，要得到错误输出的状态: >
+			ch_status(job, {"part": "err"})
+<
+		也可用作 |method|: >
+			GetChannel()->ch_status()
+
+==============================================================================
+9. 带通道启动作业					*job-start* *job*
+
+要启动一个作业并打开对应 stdin/stdout/stderr 的通道: >
+    let job = job_start(command, {options})
+
+可以这样取得对应的通道: >
+    let channel = job_getchannel(job)
+
+此处，通道使用 NL 模式。如果想用其它模式，最好在 {options} 里指定。如果之后再
+改变模式，部分文本可能已经被接收而没有得到正确地处理。
+
+如果你要处理命令生成的输出行，给出 stdout 的处理函数: >
+    let job = job_start(command, {"out_cb": "MyHandler"})
+该函数调用时会被提供通道和一条信息。可以这样定义该函数: >
+    func MyHandler(channel, msg)
+
+如果没有处理函数，你需要通过 |ch_read()| 或 |ch_readraw()| 读取输出。这一步可
+以在关闭回调函数进行。见 |read-in-close-cb|。
+
+注意 如果作业在你读取输出结果之前结束，输出可能会丢失。这取决于系统 (Unix 上是
+如此，因为管道的写入端的关闭使得读取端读到 EOF)。要避免之，作业退出之前可进行
+短暂地休眠。
+
+"out_cb" 定义的处理函数不会读 stderr。如果另外要处理错误，加入 "err_cb" 处理函
+数: >
+    let job = job_start(command, {"out_cb": "MyHandler",
+	    \			  "err_cb": "ErrHandler"})
+
+如果要用相同的处理函数同时处理 stderr 和 stdout，使用 "callback" 选项: >
+    let job = job_start(command, {"callback": "MyHandler"})
+
+取决于系统，启动新的作业可能把 Vim 放到后台，使启动的作业获得焦点。要避免之，
+可使用 `foreground()` 函数。但如果调用太早，可能无效，可在回调处理函数中使用，
+或使用定时器使之推迟到作业启动后。
+
+可以用 ch_evalraw() 给命令发送信息。如果通道使用 JSON 或 JS 模式，可用
+ch_evalexpr()。
+
+可用选项见 |job-options|。
+例如，要启动作业并把其输出写入缓冲区 "dummy": >
+	let logjob = job_start("tail -f /tmp/log",
+			     \ {'out_io': 'buffer', 'out_name': 'dummy'})
+	sbuf dummy
+
+
+作业从缓冲区获得输入 ~
+							*in_io-buffer*
+要运行的作业从缓冲区中读取内容: >
+	let job = job_start({command},
+	    \ {'in_io': 'buffer', 'in_name': 'mybuffer'})
+<
+							*E915* *E918*
+缓冲区是通过名字来查找的，类似于 |bufnr()|。该缓冲区必须存在并在 job_start()
+调用时己载入。
+
+缺省读入整个缓冲区。可通过 "in_top" 和 "in_bot" 选项改变。
+
+一个特殊的模式是 "in_top" 设为零而 "in_bot" 不设置: 每次缓冲区加入一行新行时，
+倒数第二行被发送到作业的 stdin。这样你可以编辑末行并在回车时将它发送。
+							*channel-close-in*
+如果不使用这种特殊模式，管道或套接字会在最后一行写入后关闭。这样就告诉了读入端
+输入己经完成。也可用 |ch_close_in()| 在更早之前关闭。
+
+文本中的 NUL 字节会被传给作业 (Vim 内部用 NL 字节保存)。
+
+
+在关闭回调中读取作业输出 ~
+							*read-in-close-cb*
+如果作业运行需时而你不需要中间结果，可以加入关闭回调函数，在那里读取输出: >
+
+	func! CloseHandler(channel)
+	  while ch_status(a:channel, {'part': 'out'}) == 'buffered'
+	    echomsg ch_read(a:channel)
+	  endwhile
+	endfunc
+	let job = job_start(command, {'close_cb': 'CloseHandler'})
+
+你要做的事情大概会比 "echomsg" 有用些吧。
+
+==============================================================================
+10. 不带通道启动作业					*job-start-nochannel*
+
+要启动别处的进程而不建立通道: >
+    let job = job_start(command,
+	\ {"in_io": "null", "out_io": "null", "err_io": "null"})
+
+{command} 会在后台启动，Vim 不等待其运行结束。
+
+如果 Vim 看到 stdin、stdout 或 stderr 没有一个被连接，则不会建立通道。一般，你
+需要进行重定向以保证命令不会被卡住。
+
+可用选项见 |job-options|。
+
+							*job-start-if-needed*
+要想在不能连接某个地址的时候才启动某个作业，可以这么做: >
+	let channel = ch_open(address, {"waittime": 0})
+	if ch_status(channel) == "fail"
+	  let job = job_start(command)
+	  let channel = ch_open(address, {"waittime": 1000})
+	endif
+
+注意 这里 ch_open() 的 waittime 给作业一秒钟时间使端口可用。
+
+==============================================================================
+11. 作业函数						*job-functions-details*
+
+job_getchannel({job})					 *job_getchannel()*
+		获取 {job} 使用的通道句柄。
+		要确认作业没有通道: >
+			if string(job_getchannel()) == 'channel fail'
+<
+		也可用作 |method|: >
+			GetJob()->job_getchannel()
+
+job_info([{job}])					*job_info()*
+		返回关于 {job} 信息的字典:
+		   "status"	|job_status()| 返回值
+		   "channel"	|job_getchannel()| 返回值
+		   "cmd"	启动作业的命令行参数列表
+		   "process"	进程 ID
+		   "tty_in"	终端输入名，如果没有则为空
+		   "tty_out"	终端输出名，如果没有则为空
+		   "exitval"	"status" 为 "dead" 时才有效
+		   "exit_cb"	退出时调用的函数
+		   "stoponexit"	|job-stoponexit|
+
+		   仅用于 Unix:
+		   "termsig"	终止程序的信号 (相关值见 |job_stop()|)
+				仅当 "status" 为 "dead" 时才有意义
+
+		   仅用于 MS-Windows:
+		   "tty_type"	使用的虚拟控制台类型。
+				可选值是 "winpty" 或 "conpty"。
+				见 'termwintype'。
+
+		无参数时返回所有作业对象的列表。
+
+		也可用作 |method|: >
+			GetJob()->job_info()
+
+
+job_setoptions({job}, {options})			*job_setoptions()*
+		改变 {job} 的选项。目前支持:
+		   "stoponexit"	|job-stoponexit|
+		   "exit_cb"	|job-exit_cb|
+
+		也可用作 |method|: >
+			GetJob()->job_setoptions(options)
+
+
+job_start({command} [, {options}])			*job_start()*
+		启动作业，返回 Job 对象。不同于 |system()| 和 |:!cmd|，不等待
+		作业完成。
+		要在终端窗口中启动作业，可见 |term_start()|。
+
+		如果作业启动失败，在返回的 Job 对象上调用 |job_status()| 会报
+		告 "fail"，而且不会调用任何回调。
+
+		{command} 可以是字符串。对 MS-Windows 最佳。Unix 上先切为空白
+		分隔的部分，然后传给 execvp()。而双引号内的参数可能包含空格。
+
+		{command} 可以是列表，首项是可执行文件，后面诸项为参数。所有项
+		目转换为字符串。这对 Unix 最佳。
+
+		MS-Windows 上，job_start() 启动隐藏的 GUI 应用。要使之可见，用
+		|:!start| 代替。
+
+		命令直接执行，不通过外壳，不使用 'shell' 选项。要使用外壳: >
+	let job = job_start(["/bin/sh", "-c", "echo hello"])
+<		或: >
+	let job = job_start('/bin/sh -c "echo hello"')
+<		注意 这样会启动两个过程，外壳及其启动的命令。如果不希望如此，
+		可用 "exec" 外壳命令。
+
+		Unix 上仅当命令本身不包含斜杠时，才用 $PATH 来搜索可执行文件。
+
+		作业使用和 Vim 相同的终端。如果从 stdin 读入，该作业和 Vim 会
+		竞争输入，这样不行。要避免此问题，重定向 stdin 和 stdout: >
+	let job = job_start(['sh', '-c', "myserver </dev/null >/dev/null"])
+<
+		返回的 Job 对象可用以通过 |job_status()| 获取状态，和通过
+		|job_stop()| 停止作业。
+
+		注意 作业对象如果没有被引用会被删除。此时 stdin 和 stderr 会被
+		关闭，这可能会使作业失败报错。要避免之，总是保留对作业的引用。
+		所以，不要这样: >
+	call job_start('my-command')
+<		而要: >
+	let myjob = job_start('my-command')
+<		不再需要作业，或者已经不介意作业是否会失败之后 (如启动时已显示
+		了信息) 才可以 unlet "myjob"。记住函数返回后局部于函数的变量不
+		复存在。如有需要，可用局部于脚本的变量: >
+	let s:myjob = job_start('my-command')
+<
+		{options} 必须是字典。可包含许多可选项目，见 |job-options|。
+
+		也可用作 |method|: >
+			BuildCommand()->job_start()
+
+
+job_status({job})					*job_status()* *E916*
+		返回字符串，返回 {job} 的状态:
+			"run"	作业运行中
+			"fail"	作业无法启动
+			"dead"	作业启动后结束或被终止
+
+		Unix 上不存在的命令会报告 "dead" 而不是 "fail"，因为在检测到问
+		题之前，fork 操作已经发生。
+
+		Vim9 脚本中如果有变量声明为 "job" 类型但从未赋值，传递该变量到
+		job_status() 会返回 "fail"。
+
+		如果用 "exit_cb" 选项设置了退出回调，而作业已检测到处于 "dead"
+		状态，调用该回调。
+
+		更多详情可见 |job_info()|。
+
+		也可用作 |method|: >
+			GetJob()->job_status()
+
+
+job_stop({job} [, {how}])					*job_stop()*
+		停止 {job}。也用于给作业发送信号。
+
+		如果 {how} 省略或是 "term"，作业被终止。Unix 上发送 SIGTERM。
+		MS-Windows 上强制终止该作业 (没有所谓 "温柔的" 方式)。
+		应用在整个进程组上，因而子进程也受影响。
+
+		Unix 上的效果:
+			"term"	 SIGTERM (缺省)
+			"hup"	 SIGHUP
+			"quit"	 SIGQUIT
+			"int"	 SIGINT
+			"kill"	 SIGKILL (最强的停止方式)
+			数值	 该数值对应的信号
+
+		MS-Windows 上的效果:
+			"term"	 强制终止进程 (缺省)
+			"hup"	 CTRL_BREAK
+			"quit"	 CTRL_BREAK
+			"int"	 CTRL_C
+			"kill"	 强制终止进程
+			Others	 CTRL_BREAK
+
+		Unix 上发送信号到进程组。这意味着如果作业是 "sh -c command"，
+		外壳和命令同时受影响。
+
+		返回数值: 如果操作可执行返回 1，如果系统不支持 "how"，返回 0。
+		注意 即使已执行了操作，作业停止与否需用 |job_status()| 检查。
+
+		如果作业的状态是 "dead"，不发送信号。这是为了避免给错误的作业
+		发送信号 (尤其在 Unix 上，进程号是循环利用的)。
+
+		使用 "kill" 后，Vim 假定作业会终止，因而将通道关闭。
+
+		也可用作 |method|: >
+			GetJob()->job_stop()
+
+
+==============================================================================
+12. 作业选项						*job-options*
+
+job_start() 的 {options} 参数是一个字典。所有的项目都是可选的。有些选项可以在
+作业启动后通过 job_setoptions(job, {options}) 给出。许多选项可通过
+ch_setoptions(channel, {options}) 对作业相关的通道给出。
+见 |job_setoptions()| 和 |ch_setoptions()|。
+
+						*in_mode* *out_mode* *err_mode*
+"in_mode"		stdin 特定的模式，仅适用于管道情形
+"out_mode"		stdout 特定的模式，仅适用于管道情形
+"err_mode"		stderr 特定的模式，仅适用于管道情形
+			可用值参见 |channel-mode|。
+
+			注意: 设置 "mode" 时，覆盖部分特定的模式。因而，先设置
+			"mode"，再设置部分特定的模式。
+
+			备注: 写入文件或缓冲区和从缓冲区读取时，缺省使用 NL 模
+			式。
+
+						*job-noblock*
+"noblock": 1		写入时使用非阻塞式的写调用。避免 Vim 在处理其它信息之
+			间，比如作业把数据发还给 Vim 的时候，长时间等待，这意
+			味着 `ch_sendraw()` 返回时未必所有的数据已经写回。
+			8.1.0350 补丁加入此选项，可如此测试之: >
+				if has("patch-8.1.350")
+				  let options['noblock'] = 1
+				endif
+<
+						*job-callback*
+"callback": handler	通道任何部分有读取内容时的回调。
+						*job-out_cb* *out_cb*
+"out_cb": handler	stdout 有读取内容时的回调。仅适用于通道使用管道时。如
+			果不设 "out_cb"，使用通道本身的回调。
+			两个参数是通道和信息。
+
+						*job-err_cb* *err_cb*
+"err_cb": handler	stderr 有读取内容时的回调。仅适用于通道使用管道时。如
+			果不设 "err_cb"，使用通道本身的回调。
+			两个参数是通道和信息。
+						*job-close_cb*
+"close_cb": handler	通道关闭时的回调。与 |ch_open()| 的 "close_cb" 相同，
+			见 |close_cb|。
+						*job-drop*
+"drop": when		指定何时丢弃消息。与 |ch_open()| 的 "drop" 相同，见
+			|channel-drop|。如用 "auto"，不考虑 exit_cb。
+						*job-exit_cb*
+"exit_cb": handler	作业结束时的回调。参数是作业和退出状态。
+			对退出的作业，Vim 作最多每秒十次的检查。也可以通过
+			|job_status()| 调用触发检查，这样也会调用 exit_cb 处理
+			函数。
+			备注 数据可能会缓冲，进程结束后还可能调用回调。
+							*job-timeout*
+"timeout": time		等待阻塞请求，如 ch_evalexpr() 等的时间，以毫秒计。缺
+			省是 2000 (2 秒)。
+						*out_timeout* *err_timeout*
+"out_timeout": time	stdout 所用的超时。仅适用于管道情形。
+"err_timeout": time	stderr 所用的超时。仅适用于管道情形。
+			注意: 设置 "timeout" 时，覆盖部分特定的模式。因而，先
+			设置 "timeout"，再设置部分特定的模式。
+
+						*job-stoponexit*
+"stoponexit": {signal}	Vim 结束时给作业发信号 {signal}。可取值参见
+			|job_stop()|。
+"stoponexit": ""	Vim 结束时不结束作业。
+			缺省是 "term"。
+
+						*job-term*
+"term": "open"		在新窗口中启动终端并重定向作业的 stdin/stdout/stderr
+			到终端。和 `:terminal` 类似。
+			注意: 尚未实现！
+
+"channel": {channel}	使用己有的通道，而不重新创建。
+			新作业所用的通道部分会从之前的使用者处断开。如果通道还
+			在被其它的作业使用，这可能会导致 I/O 错误。
+			已有的回调和其它设置不变。
+
+"pty": 1		如有可能，使用 pty (伪终端) 而非管道。最常和终端窗口组
+			合使用，见 |terminal|。
+			{仅在 Unix 和类似系统中才有效}
+
+				*job-in_io* *in_top* *in_bot* *in_name* *in_buf*
+"in_io": "null"		不连接 stdin (从 /dev/null 读取)
+"in_io": "pipe"		连接 stdin 到通道 (缺省)
+"in_io": "file"		stdin 从文件读取
+"in_io": "buffer"	stdin 从缓冲区读取
+"in_top": number	用 "buffer" 时: 发送的首行 (缺省: 1)
+"in_bot": number	用 "buffer" 时: 发送的末行 (缺省: 最后一行)
+"in_name": "/path/file"	读取的文件或缓冲区名
+"in_buf": number	读取的缓冲区号
+
+				*job-out_io* *out_name* *out_buf*
+"out_io": "null"	不连接 stdout (写到 /dev/null)
+"out_io": "pipe"	连接 stdout 到通道 (缺省)
+"out_io": "file"	stdout 写入文件
+"out_io": "buffer"	stdout 附加到缓冲区 (见下)
+"out_name": "/path/file" 写入的文件或缓冲区名
+"out_buf": number	写入的缓冲区号
+"out_modifiable": 0	写入到缓冲区时，关闭 'modifiable' (见下)
+"out_msg": 0		写入新缓冲区时，将首行置为 "Reading from channel
+			error..."
+
+				*job-err_io* *err_name* *err_buf*
+"err_io": "out"		stderr 信息写到 stdout
+"err_io": "null"	不连接 stderr  (写到 /dev/null)
+"err_io": "pipe"	连接 stderr 到通道 (缺省)
+"err_io": "file"	stderr 写入文件
+"err_io": "buffer"	stderr 附加到缓冲区 (见下)
+"err_name": "/path/file" 写入的文件或缓冲区名
+"err_buf": number	写入的缓冲区号
+"err_modifiable": 0	写入到缓冲区时，关闭 'modifiable' (见下)
+"err_msg": 0		写入新缓冲区时，将首行置为 "Reading from channel
+			error..."
+
+"block_write": number	只用于测试: 模拟每隔一个的 stdin 写入是阻塞写入
+
+"env": dict		新进程使用的环境变量
+"cwd": "/path/to/dir"	新进程的当前工作目录；如该目录不存在则报错
+
+
+写入缓冲区 ~
+							*out_io-buffer*
+如果 out_io 或 err_io 模式是 "buffer"，而且回调存在，先把文本附加至缓冲区尾，
+然后再调用回调。
+
+如果缓冲区既用于输入也用于输出，输出行放置在尾行之前，因为尾行是用于写到通道输
+入的。否则，输出行放置在尾行之后。
+
+如果 "buffer" 使用 JS 或 JSON 模式，只有 ID 为零或负数的消息被经过解码和编码后
+加入缓冲区。带正数的消息则被回调处理。命令的处理则如常。
+
+"out_name" 或 "err_name" 用的缓冲区名字和已有的缓冲区的完整名字相比较，当前目
+录也被扩展。例如，如果以 ":edit somename" 创建了缓冲区，而缓冲区名是
+"somename"，则使用该缓冲区。
+
+如果没有匹配的缓冲区，则创建新的缓冲区。如果使用空名，则一定会创建新缓冲区。
+|ch_getbufnr()| 可用来得到缓冲区编号。
+
+新缓冲区的 'buftype' 设为 "nofile"，而 'bufhidden' 为 "hide"。要想用别的设置，
+先建立好缓冲区，然后传入其缓冲区号。
+					*out_modifiable* *err_modifiable*
+"out_modifiable" 和 "err_modifiable" 选项可用来关闭 'modifiable' 选项，或写入
+关闭了 'modifiable' 的缓冲区。这意味着新行被附加到缓冲区后，但用户却不能轻易地
+修改此缓冲区。
+					*out_msg* *err_msg*
+"out_msg" 选项可用来指定新缓冲区是否将首行设为 "Reading from channel
+output..."。缺省是加入该信息。"err_msg" 则对错误通道同样办理。
+
+如果要写入已有的缓冲区，但其 'modifiable' 已关闭并且 "out_modifiable" 或
+"err_modifiable" 选项非零，报错并拒绝写入訪缓冲区。
+
+如果写入的缓冲区在窗口显示并且光标在末行的首列，光标会被移动到新行上，有必要的
+话滚动窗口以显示光标所在的位置。
+
+所有新加的行都同步了撤销历史。接受 NUL 字节 (Vim 内部存为 NL 字节)。
+
+
+写入文件 ~
+							*E920*
+文件建立的缺省权限为 600 (用户可读写，其它人不能访问)。可用 |setfperm()| 改
+变。
+
+如果文件已存在，文件内容被清空。
+
+==============================================================================
+13. 控制作业						*job-control*
+
+要获知作业的状态: >
+	echo job_status(job)
+
+要停止作业的运行: >
+	job_stop(job)
+
+这是停止作业的正常方式，Unix 上会给作业发出 SIGTERM。也可以用其它方式来停止作
+业，甚至可以发送任意的信号。例如，要强制终止作业，"杀了它": >
+	job_stop(job, "kill")
+
+更多选项，可见 |job_stop()|。
+
+==============================================================================
+14. 使用提示缓冲区					*prompt-buffer*
+
+如果你希望在 Vim 窗口中为作业提供输入，有几种选项:
+- 使用普通缓冲区，自行处理所有可能的命令。这很复杂，因为可能的命令有很多。
+- 使用终端窗口。此方式直接在窗口中键入作业输入并显示作业的输出。
+  见 |terminal-window|。
+- 使用带提示缓冲区的窗口。此方式下在 Vim 中输入一行作业命令，而在窗口中显示作
+  业的 (可能经过过滤的) 输出。
+
+通过设置 'buftype' 为 "prompt" 创立提示缓冲区。通常只在缓冲区新建时使用。
+
+用户可以在缓冲区的末行上编辑和输入一行文本行。在该提示行上输入 Enter 后，激活
+|prompt_setcallback()| 设置的回调。通常，它会把该行发送给作业。另一个回调会从
+作业接收输出，并在缓冲区中显示结果。显示位置在提示文本之下 (但在下一个提示文本
+的上方)。
+
+只有末行提示文本之后的文本可进行编辑。普通模式命令不可修改缓冲区其余部分。但通
+过调用如 |append()| 等的函数，还是可以的。使用其它命令可能搞乱缓冲区。
+
+设置 'buftype' 为 "prompt" 时，Vim 并不自动启动插入模式。如想开始插入模式，用
+`:startinsert`，这样用户可以开始行输入。
+
+通过 |prompt_setprompt()| 函数可设置提示文本。如果没有用
+|prompt_setprompt()|，缺省用 "% "。要获取缓冲区的实际提示文本，可用
+|prompt_getprompt()|。
+
+用户可用普通模式浏览缓冲区，以便查看旧作业的输出或进行文本复制。
+
+CTRL-W 键可用于开始窗口命令，例如，CTRL-W w 可切换到下一个窗口。这也适用于插入
+模式 (用 Shift-CTRL-W 删除单词)。离开提示窗口时会停止插入模式。而回到提示窗口
+时会复原窗口模式。
+
+任何启动插入模式的命令，如 "a"、"i"、"A" 和 "I" 等，会自动移动光标到末行。"A"
+会移到行尾，而 "I" 会移到行首。
+
+以下是用于 Unix 的一个例子。它在后台启动外壳，给出提示行以键入下个外壳命令。而
+外壳的输出会在提示行之上显示。 >
+
+	" 建立通道日志，以记录发生的事件。
+	call ch_logfile('logfile', 'w')
+
+	" 处理键入文本行的函数。
+	func TextEntered(text)
+	  " 给文本附加 Enter，发送到外壳。
+	  call ch_sendraw(g:shell_job, a:text .. "\n")
+	endfunc
+
+	" 处理外壳输出的函数: 附加到提示行之上。
+	func GotOutput(channel, msg)
+	  call append(line("$") - 1, "- " . a:msg)
+	endfunc
+
+	" 处理外壳退出的函数: 关闭窗口。
+	func JobExit(job, status)
+	  quit!
+	endfunc
+
+	" 在后台启动外壳。
+	let shell_job = job_start(["/bin/sh"], #{
+		\ out_cb: function('GotOutput'),
+		\ err_cb: function('GotOutput'),
+		\ exit_cb: function('JobExit'),
+		\ })
+	let shell_ch = job_getchannel(shell_job)
+
+	new
+	set buftype=prompt
+	let buf = bufnr('')
+	call prompt_setcallback(buf, function("TextEntered"))
+	eval prompt_setprompt(buf, "shell command: ")
+
+	" 开始接受外壳命令
+	startinsert
+<
+
+
+ vim:tw=78:ts=8:noet:ft=help:norl:

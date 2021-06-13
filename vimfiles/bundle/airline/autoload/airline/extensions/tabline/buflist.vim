@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bailey Ling et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -8,6 +8,10 @@ function! airline#extensions#tabline#buflist#invalidate()
 endfunction
 
 function! airline#extensions#tabline#buflist#clean()
+  if !exists('#airline')
+    " airline disabled
+    return
+  endif
   call airline#extensions#tabline#buflist#invalidate()
   call airline#extensions#tabline#buffers#invalidate()
 endfunction

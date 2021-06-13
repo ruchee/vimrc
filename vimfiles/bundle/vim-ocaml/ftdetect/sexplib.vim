@@ -1,1 +1,1 @@
-au BufRead,BufNewFile *.sexp set ft=sexplib
+au BufNewFile,BufRead *.sexp setf sexplib

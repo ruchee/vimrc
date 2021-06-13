@@ -4,7 +4,7 @@
 " Author:      Jan Larres <jan@majutsushi.net>
 " Licence:     Vim licence
 " Website:     https://preservim.github.io/tagbar
-" Version:     2.7
+" Version:     3.0.0
 " Note:        This plugin was heavily inspired by the 'Taglist' plugin by
 "              Yegappan Lakshmanan and uses a small amount of code from it.
 "
@@ -248,26 +248,45 @@ function! s:InitTypes() abort
         let type_dart = tagbar#prototypes#typeinfo#new()
         let type_dart.ctagstype = 'dart'
         let type_dart.kinds = [
-            \ {'short' : 'i', 'long' : 'imports',             'fold' : 1, 'stl' : 0},
-            \ {'short' : 'C', 'long' : 'consts',       'fold' : 0, 'stl' : 0},
-            \ {'short' : 'v', 'long' : 'variables',       'fold' : 0, 'stl' : 0},
-            \ {'short' : 'F', 'long' : 'functions',             'fold' : 0, 'stl' : 0},
+            \ {'short' : 'l', 'long' : 'library',            'fold' : 0, 'stl' : 0},
+            \ {'short' : 't', 'long' : 'export',             'fold' : 0, 'stl' : 0},
+            \ {'short' : 'i', 'long' : 'imports',            'fold' : 1, 'stl' : 0},
+            \ {'short' : 'D', 'long' : 'dart',               'fold' : 0, 'stl' : 0},
+            \ {'short' : 'U', 'long' : 'pub',                'fold' : 0, 'stl' : 0},
+            \ {'short' : 'L', 'long' : 'local',              'fold' : 0, 'stl' : 0},
+            \ {'short' : 'P', 'long' : 'part',               'fold' : 0, 'stl' : 0},
+            \ {'short' : 'p', 'long' : 'part of',            'fold' : 0, 'stl' : 0},
+            \ {'short' : 'C', 'long' : 'consts',             'fold' : 0, 'stl' : 0},
+            \ {'short' : 'v', 'long' : 'variables',          'fold' : 0, 'stl' : 0},
+            \ {'short' : 'F', 'long' : 'functions',          'fold' : 0, 'stl' : 0},
+            \ {'short' : 'E', 'long' : 'enums',              'fold' : 0, 'stl' : 0},
+            \ {'short' : 'e', 'long' : 'constants',          'fold' : 0, 'stl' : 0},
+            \ {'short' : 'x', 'long' : 'mixins',             'fold' : 0, 'stl' : 0},
             \ {'short' : 'c', 'long' : 'classes',            'fold' : 0, 'stl' : 0},
+            \ {'short' : 'd', 'long' : 'extends',            'fold' : 0, 'stl' : 0},
+            \ {'short' : 'w', 'long' : 'with',               'fold' : 0, 'stl' : 0},
+            \ {'short' : 'z', 'long' : 'implements',         'fold' : 0, 'stl' : 0},
+            \ {'short' : 'r', 'long' : 'constructors',       'fold' : 0, 'stl' : 0},
+            \ {'short' : 'a', 'long' : 'abstract functions', 'fold' : 0, 'stl' : 0},
             \ {'short' : 'f', 'long' : 'fields',             'fold' : 0, 'stl' : 0},
             \ {'short' : 'm', 'long' : 'methods',            'fold' : 0, 'stl' : 0},
             \ {'short' : 'M', 'long' : 'static methods',     'fold' : 0, 'stl' : 0},
-            \ {'short' : 'r', 'long' : 'constructors',       'fold' : 0, 'stl' : 0},
-            \ {'short' : 'o', 'long' : 'operators',          'fold' : 0, 'stl' : 0},
             \ {'short' : 'g', 'long' : 'getters',            'fold' : 0, 'stl' : 0},
             \ {'short' : 's', 'long' : 'setters',            'fold' : 0, 'stl' : 0},
-            \ {'short' : 'a', 'long' : 'abstract functions', 'fold' : 0, 'stl' : 0},
-        \ ]
+            \ {'short' : 'o', 'long' : 'operators',          'fold' : 0, 'stl' : 0},
+       \ ]
         let type_dart.sro        = ':'
         let type_dart.kind2scope = {
-            \ 'c' : 'class'
+            \ 'c' : 'class',
+            \ 'E' : 'enum',
+            \ 'x' : 'mixin',
+            \ 'i' : 'directive'
         \ }
         let type_dart.scope2kind = {
-            \ 'class' : 'c'
+            \ 'class'  : 'c',
+            \ 'enum'   : 'E',
+            \ 'mixin'  : 'x',
+            \ 'directive' : 'i'
         \ }
         let type_dart.ctagsbin   = dart_ctags
         let type_dart.ctagsargs  = '-l'
@@ -529,16 +548,6 @@ function! s:CreateAutocommands() abort
     augroup TagbarAutoCmds
         autocmd!
 
-        if !g:tagbar_silent
-            autocmd CursorHold __Tagbar__.* call s:ShowPrototype(1)
-        endif
-        autocmd WinEnter   __Tagbar__.* call s:SetStatusLine()
-        autocmd WinLeave   __Tagbar__.* call s:SetStatusLine()
-
-        if g:tagbar_autopreview
-            autocmd CursorMoved __Tagbar__.* nested call s:ShowInPreviewWin()
-        endif
-
         autocmd BufEnter * if expand('<amatch>') !~ '__Tagbar__.*' |
                          \     let s:last_alt_bufnr = bufnr('#') |
                          \ endif
@@ -546,28 +555,52 @@ function! s:CreateAutocommands() abort
             autocmd QuitPre * let s:vim_quitting = 1
         endif
         autocmd WinEnter * nested call s:HandleOnlyWindow()
-        autocmd WinEnter * if bufwinnr(s:TagbarBufName()) == -1 |
-                         \     call s:ShrinkIfExpanded() |
-                         \ endif
 
-        autocmd BufWritePost *
-                    \ call s:HandleBufWrite(fnamemodify(expand('<afile>'), ':p'))
-        autocmd CursorHold,CursorHoldI * call s:do_delayed_update()
-        " BufReadPost is needed for reloading the current buffer if the file
-        " was changed by an external command; see commit 17d199f
-        autocmd BufReadPost,BufEnter,CursorHold,FileType * call
-                    \ s:AutoUpdate(fnamemodify(expand('<afile>'), ':p'), 0)
-        autocmd BufDelete,BufWipeout *
-                    \ nested call s:HandleBufDelete(expand('<afile>'), expand('<abuf>'))
+        if !g:tagbar_no_autocmds
+            if !g:tagbar_silent
+                autocmd CursorHold __Tagbar__.* call s:ShowPrototype(1)
+            endif
+            autocmd WinEnter   __Tagbar__.* call s:SetStatusLine()
+            autocmd WinLeave   __Tagbar__.* call s:SetStatusLine()
 
-        " Suspend Tagbar while grep commands are running, since we don't want
-        " to process files that only get loaded temporarily to search them
-        autocmd QuickFixCmdPre  *grep* let s:tagbar_qf_active = 1
-        autocmd QuickFixCmdPost *grep* if exists('s:tagbar_qf_active') |
-                                     \     unlet s:tagbar_qf_active |
-                                     \ endif
+            if g:tagbar_autopreview
+                autocmd CursorMoved __Tagbar__.* nested call s:ShowInPreviewWin()
+            endif
 
-        autocmd VimEnter * call s:CorrectFocusOnStartup()
+            autocmd WinEnter * if bufwinnr(s:TagbarBufName()) == -1 |
+                        \     call s:ShrinkIfExpanded() |
+                        \ endif
+
+            autocmd BufWritePost *
+                        \ call s:HandleBufWrite(fnamemodify(expand('<afile>'), ':p'))
+            autocmd CursorHold,CursorHoldI * call s:do_delayed_update()
+            " BufReadPost is needed for reloading the current buffer if the file
+            " was changed by an external command; see commit 17d199f
+            autocmd BufReadPost,BufEnter,CursorHold,FileType * call
+                        \ s:AutoUpdate(fnamemodify(expand('<afile>'), ':p'), 0)
+            if g:tagbar_highlight_follow_insert
+                autocmd CursorHoldI * call
+                        \ s:AutoUpdate(fnamemodify(expand('<afile>'), ':p'), 0)
+            endif
+
+            " Suspend Tagbar while grep commands are running, since we don't want
+            " to process files that only get loaded temporarily to search them
+            autocmd QuickFixCmdPre  *grep* let s:tagbar_qf_active = 1
+            autocmd QuickFixCmdPost *grep* if exists('s:tagbar_qf_active') |
+                        \     unlet s:tagbar_qf_active |
+                        \ endif
+
+            autocmd VimEnter * call s:CorrectFocusOnStartup()
+        endif
+    augroup END
+
+    " Separate these autocmds out from the others as we want to always perform
+    " these actions even if the tagbar window closes.
+    augroup TagbarCleanupAutoCmds
+        if !g:tagbar_no_autocmds
+            autocmd BufDelete,BufWipeout *
+                        \ nested call s:HandleBufDelete(expand('<afile>'), expand('<abuf>'))
+        endif
     augroup END
 
     let s:autocommands_done = 1
@@ -1262,6 +1295,11 @@ function! s:ProcessFile(fname, ftype) abort
         if line =~# '^!_TAG_' || has_key(seen, line)
             continue
         endif
+        if g:tagbar_ignore_anonymous && line =~# '__anon'
+            call tagbar#debug#log('anonymous tag found - ignoring per tagbar configuration')
+            continue
+        endif
+
         let seen[line] = 1
 
         let parts = split(line, ';"')
@@ -2098,7 +2136,7 @@ function! s:PrintHelp() abort
                     \ ['preview',           'As above, but stay in tagbar window'],
                     \ ['previewwin',        'Show tag in preview window'],
                     \ ['nexttag',           'Go to next top-level tag'],
-                    \ ['prevtag',           'Go to preveous top-level tag'],
+                    \ ['prevtag',           'Go to previous top-level tag'],
                     \ ['showproto',         'Display tag prototype'],
                     \ ['hidenonpublic',     'Hide non-public tags'],
                 \ ]
@@ -2181,14 +2219,22 @@ endfunction
 " User actions {{{1
 " s:HighlightTag() {{{2
 function! s:HighlightTag(openfolds, ...) abort
+
+    if g:tagbar_no_autocmds
+        " If no autocmds are enabled, then it doesn't make sense to highlight
+        " anything as the cursor can move around and any highlighting would be
+        " inaccurate
+        return
+    endif
+
     let tagline = 0
 
     let force = a:0 > 0 ? a:1 : 0
 
     if a:0 > 1
-        let tag = s:GetNearbyTag('nearest-stl', 0, a:2)
+        let tag = s:GetNearbyTag(g:tagbar_highlight_method, 0, a:2)
     else
-        let tag = s:GetNearbyTag('nearest-stl', 0)
+        let tag = s:GetNearbyTag(g:tagbar_highlight_method, 0)
     endif
     if !empty(tag)
         let tagline = tag.tline
@@ -2249,10 +2295,11 @@ function! s:HighlightTag(openfolds, ...) abort
 
         " If printing the line number of the tag to the left, and the tag is
         " visible (I.E. parent isn't folded)
+        let identifier = '\zs\V' . escape(tag.name, '/\') . '\m\ze'
         if g:tagbar_show_tag_linenumbers == 2 && tagline == tag.tline
-            let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\[[0-9]\+\] \?\zs[^( ]\+\ze/'
+            let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\[[0-9]\+\] \?' . identifier . '/'
         else
-            let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\?\zs[^( ]\+\ze/'
+            let pattern = '/^\%' . tagline . 'l\s*' . foldpat . '[-+# ]\?' . identifier . '/'
         endif
         call tagbar#debug#log("Highlight pattern: '" . pattern . "'")
         if hlexists('TagbarHighlight') " Safeguard in case syntax highlighting is disabled
@@ -3011,7 +3058,8 @@ function! s:run_system(cmd, version) abort
         exec pyx . '__argv = {"args":vim.eval("a:cmd"), "shell":True}'
         exec pyx . '__argv["stdout"] = subprocess.PIPE'
         exec pyx . '__argv["stderr"] = subprocess.STDOUT'
-        exec pyx . '__pp = subprocess.Popen(**__argv)'
+        exec pyx . '__argv["errors"] = "ignore"'
+        exec pyx . '__pp = subprocess.Popen(**__argv, universal_newlines=True, encoding="utf8")'
         exec pyx . '__return_text = __pp.stdout.read()'
         exec pyx . '__pp.stdout.close()'
         exec pyx . '__return_code = __pp.wait()'
@@ -3111,8 +3159,7 @@ function! s:GetNearbyTag(request, forcecurrent, ...) abort
     for line in range(curline, 1, -1)
         if has_key(fileinfo.fline, line)
             let curtag = fileinfo.fline[line]
-            if a:request ==# 'nearest-stl'
-                        \ && typeinfo.getKind(curtag.fields.kind).stl || line == curline
+            if a:request ==# 'nearest-stl' && typeinfo.getKind(curtag.fields.kind).stl
                 let tag = curtag
                 break
             elseif a:request ==# 'scoped-stl'
@@ -3121,7 +3168,7 @@ function! s:GetNearbyTag(request, forcecurrent, ...) abort
                         \ && curline <= curtag.fields.end
                 let tag = curtag
                 break
-            elseif a:request ==# 'nearest'
+            elseif a:request ==# 'nearest' || line == curline
                 let tag = curtag
                 break
             endif
@@ -3423,12 +3470,12 @@ function! s:HandleBufDelete(bufname, bufnr) abort
         return
     endif
 
+    call s:known_files.rm(fnamemodify(a:bufname, ':p'))
+
     let tagbarwinnr = bufwinnr(s:TagbarBufName())
     if tagbarwinnr == -1 || a:bufname =~# '__Tagbar__.*'
         return
     endif
-
-    call s:known_files.rm(fnamemodify(a:bufname, ':p'))
 
     if !s:HasOpenFileWindows()
         if tabpagenr('$') == 1 && exists('t:tagbar_buf_name')
@@ -3928,6 +3975,27 @@ function! tagbar#printfileinfo() abort
 
     echo 'Tagbar fileinfo printed to debug logfile'
 endfunction
+
+" tagbar#IsOpen() {{{2
+function! tagbar#IsOpen() abort
+    let tagbarwinnr = bufwinnr('__Tagbar__')
+    if tagbarwinnr != -1
+        " Window open
+        return 1
+    else
+        " Window not open
+        return 0
+    endif
+endfunction
+
+" tagbar#jump() {{{2
+function! tagbar#jump() abort
+    if &filetype !=# 'tagbar'
+        " Not in tagbar window - ignore this function call
+        return
+    endif
+    call s:JumpToTag(1)
+endfun
 
 " Modeline {{{1
 " vim: ts=8 sw=4 sts=4 et foldenable foldmethod=marker foldcolumn=1

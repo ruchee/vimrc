@@ -1,4 +1,4 @@
-" Copyright (c) 2016-2020 Jon Parise <jon@indelible.org>
+" Copyright (c) 2016-2021 Jon Parise <jon@indelible.org>
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
 " of this software and associated documentation files (the "Software"), to
@@ -25,7 +25,11 @@ if exists('b:current_syntax')
   let s:current_syntax = b:current_syntax
   unlet b:current_syntax
 endif
+
+let b:graphql_nested_syntax = 1
 syn include @GraphQLSyntax syntax/graphql.vim
+unlet b:graphql_nested_syntax
+
 if exists('s:current_syntax')
   let b:current_syntax = s:current_syntax
 endif
@@ -38,17 +42,21 @@ if graphql#has_syntax_group('jsTemplateExpression')
   exec 'syntax match graphqlTaggedTemplate +' . s:tags . '\ze`+ nextgroup=graphqlTemplateString'
   syntax region graphqlTemplateExpression start=+${+ end=+}+ contained contains=jsTemplateExpression containedin=graphqlFold keepend
 
+  syntax region graphqlTemplateString matchgroup=jsTemplateString start=+`#\s\{,4\}gql\>\s*$+ skip=+\\\\\|\\`+ end=+`+ contains=@GraphQLSyntax,jsTemplateExpression,jsSpecial extend
+
   hi def link graphqlTemplateString jsTemplateString
   hi def link graphqlTaggedTemplate jsTaggedTemplate
   hi def link graphqlTemplateExpression jsTemplateExpression
 
-  syn cluster jsExpression add=graphqlTaggedTemplate
+  syn cluster jsExpression add=graphqlTemplateString,graphqlTaggedTemplate
   syn cluster graphqlTaggedTemplate add=graphqlTemplateString
 elseif graphql#has_syntax_group('javaScriptStringT')
   " runtime/syntax/javascript.vim
   exec 'syntax region graphqlTemplateString matchgroup=javaScriptStringT start=+' . s:tags . '\@20<=`+ skip=+\\\\\|\\`+ end=+`+ contains=@GraphQLSyntax,javaScriptSpecial,javaScriptEmbed,@htmlPreproc extend'
   exec 'syntax match graphqlTaggedTemplate +' . s:tags . '\ze`+ nextgroup=graphqlTemplateString'
   syntax region graphqlTemplateExpression start=+${+ end=+}+ contained contains=@javaScriptEmbededExpr containedin=graphqlFold keepend
+
+  syntax region graphqlTemplateString matchgroup=javaScriptStringT start=+`#\s\{,4\}gql\>\s*$+ skip=+\\\\\|\\`+ end=+`+ contains=@GraphQLSyntax,javaScriptSpecial,javaScriptEmbed,@htmlPreproc extend
 
   hi def link graphqlTemplateString javaScriptStringT
   hi def link graphqlTaggedTemplate javaScriptEmbed

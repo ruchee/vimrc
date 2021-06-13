@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2016 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2010 Daniel Harding <dharding@gmail.com>
 # Copyright (c) 2012-2014 Google, Inc.
@@ -20,8 +19,8 @@
 # Copyright (c) 2016 Elias Dorneles <eliasdorneles@gmail.com>
 # Copyright (c) 2016 Yannack <yannack@users.noreply.github.com>
 # Copyright (c) 2016 Alex Jurkiewicz <alex@jurkiewi.cz>
-# Copyright (c) 2017 Pierre Sassoulas <pierre.sassoulas@cea.fr>
-# Copyright (c) 2017, 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2017, 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 danields <danields761@gmail.com>
 # Copyright (c) 2017 Jacques Kvam <jwkvam@gmail.com>
 # Copyright (c) 2017 ttenhoeve-aa <ttenhoeve@appannie.com>
@@ -39,11 +38,13 @@
 # Copyright (c) 2018 glmdgrielson <32415403+glmdgrielson@users.noreply.github.com>
 # Copyright (c) 2019 Daniel Draper <Germandrummer92@users.noreply.github.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Niko Wenselowski <niko@nerdno.de>
 # Copyright (c) 2019 Nikita Sobolev <mail@sobolevn.me>
 # Copyright (c) 2019 Oisín Moran <OisinMoran@users.noreply.github.com>
 # Copyright (c) 2019 Fantix King <fantix@uchicago.edu>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 ethan-leba <ethanleba5@gmail.com>
+# Copyright (c) 2020 へーさん <hira9603859504@gmail.com>
 # Copyright (c) 2020 Damien Baty <damien.baty@polyconseil.fr>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
@@ -51,9 +52,12 @@
 # Copyright (c) 2020 Gabriel R Sezefredo <g@briel.dev>
 # Copyright (c) 2020 Benny <benny.mueller91@gmail.com>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Or Bahari <orbahari@mail.tau.ac.il>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """basic checker for Python code"""
 import builtins
@@ -64,9 +68,6 @@ import sys
 from typing import Pattern
 
 import astroid
-import astroid.bases
-import astroid.scoped_nodes
-from astroid.arguments import CallSite
 
 from pylint import checkers, exceptions, interfaces
 from pylint import utils as lint_utils
@@ -80,16 +81,17 @@ from pylint.reporters.ureports import nodes as reporter_nodes
 
 
 class NamingStyle:
-    # It may seem counterintuitive that single naming style
-    # has multiple "accepted" forms of regular expressions,
-    # but we need to special-case stuff like dunder names
-    # in method names.
-    CLASS_NAME_RGX = None  # type: Pattern[str]
-    MOD_NAME_RGX = None  # type: Pattern[str]
-    CONST_NAME_RGX = None  # type: Pattern[str]
-    COMP_VAR_RGX = None  # type: Pattern[str]
-    DEFAULT_NAME_RGX = None  # type: Pattern[str]
-    CLASS_ATTRIBUTE_RGX = None  # type: Pattern[str]
+    """It may seem counterintuitive that single naming style has multiple "accepted"
+    forms of regular expressions, but we need to special-case stuff like dunder names
+    in method names."""
+
+    ANY: Pattern[str] = re.compile(".*")
+    CLASS_NAME_RGX: Pattern[str] = ANY
+    MOD_NAME_RGX: Pattern[str] = ANY
+    CONST_NAME_RGX: Pattern[str] = ANY
+    COMP_VAR_RGX: Pattern[str] = ANY
+    DEFAULT_NAME_RGX: Pattern[str] = ANY
+    CLASS_ATTRIBUTE_RGX: Pattern[str] = ANY
 
     @classmethod
     def get_regex(cls, name_type):
@@ -103,6 +105,7 @@ class NamingStyle:
             "argument": cls.DEFAULT_NAME_RGX,
             "variable": cls.DEFAULT_NAME_RGX,
             "class_attribute": cls.CLASS_ATTRIBUTE_RGX,
+            "class_const": cls.CONST_NAME_RGX,
             "inlinevar": cls.COMP_VAR_RGX,
         }[name_type]
 
@@ -154,9 +157,7 @@ class UpperCaseStyle(NamingStyle):
 
 
 class AnyStyle(NamingStyle):
-    @classmethod
-    def get_regex(cls, name_type):
-        return re.compile(".*")
+    pass
 
 
 NAMING_STYLES = {
@@ -210,7 +211,7 @@ TYPING_FORWARD_REF_QNAME = "typing.ForwardRef"
 
 
 def _redefines_import(node):
-    """ Detect that the given node (AssignName) is inside an
+    """Detect that the given node (AssignName) is inside an
     exception handler and redefines an import from the tryexcept body.
     Returns True if the node redefines an import, False otherwise.
     """
@@ -386,7 +387,7 @@ def _has_abstract_methods(node):
     return len(utils.unimplemented_abstract_methods(node)) > 0
 
 
-def report_by_type_stats(sect, stats, _):
+def report_by_type_stats(sect, stats, old_stats):
     """make a report of
 
     * percentage of different types documented
@@ -415,11 +416,16 @@ def report_by_type_stats(sect, stats, _):
     lines = ("type", "number", "old number", "difference", "%documented", "%badname")
     for node_type in ("module", "class", "method", "function"):
         new = stats[node_type]
+        old = old_stats.get(node_type, None)
+        if old is not None:
+            diff_str = lint_utils.diff_string(old, new)
+        else:
+            old, diff_str = "NC", "NC"
         lines += (
             node_type,
             str(new),
-            "NC",
-            "NC",
+            str(old),
+            diff_str,
             nice_stats[node_type].get("percent_documented", "0"),
             nice_stats[node_type].get("percent_badname", "0"),
         )
@@ -774,7 +780,7 @@ class BasicErrorChecker(_BasicChecker):
 
     @utils.check_messages("abstract-class-instantiated")
     def visit_call(self, node):
-        """ Check instantiating abstract class with
+        """Check instantiating abstract class with
         abc.ABCMeta as metaclass.
         """
         try:
@@ -1082,8 +1088,7 @@ class BasicChecker(_BasicChecker):
         self._tryfinallys = None
 
     def open(self):
-        """initialize visit variables and statistics
-        """
+        """initialize visit variables and statistics"""
         self._tryfinallys = []
         self.stats = self.linter.add_stats(module=0, function=0, method=0, class_=0)
 
@@ -1133,7 +1138,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
         elif isinstance(inferred, const_nodes):
             # If the constant node is a FunctionDef or Lambda then
-            #  it may be a illicit function call due to missing parentheses
+            # it may be a illicit function call due to missing parentheses
             call_inferred = None
             try:
                 if isinstance(inferred, astroid.FunctionDef):
@@ -1155,8 +1160,7 @@ class BasicChecker(_BasicChecker):
             self.add_message("using-constant-test", node=node)
 
     def visit_module(self, _):
-        """check module name, docstring and required arguments
-        """
+        """check module name, docstring and required arguments"""
         self.stats["module"] += 1
 
     def visit_classdef(self, node):  # pylint: disable=unused-argument
@@ -1246,8 +1250,7 @@ class BasicChecker(_BasicChecker):
 
     @utils.check_messages("unnecessary-lambda")
     def visit_lambda(self, node):
-        """check whether or not the lambda is suspicious
-        """
+        """check whether or not the lambda is suspicious"""
         # if the body of the lambda is a call expression with the same
         # argument list as the lambda itself, then the lambda is
         # possibly unnecessary and at least suspicious.
@@ -1270,7 +1273,7 @@ class BasicChecker(_BasicChecker):
             # return something else (but we don't check that, yet).
             return
 
-        call_site = CallSite.from_call(call)
+        call_site = astroid.arguments.CallSite.from_call(call)
         ordinary_args = list(node.args.args)
         new_call_args = list(self._filter_vararg(node, call.args))
         if node.args.kwarg:
@@ -1316,8 +1319,11 @@ class BasicChecker(_BasicChecker):
     visit_asyncfunctiondef = visit_functiondef
 
     def _check_dangerous_default(self, node):
-        # check for dangerous default values as arguments
-        is_iterable = lambda n: isinstance(n, (astroid.List, astroid.Set, astroid.Dict))
+        """Check for dangerous default values as arguments."""
+
+        def is_iterable(internal_node):
+            return isinstance(internal_node, (astroid.List, astroid.Set, astroid.Dict))
+
         defaults = node.args.defaults or [] + node.args.kw_defaults or []
         for default in defaults:
             if not default:
@@ -1331,7 +1337,6 @@ class BasicChecker(_BasicChecker):
                 isinstance(value, astroid.Instance)
                 and value.qname() in DEFAULT_ARGUMENT_SYMBOLS
             ):
-
                 if value is default:
                     msg = DEFAULT_ARGUMENT_SYMBOLS[value.qname()]
                 elif isinstance(value, astroid.Instance) or is_iterable(value):
@@ -1345,15 +1350,12 @@ class BasicChecker(_BasicChecker):
                     if is_iterable(default):
                         msg = value.pytype()
                     elif isinstance(default, astroid.Call):
-                        msg = "%s() (%s)" % (value.name, value.qname())
+                        msg = f"{value.name}() ({value.qname()})"
                     else:
-                        msg = "%s (%s)" % (default.as_string(), value.qname())
+                        msg = f"{default.as_string()} ({value.qname()})"
                 else:
                     # this argument is a name
-                    msg = "%s (%s)" % (
-                        default.as_string(),
-                        DEFAULT_ARGUMENT_SYMBOLS[value.qname()],
-                    )
+                    msg = f"{default.as_string()} ({DEFAULT_ARGUMENT_SYMBOLS[value.qname()]})"
                 self.add_message("dangerous-default-value", node=node, args=(msg,))
 
     @utils.check_messages("unreachable", "lost-exception")
@@ -1423,7 +1425,7 @@ class BasicChecker(_BasicChecker):
         "eval-used", "exec-used", "bad-reversed-sequence", "misplaced-format-function"
     )
     def visit_call(self, node):
-        """visit a Call node -> check if this is not a blacklisted builtin
+        """visit a Call node -> check if this is not a disallowed builtin
         call and check for * or ** use
         """
         self._check_misplaced_format_function(node)
@@ -1526,14 +1528,11 @@ class BasicChecker(_BasicChecker):
                 return
 
             if isinstance(argument, astroid.Instance):
-                if argument._proxied.name == "dict" and utils.is_builtin_object(
-                    argument._proxied
-                ):
-                    self.add_message("bad-reversed-sequence", node=node)
-                    return
                 if any(
                     ancestor.name == "dict" and utils.is_builtin_object(ancestor)
-                    for ancestor in argument._proxied.ancestors()
+                    for ancestor in itertools.chain(
+                        (argument._proxied,), argument._proxied.ancestors()
+                    )
                 ):
                     # Mappings aren't accepted by reversed(), unless
                     # they provide explicitly a __reversed__ method.
@@ -1660,9 +1659,9 @@ KNOWN_NAME_TYPES = {
     "argument",
     "variable",
     "class_attribute",
+    "class_const",
     "inlinevar",
 }
-
 
 HUMAN_READABLE_TYPES = {
     "module": "module",
@@ -1674,6 +1673,7 @@ HUMAN_READABLE_TYPES = {
     "argument": "argument",
     "variable": "variable",
     "class_attribute": "class attribute",
+    "class_const": "class constant",
     "inlinevar": "inline iteration",
 }
 
@@ -1687,6 +1687,7 @@ DEFAULT_NAMING_STYLES = {
     "argument": "snake_case",
     "variable": "snake_case",
     "class_attribute": "any",
+    "class_const": "UPPER_CASE",
     "inlinevar": "any",
 }
 
@@ -1699,7 +1700,7 @@ def _create_naming_options():
         name_type = name_type.replace("_", "-")
         name_options.append(
             (
-                "%s-naming-style" % (name_type,),
+                f"{name_type}-naming-style",
                 {
                     "default": default_style,
                     "type": "choice",
@@ -1712,7 +1713,7 @@ def _create_naming_options():
         )
         name_options.append(
             (
-                "%s-rgx" % (name_type,),
+                f"{name_type}-rgx",
                 {
                     "default": None,
                     "type": "regexp",
@@ -1726,18 +1727,22 @@ def _create_naming_options():
 
 
 class NameChecker(_BasicChecker):
-
     msgs = {
-        "C0102": (
-            'Black listed name "%s"',
-            "blacklisted-name",
-            "Used when the name is listed in the black list (unauthorized names).",
-        ),
         "C0103": (
             '%s name "%s" doesn\'t conform to %s',
             "invalid-name",
             "Used when the name doesn't conform to naming rules "
             "associated to its type (constant, variable, class...).",
+        ),
+        "C0104": (
+            'Disallowed name "%s"',
+            "disallowed-name",
+            "Used when the name matches bad-names or bad-names-rgxs- (unauthorized names).",
+            {
+                "old_names": [
+                    ("C0102", "blacklisted-name"),
+                ]
+            },
         ),
         "C0144": (
             '%s name "%s" contains a non-ASCII unicode character',
@@ -1854,10 +1859,11 @@ class NameChecker(_BasicChecker):
             badname_inlinevar=0,
             badname_argument=0,
             badname_class_attribute=0,
+            badname_class_const=0,
         )
         for group in self.config.name_group:
             for name_type in group.split(":"):
-                self._name_group[name_type] = "group_%s" % (group,)
+                self._name_group[name_type] = f"group_{group}"
 
         regexps, hints = self._create_naming_rules()
         self._name_regexps = regexps
@@ -1874,12 +1880,12 @@ class NameChecker(_BasicChecker):
         hints = {}
 
         for name_type in KNOWN_NAME_TYPES:
-            naming_style_option_name = "%s_naming_style" % (name_type,)
+            naming_style_option_name = f"{name_type}_naming_style"
             naming_style_name = getattr(self.config, naming_style_option_name)
 
             regexps[name_type] = NAMING_STYLES[naming_style_name].get_regex(name_type)
 
-            custom_regex_setting_name = "%s_rgx" % (name_type,)
+            custom_regex_setting_name = f"{name_type}_rgx"
             custom_regex = getattr(self.config, custom_regex_setting_name, None)
             if custom_regex is not None:
                 regexps[name_type] = custom_regex
@@ -1891,7 +1897,7 @@ class NameChecker(_BasicChecker):
 
         return regexps, hints
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_module(self, node):
         self._check_name("module", node.name.split(".")[-1], node)
         self._bad_names = {}
@@ -1917,7 +1923,7 @@ class NameChecker(_BasicChecker):
                 self._raise_name_warning(*args)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_classdef(self, node):
         self._check_assign_to_new_keyword_violation(node.name, node)
@@ -1927,7 +1933,7 @@ class NameChecker(_BasicChecker):
                 self._check_name("attr", attr, anodes[0])
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_functiondef(self, node):
         # Do not emit any warnings if the method is just an implementation
@@ -1956,13 +1962,13 @@ class NameChecker(_BasicChecker):
 
     visit_asyncfunctiondef = visit_functiondef
 
-    @utils.check_messages("blacklisted-name", "invalid-name", "non-ascii-name")
+    @utils.check_messages("disallowed-name", "invalid-name", "non-ascii-name")
     def visit_global(self, node):
         for name in node.names:
             self._check_name("const", name, node)
 
     @utils.check_messages(
-        "blacklisted-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
+        "disallowed-name", "invalid-name", "assign-to-new-keyword", "non-ascii-name"
     )
     def visit_assignname(self, node):
         """check module level assigned names"""
@@ -1983,6 +1989,10 @@ class NameChecker(_BasicChecker):
                     self._check_name("const", node.name, node)
             elif isinstance(assign_type, astroid.ExceptHandler):
                 self._check_name("variable", node.name, node)
+            elif isinstance(
+                assign_type, astroid.AnnAssign
+            ) and utils.is_assign_name_annotated_with(node, "Final"):
+                self._check_name("const", node.name, node)
         elif isinstance(frame, astroid.FunctionDef):
             # global introduced variable aren't in the function locals
             if node.name in frame and node.name not in frame.argnames():
@@ -1990,7 +2000,16 @@ class NameChecker(_BasicChecker):
                     self._check_name("variable", node.name, node)
         elif isinstance(frame, astroid.ClassDef):
             if not list(frame.local_attr_ancestors(node.name)):
-                self._check_name("class_attribute", node.name, node)
+                for ancestor in frame.ancestors():
+                    if (
+                        ancestor.name == "Enum"
+                        and ancestor.root().name == "enum"
+                        or utils.is_assign_name_annotated_with(node, "Final")
+                    ):
+                        self._check_name("class_const", node.name, node)
+                        break
+                else:
+                    self._check_name("class_attribute", node.name, node)
 
     def _recursive_check_names(self, args, node):
         """check names in a possibly recursive list <arg>"""
@@ -2019,12 +2038,12 @@ class NameChecker(_BasicChecker):
         self.add_message(warning, node=node, args=args, confidence=confidence)
         self.stats["badname_" + node_type] += 1
 
-    def _name_valid_due_to_whitelist(self, name: str) -> bool:
+    def _name_allowed_by_regex(self, name: str) -> bool:
         return name in self.config.good_names or any(
             pattern.match(name) for pattern in self._good_names_rgxs_compiled
         )
 
-    def _name_invalid_due_to_blacklist(self, name: str) -> bool:
+    def _name_disallowed_by_regex(self, name: str) -> bool:
         return name in self.config.bad_names or any(
             pattern.match(name) for pattern in self._bad_names_rgxs_compiled
         )
@@ -2050,11 +2069,11 @@ class NameChecker(_BasicChecker):
             clobbering, _ = utils.clobber_in_except(node)
             if clobbering:
                 return
-        if self._name_valid_due_to_whitelist(name=name):
+        if self._name_allowed_by_regex(name=name):
             return
-        if self._name_invalid_due_to_blacklist(name=name):
+        if self._name_disallowed_by_regex(name=name):
             self.stats["badname_" + node_type] += 1
-            self.add_message("blacklisted-name", node=node, args=name)
+            self.add_message("disallowed-name", node=node, args=name)
             return
         regexp = self._name_regexps[node_type]
         match = regexp.match(name)
@@ -2084,7 +2103,7 @@ class NameChecker(_BasicChecker):
     def _name_became_keyword_in_version(name, rules):
         for version, keywords in rules.items():
             if name in keywords and sys.version_info < version:
-                return ".".join(map(str, version))
+                return ".".join(str(v) for v in version)
         return None
 
 
@@ -2300,7 +2319,7 @@ class ComparisonChecker(_BasicChecker):
 
     msgs = {
         "C0121": (
-            "Comparison to %s should be %s",
+            "Comparison %s should be %s",
             "singleton-comparison",
             "Used when an expression is compared to singleton "
             "values like True, False or None.",
@@ -2313,7 +2332,7 @@ class ComparisonChecker(_BasicChecker):
             "place it in the right hand side of the comparison.",
         ),
         "C0123": (
-            "Using type() instead of isinstance() for a typecheck.",
+            "Use isinstance() rather than type() for a typecheck.",
             "unidiomatic-typecheck",
             "The idiomatic way to perform an explicit typecheck in "
             "Python is to use isinstance(x, Y) rather than "
@@ -2340,33 +2359,112 @@ class ComparisonChecker(_BasicChecker):
             "callable was made, which might suggest that some parenthesis were omitted, "
             "resulting in potential unwanted behaviour.",
         ),
+        "W0177": (
+            "Comparison %s should be %s",
+            "nan-comparison",
+            "Used when an expression is compared to NaN"
+            "values like numpy.NaN and float('nan')",
+        ),
     }
 
-    def _check_singleton_comparison(self, singleton, root_node, negative_check=False):
-        if singleton.value is True:
-            if not negative_check:
-                suggestion = "just 'expr'"
-            else:
-                suggestion = "just 'not expr'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(True, suggestion)
+    def _check_singleton_comparison(
+        self, left_value, right_value, root_node, checking_for_absence: bool = False
+    ):
+        """Check if == or != is being used to compare a singleton value"""
+        singleton_values = (True, False, None)
+
+        def _is_singleton_const(node) -> bool:
+            return isinstance(node, astroid.Const) and any(
+                node.value is value for value in singleton_values
             )
-        elif singleton.value is False:
-            if not negative_check:
-                suggestion = "'not expr'"
-            else:
-                suggestion = "'expr'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(False, suggestion)
+
+        if _is_singleton_const(left_value):
+            singleton, other_value = left_value.value, right_value
+        elif _is_singleton_const(right_value):
+            singleton, other_value = right_value.value, left_value
+        else:
+            return
+
+        singleton_comparison_example = {False: "'{} is {}'", True: "'{} is not {}'"}
+
+        # True/False singletons have a special-cased message in case the user is
+        # mistakenly using == or != to check for truthiness
+        if singleton in (True, False):
+            suggestion_template = (
+                "{} if checking for the singleton value {}, or {} if testing for {}"
             )
-        elif singleton.value is None:
-            if not negative_check:
-                suggestion = "'expr is None'"
-            else:
-                suggestion = "'expr is not None'"
-            self.add_message(
-                "singleton-comparison", node=root_node, args=(None, suggestion)
+            truthiness_example = {False: "not {}", True: "{}"}
+            truthiness_phrase = {True: "truthiness", False: "falsiness"}
+
+            # Looks for comparisons like x == True or x != False
+            checking_truthiness = singleton is not checking_for_absence
+
+            suggestion = suggestion_template.format(
+                singleton_comparison_example[checking_for_absence].format(
+                    left_value.as_string(), right_value.as_string()
+                ),
+                singleton,
+                (
+                    "'bool({})'"
+                    if not utils.is_test_condition(root_node) and checking_truthiness
+                    else "'{}'"
+                ).format(
+                    truthiness_example[checking_truthiness].format(
+                        other_value.as_string()
+                    )
+                ),
+                truthiness_phrase[checking_truthiness],
             )
+        else:
+            suggestion = singleton_comparison_example[checking_for_absence].format(
+                left_value.as_string(), right_value.as_string()
+            )
+        self.add_message(
+            "singleton-comparison",
+            node=root_node,
+            args=(f"'{root_node.as_string()}'", suggestion),
+        )
+
+    def _check_nan_comparison(
+        self, left_value, right_value, root_node, checking_for_absence: bool = False
+    ):
+        def _is_float_nan(node):
+            try:
+                if isinstance(node, astroid.Call) and len(node.args) == 1:
+                    if (
+                        node.args[0].value.lower() == "nan"
+                        and node.inferred()[0].pytype() == "builtins.float"
+                    ):
+                        return True
+                return False
+            except AttributeError:
+                return False
+
+        def _is_numpy_nan(node):
+            if isinstance(node, astroid.Attribute) and node.attrname == "NaN":
+                if isinstance(node.expr, astroid.Name):
+                    return node.expr.name in ("numpy", "nmp", "np")
+            return False
+
+        def _is_nan(node) -> bool:
+            return _is_float_nan(node) or _is_numpy_nan(node)
+
+        nan_left = _is_nan(left_value)
+        if not nan_left and not _is_nan(right_value):
+            return
+
+        absence_text = ""
+        if checking_for_absence:
+            absence_text = "not "
+        if nan_left:
+            suggestion = f"'{absence_text}math.isnan({right_value.as_string()})'"
+        else:
+            suggestion = f"'{absence_text}math.isnan({left_value.as_string()})'"
+        self.add_message(
+            "nan-comparison",
+            node=root_node,
+            args=(f"'{root_node.as_string()}'", suggestion),
+        )
 
     def _check_literal_comparison(self, literal, node):
         """Check if we compare to a literal, which is usually what we do not want to do."""
@@ -2386,7 +2484,7 @@ class ComparisonChecker(_BasicChecker):
         if isinstance(right, astroid.Const):
             return
         operator = REVERSED_COMPS.get(operator, operator)
-        suggestion = "%s %s %r" % (right.as_string(), operator, left.value)
+        suggestion = f"{right.as_string()} {operator} {left.value!r}"
         self.add_message("misplaced-comparison-constant", node=node, args=(suggestion,))
 
     def _check_logical_tautology(self, node):
@@ -2413,7 +2511,7 @@ class ComparisonChecker(_BasicChecker):
             right_operand = right_operand.name
 
         if left_operand == right_operand:
-            suggestion = "%s %s %s" % (left_operand, operator, right_operand)
+            suggestion = f"{left_operand} {operator} {right_operand}"
             self.add_message("comparison-with-itself", node=node, args=(suggestion,))
 
     def _check_callable_comparison(self, node):
@@ -2457,14 +2555,15 @@ class ComparisonChecker(_BasicChecker):
         if operator in COMPARISON_OPERATORS and isinstance(left, astroid.Const):
             self._check_misplaced_constant(node, left, right, operator)
 
-        if operator == "==":
-            if isinstance(left, astroid.Const):
-                self._check_singleton_comparison(left, node)
-            elif isinstance(right, astroid.Const):
-                self._check_singleton_comparison(right, node)
-        if operator == "!=":
-            if isinstance(right, astroid.Const):
-                self._check_singleton_comparison(right, node, negative_check=True)
+        if operator in ("==", "!="):
+            self._check_singleton_comparison(
+                left, right, node, checking_for_absence=operator == "!="
+            )
+
+        if operator in ("==", "!=", "is", "is not"):
+            self._check_nan_comparison(
+                left, right, node, checking_for_absence=operator in ("!=", "is not")
+            )
         if operator in ("is", "is not"):
             self._check_literal_comparison(right, node)
 

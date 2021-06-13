@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2011, 2013-2015 Google, Inc.
 # Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -15,13 +14,17 @@
 # Copyright (c) 2018-2019 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 brendanator <brendan.maginnis@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2019-2021 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Peter de Blanc <peter@standard.ai>
-# Copyright (c) 2019 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2020 Tim Martin <tim@asymptotic.co.uk>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """tests for specific behaviour of astroid scoped nodes (i.e. module, class and
 function)
@@ -30,28 +33,33 @@ import datetime
 import os
 import sys
 import textwrap
-from functools import partial
 import unittest
+from functools import partial
 
 import pytest
-from astroid import builder, objects
-from astroid import nodes
-from astroid import scoped_nodes
-from astroid import util
+
+from astroid import builder, nodes, objects, scoped_nodes, test_utils, util
+from astroid.bases import BUILTINS, BoundMethod, Generator, Instance, UnboundMethod
 from astroid.exceptions import (
-    InferenceError,
     AttributeInferenceError,
+    DuplicateBasesError,
+    InconsistentMroError,
+    InferenceError,
+    MroError,
+    NameInferenceError,
     NoDefault,
     ResolveError,
-    MroError,
-    InconsistentMroError,
-    DuplicateBasesError,
     TooManyLevelsError,
-    NameInferenceError,
 )
-from astroid.bases import BUILTINS, Instance, BoundMethod, UnboundMethod, Generator
-from astroid import test_utils
+
 from . import resources
+
+try:
+    import six  # pylint: disable=unused-import
+
+    HAS_SIX = True
+except ImportError:
+    HAS_SIX = False
 
 
 def _test_dict_interface(self, node, test_attr):
@@ -65,7 +73,7 @@ def _test_dict_interface(self, node, test_attr):
 
 class ModuleLoader(resources.SysPathSetup):
     def setUp(self):
-        super(ModuleLoader, self).setUp()
+        super().setUp()
         self.module = resources.build_file("data/module.py", "data.module")
         self.module2 = resources.build_file("data/module2.py", "data.module2")
         self.nonregr = resources.build_file("data/nonregr.py", "data.nonregr")
@@ -214,7 +222,7 @@ class ModuleNodeTest(ModuleLoader, unittest.TestCase):
 
             expected = (
                 "Relative import with too many levels "
-                "({level}) for module {name!r}".format(level=level - 1, name=mod.name)
+                f"({level-1}) for module {mod.name!r}"
             )
             self.assertEqual(expected, str(cm.exception))
 
@@ -259,10 +267,10 @@ class ModuleNodeTest(ModuleLoader, unittest.TestCase):
 
     def test_file_stream_api(self):
         path = resources.find("data/all.py")
-        astroid = builder.AstroidBuilder().file_build(path, "all")
+        file_build = builder.AstroidBuilder().file_build(path, "all")
         with self.assertRaises(AttributeError):
-            # pylint: disable=pointless-statement,no-member
-            astroid.file_stream
+            # pylint: disable=pointless-statement
+            file_build.file_stream
 
     def test_stream_api(self):
         path = resources.find("data/all.py")
@@ -334,7 +342,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         func = self.module["four_args"]
         self.assertEqual(func.args.format_args(), "a, b, c, d")
 
-    @test_utils.require_version("3.0")
     def test_format_args_keyword_only_args(self):
         node = (
             builder.parse(
@@ -595,7 +602,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         self.assertIsInstance(inferred, nodes.Const)
         self.assertEqual(inferred.value, 42)
 
-    @test_utils.require_version(minver="3.0")
     def test_return_annotation_is_not_the_last(self):
         func = builder.extract_node(
             """
@@ -609,7 +615,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         self.assertIsInstance(last_child, nodes.Return)
         self.assertEqual(func.tolineno, 5)
 
-    @test_utils.require_version(minver="3.6")
     def test_method_init_subclass(self):
         klass = builder.extract_node(
             """
@@ -622,7 +627,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         self.assertEqual([n.name for n in method.args.args], ["cls"])
         self.assertEqual(method.type, "classmethod")
 
-    @test_utils.require_version(minver="3.0")
     def test_dunder_class_local_to_method(self):
         node = builder.extract_node(
             """
@@ -635,7 +639,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         self.assertIsInstance(inferred, nodes.ClassDef)
         self.assertEqual(inferred.name, "MyClass")
 
-    @test_utils.require_version(minver="3.0")
     def test_dunder_class_local_to_function(self):
         node = builder.extract_node(
             """
@@ -646,7 +649,6 @@ class FunctionNodeTest(ModuleLoader, unittest.TestCase):
         with self.assertRaises(NameInferenceError):
             next(node.infer())
 
-    @test_utils.require_version(minver="3.0")
     def test_dunder_class_local_to_classmethod(self):
         node = builder.extract_node(
             """
@@ -1091,6 +1093,7 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
         for klass in ast_nodes:
             self.assertEqual(None, klass.metaclass())
 
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
     def test_metaclass_generator_hack(self):
         klass = builder.extract_node(
             """
@@ -1103,14 +1106,12 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
         self.assertEqual(["object"], [base.name for base in klass.ancestors()])
         self.assertEqual("type", klass.metaclass().name)
 
-    def test_using_six_add_metaclass(self):
+    def test_add_metaclass(self):
         klass = builder.extract_node(
             """
-        import six
         import abc
 
-        @six.add_metaclass(abc.ABCMeta)
-        class WithMeta(object):
+        class WithMeta(object, metaclass=abc.ABCMeta):
             pass
         """
         )
@@ -1119,6 +1120,7 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
         self.assertIsInstance(metaclass, scoped_nodes.ClassDef)
         self.assertIn(metaclass.qname(), ("abc.ABCMeta", "_py_abc.ABCMeta"))
 
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
     def test_using_invalid_six_add_metaclass_call(self):
         klass = builder.extract_node(
             """
@@ -1271,6 +1273,10 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
     def assertEqualMro(self, klass, expected_mro):
         self.assertEqual([member.name for member in klass.mro()], expected_mro)
 
+    def assertEqualMroQName(self, klass, expected_mro):
+        self.assertEqual([member.qname() for member in klass.mro()], expected_mro)
+
+    @unittest.skipUnless(HAS_SIX, "These tests require the six library")
     def test_with_metaclass_mro(self):
         astroid = builder.parse(
             """
@@ -1417,6 +1423,158 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
             ],
         )
 
+    def test_mro_with_attribute_classes(self):
+        cls = builder.extract_node(
+            """
+        class A:
+            pass
+        class B:
+            pass
+        scope = object()
+        scope.A = A
+        scope.B = B
+        class C(scope.A, scope.B):
+            pass
+        """
+        )
+        self.assertEqualMro(cls, ["C", "A", "B", "object"])
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_1(self):
+        cls = builder.extract_node(
+            """
+        import typing
+        T = typing.TypeVar('T')
+        class A(typing.Generic[T]): ...
+        class B: ...
+        class C(A[T], B): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".C", ".A", "typing.Generic", ".B", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_2(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T = TypeVar('T')
+        class A: ...
+        class B(Generic[T]): ...
+        class C(Generic[T], A, B[T]): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".C", ".A", ".B", "typing.Generic", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_3(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T = TypeVar('T')
+        class A: ...
+        class B(A, Generic[T]): ...
+        class C(Generic[T]): ...
+        class D(B[T], C[T], Generic[T]): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".D", ".B", ".A", ".C", "typing.Generic", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_4(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T = TypeVar('T')
+        class A: ...
+        class B(Generic[T]): ...
+        class C(A, Generic[T], B[T]): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".C", ".A", ".B", "typing.Generic", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_5(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T1 = TypeVar('T1')
+        T2 = TypeVar('T2')
+        class A(Generic[T1]): ...
+        class B(Generic[T2]): ...
+        class C(A[T1], B[T2]): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".C", ".A", ".B", "typing.Generic", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_6(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic as TGeneric, TypeVar
+        T = TypeVar('T')
+        class Generic: ...
+        class A(Generic): ...
+        class B(TGeneric[T]): ...
+        class C(A, B[T]): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".C", ".A", ".Generic", ".B", "typing.Generic", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_7(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T = TypeVar('T')
+        class A(): ...
+        class B(Generic[T]): ...
+        class C(A, B[T]): ...
+        class D: ...
+        class E(C[str], D): ...
+        """
+        )
+        self.assertEqualMroQName(
+            cls, [".E", ".C", ".A", ".B", "typing.Generic", ".D", "builtins.object"]
+        )
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_error_1(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T1 = TypeVar('T1')
+        T2 = TypeVar('T2')
+        class A(Generic[T1], Generic[T2]): ...
+        """
+        )
+        with self.assertRaises(DuplicateBasesError):
+            cls.mro()
+
+    @test_utils.require_version(minver="3.7")
+    def test_mro_generic_error_2(self):
+        cls = builder.extract_node(
+            """
+        from typing import Generic, TypeVar
+        T = TypeVar('T')
+        class A(Generic[T]): ...
+        class B(A[T], A[T]): ...
+        """
+        )
+        with self.assertRaises(DuplicateBasesError):
+            cls.mro()
+
     def test_generator_from_infer_call_result_parent(self):
         func = builder.extract_node(
             """
@@ -1482,13 +1640,10 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
     def test_metaclass_lookup_inference_errors(self):
         module = builder.parse(
             """
-        import six
-
         class Metaclass(type):
             foo = lala
 
-        @six.add_metaclass(Metaclass)
-        class B(object): pass
+        class B(object, metaclass=Metaclass): pass
         """
         )
         cls = module["B"]
@@ -1497,8 +1652,6 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
     def test_metaclass_lookup(self):
         module = builder.parse(
             """
-        import six
-
         class Metaclass(type):
             foo = 42
             @classmethod
@@ -1513,8 +1666,7 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
             def static():
                 pass
 
-        @six.add_metaclass(Metaclass)
-        class A(object):
+        class A(object, metaclass=Metaclass):
             pass
         """
         )
@@ -1734,7 +1886,6 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
         parent = bind.scope()
         self.assertEqual(len(parent.extra_decorators), 0)
 
-    @test_utils.require_version(minver="3.0")
     def test_class_keywords(self):
         data = """
             class TestKlass(object, metaclass=TestMetaKlass,
@@ -1745,6 +1896,12 @@ class ClassNodeTest(ModuleLoader, unittest.TestCase):
         cls = astroid["TestKlass"]
         self.assertEqual(len(cls.keywords), 2)
         self.assertEqual([x.arg for x in cls.keywords], ["foo", "bar"])
+        children = list(cls.get_children())
+        assert len(children) == 4
+        assert isinstance(children[1], nodes.Keyword)
+        assert isinstance(children[2], nodes.Keyword)
+        assert children[1].arg == "foo"
+        assert children[2].arg == "bar"
 
     def test_kite_graph(self):
         data = """

@@ -65,14 +65,16 @@
 	display: auto;
 }
 
+@import "cascade-4.css" supports(display: auto);
+
 .cascade-4 {
 	display: revert;
 }
 
-@import "conditional-3.css" supports(display: auto);
+@import "cascade-5.css" layer(framework component);
 
-@supports (selector(.conditional-4)) {
-	display: auto;
+.cascade-5 {
+	display: revert-layer;
 }
 
 .color-3 {
@@ -83,7 +85,6 @@
 	display: hwb(120deg, 44%, 50%);
 	display: lab(1 2 3);
 	display: lch(4 5 6);
-	display: gray(50%);
 	display: color(swopc, 0 206 190 77);
 	display: device-cmyk(0, 81%, 81%, 30%);
 	display: relative-colorimetric;
@@ -104,8 +105,9 @@
 .color-adjust-1 {
 	color-scheme: auto;
 	forced-color-adjust: auto;
+	print-color-adjust: auto;
 	color-adjust: auto;
-	display: only light;
+	display: light;
 	display: economy;
 	display: exact;
 }
@@ -132,11 +134,15 @@
 }
 
 @supports (display: auto) or
-	(display: auto) not
-	(display: auto) {
+(display: auto) not
+(display: auto) {
 	.conditional-3 {
-	  display: auto;
+		display: auto;
 	}
+}
+
+@supports (selector(.conditional-4)) {
+	display: auto;
 }
 
 .contain-1 {
@@ -355,34 +361,47 @@
 }
 
 .fonts-4 {
+	font-synthesis-weight: auto;
+	font-synthesis-style: auto;
+	font-synthesis-small-caps: auto;
+	font-variation-settings: auto;
+	font-named-instance: auto;
 	font-display: auto;
+	ascent-override: auto;
+	descent-override: auto;
+	line-gap-override: auto;
 	font-optical-sizing: auto;
 	font-variation-settings: auto;
 	font-palette: auto;
-	font-presentation: auto;
 	font-variant-emoji: auto;
+	font-presentation: auto;
 	display: system-ui;
 	display: emoji;
 	display: math;
 	display: fangsong;
-	display: infinity;
-	display: stylistic(feature-value-name);
-	display: historical-forms;
-	display: styleset(feature-value-name #);
-	display: character-variant(feature-vlue-name #);
-	display: swash(feature-value-name);
-	display: ornaments(feature-value-name);
-	display: annotation(feature-value-name);
-	display: swap;
-	display: fallback;
-	display: optional;
-	display: light;
-	display: dark;
 	display: ui-serif;
 	display: ui-sans-serif;
 	display: ui-monospace;
 	display: ui-rounded;
 	display: xxx-large;
+	display: swap;
+	display: fallback;
+	display: historical-forms;
+	display: stylistic(feature-value-name);
+	display: styleset(feature-value-name #);
+	display: character-variant(feature-vlue-name #);
+	display: swash(feature-value-name);
+	display: ornaments(feature-value-name);
+	display: annotation(feature-value-name);
+	display: light;
+	display: dark;
+}
+
+@font-feature-values Test {
+	@swash {
+		swishy: 1;
+		flowing: 2;
+	}
 }
 
 @font-palette-values Test {
@@ -680,9 +699,10 @@ mask {
 	initial-value: auto;
 }
 
-.pseudo-4::inactive-selection,
+.pseudo-4::target-text,
 .pseudo-4::spelling-error,
-.pseudo-4::grammer-error {
+.pseudo-4::grammer-error,
+.pseudi-4::file-selectors-button {
 	display: auto;
 }
 
@@ -865,7 +885,10 @@ mask {
 
 .sizing-4 {
 	contain-intrinsic-size: auto;
+	min-intrinsic-sizing: auto;
 	display: fit-content;
+	display: zero-if-scroll;
+	display: zero-if-extrinsic;
 }
 
 .speech-1 {
@@ -1161,6 +1184,23 @@ view {
 	display: max(0, 1);
 	display: clamp(0, 100, 2);
 	display: toggle(italic, normal);
+	display: round(var(--width), 50px);
+	display: mod(-18px, 5px);
+	display: rem(-18px, 5px);
+	display: sin(45deg);
+	display: cos(1);
+	display: tan(1);
+	display: asin(45deg);
+	display: acos(1);
+	display: atan(1);
+	display: atan2(1, -1);
+	display: pow(1.5, -1);
+	display: sqrt(4);
+	display: hypot(30px, 40px);
+	display: log(10);
+	display: exp(1);
+	display: abs(-1);
+	display: sign(-4);
 }
 
 .variables-1 {

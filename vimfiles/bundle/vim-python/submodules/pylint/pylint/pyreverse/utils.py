@@ -3,32 +3,27 @@
 # Copyright (c) 2014 Arun Persaud <arun@nubati.net>
 # Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
-# Copyright (c) 2017 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 yeting li <liyt@ios.ac.cn>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 bernie gray <bfgray3@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
-"""
-generic classes/functions for pyreverse core/extensions
-"""
+"""Generic classes/functions for pyreverse core/extensions. """
 import os
 import re
 import sys
-
-########### pyreverse option utils ##############################
-
 
 RCFILE = ".pyreverserc"
 
 
 def get_default_options():
-    """
-    Read config file and return list of options
-    """
+    """Read config file and return list of options."""
     options = []
     home = os.environ.get("HOME", "")
     if home:
@@ -41,8 +36,7 @@ def get_default_options():
 
 
 def insert_default_options():
-    """insert default options to sys.argv
-    """
+    """insert default options to sys.argv"""
     options = get_default_options()
     options.reverse()
     for arg in options:
@@ -50,15 +44,13 @@ def insert_default_options():
 
 
 # astroid utilities ###########################################################
-
-SPECIAL = re.compile(r"^__[^\W_]+\w*__$")
-PRIVATE = re.compile(r"^__\w*[^\W_]+_?$")
+SPECIAL = re.compile(r"^__([^\W_]_*)+__$")
+PRIVATE = re.compile(r"^__(_*[^\W_])+_?$")
 PROTECTED = re.compile(r"^_\w*$")
 
 
 def get_visibility(name):
-    """return the visibility from a name: public, protected, private or special
-    """
+    """return the visibility from a name: public, protected, private or special"""
     if SPECIAL.match(name):
         visibility = "special"
     elif PRIVATE.match(name):
@@ -120,8 +112,7 @@ VIS_MOD = {
 
 
 class FilterMixIn:
-    """filter nodes according to a mode and nodes' visibility
-    """
+    """filter nodes according to a mode and nodes' visibility"""
 
     def __init__(self, mode):
         "init filter modes"
@@ -134,8 +125,7 @@ class FilterMixIn:
         self.__mode = __mode
 
     def show_attr(self, node):
-        """return true if the node should be treated
-        """
+        """return true if the node should be treated"""
         visibility = get_visibility(getattr(node, "name", node))
         return not self.__mode & VIS_MOD[visibility]
 

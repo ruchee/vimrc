@@ -1,3 +1,6 @@
+-- Author:   Lifepillar
+-- License:  Vim license
+
 -- Generate keywords.sql.
 
 \o

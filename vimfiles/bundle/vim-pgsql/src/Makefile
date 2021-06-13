@@ -1,4 +1,6 @@
 # vim: ts=8 sts=8 sw=8
+# Author:   Lifepillar
+# License:  Vim license
 MAKEFLAGS += --warn-undefined-variables
 SHELL = /bin/sh
 

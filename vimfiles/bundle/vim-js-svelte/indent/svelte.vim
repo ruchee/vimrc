@@ -21,11 +21,13 @@ let s:name = 'vim-svelte-plugin'
 let s:svelte_tag_start = '\v^\<(script|style)' 
 let s:svelte_tag_end = '\v^\<\/(script|style)'
 let s:template_tag = '\v^\s*\<\/?template'
+" https://developer.mozilla.org/en-US/docs/Glossary/Empty_element
 let s:empty_tagname = '(area|base|br|col|embed|hr|input|img|keygen|link|meta|param|source|track|wbr)'
-let s:empty_tag = '\v\<'.s:empty_tagname.'[^/]*\>' 
+let s:empty_tag = '\v\C\<'.s:empty_tagname.'[^/]*\>' 
 let s:empty_tag_start = '\v\<'.s:empty_tagname.'[^\>]*$' 
 let s:empty_tag_end = '\v^\s*[^\<\>\/]*\>\s*' 
 let s:tag_end = '\v^\s*\/?\>\s*'
+let s:oneline_block = '^\s*{#.*{/.*}\s*$'
 "}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -121,7 +123,7 @@ function! GetSvelteIndent()
       let ind = ind - &sw
     endif
 
-    if s:IsBlockStart(prevsyns)
+    if s:IsBlockStart(prevsyns) && prevline !~ s:oneline_block
       call s:Log('increase block indent')
       let ind = ind + &sw
     endif
@@ -194,8 +196,10 @@ function! s:IsBlockStart(prevsyns)
   let prevsyn_second = get(a:prevsyns, 1, '')
   " Some HTML tags add an extra syntax layer
   let prevsyn_third = get(a:prevsyns, 2, '')
-  return s:SynBlockBody(prevsyn_second) || s:SynBlockStart(prevsyn_second)
-        \ || s:SynBlockBody(prevsyn_third) || s:SynBlockStart(prevsyn_third)
+  return s:SynBlockBody(prevsyn_second)
+        \ || s:SynBlockStart(prevsyn_second)
+        \ || s:SynBlockBody(prevsyn_third)
+        \ || s:SynBlockStart(prevsyn_third)
 endfunction
 
 function! s:IsBlockEnd(cursyns, curline)
@@ -203,8 +207,10 @@ function! s:IsBlockEnd(cursyns, curline)
   " Some HTML tags add an extra syntax layer
   let cursyn_third = get(a:cursyns, 2, '')
   return a:curline !~ '^\s*$'
-        \ && (s:SynBlockBody(cursyn_second) || s:SynBlockEnd(cursyn_second)
-        \ || s:SynBlockBody(cursyn_third) || s:SynBlockEnd(cursyn_third))
+        \ && (s:SynBlockBody(cursyn_second)
+        \ || s:SynBlockEnd(cursyn_second)
+        \ || s:SynBlockBody(cursyn_third)
+        \ || s:SynBlockEnd(cursyn_third))
 endfunction
 
 function! s:SynsEOL(lnum)

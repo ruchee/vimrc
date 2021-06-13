@@ -10,8 +10,8 @@ endif
 
 syn case match
 
-syn match   gitrebaseHash   "\v<\x{7,}>"                               contained
-syn match   gitrebaseCommit "\v<\x{7,}>"    nextgroup=gitrebaseSummary skipwhite
+syn match   gitrebaseHash   "\v<\x{7,}>"                               contained contains=@NoSpell
+syn match   gitrebaseCommit "\v<\x{7,}>"    nextgroup=gitrebaseSummary skipwhite contains=@NoSpell
 syn match   gitrebasePick   "\v^p%(ick)=>"   nextgroup=gitrebaseCommit skipwhite
 syn match   gitrebaseReword "\v^r%(eword)=>" nextgroup=gitrebaseCommit skipwhite
 syn match   gitrebaseEdit   "\v^e%(dit)=>"   nextgroup=gitrebaseCommit skipwhite
@@ -26,6 +26,8 @@ syn match   gitrebaseLabel  "\v^l(abel)=>"   nextgroup=gitrebaseName skipwhite
 syn match   gitrebaseReset  "\v^(t|reset)=>" nextgroup=gitrebaseName skipwhite
 syn match   gitrebaseSummary ".*"               contains=gitrebaseHash contained
 syn match   gitrebaseCommand ".*"                                      contained
+syn match   gitrebaseEmpty   " \zs# empty$"        containedin=gitrebaseSummary contained
+syn match   gitrebaseComment "# "                  containedin=gitrebaseEmpty   contained
 syn match   gitrebaseComment "^\s*#.*"             contains=gitrebaseHash
 syn match   gitrebaseSquashError "\v%^%(s%(quash)=>|f%(ixup)=>)" nextgroup=gitrebaseCommit skipwhite
 syn match   gitrebaseMergeOption "\v-[Cc]>"  nextgroup=gitrebaseMergeCommit skipwhite contained
@@ -48,6 +50,7 @@ hi def link gitrebaseMerge          Exception
 hi def link gitrebaseLabel          Label
 hi def link gitrebaseReset          Keyword
 hi def link gitrebaseSummary        String
+hi def link gitrebaseEmpty          Error
 hi def link gitrebaseComment        Comment
 hi def link gitrebaseSquashError    Error
 hi def link gitrebaseMergeCommit    gitrebaseCommit

@@ -1,4 +1,4 @@
-## vim-prettier [![Travis CI Build Status](https://travis-ci.org/prettier/vim-prettier.svg?branch=master)](https://travis-ci.org/prettier/vim-prettier) [![Discord](https://img.shields.io/discord/435481502113857536.svg)](https://discord.gg/9bWM9PH)
+## vim-prettier 
 
 A vim plugin wrapper for prettier, pre-configured with custom default prettier
 settings.
@@ -60,6 +60,12 @@ cd ~/.vim/bundle
 git clone https://github.com/prettier/vim-prettier
 ```
 
+If using [dein](https://github.com/Shougo/dein.vim), add the following to your dein config:
+
+```vim
+call dein#add('prettier/vim-prettier', {'build': 'npm install'})
+```
+
 If using other vim plugin managers or doing manual setup make sure to have
 `prettier` installed globally or go to your vim-prettier directory and either do
 `npm install` or `yarn install`
@@ -112,7 +118,7 @@ If your are on vim 8+ you can also trigger async formatting by:
 
 You can send to prettier your entire buffer but ensure that it formats only your selection.
 
-**note: ** differs from `:PrettierFragment` by sending the entire buffer to prettier, allowing identation level to be preserved, but it requires the whole file to be valid.
+**note:** differs from `:PrettierFragment` by sending the entire buffer to prettier, allowing identation level to be preserved, but it requires the whole file to be valid.
 
 ```vim
 :PrettierPartial
@@ -120,7 +126,7 @@ You can send to prettier your entire buffer but ensure that it formats only your
 
 You can send to prettier your current selection as a fragment of same type as the file being edited.
 
-**note: ** differs from `:PrettierFragment` by sending only the current selection to prettier, this allows for faster formatting but wont preserve indentation.
+**note:** differs from `:PrettierPartial` by sending only the current selection to prettier, this allows for faster formatting but wont preserve indentation.
 
 ```vim
 :PrettierFragment
@@ -213,7 +219,7 @@ By default we auto focus on the quickfix when there are errors but can also be d
 let g:prettier#quickfix_auto_focus = 0
 ```
 
-To running vim-prettier not only before saving, but also after changing text or leaving insert mode:
+To run vim-prettier not only before saving, but also after changing text or leaving insert mode:
 
 ```vim
 " when running at every change you may want to disable quickfix

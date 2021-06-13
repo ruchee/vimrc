@@ -1,14 +1,14 @@
-# Copyright (c) 2015-2016, 2018-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2017-2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
 """Astroid hooks for numpy ndarray class."""
 
-import functools
 import astroid
 
 
@@ -17,13 +17,15 @@ def infer_numpy_ndarray(node, context=None):
     class ndarray(object):
         def __init__(self, shape, dtype=float, buffer=None, offset=0,
                      strides=None, order=None):
-            self.T = None
+            self.T = numpy.ndarray([0, 0])
             self.base = None
             self.ctypes = None
             self.data = None
             self.dtype = None
             self.flags = None
-            self.flat = None
+            # Should be a numpy.flatiter instance but not available for now
+            # Putting an array instead so that iteration and indexing are authorized
+            self.flat = np.ndarray([0, 0])
             self.imag = np.ndarray([0, 0])
             self.itemsize = None
             self.nbytes = None
@@ -71,7 +73,7 @@ def infer_numpy_ndarray(node, context=None):
         def __mul__(self, value): return numpy.ndarray([0, 0])
         def __ne__(self, value): return numpy.ndarray([0, 0])
         def __neg__(self): return numpy.ndarray([0, 0])
-        def __or__(self): return numpy.ndarray([0, 0])
+        def __or__(self, value): return numpy.ndarray([0, 0])
         def __pos__(self): return numpy.ndarray([0, 0])
         def __pow__(self): return numpy.ndarray([0, 0])
         def __repr__(self): return str()

@@ -24,6 +24,29 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Copyright (C) 2006-2009 Johann C. Rocholl <johann@rocholl.net>
+# Copyright (C) 2009-2013 Florent Xicluna <florent.xicluna@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation files
+# (the "Software"), to deal in the Software without restriction,
+# including without limitation the rights to use, copy, modify, merge,
+# publish, distribute, sublicense, and/or sell copies of the Software,
+# and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 """Automatically formats Python code to conform to the PEP 8 style guide.
 
 Fixes that only need be done once can be added by adding a function of the form
@@ -67,7 +90,6 @@ except ImportError:
     from ConfigParser import SafeConfigParser
     from ConfigParser import Error
 
-import toml
 import pycodestyle
 from pycodestyle import STARTSWITH_INDENT_STATEMENT_REGEX
 
@@ -78,7 +100,7 @@ except NameError:
     unicode = str
 
 
-__version__ = '1.5.4'
+__version__ = '1.5.7'
 
 
 CR = '\r'
@@ -87,7 +109,7 @@ CRLF = '\r\n'
 
 
 PYTHON_SHEBANG_REGEX = re.compile(r'^#!.*\bpython[23]?\b\s*$')
-LAMBDA_REGEX = re.compile(r'([\w.]+)\s=\slambda\s*([\(\)=\w,\s.]*):')
+LAMBDA_REGEX = re.compile(r'([\w.]+)\s=\slambda\s*([)(=\w,\s.]*):')
 COMPARE_NEGATIVE_REGEX = re.compile(r'\b(not)\s+([^][)(}{]+?)\s+(in|is)\s')
 COMPARE_NEGATIVE_REGEX_THROUGH = re.compile(r'\b(not\s+in|is\s+not)\s')
 BARE_EXCEPT_REGEX = re.compile(r'except\s*:')
@@ -99,6 +121,7 @@ DISABLE_REGEX = re.compile(r'# *(fmt|autopep8): *off')
 EXIT_CODE_OK = 0
 EXIT_CODE_ERROR = 1
 EXIT_CODE_EXISTS_DIFF = 2
+EXIT_CODE_ARGPARSE_ERROR = 99
 
 # For generating line shortening candidates.
 SHORTEN_OPERATOR_GROUPS = frozenset([
@@ -294,8 +317,9 @@ def continued_indentation(logical_line, tokens, indent_level, hang_closing,
                 if hang_closing:
                     yield (start, 'E133 {}'.format(indent[depth]))
             elif indent[depth] and start[1] < indent[depth]:
-                # Visual indent is broken.
-                yield (start, 'E128 {}'.format(indent[depth]))
+                if visual_indent is not True:
+                    # Visual indent is broken.
+                    yield (start, 'E128 {}'.format(indent[depth]))
             elif (hanging_indent or
                   (indent_next and
                    rel_indent[row] == 2 * DEFAULT_INDENT_SIZE)):
@@ -1385,56 +1409,10 @@ class FixPEP8(object):
             next_line[next_line_indent:])
 
     def fix_w605(self, result):
-        (line_index, _, target) = get_index_offset_contents(result,
-                                                            self.source)
-        try:
-            tokens = list(generate_tokens(target))
-        except (SyntaxError, tokenize.TokenError):
-            return
-        for (pos, _msg) in get_w605_position(tokens):
-            if target[pos - 1] == "r":
-                # ignore special case
-                if self.options.verbose:
-                    print("invalid line: line_number={}, line: {}".format(
-                        line_index + 1, target))
-                return
-            self.source[line_index] = '{}r{}'.format(
-                target[:pos], target[pos:])
-
-
-def get_w605_position(tokens):
-    """workaround get pointing out position by W605."""
-    # TODO: When this PR(*) change is released, use pos of pycodestyle
-    # *: https://github.com/PyCQA/pycodestyle/pull/747
-    valid = [
-        '\n', '\\', '\'', '"', 'a', 'b', 'f', 'n', 'r', 't', 'v',
-        '0', '1', '2', '3', '4', '5', '6', '7', 'x',
-
-        # Escape sequences only recognized in string literals
-        'N', 'u', 'U',
-    ]
-
-    for token_type, text, start_pos, _end_pos, _line in tokens:
-        if token_type == tokenize.STRING:
-            quote = text[-3:] if text[-3:] in ('"""', "'''") else text[-1]
-            # Extract string modifiers (e.g. u or r)
-            quote_pos = text.index(quote)
-            prefix = text[:quote_pos].lower()
-            start = quote_pos + len(quote)
-            string = text[start:-len(quote)]
-
-            if 'r' not in prefix:
-                pos = string.find('\\')
-                while pos >= 0:
-                    pos += 1
-                    if string[pos] not in valid:
-                        yield (
-                            # No need to search line, token stores position
-                            start_pos[1],
-                            "W605 invalid escape sequence '\\%s'" %
-                            string[pos],
-                        )
-                    pos = string.find('\\', pos + 1)
+        (line_index, offset, target) = get_index_offset_contents(result,
+                                                                 self.source)
+        self.source[line_index] = '{}\\{}'.format(
+            target[:offset + 1], target[offset + 1:])
 
 
 def get_module_imports_on_top_of_file(source, import_line_index):
@@ -3840,7 +3818,7 @@ def parse_args(arguments, apply_config=False):
     args = parser.parse_args(arguments)
 
     if not args.files and not args.list_fixes:
-        parser.error('incorrect number of arguments')
+        parser.exit(EXIT_CODE_ARGPARSE_ERROR, 'incorrect number of arguments')
 
     args.files = [decode_filename(name) for name in args.files]
 
@@ -3858,30 +3836,59 @@ def parse_args(arguments, apply_config=False):
 
     if '-' in args.files:
         if len(args.files) > 1:
-            parser.error('cannot mix stdin and regular files')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                'cannot mix stdin and regular files',
+            )
 
         if args.diff:
-            parser.error('--diff cannot be used with standard input')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                '--diff cannot be used with standard input',
+            )
 
         if args.in_place:
-            parser.error('--in-place cannot be used with standard input')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                '--in-place cannot be used with standard input',
+            )
 
         if args.recursive:
-            parser.error('--recursive cannot be used with standard input')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                '--recursive cannot be used with standard input',
+            )
 
     if len(args.files) > 1 and not (args.in_place or args.diff):
-        parser.error('autopep8 only takes one filename as argument '
-                     'unless the "--in-place" or "--diff" args are '
-                     'used')
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            'autopep8 only takes one filename as argument '
+            'unless the "--in-place" or "--diff" args are used',
+        )
 
     if args.recursive and not (args.in_place or args.diff):
-        parser.error('--recursive must be used with --in-place or --diff')
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            '--recursive must be used with --in-place or --diff',
+        )
 
     if args.in_place and args.diff:
-        parser.error('--in-place and --diff are mutually exclusive')
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            '--in-place and --diff are mutually exclusive',
+        )
 
     if args.max_line_length <= 0:
-        parser.error('--max-line-length must be greater than 0')
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            '--max-line-length must be greater than 0',
+        )
+
+    if args.indent_size <= 0:
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            '--indent-size must be greater than 0',
+        )
 
     if args.select:
         args.select = _expand_codes(
@@ -3918,14 +3925,23 @@ def parse_args(arguments, apply_config=False):
         args.jobs = multiprocessing.cpu_count()
 
     if args.jobs > 1 and not (args.in_place or args.diff):
-        parser.error('parallel jobs requires --in-place')
+        parser.exit(
+            EXIT_CODE_ARGPARSE_ERROR,
+            'parallel jobs requires --in-place',
+        )
 
     if args.line_range:
         if args.line_range[0] <= 0:
-            parser.error('--range must be positive numbers')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                '--range must be positive numbers',
+            )
         if args.line_range[0] > args.line_range[1]:
-            parser.error('First value of --range should be less than or equal '
-                         'to the second')
+            parser.exit(
+                EXIT_CODE_ARGPARSE_ERROR,
+                'First value of --range should be less than or equal '
+                'to the second',
+            )
 
     return args
 
@@ -3985,6 +4001,8 @@ def read_config(args, parser):
 
 def read_pyproject_toml(args, parser):
     """Read pyproject.toml and load configuration."""
+    import toml
+
     config = None
 
     if os.path.exists(args.global_config):
@@ -4345,6 +4363,7 @@ def _fix_file(parameters):
         return fix_file(*parameters)
     except IOError as error:
         print(unicode(error), file=sys.stderr)
+        raise error
 
 
 def fix_multiple_files(filenames, options, output=None):
@@ -4358,12 +4377,17 @@ def fix_multiple_files(filenames, options, output=None):
     if options.jobs > 1:
         import multiprocessing
         pool = multiprocessing.Pool(options.jobs)
-        ret = pool.map(_fix_file, [(name, options) for name in filenames])
+        rets = []
+        for name in filenames:
+            ret = pool.apply_async(_fix_file, ((name, options),))
+            rets.append(ret)
+        pool.close()
+        pool.join()
         if options.diff:
-            for r in ret:
-                sys.stdout.write(r.decode())
+            for r in rets:
+                sys.stdout.write(r.get().decode())
                 sys.stdout.flush()
-        results.extend([x for x in ret if x is not None])
+        results.extend([x.get() for x in rets if x is not None])
     else:
         for name in filenames:
             ret = _fix_file((name, options, output))
@@ -4479,6 +4503,8 @@ def main(argv=None, apply_config=True):
                 ret = any([ret is not None for ret in results])
             if args.exit_code and ret:
                 return EXIT_CODE_EXISTS_DIFF
+    except IOError:
+        return EXIT_CODE_ERROR
     except KeyboardInterrupt:
         return EXIT_CODE_ERROR  # pragma: no cover
 

@@ -3,16 +3,16 @@
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Anthony Sottile <asottile@umich.edu>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
 from astroid import bases
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import nodes
-from astroid import util
+from astroid import exceptions, nodes, util
 
 
 class CallSite:
@@ -173,7 +173,7 @@ class CallSite:
 
         # Too many arguments given and no variable arguments.
         if len(self.positional_arguments) > len(funcnode.args.args):
-            if not funcnode.args.vararg:
+            if not funcnode.args.vararg and not funcnode.args.posonlyargs:
                 raise exceptions.InferenceError(
                     "Too many positional arguments "
                     "passed to {func!r} that does "
@@ -292,7 +292,7 @@ class CallSite:
         except exceptions.NoDefault:
             pass
         raise exceptions.InferenceError(
-            "No value found for argument {name} to " "{func!r}",
+            "No value found for argument {arg} to {func!r}",
             call_site=self,
             func=funcnode,
             arg=name,

@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 hippo91 <guillaume.peillex@gmail.com>
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 import builtins
 import unittest
@@ -14,12 +16,7 @@ import xml
 import pytest
 
 import astroid
-from astroid import builder, util
-from astroid import exceptions
-from astroid import MANAGER
-from astroid import test_utils
-from astroid import objects
-
+from astroid import MANAGER, builder, exceptions, objects, test_utils, util
 
 BUILTINS = MANAGER.astroid_cache[builtins.__name__]
 
@@ -431,7 +428,6 @@ class FunctionModelTest(unittest.TestCase):
         for ast_node in ast_nodes[7:9]:
             self.assertIs(next(ast_node.infer()), astroid.Uninferable)
 
-    @test_utils.require_version(minver="3.0")
     def test_empty_return_annotation(self):
         ast_node = builder.extract_node(
             """
@@ -443,7 +439,6 @@ class FunctionModelTest(unittest.TestCase):
         self.assertIsInstance(annotations, astroid.Dict)
         self.assertEqual(len(annotations.items), 0)
 
-    @test_utils.require_version(minver="3.0")
     def test_builtin_dunder_init_does_not_crash_when_accessing_annotations(self):
         ast_node = builder.extract_node(
             """
@@ -457,7 +452,6 @@ class FunctionModelTest(unittest.TestCase):
         self.assertIsInstance(inferred, astroid.Dict)
         self.assertEqual(len(inferred.items), 0)
 
-    @test_utils.require_version(minver="3.0")
     def test_annotations_kwdefaults(self):
         ast_node = builder.extract_node(
             """
@@ -585,6 +579,17 @@ class ExceptionModelTest(unittest.TestCase):
             inferred = next(node.infer())
             assert isinstance(inferred, astroid.Const)
             assert inferred.value == value
+
+    def test_unicodedecodeerror(self):
+        code = """
+        try:
+            raise UnicodeDecodeError("utf-8", "blob", 0, 1, "reason")
+        except UnicodeDecodeError as error:
+            error.object[:1] #@
+        """
+        node = builder.extract_node(code)
+        inferred = next(node.infer())
+        assert isinstance(inferred, astroid.Const)
 
     def test_import_error(self):
         ast_nodes = builder.extract_node(

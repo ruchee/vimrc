@@ -4,7 +4,7 @@
 " Maintainers:  Markus Mottl      <markus.mottl@gmail.com>
 "               Karl-Heinz Sylla  <Karl-Heinz.Sylla@gmd.de>
 "               Issac Trotts      <ijtrotts@ucdavis.edu>
-" URL:          http://www.ocaml.info/vim/syntax/ocaml.vim
+" URL:          https://github.com/ocaml/vim-ocaml
 " Last Change:
 "               2018 Nov 08 - Improved highlighting of operators (Maëlan)
 "               2018 Apr 22 - Improved support for PPX (Andrey Popp)
@@ -22,6 +22,9 @@
 if exists("b:current_syntax") && b:current_syntax == "ocaml"
   finish
 endif
+
+let s:keepcpo = &cpo
+set cpo&vim
 
 " ' can be used in OCaml identifiers
 setlocal iskeyword+='
@@ -81,10 +84,10 @@ syn cluster  ocamlContained contains=ocamlTodo,ocamlPreDef,ocamlModParam,ocamlMo
 
 
 " Enclosing delimiters
-syn region   ocamlEncl transparent matchgroup=ocamlKeyword start="(" matchgroup=ocamlKeyword end=")" contains=ALLBUT,@ocamlContained,ocamlParenErr
-syn region   ocamlEncl transparent matchgroup=ocamlKeyword start="{" matchgroup=ocamlKeyword end="}"  contains=ALLBUT,@ocamlContained,ocamlBraceErr
-syn region   ocamlEncl transparent matchgroup=ocamlKeyword start="\[" matchgroup=ocamlKeyword end="\]" contains=ALLBUT,@ocamlContained,ocamlBrackErr
-syn region   ocamlEncl transparent matchgroup=ocamlKeyword start="\[|" matchgroup=ocamlKeyword end="|\]" contains=ALLBUT,@ocamlContained,ocamlArrErr
+syn region   ocamlEncl transparent matchgroup=ocamlKeywordDelimiter start="(" matchgroup=ocamlKeywordDelimiter end=")" contains=ALLBUT,@ocamlContained,ocamlParenErr
+syn region   ocamlEncl transparent matchgroup=ocamlKeywordDelimiter start="{" matchgroup=ocamlKeywordDelimiter end="}"  contains=ALLBUT,@ocamlContained,ocamlBraceErr
+syn region   ocamlEncl transparent matchgroup=ocamlKeywordDelimiter start="\[" matchgroup=ocamlKeywordDelimiter end="\]" contains=ALLBUT,@ocamlContained,ocamlBrackErr
+syn region   ocamlEncl transparent matchgroup=ocamlKeywordDelimiter start="\[|" matchgroup=ocamlKeywordDelimiter end="|\]" contains=ALLBUT,@ocamlContained,ocamlArrErr
 
 
 " Comments
@@ -189,10 +192,10 @@ syn keyword  ocamlType     array bool char exn float format format4
 syn keyword  ocamlType     int int32 int64 lazy_t list nativeint option
 syn keyword  ocamlType     bytes string unit
 
-syn match    ocamlConstructor  "(\s*)"
-syn match    ocamlConstructor  "\[\s*\]"
-syn match    ocamlConstructor  "\[|\s*>|]"
-syn match    ocamlConstructor  "\[<\s*>\]"
+syn match    ocamlConstructorDelimiter  "(\s*)"
+syn match    ocamlConstructorDelimiter  "\[\s*\]"
+syn match    ocamlConstructorDelimiter  "\[|\s*>|]"
+syn match    ocamlConstructorDelimiter  "\[<\s*>\]"
 syn match    ocamlConstructor  "\u\(\w\|'\)*\>"
 
 " Polymorphic variants
@@ -336,11 +339,13 @@ hi def link ocamlStructEncl	   ocamlModule
 hi def link ocamlScript	   Include
 
 hi def link ocamlConstructor  Constant
+hi def link ocamlConstructorDelimiter  ocamlConstructor
 
 hi def link ocamlVal          Keyword
 hi def link ocamlModPreRHS    Keyword
 hi def link ocamlMPRestr2	   Keyword
 hi def link ocamlKeyword	   Keyword
+hi def link ocamlKeywordDelimiter	   ocamlKeyword
 hi def link ocamlMethod	   Include
 hi def link ocamlArrow	   Keyword
 hi def link ocamlKeyChar	   Keyword
@@ -383,5 +388,8 @@ hi def link ocamlEncl	   Keyword
 hi def link ocamlPpxEncl       ocamlEncl
 
 let b:current_syntax = "ocaml"
+
+let &cpo = s:keepcpo
+unlet s:keepcpo
 
 " vim: ts=8

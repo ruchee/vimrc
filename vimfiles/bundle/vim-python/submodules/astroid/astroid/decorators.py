@@ -1,4 +1,4 @@
-# Copyright (c) 2015-2016, 2018 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2015 Florian Bruhin <me@the-compiler.org>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
@@ -7,9 +7,13 @@
 # Copyright (c) 2018 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2018 HoverHell <hoverhell@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """ A few useful function/method decorators."""
 
@@ -18,8 +22,7 @@ import functools
 import wrapt
 
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import util
+from astroid import exceptions, util
 
 
 @wrapt.decorator
@@ -36,7 +39,7 @@ def cached(func, instance, args, kwargs):
 
 
 class cachedproperty:
-    """ Provides a cached property equivalent to the stacking of
+    """Provides a cached property equivalent to the stacking of
     @cached and @property, but more efficient.
 
     After first usage, the <property_name> becomes part of the object's
@@ -134,9 +137,9 @@ def raise_if_nothing_inferred(func, instance, args, kwargs):
         # generator is empty
         if error.args:
             # pylint: disable=not-a-mapping
-            raise exceptions.InferenceError(**error.args[0])
+            raise exceptions.InferenceError(**error.args[0]) from error
         raise exceptions.InferenceError(
             "StopIteration raised without any error information."
-        )
+        ) from error
 
     yield from generator

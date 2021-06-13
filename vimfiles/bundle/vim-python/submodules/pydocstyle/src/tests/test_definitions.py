@@ -26,7 +26,7 @@ from pydocstyle.checker import check
 ])
 def test_complex_file(test_case):
     """Run domain-specific tests from test.py file."""
-    case_module = __import__('test_cases.{}'.format(test_case),
+    case_module = __import__(f'test_cases.{test_case}',
                              globals=globals(),
                              locals=locals(),
                              fromlist=['expectation'],
@@ -37,7 +37,8 @@ def test_complex_file(test_case):
                                   test_case + '.py')
     results = list(check([test_case_file],
                          select=set(ErrorRegistry.get_error_codes()),
-                         ignore_decorators=re.compile('wraps')))
+                         ignore_decorators=re.compile(
+                             'wraps|ignored_decorator')))
     for error in results:
         assert isinstance(error, Error)
     results = {(e.definition.name, e.message) for e in results}

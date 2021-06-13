@@ -1,21 +1,18 @@
 # Copyright (c) 2015-2016, 2018, 2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
-import unittest
 import builtins
+import unittest
 
-from astroid import builder
-from astroid import exceptions
-from astroid import helpers
-from astroid import manager
-from astroid import raw_building
-from astroid import test_utils
-from astroid import util
+from astroid import builder, exceptions, helpers, manager, raw_building, util
 
 
 class TestHelpers(unittest.TestCase):
@@ -106,7 +103,6 @@ class TestHelpers(unittest.TestCase):
             expected_type = self._build_custom_builtin(expected)
             self.assert_classes_equal(node_type, expected_type)
 
-    @test_utils.require_version(minver="3.0")
     def test_object_type_metaclasses(self):
         module = builder.parse(
             """
@@ -123,7 +119,6 @@ class TestHelpers(unittest.TestCase):
         instance_type = helpers.object_type(meta_instance)
         self.assert_classes_equal(instance_type, module["Meta"])
 
-    @test_utils.require_version(minver="3.0")
     def test_object_type_most_derived(self):
         node = builder.extract_node(
             """

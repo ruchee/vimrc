@@ -1,10 +1,13 @@
-# Copyright (c) 2015-2016, 2018-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2016, 2018-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2019-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Bryce Guinta <bryce.guinta@protonmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """Various context related utilities, including inference and call contexts."""
 import contextlib
@@ -105,17 +108,6 @@ class InferenceContext:
         clone.extra_context = self.extra_context
         return clone
 
-    def cache_generator(self, key, generator):
-        """Cache result of generator into dictionary
-
-        Used to cache inference results"""
-        results = []
-        for result in generator:
-            results.append(result)
-            yield result
-
-        self.inferred[key] = tuple(results)
-
     @contextlib.contextmanager
     def restore_path(self):
         path = set(self.path)
@@ -128,7 +120,7 @@ class InferenceContext:
             % (field, pprint.pformat(getattr(self, field), width=80 - len(field)))
             for field in self.__slots__
         )
-        return "%s(%s)" % (type(self).__name__, ",\n    ".join(state))
+        return "{}({})".format(type(self).__name__, ",\n    ".join(state))
 
 
 class CallContext:

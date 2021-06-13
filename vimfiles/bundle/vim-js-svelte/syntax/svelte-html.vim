@@ -60,21 +60,21 @@ syntax region svelteBlockBody
       \ containedin=htmlSvelteTemplate,htmlLink
       \ contains=@simpleJavascriptExpression,svelteBlockKeyword
       \ matchgroup=svelteBrace
-      \ start="\v\{:"
+      \ start="{:"
       \ end="}"
 
 syntax region svelteBlockStart
       \ containedin=htmlSvelteTemplate,htmlLink
       \ contains=@simpleJavascriptExpression,svelteBlockKeyword
       \ matchgroup=svelteBrace
-      \ start="\v\{#"
-      \ end="}\ze\(\s*\)$"
+      \ start="{#"
+      \ end="}"
 
 syntax region svelteBlockEnd
       \ containedin=htmlSvelteTemplate,htmlLink
       \ contains=@simpleJavascriptExpression,svelteBlockKeyword
       \ matchgroup=svelteBrace
-      \ start="\v\{\/"
+      \ start="{\/"
       \ end="}"
 
 syntax keyword svelteBlockKeyword if else each await then catch as

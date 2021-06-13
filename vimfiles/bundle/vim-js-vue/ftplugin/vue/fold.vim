@@ -1,40 +1,20 @@
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Config {{{
-"
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:use_foldexpr = vue#GetConfig("use_foldexpr", 0)
-"}}}
+let s:config = vue#GetConfig('config', {})
+let s:enable_foldexpr = s:config.foldexpr
 
-if !s:use_foldexpr | finish | endif
+if !s:enable_foldexpr | finish | endif
+" set debug=msg
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Settings {{{
-"
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-if line('$') < 1000
-  setlocal foldmethod=expr
-endif
-setlocal foldexpr=GetVueFold(v:lnum)
-"}}}
+function! VueFoldMain(...)
+  if line('$') < 1000
+    let s:empty_line = '^\s*$'
+    let s:vue_tag_start = '^<\w\+'
+    let s:vue_tag_end = '^<\/\w\+'
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Variables {{{
-"
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-let s:empty_line = '\v^\s*$'
-let s:block_end = '\v^\s*}|]|\)'
-let s:vue_tag_start = '\v^\s*\<(script|style|template)' 
-let s:vue_tag_end = '\v^\s*\<\/(script|style|template)' 
-"}}}
+    setlocal foldexpr=GetVueFold(v:lnum)
+    setlocal foldmethod=expr
+  endif
+endfunction
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"
-" Functions {{{
-"
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "  see :h fold-expr
 "  value             meaning
 "  0                 the line is not in a fold
@@ -50,54 +30,57 @@ let s:vue_tag_end = '\v^\s*\<\/(script|style|template)'
 "  "<1", "<2", ..    a fold with this level ends at this line
 function! GetVueFold(lnum)
   let this_line = getline(a:lnum)
-  let next_line = getline(a:lnum + 1)
-  if a:lnum > 1
-    let prev_line = getline(a:lnum - 1)
-  endif
+  let value = s:FoldForSpecialLine(this_line)
+  if value == -2
+    " Fold by indent
+    let this_indent = s:IndentLevel(a:lnum)
 
-  " Handle empty lines
-  if this_line =~ s:empty_line
-    return -1
+    " For <script> block
+    if GetVueTag(a:lnum) == 'script'
+      let value = s:FoldForScript(a:lnum, this_line, this_indent)
+    else
+      let value = this_indent
+    endif
   endif
+  call vue#LogWithLnum('foldlevel '.value)
+  return value
+endfunction
 
-  " Handle start/end tags
-  if this_line =~ s:vue_tag_start
-    return '>1'
-  endif
-  if this_line =~ s:vue_tag_end
-    " If return '<1', fold will get incorrect with prev line
-    return 1
-  endif
-
-  " Fold by indent
+function! s:FoldForScript(lnum, this_line, this_indent)
+  let value = -2
   if a:lnum > 1
     let prev_indent = s:IndentLevel(a:lnum - 1)
   else
     let prev_indent = 0
   endif
-  let this_indent = s:IndentLevel(a:lnum)
-  let next_indent = s:IndentLevel(s:NextNonBlankLine(a:lnum))
+  let next_indent = s:IndentLevel(nextnonblank(a:lnum + 1))
 
-  if GetVueTag(a:lnum) == 'script'
-    " Handle closing '}'
-    if this_line =~ '\v^\s*},?\s*$'
-      return '<'.prev_indent
-    endif
-
+  if a:this_line =~ '^\s*[]})]\+,\?\s*$'
+    " Closing ']})'
+    let value = '<'.prev_indent
+  elseif a:this_indent < next_indent
     " --this
     " ----next
-    if this_indent < next_indent
-      return '>'.next_indent
-    endif
-
+    let value = '>'.next_indent
+  else
     " ----this
     " --next
-    if this_indent >= next_indent 
-      return this_indent
-    endif
+    let value = a:this_indent
+  endif
+
+  return value
+endfunction
+
+function! s:FoldForSpecialLine(this_line)
+  if a:this_line =~ s:empty_line
+    return -1
+  elseif a:this_line =~ s:vue_tag_start
+    return '>1'
+  elseif a:this_line =~ s:vue_tag_end
+    " If return '<1', fold will get incorrect with prev line
+    return 1
   else
-    " Template or style
-    return this_indent
+    return -2
   endif
 endfunction
 
@@ -105,20 +88,12 @@ function! s:IndentLevel(lnum)
   " Add 1 to indentLevel, so start/end tags can fold properly
   return indent(a:lnum) / &shiftwidth + 1
 endfunction
-
-function! s:NextNonBlankLine(lnum)
-  let next_line = a:lnum + 1
-  let last_line = line('$')
-
-  while next_line <= last_line
-    if getline(next_line) =~ '\v\S'
-      return next_line
-    endif
-
-    let next_line += 1
-  endwhile
-
-  return 0
-endfunction
 "}}}
-" vim: fdm=marker
+
+let s:test = exists('g:vim_vue_plugin_test')
+let s:timer = exists('*timer_start') && !exists('SessionLoad') && !s:test
+if s:timer
+  call timer_start(300, 'VueFoldMain')
+else
+  call VueFoldMain()
+endif

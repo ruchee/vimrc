@@ -1,0 +1,60 @@
+" Tests for checking that options and variables are set correctly in
+" ftplugin/erlang.vim.
+
+Before (Map options/variables to their expected values and clean up global variables):
+  let b:erlang_expected_values = {
+    \ '&l:keywordprg':    'erl -man',
+    \ '&l:foldmethod':    &foldmethod,
+    \ '&l:foldexpr':      &foldexpr,
+    \ '&l:foldtext':      &foldtext,
+    \ '&l:comments':      ':%%%,:%%,:%',
+    \ '&l:commentstring': '%%s',
+    \ '&l:formatoptions': &formatoptions . 'ro',
+    \ '&l:suffixesadd':   '.erl,.hrl',
+    \ '&l:include':       '^\s*-\%(include\|include_lib\)\s*("\zs\f*\ze")',
+    \ '&l:define':        '^\s*-\%(define\|record\|type\|opaque\)',
+    \ 'b:did_ftplugin':   1,
+    \ '&cpoptions':       &cpoptions,
+    \ 'b:undo_ftplugin':  'setlocal keywordprg< foldmethod< foldexpr< foldtext<'
+        \ . ' comments< commentstring< formatoptions< suffixesadd< include<'
+        \ . ' define<'
+    \ }
+
+  unlet! g:erlang_folding
+  unlet! g:erlang_keywordprg
+
+After (Check if options/variables have been set correctly and clean up global variables):
+  for [option, expected] in items(b:erlang_expected_values)
+    AssertEqual expected, eval(option)
+  endfor
+
+  unlet! g:erlang_folding
+  unlet! g:erlang_keywordprg
+
+Execute(Don't set any g:erlang_* variables):
+  source ../ftplugin/erlang.vim
+
+Execute(Set g:erlang_keywordprg):
+  let g:erlang_keywordprg = 'mykeywordprg'
+  let b:erlang_expected_values['&l:keywordprg'] = 'mykeywordprg'
+
+  source ../ftplugin/erlang.vim
+
+Execute(Set g:erlang_folding):
+  let g:erlang_folding = 1
+  let b:erlang_expected_values['&l:foldmethod'] = 'expr'
+  let b:erlang_expected_values['&l:foldexpr'] = 'GetErlangFold(v:lnum)'
+  let b:erlang_expected_values['&l:foldtext'] = 'ErlangFoldText()'
+
+  source ../ftplugin/erlang.vim
+
+Execute(Set g:erlang_keywordprg and g:erlang_folding):
+  let g:erlang_keywordprg = 'mykeywordprg'
+  let b:erlang_expected_values['&l:foldmethod'] = 'expr'
+  let b:erlang_expected_values['&l:foldexpr'] = 'GetErlangFold(v:lnum)'
+  let b:erlang_expected_values['&l:foldtext'] = 'ErlangFoldText()'
+
+  let g:erlang_folding = 1
+  let b:erlang_expected_values['&l:keywordprg'] = 'mykeywordprg'
+
+  source ../ftplugin/erlang.vim

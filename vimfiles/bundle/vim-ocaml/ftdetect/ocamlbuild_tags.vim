@@ -1,1 +1,1 @@
-au BufNewFile,BufRead _tags set filetype=ocamlbuild_tags
+au BufNewFile,BufRead _tags setf ocamlbuild_tags

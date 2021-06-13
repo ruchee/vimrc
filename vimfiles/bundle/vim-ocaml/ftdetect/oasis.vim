@@ -1,1 +1,1 @@
-au BufNewFile,BufRead _oasis set filetype=oasis
+au BufNewFile,BufRead _oasis setf oasis

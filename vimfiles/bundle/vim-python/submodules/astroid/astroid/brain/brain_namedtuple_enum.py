@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2012-2015 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -13,9 +12,13 @@
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Ram Rachum <ram@rachum.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """Astroid hooks for the Python standard library."""
 
@@ -23,13 +26,17 @@ import functools
 import keyword
 from textwrap import dedent
 
-from astroid import MANAGER, UseInferenceDefault, inference_tip, InferenceError
-from astroid import arguments
-from astroid import exceptions
-from astroid import nodes
+from astroid import (
+    MANAGER,
+    InferenceError,
+    UseInferenceDefault,
+    arguments,
+    exceptions,
+    inference_tip,
+    nodes,
+    util,
+)
 from astroid.builder import AstroidBuilder, extract_node
-from astroid import util
-
 
 TYPING_NAMEDTUPLE_BASENAMES = {"NamedTuple", "typing.NamedTuple"}
 ENUM_BASE_NAMES = {
@@ -49,15 +56,15 @@ def _infer_first(node, context):
         value = next(node.infer(context=context))
         if value is util.Uninferable:
             raise UseInferenceDefault()
-        else:
-            return value
-    except StopIteration:
-        raise InferenceError()
+        return value
+    except StopIteration as exc:
+        raise InferenceError from exc
 
 
 def _find_func_form_arguments(node, context):
-    def _extract_namedtuple_arg_or_keyword(position, key_name=None):
-
+    def _extract_namedtuple_arg_or_keyword(  # pylint: disable=inconsistent-return-statements
+        position, key_name=None
+    ):
         if len(args) > position:
             return _infer_first(args[position], context)
         if key_name and key_name in found_keywords:
@@ -88,7 +95,7 @@ def infer_func_form(node, base_type, context=None, enum=False):
         name, names = _find_func_form_arguments(node, context)
         try:
             attributes = names.value.replace(",", " ").split()
-        except AttributeError:
+        except AttributeError as exc:
             if not enum:
                 attributes = [
                     _infer_first(const, context).value for const in names.elts
@@ -117,11 +124,11 @@ def infer_func_form(node, base_type, context=None, enum=False):
                             _infer_first(const, context).value for const in names.elts
                         ]
                 else:
-                    raise AttributeError
+                    raise AttributeError from exc
                 if not attributes:
-                    raise AttributeError
-    except (AttributeError, exceptions.InferenceError):
-        raise UseInferenceDefault()
+                    raise AttributeError from exc
+    except (AttributeError, exceptions.InferenceError) as exc:
+        raise UseInferenceDefault from exc
 
     attributes = [attr for attr in attributes if " " not in attr]
 
@@ -181,7 +188,7 @@ def infer_named_tuple(node, context=None):
     if rename:
         attributes = _get_renamed_namedtuple_attributes(attributes)
 
-    replace_args = ", ".join("{arg}=None".format(arg=arg) for arg in attributes)
+    replace_args = ", ".join(f"{arg}=None" for arg in attributes)
     field_def = (
         "    {name} = property(lambda self: self[{index:d}], "
         "doc='Alias for field number {index:d}')"
@@ -312,7 +319,6 @@ def infer_enum_class(node):
             if any(not isinstance(value, nodes.AssignName) for value in values):
                 continue
 
-            targets = []
             stmt = values[0].statement()
             if isinstance(stmt, nodes.Assign):
                 if isinstance(stmt.targets[0], nodes.Tuple):
@@ -336,6 +342,8 @@ def infer_enum_class(node):
 
             new_targets = []
             for target in targets:
+                if isinstance(target, nodes.Starred):
+                    continue
                 # Replace all the assignments with our mocked class.
                 classdef = dedent(
                     """
@@ -399,14 +407,29 @@ def infer_typing_namedtuple_class(class_node, context=None):
     return iter((generated_class_node,))
 
 
+def infer_typing_namedtuple_function(node, context=None):
+    """
+    Starting with python3.9, NamedTuple is a function of the typing module.
+    The class NamedTuple is build dynamically through a call to `type` during
+    initialization of the `_NamedTuple` variable.
+    """
+    klass = extract_node(
+        """
+        from typing import _NamedTuple
+        _NamedTuple
+        """
+    )
+    return klass.infer(context)
+
+
 def infer_typing_namedtuple(node, context=None):
     """Infer a typing.NamedTuple(...) call."""
     # This is essentially a namedtuple with different arguments
     # so we extract the args and infer a named tuple.
     try:
         func = next(node.func.infer())
-    except InferenceError:
-        raise UseInferenceDefault
+    except InferenceError as exc:
+        raise UseInferenceDefault from exc
 
     if func.qname() != "typing.NamedTuple":
         raise UseInferenceDefault
@@ -430,9 +453,7 @@ def infer_typing_namedtuple(node, context=None):
         field_names = "({},)".format(",".join(names))
     else:
         field_names = "''"
-    node = extract_node(
-        "namedtuple({typename}, {fields})".format(typename=typename, fields=field_names)
-    )
+    node = extract_node(f"namedtuple({typename}, {field_names})")
     return infer_named_tuple(node, context)
 
 
@@ -449,6 +470,12 @@ MANAGER.register_transform(
 )
 MANAGER.register_transform(
     nodes.ClassDef, inference_tip(infer_typing_namedtuple_class), _has_namedtuple_base
+)
+MANAGER.register_transform(
+    nodes.FunctionDef,
+    inference_tip(infer_typing_namedtuple_function),
+    lambda node: node.name == "NamedTuple"
+    and getattr(node.root(), "name", None) == "typing",
 )
 MANAGER.register_transform(
     nodes.Call, inference_tip(infer_typing_namedtuple), _looks_like_typing_namedtuple

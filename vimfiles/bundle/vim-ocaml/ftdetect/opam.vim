@@ -1,1 +1,1 @@
-au BufNewFile,BufRead opam,*.opam,*.opam.template set filetype=opam
+au BufNewFile,BufRead opam,*.opam,*.opam.template setf opam

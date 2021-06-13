@@ -1,3 +1,5 @@
+-- Author:   Lifepillar
+-- License:  Vim license
 start transaction;
 
 set local client_min_messages to 'warning';
@@ -104,7 +106,9 @@ set search_path to "information_schema" as
 $$
   select distinct routine_name::text
     from routines
-   where specific_schema = 'pg_catalog';
+   where specific_schema = 'pg_catalog'
+     and routine_name::text <> 'char'    -- because we highlight char as a type
+     and routine_name::text <> 'varchar' -- ditto
 $$;
 
 
@@ -159,10 +163,10 @@ $$
   -- Serial types are not true types, but merely a notational convenience for creating unique identifier columns.
   -- See https://www.postgresql.org/docs/current/static/datatype-numeric.html#DATATYPE-SERIAL
   values ('smallserial'), ('serial'), ('bigserial'), ('serial2'), ('serial4'), ('serial8'),
-         ('array'), ('bigint'), ('bit'), ('boolean'), ('char'), ('character'), ('cube'), ('decimal'),
+         ('array'), ('bigint'), ('bit'), ('boolean'), ('character'), ('cube'), ('decimal'),
          ('double'), ('int'), ('integer'),
          ('interval'), ('numeric'), ('precision'), ('real'), ('smallint'), ('timestamp'),
-         ('varchar'), ('varying'), ('xml'), ('at'), ('zone');
+         ('varying'), ('xml'), ('at'), ('zone');
 $$;
 
 

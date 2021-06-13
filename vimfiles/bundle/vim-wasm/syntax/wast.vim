@@ -11,7 +11,7 @@ endif
 let s:cpo_save = &cpo
 set cpo&vim
 
-syn cluster wastNotTop contains=wastModule,wastInstWithType,wastInstGetSet,wastInstGeneral,wastParamInst,wastControlInst,wastString,wastNamedVar,wastUnnamedVar,wastFloat,wastNumber,wastComment,wastList,wastType
+syn cluster wastNotTop contains=wastModule,wastInstWithType,wastInstGetSet,wastInstGeneral,wastParamInst,wastControlInst,wastSimdInst,wastString,wastNamedVar,wastUnnamedVar,wastFloat,wastNumber,wastComment,wastList,wastType
 
 " Instructions
 " https://webassembly.github.io/spec/core/text/instructions.html
@@ -23,6 +23,9 @@ syn match   wastInstGetSet    "\%((\s*\)\@<=\<\%(local\|global\)\.\%(get\|set\)\
 syn match   wastControlInst   "\%((\s*\)\@<=\<\%(block\|end\|loop\|if\|then\|else\|unreachable\|nop\|br\|br_if\|br_table\|return\|call\|call_indirect\)\>" contained display
 " https://webassembly.github.io/spec/core/text/instructions.html#parametric-instructions
 syn match   wastParamInst     "\%((\s*\)\@<=\<\%(drop\|select\)\>" contained display
+" SIMD instructions
+" https://webassembly.github.io/simd/core/text/instructions.html#simd-instructions
+syn match   wastSimdInst      "\<\%(v128\|i8x16\|i16x8\|i32x4\|i64x2\|f32x4\|f64x2)\)\.[[:alnum:]_]\+\%(\s\+\%(i8x16\|i16x8\|i32x4\|i64x2\|f32x4\|f64x2\)\)\=\>" contained display
 
 " Identifiers
 " https://webassembly.github.io/spec/core/text/values.html#text-id
@@ -75,6 +78,7 @@ hi def link wastInstWithType  Operator
 hi def link wastInstGetSet    Operator
 hi def link wastInstGeneral   Operator
 hi def link wastControlInst   Statement
+hi def link wastSimdInst      Operator
 hi def link wastParamInst     Conditional
 hi def link wastString        String
 hi def link wastStringSpecial Special

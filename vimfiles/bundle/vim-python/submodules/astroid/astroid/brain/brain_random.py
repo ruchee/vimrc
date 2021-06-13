@@ -1,11 +1,9 @@
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 import random
 
 import astroid
-from astroid import helpers
-from astroid import MANAGER
-
+from astroid import MANAGER, helpers
 
 ACCEPTED_ITERABLES_FOR_SAMPLE = (astroid.List, astroid.Set, astroid.Tuple)
 
@@ -47,8 +45,8 @@ def infer_random_sample(node, context=None):
 
     try:
         elts = random.sample(inferred_sequence.elts, length.value)
-    except ValueError:
-        raise astroid.UseInferenceDefault
+    except ValueError as exc:
+        raise astroid.UseInferenceDefault from exc
 
     new_node = astroid.List(
         lineno=node.lineno, col_offset=node.col_offset, parent=node.scope()

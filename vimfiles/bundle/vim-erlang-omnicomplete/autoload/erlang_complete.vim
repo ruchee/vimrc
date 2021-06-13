@@ -5,34 +5,47 @@
 "               Ricardo Catalinas Jiménez <jimenezrick@gmail.com>
 "               Eduardo Lopez (http://github.com/tapichu)
 " License:      Vim license
-" Version:      2012/01/14
 
 " Completion program path
 let s:erlang_complete_file = expand('<sfile>:p:h') . '/erlang_complete.erl'
 
 " Returns whether "substring" is a prefix of "string".
-function s:starts_with(string, substring)
+function s:StartsWith(string, substring)
     let string_start = strpart(a:string, 0, len(a:substring))
     return string_start ==# a:substring
 endfunction
 
 " If we are running in Cygwin, the path needs to be converted.
 " See: https://github.com/vim-erlang/vim-erlang-omnicomplete/issues/21
-if has('win32') == 0 && s:starts_with(system('uname'), 'CYGWIN')
+if has('win32') == 0 && s:StartsWith(system('uname'), 'CYGWIN')
     " Cygwin system. Now check if erlang is Windows or cygwin (currently only
     " Windows is possible)
     let cygwin_base_path = system('cygpath -w /')
-    if !s:starts_with(s:erlang_complete_file, cygwin_base_path)
+    if !s:StartsWith(s:erlang_complete_file, cygwin_base_path)
         " Windows, as expected
         let s:erlang_complete_file = system('cygpath -w ' . s:erlang_complete_file)
     endif
 endif
 
-au BufWritePre *.erl :call erlang_complete#ClearOneCache(expand('%:t:r'))
-
 if !exists('g:erlang_completion_cache')
     let g:erlang_completion_cache = 1
 endif
+
+if !exists('g:erlang_completion_preview_help')
+    let g:erlang_completion_preview_help = 1
+end
+
+if !exists('g:erlang_completion_zero_arity_paren')
+    let g:erlang_completion_zero_arity_paren = '()'
+end
+
+if !exists('g:erlang_completion_nonzero_arity_paren')
+    let g:erlang_completion_nonzero_arity_paren = '('
+end
+
+if !exists('g:erlang_completion_extend_arity')
+    let g:erlang_completion_extend_arity = 1
+end
 
 " Modules cache used to speed up the completion.
 "
@@ -65,234 +78,6 @@ let s:modules_cache = {}
 let s:erlang_local_func_beg    = '\(\<[0-9A-Za-z_-]*\|\s*\)$'
 let s:erlang_external_func_beg = '\<[0-9A-Za-z_-]\+:[0-9A-Za-z_-]*$'
 let s:erlang_blank_line        = '^\s*\(%.*\)\?$'
-
-if !exists('g:erlang_completion_preview_help')
-    let g:erlang_completion_preview_help = 1
-end
-
-" Return the informational line displayed at the end of the preview window.
-function s:get_preview_line()
-    if g:erlang_completion_preview_help == 1
-        return "\n\nClose preview window: CTRL-W z in normal mode." .
-             \ "\nDisable preview window: :set cot-=preview." .
-             \ "\nDon't show this message: :let g:erlang_completion_preview_help = 0."
-    else
-        return ""
-    end
-endfunction
-
-" Main function for completion.
-"
-" - If findstart = 1, then the function must return the column where the base
-"   (the word to be completed) starts.
-" - If findstart = 0, then a:base is the word to be completed, and the
-"   function must return a list with the possible completions.
-"
-" See ":help complete-functions" for the exact specification of this function.
-function erlang_complete#Complete(findstart, base)
-    let lnum = line('.')
-    let column = col('.')
-    let line = strpart(getline('.'), 0, column - 1)
-
-    " 1) If the char to the left of us is not the part of a function call, the
-    " user probably wants to type a local function, a module or a BIF
-    if line[column - 2] !~ '[0-9A-Za-z:_-]'
-        if a:findstart
-            return column
-        else
-            return s:ErlangFindLocalFunc(a:base)
-        endif
-    endif
-
-    " 2) Function in external module
-    if line =~ s:erlang_external_func_beg
-        let delimiter = match(line, ':[0-9A-Za-z_-]*$') + 1
-        if a:findstart
-            return delimiter
-        else
-            let module = matchstr(line[:-2], '\<\k*\>$')
-            return s:ErlangFindExternalFunc(module, a:base)
-        endif
-    endif
-
-    " 3) Local function
-    if line =~ s:erlang_local_func_beg
-        let funcstart = match(line, ':\@<![0-9A-Za-z_-]*$')
-        if a:findstart
-            return funcstart
-        else
-            return s:ErlangFindLocalFunc(a:base)
-        endif
-    endif
-
-    " 4) Unhandled situation
-    if a:findstart
-        return -1
-    else
-        return []
-    endif
-endfunction
-
-" Find the next non-blank line
-function s:ErlangFindNextNonBlank(lnum)
-    let lnum = nextnonblank(a:lnum + 1)
-    let line = getline(lnum)
-
-    while line =~ s:erlang_blank_line && 0 != lnum
-        let lnum = nextnonblank(lnum + 1)
-        let line = getline(lnum)
-    endwhile
-
-    return lnum
-endfunction
-
-" Find external function names
-"
-" Parameters:
-"
-" - module: the module being edited.
-" - base: the word to be completed.
-function s:ErlangFindExternalFunc(module, base)
-
-    " If the module is cached, load its functions
-    if has_key(s:modules_cache, a:module)
-        let compl_words = []
-        let module_cache = get(s:modules_cache, a:module)
-        for compl_item in module_cache
-            " If a:base is a prefix of compl_item, add compl_item to the list
-            " of possible completions
-            if match(compl_item.word, a:base) == 0
-                call add(compl_words, compl_item)
-            endif
-        endfor
-
-        return compl_words
-    endif
-
-    let compl_words = []
-    let functions = system('escript ' . fnameescape(s:erlang_complete_file) .
-                          \' list-functions ' . fnameescape(a:module) .
-                          \' --basedir ' .  fnameescape(expand('%:p:h')))
-    " We iterate on functions in the given module that start with `base` and
-    " add them to the completion list.
-    for function_spec in split(functions, '\n')
-        " - When the function doesn't have a type spec, its function_spec
-        "   will be e.g. "f/2".
-        " - When the function has a type spec, its function_spec will be e.g.
-        "   "f(A, B)".
-        if match(function_spec, a:base) == 0
-            let function_name = matchstr(function_spec, a:base . '\w*')
-            " See the documentation of the completion items in `:help
-            " complete-items`.
-            let compl_item = {'word': function_name . '(',
-                             \'abbr': function_spec,
-                             \'info': function_spec . s:get_preview_line(),
-                             \'kind': 'f',
-                             \'dup': 1}
-            call add(compl_words, compl_item)
-
-            " Populate the cache only when iterating over all the
-            " module functions (i.e. no prefix for the completion)
-            if g:erlang_completion_cache && a:base == ''
-                if !has_key(s:modules_cache, a:module)
-                    let s:modules_cache[a:module] = [compl_item]
-                else
-                    let module_cache = get(s:modules_cache, a:module)
-                    let s:modules_cache[a:module] =
-                      \ add(module_cache, compl_item)
-                endif
-            endif
-
-            " The user entered some text, so stop the completion
-            if complete_check()
-                " The module couldn't be entirely cached
-                if has_key(s:modules_cache, a:module)
-                    call remove(s:modules_cache, a:module)
-                endif
-                break
-            endif
-        endif
-    endfor
-
-    return compl_words
-endfunction
-
-" Find local function names, BIFs and modules.
-"
-" This function is called when a word (without a ":") needs to be completed,
-" such as base = "lis". This could be a local function call (e.g.
-" "list_things"), a BIF ("list_to_binary") or a module ("lists").
-"
-" Parameter:
-"
-" - base: the word to be completed.
-function s:ErlangFindLocalFunc(base)
-    " Begin at line 1
-    let lnum = s:ErlangFindNextNonBlank(1)
-
-    if "" == a:base
-        let base = '^\w' " Used to match against word symbol
-    else
-        let base = '^' . a:base
-    endif
-
-    " Find local functions that start with `base`.
-    let compl_words = []
-    while 0 != lnum && !complete_check()
-        let line = getline(lnum)
-        let function_name = matchstr(line, base . '[0-9A-Za-z_-]\+(\@=')
-        if function_name != ""
-            " We found such a local function.
-            call add(compl_words, {'word': function_name . '(',
-                                  \'abbr': function_name,
-                                  \'info': function_name . s:get_preview_line(),
-                                  \'kind': 'f'})
-        endif
-        let lnum = s:ErlangFindNextNonBlank(lnum)
-    endwhile
-
-    if "" == a:base
-        let base = ''
-    else
-        let base = '^' . a:base
-    endif
-
-    " Find BIFs that start with `base`.
-    for bif_line in s:auto_imported_bifs
-        if bif_line =~# base
-            let bif_name = substitute(bif_line, '(.*', '(', '')
-            call add(compl_words, {'word': bif_name,
-                                  \'abbr': bif_line,
-                                  \'info': bif_line . s:get_preview_line(),
-                                  \'kind': 'f'})
-        endif
-    endfor
-
-    " Find modules that start with `base`.
-    let modules = system('escript ' . fnameescape(s:erlang_complete_file) .
-                        \' list-modules ' .
-                        \' --basedir ' . fnameescape(expand('%:p:h')))
-    for module in split(modules, '\n')
-        if module =~# base
-            call add(compl_words, {'word': module . ':',
-                                  \'abbr': module,
-                                  \'info': module . s:get_preview_line(),
-                                  \'kind': 'm'})
-        endif
-    endfor
-
-    return compl_words
-endfunction
-
-function erlang_complete#ClearAllCache()
-    let s:modules_cache = {}
-endfunction
-
-function erlang_complete#ClearOneCache(mod)
-    if has_key(s:modules_cache, a:mod)
-        call remove(s:modules_cache, a:mod)
-    endif
-endfunc
 
 " This list comes from http://www.erlang.org/doc/man/erlang.html (minor
 " modifications have been performed).
@@ -442,3 +227,370 @@ let s:auto_imported_bifs = [
     \ 'unlink(Id) -> true',
     \ 'unregister(RegName) -> true',
     \ 'whereis(RegName) -> pid() | port() | undefined']
+
+" Return the informational line displayed at the end of the preview window.
+function s:GetPreviewLine()
+    if g:erlang_completion_preview_help == 1
+        return "\n\nClose preview window: CTRL-W z in normal mode." .
+             \ "\nDisable preview window: :set cot-=preview." .
+             \ "\nDon't show this message: :let g:erlang_completion_preview_help = 0."
+    else
+        return ""
+    end
+endfunction
+
+" Find the next non-blank line
+function s:ErlangFindNextNonBlank(lnum)
+    let lnum = nextnonblank(a:lnum + 1)
+    let line = getline(lnum)
+
+    while line =~ s:erlang_blank_line && 0 != lnum
+        let lnum = nextnonblank(lnum + 1)
+        let line = getline(lnum)
+    endwhile
+
+    return lnum
+endfunction
+
+" Return an argument list that contains a given number of arguments.
+"
+" Example:
+"
+" - Call: s:CreateArgumentList(3)
+" - Return value: "(T1, T2, T3)"
+function s:CreateArgumentList(arity)
+    let argument_list = []
+    let i = 1
+    while i <= a:arity
+        call add(argument_list, 'T' .. i)
+        let i += 1
+    endwhile
+    return '(' .. join(argument_list, ', ') .. ')' 
+endfunction
+
+" Return a completion item.
+"
+" Parameters:
+"
+" - type: Type of the "spec" parameter. Either 'module', 'function_name' or
+"   'function_spec'.
+" - spec: A module name, a function name or a function specification.
+"
+" See the documentation of the completion items in ":help complete-items".
+function s:CreateComplItem(type, spec)
+
+    if a:type == 'module'
+        " module example = "my_mod"
+        let target_type = 'module'
+        let module = a:spec
+        let compl_word = module . ':'
+        let compl_abbr = module
+        let compl_info = module . s:GetPreviewLine()
+        let compl_kind = 'm'
+    elseif a:type == 'function_name'
+        " function_spec example: "my_fun"
+        " function_name example: "my_fun"
+        " function_args example: ""
+        let target_type = 'function'
+        let function_spec = a:spec
+        let function_name = a:spec
+        let function_args = ''
+    elseif a:type == 'function_spec'
+        " function_spec examples:
+        "   - "my_fun/2"
+        "   - "my_fun(A, B) -> integer()"
+        " function_name example: "my_fun"
+        " function_args example:
+        "   - "/2"
+        "   - "(A, B) -> integer()"
+        let target_type = 'function'
+        let function_spec = a:spec
+        let function_name = matchstr(function_spec, '\w*')
+        let function_args = function_spec[len(function_name):]
+    endif
+
+    if target_type == 'function'
+
+        " Calculate which parenthesis to insert after the function name
+        " (depending on whether the function has a zero arity).
+        if function_args == '/0' || function_args =~# '^()'
+            let paren = g:erlang_completion_zero_arity_paren
+        else
+            let paren = g:erlang_completion_nonzero_arity_paren
+        endif
+
+        " Extend the function's arity to an argument list (if necessary)
+        if g:erlang_completion_extend_arity && function_args[0] == '/'
+            let arity = str2nr(function_args[1:])
+            let function_args = s:CreateArgumentList(arity) .. ' -> any()'
+            let function_spec = function_name .. function_args
+        endif
+
+        let compl_word = function_name . paren
+        let compl_abbr = function_spec
+        let compl_info = function_spec . s:GetPreviewLine()
+        let compl_kind = 'f'
+    endif
+
+    return {'word': compl_word,
+           \'abbr': compl_abbr,
+           \'info': compl_info,
+           \'kind': compl_kind,
+           \'dup': 1}
+endfunction
+
+" Add error as completion items.
+"
+" Parameters:
+"
+" - base: The word to be completed.
+" - error_output: The output of the erlang_complete.erl script, which
+"   describes the error.
+"
+" This functions adds a short help text ("Completion error...") to the
+" completion popup, and it adds the actual error to the preview window.
+"
+" See the documentation of the completion items in ":help complete-items".
+function s:AddComplErrorItems(compl_words, base, error_output)
+
+    " Vim inserts compl_word instead of the word already typed by the user. We
+    " don't want to modify the text already typed by the user (a:base), so we
+    " set compl_word to a:base, making Vim replace the already typed word with
+    " itself.
+    "
+    " There is one exception. If the already typed word is an empty string, we
+    " need to replace it with something, because if compl_word is an empty
+    " string, then Vim will ignore that completion item, and it will say "Omni
+    " completion Pattern not found), and it will not show either the
+    " completion popup or the preview window. To make Vim show the error
+    " popup, we set compl_word to ' ' in this case.
+    let compl_word = (a:base == '') ? ' ' : a:base
+
+    " Let's show the error output in the preview window (if it is enabled).
+    let compl_info = a:error_output . s:GetPreviewLine()
+
+    let help_lines =
+        \ ["Completion error.",
+        \  " ",
+        \  "The preview window contains the error output.",
+        \  "Enable the preview window with: ':set cot+=preview'.",
+        \  " ",
+        \  "See ':help vim-erlang-omnicomplete-errors' for more information."]
+
+    " In order to show the help lines in the completion popup, we add each
+    " help line in a separate completion item.
+    for help_line in help_lines
+        let compl_item = {'word': compl_word,
+                         \'abbr': help_line,
+                         \'info': compl_info,
+                         \'dup': 1}
+        call add(a:compl_words, compl_item)
+    endfor
+
+endfunction
+
+" Find external function names
+"
+" Parameters:
+"
+" - module: the module being edited.
+" - base: the word to be completed.
+function s:ErlangFindExternalFunc(module, base)
+
+    " If the module is cached, load its functions
+    if has_key(s:modules_cache, a:module)
+        let compl_words = []
+        let module_cache = get(s:modules_cache, a:module)
+        for compl_item in module_cache
+            " If a:base is a prefix of compl_item, add compl_item to the list
+            " of possible completions
+            if match(compl_item.word, a:base) == 0
+                call add(compl_words, compl_item)
+            endif
+        endfor
+
+        return compl_words
+    endif
+
+    let compl_words = []
+    let output = system('escript ' . fnameescape(s:erlang_complete_file) .
+                        \' list-functions ' . fnameescape(a:module) .
+                        \' --basedir ' .  fnameescape(expand('%:p:h')))
+    let output_lines = split(output, '\n')
+
+    if len(output_lines) == 0
+        " No completion was found, so we don't add any completion item.
+
+    elseif output_lines[0] == 'execution_successful' 
+
+        " We found possible completions, so we add them as completions items.
+
+        " We iterate on functions in the given module that start with `base` and
+        " add them to the completion list.
+        let function_specs = output_lines[1:]
+        for function_spec in function_specs
+            " - When the function doesn't have a type spec, its function_spec
+            "   will be e.g. "f/2".
+            " - When the function has a type spec, its function_spec will be e.g.
+            "   "f(A, B)".
+            if match(function_spec, a:base) == 0
+                let compl_item = s:CreateComplItem('function_spec', function_spec)
+                call add(compl_words, compl_item)
+
+                " Populate the cache only when iterating over all the
+                " module functions (i.e. no prefix for the completion)
+                if g:erlang_completion_cache && a:base == ''
+                    if !has_key(s:modules_cache, a:module)
+                        let s:modules_cache[a:module] = [compl_item]
+                    else
+                        let module_cache = get(s:modules_cache, a:module)
+                        let s:modules_cache[a:module] =
+                          \ add(module_cache, compl_item)
+                    endif
+                endif
+
+                " The user entered some text, so stop the completion
+                if complete_check()
+                    " The module couldn't be entirely cached
+                    if has_key(s:modules_cache, a:module)
+                        call remove(s:modules_cache, a:module)
+                    endif
+                    break
+                endif
+            endif
+        endfor
+
+    else
+
+        " There was an error during completion.
+        call s:AddComplErrorItems(compl_words, a:base, output)
+
+    endif
+
+    return compl_words
+endfunction
+
+" Find local function names, BIFs and modules.
+"
+" This function is called when a word (without a ":") needs to be completed,
+" such as base = "lis". This could be a local function call (e.g.
+" "list_things"), a BIF ("list_to_binary") or a module ("lists").
+"
+" Parameter:
+"
+" - base: the word to be completed.
+function s:ErlangFindLocalFunc(base)
+    " Begin at line 1
+    let lnum = s:ErlangFindNextNonBlank(1)
+
+    if "" == a:base
+        let base = '^\w' " Used to match against word symbol
+    else
+        let base = '^' . a:base
+    endif
+
+    " Find local functions that start with `base`.
+    let compl_words = []
+    while 0 != lnum && !complete_check()
+        let line = getline(lnum)
+        let function_name = matchstr(line, base . '[0-9A-Za-z_-]\+(\@=')
+        if function_name != ""
+            " We found such a local function.
+            let compl_item = s:CreateComplItem('function_name', function_name)
+            call add(compl_words, compl_item)
+        endif
+        let lnum = s:ErlangFindNextNonBlank(lnum)
+    endwhile
+
+    if "" == a:base
+        let base = ''
+    else
+        let base = '^' . a:base
+    endif
+
+    " Find BIFs that start with `base`.
+    for bif_spec in s:auto_imported_bifs
+        if bif_spec =~# base
+            let compl_item = s:CreateComplItem('function_spec', bif_spec)
+            call add(compl_words, compl_item)
+        endif
+    endfor
+
+    " Find modules that start with `base`.
+    let modules = system('escript ' . fnameescape(s:erlang_complete_file) .
+                        \' list-modules ' .
+                        \' --basedir ' . fnameescape(expand('%:p:h')))
+    for module in split(modules, '\n')
+        if module =~# base
+            let compl_item = s:CreateComplItem('module', module)
+            call add(compl_words, compl_item)
+        endif
+    endfor
+
+    return compl_words
+endfunction
+
+" Main function for completion.
+"
+" - If findstart = 1, then the function must return the column where the base
+"   (the word to be completed) starts.
+" - If findstart = 0, then a:base is the word to be completed, and the
+"   function must return a list with the possible completions.
+"
+" See ":help complete-functions" for the exact specification of this function.
+function erlang_complete#Complete(findstart, base)
+    let lnum = line('.')
+    let column = col('.')
+    let line = strpart(getline('.'), 0, column - 1)
+
+    " 1) If the char to the left of us is not the part of a function call, the
+    " user probably wants to type a local function, a module or a BIF
+    if line[column - 2] !~ '[0-9A-Za-z:_-]'
+        if a:findstart
+            return column
+        else
+            return s:ErlangFindLocalFunc(a:base)
+        endif
+    endif
+
+    " 2) Function in external module
+    if line =~ s:erlang_external_func_beg
+        let delimiter = match(line, ':[0-9A-Za-z_-]*$') + 1
+        if a:findstart
+            return delimiter
+        else
+            let module = matchstr(line[:-2], '\<\k*\>$')
+            return s:ErlangFindExternalFunc(module, a:base)
+        endif
+    endif
+
+    " 3) Local function
+    if line =~ s:erlang_local_func_beg
+        let funcstart = match(line, ':\@<![0-9A-Za-z_-]*$')
+        if a:findstart
+            return funcstart
+        else
+            return s:ErlangFindLocalFunc(a:base)
+        endif
+    endif
+
+    " 4) Unhandled situation
+    if a:findstart
+        return -1
+    else
+        return []
+    endif
+endfunction
+
+function erlang_complete#ClearAllCache()
+    let s:modules_cache = {}
+endfunction
+
+function erlang_complete#ClearOneCache(mod)
+    if has_key(s:modules_cache, a:mod)
+        call remove(s:modules_cache, a:mod)
+    endif
+endfunc
+
+" When a module is saved, delete it from the cache.
+autocmd BufWritePre *.erl :call erlang_complete#ClearOneCache(expand('%:t:r'))

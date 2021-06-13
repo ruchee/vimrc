@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
@@ -15,12 +14,14 @@
 # Copyright (c) 2018 Serhiy Storchaka <storchaka@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2019-2020 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2019-2021 Ashley Whetter <ashley@awhetter.co.uk>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Zbigniew Jędrzejewski-Szmek <zbyszek@in.waw.pl>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 hippo91 <guillaume.peillex@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """this module contains utilities for rebuilding an _ast tree in
 order to get a single Astroid representation
@@ -30,9 +31,8 @@ import sys
 from typing import Optional
 
 import astroid
-from astroid._ast import parse_function_type_comment, get_parser_module, ParserModule
 from astroid import nodes
-
+from astroid._ast import ParserModule, get_parser_module, parse_function_type_comment
 
 CONST_NAME_TRANSFORMS = {"None": None, "True": True, "False": False}
 
@@ -238,7 +238,7 @@ class TreeRebuilder:
 
         return type_object.value
 
-    def check_function_type_comment(self, node):
+    def check_function_type_comment(self, node, parent):
         type_comment = getattr(node, "type_comment", None)
         if not type_comment:
             return None
@@ -251,10 +251,10 @@ class TreeRebuilder:
 
         returns = None
         argtypes = [
-            self.visit(elem, node) for elem in (type_comment_ast.argtypes or [])
+            self.visit(elem, parent) for elem in (type_comment_ast.argtypes or [])
         ]
         if type_comment_ast.returns:
-            returns = self.visit(type_comment_ast.returns, node)
+            returns = self.visit(type_comment_ast.returns, parent)
 
         return returns, argtypes
 
@@ -615,7 +615,7 @@ class TreeRebuilder:
             returns = None
 
         type_comment_args = type_comment_returns = None
-        type_comment_annotation = self.check_function_type_comment(node)
+        type_comment_annotation = self.check_function_type_comment(node, newnode)
         if type_comment_annotation:
             type_comment_returns, type_comment_args = type_comment_annotation
         newnode.postinit(

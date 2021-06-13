@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2013-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2014-2020 Claudiu Popa <pcmanticore@gmail.com>
@@ -14,9 +13,10 @@
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2018 Daniel Colascione <dancol@dancol.org>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 """This module contains base classes and functions for the nodes and some
 inference utils.
@@ -26,8 +26,7 @@ import builtins
 import collections
 
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import util
+from astroid import exceptions, util
 
 objectmodel = util.lazy_import("interpreter.objectmodel")
 helpers = util.lazy_import("helpers")
@@ -270,14 +269,12 @@ class Instance(BaseInstance):
     special_attributes = util.lazy_descriptor(lambda: objectmodel.InstanceModel())
 
     def __repr__(self):
-        return "<Instance of %s.%s at 0x%s>" % (
-            self._proxied.root().name,
-            self._proxied.name,
-            id(self),
+        return "<Instance of {}.{} at 0x{}>".format(
+            self._proxied.root().name, self._proxied.name, id(self)
         )
 
     def __str__(self):
-        return "Instance of %s.%s" % (self._proxied.root().name, self._proxied.name)
+        return f"Instance of {self._proxied.root().name}.{self._proxied.name}"
 
     def callable(self):
         try:
@@ -332,11 +329,8 @@ class UnboundMethod(Proxy):
 
     def __repr__(self):
         frame = self._proxied.parent.frame()
-        return "<%s %s of %s at 0x%s" % (
-            self.__class__.__name__,
-            self._proxied.name,
-            frame.qname(),
-            id(self),
+        return "<{} {} of {} at 0x{}".format(
+            self.__class__.__name__, self._proxied.name, frame.qname(), id(self)
         )
 
     def implicit_parameters(self):
@@ -518,10 +512,8 @@ class Generator(BaseInstance):
         return True
 
     def __repr__(self):
-        return "<Generator(%s) l.%s at 0x%s>" % (
-            self._proxied.name,
-            self.lineno,
-            id(self),
+        return "<Generator({}) l.{} at 0x{}>".format(
+            self._proxied.name, self.lineno, id(self)
         )
 
     def __str__(self):
@@ -538,10 +530,8 @@ class AsyncGenerator(Generator):
         return "AsyncGenerator"
 
     def __repr__(self):
-        return "<AsyncGenerator(%s) l.%s at 0x%s>" % (
-            self._proxied.name,
-            self.lineno,
-            id(self),
+        return "<AsyncGenerator({}) l.{} at 0x{}>".format(
+            self._proxied.name, self.lineno, id(self)
         )
 
     def __str__(self):

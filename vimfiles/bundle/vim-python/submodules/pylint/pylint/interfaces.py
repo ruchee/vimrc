@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2010, 2012-2013 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2013-2014 Google, Inc.
 # Copyright (c) 2014 Michal Nowikowski <godfryd@gmail.com>
@@ -8,10 +7,12 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
+# Copyright (c) 2020-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Interfaces for Pylint objects"""
 from collections import namedtuple
@@ -62,11 +63,10 @@ class IChecker(Interface):
 
 
 class IRawChecker(IChecker):
-    """interface for checker which need to parse the raw file
-    """
+    """interface for checker which need to parse the raw file"""
 
     def process_module(self, astroid):
-        """ process a module
+        """process a module
 
         the module's content is accessible via astroid.stream
         """
@@ -83,21 +83,19 @@ class ITokenChecker(IChecker):
 
 
 class IAstroidChecker(IChecker):
-    """ interface for checker which prefers receive events according to
+    """interface for checker which prefers receive events according to
     statement type
     """
 
 
 class IReporter(Interface):
-    """ reporter collect messages and display results encapsulated in a layout
-    """
+    """reporter collect messages and display results encapsulated in a layout"""
 
     def handle_message(self, msg):
         """Handle the given message object."""
 
     def display_reports(self, layout):
-        """display results encapsulated in the layout tree
-        """
+        """display results encapsulated in the layout tree"""
 
 
 __all__ = ("IRawChecker", "IAstroidChecker", "ITokenChecker", "IReporter")

@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-03-10 16:46:02
+" -----------------    Date: 2021-06-13 16:51:25
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -685,9 +685,9 @@ let g:snipMate.scope_aliases['wxml']            = 'html,wxml'
 let g:snipMate.scope_aliases['wxss']            = 'css,wxss'
 
 " NERDTree            树形文件浏览器
-let g:NERDTreeShowHidden         = 1           " 显示隐藏文件   [NERDTree]
-let g:NERDTreeShowIgnoredStatus  = 1           " 显示被忽略图标 [NERDTree-Git-Plugin]
-let g:NERDTreeIndicatorMapCustom = {
+let g:NERDTreeShowHidden            = 1        " 显示隐藏文件   [NERDTree]
+let g:NERDTreeGitStatusShowIgnored  = 1        " 显示被忽略图标 [NERDTree-Git-Plugin]
+let g:NERDTreeGitStatusIndicatorMapCustom = {
             \ 'Modified'  : '✹',
             \ 'Staged'    : '✚',
             \ 'Untracked' : '✭',

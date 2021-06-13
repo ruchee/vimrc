@@ -23,13 +23,16 @@ creates the tags it needs on-the-fly in-memory without creating any files.
 * [Vim](http://www.vim.org/) >= 7.3.1058
   or any version of [NeoVim](https://neovim.io/).
 
-* [Exuberant Ctags](http://ctags.sourceforge.net/) >= 5.5,
-  or (**highly recommended**) any version of [Universal
-  Ctags](https://ctags.io) which is a currently maintained fork of Exuberant
-  Ctags with many bugfixes, support for many more formats, and proper Unicode
-  support. Some additional formats can also be handled by other providers such
-  as [jsctags](https://github.com/sergioramos/jsctags),
-  [phpctags](https://github.com/vim-php/phpctags), or others.
+* A ctags implementation: We _highly recommend_ any version of [Universal
+  Ctags](https://ctags.io). It is a maintained fork of Exuberant Ctags with
+  many bugfixes, support for many more formats, and proper Unicode support.
+
+  [Exuberant Ctags](http://ctags.sourceforge.net/) 5.5 or higher works to some
+  degree but will be deprecated eventually.
+
+  Some additional formats can also be handled by other providers such as
+  [jsctags](https://github.com/sergioramos/jsctags) or
+  [phpctags](https://github.com/vim-php/phpctags).
 
 ## Installation
 
@@ -92,6 +95,6 @@ Tagbar is distributed under the terms of the *Vim license*, see the included [LI
 ## Contributors
 
 Tagbar was originally written by [Jan Larres](https://github.com/majutsushi).
-It is actively maintained by [Caleb Maclennan](https://github.com/alerque).
-At least [45 others have contributed](https://github.com/preservim/tagbar/graphs/contributors) features and bug fixes over the years.
+It is actively maintained by [Caleb Maclennan](https://github.com/alerque) and [David Hegland](https://github.com/raven42).
+At least [75 others have contributed](https://github.com/preservim/tagbar/graphs/contributors) features and bug fixes over the years.
 Please document [issues](https://github.com/preservim/tagbar/issues) or submit [pull requests](https://github.com/preservim/tagbar/issues) on Github.

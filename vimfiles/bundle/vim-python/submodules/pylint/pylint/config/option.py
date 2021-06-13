@@ -1,5 +1,5 @@
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 import copy
 import optparse
@@ -63,6 +63,15 @@ def _multiple_choices_validating_option(opt, name, value):
     return _multiple_choice_validator(opt.choices, name, value)
 
 
+def _py_version_validator(_, name, value):
+    if not isinstance(value, tuple):
+        try:
+            value = tuple(int(val) for val in value.split("."))
+        except (ValueError, AttributeError):
+            raise optparse.OptionValueError(f"Invalid format for {name}") from None
+    return value
+
+
 VALIDATORS = {
     "string": utils._unquote,
     "int": int,
@@ -76,6 +85,7 @@ VALIDATORS = {
         opt["choices"], name, value
     ),
     "non_empty_string": _non_empty_string_validator,
+    "py_version": _py_version_validator,
 }
 
 
@@ -89,7 +99,7 @@ def _call_validator(opttype, optdict, option, value):
             return VALIDATORS[opttype](value)
         except Exception as e:
             raise optparse.OptionValueError(
-                "%s value (%r) should be of type %s" % (option, value, opttype)
+                f"{option} value ({value!r}) should be of type {opttype}"
             ) from e
 
 
@@ -114,6 +124,7 @@ class Option(optparse.Option):
         "yn",
         "multiple_choice",
         "non_empty_string",
+        "py_version",
     )
     ATTRS = optparse.Option.ATTRS + ["hide", "level"]
     TYPE_CHECKER = copy.copy(optparse.Option.TYPE_CHECKER)
@@ -123,6 +134,7 @@ class Option(optparse.Option):
     TYPE_CHECKER["yn"] = _yn_validator
     TYPE_CHECKER["multiple_choice"] = _multiple_choices_validating_option
     TYPE_CHECKER["non_empty_string"] = _non_empty_string_validator
+    TYPE_CHECKER["py_version"] = _py_version_validator
 
     def __init__(self, *opts, **attrs):
         optparse.Option.__init__(self, *opts, **attrs)

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+abort_with_help() {
+    echo "usage: $(basename "$0") [-p PREFIX] file.clj"
+    exit 1
+}
+
+PREFIX='report_indent'
+
+while getopts :p: opt; do
+    case "$opt" in
+    p) PREFIX="$OPTARG";;
+    h) abort_with_help;;
+    esac
+done
+shift $((OPTIND-1))
+
+(($# == 1)) || abort_with_help
+
+VIMRC="
+set runtimepath^=$(dirname "$0")/../..
+filetype plugin indent on
+syntax on
+profile start $(echo "${PREFIX}-$(date +%s.%N).log")
+profile! file $(dirname "$0")/../../syntax/clojure.vim
+profile! file $(dirname "$0")/../../indent/clojure.vim
+"
+
+exec vim -N -u <(echo "$VIMRC") \
+    -c 'call feedkeys("gg=G")' \
+    -c 'call feedkeys(":silent quitall!\<CR>")' \
+    "$1"

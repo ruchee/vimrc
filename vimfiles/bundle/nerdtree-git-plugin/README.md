@@ -19,6 +19,10 @@ Plug 'preservim/nerdtree' |
             \ Plug 'Xuyuanp/nerdtree-git-plugin'
 ```
 
+## New project
+
+[Yanil](https://github.com/Xuyuanp/yanil): Another nerdtree like plugin for neovim(>= 0.5.0) only. I'm focusing on this project.
+
 ## FAQ
 
 > Got error message like `Error detected while processing function
@@ -74,13 +78,13 @@ Make sure they are in the right order.
 > How to indicate every single `untracked` file under an `untracked` dir?
 
 ```vim
-let g:NERDTreeGitStatusUntrackedFilesMode = 'all' " a heave feature too. default: normal
+let g:NERDTreeGitStatusUntrackedFilesMode = 'all' " a heavy feature too. default: normal
 ```
 
 > How to set `git` executable file path?
 
 ```vim
-let g:NERDTreeGitStatusGitBinPath = '/your/file/path' " defualt: git (auto find in path)
+let g:NERDTreeGitStatusGitBinPath = '/your/file/path' " default: git (auto find in path)
 ```
 
 > How to show `Clean` indicator?
@@ -96,6 +100,10 @@ let g:NERDTreeGitStatusConcealBrackets = 1 " default: 0
 ```
 
 **NOTICE**: DO NOT enable this feature if you have also installed [vim-devicons](https://github.com/ryanoasis/vim-devicons).
+
+## Shameless Self Promotion
+
+[Yanil](https://github.com/Xuyuanp/yanil): Yet Another Nerdtree In Lua
 
 ## Credits
 

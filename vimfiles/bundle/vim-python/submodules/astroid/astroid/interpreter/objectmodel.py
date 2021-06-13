@@ -1,13 +1,15 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2016-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2016-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2016 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2017 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2017 Calen Pennington <cale@edx.org>
 # Copyright (c) 2018 Ville Skyttä <ville.skytta@iki.fi>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 """
 Data object model, as per https://docs.python.org/3/reference/datamodel.html.
 
@@ -28,15 +30,18 @@ mechanism.
 """
 
 import itertools
-import pprint
 import os
+import pprint
 import types
 from functools import lru_cache
+from typing import Optional
 
 import astroid
 from astroid import context as contextmod
-from astroid import exceptions
-from astroid import node_classes
+from astroid import exceptions, node_classes, util
+
+# Prevents circular imports
+objects = util.lazy_import("objects")
 
 
 IMPL_PREFIX = "attr_"
@@ -324,6 +329,7 @@ class FunctionModel(ObjectModel):
                     doc=func.doc,
                     lineno=func.lineno,
                     col_offset=func.col_offset,
+                    parent=func.parent,
                 )
                 # pylint: disable=no-member
                 new_func.postinit(func.args, func.body, func.decorators, func.returns)
@@ -465,8 +471,7 @@ class ClassModel(ObjectModel):
         thus it might miss a couple of them.
         """
         # pylint: disable=import-outside-toplevel; circular import
-        from astroid import bases
-        from astroid import scoped_nodes
+        from astroid import bases, scoped_nodes
 
         if not self._instance.newstyle:
             raise exceptions.AttributeInferenceError(
@@ -549,7 +554,7 @@ class BoundMethodModel(FunctionModel):
 class GeneratorModel(FunctionModel):
     def __new__(cls, *args, **kwargs):
         # Append the values from the GeneratorType unto this object.
-        ret = super(GeneratorModel, cls).__new__(cls, *args, **kwargs)
+        ret = super().__new__(cls, *args, **kwargs)
         generator = astroid.MANAGER.builtins_module["generator"]
         for name, values in generator.locals.items():
             method = values[0]
@@ -659,9 +664,16 @@ class ImportErrorInstanceModel(ExceptionInstanceModel):
         return node_classes.Const("")
 
 
+class UnicodeDecodeErrorInstanceModel(ExceptionInstanceModel):
+    @property
+    def attr_object(self):
+        return node_classes.Const("")
+
+
 BUILTIN_EXCEPTIONS = {
     "builtins.SyntaxError": SyntaxErrorInstanceModel,
     "builtins.ImportError": ImportErrorInstanceModel,
+    "builtins.UnicodeDecodeError": UnicodeDecodeErrorInstanceModel,
     # These are all similar to OSError in terms of attributes
     "builtins.OSError": OSErrorInstanceModel,
     "builtins.BlockingIOError": OSErrorInstanceModel,
@@ -707,9 +719,6 @@ class DictModel(ObjectModel):
             elems.append(elem)
         obj.postinit(elts=elems)
 
-        # pylint: disable=import-outside-toplevel; circular import
-        from astroid import objects
-
         obj = objects.DictItems(obj)
         return self._generic_dict_attribute(obj, "items")
 
@@ -718,9 +727,6 @@ class DictModel(ObjectModel):
         keys = [key for (key, _) in self._instance.items]
         obj = node_classes.List(parent=self._instance)
         obj.postinit(elts=keys)
-
-        # pylint: disable=import-outside-toplevel; circular import
-        from astroid import objects
 
         obj = objects.DictKeys(obj)
         return self._generic_dict_attribute(obj, "keys")
@@ -731,9 +737,6 @@ class DictModel(ObjectModel):
         values = [value for (_, value) in self._instance.items]
         obj = node_classes.List(parent=self._instance)
         obj.postinit(values)
-
-        # pylint: disable=import-outside-toplevel; circular import
-        from astroid import objects
 
         obj = objects.DictValues(obj)
         return self._generic_dict_attribute(obj, "values")
@@ -784,6 +787,46 @@ class PropertyModel(ObjectModel):
 
         property_accessor = PropertyFuncAccessor(name="fget", parent=self._instance)
         property_accessor.postinit(args=func.args, body=func.body)
+        return property_accessor
+
+    @property
+    def attr_fset(self):
+        from astroid.scoped_nodes import FunctionDef
+
+        func = self._instance
+
+        def find_setter(func: objects.Property) -> Optional[astroid.FunctionDef]:
+            """
+            Given a property, find the corresponding setter function and returns it.
+
+            :param func: property for which the setter has to be found
+            :return: the setter function or None
+            """
+            for target in [
+                t for t in func.parent.get_children() if t.name == func.function.name
+            ]:
+                for dec_name in target.decoratornames():
+                    if dec_name.endswith(func.function.name + ".setter"):
+                        return target
+            return None
+
+        func_setter = find_setter(func)
+        if not func_setter:
+            raise exceptions.InferenceError(
+                f"Unable to find the setter of property {func.function.name}"
+            )
+
+        class PropertyFuncAccessor(FunctionDef):
+            def infer_call_result(self, caller=None, context=None):
+                nonlocal func_setter
+                if caller and len(caller.args) != 2:
+                    raise exceptions.InferenceError(
+                        "fset() needs two arguments", target=self, context=context
+                    )
+                yield from func_setter.infer_call_result(caller=caller, context=context)
+
+        property_accessor = PropertyFuncAccessor(name="fset", parent=self._instance)
+        property_accessor.postinit(args=func_setter.args, body=func_setter.body)
         return property_accessor
 
     @property

@@ -3,5 +3,5 @@
 " Language: TSX (Typescript)
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-autocmd FileType typescript.tsx setlocal commentstring={/*\ %s\ */}
-autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
+autocmd FileType typescriptreact setlocal commentstring={/*\ %s\ */}
+autocmd BufNewFile,BufRead *.tsx set filetype=typescriptreact

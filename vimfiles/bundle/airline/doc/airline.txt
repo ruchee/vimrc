@@ -68,13 +68,17 @@ section  meaning (example)~
   C      filename + read-only flag (`~/.vim/vimrc RO`)
   X      filetype  (`vim`)
   Y      file encoding[fileformat] (`utf-8[unix]`)
+         optionally may contain Byte Order Mark `[BOM]` and missing end of last
+         line `[!EOL]`
   Z      current position in the file
-           percentage % ☰ current line/number of lines ln : column
-           So this: 10% ☰ 10/100 ln : 20   means: >
+           percentage % ln: current line/number of lines ☰ cn: column
+           So this: 10% ln:10/100☰ cn:20
+	   means: >
               10%     - 10 percent
-              ☰ 10    - current line 10
-              /100 ln - of 100 lines
-              : 20    - current column 20
+	      ln:     - line number is
+              10/100☰ - 10 of 100 total lines
+	      cn:     - column number is
+              20      - 20
 <
   [...]  additional sections (warning/errors/statistics)
          from external plugins (e.g. YCM/syntastic/...)
@@ -115,6 +119,10 @@ CONFIGURATION                                        *airline-configuration*
 
 There are a couple configuration values available (shown with their default
 values):
+
+* enable experimental features >
+  " Currently: Enable Vim9 Script implementation
+  let g:airline_experimental = 1
 
 * the separator used on the left side >
   let g:airline_left_sep='>'
@@ -167,7 +175,7 @@ values):
     endif
   endfunction
 <
-* if you want to update your highlights without effecting the airline theme,
+* if you want to update your highlights without affecting the airline theme,
   you can do so using the AirlineAfterTheme autocmd. >
   function! s:update_highlights()
     hi CursorLine ctermbg=none guibg=none
@@ -294,6 +302,9 @@ values):
 * Display a short path in statusline: >
   let g:airline_stl_path_style = 'short'
 >
+* Display a only file name in statusline: >
+  let g:airline_section_c_only_filename = 1
+>
 =============================================================================
 COMMANDS                                                  *airline-commands*
 
@@ -334,6 +345,16 @@ CUSTOMIZATION                                        *airline-customization*
 The following are some unicode symbols for customizing the left/right
 separators, as well as the powerline font glyphs.
 
+Note: Some additional characters like spaces and colons may be included in the
+default. Including them within the symbol definitions rather than outside of
+them allows you to eliminate or otherwise alter them.
+
+Note: Be aware that some of these glyphs are defined as ligatures, so they may
+show up different (usually bigger) if followed by a space. This only happens
+if both the font and terminal implementation used support ligatures. If you
+want to follow a glyph with a space _without_ the alternate ligature being
+rendered, follow it with a non-breaking-space character. 
+
 Note: You must define the dictionary first before setting values. Also, it's
 a good idea to check whether it exists as to avoid accidentally overwriting
 its contents. >
@@ -346,10 +367,12 @@ its contents. >
   let g:airline_left_sep = '▶'
   let g:airline_right_sep = '«'
   let g:airline_right_sep = '◀'
+  let g:airline_symbols.colnr = ' ㏇:'
+  let g:airline_symbols.colnr = ' ℅:'
   let g:airline_symbols.crypt = '🔒'
   let g:airline_symbols.linenr = '☰'
-  let g:airline_symbols.linenr = '␊'
-  let g:airline_symbols.linenr = '␤'
+  let g:airline_symbols.linenr = ' ␊:'
+  let g:airline_symbols.linenr = ' ␤:'
   let g:airline_symbols.linenr = '¶'
   let g:airline_symbols.maxlinenr = ''
   let g:airline_symbols.maxlinenr = '㏑'
@@ -367,9 +390,10 @@ its contents. >
   let g:airline_right_sep = ''
   let g:airline_right_alt_sep = ''
   let g:airline_symbols.branch = ''
+  let g:airline_symbols.colnr = ' :'
   let g:airline_symbols.readonly = ''
-  let g:airline_symbols.linenr = '☰'
-  let g:airline_symbols.maxlinenr = ''
+  let g:airline_symbols.linenr = ' :'
+  let g:airline_symbols.maxlinenr = '☰ '
   let g:airline_symbols.dirty='⚡'
 
   " old vim-powerline symbols
@@ -403,7 +427,7 @@ window.
   let g:airline_section_c       (bufferline or filename, readonly)
   let g:airline_section_gutter  (csv)
   let g:airline_section_x       (tagbar, filetype, virtualenv)
-  let g:airline_section_y       (fileencoding, fileformat)
+  let g:airline_section_y       (fileencoding, fileformat, 'bom', 'eol')
   let g:airline_section_z       (percentage, line number, column number)
   let g:airline_section_error   (ycm_error_count, syntastic-err, eclim,
                                  languageclient_error_count)
@@ -888,6 +912,13 @@ lsp <https://github.com/prabirshrestha/vim-lsp>
 <
 * lsp close_lnum_symbol >
   let airline#extensions#lsp#close_lnum_symbol = ')'
+<
+* lsp progress skip time
+  Suppresses the frequency of status line updates.
+  Prevents heavy operation when using a language server that sends frequent progress notifications. 
+  Set 0 to disable. >
+  g:airline#extensions#lsp#progress_skip_time = 0.3 (default)
+<
 
 -------------------------------------                    *airline-neomake*
 neomake <https://github.com/neomake/neomake>
@@ -999,6 +1030,8 @@ title accordingly.
 <
 -------------------------------------                     *airline-searchcount*
 The searchcount extension supports the searchcount() function in Vim script.
+Note: This is only enabled when 'hls' is on. When you turn off search
+highlighting (e.g. using |:nohls|), it this will be disabled.
 
 * enable/disable searchcount integration >
   let g:airline#extensions#searchcount#enabled = 1
@@ -1117,8 +1150,11 @@ Note: Not displayed if the number of tabs is less than 1
   `buffer_idx_mode` allows 3 different modes to access buffers from the
   tabline. When enabled, numbers will be displayed in the tabline and
   mappings will be exposed to allow you to select a buffer directly.
-  In default mode, when the variable is 1 Up to 11 mappings will be
-  exposed: >
+  In default mode, when the variable is 1 Up to 10 mappings will be
+  exposed. Note: As 10 and 1 have same prefix, we use 0 to replace 10. So,
+  <leader>0 will jump to tenth buffer. Those mappings are not automatically
+  created, vim-airline just exposes those `<Plug>AirlineSeelctTab` keys
+  for you to map to a convenient key >
 
   let g:airline#extensions#tabline#buffer_idx_mode = 1
   nmap <leader>1 <Plug>AirlineSelectTab1
@@ -1130,6 +1166,7 @@ Note: Not displayed if the number of tabs is less than 1
   nmap <leader>7 <Plug>AirlineSelectTab7
   nmap <leader>8 <Plug>AirlineSelectTab8
   nmap <leader>9 <Plug>AirlineSelectTab9
+  nmap <leader>0 <Plug>AirlineSelectTab0
   nmap <leader>- <Plug>AirlineSelectPrevTab
   nmap <leader>+ <Plug>AirlineSelectNextTab
 <
@@ -1310,6 +1347,32 @@ Note: Enabling this extension will modify 'showtabline' and 'guioptions'.
   (neovim specific, only works with buffers and not real tabs, default: 0) >
   let airline#extensions#tabline#middle_click_preserves_windows = 1
 <
+						*airline-tabline-hlgroups*
+When the tabline is enabled, vim-airline exposes the following highlighting
+groups:
+
+  airline_tab:		default highlighting group for the tabline
+  airline_tab_right:	idem, but for the right side of the tabline
+
+  airline_tabsel:	highlighting group of the selected item
+  airline_tabsel_right: idem, but for the right side of the tabline
+  airline_tabmod:       highlighting group for a 'modified' buffer
+  airline_tabmod_right: idem, but on the right side
+  airline_tabmod_unsel: unselected tab with modified buffer
+  airline_tabmod_unsel_right: (unused)
+  airline_tabtype:      label group used by ctrlspace and tabws
+  airline_tabfill:	highlighting group for the filler space
+  airline_tablabel:     highlighting group for the label
+  airline_tablabel_right: highlighting group for the label on the right side
+  airline_tabhid:	hidden buffer
+  airline_tabhid_right: idem, but on the right
+
+-------------------------------------                      *airline-scrollbar*
+
+Displays an Ascii Scrollbar for active windows with a width > 200.
+
+* enable/disable scrollbar integration >
+  let g:airline#extensions#scrollbar#enabled = 1 (default: 0)
 -------------------------------------                        *airline-taboo*
 taboo.vim <https://github.com/gcmt/taboo.vim>
 
@@ -1341,6 +1404,11 @@ tagbar <https://github.com/majutsushi/tagbar>
   let g:airline#extensions#tagbar#flags = 'f'
   let g:airline#extensions#tagbar#flags = 's'
   let g:airline#extensions#tagbar#flags = 'p'
+<
+* configure how to search for the nearest tag (:help tagbar-statusline) >
+  let g:airline#extensions#tagbar#searchmethod = 'nearest-stl' (default)
+  let g:airline#extensions#tagbar#searchmethod = 'nearest'
+  let g:airline#extensions#tagbar#searchmethod = 'scoped-stl'
 <
 -------------------------------------                     *airline-tmuxline*
 tmuxline <https://github.com/edkolev/tmuxline.vim>
@@ -1968,7 +2036,7 @@ Contributions and pull requests are welcome.
 =============================================================================
 LICENSE                                                    *airline-license*
 
-MIT License. Copyright © 2013-2020 Bailey Ling, Christian Brabandt, Mike
+MIT License. Copyright © 2013-2021 Bailey Ling, Christian Brabandt, Mike
 Hartington et al.
 
  vim:tw=78:ts=8:ft=help:norl:

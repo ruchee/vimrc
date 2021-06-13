@@ -7,12 +7,15 @@
 # Copyright (c) 2015 Ionel Cristian Maries <contact@ionelmc.ro>
 # Copyright (c) 2016 Moises Lopez <moylop260@vauxoo.com>
 # Copyright (c) 2017-2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
-# Copyright (c) 2018-2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2018-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2018 ssolanki <sushobhitsolanki@gmail.com>
 # Copyright (c) 2019 Bruno P. Kinoshita <kinow@users.noreply.github.com>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 Frank Harrison <frank@doublethefish.com>
+# Copyright (c) 2021 Matus Valo <matusvalo@users.noreply.github.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """utilities methods and classes for checkers
 
@@ -43,10 +46,12 @@ messages nor reports. XXX not true, emit a 07 report !
 """
 
 from pylint.checkers.base_checker import BaseChecker, BaseTokenChecker
-from pylint.utils import register_plugins
+from pylint.checkers.deprecated import DeprecatedMixin
+from pylint.checkers.mapreduce_checker import MapReduceMixin
+from pylint.utils import diff_string, register_plugins
 
 
-def table_lines_from_stats(stats, _, columns):
+def table_lines_from_stats(stats, old_stats, columns):
     """get values listed in <columns> from <stats> and <old_stats>,
     and return a formated list of values, designed to be given to a
     ureport.Table object
@@ -54,8 +59,14 @@ def table_lines_from_stats(stats, _, columns):
     lines = []
     for m_type in columns:
         new = stats[m_type]
+        old = old_stats.get(m_type)
+        if old is not None:
+            diff_str = diff_string(old, new)
+        else:
+            old, diff_str = "NC", "NC"
         new = "%.3f" % new if isinstance(new, float) else str(new)
-        lines += (m_type.replace("_", " "), new, "NC", "NC")
+        old = "%.3f" % old if isinstance(old, float) else str(old)
+        lines += (m_type.replace("_", " "), new, old, diff_str)
     return lines
 
 
@@ -64,4 +75,11 @@ def initialize(linter):
     register_plugins(linter, __path__[0])
 
 
-__all__ = ("BaseChecker", "BaseTokenChecker", "initialize")
+__all__ = [
+    "BaseChecker",
+    "BaseTokenChecker",
+    "initialize",
+    "MapReduceMixin",
+    "DeprecatedMixin",
+    "register_plugins",
+]

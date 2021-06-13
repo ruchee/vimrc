@@ -1,4 +1,4 @@
-" MIT License. Copyright (c) 2013-2020 Bailey Ling Christian Brabandt et al.
+" MIT License. Copyright (c) 2013-2021 Bailey Ling Christian Brabandt et al.
 " vim: et ts=2 sts=2 sw=2
 
 scriptencoding utf-8
@@ -16,7 +16,7 @@ let s:focusgained_ignore_time = 0
 " TODO: Try to cache winwidth(0) function
 " e.g. store winwidth per window and access that, only update it, if the size
 " actually changed.
-function! airline#util#winwidth(...)
+function! airline#util#winwidth(...) abort
   let nr = get(a:000, 0, 0)
   if get(g:, 'airline_statusline_ontop', 0)
     return &columns
@@ -174,11 +174,15 @@ function! airline#util#has_custom_scm()
 endfunction
 
 function! airline#util#doautocmd(event)
+  if !exists('#airline') && a:event !=? 'AirlineToggledOff'
+    " airline disabled
+    return
+  endif
   exe printf("silent doautocmd %s User %s", s:nomodeline, a:event)
 endfunction
 
 function! airline#util#themes(match)
-  let files = split(globpath(&rtp, 'autoload/airline/themes/'.a:match.'*.vim'), "\n")
+  let files = split(globpath(&rtp, 'autoload/airline/themes/'.a:match.'*.vim', 1), "\n")
   return sort(map(files, 'fnamemodify(v:val, ":t:r")') + ('random' =~ a:match ? ['random'] : []))
 endfunction
 
@@ -208,5 +212,12 @@ function! airline#util#try_focusgained()
   let dt = localtime() - s:focusgained_ignore_time
   let s:focusgained_ignore_time = 0
   return dt >= 1
+endfunction
+
+function! airline#util#has_vim9_script()
+  " Returns true, if Vim is new enough to understand vim9 script
+  return (exists(":def") &&
+    \ v:versionlong >= 8022844 &&
+    \ get(g:, "airline_experimental", 0))
 endfunction
 

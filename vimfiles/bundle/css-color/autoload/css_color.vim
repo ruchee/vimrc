@@ -38,53 +38,94 @@ function! s:hsl2color(h,s,l)
 	return printf( '%02x%02x%02x', rgb[0], rgb[1], rgb[2] )
 endfunction
 
+let s:_1_3 = 1.0/3
+let s:_16_116 = 16.0/116.0
+let s:cos16 = cos(16*(180/atan2(0,-1)))
+let s:sin16 = sin(16*(180/atan2(0,-1)))
+
+function s:rgb2din99(rgb)
+	let [r,g,b] = map( copy(a:rgb), 'v:val > 0.04045 ? pow((v:val + 0.055) / 1.055, 2.4) : v:val / 12.92' )
+
+	let x = r * 0.4124 + g * 0.3576 + b * 0.1805
+	let y = r * 0.2126 + g * 0.7152 + b * 0.0722
+	let z = r * 0.0193 + g * 0.1192 + b * 0.9505
+
+	" Observer 2°, Illuminant D65
+	let x = ( x * 100 ) /  95.0489
+	let z = ( z * 100 ) / 108.8840
+
+	let [x,y,z] = map( [x,y,z], 'v:val > 0.008856 ? pow(v:val, s:_1_3) : 7.787 * v:val + s:_16_116' )
+
+	let [L,a,b] = [ (116 * y) - 16, 500 * (x - y), 200 * (y - z) ]
+
+	let L99 = 105.51 * log(1 + 0.0158 * L)
+
+	let e =        a * s:cos16 + b * s:sin16
+	let f = 0.7 * (b * s:cos16 - a * s:sin16)
+
+	let g = 0.045 * sqrt(e*e + f*f)
+	if g == 0
+		let [a99, b99] = [0.0, 0.0]
+	else
+		let k = log(1 + g) / g
+		let a99 = k * e
+		let b99 = k * f
+	endif
+
+	return [L99, a99, b99]
+endfunction
+
 let s:hex={}
 for i in range(0, 255)
 	let s:hex[ printf( '%02x', i ) ] = i
 endfor
 
+let s:exe=[]
+function! s:flush_exe()
+	if len(s:exe) | exe join( remove( s:exe, 0, -1 ), ' | ' ) | endif
+endfunction
+
 if has('gui_running')
 	function! s:create_highlight(color, is_bright)
-		exe 'hi BG'.a:color 'guibg=#'.a:color 'guifg=#'.( a:is_bright ? '000000' : 'ffffff' )
+		call add( s:exe, 'hi BG'.a:color.' guibg=#'.a:color.' guifg=#'.( a:is_bright ? '000000' : 'ffffff' ) )
 	endfunction
 else
 	" preset 16 vt100 colors
 	let s:xtermcolor = [
-		\ [ 0x00, 0x00, 0x00,  0 ],
-		\ [ 0xCD, 0x00, 0x00,  1 ],
-		\ [ 0x00, 0xCD, 0x00,  2 ],
-		\ [ 0xCD, 0xCD, 0x00,  3 ],
-		\ [ 0x00, 0x00, 0xEE,  4 ],
-		\ [ 0xCD, 0x00, 0xCD,  5 ],
-		\ [ 0x00, 0xCD, 0xCD,  6 ],
-		\ [ 0xE5, 0xE5, 0xE5,  7 ],
-		\ [ 0x7F, 0x7F, 0x7F,  8 ],
-		\ [ 0xFF, 0x00, 0x00,  9 ],
-		\ [ 0x00, 0xFF, 0x00, 10 ],
-		\ [ 0xFF, 0xFF, 0x00, 11 ],
-		\ [ 0x5C, 0x5C, 0xFF, 12 ],
-		\ [ 0xFF, 0x00, 0xFF, 13 ],
-		\ [ 0x00, 0xFF, 0xFF, 14 ],
-		\ [ 0xFF, 0xFF, 0xFF, 15 ]]
-	" grayscale ramp
-	let s:xtermcolor += map(range(24),'repeat([10*v:val+8],3) + [v:val+232]')
+		\ [ 0x00, 0x00, 0x00 ],
+		\ [ 0xCD, 0x00, 0x00 ],
+		\ [ 0x00, 0xCD, 0x00 ],
+		\ [ 0xCD, 0xCD, 0x00 ],
+		\ [ 0x00, 0x00, 0xEE ],
+		\ [ 0xCD, 0x00, 0xCD ],
+		\ [ 0x00, 0xCD, 0xCD ],
+		\ [ 0xE5, 0xE5, 0xE5 ],
+		\ [ 0x7F, 0x7F, 0x7F ],
+		\ [ 0xFF, 0x00, 0x00 ],
+		\ [ 0x00, 0xFF, 0x00 ],
+		\ [ 0xFF, 0xFF, 0x00 ],
+		\ [ 0x5C, 0x5C, 0xFF ],
+		\ [ 0xFF, 0x00, 0xFF ],
+		\ [ 0x00, 0xFF, 0xFF ],
+		\ [ 0xFF, 0xFF, 0xFF ]]
 
 	" the 6 values used in the xterm color cube
 	"                    0    95   135   175   215   255
 	let s:cubergb = [ 0x00, 0x5F, 0x87, 0xAF, 0xD7, 0xFF ]
+	for s:rrr in s:cubergb
+		for s:ggg in s:cubergb
+			for s:bbb in s:cubergb
+				call add( s:xtermcolor, [ s:rrr, s:ggg, s:bbb ] )
+			endfor
+		endfor
+	endfor
 
-	" 0..255 mapped to 0..5 based on the color cube values
-	let s:xvquant = repeat([0],48)
-				\ + repeat([1],68)
-				\ + repeat([2],40)
-				\ + repeat([3],40)
-				\ + repeat([4],40)
-				\ + repeat([5],20)
-	" tweak the mapping for the exact matches (0 and 1 already correct)
-	let s:xvquant[s:cubergb[2]] = 2
-	let s:xvquant[s:cubergb[3]] = 3
-	let s:xvquant[s:cubergb[4]] = 4
-	let s:xvquant[s:cubergb[5]] = 5
+	" grayscale ramp
+	let s:xtermcolor += map( range(24), 'repeat( [10 * v:val + 8], 3 )' )
+
+	for idx in range(len(s:xtermcolor))
+		let s:xtermcolor[idx] = s:rgb2din99( map(s:xtermcolor[idx], 'v:val / 255.0') )
+	endfor
 
 	" selects the nearest xterm color for a rgb value like #FF0000
 	function! s:rgb2xterm(color)
@@ -95,17 +136,14 @@ else
 		let g = s:hex[color[2:3]]
 		let b = s:hex[color[4:5]]
 
-		let vr = s:xvquant[r]
-		let vg = s:xvquant[g]
-		let vb = s:xvquant[b]
-		let cidx = vr * 36 + vg * 6 + vb + 16
-		let ccol = [ s:cubergb[vr], s:cubergb[vg], s:cubergb[vb], cidx ]
+		let [L1,a1,b1] = s:rgb2din99([ r/255.0, g/255.0, b/255.0 ])
 
-		for [tr,tg,tb,idx] in [ ccol ] + s:xtermcolor
-			let dr = tr - r
-			let dg = tg - g
-			let db = tb - b
-			let distance = dr*dr + dg*dg + db*db
+		for idx in range(len(s:xtermcolor))
+			let [L2,a2,b2] = s:xtermcolor[idx]
+			let dL = L1 - L2
+			let da = a1 - a2
+			let db = b1 - b2
+			let distance = dL*dL + da*da + db*db
 			if distance == 0 | return idx | endif
 			if distance > smallest_distance | continue | endif
 			let smallest_distance = distance
@@ -121,10 +159,17 @@ else
 			let color_idx = s:rgb2xterm(a:color)
 			let s:color_idx[a:color] = color_idx
 		endif
-		exe 'hi BG'.a:color 'ctermbg='.color_idx 'ctermfg='.( a:is_bright ? 0 : 15 )
-		\                    'guibg=#'.a:color    'guifg=#'.( a:is_bright ? '000000' : 'ffffff' )
+		call add( s:exe,
+			\   'hi BG'.a:color
+			\ . ' guibg=#' .a:color  .' guifg=#' .( a:is_bright ? '000000' : 'ffffff' )
+			\ . ' ctermbg='.color_idx.' ctermfg='.( a:is_bright ? 0 : 15 )
+			\ )
 	endfunction
 endif
+
+function! s:recreate_highlights()
+	call filter( copy( b:css_color_hi ), 's:create_highlight( v:key, v:val )' )
+endfunction
 
 let s:pattern_color = {}
 let s:color_bright  = {}
@@ -168,7 +213,7 @@ function! s:create_syn_match()
 
 	" iff pattern ends on word character, require word break to match
 	if pattern =~ '\>$' | let pattern .= '\>' | endif
-	exe 'syn match BG'.rgb_color.' /'.escape(pattern, '/').'/ contained containedin=@colorableGroup'
+	call add( s:exe, 'syn match BG'.rgb_color.' /'.escape(pattern, '/').'/ contained containedin=@colorableGroup' )
 
 	return ''
 endfunction
@@ -219,12 +264,14 @@ function! s:parse_screen()
 	let left = max([ leftcol - 15, 0 ])
 	let width = &columns * 4
 	call filter( range( line('w0'), line('w$') ), 'substitute( strpart( getline(v:val), col([v:val, left]), width ), b:css_color_pat, ''\=s:create_syn_match()'', ''g'' )' )
+	call s:flush_exe()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! css_color#reinit()
-	call filter( keys( b:css_color_hi ), 's:create_highlight( v:val, s:color_bright[v:val] )' )
+	call s:recreate_highlights()
+	call s:flush_exe()
 endfunction
 
 function! css_color#enable()
@@ -277,4 +324,13 @@ function! css_color#init(type, keywords, groups)
 		exe 'syntax include syntax/colornames/'.a:keywords.'.vim'
 		call extend( s:color_bright, b:css_color_hi )
 	endif
+endfunction
+
+" utility function for development use
+function! css_color#dump_highlights()
+	call s:recreate_highlights()
+	let cmd = join( sort( remove( s:exe, 0, -1 ) ),  "\n" )
+	let cmd = substitute( cmd, '#......', '\U&', 'g' )
+	let cmd = substitute( cmd, 'ctermbg=\zs\d\+', '\=printf("%-3d",submatch(0))', 'g' )
+	return cmd
 endfunction

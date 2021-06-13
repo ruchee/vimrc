@@ -40,23 +40,23 @@ call s:checkVersion()
 
 " NOTE(bc): varying the binary name and the tail of the import path does not yet work in module aware mode.
 let s:packages = {
-      \ 'asmfmt':        ['github.com/klauspost/asmfmt/cmd/asmfmt@master'],
-      \ 'dlv':           ['github.com/go-delve/delve/cmd/dlv@master'],
-      \ 'errcheck':      ['github.com/kisielk/errcheck@master'],
+      \ 'asmfmt':        ['github.com/klauspost/asmfmt/cmd/asmfmt@latest'],
+      \ 'dlv':           ['github.com/go-delve/delve/cmd/dlv@latest'],
+      \ 'errcheck':      ['github.com/kisielk/errcheck@latest'],
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct@master'],
-      \ 'godef':         ['github.com/rogpeppe/godef@master'],
+      \ 'godef':         ['github.com/rogpeppe/godef@latest'],
       \ 'goimports':     ['golang.org/x/tools/cmd/goimports@master'],
       \ 'golint':        ['golang.org/x/lint/golint@master'],
       \ 'gopls':         ['golang.org/x/tools/gopls@latest', {}, {'after': function('go#lsp#Restart', [])}],
-      \ 'golangci-lint': ['github.com/golangci/golangci-lint/cmd/golangci-lint@master'],
+      \ 'golangci-lint': ['github.com/golangci/golangci-lint/cmd/golangci-lint@latest'],
       \ 'staticcheck':   ['honnef.co/go/tools/cmd/staticcheck@latest'],
-      \ 'gomodifytags':  ['github.com/fatih/gomodifytags@master'],
+      \ 'gomodifytags':  ['github.com/fatih/gomodifytags@latest'],
       \ 'gorename':      ['golang.org/x/tools/cmd/gorename@master'],
       \ 'gotags':        ['github.com/jstemmer/gotags@master'],
       \ 'guru':          ['golang.org/x/tools/cmd/guru@master'],
       \ 'impl':          ['github.com/josharian/impl@master'],
       \ 'keyify':        ['honnef.co/go/tools/cmd/keyify@master'],
-      \ 'motion':        ['github.com/fatih/motion@master'],
+      \ 'motion':        ['github.com/fatih/motion@latest'],
       \ 'iferr':         ['github.com/koron/iferr@master'],
 \ }
 
@@ -132,6 +132,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   let l:oldmore = &more
   let &more = 0
 
+  let Restore_modules = go#util#SetEnv('GO111MODULE', 'on')
   for [l:binary, l:pkg] in items(l:packages)
     let l:importPath = l:pkg[0]
 
@@ -158,7 +159,6 @@ function! s:GoInstallBinaries(updateBinaries, ...)
       endif
 
       if l:importPath =~ "@"
-        let Restore_modules = go#util#SetEnv('GO111MODULE', 'on')
         let l:tmpdir = go#util#tempdir('vim-go')
         try
           let l:dir = go#util#Chdir(l:tmpdir)
@@ -179,34 +179,6 @@ function! s:GoInstallBinaries(updateBinaries, ...)
         finally
           call go#util#Chdir(l:dir)
         endtry
-      else
-        let l:get_cmd = copy(l:get_base_cmd)
-        let l:get_cmd += ['-d']
-        if get(g:, "go_get_update", 1) != 0
-          let l:get_cmd += ['-u']
-        endif
-
-        let Restore_modules = go#util#SetEnv('GO111MODULE', 'off')
-
-        " first download the binary
-        let [l:out, l:err] = go#util#Exec(l:get_cmd + [l:importPath])
-        if l:err
-          call go#util#EchoError(printf('Error downloading %s: %s', l:importPath, l:out))
-        endif
-
-        " and then build and install it
-        let l:build_cmd = ['go', 'build']
-        if len(l:pkg) > 1 && get(l:pkg[1], l:platform, []) isnot []
-          let l:build_cmd += get(l:pkg[1], l:platform, [])
-        endif
-        let l:build_cmd += ['-o', printf('%s%s%s', go_bin_path, go#util#PathSep(), bin), l:importPath]
-
-        let [l:out, l:err] = go#util#Exec(l:build_cmd)
-        if l:err
-          call go#util#EchoError(printf('Error installing %s: %s', l:importPath, l:out))
-        endif
-
-        call call(Restore_modules, [])
       endif
 
       if len(l:pkg) > 2
@@ -216,6 +188,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   endfor
 
   " restore back!
+  call call(Restore_modules, [])
   call call(Restore_path, [])
   call call(Restore_gobin, [])
   call call(Restore_goarch, [])

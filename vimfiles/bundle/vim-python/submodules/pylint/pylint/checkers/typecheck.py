@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2006-2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2009 James Lingard <jchl@aristanetworks.com>
 # Copyright (c) 2012-2014 Google, Inc.
@@ -17,7 +16,7 @@
 # Copyright (c) 2016 Jürgen Hermann <jh@web.de>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2016 Filipe Brandenburger <filbranden@google.com>
-# Copyright (c) 2017-2018 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2017-2018, 2020 hippo91 <guillaume.peillex@gmail.com>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2017 Derek Gustafson <degustaf@gmail.com>
 # Copyright (c) 2017 Ville Skyttä <ville.skytta@iki.fi>
@@ -30,20 +29,25 @@
 # Copyright (c) 2018 Konstantin <Github@pheanex.de>
 # Copyright (c) 2018 Justin Li <justinnhli@users.noreply.github.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Andy Palmer <25123779+ninezerozeronine@users.noreply.github.com>
-# Copyright (c) 2019 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 mattlbeck <17108752+mattlbeck@users.noreply.github.com>
 # Copyright (c) 2019 Martin Vielsmaier <martin.vielsmaier@gmail.com>
 # Copyright (c) 2019 Santiago Castro <bryant@montevideo.com.uy>
 # Copyright (c) 2019 yory8 <39745367+yory8@users.noreply.github.com>
 # Copyright (c) 2019 Federico Bond <federicobond@gmail.com>
 # Copyright (c) 2019 Pascal Corpet <pcorpet@users.noreply.github.com>
+# Copyright (c) 2020 Peter Kolbus <peter.kolbus@gmail.com>
+# Copyright (c) 2020 Julien Palard <julien@palard.fr>
 # Copyright (c) 2020 Ram Rachum <ram@rachum.com>
 # Copyright (c) 2020 Anthony Sottile <asottile@umich.edu>
 # Copyright (c) 2020 Anubhav <35621759+anubh-v@users.noreply.github.com>
+# Copyright (c) 2021 Marc Mueller <30130371+cdce8p@users.noreply.github.com>
+# Copyright (c) 2021 Jens H. Nielsen <Jens.Nielsen@microsoft.com>
+# Copyright (c) 2021 Ikraduya Edian <ikraduya@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """try to find more bugs in the code using astroid inference capabilities
 """
@@ -60,13 +64,9 @@ import types
 from collections import deque
 from collections.abc import Sequence
 from functools import singledispatch
+from typing import Pattern, Tuple
 
 import astroid
-import astroid.arguments
-import astroid.context
-import astroid.nodes
-from astroid import bases, decorators, exceptions, modutils, objects
-from astroid.interpreter import dunder_lookup
 
 from pylint.checkers import BaseChecker, utils
 from pylint.checkers.utils import (
@@ -75,11 +75,13 @@ from pylint.checkers.utils import (
     decorated_with_property,
     has_known_bases,
     is_builtin_object,
+    is_classdef_type,
     is_comprehension,
     is_inside_abstract_class,
     is_iterable,
     is_mapping,
     is_overload_stub,
+    is_postponed_evaluation_enabled,
     is_super,
     node_ignores_exception,
     safe_infer,
@@ -88,6 +90,7 @@ from pylint.checkers.utils import (
     supports_membership_test,
     supports_setitem,
 )
+from pylint.constants import PY310_PLUS
 from pylint.interfaces import INFERENCE, IAstroidChecker
 from pylint.utils import get_global_option
 
@@ -95,6 +98,11 @@ BUILTINS = builtins.__name__
 STR_FORMAT = {"%s.str.format" % BUILTINS}
 ASYNCIO_COROUTINE = "asyncio.coroutines.coroutine"
 BUILTIN_TUPLE = "builtins.tuple"
+TYPE_ANNOTATION_NODES_TYPES = (
+    astroid.AnnAssign,
+    astroid.Arguments,
+    astroid.FunctionDef,
+)
 
 
 def _unflatten(iterable):
@@ -150,7 +158,7 @@ def _is_owner_ignored(owner, attrname, ignored_classes, ignored_modules):
             if not current_module:
                 current_module = part
             else:
-                current_module += ".{}".format(part)
+                current_module += f".{part}"
             if current_module in ignored_modules:
                 return True
 
@@ -236,13 +244,13 @@ def _missing_member_hint(owner, attrname, distance_threshold, max_choices):
         # No similar name.
         return ""
 
-    names = list(map(repr, names))
+    names = [repr(name) for name in names]
     if len(names) == 1:
         names = ", ".join(names)
     else:
         names = "one of {} or {}".format(", ".join(names[:-1]), names[-1])
 
-    return "; maybe {}?".format(names)
+    return f"; maybe {names}?"
 
 
 MSGS = {
@@ -254,7 +262,7 @@ MSGS = {
     ),
     "I1101": (
         "%s %r has no %r member%s, but source is unavailable. Consider "
-        "adding this module to extension-pkg-whitelist if you want "
+        "adding this module to extension-pkg-allow-list if you want "
         "to perform analysis based on run-time introspection of living objects.",
         "c-extension-no-member",
         "Used when a variable is accessed for non-existent member of C "
@@ -458,7 +466,7 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
             # invoked at this point.
             try:
                 metaclass = owner.metaclass()
-            except exceptions.MroError:
+            except astroid.MroError:
                 return False
             if metaclass:
                 return metaclass.qname() == "enum.EnumMeta"
@@ -468,23 +476,18 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
 
         # Exclude typed annotations, since these might actually exist
         # at some point during the runtime of the program.
-        attribute = owner.locals.get(node.attrname, [None])[0]
-        if (
-            attribute
-            and isinstance(attribute, astroid.AssignName)
-            and isinstance(attribute.parent, astroid.AnnAssign)
-        ):
+        if utils.is_attribute_typed_annotation(owner, node.attrname):
             return False
-    if isinstance(owner, objects.Super):
+    if isinstance(owner, astroid.objects.Super):
         # Verify if we are dealing with an invalid Super object.
         # If it is invalid, then there's no point in checking that
         # it has the required attribute. Also, don't fail if the
         # MRO is invalid.
         try:
             owner.super_mro()
-        except (exceptions.MroError, exceptions.SuperError):
+        except (astroid.MroError, astroid.SuperError):
             return False
-        if not all(map(has_known_bases, owner.type.mro())):
+        if not all(has_known_bases(base) for base in owner.type.mro()):
             return False
     if isinstance(owner, astroid.Module):
         try:
@@ -500,6 +503,17 @@ def _emit_no_member(node, owner, owner_name, ignored_mixins=True, ignored_none=T
                 return False
         except astroid.NotFoundError:
             return True
+    if (
+        owner.parent
+        and isinstance(owner.parent, astroid.ClassDef)
+        and owner.parent.name == "EnumMeta"
+        and owner_name == "__members__"
+        and node.attrname in ["items", "values", "keys"]
+    ):
+        # Avoid false positive on Enum.__members__.{items(), values, keys}
+        # See https://github.com/PyCQA/pylint/issues/4123
+        return False
+
     return True
 
 
@@ -527,7 +541,7 @@ def _determine_callable(callable_obj):
         try:
             # Use the last definition of __new__.
             new = callable_obj.local_attr("__new__")[-1]
-        except exceptions.NotFoundError:
+        except astroid.NotFoundError:
             new = None
 
         from_object = new and new.parent.scope().name == "object"
@@ -537,7 +551,7 @@ def _determine_callable(callable_obj):
             try:
                 # Use the last definition of __init__.
                 callable_obj = callable_obj.local_attr("__init__")[-1]
-            except exceptions.NotFoundError as e:
+            except astroid.NotFoundError as e:
                 # do nothing, covered by no-init.
                 raise ValueError from e
         else:
@@ -686,7 +700,7 @@ def _infer_from_metaclass_constructor(cls, func):
 
 def _is_c_extension(module_node):
     return (
-        not modutils.is_standard_module(module_node.name)
+        not astroid.modutils.is_standard_module(module_node.name)
         and not module_node.fully_defined()
     )
 
@@ -707,8 +721,7 @@ def _is_invalid_isinstance_type(arg):
 
 
 class TypeChecker(BaseChecker):
-    """try to find bugs in the code using type inference
-    """
+    """try to find bugs in the code using type inference"""
 
     __implements__ = (IAstroidChecker,)
 
@@ -849,21 +862,24 @@ accessed. Python regular expressions are accepted.",
         ),
     )
 
-    @decorators.cachedproperty
+    @astroid.decorators.cachedproperty
     def _suggestion_mode(self):
         return get_global_option(self, "suggestion-mode", default=True)
 
-    def open(self):
-        # do this in open since config not fully initialized in __init__
+    @astroid.decorators.cachedproperty
+    def _compiled_generated_members(self) -> Tuple[Pattern, ...]:
+        # do this lazily since config not fully initialized in __init__
         # generated_members may contain regular expressions
         # (surrounded by quote `"` and followed by a comma `,`)
         # REQUEST,aq_parent,"[a-zA-Z]+_set{1,2}"' =>
         # ('REQUEST', 'aq_parent', '[a-zA-Z]+_set{1,2}')
-        if isinstance(self.config.generated_members, str):
-            gen = shlex.shlex(self.config.generated_members)
+        generated_members = self.config.generated_members
+        if isinstance(generated_members, str):
+            gen = shlex.shlex(generated_members)
             gen.whitespace += ","
             gen.wordchars += r"[]-+\.*?()|"
-            self.config.generated_members = tuple(tok.strip('"') for tok in gen)
+            generated_members = tuple(tok.strip('"') for tok in gen)
+        return tuple(re.compile(exp) for exp in generated_members)
 
     @check_messages("keyword-arg-before-vararg")
     def visit_functiondef(self, node):
@@ -917,16 +933,16 @@ accessed. Python regular expressions are accepted.",
 
         function/method, super call and metaclasses are ignored
         """
-        for pattern in self.config.generated_members:
-            # attribute is marked as generated, stop here
-            if re.match(pattern, node.attrname):
-                return
-            if re.match(pattern, node.as_string()):
-                return
+        if any(
+            pattern.match(name)
+            for name in (node.attrname, node.as_string())
+            for pattern in self._compiled_generated_members
+        ):
+            return
 
         try:
             inferred = list(node.expr.infer())
-        except exceptions.InferenceError:
+        except astroid.InferenceError:
             return
 
         # list of (node, nodename) which are missing the attribute
@@ -953,6 +969,12 @@ accessed. Python regular expressions are accepted.",
             ):
                 continue
 
+            qualname = f"{owner.pytype()}.{node.attrname}"
+            if any(
+                pattern.match(qualname) for pattern in self._compiled_generated_members
+            ):
+                return
+
             try:
                 if not [
                     n
@@ -963,7 +985,9 @@ accessed. Python regular expressions are accepted.",
                     continue
             except AttributeError:
                 continue
-            except exceptions.NotFoundError:
+            except astroid.DuplicateBasesError:
+                continue
+            except astroid.NotFoundError:
                 # This can't be moved before the actual .getattr call,
                 # because there can be more values inferred and we are
                 # stopping after the first one which has the attribute in question.
@@ -1134,7 +1158,7 @@ accessed. Python regular expressions are accepted.",
 
         try:
             attrs = klass._proxied.getattr(node.func.attrname)
-        except exceptions.NotFoundError:
+        except astroid.NotFoundError:
             return
 
         for attr in attrs:
@@ -1447,17 +1471,16 @@ accessed. Python regular expressions are accepted.",
         # type. This way we catch subclasses of sequence types but skip classes
         # that override __getitem__ and which may allow non-integer indices.
         try:
-            methods = dunder_lookup.lookup(parent_type, methodname)
+            methods = astroid.interpreter.dunder_lookup.lookup(parent_type, methodname)
             if methods is astroid.Uninferable:
                 return None
             itemmethod = methods[0]
         except (
-            exceptions.NotFoundError,
-            exceptions.AttributeInferenceError,
+            astroid.NotFoundError,
+            astroid.AttributeInferenceError,
             IndexError,
         ):
             return None
-
         if (
             not isinstance(itemmethod, astroid.FunctionDef)
             or itemmethod.root().name != BUILTINS
@@ -1486,7 +1509,7 @@ accessed. Python regular expressions are accepted.",
             try:
                 index_type.getattr("__index__")
                 return None
-            except exceptions.NotFoundError:
+            except astroid.NotFoundError:
                 pass
         elif isinstance(index_type, astroid.Slice):
             # A slice can be present
@@ -1530,7 +1553,7 @@ accessed. Python regular expressions are accepted.",
                 try:
                     index_type.getattr("__index__")
                     return
-                except exceptions.NotFoundError:
+                except astroid.NotFoundError:
                     pass
             invalid_slices += 1
 
@@ -1568,7 +1591,7 @@ accessed. Python regular expressions are accepted.",
             if inferred is None or inferred is astroid.Uninferable:
                 continue
 
-            if isinstance(inferred, bases.Generator):
+            if isinstance(inferred, astroid.bases.Generator):
                 # Check if we are dealing with a function decorated
                 # with contextlib.contextmanager.
                 if decorated_with(
@@ -1607,7 +1630,7 @@ accessed. Python regular expressions are accepted.",
                 try:
                     inferred.getattr("__enter__")
                     inferred.getattr("__exit__")
-                except exceptions.NotFoundError:
+                except astroid.NotFoundError:
                     if isinstance(inferred, astroid.Instance):
                         # If we do not know the bases of this class,
                         # just skip it.
@@ -1629,6 +1652,61 @@ accessed. Python regular expressions are accepted.",
         for error in node.type_errors():
             # Let the error customize its output.
             self.add_message("invalid-unary-operand-type", args=str(error), node=node)
+
+    @check_messages("unsupported-binary-operation")
+    def visit_binop(self, node: astroid.BinOp):
+        if node.op == "|":
+            self._detect_unsupported_alternative_union_syntax(node)
+
+    def _detect_unsupported_alternative_union_syntax(self, node: astroid.BinOp) -> None:
+        """Detect if unsupported alternative Union syntax (PEP 604) was used."""
+        if PY310_PLUS:  # 310+ supports the new syntax
+            return
+
+        if isinstance(
+            node.parent, TYPE_ANNOTATION_NODES_TYPES
+        ) and not is_postponed_evaluation_enabled(node):
+            # Use in type annotations only allowed if
+            # postponed evaluation is enabled.
+            self._check_unsupported_alternative_union_syntax(node)
+
+        if isinstance(
+            node.parent,
+            (
+                astroid.Assign,
+                astroid.Call,
+                astroid.Keyword,
+                astroid.Dict,
+                astroid.Tuple,
+                astroid.Set,
+                astroid.List,
+                astroid.BinOp,
+            ),
+        ):
+            # Check other contexts the syntax might appear, but are invalid.
+            # Make sure to filter context if postponed evaluation is enabled
+            # and parent is allowed node type.
+            allowed_nested_syntax = False
+            if is_postponed_evaluation_enabled(node):
+                parent_node = node.parent
+                while True:
+                    if isinstance(parent_node, TYPE_ANNOTATION_NODES_TYPES):
+                        allowed_nested_syntax = True
+                        break
+                    parent_node = parent_node.parent
+                    if isinstance(parent_node, astroid.Module):
+                        break
+            if not allowed_nested_syntax:
+                self._check_unsupported_alternative_union_syntax(node)
+
+    def _check_unsupported_alternative_union_syntax(self, node: astroid.BinOp) -> None:
+        """Check if left or right node is of type `type`."""
+        msg = "unsupported operand type(s) for |"
+        for n in (node.left, node.right):
+            n = astroid.helpers.object_type(n)
+            if isinstance(n, astroid.ClassDef) and is_classdef_type(n):
+                self.add_message("unsupported-binary-operation", args=msg, node=node)
+                break
 
     @check_messages("unsupported-binary-operation")
     def _visit_binop(self, node):
@@ -1721,10 +1799,19 @@ accessed. Python regular expressions are accepted.",
             return
 
         inferred = safe_infer(node.value)
+
         if inferred is None or inferred is astroid.Uninferable:
             return
 
-        if not supported_protocol(inferred):
+        if getattr(inferred, "decorators", None):
+            first_decorator = astroid.helpers.safe_infer(inferred.decorators.nodes[0])
+            if isinstance(first_decorator, astroid.ClassDef):
+                inferred = first_decorator.instantiate_class()
+            else:
+                return  # It would be better to handle function
+                # decorators, but let's start slow.
+
+        if not supported_protocol(inferred, node):
             self.add_message(msg, args=node.value.as_string(), node=node.value)
 
     @check_messages("dict-items-missing-iter")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) 2009-2011, 2014 LOGILAB S.A. (Paris, FRANCE) <contact@logilab.fr>
 # Copyright (c) 2012 FELD Boris <lothiraldan@gmail.com>
 # Copyright (c) 2013-2014 Google, Inc.
@@ -16,12 +15,14 @@
 # Copyright (c) 2018, 2020 Bryce Guinta <bryce.guinta@protonmail.com>
 # Copyright (c) 2018 Bryce Guinta <bryce.paul.guinta@gmail.com>
 # Copyright (c) 2018, 2020 Anthony Sottile <asottile@umich.edu>
-# Copyright (c) 2019-2020 Pierre Sassoulas <pierre.sassoulas@gmail.com>
+# Copyright (c) 2019-2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 # Copyright (c) 2019 Hugo van Kemenade <hugovk@users.noreply.github.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2021 Andreas Finkler <andi.finkler@gmail.com>
 
 # Licensed under the GPL: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-# For details: https://github.com/PyCQA/pylint/blob/master/COPYING
+# For details: https://github.com/PyCQA/pylint/blob/master/LICENSE
 
 """Check format checker helper functions"""
 
@@ -252,7 +253,9 @@ def test_disable_global_option_end_of_line():
     Test for issue with disabling tokenizer messages
     that extend beyond the scope of the ast tokens
     """
-    file_ = tempfile.NamedTemporaryFile("w", delete=False)
+    file_ = tempfile.NamedTemporaryFile(  # pylint: disable=consider-using-with
+        "w", delete=False
+    )
     with file_:
         file_.write(
             """

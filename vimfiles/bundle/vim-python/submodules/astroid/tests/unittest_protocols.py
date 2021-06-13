@@ -1,27 +1,25 @@
-# -*- coding: utf-8 -*-
-# Copyright (c) 2015-2019 Claudiu Popa <pcmanticore@gmail.com>
+# Copyright (c) 2015-2020 Claudiu Popa <pcmanticore@gmail.com>
 # Copyright (c) 2015-2016 Ceridwen <ceridwenv@gmail.com>
 # Copyright (c) 2016 Jakub Wilk <jwilk@jwilk.net>
 # Copyright (c) 2017 Łukasz Rogalski <rogalski.91@gmail.com>
 # Copyright (c) 2018 Nick Drozd <nicholasdrozd@gmail.com>
 # Copyright (c) 2019 Ashley Whetter <ashley@awhetter.co.uk>
+# Copyright (c) 2020-2021 hippo91 <guillaume.peillex@gmail.com>
+# Copyright (c) 2020 David Gilman <davidgilman1@gmail.com>
+# Copyright (c) 2021 Pierre Sassoulas <pierre.sassoulas@gmail.com>
 
 # Licensed under the LGPL: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-# For details: https://github.com/PyCQA/astroid/blob/master/COPYING.LESSER
+# For details: https://github.com/PyCQA/astroid/blob/master/LICENSE
 
 
 import contextlib
+import sys
 import unittest
 
 import pytest
-import sys
 
 import astroid
-from astroid import extract_node
-from astroid.test_utils import require_version
-from astroid import InferenceError
-from astroid import nodes
-from astroid import util
+from astroid import InferenceError, extract_node, nodes, util
 from astroid.node_classes import AssignName, Const, Name, Starred
 
 
@@ -67,7 +65,6 @@ class ProtocolTests(unittest.TestCase):
         for2_assnode = next(assign_stmts[1].nodes_of_class(AssignName))
         self.assertRaises(InferenceError, list, for2_assnode.assigned_stmts())
 
-    @require_version(minver="3.0")
     def test_assigned_stmts_starred_for(self):
         assign_stmts = extract_node(
             """
@@ -82,7 +79,7 @@ class ProtocolTests(unittest.TestCase):
         assert assigned.as_string() == "[1, 2]"
 
     def _get_starred_stmts(self, code):
-        assign_stmt = extract_node("{} #@".format(code))
+        assign_stmt = extract_node(f"{code} #@")
         starred = next(assign_stmt.nodes_of_class(Starred))
         return next(starred.assigned_stmts())
 
@@ -97,11 +94,10 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(expected, stmts)
 
     def _helper_starred_inference_error(self, code):
-        assign_stmt = extract_node("{} #@".format(code))
+        assign_stmt = extract_node(f"{code} #@")
         starred = next(assign_stmt.nodes_of_class(Starred))
         self.assertRaises(InferenceError, list, starred.assigned_stmts())
 
-    @require_version(minver="3.0")
     def test_assigned_stmts_starred_assnames(self):
         self._helper_starred_expected_const("a, *b = (1, 2, 3, 4) #@", [2, 3, 4])
         self._helper_starred_expected_const("*a, b = (1, 2, 3) #@", [1, 2])
@@ -110,7 +106,6 @@ class ProtocolTests(unittest.TestCase):
         self._helper_starred_expected_const("*b, a = (1, 2) #@", [1])
         self._helper_starred_expected_const("[*b] = (1, 2) #@", [1, 2])
 
-    @require_version(minver="3.0")
     def test_assigned_stmts_starred_yes(self):
         # Not something iterable and known
         self._helper_starred_expected("a, *b = range(3) #@", util.Uninferable)
@@ -128,7 +123,6 @@ class ProtocolTests(unittest.TestCase):
             "a, (*b, c), d = (1, (2, 3, 4), 5) #@", util.Uninferable
         )
 
-    @require_version(minver="3.0")
     def test_assign_stmts_starred_fails(self):
         # Too many starred
         self._helper_starred_inference_error("a, *b, *c = (1, 2, 3) #@")
@@ -159,7 +153,6 @@ class ProtocolTests(unittest.TestCase):
         assigned = list(simple_mul_assnode_2.assigned_stmts())
         self.assertNameNodesEqual(["c"], assigned)
 
-    @require_version(minver="3.6")
     def test_assigned_stmts_annassignments(self):
         annassign_stmts = extract_node(
             """
