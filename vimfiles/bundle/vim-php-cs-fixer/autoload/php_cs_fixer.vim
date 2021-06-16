@@ -54,7 +54,7 @@ if exists('g:php_cs_fixer_cache')
 endif
 "}}}
 
-fun! fix(path, dry_run)
+fun! php_cs_fixer#fix(path, dry_run)
 
     if !executable('php-cs-fixer')
       if !filereadable(expand(g:php_cs_fixer_path))
