@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-06-13 16:51:25
+" -----------------    Date: 2021-08-09 13:34:19
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -309,7 +309,7 @@ if g:isWIN
     set guifont=Monaco:h11
 elseif g:isMAC
     colorscheme molokai
-    set guifont=Monaco:h14
+    set guifont=Monaco:h16
 else
     colorscheme molokai
     set guifont=Monaco\ 11
