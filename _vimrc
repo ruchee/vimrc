@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-08-09 13:34:19
+" -----------------    Date: 2021-09-05 22:24:09
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -362,7 +362,7 @@ set fileformats=unix,mac,dos
 if g:isWIN
     source $VIMRUNTIME/delmenu.vim
     source $VIMRUNTIME/menu.vim
-    language messages zh_CN.utf-8
+    " language messages zh_CN.utf-8
 endif
 
 
