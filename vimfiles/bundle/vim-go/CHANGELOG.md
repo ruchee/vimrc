@@ -20,6 +20,18 @@ IMPROVEMENTS:
   [[GH-3244]](https://github.com/fatih/vim-go/pull/3244)
 * Install all tools in module aware mode in preparation for Go 1.17 release.
   [[GH-3226]](https://github.com/fatih/vim-go/pull/3226)
+* Add `g:go_doc_balloon` to allow godoc to be displayed in hover balloons.
+  [[GH-3252]](https://github.com/fatih/vim-go/pull/3252)
+* Default to using `revive` in place of `golint`.
+  [[GH-3248]](https://github.com/fatih/vim-go/pull/3248)
+* Teach `:GoDebugPrint` to show function call return values.
+  [[GH-3256]](https://github.com/fatih/vim-go/pull/3256)
+* Do not enable keyify unless in GOPATH.
+  [[GH-3095]](https://github.com/fatih/vim-go/pull/3095)
+* Show LSP messages to users.
+  [[GH-3058]](https://github.com/fatih/vim-go/pull/3058)
+* Check omnifunc's value before executing actions on CompletedDone event.
+  [[GH-3274]](https://github.com/fatih/vim-go/pull/3274)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
@@ -27,7 +39,11 @@ BUG FIXES:
 * Fix applying text edits from gopls.
   [[GH-3231]](https://github.com/fatih/vim-go/pull/3231)
 * Apply arguments to `:GoCoverageBrowser`.
-  [[GH-4031]](https://github.com/fatih/vim-go/pull/4031)
+  [[GH-3240]](https://github.com/fatih/vim-go/pull/3240)
+* Fix `:GoFillStruct` when `g:go_fillstruct_mode` is `gopls`.
+  [[GH-3279]](https://github.com/fatih/vim-go/pull/3279)
+* Fix example in `g:go_metalinter_enabled` documentation.
+  [[GH-3291]](https://github.com/fatih/vim-go/pull/3291)
 
 ## v1.25 - (April 18, 2021)
 
