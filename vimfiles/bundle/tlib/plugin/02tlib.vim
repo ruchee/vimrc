@@ -74,7 +74,7 @@ command! -nargs=1 -complete=command TBrowseOutput call tlib#cmd#BrowseOutput(<q-
 "
 " EXAMPLES: >
 "   TBrowseScriptnames 
-command! -nargs=0 -complete=command TBrowseScriptnames call tlib#cmd#TBrowseScriptnames()
+command! -nargs=0 TBrowseScriptnames call tlib#cmd#TBrowseScriptnames()
 
 
 " :display: :Texecqfl CMD
