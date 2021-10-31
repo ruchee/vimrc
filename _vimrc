@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-09-05 22:24:09
+" -----------------    Date: 2021-11-01 01:41:44
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -342,6 +342,7 @@ set expandtab                " 将 Tab 自动转化成空格 [需要输入真正
 "set showmatch               " 显示括号配对情况
 set splitbelow               " :sp  切分窗口显示在下侧
 set splitright               " :vsp 切分窗口显示在右侧
+set shell=bash               " Terminal 默认使用 Bash
 
 " 使用 vimdiff 时，长行自动换行
 autocmd FilterWritePre * if &diff | setlocal wrap< | endif
