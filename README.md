@@ -3,7 +3,7 @@
 ----
 #### macOS
 
-1. `brew cask install macvim`
+1. `brew install --cask macvim`
 2. `brew install ctags git`
 3. 删除个人主目录下的 .vim 文件夹和 .vimrc 文件（如果存在的话） [ 命令为 `rm -rf ~/.vim ~/.vimrc` ]
 4. 使用 Git 下载本项目，然后将项目的子目录拷贝到个人主目录下，并将 vimfiles、_vimrc 分别重命名为 .vim、.vimrc [ 命令为 `git clone https://github.com/ruchee/vimrc.git ~/vimrc`、`mv ~/vimrc/vimfiles ~/.vim`、`mv ~/vimrc/_vimrc ~/.vimrc` ]
@@ -48,7 +48,7 @@
 1. 如出现快捷键不响应的情况，请检查你是否开启了其他软件（比如 金山词霸 等），某些软件的快捷键有可能和 Vim 相冲突，只需修改或禁用这些软件的快捷键即可
 2. 本配置默认显示的是相对行号，如不习惯，可注释掉配置中的 set relativenumber 一项，以使用绝对行号
 3. 如果条件允许，最好用 universal-ctags 替代老旧的 ctags
-4. 部分插件需要脚本语言的支持，如果条件允许，请安装 Lua、PHP7、Python3、Ruby 等语言的运行环境
+4. 部分插件需要脚本语言的支持，如果条件允许，请安装 Lua、PHP、Python3、Ruby 等语言的运行环境
 5. 本配置集成了 vim-sync 插件，可以和远程服务器相互传输文件，使用此功能需要先配置项目的 .sync，详情请参考 [https://github.com/eshion/vim-sync/issues/10](https://github.com/eshion/vim-sync/issues/10)
 6. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
 
@@ -62,7 +62,7 @@
 4. 以后编辑 C/C++ 源文件时，键入一小部分字符，然后按 Ctrl+P 即可拥有简单的 C/C++ 的代码补全
 5. 将光标移到某个函数名上，按 Ctrl+]，Vim 将自动跳转到该函数的定义，按 Ctrl+T 可返回跳转之前的位置
 
-以上只是 ctags 简单的用法，更专业的介绍请 Google，另有更为强大的补全利器 [YouCompleteMe](https://github.com/Valloric/YouCompleteMe) 等你探索（因为安装需要编译，考虑到跨平台使用的便利性，本配置并未集成该插件，请自行安装）
+以上只是 ctags 简单的用法，更专业的介绍请 Google。另有更为强大的补全利器 [YouCompleteMe](https://github.com/Valloric/YouCompleteMe) 等你探索（因为安装需要编译，考虑到跨平台使用的便利性，本配置并未集成该插件，请自行安装）
 
 ----
 
