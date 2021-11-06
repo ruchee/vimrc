@@ -35,13 +35,15 @@ else
     let g:php_cs_fixer_level = get(g:, 'php_cs_fixer_level', 'symfony')
 endif
 
-if g:php_cs_fixer_version == 1
-	if exists('g:php_cs_fixer_config')
-    	let g:php_cs_fixer_command = g:php_cs_fixer_command.' --config='.g:php_cs_fixer_config
-	endif
+if exists('g:php_cs_fixer_config') && filereadable(expand(g:php_cs_fixer_config))
+    if g:php_cs_fixer_version == 1
+        let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config-file=' . g:php_cs_fixer_config
+    else
+        let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config=' . g:php_cs_fixer_config
+    endif
 endif
 
-if exists('g:php_cs_fixer_config_file') && filereadable(g:php_cs_fixer_config_file)
+if exists('g:php_cs_fixer_config_file') && filereadable(expand(g:php_cs_fixer_config_file))
     if g:php_cs_fixer_version == 1
         let g:php_cs_fixer_command = g:php_cs_fixer_command . ' --config-file=' . g:php_cs_fixer_config_file
     else
@@ -54,12 +56,17 @@ if exists('g:php_cs_fixer_cache')
 endif
 "}}}
 
-fun! php_cs_fixer#fix(path, dry_run)
+fun! php_cs_fixer#Fix(path, dry_run)
 
     if !executable('php-cs-fixer')
       if !filereadable(expand(g:php_cs_fixer_path))
         echoerr(g:php_cs_fixer_path.' is not found')
       endif
+    endif
+
+    if &mod
+        echohl Title | echo "There are unsaved changes" | echohl None
+        return
     endif
 
     let command = g:php_cs_fixer_command.' '.a:path

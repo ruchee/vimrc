@@ -13,15 +13,15 @@ let g:php_cs_fixer_verbose = get(g:, 'php_cs_fixer_verbose', 0)
 
 " Backwards compatibility
 fun! PhpCsFixerFix(path, dry_run)
-    call php_cs_fixer#fix(a:path, a:dry_run)
+    call php_cs_fixer#Fix(a:path, a:dry_run)
 endfun
 
 fun! PhpCsFixerFixDirectory()
-    call php_cs_fixer#fix(expand('%:p:h'), g:php_cs_fixer_dry_run)
+    call php_cs_fixer#Fix(expand('%:p:h'), g:php_cs_fixer_dry_run)
 endfun
 
 fun! PhpCsFixerFixFile()
-    call php_cs_fixer#fix(expand('%:p'), g:php_cs_fixer_dry_run)
+    call php_cs_fixer#Fix(expand('%:p'), g:php_cs_fixer_dry_run)
 endfun
 
 if(g:php_cs_fixer_enable_default_mapping == 1)

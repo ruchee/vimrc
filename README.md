@@ -50,7 +50,8 @@
 3. 如果条件允许，最好用 universal-ctags 替代老旧的 ctags
 4. 部分插件需要脚本语言的支持，如果条件允许，请安装 Lua、PHP、Python3、Ruby 等语言的运行环境
 5. 本配置集成了 vim-sync 插件，可以和远程服务器相互传输文件，使用此功能需要先配置项目的 .sync，详情请参考 [https://github.com/eshion/vim-sync/issues/10](https://github.com/eshion/vim-sync/issues/10)
-6. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
+6. php-cs-fixer 的配置，请参考：[https://www.ruchee.com/notes/2021/use_php-cs-fixer_format_php_code.html](https://www.ruchee.com/notes/2021/use_php-cs-fixer_format_php_code.html)
+7. 请尽量使用最新的 Vim 8.x 版本，低版本部分功能可能无法使用
 
 ----
 
