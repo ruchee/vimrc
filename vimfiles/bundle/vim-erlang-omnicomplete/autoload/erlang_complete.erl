@@ -7,11 +7,19 @@
 % 'compile' mode gives better error messages if the script throws an error.
 -mode(compile).
 
+-ifdef(OTP_RELEASE).
+-if(?OTP_RELEASE >= 24).
+-define(USE_FIND_SOURCE, 1).
+-endif. % -if
+-endif. % -ifdef
+
+-ifndef(USE_FIND_SOURCE).
 % The filename:find_src/1 function is deprecated. Its replacement function is
 % filelib:find_source, which has a different interface and was introduced only
 % in Erlang 20. As long as filename:find_src/1 is present in the newest Erlang
 % version, we can keep using filename:find_src/1.
 -compile({nowarn_deprecated_function, [{filename, find_src, 1}]}).
+-endif.
 
 -include_lib("xmerl/include/xmerl.hrl").
 
@@ -881,25 +889,7 @@ run2({list_functions, Mod}) ->
       Mod :: module(),
       Result :: [function_spec()].
 module_edoc(Mod) ->
-    File =
-        case filename:find_src(Mod) of
-            {error, _} ->
-                BeamFile = atom_to_list(Mod) ++ ".beam",
-                case code:where_is_file(BeamFile) of
-                    non_existing ->
-                        throw(not_found);
-                    BeamPath ->
-                        SrcPath = beam_to_src_path(BeamPath),
-                        case filelib:is_regular(SrcPath) of
-                            true ->
-                                SrcPath;
-                            false ->
-                                throw(not_found)
-                        end
-                end;
-            {File0, _} ->
-                File0 ++ ".erl"
-        end,
+    File = find_source(Mod),
 
     {_, Doc} =
         try
@@ -923,6 +913,44 @@ module_edoc(Mod) ->
     Funs = xmerl_xpath:string("/module/functions/function", Doc),
     FunSpecs = lists:map(fun analyze_function/1, Funs),
     lists:keysort(1, FunSpecs).
+
+-ifdef(USE_FIND_SOURCE).
+
+find_source(Mod) ->
+    BeamFile = atom_to_list(Mod) ++ ".beam",
+    case code:where_is_file(BeamFile) of
+        non_existing ->
+            throw(not_found);
+        BeamPath ->
+            case filelib:find_source(BeamPath) of
+                {ok, SrcPath} ->
+                    SrcPath;
+                {error, not_found} ->
+                    throw(not_found)
+            end
+    end.
+
+-else. % ifndef(USE_FIND_SOURCE)
+
+find_source(Mod) ->
+    case filename:find_src(Mod) of
+        {error, _} ->
+            BeamFile = atom_to_list(Mod) ++ ".beam",
+            case code:where_is_file(BeamFile) of
+                non_existing ->
+                    throw(not_found);
+                BeamPath ->
+                    SrcPath = beam_to_src_path(BeamPath),
+                    case filelib:is_regular(SrcPath) of
+                        true ->
+                            SrcPath;
+                        false ->
+                            throw(not_found)
+                    end
+            end;
+        {File0, _} ->
+            File0 ++ ".erl"
+    end.
 
 %%------------------------------------------------------------------------------
 %% @doc Convert the path of a BEAM file to the path of the corresponding Erlang
@@ -968,6 +996,8 @@ beam_to_src_path(BeamPath) ->
 beam_to_src_file(BeamFile) ->
     [ModName, "beam"] = string:tokens(BeamFile, "."),
     ModName ++ ".erl".
+
+-endif. % USE_FIND_SOURCE
 
 %%------------------------------------------------------------------------------
 %% @doc Return the specification of a function.

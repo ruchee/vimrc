@@ -77,6 +77,9 @@ class _PatchingASTWalker(object):
     Number = object()
     String = object()
     semicolon_or_as_in_except = object()
+    exec_open_paren_or_space = object()
+    exec_close_paren_or_space = object()
+    exec_in_or_comma = object()
 
     def __call__(self, node):
         method = getattr(self, '_' + node.__class__.__name__, None)
@@ -124,6 +127,15 @@ class _PatchingASTWalker(object):
                     # INFO: This has been added to handle deprecated
                     # semicolon in except
                     region = self.source.consume_except_as_or_semicolon()
+                elif child == self.exec_open_paren_or_space:
+                    # These three cases handle the differences between
+                    # the deprecated exec statement and the exec
+                    # function.
+                    region = self.source.consume_exec_open_paren_or_space()
+                elif child == self.exec_in_or_comma:
+                    region = self.source.consume_exec_in_or_comma()
+                elif child == self.exec_close_paren_or_space:
+                    region = self.source.consume_exec_close_paren_or_space()
                 else:
                     if hasattr(ast, 'JoinedStr') and isinstance(node, (ast.JoinedStr, ast.FormattedValue)):
                         region = self.source.consume_joined_string(child)
@@ -440,12 +452,12 @@ class _PatchingASTWalker(object):
         self._handle(node, children)
 
     def _Exec(self, node):
-        children = []
-        children.extend(['exec', node.body])
+        children = ['exec', self.exec_open_paren_or_space, node.body]
         if node.globals:
-            children.extend(['in', node.globals])
+            children.extend([self.exec_in_or_comma, node.globals])
         if node.locals:
             children.extend([',', node.locals])
+        children.append(self.exec_close_paren_or_space)
         self._handle(node, children)
 
     def _ExtSlice(self, node):
@@ -456,13 +468,23 @@ class _PatchingASTWalker(object):
             children.append(dim)
         self._handle(node, children)
 
-    def _For(self, node):
-        children = ['for', node.target, 'in', node.iter, ':']
+    def _handle_for_loop_node(self, node, is_async):
+        if is_async:
+            children = ['async', 'for']
+        else:
+            children = ['for']
+        children.extend([node.target, 'in', node.iter, ':'])
         children.extend(node.body)
         if node.orelse:
             children.extend(['else', ':'])
             children.extend(node.orelse)
         self._handle(node, children)
+
+    def _For(self, node):
+        self._handle_for_loop_node(node, is_async=False)
+
+    def _AsyncFor(self, node):
+        self._handle_for_loop_node(node, is_async=True)
 
     def _ImportFrom(self, node):
         children = ['from']
@@ -480,7 +502,7 @@ class _PatchingASTWalker(object):
             children.extend(['as', node.asname])
         self._handle(node, children)
 
-    def _FunctionDef(self, node):
+    def _handle_function_def_node(self, node, is_async):
         children = []
         try:
             decorators = getattr(node, 'decorator_list')
@@ -490,10 +512,20 @@ class _PatchingASTWalker(object):
             for decorator in decorators:
                 children.append('@')
                 children.append(decorator)
-        children.extend(['def', node.name, '(', node.args])
+        if is_async:
+            children.extend(['async', 'def'])
+        else:
+            children.extend(['def'])
+        children.extend([node.name, '(', node.args])
         children.extend([')', ':'])
         children.extend(node.body)
         self._handle(node, children)
+
+    def _FunctionDef(self, node):
+        self._handle_function_def_node(node, is_async=False)
+
+    def _AsyncFunctionDef(self, node):
+        self._handle_function_def_node(node, is_async=True)
 
     def _arguments(self, node):
         children = []
@@ -781,6 +813,12 @@ class _PatchingASTWalker(object):
         children.append(node.operand)
         self._handle(node, children)
 
+    def _Await(self, node):
+        children = ['await']
+        if node.value:
+            children.append(node.value)
+        self._handle(node, children)
+
     def _Yield(self, node):
         children = ['yield']
         if node.value:
@@ -830,7 +868,7 @@ class _Source(object):
                     break
                 else:
                     self._skip_comment()
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as e:
             raise MismatchedTokenError(
                 'Token <%s> at %s cannot be matched' %
                 (token, self._get_location()))
@@ -868,6 +906,18 @@ class _Source(object):
 
     def consume_except_as_or_semicolon(self):
         repattern = re.compile(r'as|,')
+        return self._consume_pattern(repattern)
+
+    def consume_exec_open_paren_or_space(self):
+        repattern = re.compile(r'\(|')
+        return self._consume_pattern(repattern)
+
+    def consume_exec_in_or_comma(self):
+        repattern = re.compile(r'in|,')
+        return self._consume_pattern(repattern)
+
+    def consume_exec_close_paren_or_space(self):
+        repattern = re.compile(r'\)|')
         return self._consume_pattern(repattern)
 
     def _good_token(self, token, offset, start=None):

@@ -263,7 +263,7 @@ function! fugitive#Wait(job_or_jobs, ...) abort
   if exists('*jobwait')
     call map(copy(jobs), 'chanclose(v:val, "stdin")')
     call jobwait(jobs, timeout_ms)
-    if len(jobs) && has('nvim-0.5')
+    if len(jobs)
       sleep 1m
     endif
   else
@@ -3333,7 +3333,7 @@ function! s:RunReceive(state, tmp, type, job, data, ...) abort
       call setbufline(a:state.capture_bufnr, line_count + 1, lines)
     endif
     call setbufvar(a:state.capture_bufnr, '&modifiable', 0)
-    if getwinvar(bufwinid(a:state.capture_bufnr), '&previewwindow')
+    if !a:state.pager && getwinvar(bufwinid(a:state.capture_bufnr), '&previewwindow')
       let winnr = bufwinnr(a:state.capture_bufnr)
       if winnr > 0
         let old_winnr = winnr()
@@ -3712,6 +3712,7 @@ function! fugitive#Command(line1, line2, range, bang, mods, arg) abort
   let after_edit = ''
   let stream = 0
   if a:bang && pager isnot# 2
+    let state.pager = pager
     let pager = 1
     let stream = exists('*setbufline')
     let do_edit = substitute(s:Mods(a:mods, 'Edge'), '\<tab\>', '-tab', 'g') . 'pedit!'
@@ -4123,7 +4124,7 @@ function! s:DoAutocmdChanged(dir) abort
   finally
     unlet! g:fugitive_event g:fugitive_result
     " Force statusline reload with the buffer's Git dir
-    let &ro = &ro
+    let &l:ro = &l:ro
   endtry
   return ''
 endfunction

@@ -136,6 +136,12 @@ def _returns_last(node):
     return node.body and isinstance(node.body[-1], ast.Return)
 
 
+def _namedexpr_last(node):
+    if not hasattr(ast, 'NamedExpr'): # python<3.8
+        return False
+    return bool(node.body) and len(node.body) == 1 and isinstance(node.body[-1].value, ast.NamedExpr)
+
+
 def _yield_count(node):
     visitor = _ReturnOrYieldFinder()
     visitor.start_walking(node)
@@ -148,14 +154,24 @@ def _return_count(node):
     return visitor.returns
 
 
+def _named_expr_count(node):
+    visitor = _ReturnOrYieldFinder()
+    visitor.start_walking(node)
+    return visitor.named_expression
+
+
 class _ReturnOrYieldFinder(object):
 
     def __init__(self):
         self.returns = 0
+        self.named_expression = 0
         self.yields = 0
 
     def _Return(self, node):
         self.returns += 1
+
+    def _NamedExpr(self, node):
+        self.named_expression += 1
 
     def _Yield(self, node):
         self.yields += 1

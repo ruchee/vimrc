@@ -418,16 +418,43 @@ function s:ErlangFindExternalFunc(module, base)
                         \' --basedir ' .  fnameescape(expand('%:p:h')))
     let output_lines = split(output, '\n')
 
-    if len(output_lines) == 0
-        " No completion was found, so we don't add any completion item.
+    " There are two possibilities:
+    "
+    " 1.  If the completion items were successfully calculated, the script
+    "     output has the following format:
+    "
+    "         <warning 1>
+    "         ...
+    "         <warning k>
+    "         execution_successful
+    "         <completion 1>
+    "         ...
+    "         <completion n>
+    "
+    "     If the user wants to complete a module, we do not prevent them from
+    "     doing that. So we simply ignore the warnings.
+    "
+    " 2.  If there was an error, the script output has the following format:
+    "
+    "         <error line 1>
+    "         ...
+    "         <error line k>
+    "
+    "     In this case we present the errors to the user in the preview
+    "     window.
+    "
+    " The marker_index variable is the index of the line that contains
+    " the 'execution_successful' marker (counting the first line as 0). If
+    " there is no such marker, marker_index is -1.
+    let marker_index = index(output_lines, 'execution_successful')
 
-    elseif output_lines[0] == 'execution_successful' 
+    if marker_index != -1
 
         " We found possible completions, so we add them as completions items.
 
         " We iterate on functions in the given module that start with `base` and
         " add them to the completion list.
-        let function_specs = output_lines[1:]
+        let function_specs = output_lines[(marker_index + 1):]
         for function_spec in function_specs
             " - When the function doesn't have a type spec, its function_spec
             "   will be e.g. "f/2".

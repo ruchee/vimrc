@@ -3,6 +3,7 @@ try:
 except ImportError:
     import unittest
 import sys
+from textwrap import dedent
 
 from rope.base import ast
 from rope.base.utils import pycompat
@@ -541,6 +542,16 @@ class PatchedASTTest(unittest.TestCase):
                                ['def', ' ', 'f', '', '(', '', 'arguments', '',
                                             ')', '', ':', '\n    ', 'Pass'])
 
+    @testutils.only_for_versions_higher('3.5')
+    def test_async_function_node(self):
+        source = 'async def f():\n    pass\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_region('AsyncFunction', 0, len(source) - 1)
+        checker.check_children('AsyncFunction',
+                               ['async', ' ', 'def', ' ', 'f', '', '(', '', 'arguments', '',
+                                            ')', '', ':', '\n    ', 'Pass'])
+
     def test_function_node2(self):
         source = 'def f(p1, **p2):\n    """docs"""\n    pass\n'
         ast_frag = patchedast.get_patched_ast(source, True)
@@ -599,7 +610,7 @@ class PatchedASTTest(unittest.TestCase):
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
         checker.check_region('Exec', 0, len(source) - 1)
-        checker.check_children('Exec', ['exec', ' ', 'Str'])
+        checker.check_children('Exec', ['exec', '', '', ' ', 'Str', '', ''])
 
     @testutils.only_for_versions_lower('3')
     def test_exec_node(self):
@@ -608,11 +619,26 @@ class PatchedASTTest(unittest.TestCase):
         checker = _ResultChecker(self, ast_frag)
         checker.check_region('Exec', 0, len(source) - 1)
         checker.check_children(
-            'Exec', ['exec', ' ', 'Str', ' ', 'in',
-                     ' ', 'Call', '', ',', ' ', 'Call'])
+            'Exec', ['exec', '', '', ' ', 'Str', ' ', 'in',
+                     ' ', 'Call', '', ',', ' ', 'Call', '', ''])
+
+    @testutils.only_for_versions_lower('3')
+    def test_exec_node_with_parens(self):
+        source = 'exec("", locals(), globals())\n'
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_region('Exec', 0, len(source) - 1)
+        checker.check_children(
+            'Exec', ['exec', '', '(', '', 'Str', '', ',',
+                     ' ', 'Call', '', ',', ' ', 'Call', '', ')'])
 
     def test_for_node(self):
-        source = 'for i in range(1):\n    pass\nelse:\n    pass\n'
+        source = dedent('''\
+            for i in range(1):
+                pass
+            else:
+                pass
+        ''')
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
         checker.check_region('For', 0, len(source) - 1)
@@ -620,6 +646,23 @@ class PatchedASTTest(unittest.TestCase):
             'For', ['for', ' ', 'Name', ' ', 'in', ' ', 'Call', '',
                     ':', '\n    ', 'Pass', '\n',
                     'else', '', ':', '\n    ', 'Pass'])
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_async_for_node(self):
+        source = dedent('''\
+            async def foo():
+                async for i in range(1):
+                    pass
+                else:
+                    pass
+        ''')
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_region('AsyncFor', source.index('async for'), len(source) - 1)
+        checker.check_children(
+            'AsyncFor', ['async', ' ', 'for', ' ', 'Name', ' ', 'in', ' ', 'Call', '',
+                    ':', '\n        ', 'Pass', '\n    ',
+                    'else', '', ':', '\n        ', 'Pass'])
 
     @testutils.only_for_versions_higher('3.8')
     def test_named_expr_node(self):
@@ -1106,7 +1149,7 @@ class PatchedASTTest(unittest.TestCase):
             'Delete', ['del', ' ', 'Name', '', ',', ' ', 'Name'])
 
     @testutils.only_for_versions_lower('3.5')
-    def test_starargs_before_keywords(self):
+    def test_starargs_before_keywords_legacy(self):
         source = 'foo(*args, a=1)\n'
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
@@ -1115,7 +1158,7 @@ class PatchedASTTest(unittest.TestCase):
                      'keyword', '', ')'])
 
     @testutils.only_for_versions_lower('3.5')
-    def test_starargs_in_keywords(self):
+    def test_starargs_in_keywords_legacy(self):
         source = 'foo(a=1, *args, b=2)\n'
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
@@ -1124,7 +1167,7 @@ class PatchedASTTest(unittest.TestCase):
                      'Name', '', ',', ' ', 'keyword', '',')'])
 
     @testutils.only_for_versions_lower('3.5')
-    def test_starargs_after_keywords(self):
+    def test_starargs_after_keywords_legacy(self):
         source = 'foo(a=1, *args)\n'
         ast_frag = patchedast.get_patched_ast(source, True)
         checker = _ResultChecker(self, ast_frag)
@@ -1158,6 +1201,16 @@ class PatchedASTTest(unittest.TestCase):
         checker.check_children(
             'Call', ['Name', '', '(', '', 'keyword', '', ',', ' *',
                      'Starred', '', ')'])
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_await_node(self):
+        source = dedent('''\
+            async def f():
+                await sleep()
+        ''')
+        ast_frag = patchedast.get_patched_ast(source, True)
+        checker = _ResultChecker(self, ast_frag)
+        checker.check_children('Await', ['await', ' ', 'Call'])
 
 
 class _ResultChecker(object):

@@ -44,6 +44,7 @@ Currently, |ctrlp-funky| supports following file types:
 * html/xhtml
 * java
 * javascript
+* Jenkinsfile (Jenkins pipeline script)
 * jinja (template engine for Python)
 * lua
 * make (Makefile)
@@ -446,6 +447,9 @@ THANKS						*ctrlp-funky-thanks*
 
 ==============================================================================
 CHANGELOG 					*ctrlp-funky-changelog*
+
+26 Oct 2021~
+  + Add support for Jenkinsfile (jenkinsfile)
 
 30 Apr 2021~
   + Add support for Terraform Language (tf)

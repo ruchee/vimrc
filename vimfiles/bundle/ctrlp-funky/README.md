@@ -6,16 +6,62 @@ A super simple function navigator for ctrlp.vim.
 SYNOPSIS
 ----------
 
-This is an extension of ctrlp.vim. It simply navigates and jumps to function definitions from the current file without ctags. It just searches for function definitions or equivalent lines using regular expressions, therefore some languages' abstractions aren't accurate because of them being hard to parse.
+This is an extension of ctrlp.vim. It simply navigates to a function definition from the current file without ctags. It just searches for function definitions or equivalent lines using regular expressions, therefore some languages' abstractions aren't accurate because of them being hard to parse.
 
 One of advantages of this plugin is that no configuration is required in most cases, so it starts working right after installation with no ctags required.
 *If you want to have a more accurate list of function definitions, you should use other ctags-based tools, etc.*
 
 ![ctrlp-funky][1]
 
-### Supported filetypes:
+### Supported file types:
 
-See [ctrlp-funky.txt](https://github.com/tacahiroy/ctrlp-funky/blob/master/doc/ctrlp-funky.txt#L22)
+* c
+* cf (ColdFusion)
+* clojure
+* cmm (TRACE32)
+* coffee-script
+* coldfusion
+* cpp (C++)
+* cs (C#)
+* css (css, scss)
+* dart
+* elixir
+* elm
+* go (Golang)
+* graphql
+* groovy
+* haskell
+* html/xhtml
+* java
+* javascript
+* Jenkinsfile (Jenkins pipeline script)
+* jinja (template engine for Python)
+* lua
+* make (Makefile)
+* markdown
+* moon (MoonScript)
+* nerdtree
+* objc (Objective-C)
+* perl
+* php
+* plsql (PL/SQL)
+* proto (Protocol Buffers)
+* python
+* r
+* rmd (rmarkdown)
+* ruby (ruby, rake, rspec and chef recipe)
+* rust
+* scala
+* sh (bash, dash and zsh)
+* sql
+* tex (LaTeX)
+* tf (terraform)
+* thrift
+* typescript
+* vb (Visual Basic)
+* vim
+* vue (Vue.js)
+* yaml
 
 
 PREMISE
@@ -30,6 +76,32 @@ INSTALLATION
 
 ### Plugin managers
 It is recommended to install the plugin using your favourite plugin manager or use Vim's built-in package manager if you use Vim 8+.
+
+#### Vim 8+ built-in package manager
+
+```sh
+mkdir -p ~/.vim/pack/plugins/start
+git clone --depth=1 https://github.com/tacahiroy/ctrlp-funky.git ~/.vim/pack/plugins/start/ctrlp-funky
+```
+
+#### vim-plug (https://github.com/junegunn/vim-plug)
+
+```vim
+Plug 'tacahiroy/ctrlp-funky'
+```
+
+#### Vundle (https://github.com/VundleVim/Vundle.vim)
+
+```vim
+Plugin 'tacahiroy/ctrlp-funky'
+```
+
+### dein.vim (https://github.com/Shougo/dein.vim)
+
+```vim
+call dein#add('tacahiroy/ctrlp-funky')
+```
+
 
 ### Manual installation
 If you do not use any plugin management system, simply copy _autoload_ and _plugin_ directories to the _.vim_ directory.

@@ -1,0 +1,162 @@
+*tig-explorer.txt*  Plugin to use Tig as a git client.
+
+==============================================================================
+CONTENTS                                               *tig-explorer-contents*
+
+- Introduction                                     |tig-explorer-introduction|
+- Requirements                                     |tig-explorer-requirements|
+- Install                                               |tig-explorer-install|
+- Commands                                             |tig-explorer-commands|
+- Keymaps                                               |tig-explorer-keymaps|
+- Customize                                           |tig-explorer-customize|
+- Support                                               |tig-explorer-support|
+
+==============================================================================
+INTRODUCTION                                       *tig-explorer-introduction*
+
+This plugins supports:
+
+- Seamless switching between Vim and Tig
+- Adding buffer in the same process not a child of Tig process.
+- Open files in tabs or in vertically/horizontal split windows on Vim from Tig
+- Dynamically defining keymaps on Tig
+
+==============================================================================
+REQUIREMENTS                                       *tig-explorer-requirements*
+
+- tig (https://github.com/jonas/tig)
+
+==============================================================================
+INSTALL                                                 *tig-explorer-install*
+
+By vim-plug: >
+    Plug 'iberianpig/tig-explorer.vim'
+<
+
+By NeoBundle: >
+    NeoBundle 'iberianpig/tig-explorer.vim'
+<
+
+If you use Neovim, you have to add the dependency to the plugin bclose.vim:
+
+By vim-plug: >
+    Plug 'rbgrouleff/bclose.vim'
+<
+
+By NeoBundle: >
+    NeoBundle 'rbgrouleff/bclose.vim'
+<
+
+==============================================================================
+COMMANDS                                               *tig-explorer-commands*
+
+Add following script to ~/.vimrc
+
+TigOpenCurrentFile                                       *:TigOpenCurrentFile*
+    Open tig with current file
+
+TigOpenProjectRootDir                                 *:TigOpenProjectRootDir*
+    Open tig with Project root path
+
+TigGrep                                                             *:TigGrep*
+    Open tig grep.
+    And you can pass PATTERN like `:TigGrep (PATTERN)` to grep
+    with the PATTERN.
+
+TigGrepResume                                                 *:TigGrepResume*
+    Resume from last grep
+
+TigBlame                                                           *:TigBlame*
+    Open tig blame with current file
+
+TigOpenFileWithCommit
+    Open a file at the given commit.  `:TigOpenWithCommit COMMIT FILE LINEO`
+    All arguments are optional.
+    If FILE contains `%` and `FILE` is contains so commit information.
+    The `%` in the commit will be replaced with the original commit.
+
+    For example `:TigOpenWithCommit %~` open the previous version of the
+    current file. This file will be called `HEAD~:file`.
+    Calling `:TigOpenFileWithCommit %~` again will open the previous version
+    of the previous version (`HEAD~~`).
+
+TigOpenFileWithCommit!
+    Like TigOpenFileWithCommit but show the diff between the current buffer
+    and the resulting buffer.
+
+    For example, `:vertical TigOpenFileWithCommit! HEAD` set a side by side
+    diff between the current buffer and its HEAD version.
+
+==============================================================================
+KEYMAPS                                                 *tig-explorer-keymaps*
+
+Following commands are available on tig launched from tig-explorer
+
+e, <Ctrl-o>: edit on existing tab
+<Ctrl-t>   : edit on new tab
+<Ctrl-s>   : edit with split window
+<Ctrl-v>   : edit with vsplit window
+
+<ESC> o: open with commit on existing tab
+<ESC> t: open with commit on new tab
+<ESC> v: open with commit with vsplit window
+<ESC> s: open with commit with split window
+
+ When a commit is available (in main, blame, tree, refs view) view, the
+ version of the file corresponding to this commit will be open instead of the
+ version in the working directory. Split versions will open the two buffer in
+ diff mode.
+ 
+==============================================================================
+CUSTOMIZE                                             *tig-explorer-customize*
+
+Keymaps can be cusotmized by following variables.
+
+Following keymap is defined as defaut >
+    let g:tig_explorer_keymap_edit_e  = 'e'
+    let g:tig_explorer_keymap_edit    = '<C-o>'
+    let g:tig_explorer_keymap_tabedit = '<C-t>'
+    let g:tig_explorer_keymap_split   = '<C-s>'
+    let g:tig_explorer_keymap_vsplit  = '<C-v>'
+<
+
+And you can add following script to ~/.vimrc
+
+>
+    " open tig with current file
+    nnoremap <Leader>T :TigOpenCurrentFile<CR>
+
+    " open tig with Project root path
+    nnoremap <Leader>t :TigOpenProjectRootDir<CR>
+
+    " open tig grep
+    nnoremap <Leader>g :TigGrep<CR>
+
+    " resume from last grep
+    nnoremap <Leader>r :TigGrepResume<CR>
+
+    " open tig grep with the selected word
+    vnoremap <Leader>g :TigGrep<Space><C-R>"<CR>
+
+    " open tig grep with the word under the cursor
+    nnoremap <Leader>cg :<C-u>:TigGrep<Space><C-R><C-W><CR>
+
+    " open tig blame with current file
+    nnoremap <Leader>b :TigBlame<CR>
+<
+
+By default tig-explorer will use the builtin terminal if available.
+To force launching tig-explorer as shell command you can add the following to
+~/.vimrc
+
+>
+    " don't use builtin terminal
+    let g:tig_explorer_use_builtin_term=0
+<
+
+==============================================================================
+SUPPORT                                                 *tig-explorer-support*
+
+https://www.patreon.com/iberianpig
+
+vim:textwidth=78:tabstop=4:shiftwidth=4:expandtab:filetype=help:norl:

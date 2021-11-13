@@ -66,13 +66,13 @@ endfunction
 
 function! airline#parts#spell()
   let spelllang = g:airline_detect_spelllang ? printf(" [%s]", toupper(substitute(&spelllang, ',', '/', 'g'))) : ''
-  if g:airline_detect_spell && &spell
+  if g:airline_detect_spell && (&spell || (exists('g:airline_spell_check_command') && eval(g:airline_spell_check_command)))
     let winwidth = airline#util#winwidth()
     if winwidth >= 90
       return g:airline_symbols.spell . spelllang
     elseif winwidth >= 70
       return g:airline_symbols.spell
-    else
+    elseif !empty(g:airline_symbols.spell)
       return split(g:airline_symbols.spell, '\zs')[0]
     endif
   endif

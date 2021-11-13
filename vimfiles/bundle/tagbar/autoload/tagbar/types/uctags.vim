@@ -319,6 +319,21 @@ function! tagbar#types#uctags#init(supported_types) abort
         \ 'function'  : 'f',
     \ }
     let types.cmake = type_cmake
+    " Crystal {{{1
+    let type_crystal = tagbar#prototypes#typeinfo#new()
+    let type_crystal.ctagstype = 'crystal'
+    let type_crystal.kinds     = [
+        \ {'short' : 'm', 'long' : 'modules',           'fold' : 0, 'stl' : 1},
+        \ {'short' : 'c', 'long' : 'classes',           'fold' : 0, 'stl' : 1},
+        \ {'short' : 'd', 'long' : 'defs',              'fold' : 0, 'stl' : 1},
+        \ {'short' : 'f', 'long' : 'functions',         'fold' : 0, 'stl' : 1},
+        \ {'short' : 'M', 'long' : 'macros',            'fold' : 0, 'stl' : 1},
+        \ {'short' : 'l', 'long' : 'libs',              'fold' : 0, 'stl' : 1},
+        \ {'short' : 's', 'long' : 'structs',           'fold' : 0, 'stl' : 1},
+        \ {'short' : 'a', 'long' : 'aliases',           'fold' : 0, 'stl' : 1}
+    \ ]
+    let type_crystal.sro        = '::'
+    let types.crystal = type_crystal
     " Ctags config {{{1
     let type_ctags = tagbar#prototypes#typeinfo#new()
     let type_ctags.ctagstype = 'ctags'
@@ -797,11 +812,11 @@ function! tagbar#types#uctags#init(supported_types) abort
     let type_perl.kinds     = [
         \ {'short' : 'p', 'long' : 'packages',    'fold' : 1, 'stl' : 0},
         \ {'short' : 'c', 'long' : 'constants',   'fold' : 0, 'stl' : 0},
-        \ {'short' : 'a', 'long' : 'attributes',  'fold' : 0, 'stl' : 0},
+        \ {'short' : 'M', 'long' : 'modules',     'fold' : 0, 'stl' : 0},
         \ {'short' : 'f', 'long' : 'formats',     'fold' : 0, 'stl' : 0},
         \ {'short' : 'l', 'long' : 'labels',      'fold' : 0, 'stl' : 1},
         \ {'short' : 's', 'long' : 'subroutines', 'fold' : 0, 'stl' : 1},
-        \ {'short' : 'm', 'long' : 'methods',     'fold' : 0, 'stl' : 1}
+        \ {'short' : 'd', 'long' : 'subroutineDeclarations',     'fold' : 0, 'stl' : 0}
     \ ]
     let types.perl = type_perl
     " Perl 6 {{{1

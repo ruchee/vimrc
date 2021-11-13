@@ -5,10 +5,17 @@
         - **.PATCH**: Pull Request Title (PR Author) [PR Number](Link to PR)
 -->
 #### 6.10
+- **.16**: Fix documentation errors. (lifecrisis) [#1269](https://github.com/preservim/nerdtree/pull/1269)
+- **.15**: Ensure backward compatible testing of types. (lifecrisis) [#1266](https://github.com/preservim/nerdtree/pull/1266)
+- **.14**: Replace trim() with a version-compatible alternative. (PhilRunninger) [#1265](https://github.com/preservim/nerdtree/pull/1265)
+- **.13**: Change highlighting of bookmarks in the tree. (PhilRunninger) [#1261](https://github.com/preservim/nerdtree/pull/1261)
+- **.12**: Answer the question about accessing files over scp or ftp. (PhilRunninger) [#1259](https://github.com/preservim/nerdtree/pull/1259)
+- **.11**: Trim filenames created via the fs_menu (elanorigby) [#1243](https://github.com/preservim/nerdtree/pull/1243)
+- **.10**: Improve F.A.Q. Answers and Issue Templates (PhilRunninger) [#1249](https://github.com/preservim/nerdtree/pull/1249)
 - **.9**: `go` on a bookmark directory will NERDTreeFind it. (PhilRunninger) [#1236](https://github.com/preservim/nerdtree/pull/1236)
 - **.8**: Put `Callback` function variables in local scope. (PhilRunninger) [#1230](https://github.com/preservim/nerdtree/pull/1230)
 - **.7**: Fix mouse-clicking a file to open it. (PhilRunninger) [#1225](https://github.com/preservim/nerdtree/pull/1225)
-- **.6**: Restore the default behavior of the <CR> key. (PhilRunninger) [#1221](https://github.com/preservim/nerdtree/pull/1221)
+- **.6**: Restore the default behavior of the `<CR>` key. (PhilRunninger) [#1221](https://github.com/preservim/nerdtree/pull/1221)
 - **.5**: Fix `{'keepopen':0}` in NERDTreeCustomOpenArgs (PhilRunninger) [#1217](https://github.com/preservim/nerdtree/pull/1217)
 - **.4**: Removed directory separator from sort key (Daniel E) [#1219](https://github.com/preservim/nerdtree/pull/1219)
 - **.3**: Add new FAQ and answer: How to prevent buffers replacing NERDTree. (PhilRunninger) [#1215](https://github.com/preservim/nerdtree/pull/1215)

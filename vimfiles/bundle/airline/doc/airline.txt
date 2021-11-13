@@ -178,8 +178,8 @@ values):
 * if you want to update your highlights without affecting the airline theme,
   you can do so using the AirlineAfterTheme autocmd. >
   function! s:update_highlights()
-    hi CursorLine ctermbg=none guibg=none
-    hi VertSplit ctermbg=none guibg=none
+    hi CursorLine ctermbg=none guibg=NONE
+    hi VertSplit ctermbg=none guibg=NONE
   endfunction
   autocmd User AirlineAfterTheme call s:update_highlights()
 <
@@ -277,7 +277,7 @@ values):
   let g:airline_highlighting_cache = 0
 <
 * disable airline on FocusLost autocommand (e.g. when Vim loses focus): >
-  let g:airline_focuslost_inactive = 1
+  let g:airline_focuslost_inactive = 0
 <
 * configure the fileformat output
   By default, it will display something like 'utf-8[unix]', however, you can
@@ -353,7 +353,7 @@ Note: Be aware that some of these glyphs are defined as ligatures, so they may
 show up different (usually bigger) if followed by a space. This only happens
 if both the font and terminal implementation used support ligatures. If you
 want to follow a glyph with a space _without_ the alternate ligature being
-rendered, follow it with a non-breaking-space character. 
+rendered, follow it with a non-breaking-space character.
 
 Note: You must define the dictionary first before setting values. Also, it's
 a good idea to check whether it exists as to avoid accidentally overwriting
@@ -636,12 +636,9 @@ coc <https://github.com/neoclide/coc.nvim>
 * change warning symbol: >
   let airline#extensions#coc#warning_symbol = 'W:'
 <
-* change error format: >
-  let airline#extensions#coc#stl_format_err = '%E{[%e(#%fe)]}'
+* enable/disable coc status display >
+  g:airline#extensions#coc#show_coc_status = 1
 <
-* change warning format: >
-  let airline#extensions#coc#stl_format_warn = '%W{[%w(#%fw)]}'
-
 -------------------------------------                    *airline-commandt*
 command-t <https://github.com/wincent/command-t>
 
@@ -780,7 +777,7 @@ It is deactivated by default if |airline-bufferline| is activated.
   let g:airline#extensions#fugitiveline#enabled = 1
 <
 If enabled, the buffer that comes from fugitive, will have added a trailing
-"[git]" to be able do distinguish between fugitive and non-fugitive buffers.
+"[git]" to be able to distinguish between fugitive and non-fugitive buffers.
 
 -------------------------------------                        *airline-fzf*
 fzf <https://github.com/junegunn/fzf>
@@ -853,7 +850,7 @@ This extension displays the current 'keymap' in use.
 * set label for a keymap (default is from g:airline_symbols.keymap) >
   let g:airline#extensions#keymap#label = 'Layout:'
 
-* set name for default lauout (empty to disable it completely) >
+* set name for default layout (empty to disable it completely) >
   let g:airline#extensions#keymap#default = ''
 
 * set short codes for layout names >
@@ -915,7 +912,7 @@ lsp <https://github.com/prabirshrestha/vim-lsp>
 <
 * lsp progress skip time
   Suppresses the frequency of status line updates.
-  Prevents heavy operation when using a language server that sends frequent progress notifications. 
+  Prevents heavy operation when using a language server that sends frequent progress notifications.
   Set 0 to disable. >
   g:airline#extensions#lsp#progress_skip_time = 0.3 (default)
 <
@@ -1027,6 +1024,19 @@ title accordingly.
 <
 * configure the title text for location list buffers >
   let g:airline#extensions#quickfix#location_text = 'Location'
+<
+-------------------------------------                     *airline-rufo*
+rufo <https://github.com/ruby-formatter/rufo-vim>
+
+The rufo (Ruby Formatter) extension merely displays whether vim-rufo is
+currently enabled, in the z sction of the statusline.
+
+* enable/disable vim-rufo integration >
+  let g:airline#extensions#rufo#enabled = 1
+<
+* configure the symbol, or text, to display when vim-rufo auto formatting
+  is on >
+  let g:airline#extensions#rufo#symbol = 'R'
 <
 -------------------------------------                     *airline-searchcount*
 The searchcount extension supports the searchcount() function in Vim script.
@@ -1410,6 +1420,12 @@ tagbar <https://github.com/majutsushi/tagbar>
   let g:airline#extensions#tagbar#searchmethod = 'nearest'
   let g:airline#extensions#tagbar#searchmethod = 'scoped-stl'
 <
+-------------------------------------                       *airline-taglist*
+taglist <https://github.com/yegappan/taglist>
+
+* enable/disable taglist integration >
+  let g:airline#extensions#taglist#enabled = 1
+<
 -------------------------------------                     *airline-tmuxline*
 tmuxline <https://github.com/edkolev/tmuxline.vim>
 
@@ -1491,6 +1507,11 @@ State indicators:
 * viewer is opened >
   let g:airline#extensions#vimtex#viewer = "v"
 
+* use vimtex specific wordcount function
+  for TeX buffers Note: this more accurate
+  but may slow down Vim) >
+  let g:airline#extensions#vimtex#wordcount = 1 
+
 -------------------------------------                   *airline-virtualenv*
 virtualenv <https://github.com/jmcantrell/vim-virtualenv>
 
@@ -1557,6 +1578,9 @@ vista.vim <https://github.com/liuchengxu/vista.vim>
 
 * configure custom trailing whitespace regexp rule >
   let g:airline#extensions#whitespace#trailing_regexp = '\s$'
+
+  " this can also be configured for an individual buffer
+  let b:airline_whitespace_trailing_regexp = '\s$'
 
 * configure, which filetypes have special treatment of /* */ comments,
   matters for mix-indent-file algorithm: >

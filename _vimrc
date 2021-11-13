@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-11-06 11:53:39
+" -----------------    Date: 2021-11-13 13:46:28
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -586,7 +586,6 @@ endfunction
 
 
 " 开启部分语法高亮的非默认特性
-let g:cpp_named_requirements_highlight    = 1  " 高亮 C++ named requirements
 
 let g:go_template_autocreate              = 0  " 关闭自动生成模版代码
 let g:go_auto_type_info                   = 0  " 关闭 Go 语言自动显示类型信息 [默认就是关闭的，此处用于方便需要时开启]

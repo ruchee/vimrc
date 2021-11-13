@@ -44,11 +44,13 @@ is "args" and for the "q" commands is "quickfix".
 
                                                 *[f*
 [f                      Go to the file preceding the current one
-                        alphabetically in the current file's directory.
+                        alphabetically in the current file's directory.  In
+                        the quickfix window, equivalent to |:colder|.
 
                                                 *]f*
 ]f                      Go to the file succeeding the current one
-                        alphabetically in the current file's directory.
+                        alphabetically in the current file's directory.  In
+                        the quickfix window, equivalent to |:cnewer|.
 
                                                 *[n*
 [n                      Go to the previous SCM conflict marker or diff/patch
@@ -78,18 +80,21 @@ On	Off	Toggle	Option
 *[ob*	*]ob*	*yob*	'background' (dark is off, light is on)
 *[oc*	*]oc*	*yoc*	'cursorline'
 *[od*	*]od*	*yod*	'diff' (actually |:diffthis| / |:diffoff|)
+*[oe*	*]oe*	*yoe*	'spell'
 *[oh*	*]oh*	*yoh*	'hlsearch'
 *[oi*	*]oi*	*yoi*	'ignorecase'
 *[ol*	*]ol*	*yol*	'list'
 *[on*	*]on*	*yon*	'number'
 *[or*	*]or*	*yor*	'relativenumber'
-*[os*	*]os*	*yos*	'spell'
 *[ou*	*]ou*	*you*	'cursorcolumn'
 *[ov*	*]ov*	*yov*	'virtualedit'
 *[ow*	*]ow*	*yow*	'wrap'
 *[ox*	*]ox*	*yox*	'cursorline' 'cursorcolumn' (x as in crosshairs)
 
 The mnemonic for y is that if you tilt it a bit it looks like a switch.
+
+                                                *<s* *>s* *=s*
+Alternative prefixes for on/off/toggle: <s, >s, =s.
 
 PASTING                                         *unimpaired-pasting*
 
@@ -140,14 +145,20 @@ Mnemonic: encoding always comes before decoding; "[" always comes before "]".
 ]uu
 {Visual}]u
 
-                                                *[y* *[yy* *v_[y*
+                                        *[y* *[yy* *v_[y* *[C* *[CC* *v_[C*
 [y{motion}              C String encode.  Backslash escape control
 [yy                     characters, quotation marks, and backslashes.
 {Visual}[y
+[C{motion}
+[CC
+{Visual}[C
 
-                                                *]y* *]yy* *v_]y*
+                                        *]y* *]yy* *v_]y* *]C* *]CC* *v_]C*
 ]y{motion}              C String decode.
 ]yy
 {Visual}]y
+]C{motion}
+]CC
+{Visual}]C
 
  vim:tw=78:et:ft=help:norl:

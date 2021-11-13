@@ -118,7 +118,8 @@ command! -bar GitGutterBufferDisable call gitgutter#buffer_disable()
 command! -bar GitGutterBufferEnable  call gitgutter#buffer_enable()
 command! -bar GitGutterBufferToggle  call gitgutter#buffer_toggle()
 
-command! -bar GitGutterQuickFix call gitgutter#quickfix()
+command! -bar GitGutterQuickFix call gitgutter#quickfix(0)
+command! -bar GitGutterQuickFixCurrentFile call gitgutter#quickfix(1)
 
 " }}}
 
@@ -295,8 +296,8 @@ augroup gitgutter
   autocmd ColorScheme * call gitgutter#highlight#define_highlights()
 
   " Disable during :vimgrep
-  autocmd QuickFixCmdPre  *vimgrep* let g:gitgutter_enabled = 0
-  autocmd QuickFixCmdPost *vimgrep* let g:gitgutter_enabled = 1
+  autocmd QuickFixCmdPre  *vimgrep* let [g:gitgutter_was_enabled, g:gitgutter_enabled] = [g:gitgutter_enabled, 0]
+  autocmd QuickFixCmdPost *vimgrep* let g:gitgutter_enabled = g:gitgutter_was_enabled | unlet g:gitgutter_was_enabled
 augroup END
 
 " }}}

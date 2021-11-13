@@ -70,7 +70,11 @@ class RawSimilarFinder(object):
 
     def __init__(self, source, node=None, does_match=None):
         if node is None:
-            node = ast.parse(source)
+            try:
+                node = ast.parse(source)
+            except SyntaxError:
+                # needed to parse expression containing := operator
+                node = ast.parse('(' + source + ')')
         if does_match is None:
             self.does_match = self._simple_does_match
         else:
@@ -88,7 +92,7 @@ class RawSimilarFinder(object):
         self.ast = node
 
     def get_matches(self, code, start=0, end=None, skip=None):
-        """Search for `code` in source and return a list of `Match`\es
+        """Search for `code` in source and return a list of `Match`-es
 
         `code` can contain wildcards.  ``${name}`` matches normal
         names and ``${?name} can match any expression.  You can use

@@ -212,6 +212,10 @@ by moving the cursor to a tag and pressing <Enter> or double-clicking on it
 with the mouse. The source file will then move to the definition and put the
 cursor in the corresponding line. This won't work for pseudo-tags.
 
+If the current line of the tagbar window is not on a tag, for example on the
+'functions' tag-kind and <Enter> is hit, then that tag-kind will be folded or
+unfolded if possible.
+
 Sorting~
 You can sort the tags in the Tagbar window in two ways: by name or by file
 order. Sorting them by name simply displays the tags in their alphabetical
@@ -325,6 +329,20 @@ COMMANDS                                                     *tagbar-commands*
 
     This command will call the |tagbar#jump()| function.
 
+:TagbarJumpPrev                                             *:TagbarJumpPrev*
+    Jump to the previous tag under the cursor. This works in the file window.
+    This will search for the previous {'nearest-stl'} type tag starting at the
+    line just before the current line and do a backwards search.
+
+    This command will call the |tagbar#jumpToNearbyTag(-1)| function.
+
+:TagbarJumpNext                                             *:TagbarJumpNext*
+    Jump to the next tag under the cursor. This works in the file window.
+    This will search for the next {'nearest-stl'} type tag starting at the
+    line just after the current line and do a forward search.
+
+    This command will call the |tagbar#jumpToNearbyTag(1)| function.
+
 ------------------------------------------------------------------------------
 FUNCTIONS                                                   *tagbar-functions*
 
@@ -374,66 +392,105 @@ FUNCTIONS                                                   *tagbar-functions*
 
     This is the function called when using the |:TagbarJump| command.
 
+*tagbar#jumpToNearbyTag()*
+    This function will jump to the next tag or previous tag starting a search
+    from the line under the cursor. This works when in the file window instead
+    of inside the tagbar window like the |tagbar#jump()| function.
+
+    The direction of search must be provided. If the [direction] is greater
+    than 0, then it will do a forward search. If the [direction] is less
+    than 0, then it will do a backward search.
+
+    Can also optionally provide a [search_method] which is used in the
+    |tagbar#GetTagNearLine()| function call and behaves the same way. This
+    will default to *'nearest-stl'* if not specified.
+
+    Can optionally provide a flags field [flags] to control the nearby tag
+    jumping. The flags should be a string of characters with the following
+    meanings:
+        's' - use the |g:tagbar_scroll_off| setting when jumping
+
+    Full syntax:
+        tagbar#jumpToNearbyTag(direction [, {search-method} [, {flags}]])
+
+    Examples:
+>
+    " These keymaps will jump to the next/prev tag that can be scoped. Ex:
+    " function calls, class definitions, etc.
+    nnoremap t] :call tagbar#jumpToNearbyTag(1)
+    nnoremap t[ :call tagbar#jumpToNearbyTag(-1)
+
+    " These keymaps will jump to the next/prev tag regardless of type. Ex:
+    " function calls, class definitions, variable definitions, typedefs, etc.
+    nnoremap t] :call tagbar#jumpToNearbyTag(1, 'nearest')
+    nnoremap t[ :call tagbar#jumpToNearbyTag(-1, 'nearest')
+
+    " These keymaps will jump to the next/prev tag regardless of type, and
+    " will also use the jump_offset configuration to position the cursor
+    nnoremap t] :call tagbar#jumpToNearbyTag(1, 'nearest', 's')
+    nnoremap t[ :call tagbar#jumpToNearbyTag(-1, 'nearest', 's')
+<
+
 ------------------------------------------------------------------------------
 KEY MAPPINGS                                                     *tagbar-keys*
 
 The following mappings are valid in the Tagbar window:
 
 <F1>/?        Display key mapping help.
-                Map option: tagbar_map_help
-<CR>/<Enter>  Jump to the tag under the cursor. Doesn't work for pseudo-tags
-              or generic headers.
-                Map option: tagbar_map_jump
+                Map option: |tagbar_map_help|
+<CR>/<Enter>  Jump to the tag under the cursor. Doesn't work for pseudo-tags.
+              If on generic header, it will fold/unfold that header.
+                Map option: |tagbar_map_jump|
 p             Jump to the tag under the cursor, but stay in the Tagbar window.
-                Map option: tagbar_map_preview
+                Map option: |tagbar_map_preview|
 P             Open the tag in a |preview-window|.
-                Map option: tagbar_map_previewwin
+                Map option: |tagbar_map_previewwin|
 <LeftMouse>   When on a fold icon, open or close the fold depending on the
               current state.
 <2-LeftMouse> Same as <CR>. See |g:tagbar_singleclick| if you want to use a
               single- instead of a double-click.
 <C-N>         Go to the next top-level tag.
-                Map option: tagbar_map_nexttag
+                Map option: |tagbar_map_nexttag|
 <C-P>         Go to the previous top-level tag.
-                Map option: tagbar_map_prevtag
+                Map option: |tagbar_map_prevtag|
 <Space>       Display the prototype of the current tag (i.e. the line defining
               it) in the command line.
-                Map option: tagbar_map_showproto
+                Map option: |tagbar_map_showproto|
 v             Hide tags that are declared non-public. Tags without any
               visibility information will still be shown.
-                Map option: tagbar_map_hidenonpublic
+                Map option: |tagbar_map_hidenonpublic|
 +/zo          Open the fold under the cursor.
-                Map option: tagbar_map_openfold
+                Map option: |tagbar_map_openfold|
 -/zc          Close the fold under the cursor or the current one if there is
               no fold under the cursor.
-                Map option: tagbar_map_closefold
+                Map option: |tagbar_map_closefold|
 o/za          Toggle the fold under the cursor or the current one if there is
               no fold under the cursor.
-                Map option: tagbar_map_togglefold
+                Map option: |tagbar_map_togglefold|
 */zR          Open all folds by setting foldlevel to 99.
-                Map option: tagbar_map_openallfolds
+                Map option: |tagbar_map_openallfolds|
 =/zM          Close all folds by setting foldlevel to 0.
-                Map option: tagbar_map_closeallfolds
+                Map option: |tagbar_map_closeallfolds|
 zr            Increase the fold level of the buffer by 1. Opens all folds one
               level.
-                Map option: tagbar_map_incrementfolds
+                Map option: |tagbar_map_incrementfolds|
 zm            Decrease the fold level of the buffer by 1. Closes all folds one
               level.
-                Map option: tagbar_map_decrementfolds
+                Map option: |tagbar_map_decrementfolds|
 zj            Go to the start of the next fold, like the standard Vim |zj|.
-                Map option: tagbar_map_nextfold
+                Map option: |tagbar_map_nextfold|
 zk            Go to the end of the previous fold, like the standard Vim |zk|.
-                Map option: tagbar_map_prevfold
+                Map option: |tagbar_map_prevfold|
 s             Toggle sort order between name and file order.
-                Map option: tagbar_map_togglesort
+                Map option: |tagbar_map_togglesort|
 c             Toggle the |g:tagbar_autoclose| option.
-                Map option: tagbar_map_toggleautoclose
+                Map option: |tagbar_map_toggleautoclose|
 t             Toggle the pause (like :TagbarTogglePause)
-                Map option: tagbar_map_togglepause
+                Map option: |tagbar_map_togglepause|
 x             Toggle zooming the window.
-                Map option: tagbar_map_zoomwin
+                Map option: |tagbar_map_zoomwin|
 q             Close the Tagbar window.
-                Map option: tagbar_map_close
+                Map option: |tagbar_map_close|
 
 These mappings can be redefined with the given map options. The argument can
 be either a string or a |List| of strings. In the latter case the
@@ -1044,17 +1101,53 @@ Example:
 g:tagbar_wrap~
 Default: 0
 
-If set to non-zero, this will enable line wrapping on the tagbar window. This
-option will use the built-in |wrap| vim option on the tagbar window to
-enable line wrapping. This also will use the |breakindent| and
-|breakindentopt| options in vim to set the indentation of the wrapped lines.
+Possible Values:
+    0   Disable line wrapping.
+    1   Enable the |wrap| option and also enable the |linebreak| option to
+        split the lines on word boundaries. This will use the default
+        |breakat| setting in vim. Note: This can cause possible display issues
+        with tags that exceed the tagbar window width. A very long tag name
+        will cause the tag itself to wrap resulting in an empty line and
+        indentation of the tag (see example below).
+    2   Enable the |wrap| option but disable the |linebreak| option. This will
+        split the lines at the end of the tagbar window and can cause it to
+        wrap in the middle of a word. This should be used if there are tags
+        that are regularly longer than the tagbar window width.
+
+This also will use the |breakindent| and |breakindentopt| options in vim to
+set the indentation of the wrapped lines.
 
 Note: This requires VIM to be compiled with the |+linebreak| option for the
 wrap intentation to function.
 
-Example:
+Examples:
 >
+       " Wrap with linebreak - note the wrap works on word boundaries, but
+       " a very long tag name does cause an odd display issue.
        let g:tagbar_wrap = 1
+       +-------------------------------------------+
+       | ⯆ functions (106)                         |
+       |     s:add_tag_recursive(parent,taginfo,   |
+       |         pathlist) : function!             |
+       |     s:AutoUpdate(fname,force,...) :       |
+       |         function!                         |
+       |                                           |
+       |         s:SomeReallyLongTagNameThatWillExc|
+       |         eedWindowWidth : function!        |
+       +-------------------------------------------+
+
+       " Wrap without linbreak - note the display issue is gone for the
+       " really long tag name, but the other wraps will breakup words.
+       let g:tagbar_wrap = 2
+       +-------------------------------------------+
+       | ⯆ functions (106)                         |
+       |     s:add_tag_recursive(parent,taginfo,pat|
+       |         hlist) : function!                |
+       |     s:AutoUpdate(fname,force,...) : functi|
+       |         on!                               |
+       |     s:SomeReallyLongTagNameThatWillExceedW|
+       |         indowWidth : funciton!            |
+       +-------------------------------------------+
 <
                                                         *g:tagbar_no_autocmds*
 g:tagbar_no_autocmds~

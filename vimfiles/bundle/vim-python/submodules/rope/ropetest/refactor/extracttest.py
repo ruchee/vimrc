@@ -42,11 +42,40 @@ class ExtractMethodTest(unittest.TestCase):
         return lines.get_line_start(start), lines.get_line_end(end)
 
     def test_simple_extract_function(self):
-        code = "def a_func():\n    print('one')\n    print('two')\n"
+        code = dedent("""\
+            def a_func():
+                print('one')
+                print('two')
+        """)
         start, end = self._convert_line_range_to_offset(code, 2, 2)
         refactored = self.do_extract_method(code, start, end, 'extracted')
-        expected = "def a_func():\n    extracted()\n    print('two')\n\n" \
-                   "def extracted():\n    print('one')\n"
+        expected = dedent('''\
+            def a_func():
+                extracted()
+                print('two')
+
+            def extracted():
+                print('one')
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_simple_extract_function_one_line(self):
+        code = dedent("""\
+            def a_func():
+                resp = 'one'
+                print(resp)
+        """)
+        selected = "'one'"
+        start, end = code.index(selected), code.index(selected) + len(selected)
+        refactored = self.do_extract_method(code, start, end, 'extracted')
+        expected = dedent('''\
+            def a_func():
+                resp = extracted()
+                print(resp)
+
+            def extracted():
+                return 'one'
+        ''')
         self.assertEqual(expected, refactored)
 
     def test_extract_function_at_the_end_of_file(self):
@@ -403,6 +432,97 @@ class ExtractMethodTest(unittest.TestCase):
         end = len(code) - 1
         with self.assertRaises(rope.base.exceptions.RefactoringError):
             self.do_extract_method(code, start, end, 'new_func')
+
+    def test_for_loop_variable_scope(self):
+        code = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    i += 1
+                    print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 4, 5)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    i = new_func(i)
+
+            def new_func(i):
+                i += 1
+                print(i)
+                return i
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_for_loop_variable_scope_read_then_write(self):
+        code = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    a = i + 1
+                    i = a + 1
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 4, 5)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    i = new_func(i)
+
+            def new_func(i):
+                a = i + 1
+                i = a + 1
+                return i
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_for_loop_variable_scope_write_then_read(self):
+        code = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    i = 'hello'
+                    print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 4, 5)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func():
+                i = 0
+                for dummy in range(10):
+                    new_func()
+
+            def new_func():
+                i = 'hello'
+                print(i)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_for_loop_variable_scope_write_only(self):
+        code = dedent('''\
+            def my_func():
+                i = 0
+                for num in range(10):
+                    i = 'hello' + num
+                    print(i)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 4, 4)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func():
+                i = 0
+                for num in range(10):
+                    i = new_func(num)
+                    print(i)
+
+            def new_func(num):
+                i = 'hello' + num
+                return i
+        ''')
+        self.assertEqual(expected, refactored)
 
     def test_variable_writes_followed_by_variable_reads_after_extraction(self):
         code = 'def a_func():\n    a = 1\n    a = 2\n    b = a\n'
@@ -1043,19 +1163,24 @@ class ExtractMethodTest(unittest.TestCase):
         self.assertEqual(expected, refactored)
 
     def test_returning_conditional_updated_vars_in_extracted(self):
-        code = 'def f(a):\n' \
-               '    if 0:\n' \
-               '        a = 1\n' \
-               '    print(a)\n'
+        code = dedent("""\
+            def f(a):
+                if 0:
+                    a = 1
+                print(a)
+        """)
         start, end = self._convert_line_range_to_offset(code, 2, 3)
         refactored = self.do_extract_method(code, start, end, 'g')
-        expected = 'def f(a):\n' \
-                   '    a = g(a)\n' \
-                   '    print(a)\n\n' \
-                   'def g(a):\n' \
-                   '    if 0:\n' \
-                   '        a = 1\n' \
-                   '    return a\n'
+        expected = dedent("""\
+            def f(a):
+                a = g(a)
+                print(a)
+
+            def g(a):
+                if 0:
+                    a = 1
+                return a
+        """)
         self.assertEqual(expected, refactored)
 
     def test_extract_method_with_variables_possibly_written_to(self):
@@ -1097,25 +1222,29 @@ class ExtractMethodTest(unittest.TestCase):
         self.assertEqual(expected, refactored)
 
     def test_extract_method_with_list_comprehension_and_iter(self):
-        code = "def foo():\n" \
-               "    x = [e for e in []]\n" \
-               "    f = 23\n" \
-               "\n" \
-               "    for x, f in x:\n" \
-               "        def bar():\n" \
-               "            x[42] = 1\n"
+        code = dedent("""\
+            def foo():
+                x = [e for e in []]
+                f = 23
+
+                for x, f in x:
+                    def bar():
+                        x[42] = 1
+        """)
         start, end = self._convert_line_range_to_offset(code, 4, 7)
         refactored = self.do_extract_method(code, start, end, 'baz')
-        expected = "def foo():\n" \
-                   "    x = [e for e in []]\n" \
-                   "    f = 23\n" \
-                   "\n" \
-                   "    baz(x)\n" \
-                   "\n" \
-                   "def baz(x):\n" \
-                   "    for x, f in x:\n" \
-                   "        def bar():\n" \
-                   "            x[42] = 1\n"
+        expected = dedent("""\
+            def foo():
+                x = [e for e in []]
+                f = 23
+
+                baz(x)
+
+            def baz(x):
+                for x, f in x:
+                    def bar():
+                        x[42] = 1
+        """)
         self.assertEqual(expected, refactored)
 
     def test_extract_method_with_list_comprehension_and_orelse(self):
@@ -1180,8 +1309,13 @@ class ExtractMethodTest(unittest.TestCase):
         self.assertEqual(expected, refactored)
 
     def test_extract_function_with_for_else_statemant_outside_loops(self):
-        code = 'def a_func():\n    for i in range(10):\n        a = i\n' \
-            '    else:\n        a=None\n'
+        code = dedent('''\
+            def a_func():
+                for i in range(10):
+                    a = i
+                else:
+                    a=None
+        ''')
         start = code.index('a = i')
         end = len(code) - 1
         with self.assertRaises(rope.base.exceptions.RefactoringError):
@@ -1209,7 +1343,7 @@ class ExtractMethodTest(unittest.TestCase):
         self.assertEqual(expected, refactored)
 
     @testutils.only_for_versions_higher('3.8')
-    def test_extract_function_with_inline_assignment_in_condition(self):
+    def test_extract_function_statement_with_inline_assignment_in_condition(self):
         code = dedent('''\
             def foo(a):
                 if i := a == 5:
@@ -1228,6 +1362,453 @@ class ExtractMethodTest(unittest.TestCase):
                     i += 1
                 return i
         ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_extract_function_expression_with_inline_assignment_in_condition(self):
+        code = dedent('''\
+            def foo(a):
+                if i := a == 5:
+                    i += 1
+                print(i)
+        ''')
+        extract_target = 'i := a == 5'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def foo(a):
+                if i := new_func(a):
+                    i += 1
+                print(i)
+
+            def new_func(a):
+                return (i := a == 5)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_extract_function_expression_with_inline_assignment_complex(self):
+        code = dedent('''\
+            def foo(a):
+                if i := a == (c := 5):
+                    i += 1
+                    c += 1
+                print(i)
+        ''')
+        extract_target = 'i := a == (c := 5)'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def foo(a):
+                if i, c := new_func(a):
+                    i += 1
+                    c += 1
+                print(i)
+
+            def new_func(a):
+                return (i := a == (c := 5))
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_extract_function_expression_with_inline_assignment_in_inner_expression(self):
+        code = dedent('''\
+            def foo(a):
+                if a == (c := 5):
+                    c += 1
+                print(i)
+        ''')
+        extract_target = 'a == (c := 5)'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        with self.assertRaisesRegexp(rope.base.exceptions.RefactoringError, 'Extracted piece cannot contain named expression \\(:= operator\\).'):
+            self.do_extract_method(code, start, end, 'new_func')
+
+    def test_extract_exec(self):
+        code = dedent('''\
+            exec("def f(): pass", {})
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 1, 1)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+
+            def new_func():
+                exec("def f(): pass", {})
+
+            new_func()
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_lower('3')
+    def test_extract_exec_statement(self):
+        code = dedent('''\
+            exec "def f(): pass" in {}
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 1, 1)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+
+            def new_func():
+                exec "def f(): pass" in {}
+
+            new_func()
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_extract_async_function(self):
+        code = dedent('''\
+            async def my_func(my_list):
+                for x in my_list:
+                    var = x + 1
+                return var
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 3, 3)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            async def my_func(my_list):
+                for x in my_list:
+                    var = new_func(x)
+                return var
+
+            def new_func(x):
+                var = x + 1
+                return var
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_extract_inner_async_function(self):
+        code = dedent('''\
+            def my_func(my_list):
+                async def inner_func(my_list):
+                    for x in my_list:
+                        var = x + 1
+                return inner_func
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 2, 4)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func(my_list):
+                inner_func = new_func(my_list)
+                return inner_func
+
+            def new_func(my_list):
+                async def inner_func(my_list):
+                    for x in my_list:
+                        var = x + 1
+                return inner_func
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_extract_around_inner_async_function(self):
+        code = dedent('''\
+            def my_func(lst):
+                async def inner_func(obj):
+                    for x in obj:
+                        var = x + 1
+                return map(inner_func, lst)
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 5, 5)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            def my_func(lst):
+                async def inner_func(obj):
+                    for x in obj:
+                        var = x + 1
+                return new_func(inner_func, lst)
+
+            def new_func(inner_func, lst):
+                return map(inner_func, lst)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_extract_refactor_around_async_for_loop(self):
+        code = dedent('''\
+            async def my_func(my_list):
+                async for x in my_list:
+                    var = x + 1
+                return var
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 3, 3)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            async def my_func(my_list):
+                async for x in my_list:
+                    var = new_func(x)
+                return var
+
+            def new_func(x):
+                var = x + 1
+                return var
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    @testutils.only_for_versions_lower('3.8')
+    def test_extract_refactor_containing_async_for_loop_should_error_before_py38(self):
+        """
+        Refactoring async/await syntaxes is only supported in Python 3.8 and
+        higher because support for ast.PyCF_ALLOW_TOP_LEVEL_AWAIT was only
+        added to the standard library in Python 3.8.
+        """
+        code = dedent('''\
+            async def my_func(my_list):
+                async for x in my_list:
+                    var = x + 1
+                return var
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 2, 3)
+        with self.assertRaisesRegexp(rope.base.exceptions.RefactoringError, 'Extracted piece can only have async/await statements if Rope is running on Python 3.8 or higher'):
+            self.do_extract_method(code, start, end, 'new_func')
+
+    @testutils.only_for_versions_higher('3.8')
+    def test_extract_refactor_containing_async_for_loop_is_supported_after_py38(self):
+        code = dedent('''\
+            async def my_func(my_list):
+                async for x in my_list:
+                    var = x + 1
+                return var
+        ''')
+        start, end = self._convert_line_range_to_offset(code, 2, 3)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            async def my_func(my_list):
+                var = new_func(my_list)
+                return var
+
+            def new_func(my_list):
+                async for x in my_list:
+                    var = x + 1
+                return var
+        ''')
+        self.assertEqual(expected, refactored)
+
+    @testutils.only_for_versions_higher('3.5')
+    def test_extract_await_expression(self):
+        code = dedent('''\
+            async def my_func(my_list):
+                for url in my_list:
+                    resp = await request(url)
+                return resp
+        ''')
+        selected = 'request(url)'
+        start, end = code.index(selected), code.index(selected) + len(selected)
+        refactored = self.do_extract_method(code, start, end, 'new_func')
+        expected = dedent('''\
+            async def my_func(my_list):
+                for url in my_list:
+                    resp = await new_func(url)
+                return resp
+
+            def new_func(url):
+                return request(url)
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_to_staticmethod(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'second_method', kind="staticmethod")
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(a_var)
+
+                @staticmethod
+                def second_method(a_var):
+                    return a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_to_staticmethod_when_self_in_body(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = self.a_var + 1
+        ''')
+        extract_target = 'self.a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'second_method', kind="staticmethod")
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(self)
+
+                @staticmethod
+                def second_method(self):
+                    return self.a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_from_function_to_staticmethod_raises_exception(self):
+        code = dedent('''\
+            def first_method():
+                a_var = 1
+                b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        with self.assertRaisesRegexp(rope.base.exceptions.RefactoringError, "Cannot extract to staticmethod/classmethod outside class"):
+            self.do_extract_method(code, start, end, 'second_method', kind="staticmethod")
+
+    def test_extract_method_in_classmethods(self):
+        code = dedent('''\
+            class AClass(object):
+                @classmethod
+                def func2(cls):
+                    b = 1
+        ''')
+        start = code.index(' 1') + 1
+        refactored = self.do_extract_method(code, start, start + 1,
+                                            'one', similar=True)
+        expected = dedent('''\
+            class AClass(object):
+                @classmethod
+                def func2(cls):
+                    b = AClass.one()
+
+                @classmethod
+                def one(cls):
+                    return 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_from_function_to_classmethod_raises_exception(self):
+        code = dedent('''\
+            def first_method():
+                a_var = 1
+                b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        with self.assertRaisesRegexp(rope.base.exceptions.RefactoringError, "Cannot extract to staticmethod/classmethod outside class"):
+            self.do_extract_method(code, start, end, 'second_method', kind="classmethod")
+
+    def test_extract_to_classmethod_when_self_in_body(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = self.a_var + 1
+        ''')
+        extract_target = 'self.a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'second_method', kind="classmethod")
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(self)
+
+                @classmethod
+                def second_method(cls, self):
+                    return self.a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_to_classmethod(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'second_method', kind="classmethod")
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(a_var)
+
+                @classmethod
+                def second_method(cls, a_var):
+                    return a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_to_classmethod_when_name_starts_with_at_sign(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, '@second_method')
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(a_var)
+
+                @classmethod
+                def second_method(cls, a_var):
+                    return a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_extract_to_staticmethod_when_name_starts_with_dollar_sign(self):
+        code = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = a_var + 1
+        ''')
+        extract_target = 'a_var + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, '$second_method')
+        expected = dedent('''\
+            class A:
+                def first_method(self):
+                    a_var = 1
+                    b_var = A.second_method(a_var)
+
+                @staticmethod
+                def second_method(a_var):
+                    return a_var + 1
+        ''')
+        self.assertEqual(expected, refactored)
+
+    def test_raises_exception_when_sign_in_name_and_kind_mismatch(self):
+        with self.assertRaisesRegexp(rope.base.exceptions.RefactoringError, "Kind and shortcut in name mismatch"):
+            self.do_extract_method("code", 0,1, '$second_method', kind="classmethod")
+
+    def test_extracting_from_static_with_function_arg(self):
+        code = dedent('''\
+                class A:
+                    @staticmethod
+                    def first_method(someargs):
+                        b_var = someargs + 1
+            ''')
+
+        extract_target = 'someargs + 1'
+        start, end = code.index(extract_target), code.index(extract_target) + len(extract_target)
+        refactored = self.do_extract_method(code, start, end, 'second_method')
+        expected = dedent('''\
+                class A:
+                    @staticmethod
+                    def first_method(someargs):
+                        b_var = A.second_method(someargs)
+
+                    @staticmethod
+                    def second_method(someargs):
+                        return someargs + 1
+            ''')
+
         self.assertEqual(expected, refactored)
 
 

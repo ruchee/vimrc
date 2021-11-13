@@ -1,47 +1,80 @@
-if exists("b:did_indent")
+" Vim indent file
+" Language: Ruby Signature (RBS) <github.com/ruby/rbs>
+" Author: Jeffrey Crochet <jlcrochet@pm.me>
+" URL: https://github.com/jlcrochet/vim-rbs
+
+if get(b:, "did_indent")
   finish
 endif
+
 let b:did_indent = 1
 
-setlocal indentkeys+==end,0|
-setlocal indentexpr=RubySignatureIndent(v:lnum)
+setlocal indentkeys=o,O,!^F,0<bar>,0=end
+setlocal indentexpr=GetRBSIndent()
 
-function! RubySignatureIndent(lnum) abort
-  let prev_lnum = prevnonblank(a:lnum-1)
+if exists("*GetRBSIndent")
+  finish
+endif
+
+function GetRBSIndent() abort
+  let prev_lnum = prevnonblank(v:lnum - 1)
+
   if prev_lnum == 0
-    " top of file
     return 0
   endif
 
-  let prev_line = substitute(getline(prev_lnum), '#.*$', '', '')
-  let this_line = substitute(getline(a:lnum), '#.*$', '', '')
-  let indent = indent(prev_lnum)
+  let line = getline(v:lnum)
+  let prev_line = getline(prev_lnum)
 
-  if this_line =~ '\v^\s*\|'
-    let i = stridx(prev_line, '|')
-    if i != -1
-      return i
+  let first_idx = match(prev_line, '\S')
+
+  if line =~# '^\s*|'
+    if match(prev_line, '^def\>', first_idx) != -1
+      let idx = stridx(prev_line, ":", first_idx + 4)
+
+      while idx != -1
+        let synid = synID(prev_lnum, idx + 1, 0)
+
+        if synid == g:rbs#indent#declaration_operator || synid == g:rbs#indent#method_declaration_operator
+          return idx
+        endif
+
+        let idx = stridx(prev_line, ":", idx + 1)
+      endwhile
+
+      return -1
+    else
+      return first_idx
     endif
-    let i = stridx(prev_line, ':')
-    if i != -1
-      return i
-    endif
   endif
 
-  while prev_line =~ '\v^\s*\|' && prev_lnum > 0
-    let prev_lnum -= 1
-    let prev_line = getline(prev_lnum)
-    let indent = indent(prev_lnum)
-  endwhile
+  if prev_line[first_idx] ==# "|"
+    let start_lnum = prevnonblank(prev_lnum - 1)
 
-  if prev_line =~ '\v<(class|module|interface)>'
-    let indent += shiftwidth()
+    while start_lnum
+      let start_line = getline(start_lnum)
+      let first_idx = match(start_line, '\S')
+
+      if start_line[first_idx] !=# "|"
+        break
+      endif
+
+      let start_lnum = prevnonblank(start_lnum - 1)
+    endwhile
+  else
+    let start_lnum = prev_lnum
+    let start_line = prev_line
   endif
 
-  if this_line =~ 'end\s*$'
-    let indent -= shiftwidth()
+  let shift = 0
+
+  if line =~# '^\s*end\>'
+    let shift -= 1
   endif
 
+  if match(start_line, '^\%(class\|module\|interface\)\>', first_idx) != -1
+    let shift += 1
+  endif
 
-  return indent
+  return first_idx + shift * shiftwidth()
 endfunction

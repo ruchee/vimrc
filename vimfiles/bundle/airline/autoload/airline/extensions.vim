@@ -249,6 +249,10 @@ function! airline#extensions#load()
     call airline#extensions#tagbar#init(s:ext)
     call add(s:loaded_ext, 'tagbar')
   endif
+  if get(g:, 'airline#extensions#taglist#enabled', 1) && exists(':TlistShowTag')
+    call airline#extensions#taglist#init(s:ext)
+    call add(s:loaded_ext, 'taglist')
+  endif
 
   if get(g:, 'airline#extensions#vista#enabled', 1)
         \ && exists(':Vista')
@@ -498,6 +502,11 @@ function! airline#extensions#load()
   if (get(g:, 'airline#extensions#omnisharp#enabled', 1) && get(g:, 'OmniSharp_loaded', 0))
     call airline#extensions#omnisharp#init(s:ext)
     call add(s:loaded_ext, 'omnisharp')
+  endif
+
+  if (get(g:, 'airline#extensions#rufo#enabled', 0) && get(g:, 'rufo_loaded', 0))
+    call airline#extensions#rufo#init(s:ext)
+    call add(s:loaded_ext, 'rufo')
   endif
 
 endfunction

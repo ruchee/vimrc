@@ -32,6 +32,20 @@ IMPROVEMENTS:
   [[GH-3058]](https://github.com/fatih/vim-go/pull/3058)
 * Check omnifunc's value before executing actions on CompletedDone event.
   [[GH-3274]](https://github.com/fatih/vim-go/pull/3274)
+* Highlight new form of build constraints.
+  [[GH-3292]](https://github.com/fatih/vim-go/pull/3292)
+* Teach `:GoDiagnostics` to handle package pattern arguments.
+  [[GH-3297]](https://github.com/fatih/vim-go/pull/3297)
+* Add `g:go_debug_subsitute_paths` to support debugging applications when the
+  source is hosted in a local location that is different from where the binary
+  was compiled.
+  [[GH-3301]](https://github.com/fatih/vim-go/pull/3301)
+* Wrap text in the fzf preview window by default.
+  [[GH-3310]](https://github.com/fatih/vim-go/pull/3310)
+* Wait for up to five seconds when opening a connection to a remote debugger.
+  [[GH-3312]](https://github.com/fatih/vim-go/pull/3312)
+* Install tools with `go install` instead of `go get`.
+  [[GH-3317]](https://github.com/fatih/vim-go/pull/3317)
 
 BUG FIXES:
 * Handle terminating parenthesis on hexadecimal values.
@@ -44,6 +58,14 @@ BUG FIXES:
   [[GH-3279]](https://github.com/fatih/vim-go/pull/3279)
 * Fix example in `g:go_metalinter_enabled` documentation.
   [[GH-3291]](https://github.com/fatih/vim-go/pull/3291)
+* Fix changing directories in older Vims.
+  [[GH-3299]](https://github.com/fatih/vim-go/pull/3299)
+* Highlight the receive type when method declarations that omit the receiver
+  identifier.
+  [[GH-3306]](https://github.com/fatih/vim-go/pull/3306)
+* Do not highlight misspellings in import paths.
+  [[GH-3308]](https://github.com/fatih/vim-go/pull/3308)
+  [[GH-3321]](https://github.com/fatih/vim-go/pull/3321)
 
 ## v1.25 - (April 18, 2021)
 

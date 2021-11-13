@@ -721,8 +721,8 @@ endfunction
 function! go#util#Chdir(dir) abort
   if !exists('*chdir')
     let l:olddir = getcwd()
-    let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd ' : 'cd '
-    execute printf('cd %s', fnameescape(a:dir))
+    let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+    execute printf('%s %s', cd, fnameescape(a:dir))
     return l:olddir
   endif
   return chdir(a:dir)
@@ -747,6 +747,22 @@ function go#util#TestName() abort
 
   let l:decl = getline(l:line)
   return split(split(l:decl, " ")[1], "(")[0]
+endfunction
+
+function go#util#ExpandPattern(...) abort
+  let l:packages = []
+  for l:pattern in a:000
+    let l:pkgs = go#tool#List(l:pattern)
+    if l:pkgs is -1
+      call go#util#EchoError('could not expand package pattern')
+      continue
+    endif
+
+    let l:packages = extend(l:packages, l:pkgs)
+    call go#util#EchoInfo(printf("l:packages = %s, l:pkgs = %s", l:packages, l:pkgs))
+  endfor
+
+  return uniq(sort(l:packages))
 endfunction
 
 " restore Vi compatibility settings

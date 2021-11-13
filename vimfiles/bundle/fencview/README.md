@@ -30,4 +30,4 @@ If you need *fencview.vim* to detect encoding of every file, set `g:fencview_aut
 Now *fencview.vim* allows the use of an external program **[tellenc](https://github.com/adah1972/tellenc)** to determine the file encoding. It may give you better performance, or better accuracy, in some cases.
 
 ### Screenshot
-![](https://sites.google.com/site/mbbill/fencview.png)
+![](doc/fencview.png)
