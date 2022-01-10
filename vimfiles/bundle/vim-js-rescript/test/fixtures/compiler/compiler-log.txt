@@ -1,0 +1,67 @@
+#Start(1402242571131)
+
+  Syntax error!
+  /Users/rescript/Projects/vim-rescript/src/foo.res:12:6
+
+  10 │ let f = "test"
+  11 │
+  12 │ let z;
+  13 │
+
+  Did you forget a `=` here?
+
+
+  Warning number 20 
+  /Users/rescript/Projects/vim-rescript/src/Text.res:47:11-25
+  
+  45 │ 
+  46 │ let string_of_number = f => {
+  47 │   let s = string_of_float(f)
+  48 │   if String.get(s, String.length(s) - 1) == '.' {
+  49 │     String.sub(s, 0, String.length(s) - 1)
+  
+  deprecated: Pervasives.string_of_float
+Please use something else, otherwise we can't do much about it 
+  
+    We've found a bug for you!
+    /Users/rescript/Projects/vim-rescript/src/Button.res:50:58-62
+    
+    180 ┆ | String(value) => "\"" ++ (escape(value) ++ "\"")
+    181 ┆ | Number(num) => string_of_number(num)
+    182 ┆ | Array(items) => "[" ++ (String.concat(", ", List.map(items, strin
+          gify)) ++ "]")
+    183 ┆ | Object(items) =>
+    184 ┆   "{" ++
+    
+    This has type: list<t>
+  Somewhere wanted: string => int
+    
+#Done(1402242571246)
+#Start(1602242571131)
+
+  Warning number 3
+  /Users/rescript/Projects/vim-rescript/src/Json.res:20:11-25
+  
+  45 │ 
+  46 │ let string_of_number = f => {
+  47 │   let s = string_of_float(f)
+  48 │   if String.get(s, String.length(s) - 1) == '.' {
+  49 │     String.sub(s, 0, String.length(s) - 1)
+  
+  deprecated: Pervasives.string_of_float
+Please use Js.Float.toString instead, string_of_float generates unparseable floats
+  
+    We've found a bug for you!
+    /Users/rescript/Projects/vim-rescript/src/Decode.res:182:58-62
+    
+    180 ┆ | String(value) => "\"" ++ (escape(value) ++ "\"")
+    181 ┆ | Number(num) => string_of_number(num)
+    182 ┆ | Array(items) => "[" ++ (String.concat(", ", List.map(items, strin
+          gify)) ++ "]")
+    183 ┆ | Object(items) =>
+    184 ┆   "{" ++
+    
+    This has type: list<t>
+  Somewhere wanted: 'a => 'b
+    
+#Done(1602242571246)

@@ -1,0 +1,8 @@
+test/fixtures/let-binding.res:4:18 -> [E] (Syntax) Did you forget a `=` here?
+test/fixtures/let-binding.res:10:12 -> [E] (Syntax) Did you forget a `=` here?
+test/fixtures/let-binding.res:16:19 -> [E] (Syntax) Did you forget a `=` here?
+test/fixtures/let-binding.res:20:39 -> [E] (Syntax) This let-binding misses an expression
+test/fixtures/let-binding.res:22:10 -> [E] (Syntax) This let-binding misses an expression
+test/fixtures/let-binding.res:25:11 -> [E] (Syntax) Did you forget a `=` here?
+test/fixtures/let-binding.res:28:6 -> [E] (Syntax) Did you forget a `=` here?
+test/fixtures/let-binding.res:31:13 -> [E] (Syntax) Did you forget a `=` here?

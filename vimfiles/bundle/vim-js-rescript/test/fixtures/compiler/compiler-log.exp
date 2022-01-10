@@ -1,0 +1,5 @@
+/Users/rescript/Projects/vim-rescript/src/foo.res:12:6 -> [E] (Syntax) Did you forget a `=` here?
+/Users/rescript/Projects/vim-rescript/src/Text.res:47:11 -> [W] (Warning 20) deprecated: Pervasives.string_of_float Please use something else, otherwise we can't do much about it
+/Users/rescript/Projects/vim-rescript/src/Button.res:50:58 -> [E] This has type: list<t> Somewhere wanted: string => int
+/Users/rescript/Projects/vim-rescript/src/Json.res:20:11 -> [W] (Warning 3) deprecated: Pervasives.string_of_float Please use Js.Float.toString instead, string_of_float generates unparseable floats
+/Users/rescript/Projects/vim-rescript/src/Decode.res:182:58 -> [E] This has type: list<t> Somewhere wanted: 'a => 'b
