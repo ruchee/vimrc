@@ -369,7 +369,7 @@ function! vlime#ui#CurExprPos(cur_char, ...)
       " searchpairpos()'s skip argument.
       " We match "escape" for special items, such as lispEscapeSpecial.
       let s_skip = '!empty(filter(map(synstack(line("."), col(".")), ''synIDattr(v:val, "name")''), ' .
-      \ '''v:val =~? "string\\|character\\|singlequote\\|escape\\|comment"''))'
+          \ '''v:val =~? "string\\|character\\|singlequote\\|escape\\|symbol\\|comment"''))'
       " If executing the expression determines that the cursor is currently in
       " one of the syntax types, then we want searchpairpos() to find the pair
       " within those syntax types (i.e., not skip).  Otherwise, the cursor is
@@ -419,6 +419,25 @@ function! vlime#ui#CurTopExpr(...)
 endfunction
 
 ""
+" @usage [flags]
+" @public
+"
+" Tiny searchpairpos() wrapper tailored for searching pairs of matching
+" parenthesis.
+"
+" It automatically skips matches found inside certain syntax regions like:
+" - escape (i.e. lispEscapeSpecial)
+" - symbol (i.e. lispBarSymbol)
+"
+" See `:help search" for the use of [flags].
+function! vlime#ui#SearchParenPos(flags)
+    let skipped_regions_fn = '!empty(filter(map(synstack(line("."), col(".")), ''synIDattr(v:val, "name")''), ' .
+        \ '''v:val =~? "string\\|character\\|singlequote\\|escape\\|symbol\\|comment"''))'
+
+    return searchpairpos('(', '', ')', a:flags, skipped_regions_fn)
+endfunction
+
+""
 " @usage [side] [max_level] [max_lines]
 " @public
 "
@@ -446,7 +465,7 @@ function! vlime#ui#CurTopExprPos(...)
     let cur_level = 1
     try
         while type(max_level) == type(v:null) || cur_level <= max_level
-            let cur_pos = searchpairpos('(', '', ')', search_flags)
+            let cur_pos = vlime#ui#SearchParenPos(search_flags)
             if cur_pos[0] <= 0 || cur_pos[1] <= 0 ||
                         \ (type(max_lines) != type(v:null) && abs(old_cur_pos[1] - cur_pos[0]) > max_lines)
                 break
@@ -461,7 +480,7 @@ function! vlime#ui#CurTopExprPos(...)
         else
             let cur_char = vlime#ui#CurChar()
             if cur_char == '(' || cur_char == ')'
-                return searchpairpos('(', '', ')', search_flags . 'c')
+                return vlime#ui#SearchParenPos(search_flags . 'c')
             else
                 return [0, 0]
             endif
@@ -540,21 +559,14 @@ endfunction
 " Return the operator symbol name of the parentheses-enclosed expression under
 " the cursor. If no expression is found, return an empty string.
 function! vlime#ui#CurOperator()
-    let expr = vlime#ui#CurExpr()
-    if len(expr) > 0
-        let matches = matchlist(expr, '^(\_s*\(\k\+\)\_s*\_.*)$')
+    " There may be an incomplete expression, so instead of
+    " @function(vlime#ui#CurExpr) we use searchpairpos() instead
+    let [s_line, s_col] = vlime#ui#SearchParenPos('cbnW')
+    if s_line > 0 && s_col > 0
+        let op_line = getline(s_line)[(s_col-1):]
+        let matches = matchlist(op_line, '^(\s*\(\k\+\)\s*')
         if len(matches) > 0
             return matches[1]
-        endif
-    else
-        " There may be an incomplete expression
-        let [s_line, s_col] = searchpairpos('(', '', ')', 'cbnW')
-        if s_line > 0 && s_col > 0
-            let op_line = getline(s_line)[(s_col-1):]
-            let matches = matchlist(op_line, '^(\s*\(\k\+\)\s*')
-            if len(matches) > 0
-                return matches[1]
-            endif
         endif
     endif
     return ''
@@ -567,7 +579,7 @@ endfunction
 " surrounding expression instead, if the cursor is on the left enclosing
 " parentheses.
 function! vlime#ui#SurroundingOperator()
-    let [s_line, s_col] = searchpairpos('(', '', ')', 'bnW')
+    let [s_line, s_col] = vlime#ui#SearchParenPos('bnW')
     if s_line > 0 && s_col > 0
         let op_line = getline(s_line)[(s_col-1):]
         let matches = matchlist(op_line, '^(\s*\(\k\+\)\s*')
@@ -583,7 +595,7 @@ function! vlime#ui#ParseOuterOperators(max_count)
     let old_cur_pos = getcurpos()
     try
         while len(stack) < a:max_count
-            let [p_line, p_col] = searchpairpos('(', '', ')', 'bnW')
+            let [p_line, p_col] = vlime#ui#SearchParenPos('bnW')
             if p_line <= 0 || p_col <= 0
                 break
             endif
@@ -1100,7 +1112,7 @@ function! vlime#ui#CurArgPos(...)
     let arg_pos = -1
 
     if type(s_pos) == type(v:null)
-        let [s_line, s_col] = searchpairpos('(', '', ')', 'bnW')
+        let [s_line, s_col] = vlime#ui#SearchParenPos('bnW')
     else
         let [s_line, s_col] = s_pos
     endif
@@ -1141,6 +1153,10 @@ function! vlime#ui#CurArgPos(...)
 
             if index(syntax, 'lispComment') >= 0
                 " do nothing
+            elseif last_type == '\'
+                let last_type = 'i'
+            elseif ch == '\'
+                let last_type = '\'
             elseif ch == ' ' || ch == "\<tab>" || ch == "\n"
                 if last_type != 's' && last_type != ')' && paren_count == 1
                     let arg_pos += 1
