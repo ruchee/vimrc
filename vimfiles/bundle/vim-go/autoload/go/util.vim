@@ -126,8 +126,8 @@ function! go#util#gomod() abort
   return substitute(s:exec(['go', 'env', 'GOMOD'])[0], '\n', '', 'g')
 endfunction
 
-" gomodcache returns 'go env GOMODCACHE'. Use go#util#env('gomodcache')
-" instead.
+" gomodcache returns 'go env GOMODCACHE'. This is an internal function and
+" shouldn't be used. Use go#util#env('gomodcache') instead.
 function! go#util#gomodcache() abort
   return substitute(s:exec(['go', 'env', 'GOMODCACHE'])[0], '\n', '', 'g')
 endfunction
@@ -183,6 +183,8 @@ function! s:system(cmd, ...) abort
   let l:shell = &shell
   let l:shellredir = &shellredir
   let l:shellcmdflag = &shellcmdflag
+  let l:shellquote = &shellquote
+  let l:shellxquote = &shellxquote
 
   if !go#util#IsWin() && executable('/bin/sh')
       set shell=/bin/sh shellredir=>%s\ 2>&1 shellcmdflag=-c
@@ -192,6 +194,8 @@ function! s:system(cmd, ...) abort
     if executable($COMSPEC)
       let &shell = $COMSPEC
       set shellcmdflag=/C
+      set shellquote&
+      set shellxquote&
     endif
   endif
 
@@ -202,6 +206,8 @@ function! s:system(cmd, ...) abort
     let &shell = l:shell
     let &shellredir = l:shellredir
     let &shellcmdflag = l:shellcmdflag
+    let &shellquote = l:shellquote
+    let &shellxquote = l:shellxquote
   endtry
 endfunction
 
