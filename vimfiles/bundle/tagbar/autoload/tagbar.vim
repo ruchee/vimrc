@@ -563,6 +563,16 @@ function! s:CreateAutocommands() abort
             autocmd WinEnter   __Tagbar__.* call s:SetStatusLine()
             autocmd WinLeave   __Tagbar__.* call s:SetStatusLine()
 
+            if g:tagbar_show_balloon == 1 && has('balloon_eval')
+                autocmd WinEnter __Tagbar__.*
+                        \ let s:beval = &beval |
+                        \ set ballooneval
+                autocmd WinLeave __Tagbar__.*
+                        \ if exists("s:beval") |
+                        \   let &beval = s:beval |
+                        \ endif
+            endif
+
             if g:tagbar_autopreview
                 autocmd CursorMoved __Tagbar__.* nested call s:ShowInPreviewWin()
             endif
@@ -981,6 +991,7 @@ function! s:InitWindow(autoclose) abort
     setlocal nobuflisted
     setlocal nomodifiable
     setlocal textwidth=0
+    setlocal colorcolumn=""
 
     if g:tagbar_scrolloff > 0
         execute 'setlocal scrolloff=' . g:tagbar_scrolloff
@@ -988,7 +999,6 @@ function! s:InitWindow(autoclose) abort
 
     if g:tagbar_show_balloon == 1 && has('balloon_eval')
         setlocal balloonexpr=TagbarBalloonExpr()
-        set ballooneval
     endif
 
 
@@ -2991,7 +3001,7 @@ function! s:EscapeCtagsCmd(ctags_bin, args, ...) abort
 
     "Set up 0th argument of ctags_cmd
     "a:ctags_bin may have special characters that require escaping.
-    if &shell =~? 'cmd\.exe$' && a:ctags_bin !~# '\s'
+    if (&shell =~? 'cmd\.exe$' || &shell =~? 'powershell\.exe$' || &shell =~? 'powershell$' || &shell =~? 'pwsh\.exe$' || &shell =~? 'pwsh$') && a:ctags_bin !~# '\s'
         "For windows cmd.exe, escaping the 0th argument can cause
         "problems if it references a batch file and the batch file uses %~dp0.
         "So for windows cmd.exe, only escape the 0th argument iff necessary.
@@ -3900,13 +3910,13 @@ function! tagbar#currenttag(fmt, default, ...) abort
         if a:0 >= 2
             let search_method = a:2
         else
-            let search_method = 'nearest-stl'
+            let search_method = g:tagbar_highlight_method
         endif
     else
         let longsig   = 0
         let fullpath  = 0
         let prototype = 0
-        let search_method = 'nearest-stl'
+        let search_method = g:tagbar_highlight_method
     endif
 
     if !s:Init(1)

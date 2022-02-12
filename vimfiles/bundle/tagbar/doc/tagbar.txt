@@ -270,9 +270,11 @@ COMMANDS                                                     *tagbar-commands*
 :TagbarClose                                                    *:TagbarClose*
     Close the Tagbar window if it is open.
 
-:TagbarToggle                                                  *:TagbarToggle*
-:Tagbar
+:TagbarToggle [{flags}]                                        *:TagbarToggle*
+:Tagbar [{flags}]
     Open the Tagbar window if it is closed, or close it if it is open.
+    Additional behaviour can be specified with the same optional {flags}
+    argument as :TagbarOpen.
 
 :TagbarOpenAutoClose                                    *:TagbarOpenAutoClose*
     Open the Tagbar window, jump to it and close it on tag selection. This is
@@ -293,9 +295,9 @@ COMMANDS                                                     *tagbar-commands*
     Open the parent folds of the current tag in the file window as much as
     needed for the tag to be visible in the Tagbar window.
 
-:TagbarCurrentTag [{flags}]                                *:TagbarCurrentTag*
-    Echo the current tag in the command line. For {flags} see
-    |tagbar-statusline|.
+:TagbarCurrentTag [{flags} [{search-method}]]              *:TagbarCurrentTag*
+    Echo the current tag in the command line. For {flags} and {search-method}
+    see |tagbar-statusline|.
 
 :TagbarGetTypeConfig {filetype}                         *:TagbarGetTypeConfig*
     Paste the Tagbar configuration of the vim filetype {filetype} at the
