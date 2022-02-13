@@ -1,0 +1,1601 @@
+{
+  "$schema": "https://mattn.github.io/vim-lsp-settings/schema.json",
+  "_": [
+    {
+      "command": "efm-langserver",
+      "description": "General purpose Language Server",
+      "url": "https://github.com/mattn/efm-langserver",
+      "disabled": true,
+      "requires": [
+        "go"
+      ]
+    }
+  ],
+  "apex": [
+    {
+      "command": "apex-jorje-lsp",
+      "description": "Apex Language Server",
+      "url": "https://developer.salesforce.com/tools/vscode/en/apex/language-server",
+      "requires": [
+        "java"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "apxc",
+          "apxt",
+          "cls",
+          "trigger",
+          "tgr"
+        ],
+        "name": "ejholmes/vim-forcedotcom"
+      }
+    }
+  ],
+  "c": [
+    {
+      "command": "clangd",
+      "url": "https://github.com/clangd/clangd",
+      "description": "clangd language server",
+      "requires": []
+    }
+  ],
+  "clojure": [
+    {
+      "command": "clojure-lsp",
+      "url": "https://github.com/clojure-lsp/clojure-lsp",
+      "description": "Language Server (LSP) for Clojure",
+      "requires": [],
+      "root_uri_patterns": [
+        ".lein/",
+        ".shadow-cljs/",
+        "project.clj",
+        "deps.edn",
+        "shadow-cljs.edn"
+      ]
+    },
+    {
+      "command": "clj-kondo-lsp",
+      "url": "https://github.com/clj-kondo/clj-kondo.lsp",
+      "description": "Clj-kondo language server",
+      "requires": [
+        "java"
+      ],
+      "root_uri_patterns": [
+        ".lein/",
+        ".shadow-cljs/",
+        "project.clj",
+        "deps.edn",
+        "shadow-cljs.edn"
+      ]
+    }
+  ],
+  "cmake": [
+    {
+      "command": "cmake-language-server",
+      "url": "https://github.com/regen100/cmake-language-server",
+      "description": "CMake LSP Implementation",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "cmake-language-server",
+      "url": "https://github.com/regen100/cmake-language-server",
+      "description": "CMake LSP Implementation",
+      "requires": [
+        "python3"
+      ]
+    }
+  ],
+  "cobol": [
+    {
+      "command": "cobol-language-support",
+      "url": "https://github.com/eclipse/che-che4z-lsp-for-cobol",
+      "description": "COBOL Language Support",
+      "requires": [
+        "java"
+      ]
+    }
+  ],
+  "context": [
+    {
+      "command": "texlab",
+      "url": "https://github.com/latex-lsp/texlab",
+      "description": "An implementation of the Language Server Protocol for LaTeX",
+      "requires": []
+    },
+    {
+      "command": "digestif",
+      "url": "https://github.com/astoff/digestif",
+      "description": "A language server for TeX and friends",
+      "requires": [
+        "luarocks"
+      ]
+    }
+  ],
+  "cpp": [
+    {
+      "command": "clangd",
+      "url": "https://github.com/clangd/clangd",
+      "description": "clangd language server",
+      "requires": []
+    }
+  ],
+  "cs": [
+    {
+      "command": "omnisharp-lsp",
+      "url": "https://github.com/OmniSharp/omnisharp-roslyn",
+      "description": "OmniSharp server (HTTP, STDIO) based on Roslyn workspaces",
+      "requires": []
+    }
+  ],
+  "css": [
+    {
+      "command": "vscode-css-language-server",
+      "url": "https://github.com/hrsh7th/vscode-langservers-extracted",
+      "description": "HTML/CSS/JSON language servers extracted from vscode.",
+      "config": {
+        "refresh_pattern": "\\([a-zA-Z0-9_-]\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "css-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-css-languageserver-bin",
+      "description": "Binary version published on npm of vscode-css-languageserver extracted from VSCode tree",
+      "config": {
+        "refresh_pattern": "\\([a-zA-Z0-9_-]\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "tailwindcss-intellisense",
+      "url": "https://github.com/tailwindlabs/tailwindcss-intellisense",
+      "description": "Intelligent Tailwind CSS tooling for Visual Studio Code",
+      "config": {
+        "refresh_pattern": "\\(@[a-zA-Z0-9_]*\\|[a-zA-Z0-9_-]\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "d": [
+    {
+      "command": "serve-d",
+      "url": "https://github.com/Pure-D/serve-d",
+      "description": "Microsoft language server protocol implementation for D using workspace-d",
+      "requires": []
+    },
+    {
+      "command": "dls",
+      "url": "https://github.com/d-language-server/dls",
+      "description": "A Language Server implementation for D",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "dart": [
+    {
+      "command": "analysis-server-dart-snapshot",
+      "url": "https://dart.dev/get-dart",
+      "description": "The Dart SDK",
+      "requires": []
+    }
+  ],
+  "dockerfile": [
+    {
+      "command": "docker-langserver",
+      "url": "https://github.com/rcjsuen/dockerfile-language-server-nodejs",
+      "description": "A language server for Dockerfiles powered by Node.js, TypeScript, and VSCode technologies.",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "dot": [
+    {
+      "command": "dot-language-server",
+      "url": "https://github.com/nikeee/dot-language-server",
+      "description": "A language Server for the DOT language/Graphviz.",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "elixir": [
+    {
+      "command": "elixir-ls",
+      "url": "https://github.com/elixir-lsp/elixir-ls",
+      "description": "A frontend-independent IDE \"smartness\" server for Elixir.",
+      "requires": [
+        "elixir"
+      ],
+      "root_uri_patterns": [
+        "mix.exs"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "ex",
+          "exs"
+        ],
+        "name": "elixir-editors/vim-elixir"
+      }
+    }
+  ],
+  "elm": [
+    {
+      "command": "elm-language-server",
+      "url": "https://github.com/elm-tooling/elm-language-server",
+      "description": "Language server implementation for Elm",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "elm.json"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "elm"
+        ],
+        "name": "ElmCast/elm-vim"
+      }
+    }
+  ],
+  "erlang": [
+    {
+      "command": "erlang-ls",
+      "url": "https://github.com/elm-tooling/elm-language-server",
+      "description": "The Erlang Language Server",
+      "requires": [
+        "make",
+        "rebar3"
+      ],
+      "root_uri_patterns": [
+        "rebar.config"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "erl"
+        ],
+        "name": "vim-erlang/vim-erlang-runtime"
+      }
+    }
+  ],
+  "fortran": [
+    {
+      "command": "fortls",
+      "url": "https://github.com/hansec/fortran-language-server",
+      "description": "Fortran Language Server for the Language Server Protocol",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "fortls",
+      "url": "https://github.com/hansec/fortran-language-server",
+      "description": "Fortran Language Server for the Language Server Protocol",
+      "requires": [
+        "python3"
+      ]
+    }
+  ],
+  "fsharp": [
+    {
+      "command": "fsautocomplete",
+      "url": "https://github.com/fsharp/FsAutoComplete",
+      "description": "F# language server using Language Server Protocol",
+      "requires": []
+    },
+    {
+      "command": "fsharp-language-server",
+      "url": "https://github.com/fsprojects/fsharp-language-server",
+      "description": "F# Language Server",
+      "requires": [
+        "dotnet"
+      ]
+    }
+  ],
+  "gdscript": [
+    {
+      "command": "godot",
+      "url": "https://godotengine.org/",
+      "description": "Godot Engine – Multi-platform 2D and 3D game engine",
+      "requires": []
+    }
+  ],
+  "gdscript3": [
+    {
+      "command": "godot",
+      "url": "https://godotengine.org/",
+      "description": "Godot Engine – Multi-platform 2D and 3D game engine",
+      "requires": []
+    }
+  ],
+  "glsl": [
+    {
+      "command": "glslls",
+      "url": "https://github.com/svenstaro/glsl-language-server",
+      "description": "Language server implementation for GLSL",
+      "requires": [
+        "cmake",
+        "git",
+        "make"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "vert",
+          "tesc",
+          "tese",
+          "glsl",
+          "geom",
+          "frag"
+        ],
+        "name": "tikhomirov/vim-glsl"
+      }
+    }
+  ],
+  "go": [
+    {
+      "command": "gopls",
+      "url": "https://github.com/golang/tools/blob/master/gopls/README.md",
+      "description": "gopls, the Go language server",
+      "requires": [
+        "go"
+      ],
+      "root_uri_patterns": [
+        "go.mod"
+      ]
+    },
+    {
+      "command": "golangci-lint-langserver",
+      "url": "https://github.com/nametake/golangci-lint-langserver",
+      "description": "golangci-lint language server",
+      "requires": [
+        "go"
+      ],
+      "root_uri_patterns": [
+        "go.mod"
+      ]
+    }
+  ],
+  "gomod": [
+    {
+      "command": "gopls",
+      "url": "https://github.com/golang/tools/blob/master/gopls/README.md",
+      "description": "gopls, the Go language server",
+      "requires": [
+        "go"
+      ],
+      "root_uri_patterns": [
+        "go.mod"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "mod"
+        ],
+        "name": "mattn/vim-gomod"
+      }
+    }
+  ],
+  "gohtmltmpl": [
+    {
+      "command": "gopls",
+      "url": "https://github.com/golang/tools/blob/master/gopls/README.md",
+      "description": "gopls, the Go language server",
+      "requires": [
+        "go"
+      ],
+      "root_uri_patterns": [
+        "go.mod"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "tmpl",
+          "gotmpl"
+        ],
+        "name": "mattn/vim-gotmpl"
+      }
+    }
+  ],
+  "gotexttmpl": [
+    {
+      "command": "gopls",
+      "url": "https://github.com/golang/tools/blob/master/gopls/README.md",
+      "description": "gopls, the Go language server",
+      "requires": [
+        "go"
+      ],
+      "root_uri_patterns": [
+        "go.mod"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "tmpl",
+          "gotmpl"
+        ],
+        "name": "mattn/vim-gotmpl"
+      }
+    }
+  ],
+  "graphql": [
+    {
+      "command": "graphql-language-server",
+      "url": "https://github.com/graphql/graphiql",
+      "description": "GraphiQL & the GraphQL LSP Reference Ecosystem for building browser & IDE tools.",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        ".graphqlrc",
+        ".graphqlrc.json",
+        ".graphqlrc.yml",
+        ".graphqlrc.yaml",
+        ".graphql.config.js",
+        ".graphqlrc.js",
+        "package.json",
+        "tsconfig.json"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "graphql"
+        ],
+        "name": "jparise/vim-graphql"
+      }
+    },
+    {
+      "command": "gql-language-server",
+      "url": "https://github.com/Mayank1791989/gql-language-server",
+      "description": "GQL Language Server",
+      "requires": [
+        "npm",
+        "watchman"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json",
+        ".gqlconfig"
+      ]
+    }
+  ],
+  "groovy": [
+    {
+      "command": "groovy-language-server",
+      "url": "https://github.com/GroovyLanguageServer/groovy-language-server",
+      "description": "A language server for Groovy",
+      "requires": [
+        "java"
+      ],
+      "root_uri_patterns": [
+        "build.gradle"
+      ]
+    }
+  ],
+  "haskell": [
+    {
+      "command": "hie",
+      "url": "https://github.com/haskell/haskell-ide-engine",
+      "description": "The engine for haskell ide-integration. Not an IDE",
+      "requires": [
+        "stack"
+      ],
+      "root_uri_patterns": [
+        "stack.yaml",
+        "package.yaml"
+      ]
+    },
+    {
+      "command": "haskell-language-server",
+      "url": "https://github.com/haskell/haskell-language-server",
+      "description": "Official haskell ide support via language server (LSP). Successor of ghcide & haskell-ide-engine.",
+      "requires": [],
+      "root_uri_patterns": [
+        "stack.yaml",
+        "package.yaml"
+      ]
+    }
+  ],
+  "html": [
+    {
+      "command": "vscode-html-language-server",
+      "url": "https://github.com/hrsh7th/vscode-langservers-extracted",
+      "description": "HTML/CSS/JSON language servers extracted from vscode.",
+      "config": {
+        "refresh_pattern": "\\(/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "html-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-html-languageserver-bin",
+      "description": "Binary version published on npm of vscode-html-languageserver extracted from VSCode tree",
+      "config": {
+        "refresh_pattern": "\\(/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "angular-language-server",
+      "url": "https://github.com/angular/vscode-ng-language-service",
+      "description": "Angular extension for Visual Studio Code",
+      "config": {
+        "refresh_pattern": "\\(/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "tailwindcss-intellisense",
+      "url": "https://github.com/tailwindlabs/tailwindcss-intellisense",
+      "description": "Intelligent Tailwind CSS tooling for Visual Studio Code",
+      "config": {
+        "refresh_pattern": "\\(@[a-zA-Z0-9_]*\\|[a-zA-Z0-9_-]\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "java": [
+    {
+      "command": "eclipse-jdt-ls",
+      "url": "https://github.com/eclipse/eclipse.jdt.ls",
+      "description": "Java language server",
+      "requires": [
+        "java"
+      ],
+      "config": {
+        "refresh_pattern": "\\([.a-zA-Z0-9_-]\\+\\|/\\|\\k\\+\\)$"
+      },
+      "root_uri_patterns": [
+        "pom.xml",
+        "build.gradle"
+      ]
+    },
+    {
+      "command": "java-language-server",
+      "url": "https://github.com/georgewfraser/java-language-server",
+      "description": "Java language server using the Java",
+      "requires": [
+        "java",
+        "mvn"
+      ],
+      "root_uri_patterns": [
+        "pom.xml",
+        "build.gradle"
+      ]
+    }
+  ],
+  "javascript": [
+    {
+      "command": "typescript-language-server",
+      "url": "https://github.com/typescript-language-server/typescript-language-server",
+      "description": "TypeScript & JavaScript Language Server",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "command": "javascript-typescript-stdio",
+      "url": "https://github.com/sourcegraph/javascript-typescript-langserver",
+      "description": "JavaScript and TypeScript code intelligence through the Language Server Protocol",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "eslint-language-server",
+      "url": "https://www.npmjs.com/package/eslint-language-server",
+      "description": "eslint language server",
+      "requires": [
+        "node"
+      ],
+      "root_uri_patterns": [
+        "package.json"
+      ]
+    },
+    {
+      "command": "rome",
+      "url": "https://github.com/rome/tools",
+      "description": "The Rome Toolchain. A linter, compiler, bundler, and more for JavaScript, TypeScript, HTML, Markdown, and CSS.",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "deno",
+      "url": "https://deno.land/",
+      "description": "A modern runtime for JavaScript and TypeScript.",
+      "requires": []
+    },
+    {
+      "command": "rslint-lsp",
+      "url": "https://github.com/rslint/rslint",
+      "description": "A (WIP) Extremely fast JavaScript and TypeScript linter and Rust crate",
+      "requires": [
+        "cargo"
+      ]
+    },
+    {
+      "command": "flow",
+      "url": "https://github.com/facebookarchive/flow-language-server",
+      "description": "An implementation of the Language Server Protocol for Flow",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        ".flowconfig"
+      ]
+    }
+  ],
+  "javascriptreact": [
+    {
+      "command": "typescript-language-server",
+      "url": "https://github.com/typescript-language-server/typescript-language-server",
+      "description": "TypeScript & JavaScript Language Server",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json"
+      ]
+    },
+    {
+      "command": "eslint-language-server",
+      "url": "https://www.npmjs.com/package/eslint-language-server",
+      "description": "eslint language server",
+      "requires": [
+        "node"
+      ],
+      "root_uri_patterns": [
+        "package.json"
+      ]
+    },
+    {
+      "command": "javascript-typescript-stdio",
+      "url": "https://github.com/sourcegraph/javascript-typescript-langserver",
+      "description": "JavaScript and TypeScript code intelligence through the Language Server Protocol",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "rome",
+      "url": "https://github.com/rome/tools",
+      "description": "The Rome Toolchain. A linter, compiler, bundler, and more for JavaScript, TypeScript, HTML, Markdown, and CSS.",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "deno",
+      "url": "https://deno.land/",
+      "description": "A modern runtime for JavaScript and TypeScript.",
+      "requires": []
+    },
+    {
+      "command": "flow",
+      "url": "https://github.com/facebookarchive/flow-language-server",
+      "description": "An implementation of the Language Server Protocol for Flow",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        ".flowconfig"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "command": "vscode-json-language-server",
+      "url": "https://github.com/hrsh7th/vscode-langservers-extracted",
+      "description": "HTML/CSS/JSON language servers extracted from vscode.",
+      "config": {
+        "refresh_pattern": "\\(\"\\k*\\|\\[\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "json-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-json-languageserver-bin",
+      "description": "Binary version published on npm of vscode-json-languageserver extracted from VSCode tree",
+      "config": {
+        "refresh_pattern": "\\(\"\\k*\\|\\[\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "rome",
+      "url": "https://github.com/rome/tools",
+      "description": "The Rome Toolchain. A linter, compiler, bundler, and more for JavaScript, TypeScript, HTML, Markdown, and CSS.",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "jsonc": [
+    {
+      "command": "json-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-json-languageserver-bin",
+      "description": "Binary version published on npm of vscode-json-languageserver extracted from VSCode tree",
+      "requires": [
+        "npm"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "cjson"
+        ],
+        "name": "neoclide/jsonc.vim"
+      }
+    }
+  ],
+  "julia": [
+    {
+      "command": "julia-language-server",
+      "url": "https://github.com/julia-vscode/LanguageServer.jl",
+      "description": "An implementation of the Microsoft Language Server Protocol for the julia language.",
+      "requires": [
+        "julia"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "jl"
+        ],
+        "name": "ajpaulson/julia-syntax.vim"
+      }
+    }
+  ],
+  "kotlin": [
+    {
+      "command": "kotlin-language-server",
+      "url": "https://github.com/fwcd/kotlin-language-server",
+      "description": "Kotlin code completion, linting and more for any editor/IDE using the Language Server Protocol",
+      "requires": [
+        "java"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "kt"
+        ],
+        "name": "udalov/kotlin-vim"
+      }
+    }
+  ],
+  "less": [
+    {
+      "command": "css-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-css-languageserver-bin",
+      "description": "Binary version published on npm of vscode-css-languageserver extracted from VSCode tree",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "lisp": [
+    {
+      "command": "cl-lsp",
+      "url": "https://github.com/cxxxr/cl-lsp",
+      "description": "An implementation of the Language Server Protocol for Common Lisp",
+      "requires": [
+        "ros"
+      ]
+    }
+  ],
+  "lua": [
+    {
+      "command": "emmylua-ls",
+      "url": "https://github.com/EmmyLua/EmmyLua-LanguageServer",
+      "description": "Emmy Lua Language Server",
+      "requires": [
+        "java"
+      ]
+    },
+    {
+      "command": "sumneko-lua-language-server",
+      "url": "https://github.com/sumneko/lua-language-server",
+      "description": "Lua Language Server coded by Lua",
+      "requires": []
+    }
+  ],
+  "markdown": [
+    {
+      "command": "remark-language-server",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "nim": [
+    {
+      "command": "nimlsp",
+      "url": "https://github.com/PMunch/nimlsp",
+      "description": "Language Server Protocol implementation for Nim",
+      "requires": [
+        "nimble"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "nim"
+        ],
+        "name": "zah/nim.vim"
+      }
+    }
+  ],
+  "objc": [
+    {
+      "command": "clangd",
+      "url": "https://github.com/clangd/clangd",
+      "description": "clangd language server",
+      "requires": []
+    }
+  ],
+  "objcpp": [
+    {
+      "command": "clangd",
+      "url": "https://github.com/clangd/clangd",
+      "description": "clangd language server",
+      "requires": []
+    }
+  ],
+  "ocaml": [
+    {
+      "command": "ocaml-lsp",
+      "url": "https://github.com/ocaml/ocaml-lsp",
+      "description": "OCaml Language Server Protocol implementation",
+      "requires": [
+        "opam"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "ml"
+        ],
+        "name": "ocaml/vim-ocaml"
+      }
+    }
+  ],
+  "perl": [
+    {
+      "command": "slp",
+      "url": "https://github.com/cazador481/App-LanguageServer-Perl",
+      "description": "A language server for perl",
+      "requires": [
+        "cpanm"
+      ]
+    },
+    {
+      "command": "monastery",
+      "url": "https://github.com/ccakes/p5-app-monastery",
+      "description": "Perl Language Server",
+      "requires": [
+        "cpanm"
+      ]
+    },
+    {
+      "command": "perl-languageserver",
+      "url": "https://github.com/richterger/Perl-LanguageServer",
+      "description": "Language Server for Perl",
+      "requires": [
+        "cpanm"
+      ]
+    }
+  ],
+  "php": [
+    {
+      "command": "intelephense",
+      "url": "https://intelephense.com/",
+      "description": "Professional PHP tooling for any Language Server Protocol capable editor.",
+      "config": {
+        "refresh_pattern": "\\(\\$[a-zA-Z0-9_:]*\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "psalm-language-server",
+      "url": "https://github.com/vimeo/psalm",
+      "description": "A static analysis tool for finding errors in PHP applications",
+      "config": {
+        "refresh_pattern": "\\(\\$[a-zA-Z0-9_:]*\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "composer"
+      ],
+      "root_uri_patterns": [
+        "psalm.xml",
+        "psalm.xml.dist"
+      ]
+    }
+  ],
+  "plaintex": [
+    {
+      "command": "texlab",
+      "url": "https://github.com/latex-lsp/texlab",
+      "description": "An implementation of the Language Server Protocol for LaTeX",
+      "requires": []
+    },
+    {
+      "command": "digestif",
+      "url": "https://github.com/latex-lsp/texlab",
+      "description": "An implementation of the Language Server Protocol for LaTeX",
+      "requires": [
+        "luarocks"
+      ]
+    }
+  ],
+  "prisma": [
+    {
+      "command": "prisma-language-server",
+      "url": "https://github.com/prisma/language-tools",
+      "description": "Prisma Language Tools for Prisma schema files.",
+      "requires": [
+        "npm"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "prisma"
+        ],
+        "name": "pantharshit00/vim-prisma"
+      }
+    }
+  ],
+  "prolog": [
+    {
+      "command": "prolog-lsp_server",
+      "url": "https://www.swi-prolog.org/pack/file_details/lsp_server/prolog/lsp_server.pl",
+      "description": "SWI-Prolog offers a comprehensive free Prolog environment.",
+      "requires": [
+        "swipl"
+      ]
+    }
+  ],
+  "ps1": [
+    {
+      "command": "powershell-languageserver",
+      "url": "https://github.com/PowerShell/PowerShellEditorServices",
+      "description": "A common platform for PowerShell development support in any editor or application!",
+      "config": {
+        "refresh_pattern": "\\(\\$[a-zA-Z0-9_:]*\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "pwsh"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "ps1"
+        ],
+        "name": "PProvost/vim-ps1"
+      }
+    }
+  ],
+  "puppet": [
+    {
+      "command": "puppet-ls",
+      "requires": [
+        "git",
+        "ruby",
+        "bundler"
+      ]
+    }
+  ],
+  "python": [
+    {
+      "command": "pylsp-all",
+      "url": "https://github.com/python-lsp/python-lsp-server",
+      "description": "Fork of the python-language-server project, maintained by the Spyder IDE team and the community",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "pylsp-all",
+      "url": "https://github.com/python-lsp/python-lsp-server",
+      "description": "Fork of the python-language-server project, maintained by the Spyder IDE team and the community",
+      "requires": [
+        "python3"
+      ]
+    },
+    {
+      "command": "pylsp",
+      "url": "https://github.com/python-lsp/python-lsp-server",
+      "description": "Fork of the python-language-server project, maintained by the Spyder IDE team and the community",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "pylsp",
+      "url": "https://github.com/python-lsp/python-lsp-server",
+      "description": "Fork of the python-language-server project, maintained by the Spyder IDE team and the community",
+      "requires": [
+        "python3"
+      ]
+    },
+    {
+      "command": "pyls-all",
+      "url": "https://github.com/palantir/python-language-server",
+      "description": "An implementation of the Language Server Protocol for Python",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "pyls-all",
+      "url": "https://github.com/palantir/python-language-server",
+      "description": "An implementation of the Language Server Protocol for Python",
+      "requires": [
+        "python3"
+      ]
+    },
+    {
+      "command": "pyls",
+      "url": "https://github.com/palantir/python-language-server",
+      "description": "An implementation of the Language Server Protocol for Python",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "pyls",
+      "url": "https://github.com/palantir/python-language-server",
+      "description": "An implementation of the Language Server Protocol for Python",
+      "requires": [
+        "python3"
+      ]
+    },
+    {
+      "command": "pyls-ms",
+      "url": "https://github.com/microsoft/python-language-server",
+      "description": "Microsoft Language Server for Python",
+      "requires": [
+        "python"
+      ]
+    },
+    {
+      "command": "pyright-langserver",
+      "url": "https://github.com/microsoft/pyright",
+      "description": "Static type checker for Python",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "jedi-language-server",
+      "url": "https://github.com/pappasam/jedi-language-server",
+      "description": "A Python language server exclusively for Jedi.",
+      "requires": [
+        "py"
+      ]
+    },
+    {
+      "command": "jedi-language-server",
+      "url": "https://github.com/pappasam/jedi-language-server",
+      "description": "A Python language server exclusively for Jedi.",
+      "requires": [
+        "python3"
+      ]
+    }
+  ],
+  "r": [
+    {
+      "command": "r-languageserver",
+      "url": "https://github.com/REditorSupport/languageserver",
+      "description": "An implementation of the Language Server Protocol for R",
+      "requires": [
+        "R"
+      ]
+    }
+  ],
+  "racket": [
+    {
+      "command": "racket-lsp",
+      "url": "https://github.com/jeapostrophe/racket-langserver",
+      "description": "racket-langserver is a Language Server Protocol implementation for Racket.",
+      "requires": [
+        "raco"
+      ]
+    }
+  ],
+  "reason": [
+    {
+      "command": "reason-language-server",
+      "url": "https://github.com/jaredly/reason-language-server",
+      "description": "A language server for reason, in reason",
+      "requires": [],
+      "root_uri_patterns": [
+        "package.json"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "re",
+          "rei"
+        ],
+        "name": "reasonml-editor/vim-reason-plus"
+      }
+    }
+  ],
+  "rst": [
+    {
+      "command": "esbonio",
+      "url": "https://github.com/swyddfa/esbonio",
+      "description": "A collection of Sphinx extensions, plus a language server and VSCode extension for working with Sphinx projects.",
+      "requires": [
+        "python"
+      ],
+      "root_uri_patterns": [
+        "conf.py"
+      ]
+    }
+  ],
+  "ruby": [
+    {
+      "command": "typeprof",
+      "url": "https://github.com/ruby/typeprof",
+      "description": "An experimental type-level Ruby interpreter for testing and understanding Ruby code",
+      "requires": [
+        "gem"
+      ]
+    },
+    {
+      "command": "solargraph",
+      "url": "https://github.com/castwide/solargraph",
+      "description": "A Ruby language server.",
+      "requires": [
+        "gem"
+      ]
+    },
+    {
+      "command": "ruby_language_server",
+      "url": "https://github.com/kwerle/ruby_language_server",
+      "description": "Language Server implementation in Ruby for Ruby.",
+      "requires": [
+        "gem"
+      ]
+    },
+    {
+      "command": "steep",
+      "url": "https://github.com/soutaro/steep",
+      "description": "Static type checker for Ruby",
+      "requires": [
+        "gem"
+      ]
+    }
+  ],
+  "rust": [
+    {
+      "command": "rust-analyzer",
+      "url": "https://github.com/rust-analyzer/rust-analyzer",
+      "description": "A Rust compiler front-end for IDEs",
+      "requires": [],
+      "root_uri_patterns": [
+        "Cargo.toml"
+      ]
+    },
+    {
+      "command": "rls",
+      "url": "https://github.com/rust-lang/rls",
+      "description": "Repository for the Rust Language Server (aka RLS)",
+      "requires": [],
+      "root_uri_patterns": [
+        "Cargo.toml"
+      ]
+    }
+  ],
+  "sass": [
+    {
+      "command": "css-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-css-languageserver-bin",
+      "description": "Binary version published on npm of vscode-css-languageserver extracted from VSCode tree",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "scss": [
+    {
+      "command": "css-languageserver",
+      "url": "https://github.com/vscode-langservers/vscode-css-languageserver-bin",
+      "description": "Binary version published on npm of vscode-css-languageserver extracted from VSCode tree",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "scala": [
+    {
+      "command": "metals",
+      "url": "https://scalameta.org/metals/",
+      "description": "Scala language server with rich IDE features",
+      "requires": [
+        "java"
+      ],
+      "root_uri_patterns": [
+        "build.sbt"
+      ]
+    }
+  ],
+  "sh": [
+    {
+      "command": "bash-language-server",
+      "url": "https://github.com/bash-lsp/bash-language-server",
+      "description": "A language server for Bash",
+      "config": {
+        "refresh_pattern": "\\([a-zA-Z0-9_-]\\+\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "sql": [
+    {
+      "command": "sql-language-server",
+      "url": "https://github.com/joe-re/sql-language-server",
+      "description": "SQL Language Server",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "sqls",
+      "url": "https://github.com/lighttiger2505/sqls",
+      "description": "SQL language server written in Go.",
+      "config": {
+        "refresh_pattern": "\\( \\zs\\k*\\|[a-zA-Z0-9_-]\\+\\)$"
+      },
+      "requires": [
+        "go"
+      ]
+    }
+  ],
+  "svelte": [
+    {
+      "command": "svelte-language-server",
+      "url": "https://github.com/sveltejs/language-tools",
+      "description": "The Svelte Language Server, and official extensions which use it",
+      "config": {
+        "refresh_pattern": "\\(/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "svelte"
+        ],
+        "name": "evanleck/vim-svelte"
+      }
+    }
+  ],
+  "swift": [
+    {
+      "command": "sourcekit-lsp",
+      "url": "https://github.com/apple/sourcekit-lsp",
+      "description": "Language Server Protocol implementation for Swift and C-based languages",
+      "requires": [
+        "sourcekit-lsp"
+      ],
+      "root_uri_patterns": [
+        "Package.swift",
+        ".xcodeproj",
+        ".xcworkspace",
+        "Cartfile",
+        "Podfile"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "swift"
+        ],
+        "name": "keith/swift.vim"
+      }
+    }
+  ],
+  "systemverilog": [
+    {
+      "command": "svls",
+      "url": "https://github.com/dalance/svls",
+      "description": "SystemVerilog language server",
+      "requires": []
+    }
+  ],
+  "terraform": [
+    {
+      "command": "terraform-lsp",
+      "url": "https://github.com/juliosueiras/terraform-lsp",
+      "description": "Language Server Protocol for Terraform",
+      "requires": [],
+      "vim_plugin": {
+        "extensions": [
+          "tf",
+          "tfvars"
+        ],
+        "name": "hashivim/vim-terraform"
+      }
+    },
+    {
+      "command": "terraform-ls",
+      "url": "https://github.com/hashicorp/terraform-ls",
+      "description": "Terraform Language Server",
+      "requires": [],
+      "vim_plugin": {
+        "extensions": [
+          "tf",
+          "tfvars"
+        ],
+        "name": "hashivim/vim-terraform"
+      }
+    }
+  ],
+  "tex": [
+    {
+      "command": "texlab",
+      "url": "https://github.com/latex-lsp/texlab",
+      "description": "An implementation of the Language Server Protocol for LaTeX",
+      "requires": []
+    },
+    {
+      "command": "digestif",
+      "url": "https://github.com/astoff/digestif",
+      "description": "A language server for TeX and friends",
+      "requires": [
+        "luarocks"
+      ]
+    }
+  ],
+  "toml": [
+    {
+      "command": "taplo-lsp",
+      "url": "https://github.com/tamasfe/taplo",
+      "description": "A TOML toolkit written in Rust",
+      "requires": []
+    }
+  ],
+  "ttcn": [
+    {
+      "command": "ntt",
+      "url": "https://nokia.github.io/ntt/",
+      "description": "Modern tools for TTCN-3",
+      "requires": [],
+      "root_uri_patterns": [
+        "package.yml"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "ttcn",
+          "ttcn3"
+        ],
+        "name": "gustafj/vim-ttcn"
+      }
+    }
+  ],
+  "typescript": [
+    {
+      "command": "typescript-language-server",
+      "url": "https://github.com/typescript-language-server/typescript-language-server",
+      "description": "TypeScript & JavaScript Language Server",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "command": "eslint-language-server",
+      "url": "https://www.npmjs.com/package/eslint-language-server",
+      "description": "eslint language server",
+      "requires": [
+        "node"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "command": "rome",
+      "url": "https://github.com/rome/tools",
+      "description": "The Rome Toolchain. A linter, compiler, bundler, and more for JavaScript, TypeScript, HTML, Markdown, and CSS.",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "deno",
+      "url": "https://deno.land/",
+      "description": "A modern runtime for JavaScript and TypeScript.",
+      "requires": []
+    }
+  ],
+  "typescriptreact": [
+    {
+      "command": "typescript-language-server",
+      "url": "https://github.com/typescript-language-server/typescript-language-server",
+      "description": "TypeScript & JavaScript Language Server",
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "command": "eslint-language-server",
+      "url": "https://www.npmjs.com/package/eslint-language-server",
+      "description": "eslint language server",
+      "requires": [
+        "node"
+      ],
+      "root_uri_patterns": [
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    {
+      "command": "rome",
+      "url": "https://github.com/rome/tools",
+      "description": "The Rome Toolchain. A linter, compiler, bundler, and more for JavaScript, TypeScript, HTML, Markdown, and CSS.",
+      "requires": [
+        "npm"
+      ]
+    },
+    {
+      "command": "deno",
+      "url": "https://deno.land/",
+      "description": "A modern runtime for JavaScript and TypeScript.",
+      "requires": []
+    }
+  ],
+  "vala": [
+    {
+      "command": "vala-language-server",
+      "url": "https://github.com/Prince781/vala-language-server",
+      "description": "Code Intelligence for Vala & Genie",
+      "requires": [
+        "meson",
+        "valac"
+      ],
+      "root_uri_patterns": [
+        "meson.build"
+      ]
+    }
+  ],
+  "vim": [
+    {
+      "command": "vim-language-server",
+      "url": "https://github.com/iamcco/vim-language-server",
+      "description": "VImScript language server, LSP for vim script",
+      "requires": [
+        "npm"
+      ],
+      "config": {
+        "refresh_pattern": "\\%([bwtglsav]:\\k*\\|\\k\\+\\)$"
+      },
+      "root_uri_patterns": [
+        ".vim/",
+        "vimfiles/"
+      ]
+    },
+    {
+      "command": "vimscript-language-server",
+      "url": "vimscript-language-server",
+      "description": "Vim script Language Server",
+      "requires": [
+        "cargo"
+      ],
+      "root_uri_patterns": [
+        ".vim/",
+        "vimfiles/"
+      ]
+    }
+  ],
+  "vlang": [
+    {
+      "command": "vlang-vls",
+      "url": "https://github.com/vlang/vls",
+      "description": "V language server",
+      "requires": [
+        "git",
+        "v"
+      ],
+      "root_uri_patterns": [
+        "v.mod"
+      ]
+    }
+  ],
+  "vue": [
+    {
+      "command": "vls",
+      "url": "https://github.com/vuejs/vetur",
+      "description": "Vue tooling for VS Code.",
+      "config": {
+        "refresh_pattern": "\\([a-zA-Z0-9_-]\\+\\|/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "vue"
+        ],
+        "name": "posva/vim-vue"
+      }
+    },
+    {
+      "command": "volar-server",
+      "url": "https://github.com/johnsoncodehk/volar",
+      "description": "Explore high-performance tooling for Vue",
+      "config": {
+        "refresh_pattern": "\\([a-zA-Z0-9_-]\\+\\|/\\|\\k\\+\\)$"
+      },
+      "requires": [
+        "npm"
+      ],
+      "root_uri_patterns": [
+        "package.json"
+      ],
+      "vim_plugin": {
+        "extensions": [
+          "vue"
+        ],
+        "name": "leafOfTree/vim-vue-plugin"
+      }
+    }
+  ],
+  "xml": [
+    {
+      "command": "lemminx",
+      "url": "https://github.com/eclipse/lemminx",
+      "description": "XML Language Server",
+      "requires": [
+        "java"
+      ]
+    }
+  ],
+  "yaml": [
+    {
+      "command": "yaml-language-server",
+      "url": "https://github.com/redhat-developer/yaml-language-server",
+      "description": "Language Server for Yaml Files",
+      "requires": [
+        "npm"
+      ]
+    }
+  ],
+  "zig": [
+    {
+      "command": "zls",
+      "url": "https://github.com/zigtools/zls",
+      "description": "Zig LSP implementation + Zig Language Server",
+      "requires": [
+        "zig",
+        "git"
+      ]
+    }
+  ]
+}

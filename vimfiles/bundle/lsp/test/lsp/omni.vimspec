@@ -1,0 +1,497 @@
+Describe lsp#omni
+
+    let g:lsp_get_vim_completion_item_set_kind = 1
+
+    Before each
+        call lsp#omni#_clear_managed_user_data_map()
+    End
+
+    Describe lsp#omni#get_vim_completion_items
+        It should return item with proper kind
+            let item = {
+            \ 'label': 'my-label',
+            \ 'documentation': 'my documentation.',
+            \ 'detail': 'my-detail',
+            \ 'kind': '3'
+            \}
+
+            let options = {
+            \ 'server': { 'name': 'dummy-server' },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': [item] },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \   'word': 'my-label',
+            \   'abbr': 'my-label',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"0"}',
+            \ }],
+            \ 'incomplete': 0,
+            \ 'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+
+            Assert Equals(lsp#omni#get_vim_completion_items(options), want)
+        End
+
+        It should get user_data by the item
+            if !has('patch-8.0.1493')
+                Skip This test requires 'patch-8.0.1493'
+            endif
+
+            let item = {
+            \ 'label': 'my-label',
+            \ 'documentation': 'my documentation.',
+            \ 'detail': 'my-detail',
+            \ 'kind': '3',
+            \ 'textEdit': {
+            \    'range': {
+            \      'start': {'line': 5, 'character': 0},
+            \      'end': {'line': 5, 'character': 5}
+            \    },
+            \    'newText': 'yyy'
+            \  }
+            \}
+
+            let options = {
+            \ 'server': { 'name': 'dummy-server' },
+            \ 'position': { 'line': 1, 'character': 1 },
+            \ 'response': { 'result': [item] },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \  'word': 'yyy',
+            \  'abbr': 'my-label',
+            \  'icase': 1,
+            \  'dup': 1,
+            \  'empty': 1,
+            \  'kind': 'function',
+            \  'user_data': '{"vim-lsp/key":"0"}',
+            \  }],
+            \  'incomplete': 0,
+            \  'startcol': lsp#utils#position#lsp_character_to_vim('%', {'line': 1, 'character': 0}),
+            \}
+
+            let got = lsp#omni#get_vim_completion_items(options)
+            Assert Equals(got, want)
+            Assert Equals(lsp#omni#get_managed_user_data_from_completed_item(got['items'][0]), {
+                        \   'server_name': 'dummy-server',
+                        \   'completion_item': item,
+                        \   'complete_position': { 'line': 1, 'character': 1 }
+                        \ })
+        End
+
+        It should not raise errors
+            let item = {
+            \ 'label': 'my-label',
+            \ 'textEdit': v:null,
+            \}
+
+            let options = {
+            \ 'server': { 'name': 'dummy-server' },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': [item] },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \  'word': 'my-label',
+            \  'abbr': 'my-label',
+            \  'icase': 1,
+            \  'dup': 1,
+            \  'empty': 1,
+            \  'kind': '',
+            \  'user_data': '{"vim-lsp/key":"0"}',
+            \  }],
+            \  'incomplete': 0,
+            \  'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+
+            let got = lsp#omni#get_vim_completion_items(options)
+            Assert Equals(got, want)
+
+            let item = {
+            \ 'label': 'my-label',
+            \ 'textEdit': v:null,
+            \ 'insertText': v:null,
+            \}
+
+            let options = {
+            \ 'server': { 'name': 'dummy-server' },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': [item] },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \  'word': 'my-label',
+            \  'abbr': 'my-label',
+            \  'icase': 1,
+            \  'dup': 1,
+            \  'empty': 1,
+            \  'kind': '',
+            \  'user_data': '{"vim-lsp/key":"1"}',
+            \  }],
+            \  'incomplete': 0,
+            \  'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+
+            let got = lsp#omni#get_vim_completion_items(options)
+            Assert Equals(got, want)
+        End
+
+        It should return correct items for snippets
+            if !has('patch-8.0.1493')
+                Skip This test requires 'patch-8.0.1493'
+            endif
+
+            let item = {
+                \ "label": "sysout",
+                \ "insertText": "System.out.println(${0});",
+                \ "kind": 15,
+                \ "insertTextFormat": 2,
+                \ "documentation": "System.out.println();",
+                \ "detail": "print to standard out"
+                \ }
+
+            let options = {
+            \ 'server': { 'name': 'dummy-server' },
+            \ 'position': { 'line': 1, 'character': 1 },
+            \ 'response': { 'result': [item] },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \  'word': 'System.out.println',
+            \  'abbr': 'sysout~',
+            \  'icase': 1,
+            \  'dup': 1,
+            \  'empty': 1,
+            \  'kind': 'snippet',
+            \  'user_data': '{"vim-lsp/key":"0"}',
+            \  }],
+            \  'incomplete': 0,
+            \  'startcol': lsp#utils#position#lsp_character_to_vim('%', { 'line': 1, 'character': 1 }),
+            \}
+
+            let got = lsp#omni#get_vim_completion_items(options)
+            Assert Equals(got, want)
+            Assert Equals(lsp#omni#get_managed_user_data_from_completed_item(got['items'][0]), {
+                        \   'server_name': 'dummy-server',
+                        \   'completion_item': item,
+                        \   'complete_position': { 'line': 1, 'character': 1 }
+                        \ })
+        End
+
+        It should sort by sortText
+            let items = [{
+            \ 'label': 'my-label1',
+            \ 'kind': '3',
+            \ 'sortText': 'c'
+            \},
+            \{
+            \ 'label': 'my-label2',
+            \ 'kind': '3',
+            \ 'sortText': 'a'
+            \},
+            \{
+            \ 'label': 'my-label3',
+            \ 'kind': '3',
+            \ 'sortText': 'b'
+            \}]
+
+            let options = {
+            \ 'server': {
+            \   'name': 'dummy-server',
+            \   'config': {
+            \     'sort': { 'max': 100 },
+            \   },
+            \  },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': items },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \   'word': 'my-label2',
+            \   'abbr': 'my-label2',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"0"}',
+            \ },
+            \ {
+            \   'word': 'my-label3',
+            \   'abbr': 'my-label3',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"1"}',
+            \ },
+            \ {
+            \   'word': 'my-label1',
+            \   'abbr': 'my-label1',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"2"}',
+            \ }],
+            \ 'incomplete': 0,
+            \ 'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+
+            Assert Equals(lsp#omni#get_vim_completion_items(options), want)
+        End
+
+        It should not sort over max
+            let items = [{
+            \ 'label': 'my-label3',
+            \ 'kind': '3',
+            \ 'sortText': '3'
+            \},
+            \{
+            \ 'label': 'my-label1',
+            \ 'kind': '3',
+            \ 'sortText': '1'
+            \},
+            \{
+            \ 'label': 'my-label2',
+            \ 'kind': '3',
+            \ 'sortText': '2'
+            \}]
+
+            let options = {
+            \ 'server': {
+            \   'name': 'dummy-server',
+            \   'config': {
+            \     'sort': { 'max': 2 },
+            \   },
+            \  },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': items },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \   'word': 'my-label3',
+            \   'abbr': 'my-label3',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"0"}',
+            \ },
+            \ {
+            \   'word': 'my-label1',
+            \   'abbr': 'my-label1',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"1"}',
+            \ },
+            \ {
+            \   'word': 'my-label2',
+            \   'abbr': 'my-label2',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"2"}',
+            \ }],
+            \ 'incomplete': 0,
+            \ 'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+            Assert Equals(lsp#omni#get_vim_completion_items(options), want)
+        End
+
+        It should sort by label(sortText not exists)
+            let items = [{
+            \ 'label': 'my-label3',
+            \ 'kind': '3',
+            \},
+            \{
+            \ 'label': 'my-label1',
+            \ 'kind': '3',
+            \},
+            \{
+            \ 'label': 'my-label2',
+            \ 'kind': '3',
+            \}]
+
+            let options = {
+            \ 'server': {
+            \   'name': 'dummy-server',
+            \   'config': {
+            \     'sort': { 'max': 10 },
+            \   },
+            \  },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': items },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \   'word': 'my-label1',
+            \   'abbr': 'my-label1',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"0"}',
+            \ },
+            \ {
+            \   'word': 'my-label2',
+            \   'abbr': 'my-label2',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"1"}',
+            \ },
+            \ {
+            \   'word': 'my-label3',
+            \   'abbr': 'my-label3',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"2"}',
+            \ }],
+            \ 'incomplete': 0,
+            \ 'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+            Assert Equals(lsp#omni#get_vim_completion_items(options), want)
+        End
+
+        It should sort by label(empty sortText)
+            let items = [{
+            \ 'label': 'my-label3',
+            \ 'kind': '3',
+            \ 'sortText': ''
+            \},
+            \{
+            \ 'label': 'my-label1',
+            \ 'kind': '3',
+            \ 'sortText': '',
+            \},
+            \{
+            \ 'label': 'my-label2',
+            \ 'kind': '3',
+            \ 'sortText': '',
+            \}]
+
+            let options = {
+            \ 'server': {
+            \   'name': 'dummy-server',
+            \   'config': {
+            \     'sort': { 'max': 10 },
+            \   },
+            \  },
+            \ 'position': lsp#get_position(),
+            \ 'response': { 'result': items },
+            \}
+
+            let want = {
+            \ 'items': [{
+            \   'word': 'my-label1',
+            \   'abbr': 'my-label1',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"0"}',
+            \ },
+            \ {
+            \   'word': 'my-label2',
+            \   'abbr': 'my-label2',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"1"}',
+            \ },
+            \ {
+            \   'word': 'my-label3',
+            \   'abbr': 'my-label3',
+            \   'icase': 1,
+            \   'dup': 1,
+            \   'empty': 1,
+            \   'kind': 'function',
+            \   'user_data': '{"vim-lsp/key":"2"}',
+            \ }],
+            \ 'incomplete': 0,
+            \ 'startcol': lsp#utils#position#lsp_character_to_vim('%', lsp#get_position()),
+            \}
+            Assert Equals(lsp#omni#get_vim_completion_items(options), want)
+        End
+
+        Describe g:lsp_ignorecase
+            Before all
+                let saved_ignorecase = get(g:, 'lsp_ignorecase', v:null)
+            End
+
+            After all
+                if saved_ignorecase isnot v:null
+                    let g:lsp_ignorecase = saved_ignorecase
+                endif
+            End
+
+            It should sort completion items case-insensitive when true is set
+                let g:lsp_ignorecase = v:true
+
+                " 'B' < 'a' but 'a' < 'b'
+                let result = [{
+                \ 'label': 'my-label1',
+                \ 'kind': '3',
+                \ 'sortText': 'B'
+                \},
+                \{
+                \ 'label': 'my-label2',
+                \ 'kind': '3',
+                \ 'sortText': 'a'
+                \}]
+
+                let options = {
+                \ 'server': {
+                \   'name': 'dummy-server',
+                \   'config': {
+                \     'sort': { 'max': 10 },
+                \   },
+                \ },
+                \ 'position': lsp#get_position(),
+                \ 'response': { 'result': result },
+                \}
+
+                let want = [{
+                \  'word': 'my-label2',
+                \  'abbr': 'my-label2',
+                \  'icase': 1,
+                \  'dup': 1,
+                \  'empty': 1,
+                \  'kind': 'function',
+                \  'user_data': '{"vim-lsp/key":"0"}',
+                \},
+                \{
+                \  'word': 'my-label1',
+                \  'abbr': 'my-label1',
+                \  'icase': 1,
+                \  'dup': 1,
+                \  'empty': 1,
+                \  'kind': 'function',
+                \  'user_data': '{"vim-lsp/key":"1"}',
+                \}]
+
+                Assert Equals(lsp#omni#get_vim_completion_items(options).items, want)
+            End
+        End
+    End
+End

@@ -67,6 +67,20 @@
 
 ----
 
+### `LSP` 代码补全
+
+本配置集成了 `LSP` 补全功能，由下面四个插件实现：
+1. `prabirshrestha/vim-lsp`
+2. `mattn/vim-lsp-settings`
+3. `prabirshrestha/asyncomplete.vim`
+4. `prabirshrestha/asyncomplete-lsp.vim`
+
+如果需要启用对应语言的 `LSP` 补全功能，只需在首次编辑对应语言的文件时输入命令 `:LspInstallServer` 安装后台服务即可
+
+不需要该补全的直接忽视相关提示即可
+
+----
+
 本配置文件的更新以我本机的实际使用情况为准
 
 祝使用愉快
