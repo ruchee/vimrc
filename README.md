@@ -24,10 +24,10 @@
 
 1. 访问 [http://www.vim.org/download.php#pc](http://www.vim.org/download.php#pc) 下载最新的 `gVim`（有可能需要翻墙才能访问）
 2. 安装 `gVim` 到任意目录，这儿为方便讲解，我假定你安装到了 `D:\Apps\Vim`
-3. 将 `D:\Apps\Vim\vim80` 加入 `path` 环境变量 [ 不知何为环境变量者，请求助于搜索引擎 ]
+3. 将 `D:\Apps\Vim\vim82` 加入 `path` 环境变量 [ 不知何为环境变量者，请求助于搜索引擎 ]
 4. 删除 `Vim` 安装目录下的 `vimfiles` 目录以及 `_vimrc` 文件 [ 如果你自己修改过配置，请注意备份 ]
 5. 使用 `Git` 下载本项目，然后将项目的子目录拷贝到 `Vim` 安装目录下，取代已删文件的位置 [ 命令为 `git clone https://github.com/ruchee/vimrc.git` ]（也可以点击本页面的 `Code -> Download ZIP` 按钮下载）
-6. 访问 [http://ctags.sourceforge.net](http://ctags.sourceforge.net) 下载最新的 `ctags`，将 `ctags.exe` 复制到 `D:\Apps\Vim\vim80` 目录
+6. 访问 [http://ctags.sourceforge.net](http://ctags.sourceforge.net) 下载最新的 `ctags`，将 `ctags.exe` 复制到 `D:\Apps\Vim\vim82` 目录
 7. 安装 `Monaco` 字体，本配置默认使用该字体，可上 [https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true](https://github.com/todylu/monaco.ttf/blob/master/monaco.ttf?raw=true) 下载，下载后丢到 `C:\WINDOWS\Fonts` 目录即可
 
 ----
