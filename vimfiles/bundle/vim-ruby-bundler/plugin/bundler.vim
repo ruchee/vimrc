@@ -741,14 +741,16 @@ function! s:buffer_alter_paths() dict abort
     for [option, suffix] in
           \ [['tags', get(self.project(), '_tags', 'tags')], ['path', 'lib']]
       let value = self.getvar('&'.option)
+      let tail = matchstr(value, '\%(,\.\)\=\%(,,\)\=$')
+      let value = strpart(value, 0, len(value) - len(tail))
       if !empty(old)
-        let drop = s:build_path_option(old,suffix)
-        let index = stridx(value,drop)
+        let drop = s:build_path_option(old, suffix)
+        let index = stridx(value, drop)
         if index > 0
           let value = value[0:index-1] . value[index+strlen(drop):-1]
         endif
       endif
-      call self.setvar('&'.option,value.s:build_path_option(new,suffix))
+      call self.setvar('&'.option,value.s:build_path_option(new, suffix) . tail)
     endfor
     call self.setvar('bundler_paths',new)
   endif

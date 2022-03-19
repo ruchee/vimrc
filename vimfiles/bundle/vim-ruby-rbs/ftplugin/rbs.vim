@@ -14,6 +14,10 @@ setlocal comments=:#
 setlocal commentstring=#\ %s
 setlocal suffixesadd=.rbs
 
+if get(g:, "rbs_fold")
+  setlocal foldmethod=syntax
+endif
+
 " matchit.vim
 let b:match_words = '\<\%(class\|module\|interface\)\>:\<end\>'
 let b:match_skip = 'S:^rbsDefine$'

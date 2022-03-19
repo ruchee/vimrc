@@ -3,7 +3,7 @@
 " Version:      2.0
 " GetLatestVimScripts: 3669 1 :AutoInstall: rake.vim
 
-if exists('g:loaded_rake') || &cp || v:version < 700
+if exists('g:loaded_rake') || &cp || v:version < 800
   finish
 endif
 let g:loaded_rake = 1
@@ -45,42 +45,18 @@ let s:abstract_prototype = {}
 " }}}1
 " Initialization {{{1
 
-function! s:fcall(fn, path, ...) abort
-  let ns = matchstr(a:path, '^\a\a\+\ze:')
-  if len(ns) && exists('*' . ns . '#' . a:fn)
-    return call(ns . '#' . a:fn, [a:path] + a:000)
-  else
-    return call(a:fn, [a:path] + a:000)
-  endif
-endfunction
-
-function! s:real(file) abort
-  let pre = substitute(matchstr(a:file, '^\a\a\+\ze:'), '^.', '\u&', '')
-  if empty(pre)
-    let path = a:file
-  elseif exists('*' . pre . 'Real')
-    let path = {pre}Real(a:file)
-  elseif exists('*' . pre . 'Path')
-    let path = {pre}Path(a:file)
-  else
+function! s:find_root(path) abort
+  if !exists('*ProjectionistHas')
     return ''
   endif
-  return exists('+shellslash') && !&shellslash ? tr(path, '/', '\') : path
-endfunction
-
-function! s:has(root, file) abort
-  return s:fcall(a:file =~# '/$' ? 'isdirectory' : 'filereadable', a:root . '/' . a:file)
-endfunction
-
-function! s:find_root(path) abort
   let root = s:shellslash(fnamemodify(a:path, ':p:s?[\/]$??'))
   let previous = ''
   while root !=# previous && root !~# '^\%(\a\+:\)\=/*$\|^\.$'
-    if s:has(root, 'Rakefile') || (s:has(root, 'lib/') && s:has(root, 'Gemfile'))
-      if s:has(root, 'config/environment.rb') && s:has(root, 'app/')
-        return ''
-      else
+    if ProjectionistHas('Rakefile|lib/&Gemfile', root)
+      if ProjectionistHas('!config/environment.rb|!app/', root)
         return root
+      else
+        return ''
       endif
     elseif root =~# '[\/]gems[\/][0-9.]\+[\/]gems[\/][[:alnum:]._-]\+$'
       return root
@@ -99,24 +75,6 @@ function! s:Detect(path) abort
     endif
   endif
 endfunction
-
-function! s:Setup(path) abort
-  call s:Detect(a:path)
-  if exists('b:rake_root')
-    silent doautocmd User Rake
-  endif
-endfunction
-
-augroup rake
-  autocmd!
-  autocmd BufNewFile,BufReadPost *
-        \ if empty(&filetype) |
-        \   call s:Setup(expand('<amatch>:p')) |
-        \ endif
-  autocmd FileType * call s:Setup(expand('%:p'))
-  autocmd User NERDTreeInit,NERDTreeNewRoot call s:Setup(b:NERDTreeRoot.path.str())
-  autocmd VimEnter * if expand('<amatch>')==''|call s:Setup(getcwd())|endif
-augroup END
 
 " }}}1
 " Projectionist {{{
@@ -159,9 +117,9 @@ function! s:ProjectionistDetect() abort
   call s:Detect(get(g:, 'projectionist_file', ''))
   if exists('b:rake_root')
     let projections = deepcopy(s:projections)
-    let test = s:has(b:rake_root, 'test/')
-    let spec = s:has(b:rake_root, 'spec/')
-    let real_root = s:real(b:rake_root)
+    let test = ProjectionistHas('test/', b:rake_root)
+    let spec = ProjectionistHas('spec/', b:rake_root)
+    let real_root = projectionist#real(b:rake_root)
     if len(real_root)
       let projections['*'].make = s:project().makeprg()
       let projections['Rakefile'].dispatch = projections['*'].make
@@ -177,7 +135,7 @@ function! s:ProjectionistDetect() abort
     endif
     call filter(projections['lib/*.rb'].alternate, 'get(l:, v:val[0:3])')
     call filter(projections, 'v:key[4] !=# "/" || get(l:, v:key[0:3])')
-    let gemspec = fnamemodify(get(split(s:fcall('glob', b:rake_root.'/*.gemspec'), "\n"), 0, 'Gemfile'), ':t')
+    let gemspec = fnamemodify(get(projectionist#glob(b:rake_root . '/*.gemspec'), 0, 'Gemfile'), ':t')
     let projections[gemspec] = {'type': 'lib'}
     if gemspec !=# 'Gemfile'
       let projections[gemspec].dispatch = 'gem build {file}'
@@ -198,6 +156,8 @@ endfunction
 augroup rake_projectionist
   autocmd!
   autocmd User ProjectionistDetect call s:ProjectionistDetect()
+  autocmd User ProjectionistActivate if exists('b:rake_root') |
+        \ doautocmd User Rake | endif
 augroup END
 
 " }}}1
@@ -233,17 +193,20 @@ function! s:project_path(...) dict abort
 endfunction
 
 function! s:project_real(...) dict abort
-  return s:real(join([self._root]+a:000,'/'))
+  return projectionist#real(join(a:000, '/'), self._root)
 endfunction
 
 function! s:project_ruby_include_path() dict abort
-  if !has_key(self, '_ruby_include_path') && len(self.real())
-    let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+  let real = self.real()
+  if !has_key(self, '_ruby_include_path') && len(real) && isdirectory(real)
+    let cd = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
     let cwd = getcwd()
     try
-      execute cd fnameescape(self.real())
+      execute cd fnameescape(real)
       let self._ruby_include_path = system('ruby -rrbconfig -e ' . shellescape(
-            \ 'print RbConfig::CONFIG["rubyhdrdir"] || RbConfig::CONFIG["topdir"]'))
+            \ 'print RbConfig::CONFIG[:rubyhdrdir.to_s] || RbConfig::CONFIG[:topdir.to_s]'))
+    catch
+      let self._ruby_include_path = ''
     finally
       execute cd fnameescape(cwd)
     endtry
@@ -276,7 +239,7 @@ function! s:Rake(bang, arg) abort
   let old_makeprg = &l:makeprg
   let old_errorformat = &l:errorformat
   let old_compiler = get(b:, 'current_compiler', '')
-  let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+  let cd = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
   let cwd = getcwd()
   try
     execute cd fnameescape(s:project().real())
@@ -327,7 +290,7 @@ endfunction
 
 function! s:Tasks(...) abort
   let project = s:project(a:0 ? a:1 : b:rake_root)
-  let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+  let cd = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
   let cwd = getcwd()
   try
     execute cd fnameescape(project.real())

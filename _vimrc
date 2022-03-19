@@ -1,6 +1,6 @@
 " -----------------  Author: Ruchee
 " -----------------   Email: my@ruchee.com
-" -----------------    Date: 2021-11-13 13:46:28
+" -----------------    Date: 2022-03-19 19:47:05
 " -----------------   https://github.com/ruchee/vimrc
 
 
@@ -51,7 +51,6 @@
 " \cs                        添加 SexStyle 块注释     [NERD_commenter]
 " \cu                        取消注释                 [NERD_commenter]
 "
-" \got                       一键切换到 gohtmltmpl 语法高亮
 " \php                       一键切换到 PHP        语法高亮
 " \ruby                      一键切换到 Ruby       语法高亮
 " \eruby                     一键切换到 eRuby      语法高亮
@@ -242,21 +241,8 @@ set tabstop=4
 au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set shiftwidth=2
 au FileType scheme,racket,lisp,clojure,lfe,elixir,eelixir,ruby,eruby,coffee,slim,pug,scss set tabstop=2
 
-" 配置 Rust 支持 [需要安装 rustup 相关工具链才能正常工作]
-" [ rustup install nightly && rustup default nightly && rustup component add rust-src && cargo install racer --force ]
-let g:racer_experimental_completer = 1  " 补全时显示完整的函数定义
-let g:racer_insert_paren           = 1  " 补全时自动插入括号
-let g:rustfmt_autosave             = 1  " 保存时自动格式化代码
-
-augroup Racer
-    autocmd!
-    autocmd FileType rust nmap <buffer> gd         <Plug>(rust-def)
-    autocmd FileType rust nmap <buffer> gs         <Plug>(rust-def-split)
-    autocmd FileType rust nmap <buffer> gx         <Plug>(rust-def-vertical)
-    autocmd FileType rust nmap <buffer> gt         <Plug>(rust-def-tab)
-    autocmd FileType rust nmap <buffer> <leader>gd <Plug>(rust-doc)
-    autocmd FileType rust nmap <buffer> <leader>gD <Plug>(rust-doc-tab)
-augroup END
+" 配置 Rust 支持
+let g:rustfmt_autosave = 1  " 保存时自动格式化代码
 
 " 修正 Go 语言的部分快捷键 [需要安装一堆工具才能正常工作，可在 Vim 里面执行 :GoInstallBinaries 命令完成安装，需要翻墙才能安装成功]
 au FileType go nmap <c-[> :GoInfo<cr>
@@ -948,10 +934,6 @@ nmap <leader>mb :diffget BASE<cr>
 
 " \mu                 刷新比较结果     [git mergetool -t vimdiff 时可用]
 nmap <leader>mu :diffupdate<cr>
-
-" \got                一键切换到 gohtmltmpl 语法高亮
-imap <leader>got <esc>:se ft=gohtmltmpl<cr>li
-nmap <leader>got <esc>:se ft=gohtmltmpl<cr>
 
 " \php                一键切换到 PHP 语法高亮
 imap <leader>php <esc>:se ft=php<cr>li

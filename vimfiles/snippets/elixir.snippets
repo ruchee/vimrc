@@ -16,7 +16,9 @@ snippet imo     只导入模块下的指定方法
 	import ${1}, only: [${0}]
 snippet ime     导入模块下除指定方法以外的其他方法
 	import ${1}, except: [${0}]
-snippet al      给模块设置别名 [没指定别名时，自动设置别名为模块名的最后一部分]
+snippet al      给模块设置别名
+	alias ${0}
+snippet ala     给模块设置别名 [没指定别名时，自动设置别名为模块名的最后一部分]
 	alias ${1}, as: ${0}
 snippet u       使用模块，需要在模块下实现 __using__ 宏
 	use ${0}
@@ -85,14 +87,14 @@ snippet ds      定义结构体
 snippet de      定义异常
 	defexception ${0}
 # 方法
-snippet d       定义公用函数 [单行形式]
+snippet d       定义没有函数体的公用函数
+	def ${0}
+snippet dd      定义公用函数 [单行形式]
 	def ${1}, do: ${0}
 snippet d.      定义公用函数 [多行形式]
 	def ${1} do
 	  ${0}
 	end
-snippet dd      定义没有函数体的公用函数
-	def ${0}
 snippet dp      定义私有函数 [单行形式]
 	defp ${1}, do: ${0}
 snippet dp.     定义私有函数 [多行形式]
@@ -234,6 +236,8 @@ snippet x       ~x[ .. ]
 	~${1}[${0}]
 snippet y       ~y{ .. }
 	~${1}{${0}}
+snippet r       ~r/ .. /
+	~r/${0}/
 snippet m       %{ .. }
 	%{${0}}
 snippet {       #{ .. }

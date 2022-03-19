@@ -231,6 +231,7 @@ values):
       \ 'coc-explorer':  [ 'CoC Explorer', '' ],
       \ 'defx':  ['defx', '%{b:defx.paths[0]}'],
       \ 'fugitive': ['fugitive', '%{airline#util#wrap(airline#extensions#branch#get_head(),80)}'],
+      \ 'floggraph':  [ 'Flog', '%{get(b:, "flog_status_summary", "")}' ],
       \ 'gundo': [ 'Gundo', '' ],
       \ 'help':  [ 'Help', '%f' ],
       \ 'minibufexpl': [ 'MiniBufExplorer', '' ],
@@ -606,6 +607,13 @@ characters.
 
   let g:airline#extensions#branch#vcs_checks = ['untracked', 'dirty']
 <
+-------------------------------------                      *airline-flog*
+vim-flog <https://github.com/rbong/vim-flog>
+
+If vim-flog is installed, vim-airline will display the branch name
+together with a status summary in the git log graph buffer;
+either 'no changes' or the number of added/removed/modified files.
+
 -------------------------------------                   *airline-bufferline*
 vim-bufferline <https://github.com/bling/vim-bufferline>
 
@@ -1460,6 +1468,18 @@ Unite <https://github.com/Shougo/unite.vim>
 * enable/disable unite integration >
   let g:airline#extensions#unite#enabled = 1
 
+-------------------------------------                     *airline-vim9lsp*
+vim9lsp <https://github.com/yegappan/lsp>
+
+* enable/disable vim9lsp integration >
+  let airline#extensions#vim9lsp#enabled = 1
+<
+* vim9lsp error_symbol >
+  let airline#extensions#vim9lsp#error_symbol = 'E:'
+<
+* vim9lsp warning >
+  let airline#extensions#vim9lsp#warning_symbol = 'W:'
+<
 -------------------------------------                     *airline-vimagit*
 vimagit <https://github.com/jreybert/vimagit>
 
@@ -1517,6 +1537,10 @@ virtualenv <https://github.com/jmcantrell/vim-virtualenv>
 
 * enable/disable virtualenv integration >
   let g:airline#extensions#virtualenv#enabled = 1
+<
+* enable virtualenv for additional filetypes:
+  (default: python): >
+  let g:airline#extensions#virtualenv#ft = ['python', 'markdown']
 <
 -------------------------------------                   *airline-vista*
 vista.vim <https://github.com/liuchengxu/vista.vim>

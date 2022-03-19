@@ -26,6 +26,7 @@ let s:filetype_overrides = {
       \ 'coc-explorer':  [ 'CoC Explorer', '' ],
       \ 'defx':  ['defx', '%{b:defx.paths[0]}'],
       \ 'fugitive': ['fugitive', '%{airline#util#wrap(airline#extensions#branch#get_head(),80)}'],
+      \ 'floggraph':  [ 'Flog', '%{get(b:, "flog_status_summary", "")}' ],
       \ 'gundo': [ 'Gundo', '' ],
       \ 'help':  [ 'Help', '%f' ],
       \ 'minibufexpl': [ 'MiniBufExplorer', '' ],
@@ -469,6 +470,11 @@ function! airline#extensions#load()
   if get(g:, 'loaded_battery', 0) && get(g:, 'airline#extensions#battery#enabled', 0)
     call airline#extensions#battery#init(s:ext)
     call add(s:loaded_ext, 'battery')
+  endif
+
+  if (get(g:, 'airline#extensions#vim9lsp#enabled', 1) && exists('*lsp#errorCount'))
+    call airline#extensions#vim9lsp#init(s:ext)
+    call add(s:loaded_ext, 'vim9lsp')
   endif
 
   if !get(g:, 'airline#extensions#disable_rtp_load', 0)

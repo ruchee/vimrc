@@ -21,6 +21,10 @@ endfunction
 function! gitgutter#process_buffer(bufnr, force) abort
   " NOTE a:bufnr is not necessarily the current buffer.
 
+  if gitgutter#utility#getbufvar(a:bufnr, 'enabled', -1) == -1
+    call gitgutter#utility#setbufvar(a:bufnr, 'enabled', g:gitgutter_enabled)
+  endif
+
   if gitgutter#utility#is_active(a:bufnr)
 
     if has('patch-7.4.1559')
@@ -55,22 +59,28 @@ endfunction
 
 
 function! gitgutter#disable() abort
-  " get list of all buffers (across all tabs)
-  for bufnr in range(1, bufnr('$') + 1)
-    if buflisted(bufnr)
-      let file = expand('#'.bufnr.':p')
-      if !empty(file)
-        call s:clear(bufnr)
-      endif
-    endif
-  endfor
-
+  call s:toggle_each_buffer(0)
   let g:gitgutter_enabled = 0
 endfunction
 
 function! gitgutter#enable() abort
+  call s:toggle_each_buffer(1)
   let g:gitgutter_enabled = 1
-  call gitgutter#all(1)
+endfunction
+
+function s:toggle_each_buffer(enable)
+  for bufnr in range(1, bufnr('$') + 1)
+    if buflisted(bufnr)
+      let file = expand('#'.bufnr.':p')
+      if !empty(file)
+        if a:enable
+          call gitgutter#buffer_enable(bufnr)
+        else
+          call gitgutter#buffer_disable(bufnr)
+        end
+      endif
+    endif
+  endfor
 endfunction
 
 function! gitgutter#toggle() abort
@@ -82,23 +92,24 @@ function! gitgutter#toggle() abort
 endfunction
 
 
-function! gitgutter#buffer_disable() abort
-  let bufnr = bufnr('')
+function! gitgutter#buffer_disable(...) abort
+  let bufnr = a:0 ? a:1 : bufnr('')
   call gitgutter#utility#setbufvar(bufnr, 'enabled', 0)
   call s:clear(bufnr)
 endfunction
 
-function! gitgutter#buffer_enable() abort
-  let bufnr = bufnr('')
+function! gitgutter#buffer_enable(...) abort
+  let bufnr = a:0 ? a:1 : bufnr('')
   call gitgutter#utility#setbufvar(bufnr, 'enabled', 1)
   call gitgutter#process_buffer(bufnr, 1)
 endfunction
 
-function! gitgutter#buffer_toggle() abort
-  if gitgutter#utility#getbufvar(bufnr(''), 'enabled', 1)
-    call gitgutter#buffer_disable()
+function! gitgutter#buffer_toggle(...) abort
+  let bufnr = a:0 ? a:1 : bufnr('')
+  if gitgutter#utility#getbufvar(bufnr, 'enabled', 1)
+    call gitgutter#buffer_disable(bufnr)
   else
-    call gitgutter#buffer_enable()
+    call gitgutter#buffer_enable(bufnr)
   endif
 endfunction
 
