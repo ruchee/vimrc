@@ -10,6 +10,11 @@
 /vimfiles/bundle/YouCompleteMe
 /vimfiles/bundle/YCM-Generator
 
+/vimfiles/bundle/lsp
+/vimfiles/bundle/lsp-settings
+/vimfiles/bundle/asyncomplete
+/vimfiles/bundle/asyncomplete-lsp
+
 tags
 tags-*
 !/vimfiles/bundle/doczh/doc/tags-cn
