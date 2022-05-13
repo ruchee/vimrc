@@ -66,6 +66,37 @@
 
 ----
 
+### LSP 补全配置参考
+
+需要安装四个插件（本配置未集成，请自行下载安装）
+
+1. `lsp`
+2. `lsp-settings`
+3. `asyncomplete`
+4. `asyncomplete-lsp`
+
+我的配置信息如下：
+
+```vim
+let g:lsp_diagnostics_enabled = 0  " 不使用 LSP 自带的错误检测
+let g:asyncomplete_auto_popup = 0  " 禁止补全窗口自动弹出
+
+" 使用 Ctrl + U 快捷键手动弹出补全窗口
+imap <c-u> <Plug>(asyncomplete_force_refresh)
+
+" 指定各编程语言使用的 LSP Server
+let g:lsp_settings_filetype_elixir     = 'elixir-ls'
+let g:lsp_settings_filetype_php        = 'intelephense'
+let g:lsp_settings_filetype_python     = 'pylsp-all'
+let g:lsp_settings_filetype_ruby       = 'solargraph'
+let g:lsp_settings_filetype_javascript = 'deno'
+let g:lsp_settings_filetype_typescript = 'deno'
+```
+
+详细使用方法请参考：[https://github.com/mattn/vim-lsp-settings](https://github.com/mattn/vim-lsp-settings)
+
+----
+
 ### 自定义配置
 
 可在指定目录放置一个配置文件来覆盖本配置的默认设置项
