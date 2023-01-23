@@ -9,6 +9,7 @@ newest version and contribute.
 * [Installation](#installation)
 * [Tips](#tips)
     * [Indentation from the command line](#indentation-from-the-command-line)
+    * [Finding files](#finding-files)
 * [Development](#development)
     * [File layout](#file-layout)
     * [Erlang-related files in Vim](#erlang-related-files-in-vim)
@@ -133,6 +134,19 @@ Notes:
     ```bash
     -c ':set runtimepath^=/path/to/vim-erlang-runtime/'
     ```
+
+### Finding files
+
+This plugin augments vim's `path` setting to include common Erlang source and
+header file paths. These paths are relative to the current directory so ensure
+that your vim working directory is at your project's root (see `:help
+current-directory`).
+
+To disable this feature, add the following setting:
+
+```vim
+set g:erlang_extend_path=0
+```
 
 ## Development
 

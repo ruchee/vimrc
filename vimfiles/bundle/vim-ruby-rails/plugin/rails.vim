@@ -18,6 +18,11 @@ function! s:error(str)
   let v:errmsg = a:str
 endfunction
 
+let s:slash = exists('+shellslash') ? '\' : '/'
+function! s:IsAbs(path) abort
+  return tr(a:path, s:slash, '/') =~# '^/\|^\a\+:'
+endfunction
+
 " }}}1
 " Detection {{{1
 
@@ -25,13 +30,26 @@ function! RailsDetect(...) abort
   if exists('b:rails_root')
     return 1
   endif
-  let path = a:0 ? a:1 : @%
-  if exists('*ProjectionistHas')
-    if len(&l:buftype)
-      let path = fnamemodify(path, ':p')
-    elseif path !~# '^$\|^/\|^\a\+:\|^\\\\'
-      let path = getcwd() . '/' . path
+  if a:0
+    let path = a:1
+  elseif &l:buftype =~# '^\%(nowrite\)\=$' && len(@%) || &l:buftype =~# '^\%(nofile\|acwrite\)' && s:IsAbs(@%)
+    let path = @%
+  else
+    return
+  endif
+  if !s:IsAbs(path)
+    let s = exists('+shellslash') && !&shellslash ? '\' : '/'
+    let path = substitute(getcwd(), '\' . s . '\=$', s, '') . path
+  endif
+  let path = substitute(path, '[' . s:slash . '/]$', '', '')
+  try
+    if exists('*ExcludeBufferFromDiscovery') && ExcludeBufferFromDiscovery(file, 'projectionist')
+      return
     endif
+  catch
+  endtry
+
+  if exists('*ProjectionistHas')
     let previous = ''
     while path !=# previous && path !~# '^\.\=$\|^[\/][\/][^\/]*$'
       if ProjectionistHas('config/environment.rb&app/', path)
@@ -43,7 +61,7 @@ function! RailsDetect(...) abort
     endwhile
     return 0
   endif
-  let file = findfile('config/environment.rb', escape(fnamemodify(path, ':p:h'), ', ').';')
+  let file = findfile('config/environment.rb', escape(path, ', ').';')
   if !empty(file) && isdirectory(fnamemodify(file, ':p:h:h') . '/app')
     let b:rails_root = fnamemodify(file, ':p:h:h')
     return 1
@@ -83,17 +101,17 @@ augroup railsPluginDetect
   autocmd!
 
   autocmd BufNewFile,BufReadPost *
-        \ if RailsDetect(expand("<afile>")) && empty(&filetype) |
+        \ if RailsDetect() && empty(&filetype) |
         \   call rails#buffer_setup() |
         \ endif
   autocmd VimEnter *
         \ if get(g:, 'rails_vim_enter', get(g:, 'projectionist_vim_enter', 1)) &&
-        \     empty(expand("<amatch>")) && RailsDetect(getcwd()) |
+        \     argc() == 0 && RailsDetect(getcwd()) |
         \   call rails#buffer_setup() |
         \   call s:doau_user('BufEnterRails') |
         \ endif
   autocmd FileType netrw
-        \ if RailsDetect() |
+        \ if RailsDetect(get(b:, 'netrw_curdir', @%)) |
         \   call s:doau_user('BufEnterRails') |
         \ endif
   autocmd FileType * if RailsDetect() | call rails#buffer_setup() | endif
@@ -104,6 +122,8 @@ augroup railsPluginDetect
         \ endif
   autocmd BufNewFile,BufReadPost *.rjs,*.rxml,*.builder,*.jbuilder,*.ruby
         \ if &filetype !=# 'ruby' | set filetype=ruby | endif
+  autocmd BufNewFile,BufReadPost *.turbo_stream.erb
+        \ if &filetype !=# 'eruby.html' | set filetype=eruby.html | endif
   autocmd BufReadPost *.log if RailsDetect() | set filetype=railslog | endif
 
   autocmd FileType qf call s:LogDetect()

@@ -1,6 +1,6 @@
 " Vim indent file
 " Language: Ruby Signature (RBS) <github.com/ruby/rbs>
-" Author: Jeffrey Crochet <jlcrochet@pm.me>
+" Author: Jeffrey Crochet <jlcrochet91@pm.me>
 " URL: https://github.com/jlcrochet/vim-rbs
 
 if get(b:, "did_indent")
@@ -9,8 +9,9 @@ endif
 
 let b:did_indent = 1
 
-setlocal indentkeys=o,O,!^F,0<bar>,0=end
-setlocal indentexpr=GetRBSIndent()
+setlocal
+      \ indentkeys=o,O,!^F,0<bar>,0=end
+      \ indentexpr=GetRBSIndent()
 
 if exists("*GetRBSIndent")
   finish
@@ -29,13 +30,11 @@ function GetRBSIndent() abort
   let first_idx = match(prev_line, '\S')
 
   if line =~# '^\s*|'
-    if match(prev_line, '^def\>', first_idx) != -1
+    if match(prev_line, '\C^def\>', first_idx) != -1
       let idx = stridx(prev_line, ":", first_idx + 4)
 
       while idx != -1
-        let synid = synID(prev_lnum, idx + 1, 0)
-
-        if synid == g:rbs#indent#declaration_operator || synid == g:rbs#indent#method_declaration_operator
+        if synID(prev_lnum, idx + 1, 0)->synIDattr("name") =~# '^rbs\%(DeclarationOperator\|MethodDeclarationOperator\)$'
           return idx
         endif
 
@@ -72,7 +71,7 @@ function GetRBSIndent() abort
     let shift -= 1
   endif
 
-  if match(start_line, '^\%(class\|module\|interface\)\>', first_idx) != -1
+  if match(start_line, '\C^\%(class\|module\|interface\)\>', first_idx) != -1
     let shift += 1
   endif
 

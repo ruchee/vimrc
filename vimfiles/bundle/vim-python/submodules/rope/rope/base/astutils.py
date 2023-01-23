@@ -18,8 +18,7 @@ def get_name_levels(node):
     return visitor.names
 
 
-class _NodeNameCollector(object):
-
+class _NodeNameCollector:
     def __init__(self, levels=None):
         self.names = []
         self.levels = levels
@@ -34,7 +33,7 @@ class _NodeNameCollector(object):
         self._added(node, new_levels)
 
     def _added(self, node, levels):
-        if hasattr(node, 'id'):
+        if hasattr(node, "id"):
             self.names.append((node.id, levels))
 
     def _Name(self, node):

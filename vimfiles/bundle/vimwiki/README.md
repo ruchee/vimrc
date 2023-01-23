@@ -2,7 +2,7 @@
 
 [中文](README-cn.md)
 
-- [Intro](#intro)
+- [Intro](#introduction)
 - [Screenshots](#screenshots)
 - [Installation](#installation)
     - [Prerequisites](#prerequisites)
@@ -238,14 +238,25 @@ let g:vimwiki_list = [{'path': '~/vimwiki/',
 
 ```
 
+This option will treat all markdown files in your system as part of vimwiki (check `set filetype?`). Add
+```vim
+let g:vimwiki_global_ext = 0
+```
+to your `.vimrc` to restrict Vimwiki's operation to only those paths listed in `g:vimwiki_list`.
+Other markdown files wouldn't be treated as wiki pages.
+See [g:vimwiki_global_ext](https://github.com/vimwiki/vimwiki/blob/619f04f89861c58e5a6415a4f83847752928252d/doc/vimwiki.txt#L2631).
+
 ## Getting help
 
 [GitHub issues](https://github.com/vimwiki/vimwiki/issues) are the primary
 method for raising bug reports or feature requests.
 
-Additional resources include the IRC channel [#vimwiki](https://webchat.freenode.net/?channels=#vimwiki) on Freenode
-([webchat](https://webchat.freenode.net/?channels=#vimwiki), also synced to Matrix/Riot: `#freenode_#vimwiki:matrix.org` and [Telegram](https://t.me/joinchat/JqBaKBfWs04qNVrp5oWcMg))
-or post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
+Additional resources:
+
+  - The IRC channel [#vimwiki](ircs://irc.libera.chat:6697/vimwiki) on irc.libera.chat
+    - [Connect via webchat](https://web.libera.chat/?channels=#vimwiki)
+    - Connect via Matrix/Element: [#vimwiki:libera.chat](https://matrix.to/#/#vimwiki:libera.chat)
+  - Post to the [mailing list](https://groups.google.com/forum/#!forum/vimwiki).
 
 ## Helping VimWiki
 
@@ -253,7 +264,7 @@ VimWiki has a lot of users but only very few recurring developers or people
 helping the community. Your help is therefore appreciated. Everyone can help!
 See [#625](https://github.com/vimwiki/vimwiki/issues/625) for information on how you can help.
 
-Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md).
+Also, take a look at [CONTRIBUTING.md](https://github.com/vimwiki/vimwiki/blob/master/CONTRIBUTING.md) and [design_notes.md](doc/design_notes.md)
 
 ----
 

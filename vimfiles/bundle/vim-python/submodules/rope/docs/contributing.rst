@@ -48,7 +48,7 @@ tickets labeled `good first issue`_ is a good place start.
 
 The `unresolved issues list`_ in Github is the latest todo list.
 
-There is also a rather outdated list in `dev/issues.rst`_. There
+There is also a rather outdated list in :ref:`dev/issues:Rope Issues`. There
 is a section called "unresolved issues"; it contains almost every kind
 of task.  This file will need some cleanup, thoughts, and discussions.
 
@@ -57,7 +57,6 @@ about them, don't hesitate to create a Github ticket for it.
 
 .. _`good first issue`: https://github.com/python-rope/rope/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
 .. _`unresolved issues list`: https://github.com/python-rope/rope/issues
-.. _`dev/issues.rst`: dev/issues.rst
 
 Write Plugins For Other IDEs
 ----------------------------
@@ -80,31 +79,36 @@ Rope package structure:
 * `rope.refactor`: refactorings and tools used in them
 * `rope.contrib`: IDE helpers
 
-Have a look at ``__init__.py`` of these packages or `library.rst`_ for
-more information.
-
-.. _`library.rst`: library.rst
-
+Have a look at ``__init__.py`` of these packages or 
+:ref:`library:Using Rope As A Library` for more information.
 
 Source Repository
 =================
 
 Rope uses GitHub_. The repository exists at
-`https://github.com/python-rope/rope`_.
+`python-rope/rope`_.
 
 
-Submitting patches
-==================
+Submitting pull requests
+========================
 
-Patches are welcome.
+Pull requests are welcome.
+
+Follow the instructions on GitHub_ on how to setup Git and fork the
+`python-rope/rope`_ repository. Once your changes are ready, send a
+`pull request`_ for review.
+
 
 Programming Style
 -----------------
 
+* Follow `black codestyle`_
 * Follow :PEP:`8`.
 * Use four spaces for indentation.
 * Include good unit-tests when appropriate.
 * Rope test suite should pass after patching
+
+.. _`black codestyle`: https://github.com/psf/black
 
 Testing
 -------
@@ -114,10 +118,6 @@ tests are strictly unittest-based), so running::
 
     pytest -v
 
-or::
-
-    python3 -munittest -v discover
-
 runs all tests. Make sure to have complete test suite passing and 
 add new tests for the changes you are providing with each new 
 submission.
@@ -125,14 +125,6 @@ submission.
 All required packages for development could be installed with::
 
     pip install -e .[dev]
-
-
-Sending Patches
----------------
-
-Follow the instructions on GitHub_ on how to setup Git and fork the
-`python-rope/rope`_ repository. Once your changes are ready, send a
-`pull request`_ for review.
 
 .. _GitHub: http://github.com/
 .. _`python-rope/rope`: https://github.com/python-rope/rope

@@ -18,7 +18,9 @@ let s:focusgained_ignore_time = 0
 " actually changed.
 function! airline#util#winwidth(...) abort
   let nr = get(a:000, 0, 0)
-  if get(g:, 'airline_statusline_ontop', 0)
+  " When statusline is on top, or using global statusline for Neovim
+  " always return the number of columns
+  if get(g:, 'airline_statusline_ontop', 0) || &laststatus > 2
     return &columns
   else
     return winwidth(nr)
@@ -135,14 +137,14 @@ endfunction
 
 function! airline#util#ignore_buf(name)
   let pat = '\c\v'. get(g:, 'airline#ignore_bufadd_pat', '').
-        \ get(g:, 'airline#extensions#tabline#ignore_bufadd_pat', 
+        \ get(g:, 'airline#extensions#tabline#ignore_bufadd_pat',
         \ '!|defx|gundo|nerd_tree|startify|tagbar|term://|undotree|vimfiler')
   return match(a:name, pat) > -1
 endfunction
 
 function! airline#util#has_fugitive()
   if !exists("s:has_fugitive")
-    let s:has_fugitive = exists('*fugitive#head') || exists('*FugitiveHead')
+    let s:has_fugitive = exists('*FugitiveHead')
   endif
   return s:has_fugitive
 endfunction
@@ -178,7 +180,12 @@ function! airline#util#doautocmd(event)
     " airline disabled
     return
   endif
-  exe printf("silent doautocmd %s User %s", s:nomodeline, a:event)
+  try
+    exe printf("silent doautocmd %s User %s", s:nomodeline, a:event)
+  catch /^Vim\%((\a\+)\)\=:E48:/
+    " Catch: Sandbox mode
+    " no-op
+  endtry
 endfunction
 
 function! airline#util#themes(match)
@@ -209,7 +216,7 @@ function! airline#util#is_popup_window(winnr)
    if exists('*win_gettype')
      return win_gettype(a:winnr) ==# 'popup' || win_gettype(a:winnr) ==# 'autocmd'
    else
-      return getwinvar(a:winnr, '&buftype', '') ==# 'popup'
+      return airline#util#getwinvar(a:winnr, '&buftype', '') ==# 'popup'
   endif
 endfunction
 

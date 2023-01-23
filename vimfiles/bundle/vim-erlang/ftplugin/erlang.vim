@@ -5,7 +5,8 @@
 " Contributors: Ricardo Catalinas Jiménez <jimenezrick@gmail.com>
 "               Eduardo Lopez (http://github.com/tapichu)
 "               Arvid Bjurklint (http://github.com/slarwise)
-" Last Update:  2021-Jan-08
+"               Paweł Zacharek (http://github.com/subc2)
+" Last Update:  2022-Sep-28
 " License:      Vim license
 " URL:          https://github.com/vim-erlang/vim-erlang-runtime
 
@@ -30,12 +31,34 @@ setlocal commentstring=%%s
 
 setlocal formatoptions+=ro
 
+if get(g:, 'erlang_extend_path', 1)
+  " typical erlang.mk paths
+  let &l:path = join([
+        \ 'deps/*/include',
+        \ 'deps/*/src',
+        \ 'deps/*/test',
+        \ 'deps/*/apps/*/include',
+        \ 'deps/*/apps/*/src',
+        \ &g:path], ',')
+  " typical rebar3 paths
+  let &l:path = join([
+        \ 'apps/*/include',
+        \ 'apps/*/src',
+        \ '_build/default/lib/*/src',
+        \ '_build/default/*/include',
+        \ &l:path], ',')
+  " typical erlang paths
+  let &l:path = join(['include', 'src', 'test', &l:path], ',')
+
+  set wildignore+=*/.erlang.mk/*,*.beam
+endif
+
 setlocal suffixesadd=.erl,.hrl
 
 let &l:include = '^\s*-\%(include\|include_lib\)\s*("\zs\f*\ze")'
 let &l:define  = '^\s*-\%(define\|record\|type\|opaque\)'
 
-let s:erlang_fun_begin = '^\a\w*(.*$'
+let s:erlang_fun_begin = '^\l[A-Za-z0-9_@]*(.*$'
 let s:erlang_fun_end   = '^[^%]*\.\s*\(%.*\)\?$'
 
 if !exists('*GetErlangFold')
@@ -76,6 +99,23 @@ endif
 let b:undo_ftplugin = "setlocal keywordprg< foldmethod< foldexpr< foldtext<"
       \ . " comments< commentstring< formatoptions< suffixesadd< include<"
       \ . " define<"
+
+" The following lines enable the macros/matchit.vim plugin for
+" extended matching with the % key.
+if exists("loaded_matchit")
+  let s:sw = &sw
+  if exists('*shiftwidth')
+    let s:sw = shiftwidth()
+  endif
+
+  let b:match_words =
+    \ '\<\%(begin\|case\|fun\|if\|maybe\|receive\|try\)\>' .
+    \ ':\<\%(after\|catch\|else\|of\)\>' .
+    \ ':\<end\>,' .
+    \ '^\l[A-Za-z0-9_@]*' .
+    \ ':^\%(\%(\t\| \{' . s:sw . '}\)\%([^\t\ %][^%]*\)\?\)\?;\s*\%(%.*\)\?$\|\.[\t\ %]\|\.$'
+  let b:match_skip = 's:comment\|string\|erlangmodifier\|erlangquotedatom'
+endif
 
 let &cpo = s:cpo_save
 unlet s:cpo_save

@@ -1,0 +1,82 @@
+[project]
+name = 'pytoolconfig'
+dynamic=["version"]
+description = 'Python tool configuration'
+license = 'LGPL-3.0-or-later'
+dependencies = [
+    'tomli>=2.0; python_version < "3.11"',
+    'packaging>=21.3',
+    'typing-extensions; python_version < "3.8"',
+]
+requires-python = '>=3.7'
+readme = "README.md"
+
+[[project.authors]]
+name = 'bageljr'
+email = 'bageljr897@protonmail.com'
+
+[project.urls]
+Homepage = 'https://github.com/bageljrkhanofemus/pytoolconfig'
+
+[project.optional-dependencies]
+validation = ['pydantic>=1.7.4']
+global = ['appdirs>=1.4.4']
+doc = ['tabulate>=0.8.9', 'sphinx>=4.5.0']
+gen_docs = [
+    'sphinx>=4.5.0',
+    'sphinx-autodoc-typehints>=1.18.1',
+    'sphinx-rtd-theme>=1.0.0',
+    'pytoolconfig[doc]',
+]
+[tool.pdm]
+version = { source = "scm"}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    'pytoolconfig[validation, global, doc, gen_docs]',
+    'pytest>=7.0.1',
+    'mypy>=0.950',
+    'types-tabulate>=0.8.9',
+    'pre-commit>=2.19.0',
+    'rstcheck>=5.0.0',
+    'tox>=3.25.0',
+    "docformatter>=1.4",
+]
+
+[tool.pytoolconfig]
+formatter = 'black'
+[tool.pytest.ini_options]
+testpaths = ['tests']
+
+[tool.isort]
+profile = 'black'
+
+[tool.tox]
+legacy_tox_ini = '''
+[tox]
+envlist = py37,py38, py39, py310, py311
+isolated_build = True
+
+[gh-actions]
+python =
+    3.7: py37
+    3.8: py38
+    3.9: py39
+    3.10: py310
+    3.11: py311
+[testenv]
+deps =
+    pytest
+    pytoolconfig[doc, global]
+commands = pytest
+'''
+[tool.pylint.format]
+max-line-length = "88"
+
+[mypy]
+plugins = 'pydantic.mypy'
+strict = true
+
+[build-system]
+requires = ['pdm-pep517>=1.0.5']
+build-backend = 'pdm.pep517.api'

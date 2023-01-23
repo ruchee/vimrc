@@ -196,8 +196,10 @@ Currently this repository contains the following themes:
     * behelit
     * biogoo
     * bubblegum
+    * blood_red
     * cobalt2
     * cool
+    * cyberpunk
     * dark
     * dark_minimal
     * desertink

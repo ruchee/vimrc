@@ -14,6 +14,7 @@ syntax keyword resKeyword if else switch when
 syntax keyword resKeyword and as open include module in constraint import export
 syntax keyword resKeyword for to downto while
 syntax keyword resKeyword try catch exception assert
+syntax keyword resKeyword async await
 
 " Types
 syntax keyword resType bool int float char string unit
@@ -79,14 +80,16 @@ syntax match resAttribute "\v\@([a-zA-z][A-Za-z0-9_']*)(\.([a-zA-z])[A-Za-z0-9_'
 
 " String
 syntax match resUnicodeChar "\v\\u[A-Fa-f0-9]\{4}" contained
-syntax match resEscapedChar "\v\\[\\"'ntbrf]" contained
-syntax region resString start="\v\"" end="\v\"" contains=resEscapedQuote,resEscapedChar,resUnicodeChar
+syntax match resStringEscapeSeq "\v\\[\\"ntbrf]" contained
+syntax match resInterpolatedStringEscapeSeq "\v\\[\\`ntbrf]" contained
+
+syntax region resString start="\v\"" end="\v\"" contains=resStringEscapeSeq,resUnicodeChar
 
 " Interpolation
 syntax match resInterpolationVariable "\v\$[a-z_][A-Za-z0-0_'$]*" contained
 syntax region resInterpolationBlock matchgroup=resInterpolationDelimiters start="\v\$\{" end="\v\}" contained contains=TOP
-syntax region resString start="\v`" end="\v`" contains=resInterpolationBlock
-syntax region resString start="\v[a-z]`" end="\v`" contains=resInterpolationBlock,resInterpolationVariable
+syntax region resString start="\v`" end="\v`" contains=resInterpolationBlock,resInterpolatedStringEscapeSeq
+syntax region resString start="\v[a-z]`" end="\v`" contains=resInterpolationBlock,resInterpolationVariable,resInterpolatedStringEscapeSeq
 
 " Polymorphic variants
 syntax match resPolyVariant "\v#[A-za-z][A-Za-z0-9_'$]*"
@@ -109,7 +112,8 @@ highlight default link resModuleOrVariant Function
 highlight default link resPolyVariant Function
 highlight default link resModuleChain Macro
 highlight default link resUnicodeChar Character
-highlight default link resEscapedChar Character
+highlight default link resStringEscapeSeq Character
+highlight default link resInterpolatedStringEscapeSeq Character
 highlight default link resString String
 highlight default link resInterpolationDelimiters Macro
 highlight default link resInterpolationVariable Macro

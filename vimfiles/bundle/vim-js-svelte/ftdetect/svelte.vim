@@ -1,1 +1,1 @@
-autocmd BufNewFile,BufRead *.svelte setf svelte
+au BufRead,BufNewFile *.svelte setfiletype svelte

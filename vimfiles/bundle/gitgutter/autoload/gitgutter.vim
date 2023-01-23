@@ -44,6 +44,8 @@ function! gitgutter#process_buffer(bufnr, force) abort
         let diff = gitgutter#diff#run_diff(a:bufnr, g:gitgutter_diff_relative_to, 0)
       catch /gitgutter not tracked/
         call gitgutter#debug#log('Not tracked: '.gitgutter#utility#file(a:bufnr))
+      catch /gitgutter assume unchanged/
+        call gitgutter#debug#log('Assume unchanged: '.gitgutter#utility#file(a:bufnr))
       catch /gitgutter diff failed/
         call gitgutter#debug#log('Diff failed: '.gitgutter#utility#file(a:bufnr))
         call gitgutter#hunk#reset(a:bufnr)
@@ -232,4 +234,32 @@ function! gitgutter#quickfix(current_file)
   else
     call setloclist(0, locations)
   endif
+endfunction
+
+
+function! gitgutter#difforig()
+  let bufnr = bufnr('')
+  let path = gitgutter#utility#repo_path(bufnr, 1)
+  let filetype = &filetype
+
+  vertical new
+  set buftype=nofile
+  let &filetype = filetype
+
+  if g:gitgutter_diff_relative_to ==# 'index'
+    let index_name = gitgutter#utility#get_diff_base(bufnr).':'.path
+    let cmd = gitgutter#utility#cd_cmd(bufnr,
+          \ g:gitgutter_git_executable.' '.g:gitgutter_git_args.' --no-pager show '.index_name
+          \ )
+    " NOTE: this uses &shell to execute cmd.  Perhaps we should use instead
+    " gitgutter#utility's use_known_shell() / restore_shell() functions.
+    silent! execute "read ++edit !" cmd
+  else
+    silent! execute "read ++edit" path
+  endif
+
+  0d_
+  diffthis
+  wincmd p
+  diffthis
 endfunction

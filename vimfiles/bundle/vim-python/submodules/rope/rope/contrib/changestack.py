@@ -21,9 +21,8 @@ Now `changes` can be previewed or performed as before.
 from rope.base import change
 
 
-class ChangeStack(object):
-
-    def __init__(self, project, description='merged changes'):
+class ChangeStack:
+    def __init__(self, project, description="merged changes"):
         self.project = project
         self.description = description
         self.stack = []
@@ -46,7 +45,6 @@ class ChangeStack(object):
     def _basic_changes(self, changes):
         if isinstance(changes, change.ChangeSet):
             for child in changes.changes:
-                for atom in self._basic_changes(child):
-                    yield atom
+                yield from self._basic_changes(child)
         else:
             yield changes

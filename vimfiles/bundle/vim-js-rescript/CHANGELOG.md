@@ -2,9 +2,14 @@
 
 ## master
 
+**Improvements:**
+
+- Improve syntax highlighting for escaped backticks in interpolated strings ([#55](https://github.com/rescript-lang/vim-rescript/pull/55)) 
+
 ## 2.1.0
 
 **Improvements:**
+
 - Add syntax highlighting for int polyvariants
 - Improved syntax highlighting for string interpolation ([#44](https://github.com/rescript-lang/vim-rescript/pull/44))
 - Updated vendored rescript-vscode server to `1.1.3` (see changes introduced in [1.1.2](https://github.com/rescript-lang/rescript-vscode/blob/master/CHANGELOG.md#112) and [1.1.3](https://github.com/rescript-lang/rescript-vscode/blob/master/CHANGELOG.md#113))

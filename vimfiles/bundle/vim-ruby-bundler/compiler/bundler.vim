@@ -24,7 +24,7 @@ CompilerSet errorformat=
       \%-Z%p^,
       \%-G%.%#
 
-" -complete=customlist,bundler#complete
+" -complete=customlist,bundler#Complete
 
 let &cpo = s:cpo_save
 unlet s:cpo_save

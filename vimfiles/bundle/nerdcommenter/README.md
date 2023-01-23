@@ -68,10 +68,12 @@ git clone https://github.com/preservim/nerdcommenter.git
 (For Neovim, change `~/.vim/` to `~/.config/nvim/`.)
 
 ```sh
-curl -fLo ~/.vim/plugin/NERD_Commenter.vim --create-dirs \
+curl -fLo ~/.vim/plugin/nerdcommenter.vim --create-dirs \
   https://raw.githubusercontent.com/preservim/nerdcommenter/master/plugin/nerdcommenter.vim
-curl -fLo ~/.vim/doc/NERD_Commenter.txt --create-dirs \
+curl -fLo ~/.vim/doc/nerdcommenter.txt --create-dirs \
   https://raw.githubusercontent.com/preservim/nerdcommenter/master/doc/nerdcommenter.txt
+curl -fLo ~/.vim/autoload/nerdcommenter.vim --create-dirs \
+  https://raw.githubusercontent.com/preservim/nerdcommenter/master/autoload/nerdcommenter.vim
 ```
 </details>
 
@@ -201,8 +203,8 @@ Most of the following mappings are for normal/visual mode only. The **|NERDComme
 
 While the plugin does not directly support motions, you can leverage its support for selections to do something very similar. For example, to add motions to toggle comments on the paragraph text object you could use:
 ```vim
-nnoremap <silent> <leader>c} V}:call NERDComment('x', 'toggle')<CR>
-nnoremap <silent> <leader>c{ V{:call NERDComment('x', 'toggle')<CR>
+nnoremap <silent> <leader>c} V}:call nerdcommenter#Comment('x', 'toggle')<CR>
+nnoremap <silent> <leader>c{ V{:call nerdcommenter#Comment('x', 'toggle')<CR>
 ```
 
 ## Contributions

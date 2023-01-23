@@ -167,7 +167,7 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'gina')
   endif
 
-  if get(g:, 'fern_loaded', 0) && get(g:, 'airline#extensions#fern#enabled', 1)
+  if get(g:, 'loaded_fern', 0) && get(g:, 'airline#extensions#fern#enabled', 1)
     call airline#extensions#fern#init(s:ext)
     call add(s:loaded_ext, 'fern')
   endif
@@ -234,6 +234,7 @@ function! airline#extensions#load()
         \ || exists('g:loaded_gitgutter')
         \ || exists('g:loaded_changes')
         \ || exists('g:loaded_quickfixsigns')
+        \ || exists(':Gitsigns')
         \ || exists(':CocCommand'))
     call airline#extensions#hunks#init(s:ext)
     call add(s:loaded_ext, 'hunks')
@@ -429,7 +430,7 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'grepper')
   endif
 
-  if (get(g:, 'airline#extensions#xkblayout#enabled', 1) && exists('g:XkbSwitchLib'))
+  if get(g:, 'airline#extensions#xkblayout#enabled', 1) && (exists('g:XkbSwitchLib') || exists('*FcitxCurrentIM'))
     call airline#extensions#xkblayout#init(s:ext)
     call add(s:loaded_ext, 'xkblayout')
   endif
@@ -472,7 +473,7 @@ function! airline#extensions#load()
     call add(s:loaded_ext, 'battery')
   endif
 
-  if (get(g:, 'airline#extensions#vim9lsp#enabled', 1) && exists('*lsp#errorCount'))
+  if (get(g:, 'airline#extensions#vim9lsp#enabled', 1) && exists('*lsp#lsp#ErrorCount'))
     call airline#extensions#vim9lsp#init(s:ext)
     call add(s:loaded_ext, 'vim9lsp')
   endif
@@ -487,7 +488,7 @@ function! airline#extensions#load()
             \ && stridx(tolower(fnamemodify(file, ':p')), s:script_path) < 0
         let name = fnamemodify(file, ':t:r')
         if !get(g:, 'airline#extensions#'.name.'#enabled', 1) ||
-            \ index(s:loaded_ext, name) > -1
+            \ index(s:loaded_ext, name.'*') > -1
           continue
         endif
         try

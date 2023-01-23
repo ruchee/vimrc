@@ -10,10 +10,9 @@ want to feel the power of rope try its features and see its unit
 tests.
 
 This file is more suitable for the users.  Developers who plan to use
-rope as a library might find library.rst_ more useful.
+rope as a library might find :ref:`library:Using Rope As A Library` more useful.
 
 .. contents:: Table of Contents
-.. _library.rst: library.rst
 
 
 ``.ropeproject`` Folder
@@ -37,6 +36,14 @@ Currently it is used for things such as:
 
 You can change what to save and what not to in the ``config.py`` file.
 
+Key bindings
+============
+
+Rope is a library that is used in many IDE and Text Editors to perform
+refactoring on Python code. This page documents the details of the refactoring
+operations but you would need consult the documentation for your IDE/Text
+Editor client integration for the specific key bindings that are used by
+those IDE/Text Editors. 
 
 Refactorings
 ============
@@ -58,7 +65,7 @@ Consider we have:
           self.an_attr = 1
 
       def a_method(self, arg):
-          print self.an_attr, arg
+          print(self.an_attr, arg)
 
   a_var = AClass()
   a_var.a_method(a_var.an_attr)
@@ -74,7 +81,7 @@ After renaming ``an_attr`` to ``new_attr`` and ``a_method`` to
           self.new_attr = 1
 
       def new_method(self, arg):
-          print self.new_attr, arg
+          print(self.new_attr, arg)
 
   a_var = AClass()
   a_var.new_method(a_var.new_attr)
@@ -88,7 +95,7 @@ On:
 .. code-block:: python
 
   def a_func(a_param):
-      print a_param
+      print(a_param)
 
   a_func(a_param=10)
   a_func(10)
@@ -99,7 +106,7 @@ result in:
 .. code-block:: python
 
   def a_func(new_param):
-      print new_param
+      print(new_param)
 
   a_func(new_param=10)
   a_func(10)
@@ -155,7 +162,7 @@ strings only where the name is visible.  For example in:
   def f():
       a_var = 1
       # INFO: I'm printing `a_var`
-      print 'a_var = %s' % a_var
+      print('a_var = %s' % a_var)
 
   # f prints a_var
 
@@ -167,7 +174,7 @@ would get:
   def f():
       new_var = 1
       # INFO: I'm printing `new_var`
-      print 'new_var = %s' % new_var
+      print('new_var = %s' % new_var)
 
   # f prints a_var
 
@@ -179,7 +186,7 @@ This also changes occurrences inside evaluated strings:
 .. code-block:: python
 
   def func():
-      print 'func() called'
+      print('func() called')
 
   eval('func()')
 
@@ -188,7 +195,7 @@ After renaming ``func`` to ``newfunc`` we should have:
 .. code-block:: python
 
   def newfunc():
-      print 'newfunc() called'
+      print('newfunc() called')
 
   eval('newfunc()')
 
@@ -374,7 +381,7 @@ For multi-line extractions if we have:
       a = 1
       ${region_start}b = 2 * a
       c = a * 2 + b * 3${region_end}
-      print b, c
+      print(b, c)
 
 After performing extract method we'll have:
 
@@ -383,7 +390,7 @@ After performing extract method we'll have:
   def a_func():
       a = 1
       b, c = new_func(a)
-      print b, c
+      print(b, c)
 
   def new_func(a):
       b = 2 * a
@@ -415,6 +422,36 @@ Extracting ``2 * 3`` will result in:
   else:
       x = six + 1
 
+Extract Regular Method into staticmethod/classmethod
+----------------------------------------------------
+
+If you prefix the extracted method name with `@` or `$`, the generated 
+method will be created as a `classmethod` and `staticmethod` respectively.
+For instance in:
+
+.. code-block:: python
+
+  class A(object):
+
+      def f(self, a):
+          b = a * 2
+
+if you select ``a * 2`` for method extraction and name the method 
+``@new_method``, you'll get:
+
+.. code-block:: python
+
+  class A(object):
+
+      def f(self, a):
+          b = A.twice(a)
+
+      @classmethod
+      def new_method(cls, a):
+          return a * 2
+
+Similarly, you can prefix the name with `$` to create a staticmethod instead.
+
 
 Extract Method In staticmethods/classmethods
 --------------------------------------------
@@ -443,11 +480,7 @@ if you extract ``a * 2`` as a method you'll get:
       @staticmethod
       def twice(a):
           return a * 2
-
-You can indicate method kind prefixing name:
-
-- @ - classmethod (@name)
-- $ - staticmethod ($name)
+          
 
 Inline Method Refactoring
 -------------------------
@@ -464,7 +497,7 @@ instance consider ``mod1.py`` is:
       pass
 
   def do_something():
-      print sys.version
+      print(sys.version)
       return C()
 
 and ``mod2.py`` is:
@@ -484,7 +517,7 @@ After inlining ``do_something``, ``mod2.py`` would be:
   import sys
 
 
-  print sys.version
+  print(sys.version)
   c = mod1.C()
 
 Rope can inline methods, too:
@@ -649,7 +682,7 @@ Organize imports sorts imports, too.  It does that according to
 Handling Long Imports
 ---------------------
 
-``Handle long imports`` command trys to make long imports look better by
+``Handle long imports`` command tries to make long imports look better by
 transforming ``import pkg1.pkg2.pkg3.pkg4.mod1`` to ``from
 pkg1.pkg2.pkg3.pkg4 import mod1``.  Long imports can be identified
 either by having lots of dots or being very long.  The default
@@ -742,7 +775,9 @@ examples.  After this example you might like to have a look at:
 
 Finally, restructurings can be improved in many ways (for instance
 adding new wildcards).  You might like to discuss your ideas in the
-mailing list.
+`Github Discussion`_.
+
+.. _`Github Discussion`: https://github.com/python-rope/rope/discussions
 
 
 Example 1
@@ -759,7 +794,7 @@ aware of the ``**`` operator and wrote our own:
           result *= x
       return result
 
-  print pow(2, 3)
+  print(pow(2, 3))
 
 Now that we know ``**`` exists we want to use it wherever ``pow`` is
 used (there might be hundreds of them!).  We can use a pattern like::
@@ -785,7 +820,7 @@ restructuring will be:
           result *= x
       return result
 
-  print 2 ** 3
+  print(2 ** 3)
 
 It seems to be working but what if ``pow`` is imported in some module or
 we have some other function defined in some other module that uses the
@@ -844,7 +879,8 @@ will match (for instance, if ``exact`` is specified , ``${name}``
 matches ``name`` and ``x.name`` but not ``var`` nor ``(1 + 2)`` while
 a normal ``${name}`` can match all of them).
 
-For performing this refactoring using rope library see `library.rst`_.
+For performing this refactoring using rope library see 
+:ref:`library:Restructuring`.
 
 
 Example 2
@@ -857,8 +893,8 @@ As another example consider:
   class A(object):
 
       def f(self, p1, p2):
-          print p1
-          print p2
+          print(p1)
+          print(p2)
 
 
   a = A()
@@ -872,14 +908,14 @@ it to ``A.f1()`` and ``A.f2()``:
   class A(object):
 
       def f(self, p1, p2):
-          print p1
-          print p2
+          print(p1)
+          print(p2)
 
       def f1(self, p):
-          print p
+          print(p)
 
       def f2(self, p):
-          print p
+          print(p)
 
 
   a = A()
@@ -905,14 +941,14 @@ After performing we will have:
   class A(object):
 
       def f(self, p1, p2):
-          print p1
-          print p2
+          print(p1)
+          print(p2)
 
       def f1(self, p):
-          print p
+          print(p)
 
       def f2(self, p):
-          print p
+          print(p)
 
 
   a = A()
@@ -1362,7 +1398,7 @@ there is no version control at all.  Also don't forget to commit your
 changes yourself, rope doesn't do that.
 
 Adding support for other VCSs is easy; have a look at
-`library.rst`_.
+:ref:`library:Writing A \`FileSystemCommands\``.
 
 .. _pysvn: http://pysvn.tigris.org
 .. _Mercurial: http://selenic.com/mercurial

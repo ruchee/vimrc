@@ -2,7 +2,7 @@
 " Maintainer:   Tim Pope <http://tpo.pe/>
 " Version:      2.1
 
-if exists('g:loaded_bundler') || &cp || v:version < 700
+if exists('g:loaded_bundler') || &cp || v:version < 704
   finish
 endif
 let g:loaded_bundler = 1
@@ -15,7 +15,7 @@ let g:dispatch_compilers['bundle exec'] = ''
 " Section: Utility
 
 function! s:function(name) abort
-  return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '<SNR>\d\+_'),''))
+  return function(substitute(a:name,'^s:',matchstr(expand('<sfile>'), '.*\zs<SNR>\d\+_'),''))
 endfunction
 
 function! s:sub(str,pat,rep) abort
@@ -34,20 +34,25 @@ function! s:shellesc(arg) abort
   endif
 endfunction
 
-function! s:fnameescape(file) abort
-  if exists('*fnameescape')
-    return fnameescape(a:file)
-  else
-    return escape(a:file," \t\n*?[{`$\\%#'\"|!<")
-  endif
-endfunction
-
 function! s:shellslash(path) abort
-  if exists('+shellslash') && !&shellslash
-    return s:gsub(a:path,'\\','/')
+  if exists('+shellslash')
+    return tr(a:path, '\', '/')
   else
     return a:path
   endif
+endfunction
+
+function! s:Absolute(...) abort
+  let path = s:shellslash(a:0 ? a:1 : @%)
+  if !a:0 && &buftype =~# '^\%(nofile\|acwrite\)' && path =~# '^\a\+:\|^/'
+    return path
+  elseif !a:0 && &buftype !~# '^\%(nowrite\)\=$'
+    return ''
+  endif
+  if path !~# '^\a\+:\|^/\|^$'
+    let path = s:shellslash(getcwd()) . '/' . path
+  endif
+  return path
 endfunction
 
 function! s:fcall(fn, path, ...) abort
@@ -96,22 +101,6 @@ function! s:add_methods(namespace, method_names) abort
   endfor
 endfunction
 
-let s:commands = []
-function! s:command(definition) abort
-  let s:commands += [a:definition]
-endfunction
-
-function! s:define_commands() abort
-  for command in s:commands
-    exe 'command! -buffer '.command
-  endfor
-endfunction
-
-augroup bundler_utility
-  autocmd!
-  autocmd User Bundler call s:define_commands()
-augroup END
-
 let s:abstract_prototype = {}
 
 " Section: Syntax highlighting
@@ -124,19 +113,23 @@ endfunction
 function! s:syntaxlock() abort
   setlocal iskeyword+=-,.
   syn match gemfilelockHeading  '^[[:upper:] ]\+$'
-  syn match gemfilelockKey      '^\s\+\zs\S\+:'he=e-1 skipwhite nextgroup=gemfilelockRevision
+  syn match gemfilelockKey      '^\%(  \)\+\zs\S\+:'he=e-1 skipwhite nextgroup=gemfilelockRevision
   syn match gemfilelockKey      'remote:'he=e-1 skipwhite nextgroup=gemfilelockRemote
   syn match gemfilelockRemote   '\S\+' contained
   syn match gemfilelockRevision '[[:alnum:]._-]\+$' contained
-  syn match gemfilelockGem      '^\s\+\zs[[:alnum:]._-]\+\%([ !]\|$\)\@=' contains=gemfilelockFound,gemfilelockMissing skipwhite nextgroup=gemfilelockVersions,gemfilelockBang
+  syn match gemfilelockGem      '^\%(  \)\+\zs[[:alnum:]._-]\+\%([ !]\|$\)\@=' contains=gemfilelockFound,gemfilelockMissing skipwhite nextgroup=gemfilelockVersions,gemfilelockBang
   syn match gemfilelockVersions '([^()]*)' contained contains=gemfilelockVersion
   syn match gemfilelockVersion  '[^,()]*' contained
   syn match gemfilelockBang     '!' contained
   if !empty(bundler#project())
-    exe 'syn match gemfilelockFound "\<\%(bundler\|' . join(keys(s:project().paths()), '\|') . '\)\>" contained'
-    exe 'syn match gemfilelockMissing "\<\%(' . join(filter(keys(s:project().versions()), '!has_key(s:project().paths(), v:val)'), '\|') . '\)\>" contained'
+    let gem_paths = bundler#GemPaths()
+    exe 'syn match gemfilelockFound "\<\%(' . join(['bundler'] + keys(gem_paths), '\|') . '\)\>" contained'
+    let missing_gems = filter(keys(bundler#GemVersions()), '!has_key(gem_paths, v:val)')
+    if !empty(missing_gems)
+      exe 'syn match gemfilelockMissing "\<\%(' . escape(join(missing_gems, '\|'), '.') . '\)\>" contained'
+    endif
   else
-    exe 'syn match gemfilelockFound "\<\%(\S*\)\>" contained'
+    syn match gemfilelockFound "\<\%(\k\+\)\>" contained
   endif
   syn match gemfilelockHeading  '^PLATFORMS$' nextgroup=gemfilelockPlatform skipnl skipwhite
   syn match gemfilelockPlatform '^  \zs[[:alnum:]._-]\+$' contained nextgroup=gemfilelockPlatform skipnl skipwhite
@@ -153,50 +146,46 @@ function! s:syntaxlock() abort
 endfunction
 
 function! s:setuplock() abort
-  setlocal includeexpr=get(bundler#project().gems(),v:fname,v:fname)
+  setlocal includeexpr=get(bundler#GemPaths(),v:fname,v:fname)
   setlocal suffixesadd=/
-  cnoremap <buffer><expr> <Plug><cfile> get(bundler#project().gems(),expand("<cfile>"),"\022\006")
+  cnoremap <buffer><expr> <Plug><cfile> get(bundler#GemPaths(),expand("<cfile>"),"\022\006")
   let pattern = '^$\|Rails'
   if mapcheck('gf', 'n') =~# pattern
-    nnoremap <silent><buffer> gf         :Bopen    <C-R><C-F><CR>
+    nnoremap <silent><buffer> gf         :<C-U>Bundle :edit <C-R><C-F><CR>
   endif
   if mapcheck('<C-W>f', 'n') =~# pattern
-    nnoremap <silent><buffer> <C-W>f     :Bsplit   <C-R><C-F><CR>
+    nnoremap <silent><buffer> <C-W><C-F> :<C-U> exe s:Bundle('', &sb ? 'belowright' : 'aboveleft', expand('<cfile>'))<CR>
   endif
   if mapcheck('<C-W><C-F>', 'n') =~# pattern
-    nnoremap <silent><buffer> <C-W><C-F> :Bsplit   <C-R><C-F><CR>
+    nnoremap <silent><buffer> <C-W><C-F> :<C-U> exe s:Bundle('', &sb ? 'belowright' : 'aboveleft', expand('<cfile>'))<CR>
   endif
   if mapcheck('<C-W>gf', 'n') =~# pattern
-    nnoremap <silent><buffer> <C-W>gf    :Btabedit <C-R><C-F><CR>
+    nnoremap <silent><buffer> <C-W>gf    :<C-U> exe s:Bundle('', 'tab', expand('<cfile>'))<CR>
   endif
 endfunction
 
 augroup bundler_syntax
   autocmd!
   autocmd BufNewFile,BufRead */.bundle/config set filetype=yaml
-  autocmd BufNewFile,BufRead Gemfile,gems.rb
+  autocmd BufNewFile,BufRead Gemfile
         \ if &filetype !=# 'ruby' | setf ruby | endif
   autocmd Syntax ruby
         \ if expand('<afile>:t') ==? 'gemfile' | call s:syntaxfile() | endif
-  autocmd BufNewFile,BufRead [Gg]emfile.lock,gems.locked setf gemfilelock
-  autocmd FileType gemfilelock set suffixesadd=.rb
+  autocmd BufNewFile,BufRead [Gg]emfile.lock setf gemfilelock
   autocmd Syntax gemfilelock call s:syntaxlock()
   autocmd FileType gemfilelock    call s:setuplock()
-  autocmd User Rails/Gemfile.lock,Rails/gems.locked call s:setuplock()
+  autocmd User Rails/Gemfile.lock call s:setuplock()
 augroup END
 
 " Section: Initialization
 
 function! s:FindBundlerLock(path) abort
-  let path = s:shellslash(a:path)
-  let fn = fnamemodify(path,':s?[\/]$??')
+  let fn = substitute(s:Absolute(a:path), '/$', '', '')
   let ofn = ""
   let nfn = fn
   while fn !=# ofn && fn !=# '.'
     if s:filereadable(fn . '/Gemfile.lock') && s:filereadable(fn . '/Gemfile')
-      return s:sub(fnamemodify(fn,':p'), '[\\/]=$', '/Gemfile.lock')
-    elseif s:filereadable(fn . '/gems.locked') && s:filereadable(fn . '/gems.rb')
-      return s:sub(fnamemodify(fn,':p'), '[\\/]=$', '/gems.locked')
+      return fn . '/Gemfile.lock'
     endif
     let ofn = fn
     let fn = fnamemodify(ofn,':h')
@@ -224,45 +213,45 @@ function! s:Detect(path) abort
   return exists('b:bundler_lock')
 endfunction
 
-function! s:Setup(path) abort
-  if s:Detect(a:path)
+function! s:Setup() abort
+  let path = s:Absolute()
+  if s:Detect(path)
     silent doautocmd User Bundler
   endif
 endfunction
 
-function! bundler#manifest_task(lnum) abort
-  let gem = matchstr(getline(a:lnum), '^ *gem *(\= *[''"]\zs[^''\"]\+\ze[''"]')
+function! bundler#ManifestTask(lnum) abort
+  if &filetype ==# 'gemfilelock'
+    let gem = matchstr(getline(a:lnum), '^ \{4,\}\zs\S\+\ze (.*)$')
+  else
+    let gem = matchstr(getline(a:lnum), '^ *gem *(\= *[''"]\zs[^''\"]\+\ze[''"]')
+  endif
   return len(gem) ? 'update ' . gem : 'install'
 endfunction
 
 function! s:ProjectionistDetect() abort
   if s:Detect(get(g:, 'projectionist_file', '')) && !exists('b:bundler_gem')
     let dir = fnamemodify(b:bundler_lock, ':h')
+    let dispatch = 'bundle %:s/.*/\=bundler#ManifestTask(exists(''l#'') ? l# : 0)/ --gemfile={project}/Gemfile'
     call projectionist#append(dir, {
           \ '*': s:filereadable(dir . '/config/environment.rb') ? {} :
           \ {'console': 'bundle console'},
-          \ 'Gemfile': {'dispatch': 'bundle %:s/.*/\=bundler#manifest_task(exists(''l#'') ? l# : 0)/ --gemfile={file}', 'alternate': 'Gemfile.lock'},
-          \ 'gems.rb': {'dispatch': 'bundle %:s/.*/\=bundler#manifest_task(exists(''l#'') ? l# : 0)/ --gemfile={file}', 'alternate': 'gems.locked'},
-          \ 'gems.locked': {'alternate': 'gems.rb'},
-          \ 'Gemfile.lock': {'alternate': 'Gemfile'}})
+          \ 'Gemfile': {'dispatch': dispatch, 'alternate': 'Gemfile.lock'},
+          \ 'Gemfile.lock': {'dispatch': dispatch, 'alternate': 'Gemfile'}})
     for projections in bundler#project().projections_list()
-      call projectionist#append(fnamemodify(b:bundler_lock, ':h'), projections)
+      call projectionist#append(fnamemodify(b:bundler_lock, ':h'), copy(projections))
     endfor
   endif
 endfunction
 
 augroup bundler
   autocmd!
-  autocmd FileType               * call s:Setup(expand('<afile>:p'))
+  autocmd FileType               * call s:Setup()
   autocmd BufNewFile,BufReadPost *
         \ if empty(&filetype) |
-        \   call s:Setup(expand('<afile>:p')) |
+        \   call s:Setup() |
         \ endif
   autocmd User ProjectionistDetect call s:ProjectionistDetect()
-  autocmd User ProjectionistActivate
-        \ if exists('b:bundler_lock') && !exists(':Bopen') |
-        \   silent doautocmd User Bundler |
-        \ endif
 augroup END
 
 " Section: Project
@@ -271,14 +260,17 @@ let s:project_prototype = {}
 let s:projects = {}
 
 function! bundler#project(...) abort
-  if !a:0
-    let lock = !empty(get(b:, 'bundler_lock', '')) ? b:bundler_lock : s:FindBundlerLock(expand('%:p'))
-  elseif s:filereadable(a:1 . '/Gemfile.lock')
-    let lock = a:1 . '/Gemfile.lock'
-  elseif s:filereadable(a:1 . '/gems.locked')
-    let lock = a:1 . '/gems.locked'
-  elseif s:filereadable(a:1)
-    let lock = a:1
+  if !a:0 || a:1 is# 0
+    let lock = !empty(get(b:, 'bundler_lock', '')) ? b:bundler_lock : s:FindBundlerLock(s:Absolute())
+  elseif type(a:1) == type(0)
+    let lock = getbufvar(a:1, 'bundler_lock')
+    if empty(lock)
+      let lock = s:FindBundlerLock(bufname(a:1))
+    endif
+  elseif type(a:1) == type('') && s:filereadable(a:1 . '/Gemfile.lock')
+    let lock = substitute(s:Absolute(a:1), '/$', '', '') . '/Gemfile.lock'
+  elseif type(a:1) == type('') && s:filereadable(a:1)
+    let lock = s:Absolute(a:1)
   else
     let lock = ''
   endif
@@ -304,7 +296,11 @@ function! s:project(...) abort
 endfunction
 
 function! s:project_real(...) dict abort
-  let path = join([self.root]+a:000,'/')
+  if a:0 && a:1 =~# '^/\|^\a\+:'
+    let path = join(a:000, '/')
+  else
+    let path = join([self.root]+a:000,'/')
+  endif
   let pre = substitute(matchstr(path, '^\a\a\+\ze:'), '^\a', '\u&', 'g')
   if len(pre) && exists('*' . pre . 'Real')
     return call(pre . 'Real', [path])
@@ -329,9 +325,9 @@ function! s:project_locked() dict abort
   let lock_file = self.lock()
   let time = s:fcall('getftime', lock_file)
   if time != -1 && time != get(self,'_lock_time',-1)
-    let self._locked = {'git': [], 'gem': [], 'path': []}
-    let self._versions = {}
-    let self._dependencies = {}
+    let locked = {'git': [], 'gem': [], 'path': []}
+    let versions = {}
+    let dependencies = {}
     let section = ''
     let conflict = 0
 
@@ -347,8 +343,8 @@ function! s:project_locked() dict abort
       elseif line =~# '^\S'
         let section = tr(tolower(line), ' ', '_')
         let properties = {'versions': {}}
-        if type(get(self._locked, section)) ==# type([])
-          call extend(self._locked[section], [properties])
+        if type(get(locked, section)) ==# type([])
+          call extend(locked[section], [properties])
         endif
       elseif line =~# '^  \w\+: '
         let properties[matchstr(line, '\w\+')] = matchstr(line, ': \zs.*')
@@ -356,15 +352,19 @@ function! s:project_locked() dict abort
         let name = split(line, ' ')[0]
         let ver = substitute(line, '.*(\|).*', '', 'g')
         let properties.versions[name] = ver
-        let self._versions[name] = ver
-        let self._dependencies[name] = []
+        let versions[name] = ver
+        let dependencies[name] = []
       elseif line =~# '^      [a-zA-Z0-9._-]\+\s\+('
         let dep = split(line, ' ')[0]
-        call add(self._dependencies[name], dep)
-      elseif line =~# '^   \S' && !has_key(self._locked, section)
-        let self._locked[section] = line[3:-1]
+        call add(dependencies[name], dep)
+      elseif line =~# '^   \S' && !has_key(locked, section)
+        let locked[section] = line[3:-1]
       endif
     endfor
+    lockvar! locked versions dependencies
+    let self._locked = locked
+    let self._versions = versions
+    let self._dependencies = dependencies
     let self._lock_time = time
   endif
   return get(self, '_locked', {})
@@ -376,35 +376,35 @@ function! s:project_paths(...) dict abort
   if a:0 && a:1 ==# 'refresh' || time != -1 && time != get(self, '_path_time', -1)
     let paths = {}
 
-    let chdir = exists("*haslocaldir") && haslocaldir() ? "lchdir" : "chdir"
+    let chdir = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
     let cwd = getcwd()
-
-    " Explicitly setting $PATH means /etc/zshenv on OS X can't touch it.
-    if executable('env')
-      let prefix = 'env PATH='.s:shellesc($PATH).' '
-    else
-      let prefix = ''
-    endif
 
     let gem_paths = []
     if exists('$GEM_PATH')
       let gem_paths = split($GEM_PATH, has('win32') ? ';' : ':')
     endif
 
+    " Explicitly setting $PATH means /etc/zshenv on OS X can't touch it.
+    if executable('env')
+      let prefix = 'env PATH='.s:shellesc($PATH) . ' JRUBY_OPTS='.s:shellesc('--dev') . ' '
+    else
+      let prefix = ''
+    endif
+
     try
-      exe chdir s:fnameescape(self.real())
+      exe chdir fnameescape(self.real())
 
       if empty(gem_paths)
         let gem_paths = split(system(prefix.'ruby -rrbconfig -rrubygems -e '.s:shellesc('print(([RbConfig::CONFIG["ruby_version"]] + Gem.path).join(%(;)))')), ';')
 
         let abi_version = empty(gem_paths) ? '' : remove(gem_paths, 0)
       else
-        let abi_version = system(prefix.'ruby -rrbconfig -e '.s:shellesc('print RbConfig::CONFIG["ruby_version"]'))
+        let abi_version = system(prefix.'ruby -rrbconfig --disable-rubygems -e '.s:shellesc('print RbConfig::CONFIG["ruby_version"]'))
       endif
 
-      exe chdir s:fnameescape(cwd)
+      exe chdir fnameescape(cwd)
     finally
-      exe chdir s:fnameescape(cwd)
+      exe chdir fnameescape(cwd)
     endtry
 
     for config in [expand('~/.bundle/config'), self.real('.bundle/config')]
@@ -481,13 +481,15 @@ function! s:project_paths(...) dict abort
     if has_key(self, '_projections_list')
       call remove(self, '_projections_list')
     endif
+    let sorted = sort(values(paths))
+    let index = index(sorted, fnamemodify(self.lock(), ':h'))
+    if index > 0
+      call insert(sorted, remove(sorted,index))
+    endif
+    lockvar! paths sorted
     let self._path_time = time
     let self._paths = paths
-    let self._sorted = sort(values(paths))
-    let index = index(self._sorted, fnamemodify(self.lock(), ':h'))
-    if index > 0
-      call insert(self._sorted, remove(self._sorted,index))
-    endif
+    let self._sorted = sorted
     if len(self._sorted) > 1 && filereadable(self._sorted[1] . '/lib/tags') &&
           \ !filereadable(self._sorted[1] . '/tags')
       let self._tags = 'lib/tags'
@@ -523,23 +525,32 @@ function! s:project_has(gem) dict abort
 endfunction
 
 function! s:project_projections_list() dict abort
-  call self.paths()
-  if !has_key(self, '_projections_list')
-    let self._projections_list = []
-    let list = self._projections_list
-    if !empty(get(g:, 'gem_projections', {}))
-      for name in keys(self.versions())
-        if has_key(g:gem_projections, name)
-          call add(list, g:gem_projections[name])
-        endif
-      endfor
-    endif
-    for path in self.sorted()
-      if filereadable(path . '/lib/projections.json')
-        call add(list, projectionist#json_parse(readfile(path . '/lib/projections.json')))
-      endif
-    endfor
+  if has_key(self, '_projections_list')
+    return self._projections_list
   endif
+  let list = []
+  let gem_projections = type(get(g:, 'gem_projections')) == type({}) ? g:gem_projections : {}
+  for name in empty(gem_projections) ? [] : keys(self.versions())
+    if type(get(gem_projections, name)) ==# type({})
+      call add(list, gem_projections[name])
+    elseif type(get(gem_projections, name)) ==# type('') && !empty(gem_projections[name])
+      let file = gem_projections[name]
+      if file !~# '^\a\+:\|^/'
+        if !has_key(self.paths(), name)
+          continue
+        endif
+        let file = self.paths()[name] . '/' . file
+      endif
+      if file =~# '/$'
+        let file .= 'projections.json'
+      endif
+      if filereadable(file)
+        call add(list, file)
+      endif
+    endif
+  endfor
+  lockvar! list
+  let self._projections_list = list
   return self._projections_list
 endfunction
 
@@ -557,44 +568,23 @@ endfunction
 
 call s:add_methods('project', ['locked', 'gems', 'paths', 'sorted', 'versions', 'has', 'dependencies', 'projections_list'])
 
-" Section: Buffer
-
-let s:buffer_prototype = {}
-
-function! s:buffer(...) abort
-  let buffer = {'#': bufnr(a:0 ? a:1 : '%')}
-  call extend(extend(buffer,s:buffer_prototype,'keep'),s:abstract_prototype,'keep')
-  if !empty(buffer.getvar('bundler_lock'))
-    return buffer
-  endif
-  call s:throw('not a Bundler project: '.(a:0 ? a:1 : expand('%')))
+function! bundler#GemPaths(...) abort
+  let project = call('bundler#project', a:000)
+  return empty(project) ? {} : call(project.paths, a:000[1:-1], project)
 endfunction
 
-function! bundler#buffer(...) abort
-  return s:buffer(a:0 ? a:1 : '%')
+function! bundler#GemVersions(...) abort
+  let project = call('bundler#project', a:000)
+  return empty(project) ? {} : project.versions()
 endfunction
-
-function! s:buffer_getvar(var) dict abort
-  return getbufvar(self['#'],a:var)
-endfunction
-
-function! s:buffer_setvar(var,value) dict abort
-  return setbufvar(self['#'],a:var,a:value)
-endfunction
-
-function! s:buffer_project() dict abort
-  return s:project(self.getvar('bundler_lock'))
-endfunction
-
-call s:add_methods('buffer',['getvar','setvar','project'])
 
 " Section: Bundle
 
 function! s:push_chdir() abort
   if !exists("s:command_stack") | let s:command_stack = [] | endif
-  let chdir = exists("*haslocaldir") && haslocaldir() ? "lchdir " : "chdir "
-  call add(s:command_stack,chdir.s:fnameescape(getcwd()))
-  exe chdir.'`=s:project().real()`'
+  let chdir = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
+  call add(s:command_stack,chdir . fnameescape(getcwd()))
+  exe chdir fnameescape(s:project().real())
 endfunction
 
 function! s:pop_command() abort
@@ -603,14 +593,35 @@ function! s:pop_command() abort
   endif
 endfunction
 
-function! s:Bundle(bang,arg) abort
+function! s:Bundle(bang, mods, arg) abort
+  let mods = a:mods ==# '<mods>' ? '' : a:mods
+  if a:arg =~# '^open\>'
+    if mods !~# '\<\%(aboveleft\|belowright\|leftabove\|rightbelow\|topleft\|botright\|tab\)\>'
+      let mods .= ' ' . get(g:, 'bundler_open_default_modifier', 'tab')
+    endif
+    return s:Open(mods . ' split', matchstr(a:arg, '\s\+["'']\=\zs.*[^"'']'), a:bang !=# '!')
+  endif
+  let delegate = matchstr(a:arg, '^:\zs\%(e\%[dit]\|v\=sp\%[lit]\|tabe\%[dit]\|ped\%[it]\|s\=find\=\|tabf\%[ind]\|dr\%[op]\|s\=view\=\|[tl]\=cd\|[tl]\=chd\%[ir]\)\>!\=')
+  if len(delegate)
+    return s:Open(mods . ' ' . delegate, matchstr(a:arg, '\s\+\zs.*'), 0)
+  endif
+  if a:arg =~# '^\%(init\|gem\)\>'
+    let project = {}
+  else
+    let project = bundler#project()
+    if empty(project)
+      return 'echoerr ' . string('Bundler manifest not found')
+    endif
+  endif
   let old_makeprg = &l:makeprg
   let old_errorformat = &l:errorformat
   let old_compiler = get(b:, 'current_compiler', '')
-  let cd = exists('*haslocaldir') && haslocaldir() ? 'lcd' : 'cd'
+  let cd = haslocaldir() ? 'lcd' : exists(':tcd') && haslocaldir(-1) ? 'tcd' : 'cd'
   let cwd = getcwd()
   try
-    execute cd fnameescape(s:project().real())
+    if !empty(project)
+      execute cd fnameescape(project.real())
+    endif
     if a:arg =~# '^\s*console\>'
       let arg = substitute(a:arg, '^\s*console\s*', '', '')
       if exists(':Start') > 1
@@ -641,18 +652,47 @@ function! s:Bundle(bang,arg) abort
 endfunction
 
 function! s:BundleComplete(A, L, P) abort
-  return bundler#complete(a:A, a:L, a:P, bundler#project())
+  return bundler#Complete(a:A, a:L, a:P, bundler#project())
 endfunction
 
-function! bundler#complete(A, L, P, ...) abort
+let s:completions = {
+      \ 'install': '',
+      \ 'update': 'gem',
+      \ 'package': '',
+      \ 'exec': '',
+      \ 'config': '',
+      \ 'add': 'gem',
+      \ 'binstubs': 'gem',
+      \ 'check': '',
+      \ 'show': 'gem',
+      \ 'outdated': 'gem',
+      \ 'open': 'gem',
+      \ 'viz': '',
+      \ 'init': '',
+      \ 'gem': 'dir',
+      \ 'platform': '',
+      \ 'clean': '',
+      \ 'doctor': '',
+      \ 'remove': 'gem',
+      \ }
+
+function! bundler#Complete(A, L, P, ...) abort
   let project = a:0 ? a:1 : bundler#project(getcwd())
-  if !empty(project) && a:L =~# '\s\+\%(show\|update\) '
-    return s:completion_filter(keys(project.paths()), a:A)
+  let cmd = matchstr(a:L, '\C\u\w*[! ] *\zs\S\+\ze ')
+  if empty(cmd)
+    return s:completion_filter(keys(s:completions), a:A)
+  elseif get(s:completions, cmd, '') is# 'gem' || cmd =~# '^:'
+    return s:completion_filter(empty(project) ? [] : keys(project.paths()), a:A)
+  elseif cmd ==# 'exec'
+    return getcompletion(a:A, a:L =~# '\u\w*[! ] *\zs\S\+ \+\S*$' ? 'shellcmd' : 'file')
+  elseif has_key(s:completions, cmd)
+    return getcompletion(a:A, s:completions[cmd])
+  else
+    return []
   endif
-  return s:completion_filter(['install','update','exec','package','config','check','list','show','outdated','console','viz','benchmark'], a:A)
 endfunction
 
-call s:command("-bar -bang -nargs=? -complete=customlist,s:BundleComplete Bundle :execute s:Bundle('<bang>',<q-args>)")
+command! -bar -bang -nargs=? -complete=customlist,s:BundleComplete Bundle exe s:Bundle('<bang>', '<mods>', <q-args>)
 
 function! s:IsBundlerMake() abort
   return &makeprg =~# '^bundle' && exists('b:bundler_lock')
@@ -676,52 +716,61 @@ endfunction
 augroup bundler_command
   autocmd QuickFixCmdPre *make* call s:QuickFixCmdPreMake()
   autocmd QuickFixCmdPost *make* call s:QuickFixCmdPostMake()
-  autocmd User Bundler
-        \ if exists(':Console') < 2 |
-        \   exe "command! -buffer -bar -bang -nargs=* Console :Bundle<bang> console <args>" |
-        \ endif
 augroup END
 
 " Section: Bopen
 
 function! s:Open(cmd,gem,lcd) abort
-  if a:gem ==# '' && a:lcd
-    return a:cmd.' '.fnameescape(s:project().manifest())
-  elseif a:gem ==# ''
-    return a:cmd.' '.fnameescape(s:project().lock())
+  if empty(bundler#project())
+    return 'echoerr ' . string('Bundler manifest not found')
+  endif
+  let exec = substitute(a:cmd, '^<mods> ', '', '')
+  let gem = matchstr(a:gem, '^[^/]*')
+  if empty(gem) && a:cmd =~# '\<[tl]\=ch\=d'
+    return exec . ' ' . fnameescape(s:project().real())
+  elseif empty(gem) && a:lcd
+    return exec . ' ' . fnameescape(s:project().manifest())
+  elseif empty(gem)
+    return exec . ' ' . fnameescape(s:project().lock())
   else
-    if !has_key(s:project().paths(), a:gem)
+    if !has_key(s:project().paths(), gem)
       call s:project().paths('refresh')
     endif
-    if !has_key(s:project().paths(), a:gem)
-      if has_key(s:project().versions(), a:gem)
-        let v:errmsg = "Gem \"".a:gem."\" is in bundle but not installed"
+    if !has_key(s:project().paths(), gem)
+      if has_key(s:project().versions(), gem)
+        let v:errmsg = "Gem \"".gem."\" is in bundle but not installed"
       else
-        let v:errmsg = "Gem \"".a:gem."\" is not in bundle"
+        let v:errmsg = "Gem \"".gem."\" is not in bundle"
       endif
       return 'echoerr v:errmsg'
     endif
-    let path = fnameescape(s:project().paths()[a:gem])
-    let exec = a:cmd.' '.path
-    if a:cmd =~# '^pedit' && a:lcd
-      let exec .= '|wincmd P|lcd '.path.'|wincmd p'
-    elseif a:lcd
-      let exec .= '|lcd '.path
+    let gempath = fnameescape(s:project().paths()[gem])
+    let path = gempath . fnameescape(matchstr(a:gem, '/.*'))
+    if !a:lcd
+      let exec .= ' ' . path
+    elseif a:cmd =~# '\<pe'
+      let exec .= ' +lcd\ ' . gempath . ' ' . path
+    else
+      let exec .= ' ' . path . '|lcd ' . gempath
     endif
     return exec
   endif
 endfunction
 
 function! s:OpenComplete(A,L,P) abort
-  return s:completion_filter(keys(s:project().paths()),a:A)
+  let project = bundler#project()
+  if empty(project)
+    return []
+  endif
+  return s:completion_filter(keys(project.paths()), a:A)
 endfunction
 
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Bopen :execute s:Open('edit<bang>',<q-args>,1)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Bedit :execute s:Open('edit<bang>',<q-args>,0)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Bsplit :execute s:Open('split',<q-args>,<bang>1)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Bvsplit :execute s:Open('vsplit',<q-args>,<bang>1)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Btabedit :execute s:Open('tabedit',<q-args>,<bang>1)")
-call s:command("-bar -bang -nargs=? -complete=customlist,s:OpenComplete Bpedit :execute s:Open('pedit',<q-args>,<bang>1)")
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Bopen    exe s:Open('<mods> edit<bang>', <q-args>,1)
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Bedit    exe s:Open('<mods> edit<bang>', <q-args>,0)
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Bsplit   exe s:Open('<mods> split', <q-args>, <bang>1)
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Bvsplit  exe s:Open('<mods> vsplit', <q-args>, <bang>1)
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Btabedit exe s:Open('<mods> tabedit', <q-args>, <bang>1)
+command! -bar -bang -nargs=? -complete=customlist,s:OpenComplete Bpedit   exe s:Open('<mods> pedit', <q-args>, <bang>1)
 
 " Section: Paths
 
@@ -729,18 +778,18 @@ function! s:build_path_option(paths,suffix) abort
   return join(map(copy(a:paths),'",".escape(s:shellslash(v:val."/".a:suffix),", ")'),'')
 endfunction
 
-function! s:buffer_alter_paths() dict abort
-  if self.getvar('&suffixesadd') =~# '\.rb\>'
-    let gem = self.getvar('bundler_gem')
+function! s:AlterPaths(project, buf) abort
+  if !empty(a:project)
+    let gem = getbufvar(a:buf, 'bundler_gem')
     if empty(gem)
-      let new = self.project().sorted()
+      let new = a:project.sorted()
     else
-      let new = sort(values(self.project().dependencies(gem)))
+      let new = sort(values(a:project.dependencies(gem)))
     endif
-    let old = type(self.getvar('bundler_paths')) == type([]) ? self.getvar('bundler_paths') : []
+    let old = type(getbufvar(a:buf, 'bundler_paths')) == type([]) ? getbufvar(a:buf, 'bundler_paths') : []
     for [option, suffix] in
-          \ [['tags', get(self.project(), '_tags', 'tags')], ['path', 'lib']]
-      let value = self.getvar('&'.option)
+          \ [['tags', get(a:project, '_tags', 'tags')], ['path', 'lib']]
+      let value = getbufvar(a:buf, '&'.option)
       let tail = matchstr(value, '\%(,\.\)\=\%(,,\)\=$')
       let value = strpart(value, 0, len(value) - len(tail))
       if !empty(old)
@@ -750,18 +799,16 @@ function! s:buffer_alter_paths() dict abort
           let value = value[0:index-1] . value[index+strlen(drop):-1]
         endif
       endif
-      call self.setvar('&'.option,value.s:build_path_option(new, suffix) . tail)
+      call setbufvar(a:buf, '&'.option, value.s:build_path_option(new, suffix) . tail)
     endfor
-    call self.setvar('bundler_paths',new)
+    call setbufvar(a:buf, 'bundler_paths', new)
   endif
 endfunction
 
-call s:add_methods('buffer',['alter_paths'])
-
 function! s:project_alter_buffer_paths() dict abort
   for bufnr in range(1,bufnr('$'))
-    if getbufvar(bufnr,'bundler_lock') ==# self.lock()
-      let vim_parsing_quirk = s:buffer(bufnr).alter_paths()
+    if getbufvar(bufnr, 'bundler_lock') ==# self.lock() && getbufvar(bufnr, '&suffixesadd') =~# '\.rb\>'
+      call s:AlterPaths(self, bufnr)
     endif
     if getbufvar(bufnr, '&syntax') ==# 'gemfilelock'
       call setbufvar(bufnr, '&syntax', 'gemfilelock')
@@ -773,7 +820,10 @@ call s:add_methods('project',['alter_buffer_paths'])
 
 augroup bundler_path
   autocmd!
-  autocmd User Bundler call s:buffer().alter_paths()
+  autocmd User Bundler
+        \ if &suffixesadd =~# '\.rb\>' |
+        \   call s:AlterPaths(bundler#project(), bufnr('')) |
+        \ endif
 augroup END
 
 " vim:set sw=2 sts=2:

@@ -50,6 +50,9 @@ Plugin 'rescript-lang/vim-rescript'
 
 " NeoBundle
 NeoBundle 'rescript-lang/vim-rescript'
+
+" Packer
+use 'rescript-lang/vim-rescript'
 ```
 
 You can also pin your installation to specific tags (check our releases [here](https://github.com/rescript-lang/vim-rescript/releases)):

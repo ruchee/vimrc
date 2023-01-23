@@ -772,7 +772,7 @@ function! go#debug#Start(mode, ...) abort
   try
     if a:mode is 'connect'
       let l:addr = go#config#DebugAddress()
-      if len(a:0) > 0
+      if a:0 > 0
         let l:addr = a:1
       endif
       let s:state['kill_on_detach'] = v:false
@@ -1100,7 +1100,7 @@ function! s:show_goroutines(currentGoroutineID, res) abort
     setlocal modifiable
     silent %delete _
 
-    let v = ['# Goroutines']
+    let v = []
 
     if type(a:res) isnot type({}) || !has_key(a:res, 'result') || empty(a:res['result'])
       call setline(1, v)
@@ -1141,11 +1141,15 @@ function! s:show_goroutines(currentGoroutineID, res) abort
       " changed if needed.
       if l:goroutine.id == a:currentGoroutineID
         let l:g = printf("* Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
+        let l:currentGoroutine = [l:g]
+        continue
       else
         let l:g = printf("  Goroutine %s - %s: %s:%s %s (thread: %s)", l:goroutine.id, l:goroutineType, s:substituteRemotePath(l:loc.file), l:loc.line, l:loc.function.name, l:goroutine.threadID)
       endif
       let v += [l:g]
     endfor
+
+    let v = ['# Goroutines'] + l:currentGoroutine + v
 
     call setline(1, v)
   finally

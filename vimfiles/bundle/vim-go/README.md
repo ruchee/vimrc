@@ -24,7 +24,7 @@ This plugin adds Go language support for Vim, with the following main features:
 * See which code is covered by tests with `:GoCoverage`.
 * Add or remove tags on struct fields with `:GoAddTags` and `:GoRemoveTags`.
 * Call [`staticcheck`](https://staticcheck.io/) with `:GoMetaLinter` to invoke all possible linters
-  (`golint`, `vet`, `errcheck`, `deadcode`, etc.) and put the result in the
+  (e.g. `golint`, `vet`, `errcheck`, `deadcode`, etc.) and put the result in the
   quickfix or location list.
 * Lint your code with `:GoLint`, run your code through `:GoVet` to catch static
   errors, or make sure errors are checked with `:GoErrCheck`.
@@ -63,7 +63,7 @@ for popular package managers:
 
 You will also need to install all the necessary binaries. vim-go makes it easy
 to install all of them by providing a command, `:GoInstallBinaries`, which will
-`go get` all the required binaries.
+`go install` all the required binaries.
 
 Check out the Install section in [the documentation](doc/vim-go.txt) for more
 detailed instructions (`:help go-install`).

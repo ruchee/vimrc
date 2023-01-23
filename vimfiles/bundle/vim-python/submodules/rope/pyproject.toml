@@ -1,0 +1,93 @@
+[project]
+name = 'rope'
+description = 'a python refactoring library...'
+readme = 'README.rst'
+requires-python = '>=3.7'
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Operating System :: OS Independent',
+    'Environment :: X11 Applications',
+    'Environment :: Win32 (MS Windows)',
+    'Environment :: MacOS X',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)',
+    'Natural Language :: English',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Topic :: Software Development',
+]
+version = '1.5.1'
+dependencies = ['pytoolconfig[global] >= 1.2.2']
+
+[[project.authors]]
+name = 'Ali Gholami Rudi'
+email = 'aligrudi@users.sourceforge.net'
+
+[[project.maintainers]]
+name = 'Lie Ryan'
+email = 'lieryan.24@proton.me'
+
+[project.license]
+text = 'LGPL-3.0-or-later'
+
+[project.urls]
+Source = 'https://github.com/python-rope/rope'
+Documentation = 'https://rope.readthedocs.io/'
+
+[project.optional-dependencies]
+doc = [
+    'pytoolconfig[doc]',
+    "sphinx>=4.5.0",
+    "sphinx-autodoc-typehints>=1.18.1",
+    "sphinx-rtd-theme>=1.0.0",
+]
+dev = [
+    'pytest>=7.0.1',
+    'pytest-timeout>=2.1.0',
+    'build>=0.7.0',
+]
+[tool.setuptools]
+packages = [
+    'rope',
+    'rope.base',
+    'rope.base.oi',
+    'rope.base.oi.type_hinting',
+    'rope.base.oi.type_hinting.providers',
+    'rope.base.oi.type_hinting.resolvers',
+    'rope.base.utils',
+    'rope.contrib',
+    'rope.contrib.autoimport',
+    'rope.refactor',
+    'rope.refactor.importutils',
+]
+
+[tool.black]
+target-version = [
+    'py36',
+    'py37',
+    'py38',
+    'py39',
+]
+include = 'rope/.*\.pyi?$'
+force-exclude = 'ropetest|rope/base/prefs.py'
+
+[tool.pytest.ini_options]
+
+python_files = [
+    "*test.py",
+    "__init__.py",
+]
+
+markers = [
+    "time_limit: sets a maximum amount of time the test can run",
+]
+
+[build-system]
+requires = [
+    'setuptools',
+]
+build-backend = 'setuptools.build_meta'

@@ -23,6 +23,7 @@ nnoremap <silent> <Plug>(go-install) :<C-u>call go#cmd#Install(!g:go_jump_to_err
 nnoremap <silent> <Plug>(go-test) :<C-u>call go#test#Test(!g:go_jump_to_error, 0)<CR>
 nnoremap <silent> <Plug>(go-test-func) :<C-u>call go#test#Func(!g:go_jump_to_error)<CR>
 nnoremap <silent> <Plug>(go-test-compile) :<C-u>call go#test#Test(!g:go_jump_to_error, 1)<CR>
+nnoremap <silent> <Plug>(go-test-file) :<C-u>call go#test#File(!g:go_jump_to_error)<CR>
 
 nnoremap <silent> <Plug>(go-coverage) :<C-u>call go#coverage#Buffer(!g:go_jump_to_error)<CR>
 nnoremap <silent> <Plug>(go-coverage-clear) :<C-u>call go#coverage#Clear()<CR>
@@ -44,10 +45,10 @@ nnoremap <silent> <Plug>(go-callstack) :<C-u>call go#guru#Callstack(-1)<CR>
 xnoremap <silent> <Plug>(go-freevars) :<C-u>call go#guru#Freevars(0)<CR>
 nnoremap <silent> <Plug>(go-channelpeers) :<C-u>call go#guru#ChannelPeers(-1)<CR>
 nnoremap <silent> <Plug>(go-referrers) :<C-u>call go#referrers#Referrers(-1)<CR>
-nnoremap <silent> <Plug>(go-sameids) :<C-u>call go#guru#SameIds(1)<CR>
+nnoremap <silent> <Plug>(go-sameids) :<C-u>call go#sameids#SameIds(1)<CR>
 nnoremap <silent> <Plug>(go-pointsto) :<C-u>call go#guru#PointsTo(-1)<CR>
 nnoremap <silent> <Plug>(go-whicherrs) :<C-u>call go#guru#Whicherrs(-1)<CR>
-nnoremap <silent> <Plug>(go-sameids-toggle) :<C-u>call go#guru#ToggleSameIds()<CR>
+nnoremap <silent> <Plug>(go-sameids-toggle) :<C-u>call go#sameids#ToggleSameIds()<CR>
 
 nnoremap <silent> <Plug>(go-rename) :<C-u>call go#rename#Rename(!g:go_jump_to_error)<CR>
 

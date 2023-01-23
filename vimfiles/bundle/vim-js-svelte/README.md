@@ -1,164 +1,209 @@
-# vim-svelte-plugin [![Build Status][12]](https://travis-ci.com/leafOfTree/vim-svelte-plugin)
+# vim-svelte
 
-<p align="center">
-<a href="https://github.com/altercation/vim-colors-solarized">
-<img alt="screenshot" src="https://raw.githubusercontent.com/leafOfTree/leafOfTree.github.io/master/vim-svelte-solarized.png" width="220" />
-</a>
-<a href="https://github.com/leafOfTree/vim-svelte-theme">
-<img alt="screenshot" src="https://raw.githubusercontent.com/leafOfTree/leafOfTree.github.io/master/vim-svelte-theme.png" width="220" />
-</a>
-</p>
+[![vim-svelte](https://github.com/evanleck/vim-svelte/actions/workflows/main.yml/badge.svg)](https://github.com/evanleck/vim-svelte/actions/workflows/main.yml)
 
-Vim syntax and indent plugin for `.svelte` files. Forked from [vim-vue-plugin][3]. 
+Vim syntax highlighting and indentation for [Svelte 3][svelte] components.
+
+This is mostly just HTML syntax highlighting with some keywords added and all
+expressions inside of `{` and `}` highlighted as JavaScript.
+
+Highlighting includes:
+
+- HTML attributes with a colon like `on:click` or `transition:fade` highlighted
+    as `Keyword`.
+- `#if`, `/if`, `:else`, and `:else if` highlighted as `Conditional`.
+- `#await`, `/await`, `:catch`, `:then`, and `@html` highlighted as `Keyword`.
+- `#each` and `/each` highlighted as `Repeat`.
+
+
+## Dependencies
+
+1. [pangloss/vim-javascript][vim-javascript] for JavaScript syntax highlighting.
+2. [othree/html5.vim][html5-vim] for HTML indent.
+
+Both of those dependencies are included in [sheerun/vim-polyglot][vim-polyglot]
+so if you're already using that then you should be set.
+
 
 ## Installation
 
-<details>
+The simplest way to install vim-svelte is via a package manager like
+[Pathogen][pathogen], [Vundle][vundle], [NeoBundle][neobundle],
+[Plug][vim-plug], or [minpac][minpac].
 
-<summary><a>How to install</a></summary>
+For example, using minpac:
 
-- [VundleVim][2]
-
-        Plugin 'leafOfTree/vim-svelte-plugin'
-
-- [vim-pathogen][5]
-
-        cd ~/.vim/bundle && \
-        git clone https://github.com/leafOfTree/vim-svelte-plugin --depth 1
-
-- [vim-plug][7]
-
-        Plug 'leafOfTree/vim-svelte-plugin'
-        :PlugInstall
-
-- Or manually, clone this plugin to `path/to/this_plugin`, and add it to `rtp` in vimrc
-
-        set rtp+=path/to/this_plugin
-
-<br />
-</details>
-
-This plugin works if it has set `filetype` to `svelte`. Please stay up to date. Feel free to open an issue or pull request.
-
-## How it works
-
-It combines HTML, CSS and JavaScript syntax and indent in one file.
-
-Supports
-
-- Svelte directives.
-- Less/Sass/Scss, Pug with [vim-pug][4], Coffee with [vim-coffee-script][6], TypeScript with [typescript-vim][14] or [yats.vim][15].^
-
-    Relative plugins need to be installed.
-
-- A builtin `foldexpr` foldmethod.^
-- [emmet-vim][10] HTML/CSS/JavaScript filetype detection.
-
-^: see Configuration for details.
-
-## Configuration
-
-Set global variable to `1` to enable or `0` to disable. Ex:
-
-    let g:vim_svelte_plugin_load_full_syntax = 1
-
-| variable                              | description                                                                                            | default                    |
-|---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------------------|
-| `g:vim_svelte_plugin_load_full_syntax`\* | Enable: load all syntax files in `runtimepath` to enable related syntax plugins.<br> Disable: only in `$VIMRUNTIME/syntax`, `~/.vim/syntax` and `$VIM/vimfiles/syntax` | 0 |
-| `g:vim_svelte_plugin_use_pug`\*             | Enable pug syntax for `<template lang="pug">`.                                                         | 0 |
-| `g:vim_svelte_plugin_use_coffee`            | Enable coffee syntax for `<script lang="coffee">`.                                                     | 0 |
-| `g:vim_svelte_plugin_use_typescript`        | Enable typescript syntax for `<script lang="ts">`.                                                     | 0 |
-| `g:vim_svelte_plugin_use_less`              | Enable less syntax for `<style lang="less">`.                                                          | 0 |
-| `g:vim_svelte_plugin_use_sass`              | Enable scss syntax for `<style lang="scss">`(or sass for `lang="sass"`).                               | 0 |
-| `g:vim_svelte_plugin_has_init_indent`       | Initially indent one tab inside `style/script` tags.                                                   | 1 |
-| `g:vim_svelte_plugin_use_foldexpr`          | Enable builtin `foldexpr` foldmethod.                                                                  | 0 |
-| `g:vim_svelte_plugin_debug`                 | Echo debug messages in `messages` list. Useful to debug if unexpected indents occur.                   | 0 |
-
-\*: Vim may be slow if the feature is enabled. Find a balance between syntax highlight and speed. By the way, custom syntax can be added in `~/.vim/syntax` or `$VIM/vimfiles/syntax`. 
-
-**Note**
-
-- `filetype` is set to `svelte` so autocmds and other custom settings for `javascript` have to be manually enabled for `svelte`.
-- `g:vim_svelte_plugin_load_full_syntax` applies to `HTML/Sass/Less`.
-- See <https://svelte.dev/docs#svelte_preprocess> for how to use `Less/Sass/Pug`... in svelte.
-
-## Context based behavior
-
-As there are more than one language in `.svelte` file, the different behaviors like mapping, completion, and local options may be expected according to tags or subtypes(current language type).
-
-This plugin provides functions to get the tag/subtype where the cursor is in.
-
-- `GetSvelteTag() => String` Return value is one of `'template', 'script', 'style'`.
-
-  ```vim
-  " Example
-  autocmd FileType svelte inoremap <buffer><expr> : InsertColon()
-
-  function! InsertColon()
-    let tag = GetSvelteTag()
-    return tag == 'template' ? ':' : ': '
-  endfunction
-  ```
-
-- `GetSvelteSubtype() => String` Return value is one of `'html', 'javascript', 'css', 'scss', ...`.
-
-- `OnChangeSvelteSubtype(subtype)` An event listener that is called when subtype changes.
-
-    You can also define an event listener function `OnChangeSvelteSubtype(subtype)` in your `vimrc` to get the subtype and set its local options whenever it changes.
-
-    ```vim
-    " Example: set local options based on subtype
-    function! OnChangeSvelteSubtype(subtype)
-      echom 'Subtype is '.a:subtype
-      if empty(a:subtype) || a:subtype == 'html'
-        setlocal commentstring=<!--%s-->
-        setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
-      elseif a:subtype =~ 'css'
-        setlocal comments=s1:/*,mb:*,ex:*/ commentstring&
-      else
-        setlocal commentstring=//%s
-        setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
-      endif
-    endfunction
-    ```
-
-### emmet-vim
-
-Currently emmet-vim works regarding your HTML/CSS/JavaScript emmet settings, but it depends on how emmet-vim gets `filetype` and may change in the future. Feel free to report an issue if any problem appears.
-
-## Avoid overload
-
-Since there are many sub languages included, most delays come from syntax files overload. A variable named `b:current_loading_main_syntax` is set to `svelte` which can be used as loading condition if you'd like to manually find and modify the syntax files causing overload.
-
-For example, the builtin syntax `sass.vim` and `less.vim` in vim8.1 runtime always load `css.vim` which this plugin already loads. It can be optimized like
-
-```diff
-- runtime! syntax/css.vim
-+ if !exists("b:current_loading_main_syntax")
-+   runtime! syntax/css.vim
-+ endif
+```vimscript
+call minpac#add('othree/html5.vim')
+call minpac#add('pangloss/vim-javascript')
+call minpac#add('evanleck/vim-svelte')
 ```
 
-## See also
+Or using Plug:
 
-- [vim-svelte-theme][11] svelte syntax color
-- [vim-vue-plugin][3]
-- [mxw/vim-jsx][1]
+```vimscript
+Plug 'othree/html5.vim'
+Plug 'pangloss/vim-javascript'
+Plug 'evanleck/vim-svelte', {'branch': 'main'}
+```
 
-## License
+vim-svelte works just fine with Vim 8's native package loading as well.
 
-This plugin is under [The Unlicense][8]. Other than this, `lib/indent/*` files are extracted from vim runtime.
 
-[1]: https://github.com/mxw/vim-jsx "mxw: vim-jsx"
-[2]: https://github.com/VundleVim/Vundle.vim
-[3]: https://github.com/leafOfTree/vim-vue-plugin
-[4]: https://github.com/digitaltoad/vim-pug
-[5]: https://github.com/tpope/vim-pathogen
-[6]: https://github.com/kchmck/vim-coffee-script
-[7]: https://github.com/junegunn/vim-plug
-[8]: https://choosealicense.com/licenses/unlicense/
-[10]: https://github.com/mattn/emmet-vim
-[11]: https://github.com/leafOfTree/vim-svelte-theme
-[12]: https://travis-ci.com/leafOfTree/vim-svelte-plugin.svg?branch=master
-[14]: https://github.com/leafgarland/typescript-vim
-[15]: https://github.com/HerringtonDarkholme/yats.vim
+## Options
+
+To disable indentation within `<script>` and `<style>` tags, set one of these
+variables in your `vimrc`:
+
+```vim
+let g:svelte_indent_script = 0
+let g:svelte_indent_style = 0
+```
+
+
+## Preprocessed languages
+
+Syntax highlighting for additional languages is supported, assuming you have a
+corresponding syntax definition installed. For example, newer versions of Vim
+ship with a TypeScript syntax definition, so you wouldn't need anything
+additional installed for that to work. Supported languages include:
+
+- `less`
+- `scss`
+- `sass`
+- `stylus`
+- `typescript`
+
+Since Svelte doesn't support these out of the box (see
+[svelte-preprocess][preprocess] for how to set up some common language
+preprocessors with e.g. Rollup), they're all disabled by default so the first
+thing you'll need to do is enable your languages via the
+`g:svelte_preprocessors` variable:
+
+```vim
+let g:svelte_preprocessors = ['typescript']
+```
+
+Then, use your language in your Svelte components like this:
+
+```html
+<script lang='typescript'>
+</script>
+
+<!-- Or... -->
+<style type='text/scss'>
+</style>
+```
+
+### Customizing the list of preprocessed languages
+
+In addition to enabling the built-in preprocessors, you can add your own
+preprocessors that this plugin will detect using the
+`g:svelte_preprocessor_tags` variable. It should be a list of dictionaries with
+at least a `name` and a `tag` attribute. You can optionally include an `as`
+attribute which maps to the syntax you'd like to use within the tag.
+
+Here's an example:
+
+```vim
+let g:svelte_preprocessor_tags = [
+  \ { 'name': 'postcss', 'tag': 'style', 'as': 'scss' }
+  \ ]
+" You still need to enable these preprocessors as well.
+let g:svelte_preprocessors = ['postcss']
+```
+
+This would highlight `<style type="postcss">` contents as `scss`, useful if you
+use something like [postcss-nested][nested].
+
+You can also create shorthand names if, for example, writing out
+`lang='typescript'` takes too long:
+
+```vim
+let g:svelte_preprocessor_tags = [
+  \ { 'name': 'ts', 'tag': 'script', 'as': 'typescript' }
+  \ ]
+let g:svelte_preprocessors = ['ts']
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Usage</th>
+      <th>Required</th>
+      <th>Default value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td>
+        The value within the attribute <code>lang</code> or <code>type</code> on
+        the <code>tag</code> as well as the value to include in
+        <code>g:svelte_preprocessors</code>.
+      </td>
+      <td>Yes</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>tag</code></td>
+      <td>The HTML tag to target e.g. <code>script</code> or <code>style</code>.</td>
+      <td>Yes</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <td><code>as</code></td>
+      <td>The syntax name to use for highlighting.</td>
+      <td>No</td>
+      <td>The <code>name</code> attribute.</td>
+    </tr>
+  </tbody>
+</table>
+
+Note, that enabling and loading a lot of different syntax definitions can
+considerably degrade Vim's performance. Consider yourself warned.
+
+
+## Integrations
+
+- [ALE][ale]: vim-svelte should work out of the box with `eslint` and a few
+  other linters/fixers. PRs welcome if the one you want is missing.
+- [matchit.vim][matchit]: vim-svelte should work out of the box and allow moving
+  between HTML tags as well as flow control like `#if/:else//if`.
+- [Syntastic][syntastic]: vim-syntastic will work with javascript and html checkers, for example:
+  ```vim
+  let g:syntastic_svelte_checkers = ['javascript/eslint', 'html/htmlhint']
+  ```
+
+
+## Tests
+
+Indentation tests are provided and any contributions would be much appreciated.
+They can be run with `make test` which will clone [vader.vim][vader] into the
+current working directory and run the test suite.
+
+
+## Alternatives
+
+1. [burner/vim-svelte][burner]
+2. [leafOfTree/vim-svelte-plugin][leafOfTree]
+
+
+[ale]: https://github.com/dense-analysis/ale
+[burner]: https://github.com/burner/vim-svelte
+[html5-vim]: https://github.com/othree/html5.vim
+[leafOfTree]: https://github.com/leafOfTree/vim-svelte-plugin
+[matchit]: https://github.com/adelarsq/vim-matchit
+[minpac]: https://github.com/k-takata/minpac
+[neobundle]: https://github.com/Shougo/neobundle.vim
+[nested]: https://github.com/postcss/postcss-nested
+[pathogen]: https://github.com/tpope/vim-pathogen
+[preprocess]: https://github.com/sveltejs/svelte-preprocess
+[svelte]: https://svelte.dev
+[syntastic]: https://github.com/vim-syntastic/syntastic
+[vader]: https://github.com/junegunn/vader.vim
+[vim-javascript]: https://github.com/pangloss/vim-javascript
+[vim-plug]: https://github.com/junegunn/vim-plug
+[vim-polyglot]: https://github.com/sheerun/vim-polyglot
+[vundle]: https://github.com/VundleVim/Vundle.vim

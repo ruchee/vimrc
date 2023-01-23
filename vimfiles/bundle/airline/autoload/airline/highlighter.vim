@@ -170,7 +170,7 @@ if !exists(":def") || !airline#util#has_vim9_script()
       call airline#highlighter#highlight_modified_inactive(winbufnr(winnr))
     endfor
     call airline#highlighter#highlight(['inactive'])
-    if getbufvar( bufnr('%'), '&modified'  )
+    if getbufvar( bufnr('%'), '&modified'  ) && &buftype != 'terminal'
       call airline#highlighter#highlight(['normal', 'modified'])
     else
       call airline#highlighter#highlight(['normal'])
@@ -430,12 +430,11 @@ else
     return res
   enddef
 
-  def airline#highlighter#get_highlight2(fg: list<string>, bg: list<string>, rest1: string = '', rest2: string = '', rest3: string = ''): list<string>
+  def airline#highlighter#get_highlight2(fg: list<string>, bg: list<string>, ...rest: list<string>): list<string>
     var guifg = s:get_syn(fg[0], fg[1], 'gui')
     var guibg = s:get_syn(bg[0], bg[1], 'gui')
     var ctermfg = s:get_syn(fg[0], fg[1], 'cterm')
     var ctermbg = s:get_syn(bg[0], bg[1], 'cterm')
-    var rest = [ rest1, rest2, rest3 ]
     return s:get_array(guifg, guibg, ctermfg, ctermbg, filter(rest, (_, v) => !empty(v)))
   enddef
 
@@ -514,7 +513,7 @@ else
       airline#highlighter#highlight_modified_inactive(winbufnr(winnr))
     endfor
     airline#highlighter#highlight(['inactive'])
-    if getbufvar( bufnr('%'), '&modified'  )
+    if getbufvar( bufnr('%'), '&modified'  ) && &buftype != 'terminal'
       airline#highlighter#highlight(['normal', 'modified'])
     else
       airline#highlighter#highlight(['normal'])

@@ -1,71 +1,70 @@
 " Vim syntax file
-" Language: PHP 5.3 & up
+" Language: php PHP 3/4/5/7/8
+" Maintainer: Tyson Andre <tysonandre775@hotmail.com>
+" Last Change: Sep 18, 2021
+" URL: https://github.com/TysonAndre/php-vim-syntax
+" Former Maintainers: 
+"         Jason Woofenden <jason@jasonwoof.com>
+"         Peter Hodge <toomuchphp-vim@yahoo.com>
+"         Debian VIM Maintainers <pkg-vim-maintainers@lists.alioth.debian.org>
 "
-" @block('Last-modified')
+" Note: If you are using a colour terminal with dark background, you will
+"       probably find the 'elflord' colorscheme is much better for PHP's syntax
+"       than the default colourscheme, because elflord's colours will better
+"       highlight the break-points (Statements) in your code.
 "
-" Mon, 25 Mar 2019 09:59:20 +0000, PHP 5.6.40, 7.0.33, 7.1.27, 7.2.16, 7.3.3
+" Note: This embeds a modified copy of the html.vim with (mostly) different symbols,
+" in order to implement php_htmlInStrings=2 can work as expected and correctly parse
+" `<?php $phpStartTag = '<?php';`.
 "
-" @endblock
+" Credits for the original version of html.vim prior to modifications
 "
-" Maintainer: Paul Garvin <paul@paulgarvin.net>
+"   Previous Maintainer Jorge Maldonado Ventura <jorgesumle@freakspot.net>
+"   Previous Maintainer Claudio Fleiner <claudio@fleiner.com>
+"   Repository          https://notabug.org/jorgesumle/vim-html-syntax
+"   Last Change         2021 Mar 02
+"			Included patch #7900 to fix comments
+"			Included patch #7916 to fix a few more things
 "
-" Contributor: Stan Angeloff <stanimir@angeloff.name>
-" URL: https://github.com/StanAngeloff/php.vim
+" Options:
+"   Set to anything to enable:
+"     php_sql_query           SQL syntax highlighting inside strings
+"     php_htmlInStrings       HTML syntax highlighting inside strings
+" 
+"                             By setting this to 2, this will use a local copy of
+"                             HTML syntax highlighting instead of the official
+"                             HTML syntax highlighting, and properly highlight
+"                             `<?php $startTag = '<?php';`.
+"                             This may become the new default in the future.
+" 
+"                             By setting this to 3 (or any unrecognized value), 
+"                             this will use the official installed top level html syntax highlighting rules.
+"     php_baselib             highlighting baselib functions
+"     php_asp_tags            highlighting ASP-style short tags
+"     php_parent_error_close  highlighting parent error ] or )
+"     php_parent_error_open   skipping an php end tag, if there exists
+"                               an open ( or [ without a closing one
+"     php_oldStyle            use old colorstyle
+"     php_noShortTags         don't sync <? ?> as php
+"   Set to a specific value:
+"     php_folding = 1         fold classes and functions
+"     php_folding = 2         fold all { } regions
+"     php_sync_method = x  where x is an integer:
+"                       -1  sync by search ( default )
+"                       >0  sync at least x lines backwards
+"                       0   sync from start
+"   Set to 0 to _disable_:      (Added by Peter Hodge On June 9, 2006)
+"     php_special_functions = 0      highlight functions with abnormal behaviour
+"     php_alt_comparisons = 0        comparison operators in an alternate colour
+"     php_alt_assignByReference = 0  '= &' in an alternate colour
 "
-" Contributor: Alessandro Antonello <aleantonello@hotmail.com>
-" URL: https://github.com/aantonello/php.vim
 "
-" Contributor: Tim Carry <tim@pixelastic.com>
-" URL: https://github.com/pixelastic/php.vim
-"
-" Contributor: Joshua Sherman <josh@gravityblvd.com>
-" URL: https://github.com/joshtronic/php.vim
-"
-" Former Maintainer:  Peter Hodge <toomuchphp-vim@yahoo.com>
-" Former URL: http://www.vim.org/scripts/script.php?script_id=1571
-"
-" Note: All of the switches for VIM 5.X and 6.X compatability were removed.
-"       DO NOT USE THIS FILE WITH A VERSION OF VIM < 7.0.
-"
-" Note: If you are using a colour terminal with dark background, you will probably find
-"       the 'elflord' colorscheme is much better for PHP's syntax than the default
-"       colourscheme, because elflord's colours will better highlight the break-points
-"       (Statements) in your code.
-"
-" Options:  php_sql_query = 1  for SQL syntax highlighting inside strings (default: 0)
-"           php_sql_heredoc = 1 for SQL syntax highlighting inside heredocs (default: 1)
-"           php_sql_nowdoc = 1 for SQL syntax highlighting inside nowdocs (default: 1)
-"           b:sql_type_override = 'postgresql' for PostgreSQL syntax highlighting in current buffer (default: 'mysql')
-"           g:sql_type_default = 'postgresql' to set global SQL syntax highlighting language default (default: 'mysql')"
-"           php_xml_heredoc = 1 for XML syntax highlighting inside heredocs (default: 0)
-"           php_xml_nowdoc = 1 for XML syntax highlighting inside nowdocs (default: 0)
-"           php_html_in_strings = 1  for HTML syntax highlighting inside strings (default: 0)
-"           php_html_in_heredoc = 1 for HTML syntax highlighting inside heredocs (default: 1)
-"           php_html_in_nowdoc = 1 for HTML syntax highlighting inside nowdocs (default: 1)
-"           php_html_load = 1 for loading the HTML syntax at all.  Overwrites php_html_in_strings and php_html_in_heredoc (default: 1)
-"           php_ignore_phpdoc = 0 for not highlighting parts of phpDocs
-"           php_parent_error_close = 1  for highlighting parent error ] or ) (default: 0)
-"           php_parent_error_open = 1  for skipping an php end tag,
-"                                      if there exists an open ( or [ without a closing one (default: 0)
-"           php_folding = 1  for folding loops, if/elseif/else, switch, try/catch, classes, and functions based on
-"                            indent, finds a } with an indent matching the structure.
-"                         2  for folding all { }, ( ), and [ ] pairs. (see known bugs ii)
-"           php_phpdoc_folding = 0 Don't fold phpDoc comments (default)
-"                                1 Fold phpDoc comments
-"           php_sync_method = x
-"                             x=-1 to sync by search ( default )
-"                             x>0 to sync at least x lines backwards
-"                             x=0 to sync from start
-"
-"           php_var_selector_is_identifier = 1  include the '$' as part of identifiers.
-"                                               Variables will be highlighted as a single 'phpIdentifier' group
-"                                               instead of as 'phpOperator' for '$' and 'phpIdentifier' the rest.
-"                                               (default: 0)
-"
-"           g:php_syntax_extensions_enabled
-"           g:php_syntax_extensions_disabled  A list of extension names (lowercase) for which built-in functions,
-"                                             constants, classes and interfaces is enabled / disabled.
-"
+" Note:
+" Setting php_folding=1 will match a closing } by comparing the indent
+" before the class or function keyword with the indent of a matching }.
+" Setting php_folding=2 will match all of pairs of {,} ( see known
+" bugs ii )
+
 " Known Bugs:
 "  - setting  php_parent_error_close  on  and  php_parent_error_open  off
 "    has these two leaks:
@@ -75,14 +74,8 @@
 "        the string would be highlighted as an error, what is incorrect.
 "    ii) Same problem if you are setting php_folding = 2 with a closing
 "        } inside an string on the first line of this string.
-"
-"  - A double-quoted string like this:
-"      "$foo->someVar->someOtherVar->bar"
-"    will highight '->someOtherVar->bar' as though they will be parsed
-"    as object member variables, but PHP only recognizes the first
-"    object member variable ($foo->someVar).
 
-
+" quit when a syntax file was already loaded
 if exists("b:current_syntax")
   finish
 endif
@@ -91,43 +84,219 @@ if !exists("main_syntax")
   let main_syntax = 'php'
 endif
 
-" Save the 'iskeyword' setting before including the HTML syntax.
-" See https://github.com/pangloss/vim-javascript/issues/153
-let s:iskeyword_save = &iskeyword
+" Start of copy of html for embedding in strings with  {{{
+" This is a clone of https://notabug.org/jorgesumle/vim-html-syntax
+" from 2021 Mar 02 with changed symbols and modifications to rules. See the Note in the file header.
+"
+" The default behavior of php_htmlInStrings causes a bug
+" when you're working with code that contains the string literal `'<?php'`.
+" E.g. code that reads php files or generates the contents of php files or 
+" generates snippets to `eval()`.
+" 
+" When php_htmlInStrings was set to any value,
+" it would cause the html syntax rules to be embedded inside of the string
+" contents.
+" 
+" However, php.vim extends html.vim by allowing the php start tag to be
+" included, meaning that this is parsed as `<?php';`, i.e. the start of a
+" new string literal.
+" 
+" Work around that by using a different set of rules that don't allow
+" embedding php in most places (phpInnerHtmlPreProc).
+" 
+" The default behavior may be changed to this in the future for constants other
+" than 2 or 3 if there are no issues.
+"
+" Many, but not all syntax rules were changed from html* to phpInnerHtml*
+if exists("php_htmlInStrings") && php_htmlInStrings==2
+  " mark illegal characters
+  syn match phpInnerHtmlError contained "[<>&]"
 
-if !exists("php_html_load")
-  let php_html_load=1
-endif
+  " tags
+  syn region  phpInnerHtmlString   contained start=+"+ end=+"+ contains=phpInnerHtmlSpecialChar,javaScriptExpression,@phpInnerHtmlPreproc
+  syn region  phpInnerHtmlString   contained start=+'+ end=+'+ contains=phpInnerHtmlSpecialChar,javaScriptExpression,@phpInnerHtmlPreproc
+  syn match   phpInnerHtmlValue    contained "=[\t ]*[^'" \t>][^ \t>]*"hs=s+1   contains=javaScriptExpression,@phpInnerHtmlPreproc
+  syn region  phpInnerHtmlEndTag   contained start=+</+      end=+>+ contains=phpInnerHtmlTagN,phpInnerHtmlTagError
+  syn region  phpInnerHtmlTag      contained start=+<[^/]+   end=+>+ fold contains=phpInnerHtmlTagN,phpInnerHtmlString,htmlArg,phpInnerHtmlValue,phpInnerHtmlTagError,phpInnerHtmlEvent,phpInnerHtmlCssDefinition,@phpInnerHtmlPreproc,@phpInnerHtmlArgCluster
+  syn match   phpInnerHtmlTagN     contained +<\s*[-a-zA-Z0-9]\++hs=s+1 contains=htmlTagName,htmlSpecialTagName,@phpInnerHtmlTagNameCluster
+  syn match   phpInnerHtmlTagN     contained +</\s*[-a-zA-Z0-9]\++hs=s+2 contains=htmlTagName,htmlSpecialTagName,@phpInnerHtmlTagNameCluster
+  syn match   phpInnerHtmlTagError contained "[^>]<"ms=s+1
 
-if (exists("php_html_load") && php_html_load)
-  if !exists("php_html_in_heredoc")
-    let php_html_in_heredoc=1
+
+  " special characters
+  syn match phpInnerHtmlSpecialChar "&#\=[0-9A-Za-z]\{1,8};"
+
+  " Comments (the real ones or the old netscape ones)
+  if exists("html_wrong_comments")
+    syn region phpInnerHtmlComment        start=+<!--+    end=+--\s*>+    contains=@Spell
+  else
+    " The HTML 5.2 syntax 8.2.4.41: bogus comment is parser error; browser skips until next &gt
+    syn region phpInnerHtmlComment        start=+<!+      end=+>+         contains=phpInnerHtmlCommentError keepend
+    " Idem 8.2.4.42,51: Comment starts with <!-- and ends with -->
+    " Idem 8.2.4.43,44: Except <!--> and <!---> are parser errors
+    " Idem 8.2.4.52: dash-dash-bang (--!>) is error ignored by parser, also closes comment
+    syn region phpInnerHtmlComment matchgroup=phpInnerHtmlComment start=+<!--\%(-\?>\)\@!+        end=+--!\?>+    contains=phpInnerHtmlCommentNested,@phpInnerHtmlPreProc,@Spell keepend
+    " Idem 8.2.4.49: nested comment is parser error, except <!--> is all right
+    syn match phpInnerHtmlCommentNested contained "<!-->\@!"
+    syn match phpInnerHtmlCommentError  contained "[^><!]"
+  endif
+  syn region phpInnerHtmlComment  start=+<!DOCTYPE+       end=+>+ keepend
+
+  " server-parsed commands
+  syn region phpInnerHtmlPreProc start=+<!--#+ end=+-->+ contains=phpInnerHtmlPreStmt,phpInnerHtmlPreError,phpInnerHtmlPreAttr
+  syn match phpInnerHtmlPreStmt contained "<!--#\(config\|echo\|exec\|fsize\|flastmod\|include\|printenv\|set\|if\|elif\|else\|endif\|geoguide\)\>"
+  syn match phpInnerHtmlPreError contained "<!--#\S*"ms=s+4
+  syn match phpInnerHtmlPreAttr contained "\w\+=[^"]\S\+" contains=phpInnerHtmlPreProcAttrError,phpInnerHtmlPreProcAttrName
+  syn region phpInnerHtmlPreAttr contained start=+\w\+="+ skip=+\\\\\|\\"+ end=+"+ contains=phpInnerHtmlPreProcAttrName keepend
+  syn match phpInnerHtmlPreProcAttrError contained "\w\+="he=e-1
+  syn match phpInnerHtmlPreProcAttrName contained "\(expr\|errmsg\|sizefmt\|timefmt\|var\|cgi\|cmd\|file\|virtual\|value\)="he=e-1
+
+  if !exists("html_no_rendering")
+    " rendering
+    syn cluster phpInnerHtmlTop contains=@Spell,phpInnerHtmlTag,phpInnerHtmlEndTag,phpInnerHtmlSpecialChar,phpInnerHtmlPreProc,phpInnerHtmlComment,phpInnerHtmlLink,javaScript,@phpInnerHtmlPreproc
+
+    syn region phpInnerHtmlStrike start="<del\>" end="</del\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlStrike start="<strike\>" end="</strike\_s*>"me=s-1 contains=@phpInnerHtmlTop
+
+    syn region phpInnerHtmlBold start="<b\>" end="</b\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldUnderline,phpInnerHtmlBoldItalic
+    syn region phpInnerHtmlBold start="<strong\>" end="</strong\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldUnderline,phpInnerHtmlBoldItalic
+    syn region phpInnerHtmlBoldUnderline contained start="<u\>" end="</u\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldUnderlineItalic
+    syn region phpInnerHtmlBoldItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldItalicUnderline
+    syn region phpInnerHtmlBoldItalic contained start="<em\>" end="</em\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldItalicUnderline
+    syn region phpInnerHtmlBoldUnderlineItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlBoldUnderlineItalic contained start="<em\>" end="</em\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlBoldItalicUnderline contained start="<u\>" end="</u\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlBoldUnderlineItalic
+
+    syn region phpInnerHtmlUnderline start="<u\>" end="</u\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlUnderlineBold,phpInnerHtmlUnderlineItalic
+    syn region phpInnerHtmlUnderlineBold contained start="<b\>" end="</b\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlUnderlineBoldItalic
+    syn region phpInnerHtmlUnderlineBold contained start="<strong\>" end="</strong\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlUnderlineBoldItalic
+    syn region phpInnerHtmlUnderlineItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlUnderlineItalicBold
+    syn region phpInnerHtmlUnderlineItalic contained start="<em\>" end="</em\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlUnderlineItalicBold
+    syn region phpInnerHtmlUnderlineItalicBold contained start="<b\>" end="</b\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlUnderlineItalicBold contained start="<strong\>" end="</strong\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlUnderlineBoldItalic contained start="<i\>" end="</i\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlUnderlineBoldItalic contained start="<em\>" end="</em\_s*>"me=s-1 contains=@phpInnerHtmlTop
+
+    syn region phpInnerHtmlItalic start="<i\>" end="</i\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlItalicBold,phpInnerHtmlItalicUnderline
+    syn region phpInnerHtmlItalic start="<em\>" end="</em\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlItalicBold contained start="<b\>" end="</b\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlItalicBoldUnderline
+    syn region phpInnerHtmlItalicBold contained start="<strong\>" end="</strong\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlItalicBoldUnderline
+    syn region phpInnerHtmlItalicBoldUnderline contained start="<u\>" end="</u\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlItalicUnderline contained start="<u\>" end="</u\_s*>"me=s-1 contains=@phpInnerHtmlTop,phpInnerHtmlItalicUnderlineBold
+    syn region phpInnerHtmlItalicUnderlineBold contained start="<b\>" end="</b\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlItalicUnderlineBold contained start="<strong\>" end="</strong\_s*>"me=s-1 contains=@phpInnerHtmlTop
+
+    syn match phpInnerHtmlLeadingSpace "^\s\+" contained
+    syn region phpInnerHtmlLink start="<a\>\_[^>]*\<href\>" end="</a\_s*>"me=s-1 contains=@Spell,phpInnerHtmlTag,phpInnerHtmlEndTag,phpInnerHtmlSpecialChar,phpInnerHtmlPreProc,phpInnerHtmlComment,phpInnerHtmlLeadingSpace,phpInnerJavaScript,@phpInnerHtmlPreproc
+    syn region phpInnerHtmlH1 start="<h1\>" end="</h1\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlH2 start="<h2\>" end="</h2\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlH3 start="<h3\>" end="</h3\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlH4 start="<h4\>" end="</h4\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlH5 start="<h5\>" end="</h5\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlH6 start="<h6\>" end="</h6\_s*>"me=s-1 contains=@phpInnerHtmlTop
+    syn region phpInnerHtmlHead start="<head\>" end="</head\_s*>"me=s-1 end="<body\>"me=s-1 end="<h[1-6]\>"me=s-1 contains=phpInnerHtmlTag,phpInnerHtmlEndTag,phpInnerHtmlSpecialChar,phpInnerHtmlPreProc,phpInnerHtmlComment,phpInnerHtmlLink,phpInnerHtmlTitle,phpInnerJavaScript,phpInnerCssStyle,@phpInnerHtmlPreproc
+    syn region phpInnerHtmlTitle start="<title\>" end="</title\_s*>"me=s-1 contains=phpInnerHtmlTag,phpInnerHtmlEndTag,phpInnerHtmlSpecialChar,phpInnerHtmlPreProc,phpInnerHtmlComment,phpInnerJavaScript,@phpInnerHtmlPreproc
   endif
 
-  if !exists("php_html_in_nowdoc")
-    let php_html_in_nowdoc=1
+  if main_syntax != 'java' || exists("javascript")
+    " JAVA SCRIPT
+    " For example, $phpVar = '<img onload="foo()" />';
+    syn include @phpInnerHtmlJavaScript syntax/javascript.vim
+    unlet b:current_syntax
+    syn region  phpInnerHtmlScriptTag     contained start=+<script+ end=+>+ fold contains=phpInnerHtmlTagN,phpInnerHtmlString,phpInnerHtmlArg,phpInnerHtmlValue,phpInnerHtmlTagError,phpInnerHtmlEvent
+    hi def link phpInnerHtmlScriptTag phpInnerHtmlTag
+
+    " phpInnerHtml events (i.e. arguments that include phpInnerJavascript commands)
+    if exists("html_extended_events")
+      syn region phpInnerHtmlEvent        contained start=+\<on\a\+\s*=[\t ]*'+ end=+'+ contains=phpInnerHtmlEventSQ
+      syn region phpInnerHtmlEvent        contained start=+\<on\a\+\s*=[\t ]*"+ end=+"+ contains=phpInnerHtmlEventDQ
+    else
+      syn region phpInnerHtmlEvent        contained start=+\<on\a\+\s*=[\t ]*'+ end=+'+ keepend contains=phpInnerHtmlEventSQ
+      syn region phpInnerHtmlEvent        contained start=+\<on\a\+\s*=[\t ]*"+ end=+"+ keepend contains=phpInnerHtmlEventDQ
+    endif
+    syn region phpInnerHtmlEventSQ        contained start=+'+ms=s+1 end=+'+me=s-1 contains=@phpInnerHtmlJavaScript
+    syn region phpInnerHtmlEventDQ        contained start=+"+ms=s+1 end=+"+me=s-1 contains=@phpInnerHtmlJavaScript
+    hi def link phpInnerHtmlEventSQ phpInnerHtmlEvent
+    hi def link phpInnerHtmlEventDQ phpInnerHtmlEvent
+
+    " a phpInnerJavascript expression is used as an arg value
+    " syn region  phpInnerJavaScriptExpression contained start=+&{+ keepend end=+};+ contains=@phpInnerHtmlJavaScript,@phpInnerHtmlPreproc
   endif
 
-  runtime! syntax/html.vim
-  unlet! b:current_syntax
-  " HTML syntax file turns on spelling for all top level words, we attempt to turn off
-  syntax spell default
+  syn cluster phpInnerHtmlJavaScript      add=@phpInnerHtmlPreproc
 
-  syn cluster htmlPreproc add=phpRegion
-else
-  " If it is desired that the HTML syntax file not be loaded at all, set the options for highlighting it in string
-  " heredocs and nowdocs to false.
-  let php_html_in_strings=0
-  let php_html_in_heredoc=0
-  let php_html_in_nowdoc=0
+  " The default highlighting.
+  " NOTE: For now, this deliberately copies the definitions from html rather than link
+  " to the corresponding html tag name. If html is refactored to rename any 
+  " keywords then html highlighting would unexpectedly be cleared.
+  hi def link phpInnerHtmlTag                     Function
+  hi def link phpInnerHtmlEndTag                  Identifier
+  hi def link phpInnerHtmlArg                     Type
+  hi def link phpInnerHtmlValue                   String
+  hi def link phpInnerHtmlSpecialChar             Special
+
+  if !exists("html_no_rendering")
+    hi def link phpInnerHtmlH1                      Title
+    hi def link phpInnerHtmlH2                      phpInnerHtmlH1
+    hi def link phpInnerHtmlH3                      phpInnerHtmlH2
+    hi def link phpInnerHtmlH4                      phpInnerHtmlH3
+    hi def link phpInnerHtmlH5                      phpInnerHtmlH4
+    hi def link phpInnerHtmlH6                      phpInnerHtmlH5
+    hi def link phpInnerHtmlHead                    PreProc
+    hi def link phpInnerHtmlTitle                   Title
+    hi def link phpInnerHtmlBoldItalicUnderline     phpInnerHtmlBoldUnderlineItalic
+    hi def link phpInnerHtmlUnderlineBold           phpInnerHtmlBoldUnderline
+    hi def link phpInnerHtmlUnderlineItalicBold     phpInnerHtmlBoldUnderlineItalic
+    hi def link phpInnerHtmlUnderlineBoldItalic     phpInnerHtmlBoldUnderlineItalic
+    hi def link phpInnerHtmlItalicUnderline         phpInnerHtmlUnderlineItalic
+    hi def link phpInnerHtmlItalicBold              phpInnerHtmlBoldItalic
+    hi def link phpInnerHtmlItalicBoldUnderline     phpInnerHtmlBoldUnderlineItalic
+    hi def link phpInnerHtmlItalicUnderlineBold     phpInnerHtmlBoldUnderlineItalic
+    hi def link phpInnerHtmlLink                    Underlined
+    hi def link phpInnerHtmlLeadingSpace            None
+    if !exists("html_my_rendering")
+      hi def phpInnerHtmlBold                term=bold cterm=bold gui=bold
+      hi def phpInnerHtmlBoldUnderline       term=bold,underline cterm=bold,underline gui=bold,underline
+      hi def phpInnerHtmlBoldItalic          term=bold,italic cterm=bold,italic gui=bold,italic
+      hi def phpInnerHtmlBoldUnderlineItalic term=bold,italic,underline cterm=bold,italic,underline gui=bold,italic,underline
+      hi def phpInnerHtmlUnderline           term=underline cterm=underline gui=underline
+      hi def phpInnerHtmlUnderlineItalic     term=italic,underline cterm=italic,underline gui=italic,underline
+      hi def phpInnerHtmlItalic              term=italic cterm=italic gui=italic
+      if v:version > 800 || v:version == 800 && has("patch1038")
+          hi def phpInnerHtmlStrike              term=strikethrough cterm=strikethrough gui=strikethrough
+      else
+          hi def phpInnerHtmlStrike              term=underline cterm=underline gui=underline
+      endif
+    endif
+  endif
+
+  hi def link phpInnerHtmlPreStmt            PreProc
+  hi def link phpInnerHtmlPreError           Error
+  hi def link phpInnerHtmlPreProc            PreProc
+  hi def link phpInnerHtmlPreAttr            String
+  hi def link phpInnerHtmlPreProcAttrName    PreProc
+  hi def link phpInnerHtmlPreProcAttrError   Error
+  hi def link phpInnerHtmlString             String
+  hi def link phpInnerHtmlStatement          Statement
+  hi def link phpInnerHtmlComment            Comment
+  hi def link phpInnerHtmlCommentNested      phpInnerHtmlError
+  hi def link phpInnerHtmlCommentError       phpInnerHtmlError
+  hi def link phpInnerHtmlTagError           phpInnerHtmlError
+  hi def link phpInnerHtmlEvent              phpInnerJavaScript
+  hi def link phpInnerHtmlError              Error
+
+  hi def link phpInnerJavaScript             Special
+  hi def link phpInnerJavaScriptExpression   phpInnerJavaScript
+  hi def link phpInnerHtmlCssStyleComment    Comment
+  hi def link phpInnerHtmlCssDefinition      Special
 endif
 
-if (exists("php_html_in_strings") && php_html_in_strings)
-  syn cluster phpAddStrings add=@htmlTop
-endif
 
-" Set sync method if none declared
-if ( ! exists("php_sync_method") || php_sync_method == 1)
+runtime! syntax/html.vim
+unlet b:current_syntax
+
+" accept old options
+if !exists("php_sync_method")
   if exists("php_minlines")
     let php_sync_method=php_minlines
   else
@@ -135,914 +304,676 @@ if ( ! exists("php_sync_method") || php_sync_method == 1)
   endif
 endif
 
-if !exists("php_sql_heredoc")
-  let php_sql_heredoc=1
+if exists("php_parentError") && !exists("php_parent_error_open") && !exists("php_parent_error_close")
+  let php_parent_error_close=1
+  let php_parent_error_open=1
 endif
 
-if !exists("php_sql_nowdoc")
-  let php_sql_nowdoc=1
+" End of copy of html syntax for embedding in php strings }}}
+
+syn cluster htmlPreproc add=phpRegion,phpRegionAsp,phpRegionSc
+
+syn include @sqlTop syntax/sql.vim
+syn sync clear
+unlet b:current_syntax
+syn cluster sqlTop remove=sqlString,sqlComment
+if exists( "php_sql_query")
+  syn cluster phpAddStrings contains=@sqlTop
 endif
 
-if ((exists("php_sql_query") && php_sql_query) || (exists("php_sql_heredoc") && php_sql_heredoc) || (exists("php_sql_nowdoc") && php_sql_nowdoc))
-  " Use MySQL as the default SQL syntax file.
-  " See https://github.com/StanAngeloff/php.vim/pull/1
-  if !exists('b:sql_type_override') && !exists('g:sql_type_default')
-    let b:sql_type_override='mysql'
+if exists( "php_htmlInStrings")
+  if php_htmlInStrings==2
+    syn cluster phpAddStrings add=@phpInnerHtmlTop
+  else
+    syn cluster phpAddStrings add=@htmlTop
   endif
-  syn include @sqlTop syntax/sql.vim
-
-  syn sync clear
-  unlet! b:current_syntax
-  syn cluster sqlTop remove=sqlString,sqlComment
-
-  if (exists("php_sql_query") && php_sql_query)
-    syn cluster phpAddStrings contains=@sqlTop
-  endif
 endif
 
-if !exists("php_xml_heredoc")
-  let php_xml_heredoc=0
-endif
-
-if !exists("php_xml_nowdoc")
-  let php_xml_nowdoc=0
-endif
-
-if ((exists("php_xml_heredoc") && php_xml_heredoc) || (exists("php_xml_nowdoc") && php_xml_nowdoc))
-  syn include @xmlTop syntax/xml.vim
-
-  syn sync clear
-  unlet! b:current_syntax
-endif
-
-" set default for php_folding so we don't have to keep checking its existence.
-if !exists("php_folding")
-  let php_folding = 0
-endif
-
-" set default for php_phpdoc_folding so we don't have to keep checking its existence.
-if !exists("php_phpdoc_folding")
-  let php_phpdoc_folding = 0
-endif
-
-" set default global php version
-if !exists('g:php_version_id')
-  let g:php_version_id = 70300
-endif
-
-" set default buffer level php version
-if !exists('b:php_version_id')
-  let b:php_version_id = g:php_version_id
-endif
-
-" Folding Support {{{
-if php_folding==1 && has("folding")
-  command! -nargs=+ SynFold <args> fold
-else
-  command! -nargs=+ SynFold <args>
-endif
-
-if php_phpdoc_folding==1 && has("folding")
-  command! -nargs=+ SynFoldDoc <args> fold
-else
-  command! -nargs=+ SynFoldDoc <args>
-endif
-
-" }}}
+" make sure we can use \ at the beginning of the line to do a continuation
+let s:cpo_save = &cpo
+set cpo&vim
 
 syn case match
 
-" Superglobals
-syn keyword phpSuperglobals GLOBALS _GET _POST _REQUEST _FILES _COOKIE _SERVER _SESSION _ENV HTTP_RAW_POST_DATA php_errormsg http_response_header argc argv contained
+" Env Variables
+syn keyword phpEnvVar GATEWAY_INTERFACE SERVER_NAME SERVER_SOFTWARE SERVER_PROTOCOL REQUEST_METHOD QUERY_STRING DOCUMENT_ROOT HTTP_ACCEPT HTTP_ACCEPT_CHARSET HTTP_ENCODING HTTP_ACCEPT_LANGUAGE HTTP_CONNECTION HTTP_HOST HTTP_REFERER HTTP_USER_AGENT REMOTE_ADDR REMOTE_PORT SCRIPT_FILENAME SERVER_ADMIN SERVER_PORT SERVER_SIGNATURE PATH_TRANSLATED SCRIPT_NAME REQUEST_URI contained
 
-" Magic Constants
-syn keyword phpMagicConstants __LINE__ __FILE__ __DIR__ __FUNCTION__ __CLASS__ __TRAIT__ __METHOD__ __NAMESPACE__ contained
+" Internal Variables
+syn keyword phpIntVar GLOBALS PHP_ERRMSG PHP_SELF HTTP_GET_VARS HTTP_POST_VARS HTTP_COOKIE_VARS HTTP_POST_FILES HTTP_ENV_VARS HTTP_SERVER_VARS HTTP_SESSION_VARS HTTP_RAW_POST_DATA HTTP_STATE_VARS _GET _POST _COOKIE _FILES _SERVER _ENV _SERVER _REQUEST _SESSION contained
 
-" $_SERVER Variables
-syn keyword phpServerVars GATEWAY_INTERFACE SERVER_NAME SERVER_SOFTWARE SERVER_PROTOCOL REQUEST_METHOD QUERY_STRING DOCUMENT_ROOT HTTP_ACCEPT HTTP_ACCEPT_CHARSET HTTP_ENCODING HTTP_ACCEPT_LANGUAGE HTTP_CONNECTION HTTP_HOST HTTP_REFERER HTTP_USER_AGENT REMOTE_ADDR REMOTE_PORT SCRIPT_FILENAME SERVER_ADMIN SERVER_PORT SERVER_SIGNATURE PATH_TRANSLATED SCRIPT_NAME REQUEST_URI PHP_SELF contained
+" Constants
+syn keyword phpCoreConstant PHP_VERSION PHP_OS DEFAULT_INCLUDE_PATH PEAR_INSTALL_DIR PEAR_EXTENSION_DIR PHP_EXTENSION_DIR PHP_BINDIR PHP_LIBDIR PHP_DATADIR PHP_SYSCONFDIR PHP_LOCALSTATEDIR PHP_CONFIG_FILE_PATH PHP_OUTPUT_HANDLER_START PHP_OUTPUT_HANDLER_CONT PHP_OUTPUT_HANDLER_END contained
 
-" @block('Extensions')
+" Predefined constants
+" Generated by: curl -q https://www.php.net/manual/en/errorfunc.constants.php | grep -oP 'E_\w+' | sort -u
+syn keyword phpCoreConstant E_ALL E_COMPILE_ERROR E_COMPILE_WARNING E_CORE_ERROR E_CORE_WARNING E_DEPRECATED E_ERROR E_NOTICE E_PARSE E_RECOVERABLE_ERROR E_STRICT E_USER_DEPRECATED E_USER_ERROR E_USER_NOTICE E_USER_WARNING E_WARNING contained
 
-if ! exists("g:php_syntax_extensions_enabled")
-    let g:php_syntax_extensions_enabled = ["bcmath", "bz2", "core", "curl", "date", "dom", "ereg", "gd", "gettext", "hash", "iconv", "json", "libxml", "mbstring", "mcrypt", "mhash", "mysql", "mysqli", "openssl", "pcre", "pdo", "pgsql", "phar", "reflection", "session", "simplexml", "soap", "sockets", "spl", "sqlite3", "standard", "tokenizer", "wddx", "xml", "xmlreader", "xmlwriter", "zip", "zlib"]
-endif
-if ! exists("g:php_syntax_extensions_disabled")
-    let g:php_syntax_extensions_disabled = []
-endif
-syn case match
-if index(g:php_syntax_extensions_enabled, "core") >= 0 && index(g:php_syntax_extensions_disabled, "core") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "core") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "core") < 0)
-" Core constants
-syn keyword phpConstants DEBUG_BACKTRACE_IGNORE_ARGS DEBUG_BACKTRACE_PROVIDE_OBJECT DEFAULT_INCLUDE_PATH E_ALL E_COMPILE_ERROR E_COMPILE_WARNING E_CORE_ERROR E_CORE_WARNING E_DEPRECATED E_ERROR E_NOTICE E_PARSE E_RECOVERABLE_ERROR E_STRICT E_USER_DEPRECATED E_USER_ERROR E_USER_NOTICE E_USER_WARNING E_WARNING PEAR_EXTENSION_DIR PEAR_INSTALL_DIR PHP_BINARY PHP_BINDIR PHP_CONFIG_FILE_PATH PHP_CONFIG_FILE_SCAN_DIR PHP_DATADIR PHP_DEBUG PHP_EOL PHP_EXTENSION_DIR PHP_EXTRA_VERSION PHP_FD_SETSIZE PHP_FLOAT_DIG PHP_FLOAT_EPSILON PHP_FLOAT_MAX PHP_FLOAT_MIN PHP_INT_MAX PHP_INT_MIN PHP_INT_SIZE PHP_LIBDIR PHP_LOCALSTATEDIR PHP_MAJOR_VERSION PHP_MANDIR PHP_MAXPATHLEN PHP_MINOR_VERSION PHP_OS PHP_OS_FAMILY PHP_OUTPUT_HANDLER_CLEAN PHP_OUTPUT_HANDLER_CLEANABLE PHP_OUTPUT_HANDLER_CONT PHP_OUTPUT_HANDLER_DISABLED PHP_OUTPUT_HANDLER_END PHP_OUTPUT_HANDLER_FINAL PHP_OUTPUT_HANDLER_FLUSH PHP_OUTPUT_HANDLER_FLUSHABLE PHP_OUTPUT_HANDLER_REMOVABLE PHP_OUTPUT_HANDLER_START PHP_OUTPUT_HANDLER_STARTED PHP_OUTPUT_HANDLER_STDFLAGS PHP_OUTPUT_HANDLER_WRITE PHP_PREFIX PHP_RELEASE_VERSION PHP_SAPI PHP_SHLIB_SUFFIX PHP_SYSCONFDIR PHP_VERSION PHP_VERSION_ID PHP_ZTS STDERR STDIN STDOUT UPLOAD_ERR_CANT_WRITE UPLOAD_ERR_EXTENSION UPLOAD_ERR_FORM_SIZE UPLOAD_ERR_INI_SIZE UPLOAD_ERR_NO_FILE UPLOAD_ERR_NO_TMP_DIR UPLOAD_ERR_OK UPLOAD_ERR_PARTIAL ZEND_DEBUG_BUILD ZEND_THREAD_SAFE contained
-endif
-if index(g:php_syntax_extensions_enabled, "curl") >= 0 && index(g:php_syntax_extensions_disabled, "curl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "curl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "curl") < 0)
-" curl constants
-syn keyword phpConstants CURLAUTH_ANY CURLAUTH_ANYSAFE CURLAUTH_BASIC CURLAUTH_DIGEST CURLAUTH_DIGEST_IE CURLAUTH_GSSAPI CURLAUTH_GSSNEGOTIATE CURLAUTH_NEGOTIATE CURLAUTH_NONE CURLAUTH_NTLM CURLAUTH_NTLM_WB CURLAUTH_ONLY CURLE_ABORTED_BY_CALLBACK CURLE_BAD_CALLING_ORDER CURLE_BAD_CONTENT_ENCODING CURLE_BAD_DOWNLOAD_RESUME CURLE_BAD_FUNCTION_ARGUMENT CURLE_BAD_PASSWORD_ENTERED CURLE_COULDNT_CONNECT CURLE_COULDNT_RESOLVE_HOST CURLE_COULDNT_RESOLVE_PROXY CURLE_FAILED_INIT CURLE_FILESIZE_EXCEEDED CURLE_FILE_COULDNT_READ_FILE CURLE_FTP_ACCESS_DENIED CURLE_FTP_BAD_DOWNLOAD_RESUME CURLE_FTP_CANT_GET_HOST CURLE_FTP_CANT_RECONNECT CURLE_FTP_COULDNT_GET_SIZE CURLE_FTP_COULDNT_RETR_FILE CURLE_FTP_COULDNT_SET_ASCII CURLE_FTP_COULDNT_SET_BINARY CURLE_FTP_COULDNT_STOR_FILE CURLE_FTP_COULDNT_USE_REST CURLE_FTP_PARTIAL_FILE CURLE_FTP_PORT_FAILED CURLE_FTP_QUOTE_ERROR CURLE_FTP_SSL_FAILED CURLE_FTP_USER_PASSWORD_INCORRECT CURLE_FTP_WEIRD_227_FORMAT CURLE_FTP_WEIRD_PASS_REPLY CURLE_FTP_WEIRD_PASV_REPLY CURLE_FTP_WEIRD_SERVER_REPLY CURLE_FTP_WEIRD_USER_REPLY CURLE_FTP_WRITE_ERROR CURLE_FUNCTION_NOT_FOUND CURLE_GOT_NOTHING CURLE_HTTP_NOT_FOUND CURLE_HTTP_PORT_FAILED CURLE_HTTP_POST_ERROR CURLE_HTTP_RANGE_ERROR CURLE_HTTP_RETURNED_ERROR CURLE_LDAP_CANNOT_BIND CURLE_LDAP_INVALID_URL CURLE_LDAP_SEARCH_FAILED CURLE_LIBRARY_NOT_FOUND CURLE_MALFORMAT_USER CURLE_OBSOLETE CURLE_OK CURLE_OPERATION_TIMEDOUT CURLE_OPERATION_TIMEOUTED CURLE_OUT_OF_MEMORY CURLE_PARTIAL_FILE CURLE_READ_ERROR CURLE_RECV_ERROR CURLE_SEND_ERROR CURLE_SHARE_IN_USE CURLE_SSH CURLE_SSL_CACERT CURLE_SSL_CACERT_BADFILE CURLE_SSL_CERTPROBLEM CURLE_SSL_CIPHER CURLE_SSL_CONNECT_ERROR CURLE_SSL_ENGINE_NOTFOUND CURLE_SSL_ENGINE_SETFAILED CURLE_SSL_PEER_CERTIFICATE CURLE_SSL_PINNEDPUBKEYNOTMATCH CURLE_TELNET_OPTION_SYNTAX CURLE_TOO_MANY_REDIRECTS CURLE_UNKNOWN_TELNET_OPTION CURLE_UNSUPPORTED_PROTOCOL CURLE_URL_MALFORMAT CURLE_URL_MALFORMAT_USER CURLE_WEIRD_SERVER_REPLY CURLE_WRITE_ERROR CURLFTPAUTH_DEFAULT CURLFTPAUTH_SSL CURLFTPAUTH_TLS CURLFTPMETHOD_MULTICWD CURLFTPMETHOD_NOCWD CURLFTPMETHOD_SINGLECWD CURLFTPSSL_ALL CURLFTPSSL_CCC_ACTIVE CURLFTPSSL_CCC_NONE CURLFTPSSL_CCC_PASSIVE CURLFTPSSL_CONTROL CURLFTPSSL_NONE CURLFTPSSL_TRY CURLFTP_CREATE_DIR CURLFTP_CREATE_DIR_NONE CURLFTP_CREATE_DIR_RETRY CURLGSSAPI_DELEGATION_FLAG CURLGSSAPI_DELEGATION_POLICY_FLAG CURLHEADER_SEPARATE CURLHEADER_UNIFIED CURLINFO_APPCONNECT_TIME CURLINFO_CERTINFO CURLINFO_CONDITION_UNMET CURLINFO_CONNECT_TIME CURLINFO_CONTENT_LENGTH_DOWNLOAD CURLINFO_CONTENT_LENGTH_DOWNLOAD_T CURLINFO_CONTENT_LENGTH_UPLOAD CURLINFO_CONTENT_LENGTH_UPLOAD_T CURLINFO_CONTENT_TYPE CURLINFO_COOKIELIST CURLINFO_EFFECTIVE_URL CURLINFO_FILETIME CURLINFO_FTP_ENTRY_PATH CURLINFO_HEADER_OUT CURLINFO_HEADER_SIZE CURLINFO_HTTPAUTH_AVAIL CURLINFO_HTTP_CODE CURLINFO_HTTP_CONNECTCODE CURLINFO_HTTP_VERSION CURLINFO_LASTONE CURLINFO_LOCAL_IP CURLINFO_LOCAL_PORT CURLINFO_NAMELOOKUP_TIME CURLINFO_NUM_CONNECTS CURLINFO_OS_ERRNO CURLINFO_PRETRANSFER_TIME CURLINFO_PRIMARY_IP CURLINFO_PRIMARY_PORT CURLINFO_PRIVATE CURLINFO_PROTOCOL CURLINFO_PROXYAUTH_AVAIL CURLINFO_PROXY_SSL_VERIFYRESULT CURLINFO_REDIRECT_COUNT CURLINFO_REDIRECT_TIME CURLINFO_REDIRECT_URL CURLINFO_REQUEST_SIZE CURLINFO_RESPONSE_CODE CURLINFO_RTSP_CLIENT_CSEQ CURLINFO_RTSP_CSEQ_RECV CURLINFO_RTSP_SERVER_CSEQ CURLINFO_RTSP_SESSION_ID CURLINFO_SCHEME CURLINFO_SIZE_DOWNLOAD CURLINFO_SIZE_DOWNLOAD_T CURLINFO_SIZE_UPLOAD CURLINFO_SIZE_UPLOAD_T CURLINFO_SPEED_DOWNLOAD CURLINFO_SPEED_DOWNLOAD_T CURLINFO_SPEED_UPLOAD CURLINFO_SPEED_UPLOAD_T CURLINFO_SSL_ENGINES CURLINFO_SSL_VERIFYRESULT CURLINFO_STARTTRANSFER_TIME CURLINFO_TOTAL_TIME CURLMOPT_CHUNK_LENGTH_PENALTY_SIZE CURLMOPT_CONTENT_LENGTH_PENALTY_SIZE CURLMOPT_MAXCONNECTS CURLMOPT_MAX_HOST_CONNECTIONS CURLMOPT_MAX_PIPELINE_LENGTH CURLMOPT_MAX_TOTAL_CONNECTIONS CURLMOPT_PIPELINING CURLMOPT_PUSHFUNCTION CURLMSG_DONE CURLM_ADDED_ALREADY CURLM_BAD_EASY_HANDLE CURLM_BAD_HANDLE CURLM_CALL_MULTI_PERFORM CURLM_INTERNAL_ERROR CURLM_OK CURLM_OUT_OF_MEMORY CURLOPT_ABSTRACT_UNIX_SOCKET CURLOPT_ACCEPTTIMEOUT_MS CURLOPT_ACCEPT_ENCODING CURLOPT_ADDRESS_SCOPE CURLOPT_APPEND CURLOPT_AUTOREFERER CURLOPT_BINARYTRANSFER CURLOPT_BUFFERSIZE CURLOPT_CAINFO CURLOPT_CAPATH CURLOPT_CERTINFO CURLOPT_CONNECTTIMEOUT CURLOPT_CONNECTTIMEOUT_MS CURLOPT_CONNECT_ONLY CURLOPT_CONNECT_TO CURLOPT_COOKIE CURLOPT_COOKIEFILE CURLOPT_COOKIEJAR CURLOPT_COOKIELIST CURLOPT_COOKIESESSION CURLOPT_CRLF CURLOPT_CRLFILE CURLOPT_CUSTOMREQUEST CURLOPT_DEFAULT_PROTOCOL CURLOPT_DIRLISTONLY CURLOPT_DNS_CACHE_TIMEOUT CURLOPT_DNS_INTERFACE CURLOPT_DNS_LOCAL_IP4 CURLOPT_DNS_LOCAL_IP6 CURLOPT_DNS_SERVERS CURLOPT_DNS_USE_GLOBAL_CACHE CURLOPT_EGDSOCKET CURLOPT_ENCODING CURLOPT_EXPECT_100_TIMEOUT_MS CURLOPT_FAILONERROR CURLOPT_FILE CURLOPT_FILETIME CURLOPT_FNMATCH_FUNCTION CURLOPT_FOLLOWLOCATION CURLOPT_FORBID_REUSE CURLOPT_FRESH_CONNECT CURLOPT_FTPAPPEND CURLOPT_FTPLISTONLY CURLOPT_FTPPORT CURLOPT_FTPSSLAUTH CURLOPT_FTP_ACCOUNT CURLOPT_FTP_ALTERNATIVE_TO_USER CURLOPT_FTP_CREATE_MISSING_DIRS CURLOPT_FTP_FILEMETHOD CURLOPT_FTP_RESPONSE_TIMEOUT CURLOPT_FTP_SKIP_PASV_IP CURLOPT_FTP_SSL CURLOPT_FTP_SSL_CCC CURLOPT_FTP_USE_EPRT CURLOPT_FTP_USE_EPSV CURLOPT_FTP_USE_PRET CURLOPT_GSSAPI_DELEGATION CURLOPT_HEADER CURLOPT_HEADERFUNCTION CURLOPT_HEADEROPT CURLOPT_HTTP200ALIASES CURLOPT_HTTPAUTH CURLOPT_HTTPGET CURLOPT_HTTPHEADER CURLOPT_HTTPPROXYTUNNEL CURLOPT_HTTP_CONTENT_DECODING CURLOPT_HTTP_TRANSFER_DECODING CURLOPT_HTTP_VERSION CURLOPT_IGNORE_CONTENT_LENGTH CURLOPT_INFILE CURLOPT_INFILESIZE CURLOPT_INTERFACE CURLOPT_IPRESOLVE CURLOPT_ISSUERCERT CURLOPT_KEEP_SENDING_ON_ERROR CURLOPT_KEYPASSWD CURLOPT_KRB4LEVEL CURLOPT_KRBLEVEL CURLOPT_LOCALPORT CURLOPT_LOCALPORTRANGE CURLOPT_LOGIN_OPTIONS CURLOPT_LOW_SPEED_LIMIT CURLOPT_LOW_SPEED_TIME CURLOPT_MAIL_AUTH CURLOPT_MAIL_FROM CURLOPT_MAIL_RCPT CURLOPT_MAXCONNECTS CURLOPT_MAXFILESIZE CURLOPT_MAXREDIRS CURLOPT_MAX_RECV_SPEED_LARGE CURLOPT_MAX_SEND_SPEED_LARGE CURLOPT_NETRC CURLOPT_NETRC_FILE CURLOPT_NEW_DIRECTORY_PERMS CURLOPT_NEW_FILE_PERMS CURLOPT_NOBODY CURLOPT_NOPROGRESS CURLOPT_NOPROXY CURLOPT_NOSIGNAL CURLOPT_PASSWORD CURLOPT_PATH_AS_IS CURLOPT_PINNEDPUBLICKEY CURLOPT_PIPEWAIT CURLOPT_PORT CURLOPT_POST CURLOPT_POSTFIELDS CURLOPT_POSTQUOTE CURLOPT_POSTREDIR CURLOPT_PREQUOTE CURLOPT_PRE_PROXY CURLOPT_PRIVATE CURLOPT_PROGRESSFUNCTION CURLOPT_PROTOCOLS CURLOPT_PROXY CURLOPT_PROXYAUTH CURLOPT_PROXYHEADER CURLOPT_PROXYPASSWORD CURLOPT_PROXYPORT CURLOPT_PROXYTYPE CURLOPT_PROXYUSERNAME CURLOPT_PROXYUSERPWD CURLOPT_PROXY_CAINFO CURLOPT_PROXY_CAPATH CURLOPT_PROXY_CRLFILE CURLOPT_PROXY_KEYPASSWD CURLOPT_PROXY_PINNEDPUBLICKEY CURLOPT_PROXY_SERVICE_NAME CURLOPT_PROXY_SSLCERT CURLOPT_PROXY_SSLCERTTYPE CURLOPT_PROXY_SSLKEY CURLOPT_PROXY_SSLKEYTYPE CURLOPT_PROXY_SSLVERSION CURLOPT_PROXY_SSL_CIPHER_LIST CURLOPT_PROXY_SSL_OPTIONS CURLOPT_PROXY_SSL_VERIFYHOST CURLOPT_PROXY_SSL_VERIFYPEER CURLOPT_PROXY_TLSAUTH_PASSWORD CURLOPT_PROXY_TLSAUTH_TYPE CURLOPT_PROXY_TLSAUTH_USERNAME CURLOPT_PROXY_TRANSFER_MODE CURLOPT_PUT CURLOPT_QUOTE CURLOPT_RANDOM_FILE CURLOPT_RANGE CURLOPT_READDATA CURLOPT_READFUNCTION CURLOPT_REDIR_PROTOCOLS CURLOPT_REFERER CURLOPT_REQUEST_TARGET CURLOPT_RESOLVE CURLOPT_RESUME_FROM CURLOPT_RETURNTRANSFER CURLOPT_RTSP_CLIENT_CSEQ CURLOPT_RTSP_REQUEST CURLOPT_RTSP_SERVER_CSEQ CURLOPT_RTSP_SESSION_ID CURLOPT_RTSP_STREAM_URI CURLOPT_RTSP_TRANSPORT CURLOPT_SAFE_UPLOAD CURLOPT_SASL_IR CURLOPT_SERVICE_NAME CURLOPT_SHARE CURLOPT_SOCKS5_AUTH CURLOPT_SOCKS5_GSSAPI_NEC CURLOPT_SOCKS5_GSSAPI_SERVICE CURLOPT_SSH_AUTH_TYPES CURLOPT_SSH_COMPRESSION CURLOPT_SSH_HOST_PUBLIC_KEY_MD5 CURLOPT_SSH_KNOWNHOSTS CURLOPT_SSH_PRIVATE_KEYFILE CURLOPT_SSH_PUBLIC_KEYFILE CURLOPT_SSLCERT CURLOPT_SSLCERTPASSWD CURLOPT_SSLCERTTYPE CURLOPT_SSLENGINE CURLOPT_SSLENGINE_DEFAULT CURLOPT_SSLKEY CURLOPT_SSLKEYPASSWD CURLOPT_SSLKEYTYPE CURLOPT_SSLVERSION CURLOPT_SSL_CIPHER_LIST CURLOPT_SSL_ENABLE_ALPN CURLOPT_SSL_ENABLE_NPN CURLOPT_SSL_FALSESTART CURLOPT_SSL_OPTIONS CURLOPT_SSL_SESSIONID_CACHE CURLOPT_SSL_VERIFYHOST CURLOPT_SSL_VERIFYPEER CURLOPT_SSL_VERIFYSTATUS CURLOPT_STDERR CURLOPT_STREAM_WEIGHT CURLOPT_SUPPRESS_CONNECT_HEADERS CURLOPT_TCP_FASTOPEN CURLOPT_TCP_KEEPALIVE CURLOPT_TCP_KEEPIDLE CURLOPT_TCP_KEEPINTVL CURLOPT_TCP_NODELAY CURLOPT_TELNETOPTIONS CURLOPT_TFTP_BLKSIZE CURLOPT_TFTP_NO_OPTIONS CURLOPT_TIMECONDITION CURLOPT_TIMEOUT CURLOPT_TIMEOUT_MS CURLOPT_TIMEVALUE CURLOPT_TLSAUTH_PASSWORD CURLOPT_TLSAUTH_TYPE CURLOPT_TLSAUTH_USERNAME CURLOPT_TRANSFERTEXT CURLOPT_TRANSFER_ENCODING CURLOPT_UNIX_SOCKET_PATH CURLOPT_UNRESTRICTED_AUTH CURLOPT_UPLOAD CURLOPT_URL CURLOPT_USERAGENT CURLOPT_USERNAME CURLOPT_USERPWD CURLOPT_USE_SSL CURLOPT_VERBOSE CURLOPT_WILDCARDMATCH CURLOPT_WRITEFUNCTION CURLOPT_WRITEHEADER CURLOPT_XOAUTH2_BEARER CURLPAUSE_ALL CURLPAUSE_CONT CURLPAUSE_RECV CURLPAUSE_RECV_CONT CURLPAUSE_SEND CURLPAUSE_SEND_CONT CURLPIPE_HTTP1 CURLPIPE_MULTIPLEX CURLPIPE_NOTHING CURLPROTO_ALL CURLPROTO_DICT CURLPROTO_FILE CURLPROTO_FTP CURLPROTO_FTPS CURLPROTO_GOPHER CURLPROTO_HTTP CURLPROTO_HTTPS CURLPROTO_IMAP CURLPROTO_IMAPS CURLPROTO_LDAP CURLPROTO_LDAPS CURLPROTO_POP3 CURLPROTO_POP3S CURLPROTO_RTMP CURLPROTO_RTMPE CURLPROTO_RTMPS CURLPROTO_RTMPT CURLPROTO_RTMPTE CURLPROTO_RTMPTS CURLPROTO_RTSP CURLPROTO_SCP CURLPROTO_SFTP CURLPROTO_SMB CURLPROTO_SMBS CURLPROTO_SMTP CURLPROTO_SMTPS CURLPROTO_TELNET CURLPROTO_TFTP CURLPROXY_HTTP CURLPROXY_HTTPS CURLPROXY_HTTP_1_0 CURLPROXY_SOCKS4 CURLPROXY_SOCKS4A CURLPROXY_SOCKS5 CURLPROXY_SOCKS5_HOSTNAME CURLSHOPT_NONE CURLSHOPT_SHARE CURLSHOPT_UNSHARE CURLSSH_AUTH_AGENT CURLSSH_AUTH_ANY CURLSSH_AUTH_DEFAULT CURLSSH_AUTH_GSSAPI CURLSSH_AUTH_HOST CURLSSH_AUTH_KEYBOARD CURLSSH_AUTH_NONE CURLSSH_AUTH_PASSWORD CURLSSH_AUTH_PUBLICKEY CURLSSLOPT_ALLOW_BEAST CURLSSLOPT_NO_REVOKE CURLUSESSL_ALL CURLUSESSL_CONTROL CURLUSESSL_NONE CURLUSESSL_TRY CURLVERSION_NOW CURL_FNMATCHFUNC_FAIL CURL_FNMATCHFUNC_MATCH CURL_FNMATCHFUNC_NOMATCH CURL_HTTP_VERSION_1_0 CURL_HTTP_VERSION_1_1 CURL_HTTP_VERSION_2 CURL_HTTP_VERSION_2TLS CURL_HTTP_VERSION_2_0 CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE CURL_HTTP_VERSION_NONE CURL_IPRESOLVE_V4 CURL_IPRESOLVE_V6 CURL_IPRESOLVE_WHATEVER CURL_LOCK_DATA_CONNECT CURL_LOCK_DATA_COOKIE CURL_LOCK_DATA_DNS CURL_LOCK_DATA_SSL_SESSION CURL_MAX_READ_SIZE CURL_NETRC_IGNORED CURL_NETRC_OPTIONAL CURL_NETRC_REQUIRED CURL_PUSH_DENY CURL_PUSH_OK CURL_READFUNC_PAUSE CURL_REDIR_POST_301 CURL_REDIR_POST_302 CURL_REDIR_POST_303 CURL_REDIR_POST_ALL CURL_RTSPREQ_ANNOUNCE CURL_RTSPREQ_DESCRIBE CURL_RTSPREQ_GET_PARAMETER CURL_RTSPREQ_OPTIONS CURL_RTSPREQ_PAUSE CURL_RTSPREQ_PLAY CURL_RTSPREQ_RECEIVE CURL_RTSPREQ_RECORD CURL_RTSPREQ_SETUP CURL_RTSPREQ_SET_PARAMETER CURL_RTSPREQ_TEARDOWN CURL_SSLVERSION_DEFAULT CURL_SSLVERSION_MAX_DEFAULT CURL_SSLVERSION_MAX_NONE CURL_SSLVERSION_MAX_TLSv1_0 CURL_SSLVERSION_MAX_TLSv1_1 CURL_SSLVERSION_MAX_TLSv1_2 CURL_SSLVERSION_MAX_TLSv1_3 CURL_SSLVERSION_SSLv2 CURL_SSLVERSION_SSLv3 CURL_SSLVERSION_TLSv1 CURL_SSLVERSION_TLSv1_0 CURL_SSLVERSION_TLSv1_1 CURL_SSLVERSION_TLSv1_2 CURL_SSLVERSION_TLSv1_3 CURL_TIMECOND_IFMODSINCE CURL_TIMECOND_IFUNMODSINCE CURL_TIMECOND_LASTMOD CURL_TIMECOND_NONE CURL_TLSAUTH_SRP CURL_VERSION_ASYNCHDNS CURL_VERSION_BROTLI CURL_VERSION_CONV CURL_VERSION_DEBUG CURL_VERSION_GSSAPI CURL_VERSION_GSSNEGOTIATE CURL_VERSION_HTTP2 CURL_VERSION_HTTPS_PROXY CURL_VERSION_IDN CURL_VERSION_IPV6 CURL_VERSION_KERBEROS4 CURL_VERSION_KERBEROS5 CURL_VERSION_LARGEFILE CURL_VERSION_LIBZ CURL_VERSION_MULTI_SSL CURL_VERSION_NTLM CURL_VERSION_NTLM_WB CURL_VERSION_SPNEGO CURL_VERSION_SSL CURL_VERSION_SSPI CURL_VERSION_TLSAUTH_SRP CURL_VERSION_UNIX_SOCKETS CURL_WRITEFUNC_PAUSE contained
-endif
-if index(g:php_syntax_extensions_enabled, "date") >= 0 && index(g:php_syntax_extensions_disabled, "date") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "date") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "date") < 0)
-" date constants
-syn keyword phpConstants AFRICA ALL ALL_WITH_BC AMERICA ANTARCTICA ARCTIC ASIA ATLANTIC ATOM AUSTRALIA COOKIE DATE_ATOM DATE_COOKIE DATE_ISO8601 DATE_RFC822 DATE_RFC850 DATE_RFC1036 DATE_RFC1123 DATE_RFC2822 DATE_RFC3339 DATE_RFC3339_EXTENDED DATE_RFC7231 DATE_RSS DATE_W3C EUROPE EXCLUDE_START_DATE INDIAN ISO8601 PACIFIC PER_COUNTRY RFC822 RFC850 RFC1036 RFC1123 RFC2822 RFC3339 RFC3339_EXTENDED RFC7231 RSS SUNFUNCS_RET_DOUBLE SUNFUNCS_RET_STRING SUNFUNCS_RET_TIMESTAMP UTC W3C contained
-endif
-if index(g:php_syntax_extensions_enabled, "dom") >= 0 && index(g:php_syntax_extensions_disabled, "dom") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "dom") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "dom") < 0)
-" dom constants
-syn keyword phpConstants DOMSTRING_SIZE_ERR DOM_HIERARCHY_REQUEST_ERR DOM_INDEX_SIZE_ERR DOM_INUSE_ATTRIBUTE_ERR DOM_INVALID_ACCESS_ERR DOM_INVALID_CHARACTER_ERR DOM_INVALID_MODIFICATION_ERR DOM_INVALID_STATE_ERR DOM_NAMESPACE_ERR DOM_NOT_FOUND_ERR DOM_NOT_SUPPORTED_ERR DOM_NO_DATA_ALLOWED_ERR DOM_NO_MODIFICATION_ALLOWED_ERR DOM_PHP_ERR DOM_SYNTAX_ERR DOM_VALIDATION_ERR DOM_WRONG_DOCUMENT_ERR XML_ATTRIBUTE_CDATA XML_ATTRIBUTE_DECL_NODE XML_ATTRIBUTE_ENTITY XML_ATTRIBUTE_ENUMERATION XML_ATTRIBUTE_ID XML_ATTRIBUTE_IDREF XML_ATTRIBUTE_IDREFS XML_ATTRIBUTE_NMTOKEN XML_ATTRIBUTE_NMTOKENS XML_ATTRIBUTE_NODE XML_ATTRIBUTE_NOTATION XML_CDATA_SECTION_NODE XML_COMMENT_NODE XML_DOCUMENT_FRAG_NODE XML_DOCUMENT_NODE XML_DOCUMENT_TYPE_NODE XML_DTD_NODE XML_ELEMENT_DECL_NODE XML_ELEMENT_NODE XML_ENTITY_DECL_NODE XML_ENTITY_NODE XML_ENTITY_REF_NODE XML_HTML_DOCUMENT_NODE XML_LOCAL_NAMESPACE XML_NAMESPACE_DECL_NODE XML_NOTATION_NODE XML_PI_NODE XML_TEXT_NODE contained
-endif
-if index(g:php_syntax_extensions_enabled, "gd") >= 0 && index(g:php_syntax_extensions_disabled, "gd") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "gd") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "gd") < 0)
-" gd constants
-syn keyword phpConstants GD_BUNDLED GD_EXTRA_VERSION GD_MAJOR_VERSION GD_MINOR_VERSION GD_RELEASE_VERSION GD_VERSION IMG_AFFINE_ROTATE IMG_AFFINE_SCALE IMG_AFFINE_SHEAR_HORIZONTAL IMG_AFFINE_SHEAR_VERTICAL IMG_AFFINE_TRANSLATE IMG_ARC_CHORD IMG_ARC_EDGED IMG_ARC_NOFILL IMG_ARC_PIE IMG_ARC_ROUNDED IMG_BELL IMG_BESSEL IMG_BICUBIC IMG_BICUBIC_FIXED IMG_BILINEAR_FIXED IMG_BLACKMAN IMG_BMP IMG_BOX IMG_BSPLINE IMG_CATMULLROM IMG_COLOR_BRUSHED IMG_COLOR_STYLED IMG_COLOR_STYLEDBRUSHED IMG_COLOR_TILED IMG_COLOR_TRANSPARENT IMG_CROP_BLACK IMG_CROP_DEFAULT IMG_CROP_SIDES IMG_CROP_THRESHOLD IMG_CROP_TRANSPARENT IMG_CROP_WHITE IMG_EFFECT_ALPHABLEND IMG_EFFECT_MULTIPLY IMG_EFFECT_NORMAL IMG_EFFECT_OVERLAY IMG_EFFECT_REPLACE IMG_FILTER_BRIGHTNESS IMG_FILTER_COLORIZE IMG_FILTER_CONTRAST IMG_FILTER_EDGEDETECT IMG_FILTER_EMBOSS IMG_FILTER_GAUSSIAN_BLUR IMG_FILTER_GRAYSCALE IMG_FILTER_MEAN_REMOVAL IMG_FILTER_NEGATE IMG_FILTER_PIXELATE IMG_FILTER_SELECTIVE_BLUR IMG_FILTER_SMOOTH IMG_FLIP_BOTH IMG_FLIP_HORIZONTAL IMG_FLIP_VERTICAL IMG_GAUSSIAN IMG_GD2_COMPRESSED IMG_GD2_RAW IMG_GENERALIZED_CUBIC IMG_GIF IMG_HAMMING IMG_HANNING IMG_HERMITE IMG_JPEG IMG_JPG IMG_MITCHELL IMG_NEAREST_NEIGHBOUR IMG_PNG IMG_POWER IMG_QUADRATIC IMG_SINC IMG_TRIANGLE IMG_WBMP IMG_WEBP IMG_WEIGHTED4 IMG_XPM PNG_ALL_FILTERS PNG_FILTER_AVG PNG_FILTER_NONE PNG_FILTER_PAETH PNG_FILTER_SUB PNG_FILTER_UP PNG_NO_FILTER contained
-endif
-if index(g:php_syntax_extensions_enabled, "hash") >= 0 && index(g:php_syntax_extensions_disabled, "hash") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "hash") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "hash") < 0)
-" hash constants
-syn keyword phpConstants HASH_HMAC MHASH_ADLER32 MHASH_CRC32 MHASH_CRC32B MHASH_FNV1A32 MHASH_FNV1A64 MHASH_FNV132 MHASH_FNV164 MHASH_GOST MHASH_HAVAL128 MHASH_HAVAL160 MHASH_HAVAL192 MHASH_HAVAL224 MHASH_HAVAL256 MHASH_JOAAT MHASH_MD2 MHASH_MD4 MHASH_MD5 MHASH_RIPEMD128 MHASH_RIPEMD160 MHASH_RIPEMD256 MHASH_RIPEMD320 MHASH_SHA1 MHASH_SHA224 MHASH_SHA256 MHASH_SHA384 MHASH_SHA512 MHASH_SNEFRU256 MHASH_TIGER MHASH_TIGER128 MHASH_TIGER160 MHASH_WHIRLPOOL contained
-endif
-if index(g:php_syntax_extensions_enabled, "iconv") >= 0 && index(g:php_syntax_extensions_disabled, "iconv") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "iconv") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "iconv") < 0)
-" iconv constants
-syn keyword phpConstants ICONV_IMPL ICONV_MIME_DECODE_CONTINUE_ON_ERROR ICONV_MIME_DECODE_STRICT ICONV_VERSION contained
-endif
-if index(g:php_syntax_extensions_enabled, "json") >= 0 && index(g:php_syntax_extensions_disabled, "json") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "json") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "json") < 0)
-" json constants
-syn keyword phpConstants JSON_BIGINT_AS_STRING JSON_ERROR_CTRL_CHAR JSON_ERROR_DEPTH JSON_ERROR_INF_OR_NAN JSON_ERROR_INVALID_PROPERTY_NAME JSON_ERROR_NONE JSON_ERROR_RECURSION JSON_ERROR_STATE_MISMATCH JSON_ERROR_SYNTAX JSON_ERROR_UNSUPPORTED_TYPE JSON_ERROR_UTF8 JSON_ERROR_UTF16 JSON_FORCE_OBJECT JSON_HEX_AMP JSON_HEX_APOS JSON_HEX_QUOT JSON_HEX_TAG JSON_INVALID_UTF8_IGNORE JSON_INVALID_UTF8_SUBSTITUTE JSON_NUMERIC_CHECK JSON_OBJECT_AS_ARRAY JSON_PARTIAL_OUTPUT_ON_ERROR JSON_PRESERVE_ZERO_FRACTION JSON_PRETTY_PRINT JSON_THROW_ON_ERROR JSON_UNESCAPED_LINE_TERMINATORS JSON_UNESCAPED_SLASHES JSON_UNESCAPED_UNICODE contained
-endif
-if index(g:php_syntax_extensions_enabled, "libxml") >= 0 && index(g:php_syntax_extensions_disabled, "libxml") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "libxml") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "libxml") < 0)
-" libxml constants
-syn keyword phpConstants LIBXML_BIGLINES LIBXML_COMPACT LIBXML_DOTTED_VERSION LIBXML_DTDATTR LIBXML_DTDLOAD LIBXML_DTDVALID LIBXML_ERR_ERROR LIBXML_ERR_FATAL LIBXML_ERR_NONE LIBXML_ERR_WARNING LIBXML_HTML_NODEFDTD LIBXML_HTML_NOIMPLIED LIBXML_LOADED_VERSION LIBXML_NOBLANKS LIBXML_NOCDATA LIBXML_NOEMPTYTAG LIBXML_NOENT LIBXML_NOERROR LIBXML_NONET LIBXML_NOWARNING LIBXML_NOXMLDECL LIBXML_NSCLEAN LIBXML_PARSEHUGE LIBXML_PEDANTIC LIBXML_SCHEMA_CREATE LIBXML_VERSION LIBXML_XINCLUDE contained
-endif
-if index(g:php_syntax_extensions_enabled, "mbstring") >= 0 && index(g:php_syntax_extensions_disabled, "mbstring") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mbstring") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mbstring") < 0)
-" mbstring constants
-syn keyword phpConstants MB_CASE_FOLD MB_CASE_FOLD_SIMPLE MB_CASE_LOWER MB_CASE_LOWER_SIMPLE MB_CASE_TITLE MB_CASE_TITLE_SIMPLE MB_CASE_UPPER MB_CASE_UPPER_SIMPLE MB_OVERLOAD_MAIL MB_OVERLOAD_REGEX MB_OVERLOAD_STRING contained
-endif
-if index(g:php_syntax_extensions_enabled, "mcrypt") >= 0 && index(g:php_syntax_extensions_disabled, "mcrypt") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mcrypt") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mcrypt") < 0)
-" mcrypt constants
-syn keyword phpConstants MCRYPT_3DES MCRYPT_ARCFOUR MCRYPT_ARCFOUR_IV MCRYPT_BLOWFISH MCRYPT_BLOWFISH_COMPAT MCRYPT_CAST_128 MCRYPT_CAST_256 MCRYPT_CRYPT MCRYPT_DECRYPT MCRYPT_DES MCRYPT_DEV_RANDOM MCRYPT_DEV_URANDOM MCRYPT_ENCRYPT MCRYPT_ENIGNA MCRYPT_GOST MCRYPT_IDEA MCRYPT_LOKI97 MCRYPT_MARS MCRYPT_MODE_CBC MCRYPT_MODE_CFB MCRYPT_MODE_ECB MCRYPT_MODE_NOFB MCRYPT_MODE_OFB MCRYPT_MODE_STREAM MCRYPT_PANAMA MCRYPT_RAND MCRYPT_RC2 MCRYPT_RC6 MCRYPT_RIJNDAEL_128 MCRYPT_RIJNDAEL_192 MCRYPT_RIJNDAEL_256 MCRYPT_SAFER64 MCRYPT_SAFER128 MCRYPT_SAFERPLUS MCRYPT_SERPENT MCRYPT_SKIPJACK MCRYPT_THREEWAY MCRYPT_TRIPLEDES MCRYPT_TWOFISH MCRYPT_WAKE MCRYPT_XTEA contained
-endif
-if index(g:php_syntax_extensions_enabled, "mysql") >= 0 && index(g:php_syntax_extensions_disabled, "mysql") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mysql") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mysql") < 0)
-" mysql constants
-syn keyword phpConstants MYSQL_ASSOC MYSQL_BOTH MYSQL_CLIENT_COMPRESS MYSQL_CLIENT_IGNORE_SPACE MYSQL_CLIENT_INTERACTIVE MYSQL_CLIENT_SSL MYSQL_NUM contained
-endif
-if index(g:php_syntax_extensions_enabled, "mysqli") >= 0 && index(g:php_syntax_extensions_disabled, "mysqli") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mysqli") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mysqli") < 0)
-" mysqli constants
-syn keyword phpConstants MYSQLI_ASSOC MYSQLI_ASYNC MYSQLI_AUTO_INCREMENT_FLAG MYSQLI_BINARY_FLAG MYSQLI_BLOB_FLAG MYSQLI_BOTH MYSQLI_CLIENT_CAN_HANDLE_EXPIRED_PASSWORDS MYSQLI_CLIENT_COMPRESS MYSQLI_CLIENT_FOUND_ROWS MYSQLI_CLIENT_IGNORE_SPACE MYSQLI_CLIENT_INTERACTIVE MYSQLI_CLIENT_NO_SCHEMA MYSQLI_CLIENT_SSL MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT MYSQLI_CURSOR_TYPE_FOR_UPDATE MYSQLI_CURSOR_TYPE_NO_CURSOR MYSQLI_CURSOR_TYPE_READ_ONLY MYSQLI_CURSOR_TYPE_SCROLLABLE MYSQLI_DATA_TRUNCATED MYSQLI_DEBUG_TRACE_ENABLED MYSQLI_ENUM_FLAG MYSQLI_GROUP_FLAG MYSQLI_INIT_COMMAND MYSQLI_MULTIPLE_KEY_FLAG MYSQLI_NOT_NULL_FLAG MYSQLI_NO_DATA MYSQLI_NO_DEFAULT_VALUE_FLAG MYSQLI_NUM MYSQLI_NUM_FLAG MYSQLI_ON_UPDATE_NOW_FLAG MYSQLI_OPT_CAN_HANDLE_EXPIRED_PASSWORDS MYSQLI_OPT_CONNECT_TIMEOUT MYSQLI_OPT_INT_AND_FLOAT_NATIVE MYSQLI_OPT_LOCAL_INFILE MYSQLI_OPT_NET_CMD_BUFFER_SIZE MYSQLI_OPT_NET_READ_BUFFER_SIZE MYSQLI_OPT_READ_TIMEOUT MYSQLI_OPT_SSL_VERIFY_SERVER_CERT MYSQLI_PART_KEY_FLAG MYSQLI_PRI_KEY_FLAG MYSQLI_READ_DEFAULT_FILE MYSQLI_READ_DEFAULT_GROUP MYSQLI_REFRESH_BACKUP_LOG MYSQLI_REFRESH_GRANT MYSQLI_REFRESH_HOSTS MYSQLI_REFRESH_LOG MYSQLI_REFRESH_MASTER MYSQLI_REFRESH_SLAVE MYSQLI_REFRESH_STATUS MYSQLI_REFRESH_TABLES MYSQLI_REFRESH_THREADS MYSQLI_REPORT_ALL MYSQLI_REPORT_ERROR MYSQLI_REPORT_INDEX MYSQLI_REPORT_OFF MYSQLI_REPORT_STRICT MYSQLI_SERVER_PS_OUT_PARAMS MYSQLI_SERVER_PUBLIC_KEY MYSQLI_SERVER_QUERY_NO_GOOD_INDEX_USED MYSQLI_SERVER_QUERY_NO_INDEX_USED MYSQLI_SERVER_QUERY_WAS_SLOW MYSQLI_SET_CHARSET_DIR MYSQLI_SET_CHARSET_NAME MYSQLI_SET_FLAG MYSQLI_STMT_ATTR_CURSOR_TYPE MYSQLI_STMT_ATTR_PREFETCH_ROWS MYSQLI_STMT_ATTR_UPDATE_MAX_LENGTH MYSQLI_STORE_RESULT MYSQLI_STORE_RESULT_COPY_DATA MYSQLI_TIMESTAMP_FLAG MYSQLI_TRANS_COR_AND_CHAIN MYSQLI_TRANS_COR_AND_NO_CHAIN MYSQLI_TRANS_COR_NO_RELEASE MYSQLI_TRANS_COR_RELEASE MYSQLI_TRANS_START_READ_ONLY MYSQLI_TRANS_START_READ_WRITE MYSQLI_TRANS_START_WITH_CONSISTENT_SNAPSHOT MYSQLI_TYPE_BIT MYSQLI_TYPE_BLOB MYSQLI_TYPE_CHAR MYSQLI_TYPE_DATE MYSQLI_TYPE_DATETIME MYSQLI_TYPE_DECIMAL MYSQLI_TYPE_DOUBLE MYSQLI_TYPE_ENUM MYSQLI_TYPE_FLOAT MYSQLI_TYPE_GEOMETRY MYSQLI_TYPE_INT24 MYSQLI_TYPE_INTERVAL MYSQLI_TYPE_JSON MYSQLI_TYPE_LONG MYSQLI_TYPE_LONGLONG MYSQLI_TYPE_LONG_BLOB MYSQLI_TYPE_MEDIUM_BLOB MYSQLI_TYPE_NEWDATE MYSQLI_TYPE_NEWDECIMAL MYSQLI_TYPE_NULL MYSQLI_TYPE_SET MYSQLI_TYPE_SHORT MYSQLI_TYPE_STRING MYSQLI_TYPE_TIME MYSQLI_TYPE_TIMESTAMP MYSQLI_TYPE_TINY MYSQLI_TYPE_TINY_BLOB MYSQLI_TYPE_VAR_STRING MYSQLI_TYPE_YEAR MYSQLI_UNIQUE_KEY_FLAG MYSQLI_UNSIGNED_FLAG MYSQLI_USE_RESULT MYSQLI_ZEROFILL_FLAG contained
-endif
-if index(g:php_syntax_extensions_enabled, "openssl") >= 0 && index(g:php_syntax_extensions_disabled, "openssl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "openssl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "openssl") < 0)
-" openssl constants
-syn keyword phpConstants OPENSSL_ALGO_MD4 OPENSSL_ALGO_MD5 OPENSSL_ALGO_RMD160 OPENSSL_ALGO_SHA1 OPENSSL_ALGO_SHA224 OPENSSL_ALGO_SHA256 OPENSSL_ALGO_SHA384 OPENSSL_ALGO_SHA512 OPENSSL_CIPHER_3DES OPENSSL_CIPHER_AES_128_CBC OPENSSL_CIPHER_AES_192_CBC OPENSSL_CIPHER_AES_256_CBC OPENSSL_CIPHER_DES OPENSSL_CIPHER_RC2_40 OPENSSL_CIPHER_RC2_64 OPENSSL_CIPHER_RC2_128 OPENSSL_DEFAULT_STREAM_CIPHERS OPENSSL_DONT_ZERO_PAD_KEY OPENSSL_KEYTYPE_DH OPENSSL_KEYTYPE_DSA OPENSSL_KEYTYPE_EC OPENSSL_KEYTYPE_RSA OPENSSL_NO_PADDING OPENSSL_PKCS1_OAEP_PADDING OPENSSL_PKCS1_PADDING OPENSSL_RAW_DATA OPENSSL_SSLV23_PADDING OPENSSL_TLSEXT_SERVER_NAME OPENSSL_VERSION_NUMBER OPENSSL_VERSION_TEXT OPENSSL_ZERO_PADDING PKCS7_BINARY PKCS7_DETACHED PKCS7_NOATTR PKCS7_NOCERTS PKCS7_NOCHAIN PKCS7_NOINTERN PKCS7_NOSIGS PKCS7_NOVERIFY PKCS7_TEXT X509_PURPOSE_ANY X509_PURPOSE_CRL_SIGN X509_PURPOSE_NS_SSL_SERVER X509_PURPOSE_SMIME_ENCRYPT X509_PURPOSE_SMIME_SIGN X509_PURPOSE_SSL_CLIENT X509_PURPOSE_SSL_SERVER contained
-endif
-if index(g:php_syntax_extensions_enabled, "pcre") >= 0 && index(g:php_syntax_extensions_disabled, "pcre") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pcre") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pcre") < 0)
-" pcre constants
-syn keyword phpConstants PCRE_JIT_SUPPORT PCRE_VERSION PCRE_VERSION_MAJOR PCRE_VERSION_MINOR PREG_BACKTRACK_LIMIT_ERROR PREG_BAD_UTF8_ERROR PREG_BAD_UTF8_OFFSET_ERROR PREG_GREP_INVERT PREG_INTERNAL_ERROR PREG_JIT_STACKLIMIT_ERROR PREG_NO_ERROR PREG_OFFSET_CAPTURE PREG_PATTERN_ORDER PREG_RECURSION_LIMIT_ERROR PREG_SET_ORDER PREG_SPLIT_DELIM_CAPTURE PREG_SPLIT_NO_EMPTY PREG_SPLIT_OFFSET_CAPTURE PREG_UNMATCHED_AS_NULL contained
-endif
-if index(g:php_syntax_extensions_enabled, "pdo") >= 0 && index(g:php_syntax_extensions_disabled, "pdo") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pdo") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pdo") < 0)
-" PDO constants
-syn keyword phpConstants ATTR_AUTOCOMMIT ATTR_CASE ATTR_CLIENT_VERSION ATTR_CONNECTION_STATUS ATTR_CURSOR ATTR_CURSOR_NAME ATTR_DEFAULT_FETCH_MODE ATTR_DEFAULT_STR_PARAM ATTR_DRIVER_NAME ATTR_EMULATE_PREPARES ATTR_ERRMODE ATTR_FETCH_CATALOG_NAMES ATTR_FETCH_TABLE_NAMES ATTR_MAX_COLUMN_LEN ATTR_ORACLE_NULLS ATTR_PERSISTENT ATTR_PREFETCH ATTR_SERVER_INFO ATTR_SERVER_VERSION ATTR_STATEMENT_CLASS ATTR_STRINGIFY_FETCHES ATTR_TIMEOUT CASE_LOWER CASE_NATURAL CASE_UPPER CURSOR_FWDONLY CURSOR_SCROLL ERRMODE_EXCEPTION ERRMODE_SILENT ERRMODE_WARNING ERR_NONE FETCH_ASSOC FETCH_BOTH FETCH_BOUND FETCH_CLASS FETCH_CLASSTYPE FETCH_COLUMN FETCH_FUNC FETCH_GROUP FETCH_INTO FETCH_KEY_PAIR FETCH_LAZY FETCH_NAMED FETCH_NUM FETCH_OBJ FETCH_ORI_ABS FETCH_ORI_FIRST FETCH_ORI_LAST FETCH_ORI_NEXT FETCH_ORI_PRIOR FETCH_ORI_REL FETCH_PROPS_LATE FETCH_SERIALIZE FETCH_UNIQUE MYSQL_ATTR_COMPRESS MYSQL_ATTR_DIRECT_QUERY MYSQL_ATTR_FOUND_ROWS MYSQL_ATTR_IGNORE_SPACE MYSQL_ATTR_INIT_COMMAND MYSQL_ATTR_LOCAL_INFILE MYSQL_ATTR_MULTI_STATEMENTS MYSQL_ATTR_SERVER_PUBLIC_KEY MYSQL_ATTR_SSL_CA MYSQL_ATTR_SSL_CAPATH MYSQL_ATTR_SSL_CERT MYSQL_ATTR_SSL_CIPHER MYSQL_ATTR_SSL_KEY MYSQL_ATTR_SSL_VERIFY_SERVER_CERT MYSQL_ATTR_USE_BUFFERED_QUERY NULL_EMPTY_STRING NULL_NATURAL NULL_TO_STRING PARAM_BOOL PARAM_EVT_ALLOC PARAM_EVT_EXEC_POST PARAM_EVT_EXEC_PRE PARAM_EVT_FETCH_POST PARAM_EVT_FETCH_PRE PARAM_EVT_FREE PARAM_EVT_NORMALIZE PARAM_INPUT_OUTPUT PARAM_INT PARAM_LOB PARAM_NULL PARAM_STMT PARAM_STR PARAM_STR_CHAR PARAM_STR_NATL PGSQL_ATTR_DISABLE_NATIVE_PREPARED_STATEMENT PGSQL_ATTR_DISABLE_PREPARES PGSQL_TRANSACTION_ACTIVE PGSQL_TRANSACTION_IDLE PGSQL_TRANSACTION_INERROR PGSQL_TRANSACTION_INTRANS PGSQL_TRANSACTION_UNKNOWN SQLITE_ATTR_OPEN_FLAGS SQLITE_DETERMINISTIC SQLITE_OPEN_CREATE SQLITE_OPEN_READONLY SQLITE_OPEN_READWRITE contained
-endif
-if index(g:php_syntax_extensions_enabled, "pgsql") >= 0 && index(g:php_syntax_extensions_disabled, "pgsql") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pgsql") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pgsql") < 0)
-" pgsql constants
-syn keyword phpConstants PGSQL_ASSOC PGSQL_BAD_RESPONSE PGSQL_BOTH PGSQL_COMMAND_OK PGSQL_CONNECTION_AUTH_OK PGSQL_CONNECTION_AWAITING_RESPONSE PGSQL_CONNECTION_BAD PGSQL_CONNECTION_MADE PGSQL_CONNECTION_OK PGSQL_CONNECTION_SETENV PGSQL_CONNECTION_STARTED PGSQL_CONNECT_ASYNC PGSQL_CONNECT_FORCE_NEW PGSQL_CONV_FORCE_NULL PGSQL_CONV_IGNORE_DEFAULT PGSQL_CONV_IGNORE_NOT_NULL PGSQL_COPY_IN PGSQL_COPY_OUT PGSQL_DIAG_COLUMN_NAME PGSQL_DIAG_CONSTRAINT_NAME PGSQL_DIAG_CONTEXT PGSQL_DIAG_DATATYPE_NAME PGSQL_DIAG_INTERNAL_POSITION PGSQL_DIAG_INTERNAL_QUERY PGSQL_DIAG_MESSAGE_DETAIL PGSQL_DIAG_MESSAGE_HINT PGSQL_DIAG_MESSAGE_PRIMARY PGSQL_DIAG_SCHEMA_NAME PGSQL_DIAG_SEVERITY PGSQL_DIAG_SEVERITY_NONLOCALIZED PGSQL_DIAG_SOURCE_FILE PGSQL_DIAG_SOURCE_FUNCTION PGSQL_DIAG_SOURCE_LINE PGSQL_DIAG_SQLSTATE PGSQL_DIAG_STATEMENT_POSITION PGSQL_DIAG_TABLE_NAME PGSQL_DML_ASYNC PGSQL_DML_ESCAPE PGSQL_DML_EXEC PGSQL_DML_NO_CONV PGSQL_DML_STRING PGSQL_EMPTY_QUERY PGSQL_ERRORS_DEFAULT PGSQL_ERRORS_TERSE PGSQL_ERRORS_VERBOSE PGSQL_FATAL_ERROR PGSQL_LIBPQ_VERSION PGSQL_LIBPQ_VERSION_STR PGSQL_NONFATAL_ERROR PGSQL_NOTICE_ALL PGSQL_NOTICE_CLEAR PGSQL_NOTICE_LAST PGSQL_NUM PGSQL_POLLING_ACTIVE PGSQL_POLLING_FAILED PGSQL_POLLING_OK PGSQL_POLLING_READING PGSQL_POLLING_WRITING PGSQL_SEEK_CUR PGSQL_SEEK_END PGSQL_SEEK_SET PGSQL_STATUS_LONG PGSQL_STATUS_STRING PGSQL_TRANSACTION_ACTIVE PGSQL_TRANSACTION_IDLE PGSQL_TRANSACTION_INERROR PGSQL_TRANSACTION_INTRANS PGSQL_TRANSACTION_UNKNOWN PGSQL_TUPLES_OK contained
-endif
-if index(g:php_syntax_extensions_enabled, "phar") >= 0 && index(g:php_syntax_extensions_disabled, "phar") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "phar") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "phar") < 0)
-" Phar constants
-syn keyword phpConstants BZ2 COMPRESSED CURRENT_AS_FILEINFO CURRENT_AS_PATHNAME CURRENT_AS_SELF CURRENT_MODE_MASK FOLLOW_SYMLINKS GZ KEY_AS_FILENAME KEY_AS_PATHNAME KEY_MODE_MASK MD5 NEW_CURRENT_AND_KEY NONE OPENSSL OTHER_MODE_MASK PHAR PHP PHPS SHA1 SHA256 SHA512 SKIP_DOTS TAR UNIX_PATHS ZIP contained
-endif
-if index(g:php_syntax_extensions_enabled, "reflection") >= 0 && index(g:php_syntax_extensions_disabled, "reflection") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "reflection") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "reflection") < 0)
-" Reflection constants
-syn keyword phpConstants IS_ABSTRACT IS_DEPRECATED IS_EXPLICIT_ABSTRACT IS_FINAL IS_IMPLICIT_ABSTRACT IS_PRIVATE IS_PROTECTED IS_PUBLIC IS_STATIC contained
-endif
-if index(g:php_syntax_extensions_enabled, "session") >= 0 && index(g:php_syntax_extensions_disabled, "session") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "session") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "session") < 0)
-" session constants
-syn keyword phpConstants PHP_SESSION_ACTIVE PHP_SESSION_DISABLED PHP_SESSION_NONE contained
-endif
-if index(g:php_syntax_extensions_enabled, "soap") >= 0 && index(g:php_syntax_extensions_disabled, "soap") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "soap") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "soap") < 0)
-" soap constants
-syn keyword phpConstants APACHE_MAP SOAP_1_1 SOAP_1_2 SOAP_ACTOR_NEXT SOAP_ACTOR_NONE SOAP_ACTOR_UNLIMATERECEIVER SOAP_AUTHENTICATION_BASIC SOAP_AUTHENTICATION_DIGEST SOAP_COMPRESSION_ACCEPT SOAP_COMPRESSION_DEFLATE SOAP_COMPRESSION_GZIP SOAP_DOCUMENT SOAP_ENCODED SOAP_ENC_ARRAY SOAP_ENC_OBJECT SOAP_FUNCTIONS_ALL SOAP_LITERAL SOAP_PERSISTENCE_REQUEST SOAP_PERSISTENCE_SESSION SOAP_RPC SOAP_SINGLE_ELEMENT_ARRAYS SOAP_SSL_METHOD_SSLv2 SOAP_SSL_METHOD_SSLv3 SOAP_SSL_METHOD_SSLv23 SOAP_SSL_METHOD_TLS SOAP_USE_XSI_ARRAY_TYPE SOAP_WAIT_ONE_WAY_CALLS UNKNOWN_TYPE WSDL_CACHE_BOTH WSDL_CACHE_DISK WSDL_CACHE_MEMORY WSDL_CACHE_NONE XSD_1999_NAMESPACE XSD_1999_TIMEINSTANT XSD_ANYTYPE XSD_ANYURI XSD_ANYXML XSD_BASE64BINARY XSD_BOOLEAN XSD_BYTE XSD_DATE XSD_DATETIME XSD_DECIMAL XSD_DOUBLE XSD_DURATION XSD_ENTITIES XSD_ENTITY XSD_FLOAT XSD_GDAY XSD_GMONTH XSD_GMONTHDAY XSD_GYEAR XSD_GYEARMONTH XSD_HEXBINARY XSD_ID XSD_IDREF XSD_IDREFS XSD_INT XSD_INTEGER XSD_LANGUAGE XSD_LONG XSD_NAME XSD_NAMESPACE XSD_NCNAME XSD_NEGATIVEINTEGER XSD_NMTOKEN XSD_NMTOKENS XSD_NONNEGATIVEINTEGER XSD_NONPOSITIVEINTEGER XSD_NORMALIZEDSTRING XSD_NOTATION XSD_POSITIVEINTEGER XSD_QNAME XSD_SHORT XSD_STRING XSD_TIME XSD_TOKEN XSD_UNSIGNEDBYTE XSD_UNSIGNEDINT XSD_UNSIGNEDLONG XSD_UNSIGNEDSHORT contained
-endif
-if index(g:php_syntax_extensions_enabled, "sockets") >= 0 && index(g:php_syntax_extensions_disabled, "sockets") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "sockets") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "sockets") < 0)
-" sockets constants
-syn keyword phpConstants AF_INET AF_INET6 AF_UNIX AI_ADDRCONFIG AI_ALL AI_CANONIDN AI_CANONNAME AI_IDN AI_IDN_ALLOW_UNASSIGNED AI_IDN_USE_STD3_ASCII_RULES AI_NUMERICHOST AI_NUMERICSERV AI_PASSIVE AI_V4MAPPED IPPROTO_IP IPPROTO_IPV6 IPV6_HOPLIMIT IPV6_MULTICAST_HOPS IPV6_MULTICAST_IF IPV6_MULTICAST_LOOP IPV6_PKTINFO IPV6_RECVHOPLIMIT IPV6_RECVPKTINFO IPV6_RECVTCLASS IPV6_TCLASS IPV6_UNICAST_HOPS IPV6_V6ONLY IP_MULTICAST_IF IP_MULTICAST_LOOP IP_MULTICAST_TTL MCAST_BLOCK_SOURCE MCAST_JOIN_GROUP MCAST_JOIN_SOURCE_GROUP MCAST_LEAVE_GROUP MCAST_LEAVE_SOURCE_GROUP MCAST_UNBLOCK_SOURCE MSG_CMSG_CLOEXEC MSG_CONFIRM MSG_CTRUNC MSG_DONTROUTE MSG_DONTWAIT MSG_EOF MSG_EOR MSG_ERRQUEUE MSG_MORE MSG_NOSIGNAL MSG_OOB MSG_PEEK MSG_TRUNC MSG_WAITALL MSG_WAITFORONE PHP_BINARY_READ PHP_NORMAL_READ SCM_CREDENTIALS SCM_RIGHTS SOCKET_E2BIG SOCKET_EACCES SOCKET_EADDRINUSE SOCKET_EADDRNOTAVAIL SOCKET_EADV SOCKET_EAFNOSUPPORT SOCKET_EAGAIN SOCKET_EALREADY SOCKET_EBADE SOCKET_EBADF SOCKET_EBADFD SOCKET_EBADMSG SOCKET_EBADR SOCKET_EBADRQC SOCKET_EBADSLT SOCKET_EBUSY SOCKET_ECHRNG SOCKET_ECOMM SOCKET_ECONNABORTED SOCKET_ECONNREFUSED SOCKET_ECONNRESET SOCKET_EDESTADDRREQ SOCKET_EDQUOT SOCKET_EEXIST SOCKET_EFAULT SOCKET_EHOSTDOWN SOCKET_EHOSTUNREACH SOCKET_EIDRM SOCKET_EINPROGRESS SOCKET_EINTR SOCKET_EINVAL SOCKET_EIO SOCKET_EISCONN SOCKET_EISDIR SOCKET_EISNAM SOCKET_EL2HLT SOCKET_EL2NSYNC SOCKET_EL3HLT SOCKET_EL3RST SOCKET_ELNRNG SOCKET_ELOOP SOCKET_EMEDIUMTYPE SOCKET_EMFILE SOCKET_EMLINK SOCKET_EMSGSIZE SOCKET_EMULTIHOP SOCKET_ENAMETOOLONG SOCKET_ENETDOWN SOCKET_ENETRESET SOCKET_ENETUNREACH SOCKET_ENFILE SOCKET_ENOANO SOCKET_ENOBUFS SOCKET_ENOCSI SOCKET_ENODATA SOCKET_ENODEV SOCKET_ENOENT SOCKET_ENOLCK SOCKET_ENOLINK SOCKET_ENOMEDIUM SOCKET_ENOMEM SOCKET_ENOMSG SOCKET_ENONET SOCKET_ENOPROTOOPT SOCKET_ENOSPC SOCKET_ENOSR SOCKET_ENOSTR SOCKET_ENOSYS SOCKET_ENOTBLK SOCKET_ENOTCONN SOCKET_ENOTDIR SOCKET_ENOTEMPTY SOCKET_ENOTSOCK SOCKET_ENOTTY SOCKET_ENOTUNIQ SOCKET_ENXIO SOCKET_EOPNOTSUPP SOCKET_EPERM SOCKET_EPFNOSUPPORT SOCKET_EPIPE SOCKET_EPROTO SOCKET_EPROTONOSUPPORT SOCKET_EPROTOTYPE SOCKET_EREMCHG SOCKET_EREMOTE SOCKET_EREMOTEIO SOCKET_ERESTART SOCKET_EROFS SOCKET_ESHUTDOWN SOCKET_ESOCKTNOSUPPORT SOCKET_ESPIPE SOCKET_ESRMNT SOCKET_ESTRPIPE SOCKET_ETIME SOCKET_ETIMEDOUT SOCKET_ETOOMANYREFS SOCKET_EUNATCH SOCKET_EUSERS SOCKET_EWOULDBLOCK SOCKET_EXDEV SOCKET_EXFULL SOCK_DGRAM SOCK_RAW SOCK_RDM SOCK_SEQPACKET SOCK_STREAM SOL_SOCKET SOL_TCP SOL_UDP SOMAXCONN SO_BINDTODEVICE SO_BROADCAST SO_DEBUG SO_DONTROUTE SO_ERROR SO_KEEPALIVE SO_LINGER SO_OOBINLINE SO_PASSCRED SO_RCVBUF SO_RCVLOWAT SO_RCVTIMEO SO_REUSEADDR SO_REUSEPORT SO_SNDBUF SO_SNDLOWAT SO_SNDTIMEO SO_TYPE TCP_NODELAY contained
-endif
-if index(g:php_syntax_extensions_enabled, "spl") >= 0 && index(g:php_syntax_extensions_disabled, "spl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "spl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "spl") < 0)
-" SPL constants
-syn keyword phpConstants ALL_MATCHES ARRAY_AS_PROPS BYPASS_CURRENT BYPASS_KEY CALL_TOSTRING CATCH_GET_CHILD CHILD_ARRAYS_ONLY CHILD_FIRST CURRENT_AS_FILEINFO CURRENT_AS_PATHNAME CURRENT_AS_SELF CURRENT_MODE_MASK DROP_NEW_LINE EXTR_BOTH EXTR_DATA EXTR_PRIORITY FOLLOW_SYMLINKS FULL_CACHE GET_MATCH INVERT_MATCH IT_MODE_DELETE IT_MODE_FIFO IT_MODE_KEEP IT_MODE_LIFO KEY_AS_FILENAME KEY_AS_PATHNAME KEY_MODE_MASK LEAVES_ONLY MATCH MIT_KEYS_ASSOC MIT_KEYS_NUMERIC MIT_NEED_ALL MIT_NEED_ANY NEW_CURRENT_AND_KEY OTHER_MODE_MASK PREFIX_END_HAS_NEXT PREFIX_END_LAST PREFIX_LEFT PREFIX_MID_HAS_NEXT PREFIX_MID_LAST PREFIX_RIGHT READ_AHEAD READ_CSV REPLACE SELF_FIRST SKIP_DOTS SKIP_EMPTY SPLIT STD_PROP_LIST TOSTRING_USE_CURRENT TOSTRING_USE_INNER TOSTRING_USE_KEY UNIX_PATHS USE_KEY contained
-endif
-if index(g:php_syntax_extensions_enabled, "sqlite3") >= 0 && index(g:php_syntax_extensions_disabled, "sqlite3") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "sqlite3") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "sqlite3") < 0)
-" sqlite3 constants
-syn keyword phpConstants SQLITE3_ASSOC SQLITE3_BLOB SQLITE3_BOTH SQLITE3_DETERMINISTIC SQLITE3_FLOAT SQLITE3_INTEGER SQLITE3_NULL SQLITE3_NUM SQLITE3_OPEN_CREATE SQLITE3_OPEN_READONLY SQLITE3_OPEN_READWRITE SQLITE3_TEXT contained
-endif
-if index(g:php_syntax_extensions_enabled, "standard") >= 0 && index(g:php_syntax_extensions_disabled, "standard") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "standard") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "standard") < 0)
-" standard constants
-syn keyword phpConstants ABDAY_1 ABDAY_2 ABDAY_3 ABDAY_4 ABDAY_5 ABDAY_6 ABDAY_7 ABMON_1 ABMON_2 ABMON_3 ABMON_4 ABMON_5 ABMON_6 ABMON_7 ABMON_8 ABMON_9 ABMON_10 ABMON_11 ABMON_12 ALT_DIGITS AM_STR ARRAY_FILTER_USE_BOTH ARRAY_FILTER_USE_KEY ASSERT_ACTIVE ASSERT_BAIL ASSERT_CALLBACK ASSERT_EXCEPTION ASSERT_QUIET_EVAL ASSERT_WARNING CASE_LOWER CASE_UPPER CHAR_MAX CODESET CONNECTION_ABORTED CONNECTION_NORMAL CONNECTION_TIMEOUT COUNT_NORMAL COUNT_RECURSIVE CREDITS_ALL CREDITS_DOCS CREDITS_FULLPAGE CREDITS_GENERAL CREDITS_GROUP CREDITS_MODULES CREDITS_QA CREDITS_SAPI CRNCYSTR CRYPT_BLOWFISH CRYPT_EXT_DES CRYPT_MD5 CRYPT_SALT_LENGTH CRYPT_SHA256 CRYPT_SHA512 CRYPT_STD_DES DAY_1 DAY_2 DAY_3 DAY_4 DAY_5 DAY_6 DAY_7 DIRECTORY_SEPARATOR DNS_A DNS_A6 DNS_AAAA DNS_ALL DNS_ANY DNS_CAA DNS_CNAME DNS_HINFO DNS_MX DNS_NAPTR DNS_NS DNS_PTR DNS_SOA DNS_SRV DNS_TXT D_FMT D_T_FMT ENT_COMPAT ENT_DISALLOWED ENT_HTML5 ENT_HTML401 ENT_IGNORE ENT_NOQUOTES ENT_QUOTES ENT_SUBSTITUTE ENT_XHTML ENT_XML1 ERA ERA_D_FMT ERA_D_T_FMT ERA_T_FMT EXTR_IF_EXISTS EXTR_OVERWRITE EXTR_PREFIX_ALL EXTR_PREFIX_IF_EXISTS EXTR_PREFIX_INVALID EXTR_PREFIX_SAME EXTR_REFS EXTR_SKIP FILE_APPEND FILE_BINARY FILE_IGNORE_NEW_LINES FILE_NO_DEFAULT_CONTEXT FILE_SKIP_EMPTY_LINES FILE_TEXT FILE_USE_INCLUDE_PATH FNM_CASEFOLD FNM_NOESCAPE FNM_PATHNAME FNM_PERIOD GLOB_AVAILABLE_FLAGS GLOB_BRACE GLOB_ERR GLOB_MARK GLOB_NOCHECK GLOB_NOESCAPE GLOB_NOSORT GLOB_ONLYDIR HTML_ENTITIES HTML_SPECIALCHARS IMAGETYPE_BMP IMAGETYPE_COUNT IMAGETYPE_GIF IMAGETYPE_ICO IMAGETYPE_IFF IMAGETYPE_JB2 IMAGETYPE_JP2 IMAGETYPE_JPC IMAGETYPE_JPEG IMAGETYPE_JPEG2000 IMAGETYPE_JPX IMAGETYPE_PNG IMAGETYPE_PSD IMAGETYPE_SWC IMAGETYPE_SWF IMAGETYPE_TIFF_II IMAGETYPE_TIFF_MM IMAGETYPE_UNKNOWN IMAGETYPE_WBMP IMAGETYPE_WEBP IMAGETYPE_XBM INF INFO_ALL INFO_CONFIGURATION INFO_CREDITS INFO_ENVIRONMENT INFO_GENERAL INFO_LICENSE INFO_MODULES INFO_VARIABLES INI_ALL INI_PERDIR INI_SCANNER_NORMAL INI_SCANNER_RAW INI_SCANNER_TYPED INI_SYSTEM INI_USER LC_ALL LC_COLLATE LC_CTYPE LC_MESSAGES LC_MONETARY LC_NUMERIC LC_TIME LOCK_EX LOCK_NB LOCK_SH LOCK_UN LOG_ALERT LOG_AUTH LOG_AUTHPRIV LOG_CONS LOG_CRIT LOG_CRON LOG_DAEMON LOG_DEBUG LOG_EMERG LOG_ERR LOG_INFO LOG_KERN LOG_LOCAL0 LOG_LOCAL1 LOG_LOCAL2 LOG_LOCAL3 LOG_LOCAL4 LOG_LOCAL5 LOG_LOCAL6 LOG_LOCAL7 LOG_LPR LOG_MAIL LOG_NDELAY LOG_NEWS LOG_NOTICE LOG_NOWAIT LOG_ODELAY LOG_PERROR LOG_PID LOG_SYSLOG LOG_USER LOG_UUCP LOG_WARNING MON_1 MON_2 MON_3 MON_4 MON_5 MON_6 MON_7 MON_8 MON_9 MON_10 MON_11 MON_12 MT_RAND_MT19937 MT_RAND_PHP M_1_PI M_2_PI M_2_SQRTPI M_E M_EULER M_LN2 M_LN10 M_LNPI M_LOG2E M_LOG10E M_PI M_PI_2 M_PI_4 M_SQRT1_2 M_SQRT2 M_SQRT3 M_SQRTPI NAN NOEXPR PASSWORD_ARGON2I PASSWORD_ARGON2ID PASSWORD_ARGON2_DEFAULT_MEMORY_COST PASSWORD_ARGON2_DEFAULT_THREADS PASSWORD_ARGON2_DEFAULT_TIME_COST PASSWORD_BCRYPT PASSWORD_BCRYPT_DEFAULT_COST PASSWORD_DEFAULT PATHINFO_BASENAME PATHINFO_DIRNAME PATHINFO_EXTENSION PATHINFO_FILENAME PATH_SEPARATOR PHP_QUERY_RFC1738 PHP_QUERY_RFC3986 PHP_ROUND_HALF_DOWN PHP_ROUND_HALF_EVEN PHP_ROUND_HALF_ODD PHP_ROUND_HALF_UP PHP_URL_FRAGMENT PHP_URL_HOST PHP_URL_PASS PHP_URL_PATH PHP_URL_PORT PHP_URL_QUERY PHP_URL_SCHEME PHP_URL_USER PM_STR PSFS_ERR_FATAL PSFS_FEED_ME PSFS_FLAG_FLUSH_CLOSE PSFS_FLAG_FLUSH_INC PSFS_FLAG_NORMAL PSFS_PASS_ON RADIXCHAR SCANDIR_SORT_ASCENDING SCANDIR_SORT_DESCENDING SCANDIR_SORT_NONE SEEK_CUR SEEK_END SEEK_SET SORT_ASC SORT_DESC SORT_FLAG_CASE SORT_LOCALE_STRING SORT_NATURAL SORT_NUMERIC SORT_REGULAR SORT_STRING STREAM_BUFFER_FULL STREAM_BUFFER_LINE STREAM_BUFFER_NONE STREAM_CAST_AS_STREAM STREAM_CAST_FOR_SELECT STREAM_CLIENT_ASYNC_CONNECT STREAM_CLIENT_CONNECT STREAM_CLIENT_PERSISTENT STREAM_CRYPTO_METHOD_ANY_CLIENT STREAM_CRYPTO_METHOD_ANY_SERVER STREAM_CRYPTO_METHOD_SSLv2_CLIENT STREAM_CRYPTO_METHOD_SSLv2_SERVER STREAM_CRYPTO_METHOD_SSLv3_CLIENT STREAM_CRYPTO_METHOD_SSLv3_SERVER STREAM_CRYPTO_METHOD_SSLv23_CLIENT STREAM_CRYPTO_METHOD_SSLv23_SERVER STREAM_CRYPTO_METHOD_TLS_CLIENT STREAM_CRYPTO_METHOD_TLS_SERVER STREAM_CRYPTO_METHOD_TLSv1_0_CLIENT STREAM_CRYPTO_METHOD_TLSv1_0_SERVER STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT STREAM_CRYPTO_METHOD_TLSv1_1_SERVER STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT STREAM_CRYPTO_METHOD_TLSv1_2_SERVER STREAM_CRYPTO_PROTO_SSLv3 STREAM_CRYPTO_PROTO_TLSv1_0 STREAM_CRYPTO_PROTO_TLSv1_1 STREAM_CRYPTO_PROTO_TLSv1_2 STREAM_FILTER_ALL STREAM_FILTER_READ STREAM_FILTER_WRITE STREAM_IGNORE_URL STREAM_IPPROTO_ICMP STREAM_IPPROTO_IP STREAM_IPPROTO_RAW STREAM_IPPROTO_TCP STREAM_IPPROTO_UDP STREAM_IS_URL STREAM_META_ACCESS STREAM_META_GROUP STREAM_META_GROUP_NAME STREAM_META_OWNER STREAM_META_OWNER_NAME STREAM_META_TOUCH STREAM_MKDIR_RECURSIVE STREAM_MUST_SEEK STREAM_NOTIFY_AUTH_REQUIRED STREAM_NOTIFY_AUTH_RESULT STREAM_NOTIFY_COMPLETED STREAM_NOTIFY_CONNECT STREAM_NOTIFY_FAILURE STREAM_NOTIFY_FILE_SIZE_IS STREAM_NOTIFY_MIME_TYPE_IS STREAM_NOTIFY_PROGRESS STREAM_NOTIFY_REDIRECTED STREAM_NOTIFY_RESOLVE STREAM_NOTIFY_SEVERITY_ERR STREAM_NOTIFY_SEVERITY_INFO STREAM_NOTIFY_SEVERITY_WARN STREAM_OOB STREAM_OPTION_BLOCKING STREAM_OPTION_READ_BUFFER STREAM_OPTION_READ_TIMEOUT STREAM_OPTION_WRITE_BUFFER STREAM_PEEK STREAM_PF_INET STREAM_PF_INET6 STREAM_PF_UNIX STREAM_REPORT_ERRORS STREAM_SERVER_BIND STREAM_SERVER_LISTEN STREAM_SHUT_RD STREAM_SHUT_RDWR STREAM_SHUT_WR STREAM_SOCK_DGRAM STREAM_SOCK_RAW STREAM_SOCK_RDM STREAM_SOCK_SEQPACKET STREAM_SOCK_STREAM STREAM_URL_STAT_LINK STREAM_URL_STAT_QUIET STREAM_USE_PATH STR_PAD_BOTH STR_PAD_LEFT STR_PAD_RIGHT THOUSEP T_FMT T_FMT_AMPM YESEXPR contained
-endif
-if index(g:php_syntax_extensions_enabled, "tokenizer") >= 0 && index(g:php_syntax_extensions_disabled, "tokenizer") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "tokenizer") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "tokenizer") < 0)
-" tokenizer constants
-syn keyword phpConstants TOKEN_PARSE T_ABSTRACT T_AND_EQUAL T_ARRAY T_ARRAY_CAST T_AS T_BAD_CHARACTER T_BOOLEAN_AND T_BOOLEAN_OR T_BOOL_CAST T_BREAK T_CALLABLE T_CASE T_CATCH T_CHARACTER T_CLASS T_CLASS_C T_CLONE T_CLOSE_TAG T_COALESCE T_COMMENT T_CONCAT_EQUAL T_CONST T_CONSTANT_ENCAPSED_STRING T_CONTINUE T_CURLY_OPEN T_DEC T_DECLARE T_DEFAULT T_DIR T_DIV_EQUAL T_DNUMBER T_DO T_DOC_COMMENT T_DOLLAR_OPEN_CURLY_BRACES T_DOUBLE_ARROW T_DOUBLE_CAST T_DOUBLE_COLON T_ECHO T_ELLIPSIS T_ELSE T_ELSEIF T_EMPTY T_ENCAPSED_AND_WHITESPACE T_ENDDECLARE T_ENDFOR T_ENDFOREACH T_ENDIF T_ENDSWITCH T_ENDWHILE T_END_HEREDOC T_EVAL T_EXIT T_EXTENDS T_FILE T_FINAL T_FINALLY T_FOR T_FOREACH T_FUNCTION T_FUNC_C T_GLOBAL T_GOTO T_HALT_COMPILER T_IF T_IMPLEMENTS T_INC T_INCLUDE T_INCLUDE_ONCE T_INLINE_HTML T_INSTANCEOF T_INSTEADOF T_INTERFACE T_INT_CAST T_ISSET T_IS_EQUAL T_IS_GREATER_OR_EQUAL T_IS_IDENTICAL T_IS_NOT_EQUAL T_IS_NOT_IDENTICAL T_IS_SMALLER_OR_EQUAL T_LINE T_LIST T_LNUMBER T_LOGICAL_AND T_LOGICAL_OR T_LOGICAL_XOR T_METHOD_C T_MINUS_EQUAL T_MOD_EQUAL T_MUL_EQUAL T_NAMESPACE T_NEW T_NS_C T_NS_SEPARATOR T_NUM_STRING T_OBJECT_CAST T_OBJECT_OPERATOR T_OPEN_TAG T_OPEN_TAG_WITH_ECHO T_OR_EQUAL T_PAAMAYIM_NEKUDOTAYIM T_PLUS_EQUAL T_POW T_POW_EQUAL T_PRINT T_PRIVATE T_PROTECTED T_PUBLIC T_REQUIRE T_REQUIRE_ONCE T_RETURN T_SL T_SL_EQUAL T_SPACESHIP T_SR T_SR_EQUAL T_START_HEREDOC T_STATIC T_STRING T_STRING_CAST T_STRING_VARNAME T_SWITCH T_THROW T_TRAIT T_TRAIT_C T_TRY T_UNSET T_UNSET_CAST T_USE T_VAR T_VARIABLE T_WHILE T_WHITESPACE T_XOR_EQUAL T_YIELD T_YIELD_FROM contained
-endif
-if index(g:php_syntax_extensions_enabled, "xml") >= 0 && index(g:php_syntax_extensions_disabled, "xml") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "xml") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "xml") < 0)
-" xml constants
-syn keyword phpConstants XML_ERROR_ASYNC_ENTITY XML_ERROR_ATTRIBUTE_EXTERNAL_ENTITY_REF XML_ERROR_BAD_CHAR_REF XML_ERROR_BINARY_ENTITY_REF XML_ERROR_DUPLICATE_ATTRIBUTE XML_ERROR_EXTERNAL_ENTITY_HANDLING XML_ERROR_INCORRECT_ENCODING XML_ERROR_INVALID_TOKEN XML_ERROR_JUNK_AFTER_DOC_ELEMENT XML_ERROR_MISPLACED_XML_PI XML_ERROR_NONE XML_ERROR_NO_ELEMENTS XML_ERROR_NO_MEMORY XML_ERROR_PARAM_ENTITY_REF XML_ERROR_PARTIAL_CHAR XML_ERROR_RECURSIVE_ENTITY_REF XML_ERROR_SYNTAX XML_ERROR_TAG_MISMATCH XML_ERROR_UNCLOSED_CDATA_SECTION XML_ERROR_UNCLOSED_TOKEN XML_ERROR_UNDEFINED_ENTITY XML_ERROR_UNKNOWN_ENCODING XML_OPTION_CASE_FOLDING XML_OPTION_SKIP_TAGSTART XML_OPTION_SKIP_WHITE XML_OPTION_TARGET_ENCODING XML_SAX_IMPL contained
-endif
-if index(g:php_syntax_extensions_enabled, "xmlreader") >= 0 && index(g:php_syntax_extensions_disabled, "xmlreader") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "xmlreader") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "xmlreader") < 0)
-" xmlreader constants
-syn keyword phpConstants ATTRIBUTE CDATA COMMENT DEFAULTATTRS DOC DOC_FRAGMENT DOC_TYPE ELEMENT END_ELEMENT END_ENTITY ENTITY ENTITY_REF LOADDTD NONE NOTATION PI SIGNIFICANT_WHITESPACE SUBST_ENTITIES TEXT VALIDATE WHITESPACE XML_DECLARATION contained
-endif
-if index(g:php_syntax_extensions_enabled, "zip") >= 0 && index(g:php_syntax_extensions_disabled, "zip") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "zip") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "zip") < 0)
-" zip constants
-syn keyword phpConstants CHECKCONS CM_BZIP2 CM_DEFAULT CM_DEFLATE CM_DEFLATE64 CM_IMPLODE CM_LZ77 CM_LZMA CM_PKWARE_IMPLODE CM_PPMD CM_REDUCE_1 CM_REDUCE_2 CM_REDUCE_3 CM_REDUCE_4 CM_SHRINK CM_STORE CM_TERSE CM_WAVPACK CREATE ER_CHANGED ER_CLOSE ER_COMPNOTSUPP ER_CRC ER_DELETED ER_EOF ER_EXISTS ER_INCONS ER_INTERNAL ER_INVAL ER_MEMORY ER_MULTIDISK ER_NOENT ER_NOZIP ER_OK ER_OPEN ER_READ ER_REMOVE ER_RENAME ER_SEEK ER_TMPOPEN ER_WRITE ER_ZIPCLOSED ER_ZLIB EXCL FL_COMPRESSED FL_ENC_CP437 FL_ENC_GUESS FL_ENC_RAW FL_ENC_STRICT FL_ENC_UTF_8 FL_NOCASE FL_NODIR FL_UNCHANGED OPSYS_ACORN_RISC OPSYS_ALTERNATE_MVS OPSYS_AMIGA OPSYS_ATARI_ST OPSYS_BEOS OPSYS_CPM OPSYS_DEFAULT OPSYS_DOS OPSYS_MACINTOSH OPSYS_MVS OPSYS_OPENVMS OPSYS_OS_2 OPSYS_OS_400 OPSYS_OS_X OPSYS_TANDEM OPSYS_UNIX OPSYS_VFAT OPSYS_VM_CMS OPSYS_VSE OPSYS_WINDOWS_NTFS OPSYS_Z_CPM OPSYS_Z_SYSTEM OVERWRITE contained
-endif
-if index(g:php_syntax_extensions_enabled, "zlib") >= 0 && index(g:php_syntax_extensions_disabled, "zlib") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "zlib") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "zlib") < 0)
-" zlib constants
-syn keyword phpConstants FORCE_DEFLATE FORCE_GZIP ZLIB_BLOCK ZLIB_BUF_ERROR ZLIB_DATA_ERROR ZLIB_DEFAULT_STRATEGY ZLIB_ENCODING_DEFLATE ZLIB_ENCODING_GZIP ZLIB_ENCODING_RAW ZLIB_ERRNO ZLIB_FILTERED ZLIB_FINISH ZLIB_FIXED ZLIB_FULL_FLUSH ZLIB_HUFFMAN_ONLY ZLIB_MEM_ERROR ZLIB_NEED_DICT ZLIB_NO_FLUSH ZLIB_OK ZLIB_PARTIAL_FLUSH ZLIB_RLE ZLIB_STREAM_END ZLIB_STREAM_ERROR ZLIB_SYNC_FLUSH ZLIB_VERNUM ZLIB_VERSION ZLIB_VERSION_ERROR contained
-endif
 syn case ignore
-if index(g:php_syntax_extensions_enabled, "bcmath") >= 0 && index(g:php_syntax_extensions_disabled, "bcmath") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "bcmath") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "bcmath") < 0)
-" bcmath functions
+
+syn keyword phpConstant __LINE__ __FILE__ __FUNCTION__ __METHOD__ __CLASS__ __DIR__ __NAMESPACE__ __TRAIT__ contained
+
+
+" Function and Methods ripped from php_manual_de.tar.gz Jan 2003 and amended later with common bundled extensions
+
+syn keyword phpFunctions apc_cache_info apc_clear_cache apc_store apc_fetch apc_enabled apc_delete apc_add apc_sma_info apc_inc apc_dec apc_cas apc_exists contained
+syn keyword phpFunctions apcu_add apcu_cache_info apcu_cas apcu_clear_cache apcu_dec apcu_delete apcu_enabled apcu_entry apcu_exists apcu_fetch apcu_inc apcu_key_info apcu_sma_info apcu_store contained
+syn keyword phpFunctions apache_child_terminate apache_get_modules apache_get_version apache_getenv apache_lookup_uri apache_note apache_request_headers apache_response_headers apache_setenv ascii2ebcdic ebcdic2ascii getallheaders virtual contained
+syn keyword phpFunctions array_change_key_case array_chunk array_column array_combine array_count_values array_diff_assoc array_diff_key array_diff_uassoc array_diff_ukey array_diff array_fill_keys array_fill array_filter array_flip array_intersect_assoc array_intersect_key array_intersect_uassoc array_intersect_ukey array_intersect array_key_exists array_keys array_map array_merge_recursive array_merge array_multisort array_pad array_pop array_product array_push array_rand array_reduce array_replace_recursive array_replace array_reverse array_search array_shift array_slice array_splice array_sum array_udiff_assoc array_udiff_uassoc array_udiff array_uintersect_assoc array_uintersect_uassoc array_uintersect array_unique array_unshift array_values array_walk_recursive array_walk arsort asort count current each end in_array key_exists key krsort ksort natcasesort natsort next pos prev range reset rsort shuffle sizeof sort uasort uksort usort contained
+syn keyword phpFunctions aspell_check aspell_new aspell_suggest contained
 syn keyword phpFunctions bcadd bccomp bcdiv bcmod bcmul bcpow bcpowmod bcscale bcsqrt bcsub contained
-endif
-if index(g:php_syntax_extensions_enabled, "bz2") >= 0 && index(g:php_syntax_extensions_disabled, "bz2") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "bz2") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "bz2") < 0)
-" bz2 functions
 syn keyword phpFunctions bzclose bzcompress bzdecompress bzerrno bzerror bzerrstr bzflush bzopen bzread bzwrite contained
-endif
-if index(g:php_syntax_extensions_enabled, "core") >= 0 && index(g:php_syntax_extensions_disabled, "core") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "core") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "core") < 0)
-" Core functions
-syn keyword phpFunctions class_alias class_exists create_function debug_backtrace debug_print_backtrace define defined each error_reporting extension_loaded func_get_arg func_get_args func_num_args function_exists gc_collect_cycles gc_disable gc_enable gc_enabled gc_mem_caches gc_status get_called_class get_class get_class_methods get_class_vars get_declared_classes get_declared_interfaces get_declared_traits get_defined_constants get_defined_functions get_defined_vars get_extension_funcs get_included_files get_loaded_extensions get_object_vars get_parent_class get_required_files get_resource_type get_resources interface_exists is_a is_subclass_of method_exists property_exists restore_error_handler restore_exception_handler set_error_handler set_exception_handler strcasecmp strcmp strlen strncasecmp strncmp trait_exists trigger_error user_error zend_version contained
-" Core classes and interfaces
-syn keyword phpClasses ArgumentCountError ArithmeticError ArrayAccess ClosedGeneratorException Closure CompileError Countable DivisionByZeroError Error ErrorException Exception Generator Iterator IteratorAggregate ParseError Serializable Throwable Traversable TypeError stdClass contained
-endif
-if index(g:php_syntax_extensions_enabled, "curl") >= 0 && index(g:php_syntax_extensions_disabled, "curl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "curl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "curl") < 0)
-" curl functions
-syn keyword phpFunctions curl_close curl_copy_handle curl_errno curl_error curl_escape curl_exec curl_file_create curl_getinfo curl_init curl_multi_add_handle curl_multi_close curl_multi_errno curl_multi_exec curl_multi_getcontent curl_multi_info_read curl_multi_init curl_multi_remove_handle curl_multi_select curl_multi_setopt curl_multi_strerror curl_pause curl_reset curl_setopt curl_setopt_array curl_share_close curl_share_errno curl_share_init curl_share_setopt curl_share_strerror curl_strerror curl_unescape curl_version contained
-" curl classes and interfaces
-syn keyword phpClasses CURLFile contained
-endif
-if index(g:php_syntax_extensions_enabled, "date") >= 0 && index(g:php_syntax_extensions_disabled, "date") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "date") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "date") < 0)
-" date functions
-syn keyword phpFunctions checkdate date date_add date_create date_create_from_format date_create_immutable date_create_immutable_from_format date_date_set date_default_timezone_get date_default_timezone_set date_diff date_format date_get_last_errors date_interval_create_from_date_string date_interval_format date_isodate_set date_modify date_offset_get date_parse date_parse_from_format date_sub date_sun_info date_sunrise date_sunset date_time_set date_timestamp_get date_timestamp_set date_timezone_get date_timezone_set getdate gmdate gmmktime gmstrftime idate localtime mktime strftime strtotime time timezone_abbreviations_list timezone_identifiers_list timezone_location_get timezone_name_from_abbr timezone_name_get timezone_offset_get timezone_open timezone_transitions_get timezone_version_get contained
-" date classes and interfaces
-syn keyword phpClasses DateInterval DatePeriod DateTime DateTimeImmutable DateTimeInterface DateTimeZone contained
-endif
-if index(g:php_syntax_extensions_enabled, "dom") >= 0 && index(g:php_syntax_extensions_disabled, "dom") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "dom") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "dom") < 0)
-" dom functions
+syn keyword phpFunctions cal_days_in_month cal_from_jd cal_info cal_to_jd easter_date easter_days frenchtojd gregoriantojd jddayofweek jdmonthname jdtofrench jdtogregorian jdtojewish jdtojulian jdtounix jewishtojd juliantojd unixtojd contained
+syn keyword phpFunctions ccvs_add ccvs_auth ccvs_command ccvs_count ccvs_delete ccvs_done ccvs_init ccvs_lookup ccvs_new ccvs_report ccvs_return ccvs_reverse ccvs_sale ccvs_status ccvs_textvalue ccvs_void contained
+syn keyword phpFunctions call_user_method_array call_user_method class_exists get_class_methods get_class_vars get_class get_declared_classes get_object_vars get_parent_class is_a is_subclass_of method_exists contained
+syn keyword phpFunctions com VARIANT com_addref com_get com_invoke com_isenum com_load_typelib com_load com_propget com_propput com_propset com_release com_set contained
+syn keyword phpFunctions cpdf_add_annotation cpdf_add_outline cpdf_arc cpdf_begin_text cpdf_circle cpdf_clip cpdf_close cpdf_closepath_fill_stroke cpdf_closepath_stroke cpdf_closepath cpdf_continue_text cpdf_curveto cpdf_end_text cpdf_fill_stroke cpdf_fill cpdf_finalize_page cpdf_finalize cpdf_global_set_document_limits cpdf_import_jpeg cpdf_lineto cpdf_moveto cpdf_newpath cpdf_open cpdf_output_buffer cpdf_page_init cpdf_place_inline_image cpdf_rect cpdf_restore cpdf_rlineto cpdf_rmoveto cpdf_rotate_text cpdf_rotate cpdf_save_to_file cpdf_save cpdf_scale cpdf_set_action_url cpdf_set_char_spacing cpdf_set_creator cpdf_set_current_page cpdf_set_font_directories cpdf_set_font_map_file cpdf_set_font cpdf_set_horiz_scaling cpdf_set_keywords cpdf_set_leading cpdf_set_page_animation cpdf_set_subject cpdf_set_text_matrix cpdf_set_text_pos cpdf_set_text_rendering cpdf_set_text_rise cpdf_set_title cpdf_set_viewer_preferences cpdf_set_word_spacing cpdf_setdash cpdf_setflat cpdf_setgray_fill cpdf_setgray_stroke cpdf_setgray cpdf_setlinecap cpdf_setlinejoin cpdf_setlinewidth cpdf_setmiterlimit cpdf_setrgbcolor_fill cpdf_setrgbcolor_stroke cpdf_setrgbcolor cpdf_show_xy cpdf_show cpdf_stringwidth cpdf_stroke cpdf_text cpdf_translate contained
+syn keyword phpFunctions crack_check crack_closedict crack_getlastmessage crack_opendict contained
+syn keyword phpFunctions ctype_alnum ctype_alpha ctype_cntrl ctype_digit ctype_graph ctype_lower ctype_print ctype_punct ctype_space ctype_upper ctype_xdigit contained
+syn keyword phpFunctions curl_close curl_errno curl_error curl_exec curl_getinfo curl_init curl_multi_add_handle curl_multi_close curl_multi_exec curl_multi_getcontent curl_multi_info_read curl_multi_init curl_multi_remove_handle curl_multi_select curl_setopt curl_version curl_copy_handle curl_escape curl_file_create curl_multi_errno curl_multi_setopt curl_multi_strerror curl_pause curl_reset curl_setopt_array curl_share_close curl_share_errno curl_share_init curl_share_setopt curl_share_strerror curl_strerror curl_unescape contained
+syn keyword phpFunctions cybercash_base64_decode cybercash_base64_encode cybercash_decr cybercash_encr contained
+syn keyword phpFunctions cyrus_authenticate cyrus_bind cyrus_close cyrus_connect cyrus_query cyrus_unbind contained
+syn keyword phpFunctions checkdate date getdate gettimeofday gmdate gmmktime gmstrftime localtime microtime mktime strftime strtotime time date_add date_create date_create_from_format date_create_immutable date_create_immutable_from_format date_date_set date_default_timezone_get date_default_timezone_set date_diff date_format date_get_last_errors date_interval_create_from_date_string date_interval_format date_isodate_set date_modify date_offset_get date_parse date_parse_from_format date_sub date_sun_info date_sunrise date_sunset date_time_set date_timestamp_get date_timestamp_set date_timezone_get date_timezone_set idate timezone_abbreviations_list timezone_identifiers_list timezone_location_get timezone_name_from_abbr timezone_name_get timezone_offset_get timezone_open timezone_transitions_get timezone_version_get contained
+syn keyword phpFunctions dba_close dba_delete dba_exists dba_fetch dba_firstkey dba_handlers dba_insert dba_key_split dba_list dba_nextkey dba_open dba_optimize dba_popen dba_replace dba_sync contained
+syn keyword phpFunctions dbase_add_record dbase_close dbase_create dbase_delete_record dbase_get_header_info dbase_get_record_with_names dbase_get_record dbase_numfields dbase_numrecords dbase_open dbase_pack dbase_replace_record contained
+syn keyword phpFunctions dblist dbmclose dbmdelete dbmexists dbmfetch dbmfirstkey dbminsert dbmnextkey dbmopen dbmreplace contained
+syn keyword phpFunctions dbplus_add dbplus_aql dbplus_chdir dbplus_close dbplus_curr dbplus_errcode dbplus_errno dbplus_find dbplus_first dbplus_flush dbplus_freealllocks dbplus_freelock dbplus_freerlocks dbplus_getlock dbplus_getunique dbplus_info dbplus_last dbplus_lockrel dbplus_next dbplus_open dbplus_prev dbplus_rchperm dbplus_rcreate dbplus_rcrtexact dbplus_rcrtlike dbplus_resolve dbplus_restorepos dbplus_rkeys dbplus_ropen dbplus_rquery dbplus_rrename dbplus_rsecindex dbplus_runlink dbplus_rzap dbplus_savepos dbplus_setindex dbplus_setindexbynumber dbplus_sql dbplus_tcl dbplus_tremove dbplus_undo dbplus_undoprepare dbplus_unlockrel dbplus_unselect dbplus_update dbplus_xlockrel dbplus_xunlockrel contained
+syn keyword phpFunctions dbx_close dbx_compare dbx_connect dbx_error dbx_escape_string dbx_fetch_row dbx_query dbx_sort contained
+syn keyword phpFunctions dio_close dio_fcntl dio_open dio_read dio_seek dio_stat dio_tcsetattr dio_truncate dio_write contained
+syn keyword phpFunctions chdir chroot dir closedir getcwd opendir readdir rewinddir scandir contained
 syn keyword phpFunctions dom_import_simplexml contained
-" dom classes and interfaces
-syn keyword phpClasses DOMAttr DOMCdataSection DOMCharacterData DOMComment DOMConfiguration DOMDocument DOMDocumentFragment DOMDocumentType DOMDomError DOMElement DOMEntity DOMEntityReference DOMErrorHandler DOMException DOMImplementation DOMImplementationList DOMImplementationSource DOMLocator DOMNameList DOMNameSpaceNode DOMNamedNodeMap DOMNode DOMNodeList DOMNotation DOMProcessingInstruction DOMStringExtend DOMStringList DOMText DOMTypeinfo DOMUserDataHandler DOMXPath contained
-endif
-if index(g:php_syntax_extensions_enabled, "ereg") >= 0 && index(g:php_syntax_extensions_disabled, "ereg") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "ereg") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "ereg") < 0)
-" ereg functions
-syn keyword phpFunctions ereg ereg_replace eregi eregi_replace split spliti sql_regcase contained
-endif
-if index(g:php_syntax_extensions_enabled, "gd") >= 0 && index(g:php_syntax_extensions_disabled, "gd") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "gd") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "gd") < 0)
-" gd functions
-syn keyword phpFunctions gd_info image2wbmp imageaffine imageaffinematrixconcat imageaffinematrixget imagealphablending imageantialias imagearc imagebmp imagechar imagecharup imagecolorallocate imagecolorallocatealpha imagecolorat imagecolorclosest imagecolorclosestalpha imagecolorclosesthwb imagecolordeallocate imagecolorexact imagecolorexactalpha imagecolormatch imagecolorresolve imagecolorresolvealpha imagecolorset imagecolorsforindex imagecolorstotal imagecolortransparent imageconvolution imagecopy imagecopymerge imagecopymergegray imagecopyresampled imagecopyresized imagecreate imagecreatefrombmp imagecreatefromgd imagecreatefromgd2 imagecreatefromgd2part imagecreatefromgif imagecreatefromjpeg imagecreatefrompng imagecreatefromstring imagecreatefromwbmp imagecreatefromwebp imagecreatefromxbm imagecreatefromxpm imagecreatetruecolor imagecrop imagecropauto imagedashedline imagedestroy imageellipse imagefill imagefilledarc imagefilledellipse imagefilledpolygon imagefilledrectangle imagefilltoborder imagefilter imageflip imagefontheight imagefontwidth imageftbbox imagefttext imagegammacorrect imagegd imagegd2 imagegetclip imagegif imageinterlace imageistruecolor imagejpeg imagelayereffect imageline imageloadfont imageopenpolygon imagepalettecopy imagepalettetotruecolor imagepng imagepolygon imagerectangle imageresolution imagerotate imagesavealpha imagescale imagesetbrush imagesetclip imagesetinterpolation imagesetpixel imagesetstyle imagesetthickness imagesettile imagestring imagestringup imagesx imagesy imagetruecolortopalette imagettfbbox imagettftext imagetypes imagewbmp imagewebp imagexbm jpeg2wbmp png2wbmp contained
-endif
-if index(g:php_syntax_extensions_enabled, "gettext") >= 0 && index(g:php_syntax_extensions_disabled, "gettext") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "gettext") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "gettext") < 0)
-" gettext functions
-syn keyword phpFunctions _ bind_textdomain_codeset bindtextdomain dcgettext dcngettext dgettext dngettext gettext ngettext textdomain contained
-endif
-if index(g:php_syntax_extensions_enabled, "hash") >= 0 && index(g:php_syntax_extensions_disabled, "hash") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "hash") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "hash") < 0)
-" hash functions
-syn keyword phpFunctions hash hash_algos hash_copy hash_equals hash_file hash_final hash_hkdf hash_hmac hash_hmac_algos hash_hmac_file hash_init hash_pbkdf2 hash_update hash_update_file hash_update_stream mhash mhash_count mhash_get_block_size mhash_get_hash_name mhash_keygen_s2k contained
-" hash classes and interfaces
-syn keyword phpClasses HashContext contained
-endif
-if index(g:php_syntax_extensions_enabled, "iconv") >= 0 && index(g:php_syntax_extensions_disabled, "iconv") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "iconv") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "iconv") < 0)
-" iconv functions
-syn keyword phpFunctions iconv iconv_get_encoding iconv_mime_decode iconv_mime_decode_headers iconv_mime_encode iconv_set_encoding iconv_strlen iconv_strpos iconv_strrpos iconv_substr contained
-endif
-if index(g:php_syntax_extensions_enabled, "json") >= 0 && index(g:php_syntax_extensions_disabled, "json") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "json") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "json") < 0)
-" json functions
+syn keyword phpFunctions domxml_new_doc domxml_open_file domxml_open_mem domxml_version domxml_xmltree domxml_xslt_stylesheet_doc domxml_xslt_stylesheet_file domxml_xslt_stylesheet xpath_eval_expression xpath_eval xpath_new_context xptr_eval xptr_new_context contained
+syn keyword phpMethods name specified value create_attribute create_cdata_section create_comment create_element_ns create_element create_entity_reference create_processing_instruction create_text_node doctype document_element dump_file dump_mem get_element_by_id get_elements_by_tagname html_dump_mem xinclude entities internal_subset name notations public_id system_id get_attribute_node get_attribute get_elements_by_tagname has_attribute remove_attribute set_attribute tagname add_namespace append_child append_sibling attributes child_nodes clone_node dump_node first_child get_content has_attributes has_child_nodes insert_before is_blank_node last_child next_sibling node_name node_type node_value owner_document parent_node prefix previous_sibling remove_child replace_child replace_node set_content set_name set_namespace unlink_node data target process result_dump_file result_dump_mem contained
+syn keyword phpFunctions dotnet_load contained
+syn keyword phpFunctions debug_backtrace debug_print_backtrace error_log error_reporting restore_error_handler set_error_handler trigger_error user_error contained
+syn keyword phpFunctions enchant_broker_describe enchant_broker_dict_exists enchant_broker_free enchant_broker_free_dict enchant_broker_get_dict_path enchant_broker_get_error enchant_broker_init enchant_broker_list_dicts enchant_broker_request_dict enchant_broker_request_pwl_dict enchant_broker_set_dict_path enchant_broker_set_ordering enchant_dict_add enchant_dict_add_to_personal enchant_dict_add_to_session enchant_dict_check enchant_dict_describe enchant_dict_get_error enchant_dict_is_added enchant_dict_is_in_session enchant_dict_quick_check enchant_dict_store_replacement enchant_dict_suggest contained
+syn keyword phpFunctions escapeshellarg escapeshellcmd exec passthru proc_close proc_get_status proc_nice proc_open proc_terminate shell_exec system contained
+syn keyword phpFunctions fam_cancel_monitor fam_close fam_monitor_collection fam_monitor_directory fam_monitor_file fam_next_event fam_open fam_pending fam_resume_monitor fam_suspend_monitor contained
+syn keyword phpFunctions fbsql_affected_rows fbsql_autocommit fbsql_change_user fbsql_close fbsql_commit fbsql_connect fbsql_create_blob fbsql_create_clob fbsql_create_db fbsql_data_seek fbsql_database_password fbsql_database fbsql_db_query fbsql_db_status fbsql_drop_db fbsql_errno fbsql_error fbsql_fetch_array fbsql_fetch_assoc fbsql_fetch_field fbsql_fetch_lengths fbsql_fetch_object fbsql_fetch_row fbsql_field_flags fbsql_field_len fbsql_field_name fbsql_field_seek fbsql_field_table fbsql_field_type fbsql_free_result fbsql_get_autostart_info fbsql_hostname fbsql_insert_id fbsql_list_dbs fbsql_list_fields fbsql_list_tables fbsql_next_result fbsql_num_fields fbsql_num_rows fbsql_password fbsql_pconnect fbsql_query fbsql_read_blob fbsql_read_clob fbsql_result fbsql_rollback fbsql_select_db fbsql_set_lob_mode fbsql_set_transaction fbsql_start_db fbsql_stop_db fbsql_tablename fbsql_username fbsql_warnings contained
+syn keyword phpFunctions fdf_add_doc_javascript fdf_add_template fdf_close fdf_create fdf_enum_values fdf_errno fdf_error fdf_get_ap fdf_get_attachment fdf_get_encoding fdf_get_file fdf_get_flags fdf_get_opt fdf_get_status fdf_get_value fdf_get_version fdf_header fdf_next_field_name fdf_open_string fdf_open fdf_remove_item fdf_save_string fdf_save fdf_set_ap fdf_set_encoding fdf_set_file fdf_set_flags fdf_set_javascript_action fdf_set_opt fdf_set_status fdf_set_submit_form_action fdf_set_target_frame fdf_set_value fdf_set_version contained
+syn keyword phpFunctions filepro_fieldcount filepro_fieldname filepro_fieldtype filepro_fieldwidth filepro_retrieve filepro_rowcount filepro contained
+syn keyword phpFunctions filter_has_var filter_id filter_input filter_input_array filter_list filter_var filter_var_array contained
+syn keyword phpFunctions basename chgrp chmod chown clearstatcache copy delete dirname disk_free_space disk_total_space diskfreespace fclose feof fflush fgetc fgetcsv fgets fgetss file_exists file_get_contents file_put_contents file fileatime filectime filegroup fileinode filemtime fileowner fileperms filesize filetype flock fnmatch fopen fpassthru fputs fread fscanf fseek fstat ftell ftruncate fwrite glob is_dir is_executable is_file is_link is_readable is_uploaded_file is_writable is_writeable link linkinfo lstat mkdir move_uploaded_file parse_ini_file pathinfo pclose popen readfile readlink realpath rename rewind rmdir set_file_buffer stat symlink tempnam tmpfile touch umask unlink contained
+syn keyword phpFunctions fribidi_log2vis contained
+syn keyword phpFunctions ftp_alloc ftp_cdup ftp_chdir ftp_chmod ftp_close ftp_connect ftp_delete ftp_exec ftp_fget ftp_fput ftp_get_option ftp_get ftp_login ftp_mdtm ftp_mkdir ftp_nb_continue ftp_nb_fget ftp_nb_fput ftp_nb_get ftp_nb_put ftp_nlist ftp_pasv ftp_put ftp_pwd ftp_quit ftp_raw ftp_rawlist ftp_rename ftp_rmdir ftp_set_option ftp_site ftp_size ftp_ssl_connect ftp_systype ftp_append ftp_mlsd contained
+syn keyword phpFunctions call_user_func_array call_user_func create_function func_get_arg func_get_args func_num_args function_exists get_defined_functions register_shutdown_function register_tick_function unregister_tick_function contained
+syn keyword phpFunctions bind_textdomain_codeset bindtextdomain dcgettext dcngettext dgettext dngettext gettext ngettext textdomain _ contained
+syn keyword phpFunctions gmp_abs gmp_add gmp_and gmp_clrbit gmp_cmp gmp_com gmp_div_q gmp_div_qr gmp_div_r gmp_div gmp_divexact gmp_fact gmp_gcd gmp_gcdext gmp_hamdist gmp_init gmp_intval gmp_invert gmp_jacobi gmp_legendre gmp_mod gmp_mul gmp_neg gmp_or gmp_perfect_square gmp_popcount gmp_pow gmp_powm gmp_prob_prime gmp_random gmp_scan0 gmp_scan1 gmp_setbit gmp_sign gmp_sqrt gmp_sqrtrem gmp_sqrtrm gmp_strval gmp_sub gmp_xor gmp_binomial gmp_export gmp_import gmp_kronecker gmp_lcm gmp_nextprime gmp_perfect_power gmp_random_bits gmp_random_range gmp_random_seed gmp_root gmp_rootrem gmp_testbit contained
+syn keyword phpFunctions hash hash_algos hash_copy hash_equals hash_file hash_final hash_hkdf hash_hmac hash_hmac_algos hash_hmac_file hash_init hash_pbkdf2 hash_update hash_update_file hash_update_stream contained
+syn keyword phpFunctions header headers_list headers_sent setcookie contained
+syn keyword phpFunctions hw_api_attribute hwapi_hgcsp hw_api_content hw_api_object contained
+syn keyword phpMethods key langdepvalue value values checkin checkout children mimetype read content copy dbstat dcstat dstanchors dstofsrcanchors count reason find ftstat hwstat identify info insert insertanchor insertcollection insertdocument link lock move assign attreditable count insert remove title value object objectbyanchor parents description type remove replace setcommitedversion srcanchors srcsofdst unlock user userlist contained
+syn keyword phpFunctions hw_Array2Objrec hw_changeobject hw_Children hw_ChildrenObj hw_Close hw_Connect hw_connection_info hw_cp hw_Deleteobject hw_DocByAnchor hw_DocByAnchorObj hw_Document_Attributes hw_Document_BodyTag hw_Document_Content hw_Document_SetContent hw_Document_Size hw_dummy hw_EditText hw_Error hw_ErrorMsg hw_Free_Document hw_GetAnchors hw_GetAnchorsObj hw_GetAndLock hw_GetChildColl hw_GetChildCollObj hw_GetChildDocColl hw_GetChildDocCollObj hw_GetObject hw_GetObjectByQuery hw_GetObjectByQueryColl hw_GetObjectByQueryCollObj hw_GetObjectByQueryObj hw_GetParents hw_GetParentsObj hw_getrellink hw_GetRemote hw_getremotechildren hw_GetSrcByDestObj hw_GetText hw_getusername hw_Identify hw_InCollections hw_Info hw_InsColl hw_InsDoc hw_insertanchors hw_InsertDocument hw_InsertObject hw_mapid hw_Modifyobject hw_mv hw_New_Document hw_objrec2array hw_Output_Document hw_pConnect hw_PipeDocument hw_Root hw_setlinkroot hw_stat hw_Unlock hw_Who contained
+syn keyword phpFunctions ibase_add_user ibase_affected_rows ibase_blob_add ibase_blob_cancel ibase_blob_close ibase_blob_create ibase_blob_echo ibase_blob_get ibase_blob_import ibase_blob_info ibase_blob_open ibase_close ibase_commit_ret ibase_commit ibase_connect ibase_delete_user ibase_drop_db ibase_errcode ibase_errmsg ibase_execute ibase_fetch_assoc ibase_fetch_object ibase_fetch_row ibase_field_info ibase_free_event_handler ibase_free_query ibase_free_result ibase_gen_id ibase_modify_user ibase_name_result ibase_num_fields ibase_num_params ibase_param_info ibase_pconnect ibase_prepare ibase_query ibase_rollback_ret ibase_rollback ibase_set_event_handler ibase_timefmt ibase_trans ibase_wait_event contained
+syn keyword phpFunctions iconv_get_encoding iconv_mime_decode_headers iconv_mime_decode iconv_mime_encode iconv_set_encoding iconv_strlen iconv_strpos iconv_strrpos iconv_substr iconv ob_iconv_handler contained
+syn keyword phpFunctions ifx_affected_rows ifx_blobinfile_mode ifx_byteasvarchar ifx_close ifx_connect ifx_copy_blob ifx_create_blob ifx_create_char ifx_do ifx_error ifx_errormsg ifx_fetch_row ifx_fieldproperties ifx_fieldtypes ifx_free_blob ifx_free_char ifx_free_result ifx_get_blob ifx_get_char ifx_getsqlca ifx_htmltbl_result ifx_nullformat ifx_num_fields ifx_num_rows ifx_pconnect ifx_prepare ifx_query ifx_textasvarchar ifx_update_blob ifx_update_char ifxus_close_slob ifxus_create_slob ifxus_free_slob ifxus_open_slob ifxus_read_slob ifxus_seek_slob ifxus_tell_slob ifxus_write_slob contained
+syn keyword phpFunctions igbinary_serialize igbinary_unserialize contained
+syn keyword phpFunctions exif_imagetype exif_read_data exif_thumbnail gd_info getimagesize image_type_to_mime_type image2wbmp imagealphablending imageantialias imagearc imagechar imagecharup imagecolorallocate imagecolorallocatealpha imagecolorat imagecolorclosest imagecolorclosestalpha imagecolorclosesthwb imagecolordeallocate imagecolorexact imagecolorexactalpha imagecolormatch imagecolorresolve imagecolorresolvealpha imagecolorset imagecolorsforindex imagecolorstotal imagecolortransparent imagecopy imagecopymerge imagecopymergegray imagecopyresampled imagecopyresized imagecreate imagecreatefromgd2 imagecreatefromgd2part imagecreatefromgd imagecreatefromgif imagecreatefromjpeg imagecreatefrompng imagecreatefromstring imagecreatefromwbmp imagecreatefromxbm imagecreatefromxpm imagecreatetruecolor imagedashedline imagedestroy imageellipse imagefill imagefilledarc imagefilledellipse imagefilledpolygon imagefilledrectangle imagefilltoborder imagefontheight imagefontwidth imageftbbox imagefttext imagegammacorrect imagegd2 imagegd imagegif imageinterlace imageistruecolor imagejpeg imageline imageloadfont imagepalettecopy imagepng imagepolygon imagepsbbox imagepscopyfont imagepsencodefont imagepsextendfont imagepsfreefont imagepsloadfont imagepsslantfont imagepstext imagerectangle imagerotate imagesavealpha imagesetbrush imagesetpixel imagesetstyle imagesetthickness imagesettile imagestring imagestringup imagesx imagesy imagetruecolortopalette imagettfbbox imagettftext imagetypes imagewbmp iptcembed iptcparse jpeg2wbmp png2wbmp read_exif_data exif_tagname imageaffine imageaffinematrixconcat imageaffinematrixget imagebmp imageconvolution imagecreatefrombmp imagecreatefromtga imagecrop imagecropauto imagefilter imageflip imagegetclip imagegetinterpolation imagelayereffect imageopenpolygon imagepalettetotruecolor imageresolution imagescale imagesetclip imagesetinterpolation imagexbm contained
+syn keyword phpFunctions imap_8bit imap_alerts imap_append imap_base64 imap_binary imap_body imap_bodystruct imap_check imap_clearflag_full imap_close imap_createmailbox imap_delete imap_deletemailbox imap_errors imap_expunge imap_fetch_overview imap_fetchbody imap_fetchheader imap_fetchstructure imap_get_quota imap_get_quotaroot imap_getacl imap_getmailboxes imap_getsubscribed imap_header imap_headerinfo imap_headers imap_last_error imap_list imap_listmailbox imap_listscan imap_listsubscribed imap_lsub imap_mail_compose imap_mail_copy imap_mail_move imap_mail imap_mailboxmsginfo imap_mime_header_decode imap_msgno imap_num_msg imap_num_recent imap_open imap_ping imap_qprint imap_renamemailbox imap_reopen imap_rfc822_parse_adrlist imap_rfc822_parse_headers imap_rfc822_write_address imap_scanmailbox imap_search imap_set_quota imap_setacl imap_setflag_full imap_sort imap_status imap_subscribe imap_thread imap_timeout imap_uid imap_undelete imap_unsubscribe imap_utf7_decode imap_utf7_encode imap_utf8 contained
+syn keyword phpFunctions assert_options assert dl extension_loaded get_cfg_var get_current_user get_defined_constants get_extension_funcs get_include_path get_included_files get_loaded_extensions get_magic_quotes_gpc get_magic_quotes_runtime get_required_files getenv getlastmod getmygid getmyinode getmypid getmyuid getopt getrusage ini_alter ini_get_all ini_get ini_restore ini_set main memory_get_usage php_ini_scanned_files php_logo_guid php_sapi_name php_uname phpcredits phpinfo phpversion putenv restore_include_path set_include_path set_magic_quotes_runtime set_time_limit version_compare zend_logo_guid zend_version contained
+syn keyword phpFunctions ingres_autocommit ingres_close ingres_commit ingres_connect ingres_fetch_array ingres_fetch_object ingres_fetch_row ingres_field_length ingres_field_name ingres_field_nullable ingres_field_precision ingres_field_scale ingres_field_type ingres_num_fields ingres_num_rows ingres_pconnect ingres_query ingres_rollback contained
+syn keyword phpFunctions collator_asort collator_compare collator_create collator_get_attribute collator_get_error_code collator_get_error_message collator_get_locale collator_get_sort_key collator_get_strength collator_set_attribute collator_set_strength collator_sort collator_sort_with_sort_keys datefmt_create datefmt_format datefmt_format_object datefmt_get_calendar datefmt_get_calendar_object datefmt_get_datetype datefmt_get_error_code datefmt_get_error_message datefmt_get_locale datefmt_get_pattern datefmt_get_timetype datefmt_get_timezone datefmt_get_timezone_id datefmt_is_lenient datefmt_localtime datefmt_parse datefmt_set_calendar datefmt_set_lenient datefmt_set_pattern datefmt_set_timezone grapheme_extract grapheme_stripos grapheme_stristr grapheme_strlen grapheme_strpos grapheme_strripos grapheme_strrpos grapheme_strstr grapheme_substr idn_to_ascii idn_to_utf8 intl_error_name intl_get_error_code intl_get_error_message intl_is_failure intlcal_add intlcal_after intlcal_before intlcal_clear intlcal_create_instance intlcal_equals intlcal_field_difference intlcal_from_date_time intlcal_get intlcal_get_actual_maximum intlcal_get_actual_minimum intlcal_get_available_locales intlcal_get_day_of_week_type intlcal_get_error_code intlcal_get_error_message intlcal_get_first_day_of_week intlcal_get_greatest_minimum intlcal_get_keyword_values_for_locale intlcal_get_least_maximum intlcal_get_locale intlcal_get_maximum intlcal_get_minimal_days_in_first_week intlcal_get_minimum intlcal_get_now intlcal_get_repeated_wall_time_option intlcal_get_skipped_wall_time_option intlcal_get_time intlcal_get_time_zone intlcal_get_type intlcal_get_weekend_transition intlcal_in_daylight_time intlcal_is_equivalent_to intlcal_is_lenient intlcal_is_set intlcal_is_weekend intlcal_roll intlcal_set intlcal_set_first_day_of_week intlcal_set_lenient intlcal_set_minimal_days_in_first_week intlcal_set_repeated_wall_time_option intlcal_set_skipped_wall_time_option intlcal_set_time intlcal_set_time_zone intlcal_to_date_time intlgregcal_create_instance intlgregcal_get_gregorian_change intlgregcal_is_leap_year intlgregcal_set_gregorian_change intltz_count_equivalent_ids intltz_create_default intltz_create_enumeration intltz_create_time_zone intltz_create_time_zone_id_enumeration intltz_from_date_time_zone intltz_get_canonical_id intltz_get_display_name intltz_get_dst_savings intltz_get_equivalent_id intltz_get_error_code intltz_get_error_message intltz_get_id_for_windows_id intltz_get_windows_id intltz_get_gmt intltz_get_id intltz_get_offset intltz_get_raw_offset intltz_get_region intltz_get_tz_data_version intltz_get_unknown intltz_has_same_rules intltz_to_date_time_zone intltz_use_daylight_time locale_accept_from_http locale_canonicalize locale_compose locale_filter_matches locale_get_all_variants locale_get_default locale_get_display_language locale_get_display_name locale_get_display_region locale_get_display_script locale_get_display_variant locale_get_keywords locale_get_primary_language locale_get_region locale_get_script locale_lookup locale_parse locale_set_default msgfmt_create msgfmt_format msgfmt_format_message msgfmt_get_error_code msgfmt_get_error_message msgfmt_get_locale msgfmt_get_pattern msgfmt_parse msgfmt_parse_message msgfmt_set_pattern normalizer_get_raw_decomposition normalizer_is_normalized normalizer_normalize numfmt_create numfmt_format numfmt_format_currency numfmt_get_attribute numfmt_get_error_code numfmt_get_error_message numfmt_get_locale numfmt_get_pattern numfmt_get_symbol numfmt_get_text_attribute numfmt_parse numfmt_parse_currency numfmt_set_attribute numfmt_set_pattern numfmt_set_symbol numfmt_set_text_attribute resourcebundle_count resourcebundle_create resourcebundle_get resourcebundle_get_error_code resourcebundle_get_error_message resourcebundle_locales transliterator_create transliterator_create_from_rules transliterator_create_inverse transliterator_get_error_code transliterator_get_error_message transliterator_list_ids transliterator_transliterate contained
+syn keyword phpFunctions ircg_channel_mode ircg_disconnect ircg_fetch_error_msg ircg_get_username ircg_html_encode ircg_ignore_add ircg_ignore_del ircg_is_conn_alive ircg_join ircg_kick ircg_lookup_format_messages ircg_msg ircg_nick ircg_nickname_escape ircg_nickname_unescape ircg_notice ircg_part ircg_pconnect ircg_register_format_messages ircg_set_current ircg_set_file ircg_set_on_die ircg_topic ircg_whois contained
+syn keyword phpFunctions java_last_exception_clear java_last_exception_get contained
 syn keyword phpFunctions json_decode json_encode json_last_error json_last_error_msg contained
-" json classes and interfaces
-syn keyword phpClasses JsonException JsonSerializable contained
-endif
-if index(g:php_syntax_extensions_enabled, "libxml") >= 0 && index(g:php_syntax_extensions_disabled, "libxml") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "libxml") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "libxml") < 0)
-" libxml functions
+syn keyword phpFunctions ldap_8859_to_t61 ldap_add ldap_bind ldap_close ldap_compare ldap_connect ldap_count_entries ldap_delete ldap_dn2ufn ldap_err2str ldap_errno ldap_error ldap_explode_dn ldap_first_attribute ldap_first_entry ldap_first_reference ldap_free_result ldap_get_attributes ldap_get_dn ldap_get_entries ldap_get_option ldap_get_values_len ldap_get_values ldap_list ldap_mod_add ldap_mod_del ldap_mod_replace ldap_modify ldap_next_attribute ldap_next_entry ldap_next_reference ldap_parse_reference ldap_parse_result ldap_read ldap_rename ldap_search ldap_set_option ldap_set_rebind_proc ldap_sort ldap_start_tls ldap_t61_to_8859 ldap_unbind contained
 syn keyword phpFunctions libxml_clear_errors libxml_disable_entity_loader libxml_get_errors libxml_get_last_error libxml_set_external_entity_loader libxml_set_streams_context libxml_use_internal_errors contained
-" libxml classes and interfaces
-syn keyword phpClasses LibXMLError contained
-endif
-if index(g:php_syntax_extensions_enabled, "mbstring") >= 0 && index(g:php_syntax_extensions_disabled, "mbstring") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mbstring") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mbstring") < 0)
-" mbstring functions
-syn keyword phpFunctions mb_check_encoding mb_chr mb_convert_case mb_convert_encoding mb_convert_kana mb_convert_variables mb_decode_mimeheader mb_decode_numericentity mb_detect_encoding mb_detect_order mb_encode_mimeheader mb_encode_numericentity mb_encoding_aliases mb_ereg mb_ereg_match mb_ereg_replace mb_ereg_replace_callback mb_ereg_search mb_ereg_search_getpos mb_ereg_search_getregs mb_ereg_search_init mb_ereg_search_pos mb_ereg_search_regs mb_ereg_search_setpos mb_eregi mb_eregi_replace mb_get_info mb_http_input mb_http_output mb_internal_encoding mb_language mb_list_encodings mb_ord mb_output_handler mb_parse_str mb_preferred_mime_name mb_regex_encoding mb_regex_set_options mb_scrub mb_send_mail mb_split mb_strcut mb_strimwidth mb_stripos mb_stristr mb_strlen mb_strpos mb_strrchr mb_strrichr mb_strripos mb_strrpos mb_strstr mb_strtolower mb_strtoupper mb_strwidth mb_substitute_character mb_substr mb_substr_count mbereg mbereg_match mbereg_replace mbereg_search mbereg_search_getpos mbereg_search_getregs mbereg_search_init mbereg_search_pos mbereg_search_regs mbereg_search_setpos mberegi mberegi_replace mbregex_encoding mbsplit contained
-endif
-if index(g:php_syntax_extensions_enabled, "mcrypt") >= 0 && index(g:php_syntax_extensions_disabled, "mcrypt") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mcrypt") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mcrypt") < 0)
-" mcrypt functions
-syn keyword phpFunctions mcrypt_cbc mcrypt_cfb mcrypt_create_iv mcrypt_decrypt mcrypt_ecb mcrypt_enc_get_algorithms_name mcrypt_enc_get_block_size mcrypt_enc_get_iv_size mcrypt_enc_get_key_size mcrypt_enc_get_modes_name mcrypt_enc_get_supported_key_sizes mcrypt_enc_is_block_algorithm mcrypt_enc_is_block_algorithm_mode mcrypt_enc_is_block_mode mcrypt_enc_self_test mcrypt_encrypt mcrypt_generic mcrypt_generic_deinit mcrypt_generic_end mcrypt_generic_init mcrypt_get_block_size mcrypt_get_cipher_name mcrypt_get_iv_size mcrypt_get_key_size mcrypt_list_algorithms mcrypt_list_modes mcrypt_module_close mcrypt_module_get_algo_block_size mcrypt_module_get_algo_key_size mcrypt_module_get_supported_key_sizes mcrypt_module_is_block_algorithm mcrypt_module_is_block_algorithm_mode mcrypt_module_is_block_mode mcrypt_module_open mcrypt_module_self_test mcrypt_ofb mdecrypt_generic contained
-endif
-if index(g:php_syntax_extensions_enabled, "mysql") >= 0 && index(g:php_syntax_extensions_disabled, "mysql") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mysql") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mysql") < 0)
-" mysql functions
-syn keyword phpFunctions mysql mysql_affected_rows mysql_client_encoding mysql_close mysql_connect mysql_data_seek mysql_db_name mysql_db_query mysql_dbname mysql_errno mysql_error mysql_escape_string mysql_fetch_array mysql_fetch_assoc mysql_fetch_field mysql_fetch_lengths mysql_fetch_object mysql_fetch_row mysql_field_flags mysql_field_len mysql_field_name mysql_field_seek mysql_field_table mysql_field_type mysql_fieldflags mysql_fieldlen mysql_fieldname mysql_fieldtable mysql_fieldtype mysql_free_result mysql_freeresult mysql_get_client_info mysql_get_host_info mysql_get_proto_info mysql_get_server_info mysql_info mysql_insert_id mysql_list_dbs mysql_list_fields mysql_list_processes mysql_list_tables mysql_listdbs mysql_listfields mysql_listtables mysql_num_fields mysql_num_rows mysql_numfields mysql_numrows mysql_pconnect mysql_ping mysql_query mysql_real_escape_string mysql_result mysql_select_db mysql_selectdb mysql_set_charset mysql_stat mysql_table_name mysql_tablename mysql_thread_id mysql_unbuffered_query contained
-endif
-if index(g:php_syntax_extensions_enabled, "mysqli") >= 0 && index(g:php_syntax_extensions_disabled, "mysqli") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "mysqli") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "mysqli") < 0)
-" mysqli functions
-syn keyword phpFunctions mysqli_affected_rows mysqli_autocommit mysqli_begin_transaction mysqli_change_user mysqli_character_set_name mysqli_close mysqli_commit mysqli_connect mysqli_connect_errno mysqli_connect_error mysqli_data_seek mysqli_debug mysqli_dump_debug_info mysqli_errno mysqli_error mysqli_error_list mysqli_escape_string mysqli_execute mysqli_fetch_all mysqli_fetch_array mysqli_fetch_assoc mysqli_fetch_field mysqli_fetch_field_direct mysqli_fetch_fields mysqli_fetch_lengths mysqli_fetch_object mysqli_fetch_row mysqli_field_count mysqli_field_seek mysqli_field_tell mysqli_free_result mysqli_get_charset mysqli_get_client_info mysqli_get_client_stats mysqli_get_client_version mysqli_get_connection_stats mysqli_get_host_info mysqli_get_links_stats mysqli_get_proto_info mysqli_get_server_info mysqli_get_server_version mysqli_get_warnings mysqli_info mysqli_init mysqli_insert_id mysqli_kill mysqli_more_results mysqli_multi_query mysqli_next_result mysqli_num_fields mysqli_num_rows mysqli_options mysqli_ping mysqli_poll mysqli_prepare mysqli_query mysqli_real_connect mysqli_real_escape_string mysqli_real_query mysqli_reap_async_query mysqli_refresh mysqli_release_savepoint mysqli_report mysqli_rollback mysqli_savepoint mysqli_select_db mysqli_set_charset mysqli_set_opt mysqli_sqlstate mysqli_ssl_set mysqli_stat mysqli_stmt_affected_rows mysqli_stmt_attr_get mysqli_stmt_attr_set mysqli_stmt_bind_param mysqli_stmt_bind_result mysqli_stmt_close mysqli_stmt_data_seek mysqli_stmt_errno mysqli_stmt_error mysqli_stmt_error_list mysqli_stmt_execute mysqli_stmt_fetch mysqli_stmt_field_count mysqli_stmt_free_result mysqli_stmt_get_result mysqli_stmt_get_warnings mysqli_stmt_init mysqli_stmt_insert_id mysqli_stmt_more_results mysqli_stmt_next_result mysqli_stmt_num_rows mysqli_stmt_param_count mysqli_stmt_prepare mysqli_stmt_reset mysqli_stmt_result_metadata mysqli_stmt_send_long_data mysqli_stmt_sqlstate mysqli_stmt_store_result mysqli_store_result mysqli_thread_id mysqli_thread_safe mysqli_use_result mysqli_warning_count contained
-" mysqli classes and interfaces
-syn keyword phpClasses mysqli mysqli_driver mysqli_result mysqli_sql_exception mysqli_stmt mysqli_warning contained
-endif
-if index(g:php_syntax_extensions_enabled, "openssl") >= 0 && index(g:php_syntax_extensions_disabled, "openssl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "openssl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "openssl") < 0)
-" openssl functions
-syn keyword phpFunctions openssl_cipher_iv_length openssl_csr_export openssl_csr_export_to_file openssl_csr_get_public_key openssl_csr_get_subject openssl_csr_new openssl_csr_sign openssl_decrypt openssl_dh_compute_key openssl_digest openssl_encrypt openssl_error_string openssl_free_key openssl_get_cert_locations openssl_get_cipher_methods openssl_get_curve_names openssl_get_md_methods openssl_get_privatekey openssl_get_publickey openssl_open openssl_pbkdf2 openssl_pkcs7_decrypt openssl_pkcs7_encrypt openssl_pkcs7_read openssl_pkcs7_sign openssl_pkcs7_verify openssl_pkcs12_export openssl_pkcs12_export_to_file openssl_pkcs12_read openssl_pkey_derive openssl_pkey_export openssl_pkey_export_to_file openssl_pkey_free openssl_pkey_get_details openssl_pkey_get_private openssl_pkey_get_public openssl_pkey_new openssl_private_decrypt openssl_private_encrypt openssl_public_decrypt openssl_public_encrypt openssl_random_pseudo_bytes openssl_seal openssl_sign openssl_spki_export openssl_spki_export_challenge openssl_spki_new openssl_spki_verify openssl_verify openssl_x509_check_private_key openssl_x509_checkpurpose openssl_x509_export openssl_x509_export_to_file openssl_x509_fingerprint openssl_x509_free openssl_x509_parse openssl_x509_read contained
-endif
-if index(g:php_syntax_extensions_enabled, "pcre") >= 0 && index(g:php_syntax_extensions_disabled, "pcre") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pcre") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pcre") < 0)
-" pcre functions
-syn keyword phpFunctions preg_filter preg_grep preg_last_error preg_match preg_match_all preg_quote preg_replace preg_replace_callback preg_replace_callback_array preg_split contained
-endif
-if index(g:php_syntax_extensions_enabled, "pdo") >= 0 && index(g:php_syntax_extensions_disabled, "pdo") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pdo") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pdo") < 0)
-" PDO functions
+syn keyword phpFunctions lzf_compress lzf_decompress lzf_optimized_for contained
+syn keyword phpFunctions ezmlm_hash mail contained
+syn keyword phpFunctions mailparse_determine_best_xfer_encoding mailparse_msg_create mailparse_msg_extract_part_file mailparse_msg_extract_part mailparse_msg_free mailparse_msg_get_part_data mailparse_msg_get_part mailparse_msg_get_structure mailparse_msg_parse_file mailparse_msg_parse mailparse_rfc822_parse_addresses mailparse_stream_encode mailparse_uudecode_all contained
+syn keyword phpFunctions abs acos acosh asin asinh atan2 atan atanh base_convert bindec ceil cos cosh decbin dechex decoct deg2rad exp expm1 floor fmod getrandmax hexdec hypot is_finite is_infinite is_nan lcg_value log10 log1p log max min mt_getrandmax mt_rand mt_srand octdec pi pow rad2deg rand round sin sinh sqrt srand tan tanh contained
+syn keyword phpFunctions array_key_first array_key_last boolval cli_get_process_title cli_set_process_title convert_uudecode convert_uuencode debug_zval_dump error_clear_last error_get_last forward_static_call forward_static_call_array fputcsv get_headers gethostname getimagesizefromstring header_register_callback header_remove hex2bin hrtime htmlspecialchars_decode http_response_code image_type_to_extension inet_ntop inet_pton intdiv is_countable is_iterable lcfirst lchgrp lchown memory_get_peak_usage net_get_interfaces parse_ini_string password_algos password_get_info password_hash password_needs_rehash password_verify php_ini_loaded_file php_strip_whitespace quoted_printable_encode random_bytes random_int realpath_cache_get realpath_cache_size setrawcookie str_getcsv stream_bucket_append stream_bucket_make_writeable stream_bucket_new stream_bucket_prepend stream_context_get_default stream_context_get_params stream_context_set_default stream_filter_remove stream_is_local stream_isatty stream_resolve_include_path stream_set_chunk_size stream_set_read_buffer stream_socket_enable_crypto stream_socket_pair stream_socket_shutdown stream_supports_lock stream_wrapper_restore stream_wrapper_unregister strpbrk strptime sys_get_temp_dir sys_getloadavg time_nanosleep time_sleep_until vfprintf contained
+ 
+syn keyword phpFunctions mb_convert_case mb_convert_encoding mb_convert_kana mb_convert_variables mb_decode_mimeheader mb_decode_numericentity mb_detect_encoding mb_detect_order mb_encode_mimeheader mb_encode_numericentity mb_ereg_match mb_ereg_replace mb_ereg_search_getpos mb_ereg_search_getregs mb_ereg_search_init mb_ereg_search_pos mb_ereg_search_regs mb_ereg_search_setpos mb_ereg_search mb_ereg mb_eregi_replace mb_eregi mb_get_info mb_http_input mb_http_output mb_internal_encoding mb_language mb_output_handler mb_parse_str mb_preferred_mime_name mb_regex_encoding mb_regex_set_options mb_send_mail mb_split mb_strcut mb_strimwidth mb_strlen mb_strpos mb_strrpos mb_strtolower mb_strtoupper mb_strwidth mb_substitute_character mb_substr_count mb_substr mb_check_encoding mb_chr mb_encoding_aliases mb_ereg_replace_callback mb_list_encodings mb_ord mb_scrub mb_str_split mb_stripos mb_stristr mb_strrchr mb_strrichr mb_strripos mb_strstr mbereg mbereg_match mbereg_replace mbereg_search mbereg_search_getpos mbereg_search_getregs mbereg_search_init mbereg_search_pos mbereg_search_regs mbereg_search_setpos mberegi mberegi_replace mbregex_encoding mbsplit contained
+syn keyword phpFunctions mcal_append_event mcal_close mcal_create_calendar mcal_date_compare mcal_date_valid mcal_day_of_week mcal_day_of_year mcal_days_in_month mcal_delete_calendar mcal_delete_event mcal_event_add_attribute mcal_event_init mcal_event_set_alarm mcal_event_set_category mcal_event_set_class mcal_event_set_description mcal_event_set_end mcal_event_set_recur_daily mcal_event_set_recur_monthly_mday mcal_event_set_recur_monthly_wday mcal_event_set_recur_none mcal_event_set_recur_weekly mcal_event_set_recur_yearly mcal_event_set_start mcal_event_set_title mcal_expunge mcal_fetch_current_stream_event mcal_fetch_event mcal_is_leap_year mcal_list_alarms mcal_list_events mcal_next_recurrence mcal_open mcal_popen mcal_rename_calendar mcal_reopen mcal_snooze mcal_store_event mcal_time_valid mcal_week_of_year contained
+syn keyword phpFunctions mcrypt_cbc mcrypt_cfb mcrypt_create_iv mcrypt_decrypt mcrypt_ecb mcrypt_enc_get_algorithms_name mcrypt_enc_get_block_size mcrypt_enc_get_iv_size mcrypt_enc_get_key_size mcrypt_enc_get_modes_name mcrypt_enc_get_supported_key_sizes mcrypt_enc_is_block_algorithm_mode mcrypt_enc_is_block_algorithm mcrypt_enc_is_block_mode mcrypt_enc_self_test mcrypt_encrypt mcrypt_generic_deinit mcrypt_generic_end mcrypt_generic_init mcrypt_generic mcrypt_get_block_size mcrypt_get_cipher_name mcrypt_get_iv_size mcrypt_get_key_size mcrypt_list_algorithms mcrypt_list_modes mcrypt_module_close mcrypt_module_get_algo_block_size mcrypt_module_get_algo_key_size mcrypt_module_get_supported_key_sizes mcrypt_module_is_block_algorithm_mode mcrypt_module_is_block_algorithm mcrypt_module_is_block_mode mcrypt_module_open mcrypt_module_self_test mcrypt_ofb mdecrypt_generic contained
+syn keyword phpFunctions mcve_adduser mcve_adduserarg mcve_bt mcve_checkstatus mcve_chkpwd mcve_chngpwd mcve_completeauthorizations mcve_connect mcve_connectionerror mcve_deleteresponse mcve_deletetrans mcve_deleteusersetup mcve_deluser mcve_destroyconn mcve_destroyengine mcve_disableuser mcve_edituser mcve_enableuser mcve_force mcve_getcell mcve_getcellbynum mcve_getcommadelimited mcve_getheader mcve_getuserarg mcve_getuserparam mcve_gft mcve_gl mcve_gut mcve_initconn mcve_initengine mcve_initusersetup mcve_iscommadelimited mcve_liststats mcve_listusers mcve_maxconntimeout mcve_monitor mcve_numcolumns mcve_numrows mcve_override mcve_parsecommadelimited mcve_ping mcve_preauth mcve_preauthcompletion mcve_qc mcve_responseparam mcve_return mcve_returncode mcve_returnstatus mcve_sale mcve_setblocking mcve_setdropfile mcve_setip mcve_setssl_files mcve_setssl mcve_settimeout mcve_settle mcve_text_avs mcve_text_code mcve_text_cv mcve_transactionauth mcve_transactionavs mcve_transactionbatch mcve_transactioncv mcve_transactionid mcve_transactionitem mcve_transactionssent mcve_transactiontext mcve_transinqueue mcve_transnew mcve_transparam mcve_transsend mcve_ub mcve_uwait mcve_verifyconnection mcve_verifysslcert mcve_void contained
+syn keyword phpFunctions mhash_count mhash_get_block_size mhash_get_hash_name mhash_keygen_s2k mhash contained
+syn keyword phpFunctions mime_content_type finfo_buffer finfo_close finfo_file finfo_open finfo_set_flags contained
+syn keyword phpFunctions ming_setcubicthreshold ming_setscale ming_useswfversion SWFAction SWFBitmap swfbutton_keypress SWFbutton SWFDisplayItem SWFFill SWFFont SWFGradient SWFMorph SWFMovie SWFShape SWFSprite SWFText SWFTextField contained
+syn keyword phpMethods getHeight getWidth addAction addShape setAction setdown setHit setOver setUp addColor move moveTo multColor remove Rotate rotateTo scale scaleTo setDepth setName setRatio skewX skewXTo skewY skewYTo moveTo rotateTo scaleTo skewXTo skewYTo getwidth addEntry getshape1 getshape2 add nextframe output remove save setbackground setdimension setframes setrate streammp3 addFill drawCurve drawCurveTo drawLine drawLineTo movePen movePenTo setLeftFill setLine setRightFill add nextframe remove setframes addString getWidth moveTo setColor setFont setHeight setSpacing addstring align setbounds setcolor setFont setHeight setindentation setLeftMargin setLineSpacing setMargins setname setrightMargin contained
+syn keyword phpFunctions connection_aborted connection_status connection_timeout constant define defined die eval exit get_browser highlight_file highlight_string ignore_user_abort pack show_source sleep uniqid unpack usleep contained
+syn keyword phpFunctions udm_add_search_limit udm_alloc_agent udm_api_version udm_cat_list udm_cat_path udm_check_charset udm_check_stored udm_clear_search_limits udm_close_stored udm_crc32 udm_errno udm_error udm_find udm_free_agent udm_free_ispell_data udm_free_res udm_get_doc_count udm_get_res_field udm_get_res_param udm_load_ispell_data udm_open_stored udm_set_agent_param contained
+syn keyword phpFunctions msession_connect msession_count msession_create msession_destroy msession_disconnect msession_find msession_get_array msession_get msession_getdata msession_inc msession_list msession_listvar msession_lock msession_plugin msession_randstr msession_set_array msession_set msession_setdata msession_timeout msession_uniq msession_unlock contained
+syn keyword phpFunctions msql_affected_rows msql_close msql_connect msql_create_db msql_createdb msql_data_seek msql_dbname msql_drop_db msql_dropdb msql_error msql_fetch_array msql_fetch_field msql_fetch_object msql_fetch_row msql_field_seek msql_fieldflags msql_fieldlen msql_fieldname msql_fieldtable msql_fieldtype msql_free_result msql_freeresult msql_list_dbs msql_list_fields msql_list_tables msql_listdbs msql_listfields msql_listtables msql_num_fields msql_num_rows msql_numfields msql_numrows msql_pconnect msql_query msql_regcase msql_result msql_select_db msql_selectdb msql_tablename msql contained
+syn keyword phpFunctions mssql_bind mssql_close mssql_connect mssql_data_seek mssql_execute mssql_fetch_array mssql_fetch_assoc mssql_fetch_batch mssql_fetch_field mssql_fetch_object mssql_fetch_row mssql_field_length mssql_field_name mssql_field_seek mssql_field_type mssql_free_result mssql_free_statement mssql_get_last_message mssql_guid_string mssql_init mssql_min_error_severity mssql_min_message_severity mssql_next_result mssql_num_fields mssql_num_rows mssql_pconnect mssql_query mssql_result mssql_rows_affected mssql_select_db contained
+syn keyword phpFunctions muscat_close muscat_get muscat_give muscat_setup_net muscat_setup contained
+syn keyword phpFunctions mysql_affected_rows mysql_change_user mysql_client_encoding mysql_close mysql_connect mysql_create_db mysql_data_seek mysql_db_name mysql_db_query mysql_drop_db mysql_errno mysql_error mysql_escape_string mysql_fetch_array mysql_fetch_assoc mysql_fetch_field mysql_fetch_lengths mysql_fetch_object mysql_fetch_row mysql_field_flags mysql_field_len mysql_field_name mysql_field_seek mysql_field_table mysql_field_type mysql_free_result mysql_get_client_info mysql_get_host_info mysql_get_proto_info mysql_get_server_info mysql_info mysql_insert_id mysql_list_dbs mysql_list_fields mysql_list_processes mysql_list_tables mysql_num_fields mysql_num_rows mysql_pconnect mysql_ping mysql_query mysql_real_escape_string mysql_result mysql_select_db mysql_stat mysql_tablename mysql_thread_id mysql_unbuffered_query contained
+syn keyword phpFunctions mysqli_affected_rows mysqli_autocommit mysqli_bind_param mysqli_bind_result mysqli_change_user mysqli_character_set_name mysqli_close mysqli_commit mysqli_connect mysqli_data_seek mysqli_debug mysqli_disable_reads_from_master mysqli_disable_rpl_parse mysqli_dump_debug_info mysqli_enable_reads_from_master mysqli_enable_rpl_parse mysqli_errno mysqli_error mysqli_execute mysqli_fetch_array mysqli_fetch_assoc mysqli_fetch_field_direct mysqli_fetch_field mysqli_fetch_fields mysqli_fetch_lengths mysqli_fetch_object mysqli_fetch_row mysqli_fetch mysqli_field_count mysqli_field_seek mysqli_field_tell mysqli_free_result mysqli_get_client_info mysqli_get_host_info mysqli_get_proto_info mysqli_get_server_info mysqli_get_server_version mysqli_info mysqli_init mysqli_insert_id mysqli_kill mysqli_master_query mysqli_num_fields mysqli_num_rows mysqli_options mysqli_param_count mysqli_ping mysqli_prepare_result mysqli_prepare mysqli_profiler mysqli_query mysqli_read_query_result mysqli_real_connect mysqli_real_escape_string mysqli_real_query mysqli_reload mysqli_rollback mysqli_rpl_parse_enabled mysqli_rpl_probe mysqli_rpl_query_type mysqli_select_db mysqli_send_long_data mysqli_send_query mysqli_slave_query mysqli_ssl_set mysqli_stat mysqli_stmt_affected_rows mysqli_stmt_close mysqli_stmt_errno mysqli_stmt_error mysqli_stmt_store_result mysqli_store_result mysqli_thread_id mysqli_thread_safe mysqli_use_result mysqli_warning_count mysqli_begin_transaction mysqli_connect_errno mysqli_connect_error mysqli_error_list mysqli_escape_string mysqli_fetch_all mysqli_get_charset mysqli_get_client_stats mysqli_get_client_version mysqli_get_connection_stats mysqli_get_links_stats mysqli_get_warnings mysqli_more_results mysqli_multi_query mysqli_next_result mysqli_poll mysqli_reap_async_query mysqli_refresh mysqli_release_savepoint mysqli_report mysqli_savepoint mysqli_set_charset mysqli_set_opt mysqli_sqlstate mysqli_stmt_attr_get mysqli_stmt_attr_set mysqli_stmt_bind_param mysqli_stmt_bind_result mysqli_stmt_data_seek mysqli_stmt_error_list mysqli_stmt_execute mysqli_stmt_fetch mysqli_stmt_field_count mysqli_stmt_free_result mysqli_stmt_get_result mysqli_stmt_get_warnings mysqli_stmt_init mysqli_stmt_insert_id mysqli_stmt_more_results mysqli_stmt_next_result mysqli_stmt_num_rows mysqli_stmt_param_count mysqli_stmt_prepare mysqli_stmt_reset mysqli_stmt_result_metadata mysqli_stmt_send_long_data mysqli_stmt_sqlstate contained
+syn keyword phpFunctions ncurses_addch ncurses_addchnstr ncurses_addchstr ncurses_addnstr ncurses_addstr ncurses_assume_default_colors ncurses_attroff ncurses_attron ncurses_attrset ncurses_baudrate ncurses_beep ncurses_bkgd ncurses_bkgdset ncurses_border ncurses_bottom_panel ncurses_can_change_color ncurses_cbreak ncurses_clear ncurses_clrtobot ncurses_clrtoeol ncurses_color_content ncurses_color_set ncurses_curs_set ncurses_def_prog_mode ncurses_def_shell_mode ncurses_define_key ncurses_del_panel ncurses_delay_output ncurses_delch ncurses_deleteln ncurses_delwin ncurses_doupdate ncurses_echo ncurses_echochar ncurses_end ncurses_erase ncurses_erasechar ncurses_filter ncurses_flash ncurses_flushinp ncurses_getch ncurses_getmaxyx ncurses_getmouse ncurses_getyx ncurses_halfdelay ncurses_has_colors ncurses_has_ic ncurses_has_il ncurses_has_key ncurses_hide_panel ncurses_hline ncurses_inch ncurses_init_color ncurses_init_pair ncurses_init ncurses_insch ncurses_insdelln ncurses_insertln ncurses_insstr ncurses_instr ncurses_isendwin ncurses_keyok ncurses_keypad ncurses_killchar ncurses_longname ncurses_meta ncurses_mouse_trafo ncurses_mouseinterval ncurses_mousemask ncurses_move_panel ncurses_move ncurses_mvaddch ncurses_mvaddchnstr ncurses_mvaddchstr ncurses_mvaddnstr ncurses_mvaddstr ncurses_mvcur ncurses_mvdelch ncurses_mvgetch ncurses_mvhline ncurses_mvinch ncurses_mvvline ncurses_mvwaddstr ncurses_napms ncurses_new_panel ncurses_newpad ncurses_newwin ncurses_nl ncurses_nocbreak ncurses_noecho ncurses_nonl ncurses_noqiflush ncurses_noraw ncurses_pair_content ncurses_panel_above ncurses_panel_below ncurses_panel_window ncurses_pnoutrefresh ncurses_prefresh ncurses_putp ncurses_qiflush ncurses_raw ncurses_refresh ncurses_replace_panel ncurses_reset_prog_mode ncurses_reset_shell_mode ncurses_resetty ncurses_savetty ncurses_scr_dump ncurses_scr_init ncurses_scr_restore ncurses_scr_set ncurses_scrl ncurses_show_panel ncurses_slk_attr ncurses_slk_attroff ncurses_slk_attron ncurses_slk_attrset ncurses_slk_clear ncurses_slk_color ncurses_slk_init ncurses_slk_noutrefresh ncurses_slk_refresh ncurses_slk_restore ncurses_slk_set ncurses_slk_touch ncurses_standend ncurses_standout ncurses_start_color ncurses_termattrs ncurses_termname ncurses_timeout ncurses_top_panel ncurses_typeahead ncurses_ungetch ncurses_ungetmouse ncurses_update_panels ncurses_use_default_colors ncurses_use_env ncurses_use_extended_names ncurses_vidattr ncurses_vline ncurses_waddch ncurses_waddstr ncurses_wattroff ncurses_wattron ncurses_wattrset ncurses_wborder ncurses_wclear ncurses_wcolor_set ncurses_werase ncurses_wgetch ncurses_whline ncurses_wmouse_trafo ncurses_wmove ncurses_wnoutrefresh ncurses_wrefresh ncurses_wstandend ncurses_wstandout ncurses_wvline contained
+syn keyword phpFunctions checkdnsrr closelog debugger_off debugger_on define_syslog_variables dns_check_record dns_get_mx dns_get_record fsockopen gethostbyaddr gethostbyname gethostbynamel getmxrr getprotobyname getprotobynumber getservbyname getservbyport ip2long long2ip openlog pfsockopen socket_get_status socket_set_blocking socket_set_timeout syslog contained
+syn keyword phpFunctions yp_all yp_cat yp_err_string yp_errno yp_first yp_get_default_domain yp_master yp_match yp_next yp_order contained
+syn keyword phpFunctions notes_body notes_copy_db notes_create_db notes_create_note notes_drop_db notes_find_note notes_header_info notes_list_msgs notes_mark_read notes_mark_unread notes_nav_create notes_search notes_unread notes_version contained
+syn keyword phpFunctions nsapi_request_headers nsapi_response_headers nsapi_virtual contained
+syn keyword phpFunctions aggregate_info aggregate_methods_by_list aggregate_methods_by_regexp aggregate_methods aggregate_properties_by_list aggregate_properties_by_regexp aggregate_properties aggregate aggregation_info deaggregate contained
+syn keyword phpFunctions ocibindbyname ocicancel ocicloselob ocicollappend ocicollassign ocicollassignelem ocicollgetelem ocicollmax ocicollsize ocicolltrim ocicolumnisnull ocicolumnname ocicolumnprecision ocicolumnscale ocicolumnsize ocicolumntype ocicolumntyperaw ocicommit ocidefinebyname ocierror ociexecute ocifetch ocifetchinto ocifetchstatement ocifreecollection ocifreecursor ocifreedesc ocifreestatement ociinternaldebug ociloadlob ocilogoff ocilogon ocinewcollection ocinewcursor ocinewdescriptor ocinlogon ocinumcols ociparse ociplogon ociresult ocirollback ocirowcount ocisavelob ocisavelobfile ociserverversion ocisetprefetch ocistatementtype ociwritelobtofile ociwritetemporarylob contained
+syn keyword phpFunctions odbc_autocommit odbc_binmode odbc_close_all odbc_close odbc_columnprivileges odbc_columns odbc_commit odbc_connect odbc_cursor odbc_data_source odbc_do odbc_error odbc_errormsg odbc_exec odbc_execute odbc_fetch_array odbc_fetch_into odbc_fetch_object odbc_fetch_row odbc_field_len odbc_field_name odbc_field_num odbc_field_precision odbc_field_scale odbc_field_type odbc_foreignkeys odbc_free_result odbc_gettypeinfo odbc_longreadlen odbc_next_result odbc_num_fields odbc_num_rows odbc_pconnect odbc_prepare odbc_primarykeys odbc_procedurecolumns odbc_procedures odbc_result_all odbc_result odbc_rollback odbc_setoption odbc_specialcolumns odbc_statistics odbc_tableprivileges odbc_tables contained
+syn keyword phpFunctions opcache_reset opcache_invalidate opcache_compile_file opcache_is_script_cached opcache_get_configuration opcache_get_status contained
+syn keyword phpFunctions openssl_cipher_iv_length openssl_cms_decrypt openssl_cms_encrypt openssl_cms_read openssl_cms_sign openssl_cms_verify openssl_csr_export_to_file openssl_csr_export openssl_csr_get_public_key openssl_csr_get_subject openssl_csr_new openssl_csr_sign openssl_decrypt openssl_dh_compute_key openssl_digest openssl_encrypt openssl_error_string openssl_free_key openssl_get_cert_locations openssl_get_cipher_methods openssl_get_md_methods openssl_get_privatekey openssl_get_publickey openssl_open openssl_pbkdf2 openssl_pkcs12_export_to_file openssl_pkcs12_export openssl_pkcs12_read openssl_pkcs7_decrypt openssl_pkcs7_encrypt openssl_pkcs7_sign openssl_pkcs7_verify openssl_pkey_export_to_file openssl_pkey_export openssl_pkey_free openssl_pkey_get_details openssl_pkey_get_private openssl_pkey_get_public openssl_pkey_new openssl_private_decrypt openssl_private_encrypt openssl_public_decrypt openssl_public_encrypt openssl_random_pseudo_bytes openssl_seal openssl_sign openssl_spki_export_challenge openssl_spki_export openssl_spki_new openssl_spki_verify openssl_verify openssl_x509_check_private_key openssl_x509_checkpurpose openssl_x509_export_to_file openssl_x509_export openssl_x509_fingerprint openssl_x509_free openssl_x509_parse openssl_x509_read openssl_get_curve_names openssl_pkcs7_read openssl_pkey_derive openssl_x509_verify contained
+syn keyword phpFunctions ora_bind ora_close ora_columnname ora_columnsize ora_columntype ora_commit ora_commitoff ora_commiton ora_do ora_error ora_errorcode ora_exec ora_fetch_into ora_fetch ora_getcolumn ora_logoff ora_logon ora_numcols ora_numrows ora_open ora_parse ora_plogon ora_rollback contained
+syn keyword phpFunctions flush ob_clean ob_end_clean ob_end_flush ob_flush ob_get_clean ob_get_contents ob_get_flush ob_get_length ob_get_level ob_get_status ob_gzhandler ob_implicit_flush ob_list_handlers ob_start output_add_rewrite_var output_reset_rewrite_vars contained
+syn keyword phpFunctions overload contained
+syn keyword phpFunctions ovrimos_close ovrimos_commit ovrimos_connect ovrimos_cursor ovrimos_exec ovrimos_execute ovrimos_fetch_into ovrimos_fetch_row ovrimos_field_len ovrimos_field_name ovrimos_field_num ovrimos_field_type ovrimos_free_result ovrimos_longreadlen ovrimos_num_fields ovrimos_num_rows ovrimos_prepare ovrimos_result_all ovrimos_result ovrimos_rollback contained
+syn keyword phpFunctions pcntl_exec pcntl_fork pcntl_signal pcntl_waitpid pcntl_wexitstatus pcntl_wifexited pcntl_wifsignaled pcntl_wifstopped pcntl_wstopsig pcntl_wtermsig pcntl_alarm pcntl_async_signals pcntl_errno pcntl_get_last_error pcntl_getpriority pcntl_setpriority pcntl_signal_dispatch pcntl_signal_get_handler pcntl_sigprocmask pcntl_sigtimedwait pcntl_sigwaitinfo pcntl_strerror pcntl_unshare pcntl_wait pcntl_wifcontinued contained
+syn keyword phpFunctions preg_filter preg_grep preg_last_error preg_last_error_msg preg_match_all preg_match preg_quote preg_replace_callback preg_replace_callback_array preg_replace preg_split contained
 syn keyword phpFunctions pdo_drivers contained
-" PDO classes and interfaces
-syn keyword phpClasses PDO PDOException PDORow PDOStatement contained
-endif
-if index(g:php_syntax_extensions_enabled, "pgsql") >= 0 && index(g:php_syntax_extensions_disabled, "pgsql") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "pgsql") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "pgsql") < 0)
-" pgsql functions
-syn keyword phpFunctions pg_affected_rows pg_cancel_query pg_client_encoding pg_clientencoding pg_close pg_cmdtuples pg_connect pg_connect_poll pg_connection_busy pg_connection_reset pg_connection_status pg_consume_input pg_convert pg_copy_from pg_copy_to pg_dbname pg_delete pg_end_copy pg_errormessage pg_escape_bytea pg_escape_identifier pg_escape_literal pg_escape_string pg_exec pg_execute pg_fetch_all pg_fetch_all_columns pg_fetch_array pg_fetch_assoc pg_fetch_object pg_fetch_result pg_fetch_row pg_field_is_null pg_field_name pg_field_num pg_field_prtlen pg_field_size pg_field_table pg_field_type pg_field_type_oid pg_fieldisnull pg_fieldname pg_fieldnum pg_fieldprtlen pg_fieldsize pg_fieldtype pg_flush pg_free_result pg_freeresult pg_get_notify pg_get_pid pg_get_result pg_getlastoid pg_host pg_insert pg_last_error pg_last_notice pg_last_oid pg_lo_close pg_lo_create pg_lo_export pg_lo_import pg_lo_open pg_lo_read pg_lo_read_all pg_lo_seek pg_lo_tell pg_lo_truncate pg_lo_unlink pg_lo_write pg_loclose pg_locreate pg_loexport pg_loimport pg_loopen pg_loread pg_loreadall pg_lounlink pg_lowrite pg_meta_data pg_num_fields pg_num_rows pg_numfields pg_numrows pg_options pg_parameter_status pg_pconnect pg_ping pg_port pg_prepare pg_put_line pg_query pg_query_params pg_result pg_result_error pg_result_error_field pg_result_seek pg_result_status pg_select pg_send_execute pg_send_prepare pg_send_query pg_send_query_params pg_set_client_encoding pg_set_error_verbosity pg_setclientencoding pg_socket pg_trace pg_transaction_status pg_tty pg_unescape_bytea pg_untrace pg_update pg_version contained
-endif
-if index(g:php_syntax_extensions_enabled, "phar") >= 0 && index(g:php_syntax_extensions_disabled, "phar") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "phar") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "phar") < 0)
-" Phar classes and interfaces
-syn keyword phpClasses Phar PharData PharException PharFileInfo contained
-endif
-if index(g:php_syntax_extensions_enabled, "reflection") >= 0 && index(g:php_syntax_extensions_disabled, "reflection") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "reflection") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "reflection") < 0)
-" Reflection classes and interfaces
-syn keyword phpClasses Reflection ReflectionClass ReflectionClassConstant ReflectionException ReflectionExtension ReflectionFunction ReflectionFunctionAbstract ReflectionGenerator ReflectionMethod ReflectionNamedType ReflectionObject ReflectionParameter ReflectionProperty ReflectionType ReflectionZendExtension Reflector contained
-endif
-if index(g:php_syntax_extensions_enabled, "session") >= 0 && index(g:php_syntax_extensions_disabled, "session") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "session") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "session") < 0)
-" session functions
-syn keyword phpFunctions session_abort session_cache_expire session_cache_limiter session_commit session_create_id session_decode session_destroy session_encode session_gc session_get_cookie_params session_id session_module_name session_name session_regenerate_id session_register_shutdown session_reset session_save_path session_set_cookie_params session_set_save_handler session_start session_status session_unset session_write_close contained
-" session classes and interfaces
-syn keyword phpClasses SessionHandler SessionHandlerInterface SessionIdInterface SessionUpdateTimestampHandlerInterface contained
-endif
-if index(g:php_syntax_extensions_enabled, "simplexml") >= 0 && index(g:php_syntax_extensions_disabled, "simplexml") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "simplexml") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "simplexml") < 0)
-" SimpleXML functions
+syn keyword phpFunctions pdf_add_annotation pdf_add_bookmark pdf_add_launchlink pdf_add_locallink pdf_add_note pdf_add_outline pdf_add_pdflink pdf_add_thumbnail pdf_add_weblink pdf_arc pdf_arcn pdf_attach_file pdf_begin_page pdf_begin_pattern pdf_begin_template pdf_circle pdf_clip pdf_close_image pdf_close_pdi_page pdf_close_pdi pdf_close pdf_closepath_fill_stroke pdf_closepath_stroke pdf_closepath pdf_concat pdf_continue_text pdf_curveto pdf_delete pdf_end_page pdf_end_pattern pdf_end_template pdf_endpath pdf_fill_stroke pdf_fill pdf_findfont pdf_get_buffer pdf_get_font pdf_get_fontname pdf_get_fontsize pdf_get_image_height pdf_get_image_width pdf_get_majorversion pdf_get_minorversion pdf_get_parameter pdf_get_pdi_parameter pdf_get_pdi_value pdf_get_value pdf_initgraphics pdf_lineto pdf_makespotcolor pdf_moveto pdf_new pdf_open_CCITT pdf_open_file pdf_open_gif pdf_open_image_file pdf_open_image pdf_open_jpeg pdf_open_memory_image pdf_open_pdi_page pdf_open_pdi pdf_open_png pdf_open_tiff pdf_open pdf_place_image pdf_place_pdi_page pdf_rect pdf_restore pdf_rotate pdf_save pdf_scale pdf_set_border_color pdf_set_border_dash pdf_set_border_style pdf_set_char_spacing pdf_set_duration pdf_set_font pdf_set_horiz_scaling pdf_set_info_author pdf_set_info_creator pdf_set_info_keywords pdf_set_info_subject pdf_set_info_title pdf_set_info pdf_set_leading pdf_set_parameter pdf_set_text_matrix pdf_set_text_pos pdf_set_text_rendering pdf_set_text_rise pdf_set_value pdf_set_word_spacing pdf_setcolor pdf_setdash pdf_setflat pdf_setfont pdf_setgray_fill pdf_setgray_stroke pdf_setgray pdf_setlinecap pdf_setlinejoin pdf_setlinewidth pdf_setmatrix pdf_setmiterlimit pdf_setpolydash pdf_setrgbcolor_fill pdf_setrgbcolor_stroke pdf_setrgbcolor pdf_show_boxed pdf_show_xy pdf_show pdf_skew pdf_stringwidth pdf_stroke pdf_translate contained
+syn keyword phpFunctions pfpro_cleanup pfpro_init pfpro_process_raw pfpro_process pfpro_version contained
+syn keyword phpFunctions pg_affected_rows pg_cancel_query pg_client_encoding pg_close pg_connect pg_connection_busy pg_connection_reset pg_connection_status pg_convert pg_copy_from pg_copy_to pg_dbname pg_delete pg_end_copy pg_escape_bytea pg_escape_string pg_fetch_all pg_fetch_array pg_fetch_assoc pg_fetch_object pg_fetch_result pg_fetch_row pg_field_is_null pg_field_name pg_field_num pg_field_prtlen pg_field_size pg_field_type pg_free_result pg_get_notify pg_get_pid pg_get_result pg_host pg_insert pg_last_error pg_last_notice pg_last_oid pg_lo_close pg_lo_create pg_lo_export pg_lo_import pg_lo_open pg_lo_read_all pg_lo_read pg_lo_seek pg_lo_tell pg_lo_unlink pg_lo_write pg_meta_data pg_num_fields pg_num_rows pg_options pg_pconnect pg_ping pg_port pg_put_line pg_query pg_result_error pg_result_seek pg_result_status pg_select pg_send_query pg_set_client_encoding pg_trace pg_tty pg_unescape_bytea pg_untrace pg_update pg_clientencoding pg_cmdtuples pg_connect_poll pg_consume_input pg_errormessage pg_escape_identifier pg_escape_literal pg_exec pg_execute pg_fetch_all_columns pg_field_table pg_field_type_oid pg_fieldisnull pg_fieldname pg_fieldnum pg_fieldprtlen pg_fieldsize pg_fieldtype pg_flush pg_freeresult pg_getlastoid pg_lo_truncate pg_loclose pg_locreate pg_loexport pg_loimport pg_loopen pg_loread pg_loreadall pg_lounlink pg_lowrite pg_numfields pg_numrows pg_parameter_status pg_prepare pg_query_params pg_result pg_result_error_field pg_send_execute pg_send_prepare pg_send_query_params pg_set_error_verbosity pg_setclientencoding pg_socket pg_transaction_status pg_version contained
+syn keyword phpFunctions posix_ctermid posix_get_last_error posix_getcwd posix_getegid posix_geteuid posix_getgid posix_getgrgid posix_getgrnam posix_getgroups posix_getlogin posix_getpgid posix_getpgrp posix_getpid posix_getppid posix_getpwnam posix_getpwuid posix_getrlimit posix_getsid posix_getuid posix_isatty posix_kill posix_mkfifo posix_setegid posix_seteuid posix_setgid posix_setpgid posix_setsid posix_setuid posix_strerror posix_times posix_ttyname posix_uname posix_access posix_errno posix_initgroups posix_mknod posix_setrlimit contained
+syn keyword phpFunctions printer_abort printer_close printer_create_brush printer_create_dc printer_create_font printer_create_pen printer_delete_brush printer_delete_dc printer_delete_font printer_delete_pen printer_draw_bmp printer_draw_chord printer_draw_elipse printer_draw_line printer_draw_pie printer_draw_rectangle printer_draw_roundrect printer_draw_text printer_end_doc printer_end_page printer_get_option printer_list printer_logical_fontheight printer_open printer_select_brush printer_select_font printer_select_pen printer_set_option printer_start_doc printer_start_page printer_write contained
+syn keyword phpFunctions pspell_add_to_personal pspell_add_to_session pspell_check pspell_clear_session pspell_config_create pspell_config_ignore pspell_config_mode pspell_config_personal pspell_config_repl pspell_config_runtogether pspell_config_save_repl pspell_new_config pspell_new_personal pspell_new pspell_save_wordlist pspell_store_replacement pspell_suggest pspell_config_data_dir pspell_config_dict_dir contained
+syn keyword phpFunctions qdom_error qdom_tree contained
+syn keyword phpFunctions readline_add_history readline_clear_history readline_completion_function readline_info readline_list_history readline_read_history readline_write_history readline readline_callback_handler_install readline_callback_handler_remove readline_callback_read_char readline_on_new_line readline_redisplay contained
+syn keyword phpFunctions recode_file recode_string recode contained
+syn keyword phpFunctions ereg_replace ereg eregi_replace eregi split spliti sql_regcase contained
+syn keyword phpFunctions ftok msg_get_queue msg_queue_exists msg_receive msg_remove_queue msg_send msg_set_queue msg_stat_queue sem_acquire sem_get sem_release sem_remove shm_attach shm_detach shm_get_var shm_has_var shm_put_var shm_remove_var shm_remove contained
+syn keyword phpFunctions sesam_affected_rows sesam_commit sesam_connect sesam_diagnostic sesam_disconnect sesam_errormsg sesam_execimm sesam_fetch_array sesam_fetch_result sesam_fetch_row sesam_field_array sesam_field_name sesam_free_result sesam_num_fields sesam_query sesam_rollback sesam_seek_row sesam_settransaction contained
+syn keyword phpFunctions session_cache_expire session_cache_limiter session_decode session_destroy session_encode session_get_cookie_params session_id session_is_registered session_module_name session_name session_regenerate_id session_register session_save_path session_set_cookie_params session_set_save_handler session_start session_unregister session_unset session_write_close session_abort session_commit session_create_id session_gc session_register_shutdown session_reset session_status contained
 syn keyword phpFunctions simplexml_import_dom simplexml_load_file simplexml_load_string contained
-" SimpleXML classes and interfaces
-syn keyword phpClasses SimpleXMLElement SimpleXMLIterator contained
-endif
-if index(g:php_syntax_extensions_enabled, "soap") >= 0 && index(g:php_syntax_extensions_disabled, "soap") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "soap") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "soap") < 0)
-" soap functions
+syn keyword phpFunctions shmop_close shmop_delete shmop_open shmop_read shmop_size shmop_write contained
+syn keyword phpFunctions snmp_get_quick_print snmp_set_quick_print snmpget snmprealwalk snmpset snmpwalk snmpwalkoid contained
 syn keyword phpFunctions is_soap_fault use_soap_error_handler contained
-" soap classes and interfaces
-syn keyword phpClasses SoapClient SoapFault SoapHeader SoapParam SoapServer SoapVar contained
-endif
-if index(g:php_syntax_extensions_enabled, "sockets") >= 0 && index(g:php_syntax_extensions_disabled, "sockets") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "sockets") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "sockets") < 0)
-" sockets functions
-syn keyword phpFunctions socket_accept socket_addrinfo_bind socket_addrinfo_connect socket_addrinfo_explain socket_addrinfo_lookup socket_bind socket_clear_error socket_close socket_cmsg_space socket_connect socket_create socket_create_listen socket_create_pair socket_export_stream socket_get_option socket_getopt socket_getpeername socket_getsockname socket_import_stream socket_last_error socket_listen socket_read socket_recv socket_recvfrom socket_recvmsg socket_select socket_send socket_sendmsg socket_sendto socket_set_block socket_set_nonblock socket_set_option socket_setopt socket_shutdown socket_strerror socket_write contained
-endif
-if index(g:php_syntax_extensions_enabled, "spl") >= 0 && index(g:php_syntax_extensions_disabled, "spl") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "spl") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "spl") < 0)
-" SPL functions
+syn keyword phpFunctions socket_accept socket_bind socket_clear_error socket_close socket_connect socket_create_listen socket_create_pair socket_create socket_get_option socket_getpeername socket_getsockname socket_iovec_add socket_iovec_alloc socket_iovec_delete socket_iovec_fetch socket_iovec_free socket_iovec_set socket_last_error socket_listen socket_read socket_readv socket_recv socket_recvfrom socket_recvmsg socket_select socket_send socket_sendmsg socket_sendto socket_set_block socket_set_nonblock socket_set_option socket_shutdown socket_strerror socket_write socket_writev socket_addrinfo_bind socket_addrinfo_connect socket_addrinfo_explain socket_addrinfo_lookup socket_cmsg_space socket_export_stream socket_getopt socket_import_stream socket_setopt contained
 syn keyword phpFunctions class_implements class_parents class_uses iterator_apply iterator_count iterator_to_array spl_autoload spl_autoload_call spl_autoload_extensions spl_autoload_functions spl_autoload_register spl_autoload_unregister spl_classes spl_object_hash spl_object_id contained
-" SPL classes and interfaces
-syn keyword phpClasses AppendIterator ArrayIterator ArrayObject BadFunctionCallException BadMethodCallException CachingIterator CallbackFilterIterator Countable DirectoryIterator DomainException EmptyIterator FilesystemIterator FilterIterator GlobIterator InfiniteIterator InvalidArgumentException IteratorIterator LengthException LimitIterator LogicException MultipleIterator NoRewindIterator OutOfBoundsException OutOfRangeException OuterIterator OverflowException ParentIterator RangeException RecursiveArrayIterator RecursiveCachingIterator RecursiveCallbackFilterIterator RecursiveDirectoryIterator RecursiveFilterIterator RecursiveIterator RecursiveIteratorIterator RecursiveRegexIterator RecursiveTreeIterator RegexIterator RuntimeException SeekableIterator SplDoublyLinkedList SplFileInfo SplFileObject SplFixedArray SplHeap SplMaxHeap SplMinHeap SplObjectStorage SplObserver SplPriorityQueue SplQueue SplStack SplSubject SplTempFileObject UnderflowException UnexpectedValueException contained
-endif
-if index(g:php_syntax_extensions_enabled, "sqlite3") >= 0 && index(g:php_syntax_extensions_disabled, "sqlite3") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "sqlite3") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "sqlite3") < 0)
-" sqlite3 classes and interfaces
-syn keyword phpClasses SQLite3 SQLite3Result SQLite3Stmt contained
-endif
-if index(g:php_syntax_extensions_enabled, "standard") >= 0 && index(g:php_syntax_extensions_disabled, "standard") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "standard") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "standard") < 0)
-" standard functions
-syn keyword phpFunctions abs acos acosh addcslashes addslashes array_change_key_case array_chunk array_column array_combine array_count_values array_diff array_diff_assoc array_diff_key array_diff_uassoc array_diff_ukey array_fill array_fill_keys array_filter array_flip array_intersect array_intersect_assoc array_intersect_key array_intersect_uassoc array_intersect_ukey array_key_exists array_key_first array_key_last array_keys array_map array_merge array_merge_recursive array_multisort array_pad array_pop array_product array_push array_rand array_reduce array_replace array_replace_recursive array_reverse array_search array_shift array_slice array_splice array_sum array_udiff array_udiff_assoc array_udiff_uassoc array_uintersect array_uintersect_assoc array_uintersect_uassoc array_unique array_unshift array_values array_walk array_walk_recursive array_is_list arsort asin asinh asort assert assert_options atan atan2 atanh base64_decode base64_encode base_convert basename bin2hex bindec boolval call_user_func call_user_func_array call_user_method call_user_method_array ceil chdir checkdnsrr chgrp chmod chop chown chr chroot chunk_split clearstatcache cli_get_process_title cli_set_process_title closedir closelog compact connection_aborted connection_status constant convert_cyr_string convert_uudecode convert_uuencode copy cos cosh count count_chars crc32 crypt current debug_zval_dump decbin dechex decoct deg2rad dir dirname disk_free_space disk_total_space diskfreespace dl dns_check_record dns_get_mx dns_get_record doubleval end error_clear_last error_get_last error_log escapeshellarg escapeshellcmd exec exp explode expm1 extract ezmlm_hash fclose feof fflush fgetc fgetcsv fgets fgetss file file_exists file_get_contents file_put_contents fileatime filectime filegroup fileinode filemtime fileowner fileperms filesize filetype floatval flock floor flush fmod fnmatch fopen forward_static_call forward_static_call_array fpassthru fprintf fputcsv fputs fread fscanf fseek fsockopen fstat ftell ftok ftruncate fwrite get_browser get_cfg_var get_current_user get_headers get_html_translation_table get_include_path get_magic_quotes_gpc get_magic_quotes_runtime get_meta_tags getcwd getenv gethostbyaddr gethostbyname gethostbynamel gethostname getimagesize getimagesizefromstring getlastmod getmxrr getmygid getmyinode getmypid getmyuid getopt getprotobyname getprotobynumber getrandmax getrusage getservbyname getservbyport gettimeofday gettype glob header header_register_callback header_remove headers_list headers_sent hebrev hebrevc hex2bin hexdec highlight_file highlight_string hrtime html_entity_decode htmlentities htmlspecialchars htmlspecialchars_decode http_build_query http_response_code hypot ignore_user_abort image_type_to_extension image_type_to_mime_type implode in_array inet_ntop inet_pton ini_alter ini_get ini_get_all ini_restore ini_set intdiv intval ip2long iptcembed iptcparse is_array is_bool is_callable is_countable is_dir is_double is_executable is_file is_finite is_float is_infinite is_int is_integer is_iterable is_link is_long is_nan is_null is_numeric is_object is_readable is_real is_resource is_scalar is_string is_uploaded_file is_writable is_writeable join key key_exists krsort ksort lcfirst lcg_value lchgrp lchown levenshtein link linkinfo localeconv log log1p log10 long2ip lstat ltrim magic_quotes_runtime mail max md5 md5_file memory_get_peak_usage memory_get_usage metaphone microtime min mkdir money_format move_uploaded_file mt_getrandmax mt_rand mt_srand natcasesort natsort net_get_interfaces next nl2br nl_langinfo number_format ob_clean ob_end_clean ob_end_flush ob_flush ob_get_clean ob_get_contents ob_get_flush ob_get_length ob_get_level ob_get_status ob_implicit_flush ob_list_handlers ob_start octdec opendir openlog ord output_add_rewrite_var output_reset_rewrite_vars pack parse_ini_file parse_ini_string parse_str parse_url passthru password_get_info password_hash password_needs_rehash password_verify pathinfo pclose pfsockopen php_ini_loaded_file php_ini_scanned_files php_sapi_name php_strip_whitespace php_uname phpcredits phpinfo phpversion pi popen pos pow prev print_r printf proc_close proc_get_status proc_nice proc_open proc_terminate putenv quoted_printable_decode quoted_printable_encode quotemeta rad2deg rand random_bytes random_int range rawurldecode rawurlencode readdir readfile readlink realpath realpath_cache_get realpath_cache_size register_shutdown_function register_tick_function rename reset restore_include_path rewind rewinddir rmdir round rsort rtrim scandir serialize set_file_buffer set_include_path set_magic_quotes_runtime set_socket_blocking set_time_limit setcookie setlocale setrawcookie settype sha1 sha1_file shell_exec show_source shuffle similar_text sin sinh sizeof sleep socket_get_status socket_set_blocking socket_set_timeout sort soundex sprintf sqrt srand sscanf stat str_getcsv str_ireplace str_pad str_repeat str_replace str_rot13 str_shuffle str_split str_word_count strchr strcoll strcspn stream_bucket_append stream_bucket_make_writeable stream_bucket_new stream_bucket_prepend stream_context_create stream_context_get_default stream_context_get_options stream_context_get_params stream_context_set_default stream_context_set_option stream_context_set_params stream_copy_to_stream stream_filter_append stream_filter_prepend stream_filter_register stream_filter_remove stream_get_contents stream_get_filters stream_get_line stream_get_meta_data stream_get_transports stream_get_wrappers stream_is_local stream_isatty stream_register_wrapper stream_resolve_include_path stream_select stream_set_blocking stream_set_chunk_size stream_set_read_buffer stream_set_timeout stream_set_write_buffer stream_socket_accept stream_socket_client stream_socket_enable_crypto stream_socket_get_name stream_socket_pair stream_socket_recvfrom stream_socket_sendto stream_socket_server stream_socket_shutdown stream_supports_lock stream_wrapper_register stream_wrapper_restore stream_wrapper_unregister strip_tags stripcslashes stripos stripslashes stristr strnatcasecmp strnatcmp strpbrk strpos strptime strrchr strrev strripos strrpos strspn strstr strtok strtolower strtoupper strtr strval substr substr_compare substr_count substr_replace symlink sys_get_temp_dir sys_getloadavg syslog system tan tanh tempnam time_nanosleep time_sleep_until tmpfile touch trim uasort ucfirst ucwords uksort umask uniqid unlink unpack unregister_tick_function unserialize urldecode urlencode usleep usort utf8_decode utf8_encode var_dump var_export version_compare vfprintf vprintf vsprintf wordwrap contained
-" standard classes and interfaces
-syn keyword phpClasses AssertionError Directory __PHP_Incomplete_Class php_user_filter contained
-endif
-if index(g:php_syntax_extensions_enabled, "tokenizer") >= 0 && index(g:php_syntax_extensions_disabled, "tokenizer") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "tokenizer") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "tokenizer") < 0)
-" tokenizer functions
+syn keyword phpFunctions sqlite_array_query sqlite_busy_timeout sqlite_changes sqlite_close sqlite_column sqlite_create_aggregate sqlite_create_function sqlite_current sqlite_error_string sqlite_escape_string sqlite_fetch_array sqlite_fetch_single sqlite_fetch_string sqlite_field_name sqlite_has_more sqlite_last_error sqlite_last_insert_rowid sqlite_libencoding sqlite_libversion sqlite_next sqlite_num_fields sqlite_num_rows sqlite_open sqlite_popen sqlite_query sqlite_rewind sqlite_seek sqlite_udf_decode_binary sqlite_udf_encode_binary sqlite_unbuffered_query contained
+syn keyword phpFunctions stream_context_create stream_context_get_options stream_context_set_option stream_context_set_params stream_copy_to_stream stream_filter_append stream_filter_prepend stream_filter_register stream_get_contents stream_get_filters stream_get_line stream_get_meta_data stream_get_transports stream_get_wrappers stream_register_wrapper stream_select stream_set_blocking stream_set_timeout stream_set_write_buffer stream_socket_accept stream_socket_client stream_socket_get_name stream_socket_recvfrom stream_socket_sendto stream_socket_server stream_wrapper_register contained
+syn keyword phpFunctions addcslashes addslashes bin2hex chop chr chunk_split convert_cyr_string count_chars crc32 crypt explode fprintf get_html_translation_table hebrev hebrevc html_entity_decode htmlentities htmlspecialchars implode join levenshtein localeconv ltrim md5_file md5 metaphone money_format nl_langinfo nl2br number_format ord parse_str print printf quoted_printable_decode quotemeta rtrim setlocale sha1_file sha1 similar_text soundex sprintf sscanf str_ireplace str_pad str_repeat str_replace str_rot13 str_shuffle str_split str_word_count strcasecmp strchr strcmp strcoll strcspn strip_tags stripcslashes stripos stripslashes stristr strlen strnatcasecmp strnatcmp strncasecmp strncmp strpos strrchr strrev strripos strrpos strspn strstr strtok strtolower strtoupper strtr substr_compare substr_count substr_replace substr trim ucfirst ucwords vprintf vsprintf wordwrap contained
+syn keyword phpFunctions fdiv get_debug_type getdir str_contains str_ends_with str_starts_with
+syn keyword phpFunctions swf_actiongeturl swf_actiongotoframe swf_actiongotolabel swf_actionnextframe swf_actionplay swf_actionprevframe swf_actionsettarget swf_actionstop swf_actiontogglequality swf_actionwaitforframe swf_addbuttonrecord swf_addcolor swf_closefile swf_definebitmap swf_definefont swf_defineline swf_definepoly swf_definerect swf_definetext swf_endbutton swf_enddoaction swf_endshape swf_endsymbol swf_fontsize swf_fontslant swf_fonttracking swf_getbitmapinfo swf_getfontinfo swf_getframe swf_labelframe swf_lookat swf_modifyobject swf_mulcolor swf_nextid swf_oncondition swf_openfile swf_ortho2 swf_ortho swf_perspective swf_placeobject swf_polarview swf_popmatrix swf_posround swf_pushmatrix swf_removeobject swf_rotate swf_scale swf_setfont swf_setframe swf_shapearc swf_shapecurveto3 swf_shapecurveto swf_shapefillbitmapclip swf_shapefillbitmaptile swf_shapefilloff swf_shapefillsolid swf_shapelinesolid swf_shapelineto swf_shapemoveto swf_showframe swf_startbutton swf_startdoaction swf_startshape swf_startsymbol swf_textwidth swf_translate swf_viewport contained
+syn keyword phpFunctions sybase_affected_rows sybase_close sybase_connect sybase_data_seek sybase_deadlock_retry_count sybase_fetch_array sybase_fetch_assoc sybase_fetch_field sybase_fetch_object sybase_fetch_row sybase_field_seek sybase_free_result sybase_get_last_message sybase_min_client_severity sybase_min_error_severity sybase_min_message_severity sybase_min_server_severity sybase_num_fields sybase_num_rows sybase_pconnect sybase_query sybase_result sybase_select_db sybase_set_message_handler sybase_unbuffered_query contained
+syn keyword phpFunctions tidy_access_count tidy_clean_repair tidy_config_count tidy_diagnose tidy_error_count tidy_get_body tidy_get_config tidy_get_error_buffer tidy_get_head tidy_get_html_ver tidy_get_html tidy_get_output tidy_get_release tidy_get_root tidy_get_status tidy_getopt tidy_is_xhtml tidy_load_config tidy_parse_file tidy_parse_string tidy_repair_file tidy_repair_string tidy_reset_config tidy_save_config tidy_set_encoding tidy_setopt tidy_warning_count tidy_is_xml tidy_get_opt_doc contained
+syn keyword phpMethods attributes children get_attr get_nodes has_children has_siblings is_asp is_comment is_html is_jsp is_jste is_text is_xhtml is_xml next prev tidy_node contained
 syn keyword phpFunctions token_get_all token_name contained
-endif
-if index(g:php_syntax_extensions_enabled, "wddx") >= 0 && index(g:php_syntax_extensions_disabled, "wddx") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "wddx") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "wddx") < 0)
-" wddx functions
+syn keyword phpFunctions base64_decode base64_encode get_meta_tags http_build_query parse_url rawurldecode rawurlencode urldecode urlencode contained
+syn keyword phpFunctions doubleval empty floatval get_defined_vars get_resource_id get_resource_type gettype import_request_variables intval is_array is_bool is_callable is_double is_float is_int is_integer is_long is_null is_numeric is_object is_real is_resource is_scalar is_string isset print_r serialize settype strval unserialize unset var_dump var_export contained
+syn keyword phpFunctions get_called_class property_exists interface_exists trait_exists class_alias get_mangled_object_vars set_exception_handler restore_exception_handler get_declared_traits get_declared_interfaces get_resources gc_mem_caches gc_collect_cycles gc_enabled gc_enable gc_disable gc_status contained
+syn keyword phpFunctions vpopmail_add_alias_domain_ex vpopmail_add_alias_domain vpopmail_add_domain_ex vpopmail_add_domain vpopmail_add_user vpopmail_alias_add vpopmail_alias_del_domain vpopmail_alias_del vpopmail_alias_get_all vpopmail_alias_get vpopmail_auth_user vpopmail_del_domain_ex vpopmail_del_domain vpopmail_del_user vpopmail_error vpopmail_passwd vpopmail_set_user_quota contained
+syn keyword phpFunctions w32api_deftype w32api_init_dtype w32api_invoke_function w32api_register_function w32api_set_call_method contained
 syn keyword phpFunctions wddx_add_vars wddx_deserialize wddx_packet_end wddx_packet_start wddx_serialize_value wddx_serialize_vars contained
-endif
-if index(g:php_syntax_extensions_enabled, "xml") >= 0 && index(g:php_syntax_extensions_disabled, "xml") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "xml") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "xml") < 0)
-" xml functions
-syn keyword phpFunctions utf8_decode utf8_encode xml_error_string xml_get_current_byte_index xml_get_current_column_number xml_get_current_line_number xml_get_error_code xml_parse xml_parse_into_struct xml_parser_create xml_parser_create_ns xml_parser_free xml_parser_get_option xml_parser_set_option xml_set_character_data_handler xml_set_default_handler xml_set_element_handler xml_set_end_namespace_decl_handler xml_set_external_entity_ref_handler xml_set_notation_decl_handler xml_set_object xml_set_processing_instruction_handler xml_set_start_namespace_decl_handler xml_set_unparsed_entity_decl_handler contained
-endif
-if index(g:php_syntax_extensions_enabled, "xmlreader") >= 0 && index(g:php_syntax_extensions_disabled, "xmlreader") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "xmlreader") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "xmlreader") < 0)
-" xmlreader classes and interfaces
-syn keyword phpClasses XMLReader contained
-endif
-if index(g:php_syntax_extensions_enabled, "xmlwriter") >= 0 && index(g:php_syntax_extensions_disabled, "xmlwriter") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "xmlwriter") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "xmlwriter") < 0)
-" xmlwriter functions
+syn keyword phpFunctions utf8_decode utf8_encode xml_error_string xml_get_current_byte_index xml_get_current_column_number xml_get_current_line_number xml_get_error_code xml_parse_into_struct xml_parse xml_parser_create_ns xml_parser_create xml_parser_free xml_parser_get_option xml_parser_set_option xml_set_character_data_handler xml_set_default_handler xml_set_element_handler xml_set_end_namespace_decl_handler xml_set_external_entity_ref_handler xml_set_notation_decl_handler xml_set_object xml_set_processing_instruction_handler xml_set_start_namespace_decl_handler xml_set_unparsed_entity_decl_handler contained
+syn keyword phpFunctions xmlrpc_decode_request xmlrpc_decode xmlrpc_encode_request xmlrpc_encode xmlrpc_get_type xmlrpc_parse_method_descriptions xmlrpc_server_add_introspection_data xmlrpc_server_call_method xmlrpc_server_create xmlrpc_server_destroy xmlrpc_server_register_introspection_callback xmlrpc_server_register_method xmlrpc_set_type xmlrpc_is_fault contained
 syn keyword phpFunctions xmlwriter_end_attribute xmlwriter_end_cdata xmlwriter_end_comment xmlwriter_end_document xmlwriter_end_dtd xmlwriter_end_dtd_attlist xmlwriter_end_dtd_element xmlwriter_end_dtd_entity xmlwriter_end_element xmlwriter_end_pi xmlwriter_flush xmlwriter_full_end_element xmlwriter_open_memory xmlwriter_open_uri xmlwriter_output_memory xmlwriter_set_indent xmlwriter_set_indent_string xmlwriter_start_attribute xmlwriter_start_attribute_ns xmlwriter_start_cdata xmlwriter_start_comment xmlwriter_start_document xmlwriter_start_dtd xmlwriter_start_dtd_attlist xmlwriter_start_dtd_element xmlwriter_start_dtd_entity xmlwriter_start_element xmlwriter_start_element_ns xmlwriter_start_pi xmlwriter_text xmlwriter_write_attribute xmlwriter_write_attribute_ns xmlwriter_write_cdata xmlwriter_write_comment xmlwriter_write_dtd xmlwriter_write_dtd_attlist xmlwriter_write_dtd_element xmlwriter_write_dtd_entity xmlwriter_write_element xmlwriter_write_element_ns xmlwriter_write_pi xmlwriter_write_raw contained
-" xmlwriter classes and interfaces
-syn keyword phpClasses XMLWriter contained
-endif
-if index(g:php_syntax_extensions_enabled, "zip") >= 0 && index(g:php_syntax_extensions_disabled, "zip") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "zip") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "zip") < 0)
-" zip functions
+syn keyword phpFunctions xslt_create xslt_errno xslt_error xslt_free xslt_output_process xslt_set_base xslt_set_encoding xslt_set_error_handler xslt_set_log xslt_set_sax_handler xslt_set_sax_handlers xslt_set_scheme_handler xslt_set_scheme_handlers contained
+syn keyword phpFunctions yaz_addinfo yaz_ccl_conf yaz_ccl_parse yaz_close yaz_connect yaz_database yaz_element yaz_errno yaz_error yaz_es_result yaz_get_option yaz_hits yaz_itemorder yaz_present yaz_range yaz_record yaz_scan_result yaz_scan yaz_schema yaz_search yaz_set_option yaz_sort yaz_syntax yaz_wait contained
 syn keyword phpFunctions zip_close zip_entry_close zip_entry_compressedsize zip_entry_compressionmethod zip_entry_filesize zip_entry_name zip_entry_open zip_entry_read zip_open zip_read contained
-" zip classes and interfaces
-syn keyword phpClasses ZipArchive contained
-endif
-if index(g:php_syntax_extensions_enabled, "zlib") >= 0 && index(g:php_syntax_extensions_disabled, "zlib") < 0 && ( ! exists("b:php_syntax_extensions_enabled") || index(b:php_syntax_extensions_enabled, "zlib") >= 0) && ( ! exists("b:php_syntax_extensions_disabled") || index(b:php_syntax_extensions_disabled, "zlib") < 0)
-" zlib functions
-syn keyword phpFunctions deflate_add deflate_init gzclose gzcompress gzdecode gzdeflate gzencode gzeof gzfile gzgetc gzgets gzgetss gzinflate gzopen gzpassthru gzputs gzread gzrewind gzseek gztell gzuncompress gzwrite inflate_add inflate_get_read_len inflate_get_status inflate_init ob_gzhandler readgzfile zlib_decode zlib_encode zlib_get_coding_type contained
-endif
+syn keyword phpFunctions gzclose gzcompress gzdeflate gzencode gzeof gzfile gzgetc gzgets gzgetss gzinflate gzopen gzpassthru gzputs gzread gzrewind gzseek gztell gzuncompress gzwrite readgzfile zlib_get_coding_type gzdecode zlib_encode zlib_decode deflate_init deflate_add inflate_init inflate_add inflate_get_status inflate_get_read_len contained
 
-" @endblock
-
-" The following is needed afterall it seems.
-syntax keyword phpClasses containedin=ALLBUT,phpComment,phpDocComment,phpStringDouble,phpStringSingle,phpIdentifier,phpMethodsVar
-
-" Control Structures
-syn keyword phpKeyword echo continue case default break return goto as endif endwhile endfor endforeach endswitch declare endeclare print new clone yield contained
-" Only create keyword groupings for these if not doing folding, otherwise they take precedence over the regions
-" used for folding.
-if php_folding != 1
-  syn keyword phpKeyword if else elseif while do for foreach function switch contained
-
-  " Exception Keywords
-  syn keyword phpKeyword try catch finally throw contained
+if exists( "php_baselib" )
+  syn keyword phpMethods query next_record num_rows affected_rows nf f p np num_fields haltmsg seek link_id query_id metadata table_names nextid connect halt free register unregister is_registered delete url purl self_url pself_url hidden_session add_query padd_query reimport_get_vars reimport_post_vars reimport_cookie_vars set_container set_tokenname release_token put_headers get_id get_id put_id freeze thaw gc reimport_any_vars start url purl login_if is_authenticated auth_preauth auth_loginform auth_validatelogin auth_refreshlogin auth_registerform auth_doregister start check have_perm permsum perm_invalid contained
+  syn keyword phpFunctions page_open page_close sess_load sess_save contained
 endif
 
-" Class Keywords
-syn keyword phpType class abstract extends interface implements static final var public private protected const trait enum contained
+" Conditional
+syn keyword phpConditional declare else enddeclare endswitch elseif endif if switch match contained
 
-" Magic Methods
-syn keyword phpStatement __construct __destruct __call __callStatic __get __set __isset __unset __sleep __wakeup __toString __invoke __set_state __clone contained
+" Repeat
+syn keyword phpRepeat as do endfor endforeach endwhile for foreach while contained
 
-" Language Constructs
-syn keyword phpKeyword die exit eval empty isset unset list instanceof insteadof contained
+" Label
+syn keyword phpLabel case default switch contained
 
-" Include & friends
-syn keyword phpInclude include include_once require require_once namespace contained
+" Statement
+syn keyword phpStatement return break continue exit goto contained
+syn match phpStatement "\<yield\>\(\s\+from\>\)\?" contained
 
-" Types
-syn keyword phpType bool[ean] int[eger] real double float string array object self parent global this stdClass callable iterable void never contained
-" Special values
-syn keyword phpNullValue null contained
+" Keyword
+syn keyword phpKeyword var const contained
+
+" Type
+syn keyword phpType void bool boolean int integer real double float string array object NULL callable iterable mixed never contained
+
+" Structure
+syn keyword phpStructure namespace extends implements instanceof parent self contained
 
 " Operator
-syn match phpOperator       "[-=+%^&|*!.~?:]" contained display
-syn match phpOperator       "[-+*/%^&|.]="  contained display
-syn match phpOperator       "/[^*/]"me=e-1  contained display
-syn match phpOperator       "\$"  contained display
-syn match phpOperator       "&&\|\<and\>" contained display
-syn match phpOperator       "||\|\<x\=or\>" contained display
-syn match phpOperator       "[!=<>]=" contained display
-syn match phpOperator       "[<>]"  contained display
-syn match phpMemberSelector "->\|::"  contained display
-syn match phpVarSelector    "\$"  contained display
-" highlight static and object variables inside strings
-syn match phpMethodsVar     "\%(->\|::$\?\)\h\w*" contained contains=phpMethods,phpMemberSelector,phpIdentifier display containedin=phpStringDouble
-syn match phpMethodsVar     "\%(->\|::\%($\)\@!\)\s*\h\w*\s*("me=e-1 skipwhite skipempty contained contains=phpMemberSelector,phpMethod display containedin=phpStringDouble
-syn match phpMethod /\h\w*/ contained
-syn match phpSplatOperator  "\.\.\." contained display
+syn match phpOperator "[-=+%^&|*!.~?:]" contained display
+syn match phpOperator "[-+*/%^&|.]=" contained display
+syn match phpOperator "/[^*/]"me=e-1 contained display
+syn match phpOperator "\$" contained display
+syn match phpOperator "&&\|\<and\>" contained display
+syn match phpOperator "||\|\<x\=or\>" contained display
+syn match phpRelation "[!=<>]=" contained display
+syn match phpRelation "[<>]" contained display
+syn match phpRelation "<=>" contained display
+" PHP 8.0 adds the nullsafe operator ?-> for property access and method calls.
+syn match phpMemberSelector "?\?->" contained display
+syn match phpVarSelector "\$" contained display
 
 " Identifier
-syn match  phpIdentifier         "$\h\w*"  contained contains=phpSuperglobals,phpVarSelector display
-syn match  phpIdentifierSimply   "${\h\w*}"  contains=phpOperator,phpParent  contained display
-syn region phpIdentifierComplex  matchgroup=phpParent start="{\$"rs=e-1 end="}"  contains=phpIdentifier,phpIdentifierSimply,phpSpecialChar,phpMethodsVar,phpStringSingle,phpStringDouble,phpBacktick,phpStrEsc contained extend
+syn match phpIdentifier "$\h\w*" contained contains=phpEnvVar,phpIntVar,phpVarSelector display
+syn match phpIdentifierSimply "${\h\w*}" contains=phpOperator,phpParent contained display
+syn region phpIdentifierComplex matchgroup=phpParent start="{\$"rs=e-1 end="}" contains=phpIdentifier,phpMemberSelector,phpVarSelector,phpIdentifierComplexP contained extend
+syn region phpIdentifierComplexP matchgroup=phpParent start="\[" end="]" contains=@phpClInside contained
+
+" Interpolated indentifiers (inside strings)
+  syn match phpBrackets "[][}{]" contained display
+  " errors
+    syn match phpInterpSimpleError "\[[^]]*\]" contained display " fallback (if nothing else matches)
+    syn match phpInterpSimpleError "?\?->[^a-zA-Z_]" contained display
+    " make sure these stay above the correct DollarCurlies so they don't take priority
+    syn match phpInterpBogusDollarCurley "${[^}]*}" contained display " fallback (if nothing else matches)
+  syn match phpInterpSimpleBracketsInner "\w\+" contained
+  syn match phpInterpSimpleBracketsInner "\$\h\w*" contained
+  syn match phpInterpSimpleBrackets "\[\$\?\h\w*]" contained contains=phpBrackets,phpInterpSimpleBracketsInner
+  " -0x1 and -123 refer to the string offsets '-0x1' and '-123' of array keys
+  " TODO: Support [1_2], [-0b1_10_1], etc (also literal strings).
+  syn match phpInterpSimpleBrackets "\[-\?\d\+]" contained contains=phpBrackets,phpInterpSimpleBracketsInner
+  syn match phpInterpSimpleBrackets "\[-\?0[xX]\x\+]" contained contains=phpBrackets,phpInterpSimpleBracketsInner
+  syn match phpInterpSimpleBrackets "\[-\?0[bB][01]\+]" contained contains=phpBrackets,phpInterpSimpleBracketsInner
+  syn match phpInterpSimple "\$\h\w*\(\[[^]]*\]\|?\?->\h\w*\)\?" contained contains=phpInterpSimpleBrackets,phpIdentifier,phpInterpSimpleError,phpMethods,phpMemberSelector display
+  syn match phpInterpVarname "\h\w*" contained
+  syn match phpInterpMethodName "\h\w*" contained " default color
+  syn match phpInterpSimpleCurly "\${\h\w*}" contains=phpInterpVarname contained extend
+  syn region phpInterpDollarCurley1Helper matchgroup=phpParent start="{" end="\[" contains=phpInterpVarname contained
+  syn region phpInterpDollarCurly1 matchgroup=phpParent start="\${\h\w*\["rs=s+1 end="]}" contains=phpInterpDollarCurley1Helper,@phpClConst contained extend
+
+  syn match phpInterpDollarCurley2Helper "{\h\w*?\?->" contains=phpBrackets,phpInterpVarname,phpMemberSelector contained
+
+  syn region phpInterpDollarCurly2 matchgroup=phpParent start="\${\h\w*?\?->"rs=s+1 end="}" contains=phpInterpDollarCurley2Helper,phpInterpMethodName contained
+
+  syn match phpInterpBogusDollarCurley "${\h\w*?\?->}" contained display
+  syn match phpInterpBogusDollarCurley "${\h\w*\[]}" contained display
+
+  syn region phpInterpComplex matchgroup=phpParent start="{\$"rs=e-1 end="}" contains=phpIdentifier,phpMemberSelector,phpVarSelector,phpIdentifierComplexP contained extend
+  syn region phpIdentifierComplexP matchgroup=phpParent start="\[" end="]" contains=@phpClInside contained
+  " define a cluster to get all interpolation syntaxes for double-quoted strings
+  syn cluster phpInterpDouble contains=phpInterpSimple,phpInterpSimpleCurly,phpInterpDollarCurly1,phpInterpDollarCurly2,phpInterpBogusDollarCurley,phpInterpComplex
+
+" Methods
+syn match phpMethodsVar "?\?->\h\w*" contained contains=phpMethods,phpMemberSelector display
+
+" Include
+syn keyword phpInclude include require include_once require_once use contained
+
+" Define
+syn keyword phpDefine new clone contained
 
 " Boolean
-syn keyword phpBoolean true false  contained
-
-" Number
-syn match phpNumber "\<\d\+\>" contained display
-syn match phpNumber "-\d\+\>" contained display
-syn match phpNumber "\<0x\x\{1,8}\>"  contained display
-syn match phpNumber "-0x\x\{1,8}\>"  contained display
-syn match phpNumber "\<0b[01]\+\>"    contained display
-syn match phpNumber "-0b[01]\+\>"    contained display
-syn match phpNumber "\<\d\+\%([eE][+-]\=\d\+\)\=\>" contained display
-syn match phpNumber "-\d\+\%([eE][+-]\=\d\+\)\=\>" contained display
+syn keyword phpBoolean true false contained
 
 " Float
-syn match phpNumber "\<\%(\d\+\.\d\+\|\d\+\.\|\.\d\+\)\%([eE][+-]\=\d\+\)\=\>" contained display
-syn match phpNumber "-\%(\d\+\.\d\+\|\d\+\.\|\.\d\+\)\%([eE][+-]\=\d\+\)\=\>" contained display
+" Refer to: https://www.php.net/manual/en/language.types.float.php
+syn match phpFloat "\%(\w\|\.\)\@<!\%(\d_\?\|\.\)*\d\%(\d\|_\|\.\)*\%([eE][+-]\=\%(\d\|_\|\.\)\+\)\=\%(\w\|\.\)\@!" contained contains=phpFloatError display
+syn match phpFloatError "\%([eE.][0-9._+-]*\.\|__\|_\(\>\|[eE]\)\|\(\>\|[eE]\)_\)" contained display
 
-" SpecialChar
-syn match phpSpecialChar "\\[fnrtv\\]" contained display
-syn match phpSpecialChar "\\\d\{3}"  contained contains=phpOctalError display
-syn match phpSpecialChar "\\x\x\{2}" contained display
-" corrected highlighting for an escaped '\$' inside a double-quoted string
-syn match phpSpecialChar "\\\$"  contained display
-syn match phpSpecialChar +\\"+   contained display
-syn match phpStrEsc      "\\\\"  contained display
-syn match phpStrEsc      "\\'"   contained display
+" Number
+syn match phpNumber "\%(\.\)\@<!\<\%([1-9]\d*\|0\|0[xX]\(\x_\?\)*\x\)\>\%(\.\)\@!" contained display
+syn match phpNumber "\%(\.\)\@<!\<0\d\+\|0[oO]\d\+\>\%(\.\)\@!" contained contains=phpOctalError display
+syn match phpBinaryError "[2-9]" contained display
+syn match phpNumber "\%(\.\)\@<!\<0[bB]\(\d_\?\)*\d\>\%(\.\)\@!" contained contains=phpBinaryError display
 
-" Format specifiers (printf)
-" See https://github.com/aantonello/php.vim/commit/9d24eab4ea4b3752a54aebf14d3491b6d8edb6d8
-syn match phpSpecialChar display contained /%\(\d\+\$\)\=[-+' #0*]*\(\d*\|\*\|\*\d\+\$\)\(\.\(\d*\|\*\|\*\d\+\$\)\)\=\([aAbBdiouxXDOUfFeEgGcCsSpnmMyYhH]\|\[\^\=.[^]]*\]\)/ containedin=phpStringSingle,phpStringDouble,phpHereDoc
-syn match phpSpecialChar display contained /%%/ containedin=phpStringSingle,phpStringDouble,phpHereDoc
+" Backslash escapes
+syn case match
+" for double quotes and heredoc
+syn match phpBackslashSequences "\\[fnrtv\\\"$]" contained display
+syn match phpBackslashSequences "\\\d\{1,3}" contained contains=phpOctalError display
+syn match phpBackslashSequences "\\x\x\{1,2}" contained display
+" additional sequence for double quotes only
+syn match phpBackslashDoubleQuote "\\[\"]" contained display
+" for single quotes only
+syn match phpBackslashSingleQuote "\\[\\']" contained display
+syn case ignore
+
 
 " Error
-syn match phpOctalError "[89]"  contained display
-if (exists("php_parent_error_close") && php_parent_error_close)
-  syn match phpParentError "[)\]}]"  contained display
+syn match phpOctalError "[89]" contained display
+if exists("php_parent_error_close")
+  syn match phpParentError "[)\]}]" contained display
 endif
 
 " Todo
-syn case match
-syn keyword phpTodo TODO FIXME XXX NOTE contained
-syn case ignore
+syn keyword phpTodo todo fixme xxx contained
 
 " Comment
-if (exists("php_parent_error_open") && php_parent_error_open)
+if exists("php_parent_error_open")
   syn region phpComment start="/\*" end="\*/" contained contains=phpTodo,@Spell
 else
   syn region phpComment start="/\*" end="\*/" contained contains=phpTodo,@Spell extend
 endif
-
-syn match phpCommentStar contained "^\s*\*[^/]"me=e-1
-syn match phpCommentStar contained "^\s*\*$"
-
-if !exists("php_ignore_phpdoc") || !php_ignore_phpdoc
-  syn case ignore
-
-  SynFoldDoc syn region phpDocComment   start="/\*\*" end="\*/" keepend contains=phpCommentTitle,phpDocTags,phpTodo,@Spell extend
-  syn region phpCommentTitle contained matchgroup=phpDocComment start="/\*\*" matchgroup=phpCommentTitle keepend end="\.$" end="\.[ \t\r<&]"me=e-1 end="[^{]@"me=s-2,he=s-1 end="\*/"me=s-1,he=s-1 contains=phpCommentStar,phpTodo,phpDocTags,@Spell containedin=phpDocComment
-
-  syn region phpDocTags  start="{@\(example\|id\|internal\|inheritdoc\|link\|source\|toc\|tutorial\)" end="}" containedin=phpDocComment
-  syn match phpDocTags "@\%(abstract\|access\|api\|author\|brief\|bug\|category\|class\|copyright\|created\|date\|deprecated\|details\|example\|exception\|file\|filesource\|final\|global\|id\|ignore\|inheritdoc\|internal\|license\|link\|magic\|method\|name\|package\|param\|property\|return\|see\|since\|source\|static\|staticvar\|struct\|subpackage\|throws\|toc\|todo\|tutorial\|type\|uses\|var\|version\|warning\)" containedin=phpDocComment nextgroup=phpDocParam,phpDocIdentifier skipwhite contained
-  syn match phpDocParam "\s\+\zs\(|\|\\\|\h\w*\)*\h\w*" nextgroup=phpDocIdentifier skipwhite contained contains=phpDocNamespaceSeparator
-  syn match phpDocIdentifier "\s\+\zs$\h\w*" contained
-  syn match phpDocNamespaceSeparator "\\" contained display
-
-  syn case match
-endif
-
-if version >= 600
-  syn match phpComment  "#.\{-}\(?>\|$\)\@="  contained contains=phpTodo,@Spell
-  syn match phpComment  "//.\{-}\(?>\|$\)\@=" contained contains=phpTodo,@Spell
-else
-  syn match phpComment  "#.\{-}$" contained contains=phpTodo,@Spell
-  syn match phpComment  "#.\{-}?>"me=e-2  contained contains=phpTodo,@Spell
-  syn match phpComment  "//.\{-}$"  contained contains=phpTodo,@Spell
-  syn match phpComment  "//.\{-}?>"me=e-2 contained contains=phpTodo,@Spell
-endif
+syn match phpComment "#.\{-}\(?>\|$\)\@=" contained contains=phpTodo,@Spell
+syn match phpComment "//.\{-}\(?>\|$\)\@=" contained contains=phpTodo,@Spell
 
 " String
-if (exists("php_parent_error_open") && php_parent_error_open)
-  syn region phpStringDouble matchgroup=phpStringDelimiter start=+"+ skip=+\\\\\|\\"+ end=+"+  contains=@Spell,@phpAddStrings,phpIdentifier,phpSpecialChar,phpIdentifierSimply,phpIdentifierComplex,phpStrEsc contained keepend
-  syn region phpBacktick matchgroup=phpStringDelimiter start=+`+ skip=+\\\\\|\\"+ end=+`+  contains=@Spell,@phpAddStrings,phpIdentifier,phpSpecialChar,phpIdentifierSimply,phpIdentifierComplex,phpStrEsc contained keepend
-  syn region phpStringSingle matchgroup=phpStringDelimiter start=+'+ skip=+\\\\\|\\'+ end=+'+  contains=@Spell,@phpAddStrings,phpStrEsc contained keepend
+if exists("php_parent_error_open")
+  syn region phpStringDouble matchgroup=phpStringDouble start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=@phpAddStrings,phpBackslashSequences,phpBackslashDoubleQuote,@phpInterpDouble,@Spell contained keepend
+  syn region phpBacktick matchgroup=phpBacktick start=+`+ skip=+\\\\\|\\"+ end=+`+ contains=@phpAddStrings,phpIdentifier,phpBackslashSequences,phpIdentifierSimply,phpIdentifierComplex contained keepend
+  syn region phpStringSingle matchgroup=phpStringSingle start=+'+ skip=+\\\\\|\\'+ end=+'+ contains=@phpAddStrings,phpBackslashSingleQuote,@Spell contained keepend
 else
-  syn region phpStringDouble matchgroup=phpStringDelimiter start=+"+ skip=+\\\\\|\\"+ end=+"+  contains=@Spell,@phpAddStrings,phpIdentifier,phpSpecialChar,phpIdentifierSimply,phpIdentifierComplex,phpStrEsc contained extend keepend
-  syn region phpBacktick matchgroup=phpStringDelimiter start=+`+ skip=+\\\\\|\\"+ end=+`+  contains=@Spell,@phpAddStrings,phpIdentifier,phpSpecialChar,phpIdentifierSimply,phpIdentifierComplex,phpStrEsc contained extend keepend
-  syn region phpStringSingle matchgroup=phpStringDelimiter start=+'+ skip=+\\\\\|\\'+ end=+'+  contains=@Spell,@phpAddStrings,phpStrEsc contained keepend extend
+  syn region phpStringDouble matchgroup=phpStringDouble start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=@phpAddStrings,phpBackslashSequences,phpBackslashDoubleQuote,@phpInterpDouble,@Spell contained extend keepend
+  syn region phpBacktick matchgroup=phpBacktick start=+`+ skip=+\\\\\|\\"+ end=+`+ contains=@phpAddStrings,phpIdentifier,phpBackslashSequences,phpIdentifierSimply,phpIdentifierComplex contained extend keepend
+  syn region phpStringSingle matchgroup=phpStringSingle start=+'+ skip=+\\\\\|\\'+ end=+'+ contains=@phpAddStrings,phpBackslashSingleQuote,@Spell contained keepend extend
 endif
 
+" HereDoc and NowDoc
 syn case match
 
 " HereDoc
-if version >= 704
-  if b:php_version_id >= 70300
-    " @begin phpHereDoc
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\I\i*\)$" end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*"\z(\I\i*\)"$+ end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpHereDoc
-  else
-    " @begin phpHereDoc
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\I\i*\)$" end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*"\z(\I\i*\)"$+ end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@3<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-  " @end phpHereDoc
-  endif
-else
-  if b:php_version_id >= 70300
-    " @copy phpHereDoc strip_maximum_size
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\I\i*\)$" end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@<=\s*"\z(\I\i*\)"$+ end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpHereDoc
-  else
-    " @copy phpHereDoc strip_maximum_size
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\I\i*\)$" end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@<=\s*"\z(\I\i*\)"$+ end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpHereDoc
-  endif
-endif
+syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\(\"\=\)\z(\I\i*\)\2$" end="^\s*\z1\>" contained contains=phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpBackslashSequences,phpMethodsVar,@Spell keepend extend
+" including HTML,JavaScript,SQL even if not enabled via options
+syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\(\"\=\)\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)\2$" end="^\s*\z1\>" contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpBackslashSequences,phpMethodsVar,@Spell keepend extend
+syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\(\"\=\)\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)\2$" end="^\s*\z1\>" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpBackslashSequences,phpMethodsVar,@Spell keepend extend
+syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\(\"\=\)\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)\2$" end="^\s*\z1\>" contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpBackslashSequences,phpMethodsVar,@Spell keepend extend
 
 " NowDoc
-if version >= 704
-  if b:php_version_id >= 70300
-  " @begin phpNowDoc
-    SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\I\i*\)'$+ end="^\s*\z1\>" contained keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_nowdoc") && php_html_in_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)'$+ end="^\s*\z1\>" contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)'$+ end="^\s*\z1\>" contained contains=@htmlJavascript,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_nowdoc") && php_sql_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)'$+ end="^\s*\z1\>" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_nowdoc") && php_xml_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)'$+ end="^\s*\z1\>" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-  " @end phpNowDoc
-  else
-    " @begin phpNowDoc
-    SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\I\i*\)'$+ end="^\z1\(;\=$\)\@=" contained keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_nowdoc") && php_html_in_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)'$+ end="^\z1\(;\=$\)\@=" contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)'$+ end="^\z1\(;\=$\)\@=" contained contains=@htmlJavascript,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_nowdoc") && php_sql_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)'$+ end="^\z1\(;\=$\)\@=" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_nowdoc") && php_xml_nowdoc)
-      SynFold syn region phpNowDoc matchgroup=Delimiter start=+\(<<<\)\@3<=\s*'\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)'$+ end="^\z1\(;\=$\)\@=" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpNowDoc
-  endif
-else
-  if b:php_version_id >= 70300
-    " @copy phpHereDoc strip_maximum_size
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\I\i*\)$" end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@<=\s*"\z(\I\i*\)"$+ end="^\s*\z1\>" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\s*\z1\>"  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\s*\z1\>" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpNowDoc
-  else
-    " @copy phpHereDoc strip_maximum_size
-    SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\I\i*\)$" end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    SynFold syn region phpHereDoc matchgroup=Delimiter start=+\(<<<\)\@<=\s*"\z(\I\i*\)"$+ end="^\z1\(;\=$\)\@=" contained contains=@Spell,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    " including HTML,JavaScript,SQL if enabled via options
-    if (exists("php_html_in_heredoc") && php_html_in_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@="  contained contains=@htmlJavascript,phpIdentifierSimply,phpIdentifier,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_sql_heredoc") && php_sql_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@sqlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    if (exists("php_xml_heredoc") && php_xml_heredoc)
-      SynFold syn region phpHereDoc matchgroup=Delimiter start="\(<<<\)\@<=\s*\z(\(\I\i*\)\=\(xml\)\c\(\i*\)\)$" end="^\z1\(;\=$\)\@=" contained contains=@xmlTop,phpIdentifier,phpIdentifierSimply,phpIdentifierComplex,phpSpecialChar,phpMethodsVar,phpStrEsc keepend extend
-    endif
-    " @end phpNowDoc
-  endif
-endif
-
+syn region phpNowDoc matchgroup=Delimiter start="\(<<<\)\@<='\z(\I\i*\)'$" end="^\s*\z1\>" contained contains=@Spell keepend extend
+" including HTML,JavaScript,SQL even if not enabled via options
+syn region phpNowDoc matchgroup=Delimiter start="\(<<<\)\@<='\z(\(\I\i*\)\=\(html\)\c\(\i*\)\)'$" end="^\s*\z1\>" contained contains=@htmlTop,@Spell keepend extend
+syn region phpNowDoc matchgroup=Delimiter start="\(<<<\)\@<='\z(\(\I\i*\)\=\(sql\)\c\(\i*\)\)'$" end="^\s*\z1\>" contained contains=@sqlTop,@Spell keepend extend
+syn region phpNowDoc matchgroup=Delimiter start="\(<<<\)\@<='\z(\(\I\i*\)\=\(javascript\)\c\(\i*\)\)'$" end="^\s*\z1\>" contained contains=@htmlJavascript,@Spell keepend extend
 syn case ignore
 
 " Parent
-if (exists("php_parent_error_close") && php_parent_error_close) || (exists("php_parent_error_open") && php_parent_error_open)
-  syn match  phpParent "[{}]"  contained
-  syn region phpParent matchgroup=Delimiter start="(" end=")"  contained contains=@phpClFunction,@phpClControl transparent
-  syn region phpParent matchgroup=Delimiter start="\[" end="\]"  contained contains=@phpClFunction,@phpClControl transparent
-  if ! (exists("php_parent_error_close") && php_parent_error_close)
+if exists("php_parent_error_close") || exists("php_parent_error_open")
+  syn match phpParent "[{}]" contained
+  syn region phpParent matchgroup=Delimiter start="(" end=")" contained contains=@phpClInside transparent
+  syn region phpParent matchgroup=Delimiter start="#\?\[" end="\]" contained contains=@phpClInside transparent
+  if !exists("php_parent_error_close")
     syn match phpParent "[\])]" contained
   endif
 else
   syn match phpParent "[({[\]})]" contained
+  syn match phpParent "#\[" contained
 endif
 
-" Static classes
-syn match phpStaticClasses "\v\h\w+(::)@=" contained display
-
-" Class name
-syn keyword phpKeyword class contained
-      \ nextgroup=phpClass skipwhite skipempty
-syn match phpClass /\h\w*/ contained
-
-syn match phpClassNamespaceSeparator "\\" contained display
-
-" Class extends
-syn keyword phpKeyword extends contained
-      \ nextgroup=phpClassExtends skipwhite skipempty
-syn match phpClassExtends /\(\\\|\h\w*\)*\h\w*/ contained contains=phpClassNamespaceSeparator
-
-" Class implements
-syntax keyword phpKeyword implements contained
-      \ nextgroup=phpClassImplements skipwhite skipempty
-syntax match phpClassImplements contained contains=phpClassNamespaceSeparator
-      \ nextgroup=phpClassDelimiter skipwhite skipempty /\(\\\|\h\w*\)*\h\w*/
-syntax match phpClassDelimiter contained
-      \ nextgroup=phpClassImplements skipwhite skipempty /,/
-
-" use statement
-syn match phpUseNamespaceSeparator "\\" contained display
-syn keyword phpInclude use contained
-      \ nextgroup=phpUseFunction,phpUseClass skipwhite skipempty
-syn match phpUseFunction /function\_s\+\(\\\|\h\w*\)*\h\w*/ contained contains=phpUseKeyword
-      \ nextgroup=phpUseAlias skipwhite skipempty
-syn match phpUseClass /\(function\_s\+\)\@!\(\\\|\h\w*\)*\h\w*/ contained contains=phpUseNamespaceSeparator
-      \ nextgroup=phpUseAlias skipwhite skipempty
-syn match phpUseAlias /as\_s\+\h\w*/ contained contains=phpUseKeyword
-syn match phpUseKeyword /\(function\|as\)\_s\+/ contained contains=phpKeyword
-
-" Function name
-syn keyword phpKeyword function contained
-      \ nextgroup=phpFunction skipwhite skipempty
-syn match phpFunction /\h\w*/ contained
-
-" PHP 7 Generator & delegation via yield from
-"
-" See https://www.php.net/manual/en/language.generators.syntax.php#control-structures.yield
-" See https://www.php.net/manual/en/language.generators.syntax.php#control-structures.yield.from
-"
-syn keyword phpKeyword yield contained
-      \ nextgroup=phpYieldFromKeyword skipwhite skipempty
-syn match phpYieldFromKeyword /\<from\>/ contained
-
-" Clusters
-syn cluster phpClConst contains=phpFunctions,phpClasses,phpStaticClasses,phpIdentifier,phpStatement,phpKeyword,phpOperator,phpSplatOperator,phpStringSingle,phpStringDouble,phpBacktick,phpNumber,phpType,phpNullValue,phpBoolean,phpStructure,phpMethodsVar,phpConstants,phpException,phpSuperglobals,phpMagicConstants,phpServerVars
-syn cluster phpClInside contains=@phpClConst,phpComment,phpDocComment,phpParent,phpParentError,phpInclude,phpHereDoc,phpNowDoc
-syn cluster phpClFunction contains=@phpClInside,phpDefine,phpParentError,phpStorageClass,phpKeyword
-syn cluster phpClControl contains=phpFoldIfContainer,phpFoldWhile,phpFoldDoWhile,phpFoldFor,phpFoldForeach,phpFoldTryContainer,phpFoldSwitch
-syn cluster phpClTop contains=@phpClFunction,@phpClControl,phpFoldFunction,phpFoldClass,phpFoldInterface,phpFoldHtmlInside
+syn cluster phpClConst contains=phpFunctions,phpIdentifier,phpConditional,phpRepeat,phpStatement,phpOperator,phpRelation,phpStringSingle,phpStringDouble,phpBacktick,phpNumber,phpFloat,phpKeyword,phpType,phpBoolean,phpStructure,phpMethodsVar,phpConstant,phpCoreConstant,phpException
+syn cluster phpClInside contains=@phpClConst,phpComment,phpLabel,phpParent,phpParentError,phpInclude,phpHereDoc,phpNowDoc
+syn cluster phpClFunction contains=@phpClInside,phpDefine,phpParentError,phpStorageClass
+syn cluster phpClTop contains=@phpClFunction,phpFoldFunction,phpFoldClass,phpFoldInterface,phpFoldTry,phpFoldCatch
 
 " Php Region
-if (exists("php_parent_error_open") && php_parent_error_open)
-  syn region phpRegion matchgroup=Delimiter start="<?\(php\)\=" end="?>" contains=@phpClTop
+if exists("php_parent_error_open")
+  if exists("php_noShortTags")
+    syn region phpRegion matchgroup=Delimiter start="<?\(php\|=\)" end="?>" contains=@phpClTop
+  else
+    syn region phpRegion matchgroup=Delimiter start="<?\(php\)\=" end="?>" contains=@phpClTop
+  endif
+  syn region phpRegionSc matchgroup=Delimiter start=+<script language="php">+ end=+</script>+ contains=@phpClTop
+  if exists("php_asp_tags")
+    syn region phpRegionAsp matchgroup=Delimiter start="<%\(=\)\=" end="%>" contains=@phpClTop
+  endif
 else
-  syn region phpRegion matchgroup=Delimiter start="<?\(php\)\=" end="?>" contains=@phpClTop keepend
+  if exists("php_noShortTags")
+    syn region phpRegion matchgroup=Delimiter start="<?\(php\|=\)" end="?>" contains=@phpClTop keepend
+  else
+    syn region phpRegion matchgroup=Delimiter start="<?\(php\)\=" end="?>" contains=@phpClTop keepend
+  endif
+  syn region phpRegionSc matchgroup=Delimiter start=+<script language="php">+ end=+</script>+ contains=@phpClTop keepend
+  if exists("php_asp_tags")
+    syn region phpRegionAsp matchgroup=Delimiter start="<%\(=\)\=" end="%>" contains=@phpClTop keepend
+  endif
 endif
 
 " Fold
-if php_folding==1
-  " match one line constructs here and skip them at folding
-  syn keyword phpSCKeyword  abstract final private protected public static  contained
-  syn keyword phpFCKeyword  function  contained
-  syn match phpDefine "\(\s\|^\)\(abstract\s\+\|final\s\+\|private\s\+\|protected\s\+\|public\s\+\|static\s\+\)*function\(\s\+.*[;}]\)\@="  contained contains=phpSCKeyword
-  syn match phpStructure "\(\s\|^\)\(abstract\s\+\|final\s\+\)*class\(\s\+.*}\)\@="  contained
-  syn match phpStructure "\(\s\|^\)interface\(\s\+.*}\)\@="  contained
-  syn match phpException "\(\s\|^\)try\(\s\+.*}\)\@="  contained
-  syn match phpException "\(\s\|^\)catch\(\s\+.*}\)\@="  contained
-  syn match phpKeyword "^\s*\(if\|else\%[if]\)\s*\(.*{.*}$\|[^{}]*$\)\@=" contained
-  syn match phpKeyword "^\s*while\s*\([^{}]*$\|.*{.*}$\)\@=" contained
-  syn match phpKeyword "^\s*do\s*\([^{}]*$\|{.*}\s*while\s*.*;$\)\@=" contained
-  syn match phpKeyword "while\s*\((.*);$\)\@=" contained
-  syn match phpKeyword "^\s*for\s*\((.*)\s*{.*}$\|[^{}]*$\)\@=" contained
-  syn match phpKeyword "^\s*foreach\s*\((.*)\s*{.*}$\|[^{}]*$\)\@=" contained
+if exists("php_folding") && php_folding==1
+" match one line constructs here and skip them at folding
+  syn keyword phpSCKeyword abstract final private protected public static readonly contained
+  syn keyword phpFCKeyword function contained
+  syn keyword phpDefine fn contained
+  syn keyword phpStorageClass global contained
+  syn match phpDefine "\(\s\|^\)\(abstract\s\+\|final\s\+\|private\s\+\|protected\s\+\|public\s\+\|static\s\+\)*function\(\s\+.*[;}]\)\@=" contained contains=phpSCKeyword
+  syn match phpStructure "\(\s\|^\)\(abstract\s\+\|final\s\+\)*\(trait\|class\)\(\s\+.*}\)\@=" contained
+  syn match phpStructure "\(\s\|^\)\(interface\|enum\)\(\s\+.*}\)\@=" contained
+  syn match phpException "\(\s\|^\)try\(\s\+.*}\)\@=" contained
+  syn match phpException "\(\s\|^\)catch\(\s\+.*}\)\@=" contained
+  syn match phpException "\(\s\|^\)finally\(\s\+.*}\)\@=" contained
 
-  set foldmethod=syntax
+  setlocal foldmethod=syntax
   syn region phpFoldHtmlInside matchgroup=Delimiter start="?>" end="<?\(php\)\=" contained transparent contains=@htmlTop
-  syn region phpFoldFunction matchgroup=Storageclass start="^\z(\s*\)\(abstract\s\+\|final\s\+\|private\s\+\|protected\s\+\|public\s\+\|static\s\+\)*function\s\([^};]*$\)\@="rs=e-9 matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,@phpClControl,phpFoldHtmlInside,phpFCKeyword contained transparent fold extend
-  syn region phpFoldFunction matchgroup=Define start="^function\s\([^};]*$\)\@=" matchgroup=Delimiter end="^}" contains=@phpClFunction,@phpClControl,phpFoldHtmlInside contained transparent fold extend
-  syn region phpFoldClass matchgroup=Structure start="^\z(\s*\)\(abstract\s\+\|final\s\+\)*class\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldFunction,phpSCKeyword contained transparent fold extend
+  syn region phpFoldFunction matchgroup=Storageclass start="^\z(\s*\)\(abstract\s\+\|final\s\+\|private\s\+\|protected\s\+\|public\s\+\|static\s\+\)*function\s\([^};]*$\)\@="rs=e-9 matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldHtmlInside,phpFCKeyword contained transparent fold extend
+  syn region phpFoldFunction matchgroup=Define start="^function\s\([^};]*$\)\@=" matchgroup=Delimiter end="^}" contains=@phpClFunction,phpFoldHtmlInside contained transparent fold extend
+  syn region phpFoldClass matchgroup=Structure start="^\z(\s*\)\(abstract\s\+\|final\s\+\)*\(trait\|class\|enum\)\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldFunction,phpSCKeyword contained transparent fold extend
   syn region phpFoldInterface matchgroup=Structure start="^\z(\s*\)interface\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldFunction contained transparent fold extend
-
-  syn region phpFoldTryContainer start="^\z(\s*\)try\s\+\(.*{$\)\@=" skip="^\z1}\_s*\(catch\|finally\)" end="^\z1}$" keepend extend contained contains=@phpClFunction,@phpClControl,phpFoldFunction,phpFoldHtmlInside transparent
-  syn region phpFoldTry matchgroup=phpException start="^\z(\s*\)try\s\+\(.*{$\)\@=" matchgroup=Delimiter end="^\z1}$" end="^\z1}\(\s\+\(catch\|finally\)\)\@="me=s-1 containedin=phpFoldTryContainer contained transparent keepend fold extend nextgroup=phpFoldCatch
-  syn region phpFoldCatch matchgroup=phpException start="^\z(\s*\)\(}\s\+\)\=catch\s\+\(.*{$\)\@=" matchgroup=Delimiter end="^\z1}$" end="^\z1}\(\s\+\(catch\|finally\)\)\@="me=s-1 containedin=phpFoldTryContainer keepend contained transparent fold extend nextgroup=phpFoldCatch,phpFoldFinally
-  syn region phpFoldFinally matchgroup=phpException start="^\z(\s*\)\(}\s\+\)\=finally\s\+\(.*{$\)\@=" matchgroup=Delimiter end="^\z1}$" contained containedin=phpFoldTryContainer transparent fold keepend
-
-  syn region phpFoldIfContainer start="^\z(\s*\)if\s\+\(.*{$\)\@=" skip="^\z1}\_s*else\%[if]" end="^\z1}$" keepend extend contained contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside
-  syn region phpFoldIf matchgroup=phpKeyword start="^\z(\s*\)if\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="\(^\z1\)\@=}\(\_s\+\%[elseif]\s\+[^}]*$\)\@="me=s-1 contained containedin=phpFoldIfContainer keepend nextgroup=phpFoldElseIf,phpFoldElse fold transparent
-  syn region phpFoldElseIf matchgroup=phpKeyword start="^\z(\s*\)\(}\s\+\)\=elseif\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="\(^\z1\)\@=}\(\s*\%[elseif]\s*[^}]*$\)\@="me=s-1 contained containedin=phpFoldIfContainer keepend nextgroup=phpFoldElseIf,phpFoldElse fold transparent
-  syn region phpFoldElse matchgroup=phpKeyword start="^\z(\s*\)\(}\s\+\)\=else\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="\(^\z1\)\@=}\(\s\+\%[elseif]\s\+[^}]*$\)\@="me=s-1 contained containedin=phpFoldIfContainer keepend fold transparent
-
-  syn region phpFoldSwitch matchgroup=phpKeyword start="^\z(\s*\)switch\s*\(.*{$\)\@=" matchgroup=Delimiter end="^\z1}$" keepend extend contained contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside fold transparent
-  syn region phpFoldCase matchgroup=phpKeyword start="^\z(\s*\)case\s*\(.*:$\)\@=" end="^\z1\(case\|default\)"me=s-1 contained containedin=phpFoldSwitch keepend contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside nextgroup=phpFoldCase,phpFoldDefault fold transparent
-  syn region phpFoldDefault matchgroup=phpKeyword start="^\z(\s*\)default\(:$\)\@=" matchgroup=Delimiter end="\s*}$" contained contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside containedin=phpFoldSwitch keepend fold transparent
-
-  syn region phpFoldWhile matchgroup=phpKeyword start="^\z(\s*\)while\s\+\(.*{$\)\@=" matchgroup=Delimiter end="^\z1}$" contains=@phpClFunction,@phpClControl,phpFoldHtmlInside contained fold extend
-  syn region phpFoldDoWhile matchgroup=phpkeyword start="^\z(\s*\)do\s\+\({$\)\@=" matchgroup=Delimiter end="\z1}\s\+\(while\s\+.*;$\)\@=" contains=@phpClFunction,@phpClControl,phpFoldHtmlInside contained fold extend keepend
-
-  syn region phpFoldFor matchgroup=phpKeyword start="^\z(\s*\)for\s\(.*{$\)\@=" matchgroup=Delimiter end="\z1}$" contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside contained transparent fold extend
-  syn region phpFoldForeach matchgroup=phpKeyword start="^\z(\s*\)foreach\s\(.*{$\)\@=" matchgroup=Delimiter end="\z1}$" contains=@phpClFunction,@phpClControl,phpFCKeyword,phpFoldHtmlInside contained transparent fold extend
-
-elseif php_folding==2
-  set foldmethod=syntax
-  syn region phpFoldHtmlInside matchgroup=Delimiter start="?>" end="<?\(php\)\=" contained transparent contains=@htmlTop
-  syn region phpParent matchgroup=Delimiter start="{" end="}"  contained contains=@phpClFunction,phpFoldHtmlInside transparent fold
-  syn region phpParent matchgroup=Delimiter start="(" end=")"  contained contains=@phpClFunction,phpFoldHtmlInside transparent fold
-  syn region phpParent matchgroup=Delimiter start="\[" end="]"  contained contains=@phpClFunction,phpFoldHtmlInside transparent fold
+  syn region phpFoldCatch matchgroup=Exception start="^\z(\s*\)catch\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldFunction contained transparent fold extend
+  syn region phpFoldTry matchgroup=Exception start="^\z(\s*\)try\s\+\([^}]*$\)\@=" matchgroup=Delimiter end="^\z1}" contains=@phpClFunction,phpFoldFunction contained transparent fold extend
+else
+  syn keyword phpDefine function fn contained
+  syn keyword phpStructure abstract class trait interface enum contained
+  syn keyword phpException catch throw try finally contained
+  syn keyword phpStorageClass final global private protected public static readonly contained
+  if exists("php_folding") && php_folding==2
+    setlocal foldmethod=syntax
+    syn region phpFoldHtmlInside matchgroup=Delimiter start="?>" end="<?\(php\)\=" contained transparent contains=@htmlTop
+    syn region phpParent matchgroup=Delimiter start="{" end="}" contained contains=@phpClFunction,phpFoldHtmlInside transparent fold
+  endif
 endif
+
+" ================================================================
+" Peter Hodge - June 9, 2006
+" Some of these changes (highlighting isset/unset/echo etc) are not so
+" critical, but they make things more colourful. :-)
+
+" different syntax highlighting for 'echo', 'print', 'switch', 'die' and 'list' keywords
+" to better indicate what they are.
+syntax keyword phpDefine echo print contained
+syntax keyword phpStructure list contained
+syntax keyword phpConditional switch contained
+syntax keyword phpStatement die contained
+
+" Highlighting for PHP's user-definable magic class methods
+syntax keyword phpSpecialFunction containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle,phpIdentifier
+  \ __construct __destruct __call __callStatic __get __set __isset __unset __sleep __wakeup __toString __invoke __set_state __clone __debugInfo __serialize __unserialize
+" Highlighting for __autoload slightly different from line above
+syntax keyword phpSpecialFunction containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle,phpIdentifier,phpMethodsVar
+  \ __autoload
+hi def link phpSpecialFunction phpOperator
+
+" Highlighting for PHP5's built-in classes
+" Note: Some of the names have inconsistent cases. 
+" Those are probably the actual name in reflection and should not be changed in
+" this file.
+" (CURLFile and CurlShareHandle, XMLReader and XmlParser, etc)
+syntax keyword phpClasses containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle,phpIdentifier,phpMethodsVar
+  \ stdClass __PHP_Incomplete_Class php_user_filter AssertionError Directory ArrayObject
+  \ Exception ErrorException LogicException BadFunctionCallException BadMethodCallException DomainException
+  \ ArgumentCountError ArithmeticError ClosedGeneratorException Closure CompileError DivisionByZeroError Generator ParseError TypeError WeakReference
+  \ RecursiveIteratorIterator IteratorIterator FilterIterator RecursiveFilterIterator ParentIterator LimitIterator
+  \ CachingIterator RecursiveCachingIterator NoRewindIterator AppendIterator InfiniteIterator EmptyIterator
+  \ ArrayIterator RecursiveArrayIterator DirectoryIterator RecursiveDirectoryIterator
+  \ CallbackFilterIterator FilesystemIterator GlobIterator MultipleIterator RecursiveCallbackFilterIterator 
+  \ RecursiveRegexIterator RecursiveTreeIterator RegexIterator SplDoublyLinkedList 
+  \ SplFixedArray SplHeap SplMaxHeap SplMinHeap SplPriorityQueue SplQueue SplStack
+  \ InvalidArgumentException LengthException OutOfRangeException RuntimeException OutOfBoundsException
+  \ Attribute InternalIterator Stringable UnhandledMatchError ValueError WeakMap
+  \ OverflowException RangeException UnderflowException UnexpectedValueException
+  \ PDO PDOException PDOStatement PDORow
+  \ Reflection ReflectionFunction ReflectionParameter ReflectionMethod ReflectionClass
+  \ ReflectionObject ReflectionProperty ReflectionExtension ReflectionException
+  \ ReflectionClassConstant ReflectionFunctionAbstract ReflectionGenerator ReflectionNamedType 
+  \ ReflectionReference ReflectionType ReflectionZendExtension
+  \ ReflectionAttribute ReflectionUnionType
+  \ SplFileInfo SplFileObject SplTempFileObject SplObjectStorage
+  \ XMLWriter LibXMLError XMLReader SimpleXMLElement SimpleXMLIterator
+  \ XmlParser
+  \ DeflateContext InflateContext
+  \ DOMException DOMStringList DOMNameList DOMDomError DOMErrorHandler
+  \ DOMImplementation DOMImplementationList DOMImplementationSource
+  \ DOMNode DOMNameSpaceNode DOMDocumentFragment DOMDocument DOMNodeList DOMNamedNodeMap
+  \ DOMCharacterData DOMAttr DOMElement DOMText DOMComment DOMTypeinfo DOMUserDataHandler
+  \ DOMLocator DOMConfiguration DOMCdataSection DOMDocumentType DOMNotation DOMEntity
+  \ DOMEntityReference DOMProcessingInstruction DOMStringExtend DOMXPath
+  \ DOMChildNode DOMParentNode
+  \ EnchantBroker EnchantDictionary 
+  \ GdImage
+  \ OpenSSLAsymmetricKey OpenSSLCertificate OpenSSLCertificateSigningRequest
+  \ Shmop
+  \ AddressInfo Socket
+  \ SysvMessageQueue SysvSemaphore SysvSharedMemory
+  \ PhpToken
+  \ APCIterator APCuIterator
+  \ CURLFile CurlHandle CurlMultiHandle CurlShareHandle
+  \ DateInterval DatePeriod DateTime DateTimeImmutable DateTimeZone
+  \ finfo
+  \ GMP
+  \ Collator IntlBreakIterator IntlCalendar IntlChar IntlCodePointBreakIterator IntlDateFormatter IntlException IntlGregorianCalendar IntlIterator IntlPartsIterator IntlRuleBasedBreakIterator IntlTimeZone Locale MessageFormatter Normalizer NumberFormatter ResourceBundle Spoofchecker Transliterator UConverter
+  \ FFI CData CType ParserException
+  \ HashContext
+  \ JsonException
+  \ Memcached MemcachedException
+  \ mysqli mysqli_driver mysqli_result mysqli_sql_exception mysqli_stmt mysqli_warning
+  \ SessionHandler
+  \ SoapClient SoapFault SoapHeader SoapParam SoapServer SoapVar
+  \ SQLite3 SQLite3Result SQLite3Stmt
+  \ tidy tidyNode
+  \ XSLTProcessor ZipArchive
+  \ Phar PharData PharException PharFileInfo
+
+hi def link phpClasses phpFunctions
+
+" Highlighting for PHP's built-in interfaces
+syntax keyword phpInterfaces containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle,phpIdentifier,phpMethodsVar
+  \ Iterator IteratorAggregate RecursiveIterator OuterIterator SeekableIterator
+  \ Traversable ArrayAccess Serializable Countable SplObserver SplSubject Reflector
+  \ Throwable DateTimeInterface JsonSerializable SessionHandlerInterface SessionIdInterface SessionUpdateTimestampHandlerInterface
+
+hi def link phpInterfaces phpConstant
+
+" option defaults:
+if ! exists('php_special_functions')
+  let php_special_functions = 1
+endif
+if ! exists('php_alt_comparisons')
+  let php_alt_comparisons = 1
+endif
+if ! exists('php_alt_assignByReference')
+  let php_alt_assignByReference = 1
+endif
+
+if php_special_functions
+  " Highlighting for PHP built-in functions which exhibit special behaviours
+  " - isset()/unset()/empty() are not real functions.
+  " - compact()/extract() directly manipulate variables in the local scope where
+  "   regular functions would not be able to.
+  " - eval() is the token 'make_your_code_twice_as_complex()' function for PHP.
+  " - user_error()/trigger_error() can be overloaded by set_error_handler and also
+  "   have the capacity to terminate your script when type is E_USER_ERROR.
+  " - match(){} is not a function
+  syntax keyword phpSpecialFunction containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle
+  \ user_error trigger_error isset unset eval extract compact empty
+endif
+
+if php_alt_assignByReference
+  " special highlighting for '=&' operator
+  syntax match phpAssignByRef /=\s*&/ containedin=ALLBUT,phpComment,phpStringDouble,phpStringSingle
+    hi def link phpAssignByRef Type
+endif
+
+if php_alt_comparisons
+  " highlight comparison operators differently
+  syntax match phpComparison "\v[=!]\=\=?" contained containedin=phpRegion
+  syntax match phpComparison "\v[=<>-]@<![<>]\=?[<>]@!" contained containedin=phpRegion
+  syntax match phpComparison "<=>" contained containedin=phpRegion
+
+  " highlight the 'instanceof' operator as a comparison operator rather than a structure
+  syntax case ignore
+  syntax keyword phpComparison instanceof contained containedin=phpRegion
+
+  hi def link phpComparison Statement
+endif
+
+" ================================================================
 
 " Sync
 if php_sync_method==-1
-  syn sync match phpRegionSync grouphere phpRegion "^\s*<?\(php\)\=\s*$"
+  if exists("php_noShortTags")
+    syn sync match phpRegionSync grouphere phpRegion "^\s*<?\(php\|=\)\s*$"
+  else
+    syn sync match phpRegionSync grouphere phpRegion "^\s*<?\(php\)\=\s*$"
+  endif
+  syn sync match phpRegionSync grouphere phpRegionSc +^\s*<script language="php">\s*$+
+  if exists("php_asp_tags")
+    syn sync match phpRegionSync grouphere phpRegionAsp "^\s*<%\(=\)\=\s*$"
+  endif
   syn sync match phpRegionSync grouphere NONE "^\s*?>\s*$"
   syn sync match phpRegionSync grouphere NONE "^\s*%>\s*$"
   syn sync match phpRegionSync grouphere phpRegion "function\s.*(.*\$"
+  "syn sync match phpRegionSync grouphere NONE "/\i*>\s*$"
 elseif php_sync_method>0
   exec "syn sync minlines=" . php_sync_method
 else
   exec "syn sync fromstart"
 endif
 
+syntax match phpDocCustomTags "@[a-zA-Z]*\(\s\+\|\n\|\r\)" containedin=phpComment
+syntax region phpDocTags start="{@\(example\|id\|internal\|inheritdoc\|link\|source\|toc\|tutorial\)" end="}" containedin=phpComment
+syntax match phpDocTags "@\(abstract\|access\|api\|author\|category\|copyright\|deprecated\|example\|final\|global\|ignore\|internal\|license\|link\|method\|name\|package\|param\|property\(-write\|-read\)\?\|return\|see\|since\|source\|static\|staticvar\|subpackage\|tutorial\|uses\|used-by\|var\|version\|contributor\|modified\|filename\|description\|filesource\|throws\)\(\s\+\)\?" containedin=phpComment
+syntax match phpDocTodo "@\(todo\|fixme\|xxx\)\(\s\+\)\?" containedin=phpComment
+
 " Define the default highlighting.
-" For version 5.8 and later: only when an item doesn't have highlighting yet
-if !exists("did_php_syn_inits")
+" Only when an item doesn't have highlighting yet
 
-  hi def link phpComment          Comment
-  hi def link phpMagicConstants   Constant
-  hi def link phpServerVars       Constant
-  hi def link phpConstants        Constant
-  hi def link phpBoolean          Boolean
-  hi def link phpNumber           Number
-  hi def link phpStringSingle     String
-  hi def link phpStringDouble     String
-  hi def link phpBacktick         String
-  hi def link phpStringDelimiter  String
-  hi def link phpHereDoc          String
-  hi def link phpNowDoc           String
-  hi def link phpFunctions        Function
-  hi def link phpMethods          Function
-  hi def link phpClasses          StorageClass
-  hi def link phpException        Exception
-  hi def link phpIdentifier       Identifier
+hi def link phpConstant Constant
+hi def link phpCoreConstant Constant
+hi def link phpComment Comment
+hi def link phpDocTags PreProc
+hi def link phpDocCustomTags Type
+hi def link phpException Exception
+hi def link phpBoolean Boolean
+hi def link phpStorageClass StorageClass
+hi def link phpSCKeyword StorageClass
+hi def link phpFCKeyword Define
+hi def link phpStructure Structure
+hi def link phpStringSingle String
+hi def link phpStringDouble String
+hi def link phpBacktick String
+hi def link phpNumber Number
+hi def link phpFloat Float
+hi def link phpMethods Function
+hi def link phpFunctions Function
+hi def link phpBaselib Function
+hi def link phpRepeat Repeat
+hi def link phpConditional Conditional
+hi def link phpLabel Label
+hi def link phpStatement Statement
+hi def link phpKeyword Statement
+hi def link phpType Type
+hi def link phpInclude Include
+hi def link phpDefine Define
+hi def link phpBackslashSequences SpecialChar
+hi def link phpBackslashDoubleQuote SpecialChar
+hi def link phpBackslashSingleQuote SpecialChar
+hi def link phpParent Delimiter
+hi def link phpBrackets Delimiter
+hi def link phpIdentifierConst Delimiter
+hi def link phpParentError Error
+hi def link phpOctalError Error
+hi def link phpBinaryError Error
+hi def link phpFloatError Error
+hi def link phpInterpSimpleError Error
+hi def link phpInterpBogusDollarCurley Error
+hi def link phpInterpDollarCurly1 Error
+hi def link phpInterpDollarCurly2 Error
+hi def link phpInterpSimpleBracketsInner String
+hi def link phpInterpSimpleCurly Delimiter
+hi def link phpInterpVarname Identifier
+hi def link phpTodo Todo
+hi def link phpDocTodo Todo
+hi def link phpMemberSelector Structure
+if exists("php_oldStyle")
+  hi def phpIntVar guifg=Red ctermfg=DarkRed
+  hi def phpEnvVar guifg=Red ctermfg=DarkRed
+  hi def phpOperator guifg=SeaGreen ctermfg=DarkGreen
+  hi def phpVarSelector guifg=SeaGreen ctermfg=DarkGreen
+  hi def phpRelation guifg=SeaGreen ctermfg=DarkGreen
+  hi def phpIdentifier guifg=DarkGray ctermfg=Brown
+  hi def phpIdentifierSimply guifg=DarkGray ctermfg=Brown
+else
+  hi def link phpIntVar Identifier
+  hi def link phpEnvVar Identifier
+  hi def link phpOperator Operator
+  hi def link phpVarSelector Operator
+  hi def link phpRelation Operator
+  hi def link phpIdentifier Identifier
   hi def link phpIdentifierSimply Identifier
-  hi def link phpStatement        Statement
-  hi def link phpStructure        Statement
-  hi def link phpOperator         Operator
-  hi def link phpMemberSelector   Operator
-  hi def link phpInclude          PreProc
-  hi def link phpDefine           PreProc
-  hi def link phpKeyword          Keyword
-  hi def link phpSuperglobals     Type
-  hi def link phpType             Type
-  hi def link phpNullValue        phpType
-  hi def link phpParent           Special
-  hi def link phpSpecialChar      SpecialChar
-  hi def link phpStrEsc           SpecialChar
-  hi def link phpParentError      Error
-  hi def link phpOctalError       Error
-  hi def link phpTodo             Todo
-
-  hi def link phpSplatOperator    phpOperator
-
-  hi def link phpCommentStar      phpComment
-  hi def link phpDocComment       phpComment
-  hi def link phpCommentTitle     phpComment
-  hi def link phpDocTags          phpComment
-  hi def link phpDocParam         phpComment
-  hi def link phpDocIdentifier    phpComment
-
-  hi def link phpFCKeyword        phpKeyword
-  hi def link phpSCKeyword        phpKeyword
-  hi def link phpYieldFromKeyword phpKeyword
-
-  hi def link phpStaticClasses    phpClasses
-
-  if (exists("php_var_selector_is_identifier") && php_var_selector_is_identifier)
-    hi def link phpVarSelector    phpIdentifier
-  else
-    hi def link phpVarSelector    phpOperator
-  endif
-
-  hi def link phpFunction        phpRegion
-  hi def link phpClass           phpRegion
-  hi def link phpClassExtends    phpClass
-  hi def link phpClassImplements phpClass
-  hi def link phpClassDelimiter  phpRegion
-
-  hi def link phpDocNamespaceSeparator   phpComment
-  hi def link phpClassNamespaceSeparator phpClass
-  hi def link phpUseNamespaceSeparator   phpRegion
-
 endif
 
-" Cleanup: {{{
-
-delcommand SynFold
-delcommand SynFoldDoc
 let b:current_syntax = "php"
 
-let &iskeyword = s:iskeyword_save
-unlet s:iskeyword_save
-
-if (exists("main_syntax") && main_syntax == 'php')
+if main_syntax == 'php'
   unlet main_syntax
 endif
 
-" }}}
+" put cpoptions back the way we found it
+let &cpo = s:cpo_save
+unlet s:cpo_save
 
-" vim: ts=8 sts=2 sw=2 fdm=marker expandtab
+" vim: ts=8 sts=2 sw=2 expandtab

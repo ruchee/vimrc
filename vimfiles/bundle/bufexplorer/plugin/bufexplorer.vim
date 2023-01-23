@@ -1,5 +1,5 @@
 "============================================================================
-"    Copyright: Copyright (c) 2001-2018, Jeff Lanzarotta
+"    Copyright: Copyright (c) 2001-2022, Jeff Lanzarotta
 "               All rights reserved.
 "
 "               Redistribution and use in source and binary forms, with or
@@ -35,8 +35,8 @@
 "               EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 " Name Of File: bufexplorer.vim
 "  Description: Buffer Explorer Vim Plugin
-"   Maintainer: Jeff Lanzarotta (delux256-vim at outlook dot com)
-" Last Changed: Saturday, 08 December 2018
+"   Maintainer: Jeff Lanzarotta (my name at gmail dot com)
+" Last Changed: Tuesday, 20 Sept 2022
 "      Version: See g:bufexplorer_version for version number.
 "        Usage: This file should reside in the plugin directory and be
 "               automatically sourced.
@@ -74,7 +74,7 @@ endif
 "1}}}
 
 " Version number
-let g:bufexplorer_version = "7.4.21"
+let g:bufexplorer_version = "7.4.25"
 
 " Plugin Code {{{1
 " Check for Vim version {{{2
@@ -132,10 +132,14 @@ let s:originBuffer = 0
 let s:running = 0
 let s:sort_by = ["number", "name", "fullpath", "mru", "extension"]
 let s:splitMode = ""
+let s:didSplit = 0
 let s:types = {"fullname": ':p', "path": ':p:h', "relativename": ':~:.', "relativepath": ':~:.:h', "shortname": ':t'}
 
 " Setup the autocommands that handle the MRUList and other stuff. {{{2
 autocmd VimEnter * call s:Setup()
+
+" Reset MRUList and buffer->tab associations after loading a session. {{{2
+autocmd SessionLoadPost * call s:Reset()
 
 " Setup {{{2
 function! s:Setup()
@@ -155,8 +159,9 @@ endfunction
 " Reset {{{2
 function! s:Reset()
     " Build initial MRUList. This makes sure all the files specified on the
-    " command line are picked up correctly.
-    let s:MRUList = range(1, bufnr('$'))
+    " command line are picked up correctly. Check buffers exist so this also
+    " works after wiping buffers and loading a session (e.g. sessionman.vim)
+    let s:MRUList = filter(range(1, bufnr('$')), 'bufexists(v:val)')
 
     " Initialize the association of buffers to tabs for any buffers
     " that have been created prior to now, e.g., files specified as
@@ -312,7 +317,7 @@ endfunction
 " ShouldIgnore {{{2
 function! s:ShouldIgnore(buf)
     " Ignore temporary buffers with buftype set.
-    if empty(getbufvar(a:buf, "&buftype") == 0)
+    if empty(getbufvar(a:buf, "&buftype")) == 0
         return 1
     endif
 
@@ -361,6 +366,7 @@ function! s:Cleanup()
 
     let s:running = 0
     let s:splitMode = ""
+    let s:didSplit = 0
 
     delmarks!
 endfunction
@@ -392,12 +398,14 @@ endfunction
 function! BufExplorerHorizontalSplit()
     let s:splitMode = "sp"
     execute "BufExplorer"
+    let s:splitMode = ""
 endfunction
 
 " BufExplorerVerticalSplit {{{2
 function! BufExplorerVerticalSplit()
     let s:splitMode = "vsp"
     execute "BufExplorer"
+    let s:splitMode = ""
 endfunction
 
 " ToggleBufExplorer {{{2
@@ -451,6 +459,9 @@ function! BufExplorer()
 
         " Restore the original settings.
         let [&splitbelow, &splitright] = [_splitbelow, _splitright]
+
+        " Remember that a split was triggered
+        let s:didSplit = 1
     endif
 
     if !exists("b:displayMode") || b:displayMode != "winmanager"
@@ -473,6 +484,7 @@ function! s:DisplayBufferList()
     " the buffer using CTRL-^.
     setlocal buftype=nofile
     setlocal modifiable
+    setlocal noreadonly
     setlocal noswapfile
     setlocal nowrap
 
@@ -1036,7 +1048,7 @@ function! s:Close()
     endif
 
     " If we needed to split the main window, close the split one.
-    if s:splitMode != "" && bufwinnr(s:originBuffer) != -1
+    if s:didSplit == 1 && bufwinnr(s:originBuffer) != -1
         execute "wincmd c"
     endif
 

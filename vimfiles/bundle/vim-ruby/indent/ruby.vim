@@ -39,7 +39,7 @@ setlocal nosmartindent
 " Now, set up our indentation expression and keys that trigger it.
 setlocal indentexpr=GetRubyIndent(v:lnum)
 setlocal indentkeys=0{,0},0),0],!^F,o,O,e,:,.
-setlocal indentkeys+==end,=else,=elsif,=when,=in,=ensure,=rescue,==begin,==end
+setlocal indentkeys+==end,=else,=elsif,=when,=in\ ,=ensure,=rescue,==begin,==end
 setlocal indentkeys+==private,=protected,=public
 
 let b:undo_indent = "setlocal indentexpr< indentkeys< smartindent<"
@@ -92,7 +92,7 @@ let s:ruby_indent_keywords =
       \    '\<\%(if\|for\|while\|until\|case\|unless\|begin\):\@!\>'
 
 " Def without an end clause: def method_call(...) = <expression>
-let s:ruby_endless_def = '\<def\s\+\k\+[!?]\=\%((.*)\|\s\)\s*='
+let s:ruby_endless_def = '\<def\s\+\%(\k\+\.\)\=\k\+[!?]\=\%((.*)\|\s\)\s*='
 
 " Regex used for words that, at the start of a line, remove a level of indent.
 let s:ruby_deindent_keywords =

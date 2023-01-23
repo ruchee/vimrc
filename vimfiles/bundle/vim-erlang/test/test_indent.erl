@@ -3,11 +3,11 @@
 %%% http://erlang.org/doc/reference_manual/users_guide.html
 
 %%% ===========================================================================
-%%% 1 Introduction
+%%% 2 Character Set and Source File Encoding
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 1.6 Character Set
+%%% 2.1 Character Set
 %%% ===========================================================================
 
 string_characters() ->
@@ -19,11 +19,11 @@ variable_characters() ->
     ok.
 
 %%% ===========================================================================
-%%% 2 Data Types
+%%% 3 Data Types
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 2.2 Number
+%%% 3.2 Number
 %%% ===========================================================================
 
 number_examples() ->
@@ -38,7 +38,7 @@ number_examples() ->
     ok.
 
 %%% ===========================================================================
-%%% 2.3 Atom
+%%% 3.3 Atom
 %%% ===========================================================================
 
 atom_examples() ->
@@ -66,8 +66,8 @@ f
  ok.
 
 %%% ===========================================================================
-%%% 2.9 Tuple
-%%% 2.10 List
+%%% 3.9 Tuple
+%%% 3.11 List
 %%% ===========================================================================
 
 tuple_examples() ->
@@ -217,7 +217,7 @@ list_head_tail() ->
     ok.
 
 %%% ===========================================================================
-%%% 2.11 String
+%%% 3.12 String
 %%% ===========================================================================
 
 multiline_string() ->
@@ -281,11 +281,11 @@ multiline() ->
     ok.
 
 %%% ===========================================================================
-%%% 3 Pattern Matching
+%%% 4 Pattern Matching
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 3.1 Pattern Matching
+%%% 4.1 Pattern Matching
 %%% ===========================================================================
 
 pattern_matching_examples() ->
@@ -321,11 +321,11 @@ pattern_matching_examples() ->
     ok.
 
 %%% ===========================================================================
-%%% 4 Modules
+%%% 5 Modules
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 4.1 Module Syntax
+%%% 5.1 Module Syntax
 %%% ===========================================================================
 
 -attr().
@@ -333,7 +333,7 @@ pattern_matching_examples() ->
 -module(test_indent).
 
 %%% ===========================================================================
-%%% 4.3 Comments
+%%% 5.3 Comments
 %%% ===========================================================================
 
 % Comment
@@ -349,11 +349,11 @@ comments() ->
 %% Comment
 
 %%% ===========================================================================
-%%% Functions
+%%% 6 Functions
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 5.1  Function Declaration Syntax
+%%% 6.1  Function Declaration Syntax
 %%% ===========================================================================
 
 f() ->
@@ -452,11 +452,11 @@ f(
     ok.
 
 %%% ===========================================================================
-%%% 6 Types and Function Specifications
+%%% 7 Types and Function Specifications
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 6.3  Type declarations of user-defined types
+%%% 7.3  Type declarations of user-defined types
 %%% ===========================================================================
 
 -type my_struct_type() :: Type.
@@ -477,7 +477,7 @@ f(
 | <<_:1, _:_*1>>.
 
 %%% ===========================================================================
-%%% 6.4  Type information in record declarations
+%%% 7.4  Type information in record declarations
 %%% ===========================================================================
 
 -record(rec, {f1 = 42 :: integer(),
@@ -491,7 +491,7 @@ f(
                                    'b'}).
 
 %%% ===========================================================================
-%%% 6.5  Specifications for functions
+%%% 7.5  Specifications for functions
 %%% ===========================================================================
 
 -spec func(A, B) -> ReturnType.
@@ -596,11 +596,11 @@ func() ->
     ok.
 
 %%% ===========================================================================
-%%% 7 Expressions
+%%% 9 Expressions
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 7.3 Variables
+%%% 9.3 Variables
 %%% ===========================================================================
 
 variables() ->
@@ -614,7 +614,7 @@ variables() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.6 Function calls
+%%% 9.6 Function calls
 %%% ===========================================================================
 
 func_calls() ->
@@ -691,7 +691,7 @@ f() ->
                                         ok. % syntax error in prev.line
 
 %%% ===========================================================================
-%%% 7.7 If
+%%% 9.7 If
 %%% ===========================================================================
 
 % if -- with linebreaks
@@ -747,7 +747,7 @@ f() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.8 Case
+%%% 9.8 Case
 %%% ===========================================================================
 
 case_example(Signal) ->
@@ -928,7 +928,264 @@ f() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.9 Send
+%%% 9.9 Maybe
+%%% ===========================================================================
+
+pattern_matching_examples() ->
+
+    X ?= 2,
+
+    X ?=
+    2,
+
+    {X, Y} ?= A,
+
+    {X,
+     Y} ?= A,
+
+    {X,
+     Y} ?= {A,
+            B},
+
+    Variable ?= 1 +
+    2,
+
+    Variable ?=
+    1 +
+    2,
+
+    Variable ?= (1 +
+                 2),
+
+    Variable ?=
+    (1 +
+     2),
+
+    ok.
+
+% maybe -- with linebreaks
+f() ->
+
+    % maybe with 0 expression (not valid Erlang, but why not behave nicely)
+    maybe end, 
+
+    % maybe with 1 expression
+    maybe
+        A
+    end,
+
+    % maybe with 2 expressions
+    maybe
+        A,
+        B
+    end,
+
+    ok.
+
+% maybe + else -- with linebreaks
+f() ->
+
+    % maybe with 0 branch (not valid Erlang, but why not behave nicely)
+    maybe
+    else
+        T -> T
+    end,
+
+    % maybe with 1 expression
+    maybe
+        A
+    else
+        T -> T
+    end,
+
+    maybe
+        A
+    else
+        T ->
+            T
+    end,
+
+    % maybe with 2 expressions
+    maybe
+        A,
+        B
+    else
+        T -> T
+    end,
+
+    maybe
+        A,
+        B
+    else
+        T ->
+            T
+    end,
+
+    ok.
+
+maybe__tokens_else_kw() ->
+
+    % maybe with 1 expression
+    maybe A
+    end,
+
+    % maybe with 2 expressions
+    maybe A,
+          B
+    end,
+
+    ok.
+
+% maybe + else -- with linebreaks
+maybe_else__tokens_else_kw() ->
+
+    % maybe with 0 expression (not valid Erlang, but why not behave nicely)
+    maybe 
+    else T -> T
+    end,
+
+    % maybe with 1 expression
+    maybe A
+    else T -> T
+    end,
+
+    maybe A
+    else T ->
+             T
+    end,
+
+    % maybe with 2 expressions
+    maybe A,
+          B
+    else T -> T
+    end,
+
+    maybe A,
+          B
+    else T ->
+             T
+    end,
+
+    ok.
+
+% No newline before 'else', no newline else 'else'
+f() ->
+
+    % maybe with 0 expression (not valid Erlang, but why not behave nicely)
+    maybe else T -> T
+    end,
+
+    % maybe with 1 expression
+    maybe A else T -> T
+    end,
+
+    maybe A else T ->
+                     T
+    end,
+
+    % maybe with 2 expressions
+    maybe A,
+          B else T -> T
+    end,
+
+    maybe A,
+          B else T -> T,
+                      T
+    end,
+
+    ok.
+
+% No newline before 'else', newline else 'else'
+f() ->
+
+    % maybe with 0 expression (not valid Erlang, but why not behave nicely)
+    maybe else
+              T -> T
+    end,
+
+    % maybe with 1 expression
+    maybe A else
+                T -> T
+    end,
+
+    maybe A else
+                T ->
+            T % weird
+    end,
+
+    % maybe with 2 expressions
+    maybe A,
+          B else
+                T -> T
+    end,
+
+    maybe A,
+          B else
+                T -> T,
+                     T
+    end,
+
+    ok.
+
+% maybe -- one-liners
+f() ->
+    maybe A  end,
+    maybe A, B end,
+
+    % half-liners
+    maybe A  end, maybe A end,
+    maybe A, B end, maybe A ,B end,
+    ok.
+
+% maybe + else -- one-liners
+f() ->
+
+    maybe else T -> T end,
+    maybe A else T -> T end,
+    maybe A, B else T -> T end,
+
+    % half-liners
+    maybe else T -> T end, maybe else T -> T end,
+    maybe A else T -> T end, maybe A else T -> T end,
+    maybe A, B else T -> T end, maybe A, B else T -> T end,
+    ok.
+
+% maybe + catch expression
+f() ->
+    ok, maybe
+            catch X
+        else
+            T ->
+                catch X;
+            T ->
+                catch X
+        end.
+
+% tricky scenarios which may catch some heuristics
+f() ->
+    maybe
+        A,
+        "maybe"
+    else
+        T -> T
+    end.
+
+f() ->
+    maybe
+        A,
+        "maybe"
+    else
+        T -> T end,
+    ok.
+
+f() ->
+    ok, maybe
+        else
+            T -> T
+        end.
+
+%%% ===========================================================================
+%%% 9.10 Send
 %%% ===========================================================================
 
 f() ->
@@ -939,7 +1196,7 @@ f() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.10 Receive
+%%% 9.11 Receive
 %%% ===========================================================================
 
 % receive -- with linebreaks
@@ -1105,6 +1362,103 @@ receive_after__tokens_after_kw() ->
 
     ok.
 
+% No newline before 'after', no newline after 'after'
+f() ->
+
+    % receive with 0 branch
+    receive after T -> T
+    end,
+
+    % receive with 1 branch
+    receive A -> A after T -> T
+    end,
+
+    receive A ->
+                A after T ->
+                            T
+    end,
+
+    % receive with 2 branches
+    receive A -> A;
+            B -> B after T -> T
+    end,
+
+    receive A ->
+                A;
+            B ->
+                B after T -> T
+    end,
+
+    receive A -> A,
+                 A;
+            B -> B,
+                 A after T -> T,
+                              T
+    end,
+
+    receive A ->
+                A,
+                A;
+            B ->
+                B,
+                B after T -> T,
+                             T
+    end,
+
+    ok.
+
+% No newline before 'after', newline after 'after'
+f() ->
+
+    % receive with 0 branch
+    receive after
+                T -> T
+    end,
+
+    % receive with 1 branch
+    receive A -> A after
+                       T -> T
+    end,
+
+    receive A ->
+                A after
+                      T ->
+            T % weird
+    end,
+
+    % receive with 2 branches
+    receive A -> A;
+            B -> B after
+                       T -> T
+    end,
+
+    receive A ->
+                A;
+            B ->
+                B after
+                      T -> T
+    end,
+
+    receive A -> A,
+                 A;
+            B -> B,
+                 A after
+                       T -> T,
+                            T
+    end,
+
+    receive A ->
+                A,
+                A;
+            B ->
+                B,
+                B after
+                      T -> T,
+                           T
+    end,
+
+    ok.
+
 % receive -- one-liners
 f() ->
     receive A -> A end,
@@ -1127,6 +1481,18 @@ f() ->
     receive A -> A after T -> T end, receive A -> A after T -> T end,
     receive A -> A; B -> B after T -> T end, receive A -> A; B -> B after T -> T end,
     ok.
+
+% receive + catch expression
+f() ->
+    ok, receive
+            A ->
+                catch X
+        after
+            T ->
+                catch X;
+            T ->
+                catch X
+        end.
 
 % tricky scenarios which may catch some heuristics
 f() ->
@@ -1152,7 +1518,7 @@ f() ->
         end.
 
 %%% ===========================================================================
-%%% 7.11 Term Comparisons
+%%% 9.12 Term Comparisons
 %%% ===========================================================================
 
 term_comparisons() ->
@@ -1175,7 +1541,7 @@ term_comparisons() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.12 Arithmetic Expressions
+%%% 9.13 Arithmetic Expressions
 %%% ===========================================================================
 
 unary_operators() ->
@@ -1221,7 +1587,7 @@ binary_operators() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.13 Boolean Expressions
+%%% 9.14 Boolean Expressions
 %%% ===========================================================================
 
 unary_boolean() ->
@@ -1235,7 +1601,7 @@ binary_boolean() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.14 Short-Circuit Expressions
+%%% 9.15 Short-Circuit Expressions
 %%% ===========================================================================
 
 short_circuit() ->
@@ -1252,7 +1618,7 @@ short_circuit() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.15 List Operations
+%%% 9.16 List Operations
 %%% ===========================================================================
 
 list_operations() ->
@@ -1269,7 +1635,87 @@ list_operations() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.16 Bit Syntax Expressions
+%%% 9.17 Map Expressions
+%%% ===========================================================================
+
+maps() ->
+    M = #{}
+
+    M = #{
+         },
+
+    M = #{a => 1},
+
+    M = #
+    {a => 1},
+
+    M = #{1 => 2,
+          b => b},
+
+    M = #{ 1 => 2,
+           b => b },
+
+    M = #{ 1 =>
+           2,
+           b =>
+           b },
+
+    M = #{ {A,
+            B} => #{1 => 2,
+                    3 => 4} },
+
+    M = #{
+          a => 1,
+          b => 2
+         },
+
+    L = [#{
+          }],
+
+    L = [#{
+           a => 1,
+           b => 2
+          }],
+
+    L = [
+         #{
+          },
+         #{a => 1,
+           b => 2},
+         #{ a => 1,
+            b => 2
+          },
+         #{
+           a => 1,
+           b => 2
+          },
+        ],
+
+    T = {
+      #{
+       },
+      #{a => 1,
+        b => 2},
+      #{ a => 1,
+         b => 2
+       },
+      #{
+        a => 1,
+        b => 2
+       }
+     },
+
+    % Map comprehension
+    M1 = #{ E0 => E1 || K := V <- M0  },
+
+    M1 = #{ E0 => E1
+            || K := V <- M0 },
+
+    M1 = #{ E0 => E1 ||
+            K := V <- M0 }.
+
+%%% ===========================================================================
+%%% 9.18 Bit Syntax Expressions
 %%% ===========================================================================
 
 bit_syntax() ->
@@ -1351,8 +1797,10 @@ bit_syntax() ->
       B>>.
 
 %%% ===========================================================================
-%%% 7.17 Fun Expressions
+%%% 9.19 Fun Expressions
 %%% ===========================================================================
+
+%%% Funs without function names
 
 % fun - without linebreaks
 f() ->
@@ -1527,8 +1975,153 @@ tricky() ->
     end,
     ok.
 
+%%% Funs with function names
+
+% fun - without linebreaks
+f() ->
+    fun Fun (A) -> A;
+        Fun (B) -> B end,
+    ok.
+
+% fun - with some linebreaks
+f() ->
+    fun Fun(A) -> A
+    end,
+    fun Fun(A) -> A;
+        Fun(B) -> B
+    end,
+    ok.
+
+% fun - with more linebreaks
+f() ->
+    fun Fun(A) ->
+            A
+    end,
+    fun Fun(A) ->
+            A;
+        Fun(B) ->
+            B
+    end,
+    ok.
+
+% fun - with more space
+f() ->
+    fun  Fun(A) -> A;
+         Fun(B) -> B
+    end,
+    fun   Fun(A) ->
+            A;
+          Fun(B) ->
+            B
+    end,
+    ok.
+
+% fun - with extra linebreaks
+f() ->
+
+    fun
+        Fun(A) ->
+            A
+    end,
+
+    fun
+        Fun(A) ->
+            A;
+        Fun(B) ->
+            B
+    end,
+    ok.
+
+% fun - without linebreaks + when
+f() ->
+    fun Fun(A) when A > 0 -> A end,
+    fun Fun(A) when A > 0 -> A; Fun(B) when B > 0 -> B end,
+    ok.
+
+% fun - with some linebreaks + when
+f() ->
+    fun Fun(A) when A > 0 -> A
+    end,
+    fun Fun(A) when A > 0 -> A;
+        Fun(B) when B > 0 -> B
+    end,
+    ok.
+
+% fun - with more linebreaks + when
+f() ->
+    fun Fun(A) when A > 0 ->
+            A
+    end,
+    fun  Fun(A) when A > 0 ->
+            A;
+         Fun(B) when B > 0 ->
+            B
+    end,
+    ok.
+
+% fun - with some linebreaks with less space + when
+f() ->
+    fun Fun(A) when A > 0 -> A
+    end,
+    fun Fun(A) when A > 0 -> A;
+        Fun(B) when B > 0 -> B
+    end,
+    ok.
+
+% fun - with more linebreaks with less space + when
+f() ->
+    fun Fun(A) when A > 0 ->
+            A
+    end,
+    fun Fun(A) when A > 0 ->
+            A;
+        Fun(B) when B > 0 ->
+            B
+    end,
+    ok.
+
+% fun - with extra linebreaks + when
+f() ->
+
+    fun
+        Fun(A) when A > 0 ->
+            A
+    end,
+
+    fun
+        Fun(A) when A > 0 ->
+            A;
+        Fun(B) when B > 0 ->
+            B
+    end,
+    ok.
+
+% fun - linebreaks after 'when'
+f() ->
+    fun Fun(A) when
+              A > 0 -> A
+    end,
+    fun Fun(A) when
+              A > 0 -> A;
+        Fun(B) when
+              B > 0 -> B
+    end,
+    ok.
+
+tricky() ->
+    $(,
+    fun % comment
+        Fun (A) ->
+            fun i/0,
+            fun % Fun(
+            i/0;
+        Fun (B) ->
+            ok
+    end,
+    ok.
+
 %%% ===========================================================================
-%%% 7.18 Catch and Throw
+%%% 9.20 Catch and Throw
 %%% ===========================================================================
 
 catch_example() ->
@@ -1815,7 +2408,7 @@ throw_example() ->
     throw(hello).
 
 %%% ===========================================================================
-%%% 7.19 Try
+%%% 9.21 Try
 %%% ===========================================================================
 
 try_example() ->
@@ -2311,7 +2904,7 @@ f() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.20 Parenthesized Expressions
+%%% 9.22 Parenthesized Expressions
 %%% ===========================================================================
 
 f() ->
@@ -2370,7 +2963,7 @@ tricky() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.21 Block Expressions
+%%% 9.23 Block Expressions
 %%% ===========================================================================
 
 f() ->
@@ -2423,8 +3016,9 @@ tricky() ->
             %`begin'
         end,
     ok.
+
 %%% ===========================================================================
-%%% 7.22 List Comprehensions
+%%% 9.24 List Comprehensions
 %%% ===========================================================================
 
 list_comprehension() ->
@@ -2483,7 +3077,7 @@ list_comprehension() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.23 Bit String Comprehensions
+%%% 9.25 Bit String Comprehensions
 %%% ===========================================================================
 
 bit_string_comprehension() ->
@@ -2528,7 +3122,7 @@ bit_string_comprehension() ->
     ok.
 
 %%% ===========================================================================
-%%% 7.x: Other expressions
+%%% 9.x: Other expressions
 %%% ===========================================================================
 
 %% Comma
@@ -2607,11 +3201,11 @@ f() -> 1. f() ->
               3.
 
 %%% ===========================================================================
-%%% 8 The Preprocessor
+%%% 10 The Preprocessor
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 8.1 File Inclusion
+%%% 10.1 File Inclusion
 %%% ===========================================================================
 
 -include("my_records.hrl").
@@ -2621,7 +3215,7 @@ f() -> 1. f() ->
 -include_lib("kernel/include/file.hrl").
 
 %%% ===========================================================================
-%%% 8.2 Defining and Using Macros
+%%% 10.2 Defining and Using Macros
 %%% ===========================================================================
 
 -define(TIMEOUT,
@@ -2646,11 +3240,11 @@ bar(X) ->
                      2)).
 
 %%% ===========================================================================
-%%% 9 Records
+%%% 11 Records
 %%% ===========================================================================
 
 %%% ===========================================================================
-%%% 9.1 Defining Records
+%%% 11.1 Defining Records
 %%% ===========================================================================
 
 -record(person, {name,
@@ -2699,7 +3293,7 @@ bar(X) ->
         }).
 
 %%% ===========================================================================
-%%% 9.2 Creating Records
+%%% 11.2 Creating Records
 %%% ===========================================================================
 
 lookup(Name, Tab) ->
@@ -2735,7 +3329,7 @@ lookup(Name, Tab) ->
     ok.
 
 %%% ===========================================================================
-%%% 9.3 Accessing Record Fields
+%%% 11.3 Accessing Record Fields
 %%% ===========================================================================
 
 lookup(Name, List) ->
@@ -2765,7 +3359,7 @@ lookup(Name, List) ->
     ok.
 
 %%% ===========================================================================
-%%% 9.4 Updating Records
+%%% 11.4 Updating Records
 %%% ===========================================================================
 
 f() ->
@@ -2787,7 +3381,7 @@ f() ->
     ok.
 
 %%% ===========================================================================
-%%% 9.5 Records in Guards
+%%% 11.5 Records in Guards
 %%% ===========================================================================
 
 handle(Msg, State) when Msg
@@ -2811,7 +3405,7 @@ handle(Msg, State) when State#state.running
     ok.
 
 %%% ===========================================================================
-%%% 9.6 Records in Patterns
+%%% 11.6 Records in Patterns
 %%% ===========================================================================
 
 f() ->
@@ -2820,7 +3414,7 @@ f() ->
     Person.
 
 %%% ===========================================================================
-%%% 9.7 Nested records
+%%% 11.7 Nested records
 %%% ===========================================================================
 
 -record(nrec0, {name = "nested0"}).
@@ -2913,232 +3507,3 @@ eval(Fun, Arg) ->
         end
     end.
 
-%%% ===========================================================================
-%%% Maps
-%%% ===========================================================================
-
-%%% http://www.erlang.org/eeps/eep-0043.html
-maps() ->
-    M = #{}
-
-    M = #{
-         },
-
-    M = #{a => 1},
-
-    M = #
-    {a => 1},
-
-    M = #{1 => 2,
-          b => b},
-
-    M = #{ 1 => 2,
-           b => b },
-
-    M = #{ 1 =>
-           2,
-           b =>
-           b },
-
-    M = #{ {A,
-            B} => #{1 => 2,
-                    3 => 4} },
-
-    M = #{
-          a => 1,
-          b => 2
-         },
-
-    L = [#{
-          }],
-
-    L = [#{
-           a => 1,
-           b => 2
-          }],
-
-    L = [
-         #{
-          },
-         #{a => 1,
-           b => 2},
-         #{ a => 1,
-            b => 2
-          },
-         #{
-           a => 1,
-           b => 2
-          },
-        ],
-
-    T = {
-      #{
-       },
-      #{a => 1,
-        b => 2},
-      #{ a => 1,
-         b => 2
-       },
-      #{
-        a => 1,
-        b => 2
-       }
-     },
-
-    % Map comprehension
-    M1 = #{ E0 => E1 || K := V <- M0  },
-
-    M1 = #{ E0 => E1
-            || K := V <- M0 },
-
-    M1 = #{ E0 => E1 ||
-            K := V <- M0 }.
-
-%%% ===========================================================================
-%%% Funs with names
-%%% ===========================================================================
-
-%%% http://www.erlang.org/eeps/eep-0037.html
-
-% fun - without linebreaks
-f() ->
-    fun Fun (A) -> A;
-        Fun (B) -> B end,
-    ok.
-
-% fun - with some linebreaks
-f() ->
-    fun Fun(A) -> A
-    end,
-    fun Fun(A) -> A;
-        Fun(B) -> B
-    end,
-    ok.
-
-% fun - with more linebreaks
-f() ->
-    fun Fun(A) ->
-            A
-    end,
-    fun Fun(A) ->
-            A;
-        Fun(B) ->
-            B
-    end,
-    ok.
-
-% fun - with more space
-f() ->
-    fun  Fun(A) -> A;
-         Fun(B) -> B
-    end,
-    fun   Fun(A) ->
-            A;
-          Fun(B) ->
-            B
-    end,
-    ok.
-
-% fun - with extra linebreaks
-f() ->
-
-    fun
-        Fun(A) ->
-            A
-    end,
-
-    fun
-        Fun(A) ->
-            A;
-        Fun(B) ->
-            B
-    end,
-    ok.
-
-% fun - without linebreaks + when
-f() ->
-    fun Fun(A) when A > 0 -> A end,
-    fun Fun(A) when A > 0 -> A; Fun(B) when B > 0 -> B end,
-    ok.
-
-% fun - with some linebreaks + when
-f() ->
-    fun Fun(A) when A > 0 -> A
-    end,
-    fun Fun(A) when A > 0 -> A;
-        Fun(B) when B > 0 -> B
-    end,
-    ok.
-
-% fun - with more linebreaks + when
-f() ->
-    fun Fun(A) when A > 0 ->
-            A
-    end,
-    fun  Fun(A) when A > 0 ->
-            A;
-         Fun(B) when B > 0 ->
-            B
-    end,
-    ok.
-
-% fun - with some linebreaks with less space + when
-f() ->
-    fun Fun(A) when A > 0 -> A
-    end,
-    fun Fun(A) when A > 0 -> A;
-        Fun(B) when B > 0 -> B
-    end,
-    ok.
-
-% fun - with more linebreaks with less space + when
-f() ->
-    fun Fun(A) when A > 0 ->
-            A
-    end,
-    fun Fun(A) when A > 0 ->
-            A;
-        Fun(B) when B > 0 ->
-            B
-    end,
-    ok.
-
-% fun - with extra linebreaks + when
-f() ->
-
-    fun
-        Fun(A) when A > 0 ->
-            A
-    end,
-
-    fun
-        Fun(A) when A > 0 ->
-            A;
-        Fun(B) when B > 0 ->
-            B
-    end,
-    ok.
-
-% fun - linebreaks after 'when'
-f() ->
-    fun Fun(A) when
-              A > 0 -> A
-    end,
-    fun Fun(A) when
-              A > 0 -> A;
-        Fun(B) when
-              B > 0 -> B
-    end,
-    ok.
-
-tricky() ->
-    $(,
-    fun % comment
-        Fun (A) ->
-            fun i/0,
-            fun % Fun(
-            i/0;
-        Fun (B) ->
-            ok
-    end,
-    ok.

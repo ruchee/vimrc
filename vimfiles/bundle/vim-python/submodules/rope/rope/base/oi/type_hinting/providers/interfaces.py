@@ -1,5 +1,4 @@
-class IParamProvider(object):
-
+class IParamProvider:
     def __call__(self, pyfunc, param_name):
         """
         :type pyfunc: rope.base.pyobjectsdef.PyFunction
@@ -9,10 +8,11 @@ class IParamProvider(object):
         raise NotImplementedError
 
 
-class IReturnProvider(object):
+class IReturnProvider:
     """
     :type resolve: rope.base.oi.type_hinting.resolvers.interfaces.IResolver
     """
+
     resolve = None
 
     def __call__(self, pyfunc):
@@ -23,10 +23,11 @@ class IReturnProvider(object):
         raise NotImplementedError
 
 
-class IAssignmentProvider(object):
+class IAssignmentProvider:
     """
     :type resolve: rope.base.oi.type_hinting.resolvers.interfaces.IResolver
     """
+
     resolve = None
 
     def __call__(self, pyname):

@@ -134,6 +134,8 @@ command! -bar GitGutterBufferToggle  call gitgutter#buffer_toggle()
 command! -bar GitGutterQuickFix call gitgutter#quickfix(0)
 command! -bar GitGutterQuickFixCurrentFile call gitgutter#quickfix(1)
 
+command! -bar GitGutterDiffOrig call gitgutter#difforig()
+
 " }}}
 
 " Line highlights {{{
@@ -243,8 +245,10 @@ function! s:on_bufenter()
   " been any changes to the buffer since the first round, the second round
   " will be cheap.
   if has('vim_starting') && !$VIM_GITGUTTER_TEST
-    if exists('*timer_start')
-      call timer_start(&updatetime, 'GitGutterCursorHold')
+    if exists('*timer_start') && has('lambda')
+      call s:next_tick("call gitgutter#process_buffer(+".bufnr('').", 0)")
+    else
+      call gitgutter#process_buffer(bufnr(''), 0)
     endif
     return
   endif
@@ -255,10 +259,6 @@ function! s:on_bufenter()
   else
     call gitgutter#process_buffer(bufnr(''), !g:gitgutter_terminal_reports_focus)
   endif
-endfunction
-
-function! GitGutterCursorHold(timer)
-  execute 'doautocmd' s:nomodeline 'gitgutter CursorHold'
 endfunction
 
 function! s:next_tick(cmd)

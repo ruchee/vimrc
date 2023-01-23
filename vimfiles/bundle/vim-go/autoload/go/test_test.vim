@@ -48,8 +48,16 @@ endfunc
 
 func! Test_GoTestCompilerError() abort
   let expected = [
-        \ {'lnum': 6, 'bufnr': 6, 'col': 22, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'syntax error: unexpected newline, expecting comma or )'}
+        \ {'lnum': 6, 'bufnr': 6, 'col': 22, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'syntax error: unexpected newline in argument list; possibly missing comma or )'}
       \ ]
+  let [l:goversion, l:err] = go#util#Exec(['go', 'env', 'GOVERSION'])
+  let l:goversion = split(l:goversion, "\n")[0]
+  if l:goversion < 'go1.19'
+    let expected = [
+          \ {'lnum': 6, 'bufnr': 6, 'col': 22, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'syntax error: unexpected newline, expecting comma or )'}
+        \ ]
+  endif
+
   call s:test('compilerror/compilerror_test.go', expected)
 endfunc
 
@@ -78,16 +86,34 @@ endfunc
 
 func! Test_GoTestVet() abort
   let expected = [
+        \ {'lnum': 6, 'bufnr': 11, 'col': 2, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'fmt.Errorf format %v reads arg #1, but call has 0 args'},
+      \ ]
+
+  let [l:goversion, l:err] = go#util#Exec(['go', 'env', 'GOVERSION'])
+  let l:goversion = split(l:goversion, "\n")[0]
+  if l:goversion < 'go1.18'
+  let expected = [
         \ {'lnum': 6, 'bufnr': 11, 'col': 2, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'Errorf format %v reads arg #1, but call has 0 args'},
       \ ]
+  endif
+
   call s:test('veterror/veterror.go', expected)
 endfunc
 
 func! Test_GoTestTestCompilerError() abort
   let expected = [
-        \ {'lnum': 10, 'bufnr': 9, 'col': 16, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'cannot use r (type struct {}) as type io.Reader in argument to ioutil.ReadAll:'},
-        \ {'lnum': 0, 'bufnr': 0, 'col': 0, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'struct {} does not implement io.Reader (missing Read method)'}
+        \ {'lnum': 10, 'bufnr': 9, 'col': 17, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'cannot use r (variable of type struct{}) as type io.Reader in argument to ioutil.ReadAll:'},
+        \ {'lnum': 0, 'bufnr': 0, 'col': 0, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'struct{} does not implement io.Reader (missing Read method)'}
       \ ]
+
+  let [l:goversion, l:err] = go#util#Exec(['go', 'env', 'GOVERSION'])
+  let l:goversion = split(l:goversion, "\n")[0]
+  if l:goversion < 'go1.18'
+    let expected = [
+          \ {'lnum': 10, 'bufnr': 9, 'col': 16, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'cannot use r (type struct {}) as type io.Reader in argument to ioutil.ReadAll:'},
+          \ {'lnum': 0, 'bufnr': 0, 'col': 0, 'valid': 1, 'vcol': 0, 'nr': -1, 'type': '', 'pattern': '', 'text': 'struct {} does not implement io.Reader (missing Read method)'}
+        \ ]
+  endif
 
   call s:test('testcompilerror/testcompilerror_test.go', expected)
 endfunc

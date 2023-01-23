@@ -1,8 +1,6 @@
 import sys
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+
+import unittest
 
 import ropetest.projecttest
 import ropetest.codeanalyzetest
@@ -44,7 +42,7 @@ def suite():
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
     result = runner.run(suite())
     sys.exit(not result.wasSuccessful())

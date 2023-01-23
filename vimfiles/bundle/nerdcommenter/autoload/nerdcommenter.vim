@@ -33,6 +33,7 @@ let s:delimiterMap = {
     \ 'asterisk': { 'left': ';' },
     \ 'asy': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'atlas': { 'left': 'C', 'right': '$' },
+    \ 'ats': { 'left': '//', 'leftAlt': '(*', 'rightAlt': '*)' },
     \ 'augeas': { 'left': '(*', 'right': '*)' },
     \ 'autohotkey': { 'left': ';', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'autoit': { 'left': ';' },
@@ -49,6 +50,7 @@ let s:delimiterMap = {
     \ 'btm': { 'left': '::' },
     \ 'c': { 'left': '/*', 'right': '*/', 'leftAlt': '//' },
     \ 'cabal': { 'left': '--' },
+    \ 'cairo': { 'left': '#' },
     \ 'calibre': { 'left': '//' },
     \ 'caos': { 'left': '*' },
     \ 'catalog': { 'left': '--', 'right': '--' },
@@ -114,6 +116,7 @@ let s:delimiterMap = {
     \ 'exports': { 'left': '#' },
     \ 'factor': { 'left': '! ', 'leftAlt': '!# ' },
     \ 'fancy': { 'left': '#' },
+    \ 'fasm': { 'left': ';' },
     \ 'faust': { 'left': '//' },
     \ 'fgl': { 'left': '#' },
     \ 'fluent': { 'left': '#', 'leftAlt': '##' },
@@ -187,16 +190,19 @@ let s:delimiterMap = {
     \ 'jgraph': { 'left': '(*', 'right': '*)' },
     \ 'jinja': { 'left': '{#', 'right': '#}', 'leftAlt': '<!--', 'rightAlt': '-->' },
     \ 'jproperties': { 'left': '#' },
+    \ 'json5': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsonc': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsonnet': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'jsp': { 'left': '<%--', 'right': '--%>' },
     \ 'julia': { 'left': '# ', 'leftAlt': '#=', 'rightAlt': '=#' },
+    \ 'just' : { 'left': '#' },
     \ 'kivy': { 'left': '#' },
     \ 'kix': { 'left': ';' },
     \ 'kscript': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'lace': { 'left': '--' },
     \ 'laravel': { 'left': '{{--', 'right': '--}}' },
     \ 'ldif': { 'left': '#' },
+    \ 'lean': { 'left': '--', 'leftAlt': '/-', 'rightAlt': '-/' },
     \ 'ledger': { 'left': '#', 'leftAlt': ';' },
     \ 'less': { 'left': '/*', 'right': '*/' },
     \ 'lhaskell': { 'left': '>{-', 'right': '-}', 'leftAlt': '>-- ' },
@@ -340,7 +346,7 @@ let s:delimiterMap = {
     \ 'sh': { 'left': '#' },
     \ 'shader_test': { 'left': '#' },
     \ 'sicad': { 'left': '*' },
-    \ 'sile': { 'left': '%' },
+    \ 'sile': { 'left': '%', 'leftAlt': '--' },
     \ 'simula': { 'left': '%', 'leftAlt': '--' },
     \ 'sinda': { 'left': '$' },
     \ 'skill': { 'left': ';' },
@@ -377,6 +383,7 @@ let s:delimiterMap = {
     \ 'stan': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'stp': { 'left': '/*', 'right': '*/', 'leftAlt': '//' },
     \ 'supercollider': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
+    \ 'svelte': { 'left': '<!--', 'right': '-->' },
     \ 'swift': { 'left': '/*', 'right': '*/', 'leftAlt': '//' },
     \ 'systemverilog': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
     \ 'tads': { 'left': '//', 'leftAlt': '/*', 'rightAlt': '*/' },
@@ -391,6 +398,7 @@ let s:delimiterMap = {
     \ 'texmf': { 'left': '%' },
     \ 'tf': { 'left': '#' },
     \ 'tidy': { 'left': '#' },
+    \ 'tla': { 'left': '\\*', 'leftAlt': '(*', 'rightAlt': '*)' },
     \ 'tli': { 'left': '#' },
     \ 'tmux': { 'left': '#' },
     \ 'toml': { 'left': '#' },
@@ -434,7 +442,8 @@ let s:delimiterMap = {
     \ 'xpm2': { 'left': '!' },
     \ 'xquery': { 'left': '(:', 'right': ':)' },
     \ 'yaml': { 'left': '#' },
-    \ 'z8a': { 'left': ';' }
+    \ 'z8a': { 'left': ';' },
+    \ 'zig': { 'left': '//' }
     \ }
 
 let g:NERDDelimiterMap = s:delimiterMap
@@ -1151,6 +1160,7 @@ endfunction
 "   -lineNo:    the line number of the line to check
 " Return: Number, 1 if the line is a comment, 0 else
 function! nerdcommenter#IsLineCommented(lineNo) abort
+    call nerdcommenter#SetUp()
     let theLine = getline(a:lineNo)
     return s:IsInSexyComment(a:lineNo) || s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
 endfunction
@@ -1417,46 +1427,20 @@ function! s:PlaceDelimitersAndInsBetween() abort
     let left = s:Left({'space': 1})
     let right = s:Right({'space': 1})
 
-    let theLine = getline('.')
-    let lineHasLeadTabs = s:HasLeadingTabs(theLine) || (theLine =~# '^ *$' && !&expandtab)
-
-    "convert tabs to spaces and adjust the cursors column to take this into
-    "account
-    let untabbedCol = s:UntabbedCol(theLine, col('.'))
-    call setline(line('.'), s:ConvertLeadingTabsToSpaces(theLine))
-    call cursor(line('.'), untabbedCol)
-
-    " get the length of the right delimiter
-    let lenRight = strlen(right)
-
-    let isDelimOnEOL = col('.') >= strlen(getline('.'))
-
-    " if the cursor is in the first col then we gotta insert rather than
-    " append the comment delimiters here
-    let insOrApp = (col('.')==1 ? 'i' : 'a')
-
-    " place the delimiters down. We do it differently depending on whether
-    " there is a left AND right delimiter
-    if lenRight > 0
-        execute ':normal! ' . insOrApp . left . right
-        execute ':normal! ' . lenRight . 'h'
-    else
-        execute ':normal! ' . insOrApp . left
-    endif
-
-    "if needed convert spaces back to tabs and adjust the cursors col
-    "accordingly
-    if lineHasLeadTabs
-        let tabbedCol = s:TabbedCol(getline('.'), col('.'))
-        call setline(line('.'), s:ConvertLeadingSpacesToTabs(getline('.')))
-        call cursor(line('.'), tabbedCol)
-    endif
-
-    if isDelimOnEOL && lenRight ==# 0
-        startinsert!
-    else
-        call feedkeys('a', 'ni')
-    endif
+    " 0. Entered insert normal mode using <C-\><C-O> (:h i_CTRL-\_CTRL-O) to
+    "    maintain the cursor position (from <Plug>NERDCommenterInsert).
+    " 1. Enter insert mode without changing the cursor position.
+    "    If the cursor is on EOL (right of the last char), use 'a'.
+    "    Otherwise, use 'i'.
+    let insert = col('.') > strlen(getline('.')) ? 'a' : 'i'
+    " 2. Insert comment delimiters.
+    " 3. Move the cursor to the left of the closing delimiter, without
+    "    breaking undo sequence.
+    " 4. Enter insert normal mode again without changing the cursor position.
+    "    This ensures that returning to the insert mode after finishing the
+    "    script execution does not move the cursor.
+    "                 ( 1  )   (    2     )   (                   3                   )   (      4     )
+    execute 'normal!' insert . left . right . repeat("\<C-G>U\<Left>", strchars(right)) . "\<C-\>\<C-O>"
 endfunction
 
 " Function: s:RemoveDelimiters(left, right, line)
@@ -3017,18 +3001,6 @@ function! s:SwapOuterPlaceHoldersForMultiPartDelims(line) abort
     return line
 endfunction
 
-" Function: s:TabbedCol(line, col)
-" Gets the col number for given line and existing col number. The new col
-" number is the col number when all leading spaces are converted to tabs
-" Args:
-"   -line:the line to get the rel col for
-"   -col: the abs col
-function! s:TabbedCol(line, col) abort
-    let lineTruncated = strpart(a:line, 0, a:col)
-    let lineSpacesToTabs = substitute(lineTruncated, s:TabSpace(), '\t', 'g')
-    return strlen(lineSpacesToTabs)
-endfunction
-
 "FUNCTION: s:TabSpace()
 "returns a string of spaces equal in length to &tabstop
 function! s:TabSpace() abort
@@ -3048,16 +3020,4 @@ endfunction
 "   -escChar: the escape char to be removed
 function! s:UnEsc(str, escChar) abort
     return substitute(a:str, a:escChar, '', 'g')
-endfunction
-
-" Function: s:UntabbedCol(line, col)
-" Takes a line and a col and returns the absolute column of col taking into
-" account that a tab is worth 3 or 4 (or whatever) spaces.
-" Args:
-"   -line:the line to get the abs col for
-"   -col: the col that doesn't take into account tabs
-function! s:UntabbedCol(line, col) abort
-    let lineTruncated = strpart(a:line, 0, a:col)
-    let lineTabsToSpaces = substitute(lineTruncated, '\t', s:TabSpace(), 'g')
-    return strlen(lineTabsToSpaces)
 endfunction

@@ -5,7 +5,12 @@
 
 scriptencoding utf-8
 
-if !has("conceal") || exists("g:indentLine_loaded")
+if !has("conceal")
+    echoerr "conceal is invalid. To use the plugin, please enable the conceal"
+    finish
+endif
+
+if exists("g:indentLine_loaded")
     finish
 endif
 let g:indentLine_loaded = 1
@@ -437,7 +442,7 @@ augroup END
 
 "{{{1 commands
 command! -nargs=? IndentLinesReset call s:ResetWidth(<f-args>)
-command! IndentLinesToggle call s:IndentLinesToggle()
+command! -bar IndentLinesToggle call s:IndentLinesToggle()
 if g:indentLine_newVersion
     command! -bar IndentLinesEnable let b:indentLine_enabled = 1 | call s:IndentLinesEnable()
     command! -bar IndentLinesDisable let b:indentLine_enabled = 0 | call s:IndentLinesDisable()

@@ -64,9 +64,6 @@ mapping between gem names and their installation path (omitting gems which
 aren't installed), and has(gem) returns true if the given gem name is in the
 bundle (regardless of whether or not it is installed).
 
-The original data structures are returned for performance reasons.  Do not
-mutate.
-
 ABOUT                                           *bundler-about*
 
 Grab the latest version or report a bug on GitHub:

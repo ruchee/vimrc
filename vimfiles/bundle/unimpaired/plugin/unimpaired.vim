@@ -1,6 +1,6 @@
 " unimpaired.vim - Pairs of handy bracket mappings
 " Maintainer:   Tim Pope <http://tpo.pe/>
-" Version:      2.0
+" Version:      2.1
 " GetLatestVimScripts: 1590 1 :AutoInstall: unimpaired.vim
 
 if exists("g:loaded_unimpaired") || &cp || v:version < 700
@@ -34,15 +34,16 @@ endfunction
 
 " Section: Next and previous
 
-function! s:MapNextFamily(map,cmd) abort
+function! s:MapNextFamily(map, cmd, current) abort
   let prefix = '<Plug>(unimpaired-' . a:cmd
   let map = '<Plug>unimpaired'.toupper(a:map)
   let cmd = '".(v:count ? v:count : "")."'.a:cmd
-  let end = '"<CR>'.(a:cmd ==# 'l' || a:cmd ==# 'c' ? 'zv' : '')
+  let zv = (a:cmd ==# 'l' || a:cmd ==# 'c' ? 'zv' : '')
+  let end = '"<CR>'.zv
   execute 'nnoremap <silent> '.prefix.'previous) :<C-U>exe "'.cmd.'previous'.end
   execute 'nnoremap <silent> '.prefix.'next)     :<C-U>exe "'.cmd.'next'.end
-  execute 'nnoremap <silent> '.prefix.'first)    :<C-U>exe "'.cmd.'first'.end
-  execute 'nnoremap <silent> '.prefix.'last)     :<C-U>exe "'.cmd.'last'.end
+  execute 'nnoremap '.prefix.'first)    :<C-U><C-R>=v:count ? v:count . "' . a:current . '" : "' . a:cmd . 'first"<CR><CR>' . zv
+  execute 'nnoremap '.prefix.'last)     :<C-U><C-R>=v:count ? v:count . "' . a:current . '" : "' . a:cmd . 'last"<CR><CR>' . zv
   execute 'nnoremap <silent> '.map.'Previous :<C-U>exe "'.cmd.'previous'.end
   execute 'nnoremap <silent> '.map.'Next     :<C-U>exe "'.cmd.'next'.end
   execute 'nnoremap <silent> '.map.'First    :<C-U>exe "'.cmd.'first'.end
@@ -68,14 +69,15 @@ function! s:MapNextFamily(map,cmd) abort
   endif
 endfunction
 
-call s:MapNextFamily('a','')
-call s:MapNextFamily('b','b')
-call s:MapNextFamily('l','l')
-call s:MapNextFamily('q','c')
-call s:MapNextFamily('t','t')
+call s:MapNextFamily('a', '' , 'argument')
+call s:MapNextFamily('b', 'b', 'buffer')
+call s:MapNextFamily('l', 'l', 'll')
+call s:MapNextFamily('q', 'c', 'cc')
+call s:MapNextFamily('t', 't', 'trewind')
 
 function! s:entries(path) abort
   let path = substitute(a:path,'[\\/]$','','')
+  let path = substitute(path, '[[$*]', '[&]', 'g')
   let files = split(glob(path."/.*"),"\n")
   let files += split(glob(path."/*"),"\n")
   call map(files,'substitute(v:val,"[\\/]$","","")')
@@ -139,10 +141,10 @@ endfunction
 function! s:PreviousFileEntry(count) abort
   let window = s:GetWindow()
 
-  if get(window, 'quickfix')
-    return 'colder ' . a:count
-  elseif get(window, 'loclist')
+  if get(window, 'loclist')
     return 'lolder ' . a:count
+  elseif get(window, 'quickfix')
+    return 'colder ' . a:count
   else
     return 'edit ' . s:fnameescape(fnamemodify(s:FileByOffset(-v:count1), ':.'))
   endif
@@ -151,10 +153,10 @@ endfunction
 function! s:NextFileEntry(count) abort
   let window = s:GetWindow()
 
-  if get(window, 'quickfix')
-    return 'cnewer ' . a:count
-  elseif get(window, 'loclist')
+  if get(window, 'loclist')
     return 'lnewer ' . a:count
+  elseif get(window, 'quickfix')
+    return 'cnewer ' . a:count
   else
     return 'edit ' . s:fnameescape(fnamemodify(s:FileByOffset(v:count1), ':.'))
   endif
@@ -326,7 +328,6 @@ call s:option_map('<Bar>', 'cursorcolumn', 'setlocal')
 nmap <script> <Plug>(unimpaired-enable)d  :<C-U>diffthis<CR>
 nmap <script> <Plug>(unimpaired-disable)d :<C-U>diffoff<CR>
 nmap <script> <Plug>(unimpaired-toggle)d  :<C-U><C-R>=&diff ? "diffoff" : "diffthis"<CR><CR>
-call s:option_map('e', 'spell', 'setlocal')
 call s:option_map('h', 'hlsearch', 'set')
 call s:option_map('i', 'ignorecase', 'set')
 call s:option_map('l', 'list', 'setlocal')
@@ -334,6 +335,9 @@ call s:option_map('n', 'number', 'setlocal')
 call s:option_map('r', 'relativenumber', 'setlocal')
 call s:option_map('s', 'spell', 'setlocal')
 call s:option_map('w', 'wrap', 'setlocal')
+if empty(maparg('<Plug>(unimpaired-toggle)z', 'n'))
+  call s:option_map('z', 'spell', 'setlocal')
+endif
 nmap <script> <Plug>(unimpaired-enable)v  :<C-U>set virtualedit+=all<CR>
 nmap <script> <Plug>(unimpaired-disable)v :<C-U>set virtualedit-=all<CR>
 nmap <script> <Plug>(unimpaired-toggle)v  :<C-U>set <C-R>=(&virtualedit =~# "all") ? "virtualedit-=all" : "virtualedit+=all"<CR><CR>
@@ -343,6 +347,16 @@ nmap <script> <Plug>(unimpaired-toggle)x  :<C-U>set <C-R>=<SID>CursorOptions()<C
 nmap <script> <Plug>(unimpaired-enable)+  :<C-U>set cursorline cursorcolumn<CR>
 nmap <script> <Plug>(unimpaired-disable)+ :<C-U>set nocursorline nocursorcolumn<CR>
 nmap <script> <Plug>(unimpaired-toggle)+  :<C-U>set <C-R>=<SID>CursorOptions()<CR><CR>
+
+function! s:ColorColumn(should_clear) abort
+  if !empty(&colorcolumn)
+    let s:colorcolumn = &colorcolumn
+  endif
+  return a:should_clear ? '' : get(s:, 'colorcolumn', get(g:, 'unimpaired_colorcolumn', '+1'))
+endfunction
+nmap <script> <Plug>(unimpaired-enable)t  :<C-U>set colorcolumn=<C-R>=<SID>ColorColumn(0)<CR><CR>
+nmap <script> <Plug>(unimpaired-disable)t :<C-U>set colorcolumn=<C-R>=<SID>ColorColumn(1)<CR><CR>
+nmap <script> <Plug>(unimpaired-toggle)t  :<C-U>set colorcolumn=<C-R>=<SID>ColorColumn(!empty(&cc))<CR><CR>
 
 exe s:Map('n', 'yo', '<Plug>(unimpaired-toggle)')
 exe s:Map('n', '[o', '<Plug>(unimpaired-enable)')
@@ -357,6 +371,16 @@ exe s:Map('n', '=s<Esc>', '<Nop>')
 exe s:Map('n', '<s<Esc>', '<Nop>')
 exe s:Map('n', '>s<Esc>', '<Nop>')
 
+function! s:RestorePaste() abort
+  if exists('s:paste')
+    let &paste = s:paste
+    let &mouse = s:mouse
+    unlet s:paste
+    unlet s:mouse
+  endif
+  autocmd! unimpaired_paste
+endfunction
+
 function! s:SetupPaste() abort
   let s:paste = &paste
   let s:mouse = &mouse
@@ -364,14 +388,12 @@ function! s:SetupPaste() abort
   set mouse=
   augroup unimpaired_paste
     autocmd!
-    autocmd InsertLeave *
-          \ if exists('s:paste') |
-          \   let &paste = s:paste |
-          \   let &mouse = s:mouse |
-          \   unlet s:paste |
-          \   unlet s:mouse |
-          \ endif |
-          \ autocmd! unimpaired_paste
+    autocmd InsertLeave * call s:RestorePaste()
+    if exists('##ModeChanged')
+      autocmd ModeChanged *:n call s:RestorePaste()
+    else
+      autocmd CursorHold,CursorMoved * call s:RestorePaste()
+    endif
   augroup END
 endfunction
 
