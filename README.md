@@ -1,6 +1,8 @@
 ![Vim Ruchee](https://raw.github.com/ruchee/vimrc/master/macvim.jpg "Vim Ruchee")
 
 ----
+## For Vim 8+: [Modern Vim configuration files for Vim 8+](https://github.com/ruchee/modern_vimrc)
+----
 #### macOS
 
 1. `brew install --cask macvim`
